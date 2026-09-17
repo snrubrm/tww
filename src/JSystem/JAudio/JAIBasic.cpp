@@ -414,17 +414,18 @@ void JAIBasic::stopAllSound(u32 soundID, void* param_2) {
 void JAIBasic::deleteObject(void* param_1) {
     /* Nonmatching */
     JAInter::DummyVec* r30 = NULL;
+    bool r29;
     for (int i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); i++) {
         JAISound* sound = JAInter::SeMgr::seRegist[i].field_0x4;
         while (sound) {
             JAISound* nextSound = sound->field_0x34;
             if (sound->field_0x24 == param_1) {
-                bool r29 = false;
+                r29 = false;
                 if (sound->checkSwBit(0x8000)) {
-                    r29 = true;
                     if (!r30) {
                         r30 = JAInter::DummyObjectMgr::getPointer(JAIGlobalParameter::dummyObjectLifeTime, false);
                     }
+                    r29 = true;
                 }
 
                 if (r29 && r30) {
@@ -463,12 +464,14 @@ f32 JAIBasic::getMapInfoFxParameter(u32 param_1) {
 
 /* 80290DC4-80290E14       .text getSoundOffsetNumberFromID__8JAIBasicFUl */
 u16 JAIBasic::getSoundOffsetNumberFromID(u32 param_1) {
-    /* Nonmatching */
+    u16 offset;
     if (JAInter::SoundTable::getInfoFormat(param_1) & 1) {
         SoundInfo* info = JAInter::SoundTable::getInfoPointer(param_1);
-        return info->mOffsetNo;
+        offset = info->mOffsetNo;
+    } else {
+        offset = param_1 & 0x3FF;
     }
-    return param_1 & 0x3FF;
+    return offset;
 }
 
 void JAIBasic::setSeCancelSwitch(u8, u8) {
@@ -521,8 +524,19 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
 }
 
 /* 80291034-80291114       .text setSeExtParameter__8JAIBasicFP8JAISound */
-void JAIBasic::setSeExtParameter(JAISound* param_1) {
-    /* Nonmatching */
+void JAIBasic::setSeExtParameter(JAISound* sound) {
+    if (sound != NULL) {
+        u8 format = JAInter::SoundTable::getInfoFormat(sound->mSoundID);
+        if (format & 4) {
+            sound->setVolume(((u8*)sound->field_0x40)[12] / 127.0f, 0, 1);
+        }
+        if (format & 8) {
+            sound->setFxmix(((u8*)sound->field_0x40)[13] / 127.0f, 0, 1);
+        }
+        if (format & 2) {
+            sound->setPitch(((f32*)sound->field_0x40)[2], 0, 1);
+        }
+    }
 }
 
 /* 80291114-802911A8       .text makeSound__8JAIBasicFUl */
