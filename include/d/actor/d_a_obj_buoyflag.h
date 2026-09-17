@@ -29,6 +29,7 @@ namespace daObjBuoyflag {
 
     class DrawVtx_c {
     public:
+        ~DrawVtx_c() {}
         cXyz pos[5][7];
         cXyz normal[5][7];
         cXyz backNormal[5][7];
@@ -36,12 +37,14 @@ namespace daObjBuoyflag {
 
     class MoveVtx_c {
     public:
+        ~MoveVtx_c() {}
         cXyz speed[5][7];
     };
 
     class Packet_c : public J3DPacket {
     public:
         Packet_c() { hasi_nrm_init(); }
+        virtual ~Packet_c() {}
         void calc_pos_gravity(int, int);
         void calc_pos_spd(int, int);
         void calc_pos_spring(int, int);
