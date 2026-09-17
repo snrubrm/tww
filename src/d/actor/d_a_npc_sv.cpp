@@ -918,8 +918,12 @@ void daNpcSv_c::setCollision(dCcD_Cyl* cyl, cXyz pos, f32 radius, f32 height) {
 
 /* 000027E0-0000293C       .text getTalkNo__9daNpcSv_cFv */
 u8 daNpcSv_c::getTalkNo() {
-    // Nonmatching - hook and conversation flag register allocation.
-    int hasHook = dComIfGs_checkGetItem(dItemNo_GRAPPLING_HOOK_e) == 0 ? 0 : 1;
+    int hasHook;
+    if (dComIfGs_checkGetItem(dItemNo_GRAPPLING_HOOK_e)) {
+        hasHook = 1;
+    } else {
+        hasHook = 0;
+    }
     mTalkNo = 0;
     if (!(mTalkFlags & 0x20)) {
         if (!(mTalkFlags & 1)) {
