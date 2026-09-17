@@ -7,6 +7,8 @@
 
 #include "JSystem/JAudio/JAISound.h"
 #include "JSystem/JAudio/JAIBasic.h"
+#include "JSystem/JAudio/JAIConst.h"
+#include "math.h"
 #include "JSystem/JAudio/JAIGlobalParameter.h"
 #include "JSystem/JAudio/JAISeMgr.h"
 #include "JSystem/JAudio/JAISequenceMgr.h"
@@ -251,12 +253,70 @@ f32 JAISound::setDistanceVolumeCommon(f32 param_1, u8 param_2) {
 
 /* 80298E30-80298F8C       .text setDistancePanCommon__8JAISoundFv */
 f32 JAISound::setDistancePanCommon() {
-    /* Nonmatching */
+    f32 result;
+    if (JAIGlobalParameter::audioCameraMax == 1) {
+        PositionInfo_t* position = mPositionInfo;
+        f32 x = fabs(position->field_0x0);
+        f32 panX = x;
+        f32 z = fabs(position->field_0x8);
+        f32 panZ = z;
+        if (x < 1.0f && z < 1.0f) {
+            return 0.5f;
+        }
+        if (JAIGlobalParameter::panDistanceMax < x) {
+            panX = JAIGlobalParameter::panDistanceMax;
+        }
+        if (JAIGlobalParameter::panDistanceMax < z) {
+            panZ = JAIGlobalParameter::panDistanceMax;
+        }
+        f32 pan;
+        if (position->field_0x0 == 0.0f && position->field_0x8 == 0.0f) {
+            pan = 0.5f;
+        } else if (position->field_0x0 > 0.0f && panX >= panZ) {
+            pan = 1.0f - (JAIGlobalParameter::panDistance2Max - panX) /
+                (JAIGlobalParameter::panAngleParameter * (JAIGlobalParameter::panDistance2Max - panZ));
+        } else if (position->field_0x0 <= 0.0f && panX >= panZ) {
+            pan = (JAIGlobalParameter::panDistance2Max - panX) /
+                (JAIGlobalParameter::panAngleParameter * (JAIGlobalParameter::panDistance2Max - panZ));
+        } else {
+            pan = 0.5f + position->field_0x0 / (JAIGlobalParameter::panAngleParameter2 * panZ);
+        }
+        result = pan;
+    } else if (field_0x8 != 4) {
+        result = field_0x8 & 1;
+    } else {
+        result = 0.5f;
+    }
+    return result;
 }
 
 /* 80298F8C-80299178       .text setPositionDopplarCommon__8JAISoundFUl */
-f32 JAISound::setPositionDopplarCommon(u32) {
-    /* Nonmatching */
+f32 JAISound::setPositionDopplarCommon(u32 scale) {
+    Vec* position = (Vec*)mPositionInfo;
+    Vec* camera = JAIBasic::msBasic->mAudioCamera[0].field_0x0;
+    Vec* oldCamera = JAIBasic::msBasic->mAudioCamera[0].field_0x4;
+    f32 dx = camera->x - position->x;
+    f32 dy = camera->y - position->y;
+    f32 dz = camera->z - position->z;
+    f32 vx = (camera->x - oldCamera->x) - (position->x - position[1].x);
+    f32 vy = (camera->y - oldCamera->y) - (position->y - position[1].y);
+    f32 vz = (camera->z - oldCamera->z) - (position->z - position[1].z);
+    f32 distanceSquared = dz * dz + (dx * dx + dy * dy);
+    f32 distance = std::sqrtf(distanceSquared);
+    f32 nextX = dx + vx;
+    f32 nextY = dy + vy;
+    f32 nextZ = dz + vz;
+    f32 nextDistanceSquared = nextZ * nextZ + (nextX * nextX + nextY * nextY);
+    f32 nextDistance = std::sqrtf(nextDistanceSquared);
+    u32 factor = scale >> 8;
+    factor *= factor;
+    f32 pitch = 1.0f / (1.0f - (distance - nextDistance) / (JAIGlobalParameter::dopplarParameter / factor));
+    if (pitch < 0.1f) {
+        pitch = 0.1f;
+    } else if (pitch > 2.0f) {
+        pitch = 2.0f;
+    }
+    return pitch;
 }
 
 /* 80299178-8029925C       .text setSeqInterVolume__8JAISoundFUcfUl */
@@ -375,7 +435,6 @@ void JAISound::setSeqTempoProportion(f32 param_1, u32 param_2) {
 
 /* 80299884-802999F4       .text setSeqPortData__8JAISoundFUcUsUl */
 void JAISound::setSeqPortData(u8 line_, u16 param_2, u32 param_3) {
-    /* Nonmatching */
     if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Sequence) {
         return;
     }
@@ -435,106 +494,293 @@ void JAISound::setTrackInterruptSwitch(u8 param_1, u8 param_2) {
 }
 
 /* 80299BAC-80299CD4       .text setTrackPortData__8JAISoundFUcUcUs */
-void JAISound::setTrackPortData(u8, u8, u16) {
-    /* Nonmatching */
+void JAISound::setTrackPortData(u8 track, u8 port, u16 value) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Sequence) {
+        return;
+    }
+    if (!getSeqParameter()) {
+        return;
+    }
+    if (getSeqParameter()->field_0x135c) {
+        if (mState >= 4) {
+            JASystem::TTrack* root = getSeqParameter()->getRootTrackPointer();
+            root->writePortApp(getTrackPortRoute(track, port), value);
+        } else {
+            getSeqParameter()->field_0x135c->field_0x8 |= 0x1000;
+            getSeqParameter()->field_0x1298 |= 1 << track;
+            getSeqParameter()->field_0x129c[track] |= 1 << port;
+        }
+        getSeqParameter()->mTrackPortData[track][port] = value;
+    }
 }
 
 /* 80299CD4-80299DE8       .text setSeInterRandomPara__8JAISoundFPfUlff */
-void JAISound::setSeInterRandomPara(f32*, u32, f32, f32) {
-    /* Nonmatching */
+void JAISound::setSeInterRandomPara(f32* value, u32 range, f32 minimum, f32 maximum) {
+    u32 random = 4294967296.0f * JAInter::Const::random.get_ufloat_1();
+    f32 delta = ((f32)(random % (range * 2) + 1) - range) / 1000.0f;
+    if (*value + delta > maximum) {
+        *value = maximum;
+    } else if (*value < minimum - delta) {
+        *value = minimum;
+    } else {
+        *value += delta;
+    }
 }
 
 /* 80299DE8-80299E88       .text setSeInterVolume__8JAISoundFUcfUlUc */
-void JAISound::setSeInterVolume(u8, f32, u32, u8) {
-    /* Nonmatching */
+void JAISound::setSeInterVolume(u8 line, f32 value, u32 time, u8 random) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Se) {
+        return;
+    }
+    if (!getSeParameter()) {
+        return;
+    }
+    if (random != 0) {
+        setSeInterRandomPara(&value, random * 1000 / 127U, 0.0f, 1.0f);
+    }
+    getSeParameter()->field_0x124[line].set(value, time);
 }
 
 /* 80299E88-80299F28       .text setSeInterPan__8JAISoundFUcfUlUc */
-void JAISound::setSeInterPan(u8, f32, u32, u8) {
-    /* Nonmatching */
+void JAISound::setSeInterPan(u8 line, f32 value, u32 time, u8 random) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Se) {
+        return;
+    }
+    if (!getSeParameter()) {
+        return;
+    }
+    if (random != 0) {
+        setSeInterRandomPara(&value, random * 1000 / 127U, 0.0f, 1.0f);
+    }
+    getSeParameter()->field_0x1a4[line].set(value, time);
 }
 
 /* 80299F28-80299FE0       .text setSeInterPitch__8JAISoundFUcfUlf */
-void JAISound::setSeInterPitch(u8, f32, u32, f32) {
-    /* Nonmatching */
+void JAISound::setSeInterPitch(u8 line, f32 value, u32 time, f32 random) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Se) {
+        return;
+    }
+    if (!getSeParameter()) {
+        return;
+    }
+    if (random != 0.0f) {
+        setSeInterRandomPara(&value, 1000.0f * random, 0.1f, 16.0f);
+    }
+    getSeParameter()->field_0x224[line].set(value, time);
 }
 
 /* 80299FE0-8029A080       .text setSeInterFxmix__8JAISoundFUcfUlUc */
-void JAISound::setSeInterFxmix(u8, f32, u32, u8) {
-    /* Nonmatching */
+void JAISound::setSeInterFxmix(u8 line, f32 value, u32 time, u8 random) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Se) {
+        return;
+    }
+    if (!getSeParameter()) {
+        return;
+    }
+    if (random != 0) {
+        setSeInterRandomPara(&value, random * 1000 / 127U, 0.0f, 1.0f);
+    }
+    getSeParameter()->field_0x2a4[line].set(value, time);
 }
 
 /* 8029A080-8029A120       .text setSeInterDolby__8JAISoundFUcfUlUc */
-void JAISound::setSeInterDolby(u8, f32, u32, u8) {
-    /* Nonmatching */
+void JAISound::setSeInterDolby(u8 line, f32 value, u32 time, u8 random) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Se) {
+        return;
+    }
+    if (!getSeParameter()) {
+        return;
+    }
+    if (random != 0) {
+        setSeInterRandomPara(&value, random * 1000 / 127U, 0.0f, 1.0f);
+    }
+    getSeParameter()->field_0x3a4[line].set(value, time);
 }
 
 /* 8029A120-8029A1C4       .text setSePortData__8JAISoundFUcUs */
-void JAISound::setSePortData(u8, u16) {
-    /* Nonmatching */
+void JAISound::setSePortData(u8 port, u16 value) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Se) {
+        return;
+    }
+    if (!getSeParameter()) {
+        return;
+    }
+    if (mState == 1) {
+        getSeParameter()->field_0x0[port] = value;
+        getSeParameter()->field_0x0[16] |= 1 << port;
+    } else {
+        JAInter::SeMgr::seHandle->setTrackPortData(field_0x4, port, value);
+    }
 }
 
 /* 8029A1C4-8029A2E4       .text setSeDistanceParameters__8JAISoundFv */
 void JAISound::setSeDistanceParameters() {
-    /* Nonmatching */
+    u8 time = field_0x9;
+    if (mState == 2) {
+        time = 0;
+    }
+    setSeDistanceVolume(time);
+    setSeDistancePan(time);
+    setSeDistancePitch(time);
+    setSePositionDopplar();
+    setSeDistanceFxmix(time);
+    setSeDistanceFir(time);
+    if (!(getSwBit() & 0x400)) {
+        setFxmix(JAIBasic::msBasic->getMapInfoFxParameter(field_0x1c), 0, 2);
+    }
+    setSeDistanceDolby(time);
 }
 
 /* 8029A2E4-8029A364       .text setSeDistanceVolume__8JAISoundFUc */
-void JAISound::setSeDistanceVolume(u8) {
-    /* Nonmatching */
+void JAISound::setSeDistanceVolume(u8 time) {
+    f32 volume = !(getSwBit() & 2) ?
+        setDistanceVolumeCommon(JAIGlobalParameter::distanceMax, (getSwBit() >> 16) & 7) : 1.0f;
+    setSeInterVolume(4, volume, time, 0);
 }
 
 /* 8029A364-8029A3BC       .text setSeDistancePan__8JAISoundFUc */
-void JAISound::setSeDistancePan(u8) {
-    /* Nonmatching */
+void JAISound::setSeDistancePan(u8 time) {
+    setSeInterPan(4, setDistancePanCommon(), time, 0);
 }
 
 /* 8029A3BC-8029A544       .text setSeDistancePitch__8JAISoundFUc */
-void JAISound::setSeDistancePitch(u8) {
-    /* Nonmatching */
+void JAISound::setSeDistancePitch(u8 time) {
+    f32 pitch = 1.0f;
+    if (getSwBit() & 0x10) {
+        u8 random = 16.0f * JAInter::Const::random.get_ufloat_1();
+        pitch = 1.0f - (random & 0xF) / 192.0f;
+    }
+    if ((getSwBit() & 0x4000) && !(getSwBit() & 2) && !(getSwBit() & 0x300) &&
+        JAIGlobalParameter::audioCameraMax == 1) {
+        f32 distance = mPositionInfo[0].field_0x18;
+        if (distance >= JAIGlobalParameter::distanceMax) {
+            pitch += JAIGlobalParameter::seDistancepitchMax;
+        } else {
+            pitch += JAIGlobalParameter::seDistancepitchMax * (distance / JAIGlobalParameter::distanceMax);
+        }
+    }
+    if (getSwBit() & 0xC0) {
+        pitch += field_0x7 / 192.0f;
+    }
+    setSeInterPitch(4, pitch, time, 0.0f);
 }
 
 /* 8029A544-8029A5CC       .text setSePositionDopplar__8JAISoundFv */
 void JAISound::setSePositionDopplar() {
-    /* Nonmatching */
+    u32 time = JAIGlobalParameter::dopplarMoveTime;
+    if (mState == 2) {
+        time = 1;
+    }
+    u32 scale = getSwBit() & 0x300;
+    if (scale != 0 && JAIGlobalParameter::audioCameraMax == 1) {
+        setSeInterPitch(1, setPositionDopplarCommon(scale), time, 0.0f);
+    }
 }
 
 /* 8029A5CC-8029A6B0       .text setSeDistanceFxmix__8JAISoundFUc */
-void JAISound::setSeDistanceFxmix(u8) {
-    /* Nonmatching */
+void JAISound::setSeDistanceFxmix(u8 time) {
+    u16 fxmix = JAIGlobalParameter::seDefaultFx;
+    if (!(getSwBit() & 4) && JAIGlobalParameter::audioCameraMax == 1) {
+        f32 distance = mPositionInfo[0].field_0x18;
+        if (distance < JAIGlobalParameter::distanceMax) {
+            fxmix = JAIGlobalParameter::seDistanceFxParameter * (distance / JAIGlobalParameter::distanceMax);
+        } else {
+            fxmix = JAIGlobalParameter::seDistanceFxParameter;
+        }
+    }
+    if (fxmix > 127) {
+        fxmix = 127;
+    }
+    setSeInterFxmix(4, (u8)fxmix / 127.0f, time, 0);
 }
 
 /* 8029A6B0-8029A6B4       .text setSeDistanceFir__8JAISoundFUc */
 void JAISound::setSeDistanceFir(u8) {}
 
 /* 8029A6B4-8029A788       .text setSeDistanceDolby__8JAISoundFUc */
-void JAISound::setSeDistanceDolby(u8) {
-    /* Nonmatching */
+void JAISound::setSeDistanceDolby(u8 time) {
+    PositionInfo_t* position = mPositionInfo;
+    f32 dolby;
+    if (field_0x28 == NULL || position->field_0x8 < JAIGlobalParameter::seDolbyFrontDistanceMax) {
+        dolby = 0.0f;
+    } else if (position->field_0x8 < 0.0f) {
+        dolby = JAIGlobalParameter::seDolbyCenterValue *
+            (JAIGlobalParameter::seDolbyFrontDistanceMax - position->field_0x8) /
+            JAIGlobalParameter::seDolbyFrontDistanceMax;
+    } else if (position->field_0x8 < JAIGlobalParameter::seDolbyBehindDistanceMax) {
+        dolby = JAIGlobalParameter::seDolbyCenterValue +
+            (127.0f - JAIGlobalParameter::seDolbyCenterValue) *
+            (position->field_0x8 / JAIGlobalParameter::seDolbyBehindDistanceMax);
+    } else {
+        dolby = 127.0f;
+    }
+    setSeInterDolby(4, (u8)dolby / 127.0f, time, 0);
 }
 
 /* 8029A788-8029A86C       .text setStreamInterVolume__8JAISoundFUcfUl */
-void JAISound::setStreamInterVolume(u8, f32, u32) {
-    /* Nonmatching */
+void JAISound::setStreamInterVolume(u8 line, f32 value, u32 time) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Stream) {
+        return;
+    }
+    if (!getStreamParameter()) {
+        return;
+    }
+    int result = getStreamParameter()->mVolumes[line].set(value, time);
+    if (result == 1) {
+        getStreamParameter()->mVolumeFlags |= 1 << line;
+    }
+    if (getStreamParameter()->mUpdateData && result != 2) {
+        getStreamParameter()->mUpdateData->mActiveTrackFlag |= 0x40000;
+    }
 }
 
 /* 8029A86C-8029A950       .text setStreamInterPitch__8JAISoundFUcfUl */
-void JAISound::setStreamInterPitch(u8, f32, u32) {
-    /* Nonmatching */
+void JAISound::setStreamInterPitch(u8 line, f32 value, u32 time) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Stream) {
+        return;
+    }
+    if (!getStreamParameter()) {
+        return;
+    }
+    int result = getStreamParameter()->pitch[line].set(value, time);
+    if (result == 1) {
+        getStreamParameter()->mPitchFlags |= 1 << line;
+    }
+    if (getStreamParameter()->mUpdateData && result != 2) {
+        getStreamParameter()->mUpdateData->mActiveTrackFlag |= 0x100000;
+    }
 }
 
 /* 8029A950-8029AA34       .text setStreamInterPan__8JAISoundFUcfUl */
-void JAISound::setStreamInterPan(u8, f32, u32) {
-    /* Nonmatching */
+void JAISound::setStreamInterPan(u8 line, f32 value, u32 time) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Stream) {
+        return;
+    }
+    if (!getStreamParameter()) {
+        return;
+    }
+    int result = getStreamParameter()->pan[line].set(value, time);
+    if (result == 1) {
+        getStreamParameter()->mPanFlags |= 1 << line;
+    }
+    if (getStreamParameter()->mUpdateData && result != 2) {
+        getStreamParameter()->mUpdateData->mActiveTrackFlag |= 0x80000;
+    }
 }
 
 /* 8029AA34-8029AA84       .text setStreamPrepareFlag__8JAISoundFUc */
-void JAISound::setStreamPrepareFlag(u8) {
-    /* Nonmatching */
+void JAISound::setStreamPrepareFlag(u8 flag) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Stream) {
+        return;
+    }
+    if (!getStreamParameter()) {
+        return;
+    }
+    JAInter::StreamMgr::streamUpdate->field_0x2 = flag;
 }
 
 /* 8029AA84-8029ACF0       .text setPauseMode__8JAISoundFUcUc */
 void JAISound::setPauseMode(u8 param_1, u8 param_2) {
-    /* Nonmatching */
     switch (mSoundID & JAISoundID_TypeMask) {
     case JAISoundID_Type_Sequence:
         if (!getSeqParameter()) {
@@ -599,18 +845,34 @@ void JAISound::setPauseMode(u8 param_1, u8 param_2) {
 }
 
 /* 8029ACF0-8029AD54       .text setSeqPrepareFlag__8JAISoundFUc */
-void JAISound::setSeqPrepareFlag(u8) {
-    /* Nonmatching */
+void JAISound::setSeqPrepareFlag(u8 flag) {
+    if ((mSoundID & JAISoundID_TypeMask) != JAISoundID_Type_Sequence) {
+        return;
+    }
+    if (!getSeqParameter()) {
+        return;
+    }
+    getSeqParameter()->field_0x135c->field_0x2 = flag;
 }
 
 /* 8029AD54-8029ADA8       .text getSeqInterVolume__8JAISoundFUc */
-f32 JAISound::getSeqInterVolume(u8) {
-    /* Nonmatching */
+f32 JAISound::getSeqInterVolume(u8 line) {
+    if (mState == 4 || mState == 5) {
+        return getSeqParameter()->mVolumes[line].mCurrentValue;
+    }
+    return -1.0f;
 }
 
 /* 8029ADA8-8029AE34       .text getStreamInterVolume__8JAISoundFUc */
-f32 JAISound::getStreamInterVolume(u8) {
-    /* Nonmatching */
+f32 JAISound::getStreamInterVolume(u8 line) {
+    if ((mSoundID & JAISoundID_TypeMask) == JAISoundID_Type_Stream && getStreamParameter()) {
+        if (mState == 4 || mState == 5) {
+            return getStreamParameter()->mVolumes[line].mCurrentValue;
+        } else {
+            return -1.0f;
+        }
+    }
+    return -1.0f;
 }
 
 /* 8029AE34-8029AE3C       .text getSeqParameter__8JAISoundFv */
@@ -629,28 +891,92 @@ JAInter::StreamParameter* JAISound::getStreamParameter() {
 }
 
 /* 8029AE4C-8029AE88       .text getTrackPortRoute__8JAISoundFUcUc */
-int JAISound::getTrackPortRoute(u8, u8) {
-    /* Nonmatching */
+int JAISound::getTrackPortRoute(u8 track, u8 port) {
+    if (mSoundID & 0x800) {
+        return (port << 16) + (0x20000000 + (track >> 4) + ((track & 0xF) << 4));
+    }
+    return 0x10000000 + (track & 0xF) + (port << 16);
 }
 
 /* 8029AE88-8029AEF8       .text checkSoundHandle__8JAISoundFUlPv */
-u32 JAISound::checkSoundHandle(u32, void*) {
-    /* Nonmatching */
+u32 JAISound::checkSoundHandle(u32 id, void* info) {
+    u32 result = 0;
+    if ((mSoundID & JAISoundID_TypeMask) != (id & JAISoundID_TypeMask)) {
+        stop(0);
+    } else if (((u8*)field_0x40)[4] <= ((u8*)info)[4]) {
+        stop(0);
+    } else {
+        result = 1;
+    }
+    return result;
 }
 
 /* 8029AEF8-8029AFCC       .text initParameter__8JAISoundFPP8JAISoundPQ27JAInter5ActorUlUlUcPv */
-void JAISound::initParameter(JAISound**, JAInter::Actor*, u32, u32, u8, void*) {
-    /* Nonmatching */
+void JAISound::initParameter(JAISound** handle, JAInter::Actor* actor, u32 id, u32 fade, u8 camera, void* info) {
+    mSoundID = id;
+    if (actor != NULL) {
+        field_0x24 = actor->field_0x0;
+        if (actor->field_0x0 != NULL) {
+            field_0x28 = actor->field_0x4;
+            field_0x2c = (int)actor->field_0x8;
+            field_0x1c = actor->field_0xc;
+        } else {
+            field_0x28 = NULL;
+            field_0x2c = 0;
+            field_0x1c = actor->field_0xc;
+        }
+    } else {
+        field_0x24 = NULL;
+        field_0x28 = NULL;
+        field_0x2c = 0;
+        field_0x1c = 0;
+    }
+    field_0x38 = handle;
+    mFadeCounter = fade;
+    field_0x8 = camera;
+    field_0x40 = info;
+    field_0x6 = 10;
+    field_0x9 = JAIGlobalParameter::getParamDistanceParameterMoveTime();
+    field_0xa = 0;
+    field_0x18 = 0;
+    if (handle != NULL) {
+        *handle = this;
+    }
 }
 
 /* 8029AFCC-8029B07C       .text set__Q27JAInter11MoveParaSetFfUl */
-int JAInter::MoveParaSet::set(f32, u32) {
-    /* Nonmatching */
+int JAInter::MoveParaSet::set(f32 value, u32 time) {
+    if ((u32)mMoveCounter == 0 && mCurrentValue == value) {
+        return 2;
+    }
+    if ((u32)mMoveCounter != 0 && mTargetValue == value) {
+        return 2;
+    }
+    mTargetValue = value;
+    if (time == 0) {
+        mCurrentValue = value;
+        return 0;
+    }
+    if (time == 1) {
+        mMoveAmount = mCurrentValue - mTargetValue;
+    } else {
+        mMoveAmount = (mCurrentValue - mTargetValue) / time;
+    }
+    mMoveCounter = time;
+    return 1;
 }
 
 /* 8029B07C-8029B0C4       .text move__Q27JAInter11MoveParaSetFv */
 BOOL JAInter::MoveParaSet::move() {
-    /* Nonmatching */
+    if ((u32)mMoveCounter == 0) {
+        return FALSE;
+    }
+    if (--mMoveCounter != 0) {
+        mCurrentValue -= mMoveAmount;
+        return TRUE;
+    }
+    mCurrentValue = mTargetValue;
+    return FALSE;
 }
 
 static void dummy7() {
@@ -693,10 +1019,40 @@ void JAInter::LinkSound::init(JAISound* param_1, u32 param_2) {
 
 /* 8029B4AC-8029B500       .text getSound__Q27JAInter9LinkSoundFv */
 JAISound* JAInter::LinkSound::getSound() {
-    /* Nonmatching */
+    JAISound* sound = field_0x0;
+    if (sound != NULL) {
+        field_0x0 = sound->field_0x34;
+        if (field_0x4 != NULL) {
+            sound->field_0x34 = field_0x4;
+            field_0x4->field_0x30 = sound;
+        } else {
+            sound->field_0x34 = NULL;
+        }
+        sound->field_0x30 = NULL;
+        field_0x4 = sound;
+    } else {
+        sound = NULL;
+    }
+    return sound;
 }
 
 /* 8029B500-8029B570       .text releaseSound__Q27JAInter9LinkSoundFP8JAISound */
-void JAInter::LinkSound::releaseSound(JAISound*) {
-    /* Nonmatching */
+void JAInter::LinkSound::releaseSound(JAISound* sound) {
+    sound->field_0x38 = NULL;
+    if (field_0x4 != sound) {
+        sound->field_0x30->field_0x34 = sound->field_0x34;
+        if (sound->field_0x34 != NULL) {
+            sound->field_0x34->field_0x30 = sound->field_0x30;
+        }
+    } else {
+        field_0x4 = sound->field_0x34;
+        if (sound->field_0x34 != NULL) {
+            sound->field_0x34->field_0x30 = NULL;
+        }
+    }
+    sound->field_0x34 = field_0x0;
+    if (sound->field_0x34 != NULL) {
+        sound->field_0x34->field_0x30 = sound;
+    }
+    field_0x0 = sound;
 }
