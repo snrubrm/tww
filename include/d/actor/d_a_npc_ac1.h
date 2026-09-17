@@ -1,139 +1,135 @@
 #ifndef D_A_NPC_AC1_H
 #define D_A_NPC_AC1_H
 
-#include "f_op/f_op_actor.h"
 #include "d/d_npc.h"
+#include "m_Do/m_Do_hostIO.h"
 
-class daNpc_Ac1_c : public fopAc_ac_c {
+class J3DNode;
+
+class daNpc_Ac1_c : public fopNpc_npc_c {
 public:
+    typedef int (daNpc_Ac1_c::*ActionFunc)(void*);
     struct anm_prm_c {
-        
+        s8 mAnm, mBtp;
+        f32 mMorf, mSpeed;
+        int mLoop, mArms;
     };
 
-    void nodeWngControl(J3DNode*, J3DModel*);
-    void nodeArmControl(J3DNode*, J3DModel*);
-    void nodeAc1Control(J3DNode*, J3DModel*);
-    void init_AC1_0();
-    void createInit();
-    void setMtx(bool);
-    void anmNum_toResID(int);
-    void wingAnmNum_toResID(int);
-    void btpNum_toResID(int);
-    void setBtp(bool, int);
-    void iniTexPttrnAnm(bool);
+    void nodeWngControl(J3DNode* node, J3DModel* model);
+    void nodeArmControl(J3DNode* node, J3DModel* model);
+    void nodeAc1Control(J3DNode* node, J3DModel* model);
+    bool init_AC1_0();
+    bool createInit();
+    void setMtx(bool force);
+    int anmNum_toResID(int index);
+    int wingAnmNum_toResID(int index);
+    int btpNum_toResID(int index);
+    bool setBtp(bool modify, int number);
+    bool iniTexPttrnAnm(bool modify);
     void plyTexPttrnAnm();
-    void setAnm_tex(signed char);
-    void setAnm_anm(anm_prm_c*);
-    void setAnm();
+    void setAnm_tex(s8 number);
+    bool setAnm_anm(anm_prm_c* prm);
+    bool setAnm();
     void chg_anmTag();
     void control_anmTag();
-    void chg_anmAtr(unsigned char);
+    void chg_anmAtr(u8 attr);
     void control_anmAtr();
-    void setAnm_ATR(int);
-    void anmAtr(unsigned short);
+    void setAnm_ATR(int texture);
+    void anmAtr(u16 status);
     void eventOrder();
     void checkOrder();
-    void chk_talk();
-    void chk_partsNotMove();
+    bool chk_talk();
+    bool chk_partsNotMove();
     void lookBack();
-    void next_msgStatus(unsigned long*);
-    void getBitMask();
-    void getMsg_AC1_0();
-    void getMsg();
-    void chkAttention();
-    void setAttention(bool);
-    void charDecide(int);
-    void event_actionInit(int);
-    void event_action();
-    void privateCut(int);
+    u16 next_msgStatus(u32* msg);
+    s8 getBitMask();
+    u32 getMsg_AC1_0();
+    u32 getMsg();
+    bool chkAttention();
+    void setAttention(bool force);
+    bool charDecide(int type);
+    void event_actionInit(int staff);
+    bool event_action();
+    void privateCut(int staff);
     void endEvent();
-    void isEventEntry();
-    void event_proc(int);
-    void set_action(int (daNpc_Ac1_c::*)(void*), void*);
-    void setStt(signed char);
-    void wait_1();
-    void talk_1();
-    void wait_action1(void*);
-    void demo();
+    int isEventEntry();
+    void event_proc(int staff);
+    bool set_action(ActionFunc action, void* arg);
+    void setStt(s8 state);
+    BOOL wait_1();
+    BOOL talk_1();
+    int wait_action1(void* arg);
+    u8 demo();
     void shadowDraw();
     BOOL _draw();
     BOOL _execute();
     BOOL _delete();
     cPhs_State _create();
-    void create_Anm();
-    void create_wng_Anm();
-    void create_arm_Anm();
-    void create_itm_Mdl();
-    void CreateHeap();
-
+    J3DModelData* create_Anm();
+    J3DModelData* create_wng_Anm();
+    J3DModelData* create_arm_Anm();
+    bool create_itm_Mdl();
+    BOOL CreateHeap();
 public:
-    /* 0x6C4 */ u8 m6C4[0x6CC - 0x6C4];
-    /* 0x6CC */ u8 m6CC;
-    /* 0x6CD */ u8 m6CD;
-    /* 0x6CE */ u8 m6CE;
-    /* 0x6CF */ u8 m6CF;
-    /* 0x6D0 */ u8 m6D0[0x6D4 - 0x6D0];
-    /* 0x6D4 */ J3DModel* m6D4;
-    /* 0x6D8 */ u8 m6D8[0x6DC - 0x6D8];
-    /* 0x6DC */ J3DAnmTexPattern* m6DC;
-    /* 0x6E0 */ mDoExt_btpAnm mBtpAnim;
-    /* 0x6F4 */ u8 m6F4;
-    /* 0x6F5 */ u8 m6F5[0x6FC - 0x6F5];
-    /* 0x6FC */ mDoExt_McaMorf* m6FC;
-    /* 0x700 */ u8 m700;
-    /* 0x701 */ u8 m701;
-    /* 0x702 */ u8 m702[0x708 - 0x702];
-    /* 0x708 */ mDoExt_McaMorf* m708;
-    /* 0x70C */ u8 m70C[0x77C - 0x70C];
-    /* 0x77C */ dNpc_PathRun_c mPathRun;
-    /* 0x784 */ dNpc_EventCut_c mEventCut;
-    /* 0x7E8 */ u8 m7E8[0x7F4 - 0x7E8];
-    /* 0x7F4 */ cXyz m7F4;
-    /* 0x800 */ csXyz m800;
-    /* 0x806 */ u8 m806[0x814 - 0x806];
-    /* 0x814 */ cXyz m814;
-    /* 0x820 */ u8 m820[0x82C - 0x820];
-    /* 0x82C */ f32 m82C;
-    /* 0x830 */ u8 m830[0x84C - 0x830];
-    /* 0x84C */ s16 m84C;
-    /* 0x84E */ u8 m84E[0x852 - 0x84E];
-    /* 0x852 */ s16 m852;
-    /* 0x854 */ s16 m854;
-    /* 0x856 */ u8 m856[0x858 - 0x856];
-    /* 0x858 */ u8 m858;
-    /* 0x859 */ u8 m859[0x85D - 0x859];
-    /* 0x85D */ u8 m85D;
-    /* 0x85E */ u8 m85E;
-    /* 0x85F */ u8 m85F;
-    /* 0x860 */ u8 m860;
-    /* 0x861 */ u8 m861;
-    /* 0x862 */ u8 m862[0x863 - 0x862];
-    /* 0x863 */ u8 m863;
-    /* 0x864 */ u8 m864[0x869 - 0x864];
-    /* 0x869 */ u8 m869;
-    /* 0x86A */ u8 m86A[0x86B - 0x86A];
-    /* 0x86B */ u8 m86B;
-    /* 0x86C */ u8 m86C[0x86E - 0x86C];
-    /* 0x86E */ u8 m86E;
-    /* 0x86F */ u8 m86F[0x870 - 0x86F];
-    /* 0x870 */ u8 m870;
-    /* 0x871 */ u8 m871;
-    /* 0x872 */ u8 m872[0x874 - 0x872];
-    /* 0x874 */ u8 m874;
-    /* 0x875 */ u8 m875;
-    /* 0x876 */ u8 m876;
-    /* 0x877 */ u8 m877;
-    /* 0x878 */ u8 m878[0x879 - 0x878];
-    /* 0x879 */ u8 m879;
-    /* 0x87A */ u8 m87A[0x87C - 0x87A];
+    request_of_phase_process_class mPhs;
+    s8 m_hed_jnt_num, m_bbone_jnt_num, m_arm_L_jnt_num, m_arm_R_jnt_num;
+    s8 m_hnd_R_jnt_num;
+    J3DModel* mpItemModel;
+    u32 mShadowId;
+    J3DAnmTexPattern* m_hed_tex_pttrn;
+    mDoExt_btpAnm mBtpAnm;
+    u8 mBtpFrame;
+    s16 mBtpTimer;
+    u32 m6F8;
+    mDoExt_McaMorf* mpWingMorf;
+    s8 m_wngL1_jnt_num, m_wngR1_jnt_num;
+    u8 m702[6];
+    mDoExt_McaMorf* mpArmMorf;
+    s8 m_armL1_jnt_num, m_armR1_jnt_num;
+    ActionFunc mAction;
+    Mtx mLeftShoulder, mRightShoulder;
+    dNpc_PathRun_c mPathRun;
+    dNpc_EventCut_c mEventCut;
+    u32 m7F0;
+    cXyz mInitialPos;
+    csXyz mInitialAngle;
+    cXyz mEyePos, mLookPos, m820;
+    f32 mFrame;
+    u8 m830[0x14];
+    s16 mPreviousHeadY, mPreviousBackboneY, mPreviousAngleY;
+    s16 m84A, mLookTimer, m84E, m850, mTurnSpeed, mLookAngle, mPreviousMsgStatus;
+    s8 mAnmEnd, m859;
+    u8 m85A, mItemNo, m85C;
+    bool mHidden, mArms, mKeepShapeAngle, mNoMove, mNoDraw;
+    u8 m862;
+    bool mSavedInitialPos;
+    BOOL mUpdateEye;
+    bool mHasAttention, mTalking, mNoTurn, mDemo;
+    s8 mCut, mEventAction;
+    u8 mAnmAttr, mAnmTag;
+    s8 mBtpNo, mAnmNo;
+    u8 m872[2];
+    s8 mOrder, mState, mPreviousState, mLookMode, mType, mSubType, mActionState, mMsgAnmStarted;
 };
 
-class daNpc_Ac1_HIO_c {
+class daNpc_Ac1_HIO_c : public mDoHIO_entry_c {
 public:
+    struct hio_prm_c {
+        s16 mMaxHeadX, mMaxHeadY, mMinHeadX, mMinHeadY;
+        s16 mMaxBackBoneX, mMaxBackBoneY, mMinBackBoneX, mMinBackBoneY;
+        s16 mMaxTurnStep, mTurnSpeed;
+        f32 mAttentionOffsetY;
+        bool m18;
+        s16 m1A;
+        u8 m1C;
+        f32 m20, m24, m28, m2C;
+    };
     daNpc_Ac1_HIO_c();
-
-public:
-    /* Place member variables here */
+    inline virtual ~daNpc_Ac1_HIO_c();
+    void genMessage(JORMContext*) {}
+    s8 m04;
+    s32 m08;
+    hio_prm_c mPrm;
 };
 
 #endif /* D_A_NPC_AC1_H */
