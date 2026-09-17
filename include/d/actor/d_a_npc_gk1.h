@@ -1,27 +1,30 @@
 #ifndef D_A_NPC_GK1_H
 #define D_A_NPC_GK1_H
 
-#include "f_op/f_op_actor.h"
+#include "d/d_npc.h"
+#include "m_Do/m_Do_hostIO.h"
 
 class J3DNode;
 
-class daNpc_Gk1_c : public fopAc_ac_c {
+class daNpc_Gk1_c : public fopNpc_npc_c {
 public:
     struct anm_prm_c {
-        
+        s8 mAnm, mTex;
+        f32 mMorf, mSpeed;
+        int mLoop;
     };
 
     void _nodeCB_Head(J3DNode*, J3DModel*);
     void _nodeCB_Neck(J3DNode*, J3DModel*);
     void _nodeCB_BackBone(J3DNode*, J3DModel*);
-    void init_GK1_0();
-    void createInit();
+    bool init_GK1_0();
+    bool createInit();
     void play_animation();
     void setMtx(bool);
-    void bckResID(int);
-    void btpResID(int);
-    void setBtp(signed char, bool);
-    void init_texPttrnAnm(signed char, bool);
+    int bckResID(int);
+    int btpResID(int);
+    bool setBtp(signed char, bool);
+    bool init_texPttrnAnm(signed char, bool);
     void play_btp_anm();
     void setAnm_anm(anm_prm_c*);
     void setAnm();
@@ -30,50 +33,102 @@ public:
     void chngAnmAtr(unsigned char);
     void ctrlAnmAtr();
     void setAnm_ATR();
-    void anmAtr(unsigned short);
-    void next_msgStatus(unsigned long*);
-    void getMsg_GK1_0();
-    void getMsg();
+    virtual void anmAtr(unsigned short);
+    virtual u16 next_msgStatus(unsigned long*);
+    u32 getMsg_GK1_0();
+    virtual u32 getMsg();
     void eventOrder();
     void checkOrder();
-    void chk_talk();
-    void chk_parts_notMov();
-    void searchByID(fpc_ProcID, int*);
+    bool chk_talk();
+    bool chk_parts_notMov();
+    fopAc_ac_c* searchByID(fpc_ProcID, int*);
     void lookBack();
-    void chkAttention();
+    bool chkAttention();
     void setAttention(bool);
-    void decideType(int);
+    bool decideType(int);
     void privateCut(int);
     void endEvent();
-    void isEventEntry();
+    int isEventEntry();
     void event_proc(int);
-    void set_action(int (daNpc_Gk1_c::*)(void*), void*);
+    bool set_action(int (daNpc_Gk1_c::*)(void*), void*);
     void setStt(signed char);
-    void chk_attn();
-    void wait_1();
-    void talk_1();
-    void wait_action1(void*);
-    void demo();
+    bool chk_attn();
+    BOOL wait_1();
+    BOOL talk_1();
+    int wait_action1(void*);
+    u8 demo();
     void shadowDraw();
     BOOL _draw();
     BOOL _execute();
     BOOL _delete();
     cPhs_State _create();
-    void bodyCreateHeap();
-    void itemCreateHeap();
-    void hat_CreateHeap();
-    void CreateHeap();
+    BOOL bodyCreateHeap();
+    BOOL itemCreateHeap();
+    BOOL hat_CreateHeap();
+    BOOL CreateHeap();
 
 public:
-    /* Place member variables here */
+    request_of_phase_process_class mPhase;
+    s8 m_hed_jnt_num, m_bbone_jnt_num, m_nck_jnt_num;
+    J3DModel* mpItemModel;
+    J3DModel* mpHatModel;
+    char mArcName[4];
+    u32 mShadowId;
+    mDoExt_btpAnm mBtp;
+    u8 mBtpFrame;
+    s16 mBlinkTimer;
+    int (daNpc_Gk1_c::*mAction)(void*);
+    u8 m704[4];
+    fpc_ProcID mPartnerID;
+    u8 m70C[8];
+    cXyz mInitialPos;
+    csXyz mInitialAngle, mModelAngle;
+    u8 m72C[8];
+    cXyz mEyeLocal, mLookPos;
+    u8 m74C[12];
+    cXyz mHeadPos;
+    u8 m764[12];
+    f32 mLastFrame;
+    u8 m774[4];
+    s16 mOldActorY, mOldHeadY, mOldBackY;
+    u8 m77E[2];
+    int mUpdateEye;
+    s16 mEventIds[1], mEventIndex;
+    u8 m788[8];
+    s16 mWaitTimer;
+    u8 m792[8];
+    s16 mLookAngle;
+    s8 mAnmEnded, mAnmRepeat;
+    u8 mPresentItem;
+    bool mLoaded;
+    u8 mHidden, mFreezeAngle, mNoDraw, mInitialSet;
+    bool mHasAttention, mTalking, mNoTurn, mReturnAngle;
+    u8 mDemo;
+    s8 mCutIndex;
+    u8 mAnmAttr, mAnmTag;
+    s8 mTexIndex, mAnmIndex, mEventOrder, mState, mPreviousState, mLookMode, mType;
+    u8 mSubtype;
+    s8 mActionState, mMessageState;
 };
 
-class daNpc_Gk1_HIO_c {
+class daNpc_Gk1_HIO_c : public mDoHIO_entry_c {
 public:
+    struct hio_prm_c {
+        s16 mMaxHeadX, mMaxHeadY, mMinHeadX, mMinHeadY;
+        s16 mMaxBackX, mMaxBackY, mMinBackX, mMinBackY;
+        s16 mMaxTurn, mTurnSpeed;
+        f32 mAttentionYOffset;
+        u8 mDebug;
+    };
     daNpc_Gk1_HIO_c();
+    inline virtual ~daNpc_Gk1_HIO_c();
 
 public:
-    /* Place member variables here */
+    s8 mNo;
+    int mCount;
+    hio_prm_c mPrm;
 };
+
+STATIC_ASSERT(sizeof(daNpc_Gk1_c) == 0x7B8);
 
 #endif /* D_A_NPC_GK1_H */
