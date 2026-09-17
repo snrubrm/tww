@@ -239,12 +239,14 @@ public:
     }
     void setGlobalParticleWidthScale(f32 x) { mGlobalParticleScale.x = x; }
     void setGlobalParticleHeightScale(f32 y) { mGlobalParticleScale.y = y; }
+    void setGlobalDynamicsScale(f32 x, f32 y, f32 z) { mGlobalDynamicsScale.set(x, y, z); }
     void setGlobalDynamicsScale(const JGeometry::TVec3<f32>& scale) {
         mGlobalDynamicsScale.set(scale);
     }
     void setEmitterTranslation(const JGeometry::TVec3<f32>& trans) {
         mEmitterTranslation.set(trans);
     }
+    void setEmitterScale(f32 x, f32 y, f32 z) { mEmitterScale.set(x, y, z); }
     void setEmitterScale(const JGeometry::TVec3<f32>& scale) {
         mEmitterScale.set(scale);
     }
