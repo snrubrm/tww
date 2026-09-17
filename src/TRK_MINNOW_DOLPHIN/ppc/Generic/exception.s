@@ -13,7 +13,7 @@ gTRKInterruptVectorTable:
 #############################################
 
 # Slot 0x0100: System Reset Exception
-    b __TRK_reset
+    b __TRK_copy_vectors
 .fill 0xFC
 
 # Slot 0x0200: Machine Check Exception
