@@ -247,10 +247,11 @@ const char* TProcessor::process_select_limited_(TProcessor* proc) {
 
 /* 8029F428-8029F444       .text process_select___Q28JMessage10TProcessorFPQ28JMessage10TProcessor */
 const char* TProcessor::process_select_(TProcessor* proc) {
-    /* Nonmatching */
     SelectCallBackWork* work = (SelectCallBackWork*) &proc->mStatusData.mCallBackWork;
-    u32 offs = ((const u32*)work->mTable)[0];
-    work->mTable = (const char*)work->mTable + sizeof(offs);
+    u32 offs;
+    const u32* table = (const u32*)work->mTable;
+    offs = *table;
+    work->mTable = table + 1;
     return &work->mBase[offs];
 }
 
@@ -274,7 +275,6 @@ TSequenceProcessor::~TSequenceProcessor() {
 
 /* 8029F4E0-8029F658       .text process__Q28JMessage18TSequenceProcessorFPCc */
 const char* TSequenceProcessor::process(const char* stop) {
-    /* Nonmatching */
     do {
         switch (mStatus) {
         case kStatus_Normal:
@@ -302,7 +302,7 @@ const char* TSequenceProcessor::process(const char* stop) {
                     }
                 } else {
                     mStatus = kStatus_Normal;
-                    if (rt < work->mTarget && mStatusData.mCallBack(this))
+                    if (rt < work->mTarget && ((OnBranchRegisterCallBack*)mStatusData.mCallBack)(this, rt))
                         on_branch(mControl->getMessageEntry(), mControl->getMessageData_begin());
                 }
             }
@@ -492,16 +492,16 @@ bool TSequenceProcessor::process_jump_(TSequenceProcessor* proc) {
 
 /* 8029FA88-8029FAB8       .text process_branch_limited___Q28JMessage18TSequenceProcessorFPQ28JMessage18TSequenceProcessorUl */
 bool TSequenceProcessor::process_branch_limited_(TSequenceProcessor* proc, u32 choice) {
-    /* Nonmatching */
     BranchCallBackWork* work = (BranchCallBackWork*) &proc->mStatusData.mCallBackWork;
-    return process_setMessage_index_(proc->mControl, ((u16*)work->mTable)[choice]);
+    choice = ((const u16*)work->mTable)[choice];
+    return process_setMessage_index_(proc->getControl(), choice);
 }
 
 /* 8029FAB8-8029FAE8       .text process_branch___Q28JMessage18TSequenceProcessorFPQ28JMessage18TSequenceProcessorUl */
 bool TSequenceProcessor::process_branch_(TSequenceProcessor* proc, u32 choice) {
-    /* Nonmatching */
     BranchCallBackWork* work = (BranchCallBackWork*) &proc->mStatusData.mCallBackWork;
-    return process_setMessage_code_(proc->mControl, ((u32*)work->mTable)[choice]);
+    choice = ((const u32*)work->mTable)[choice];
+    return process_setMessage_code_(proc->getControl(), choice);
 }
 
 /* 8029FAE8-8029FB20       .text __ct__Q28JMessage19TRenderingProcessorFPQ28JMessage8TControl */
