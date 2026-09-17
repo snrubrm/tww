@@ -37,14 +37,14 @@ namespace JAInter {
     public:
         SeqUpdateData();
 
-        void init() {}
+        void init();
 
         /* 0x00 */ u8 field_0x0;
         /* 0x01 */ u8 field_0x1;
         /* 0x02 */ u8 field_0x2;
         /* 0x03 */ u8 field_0x3;
         /* 0x04 */ int field_0x4;
-        /* 0x08 */ int field_0x8;
+        /* 0x08 */ u32 field_0x8;
         /* 0x0C */ f32 mSeqVolume;
         /* 0x10 */ f32 mSeqPitch;
         /* 0x14 */ f32 mSeqFxmix;
@@ -59,7 +59,7 @@ namespace JAInter {
         /* 0x38 */ int field_0x38;
         /* 0x3C */ int field_0x3c;
         /* 0x40 */ int field_0x40;
-        /* 0x44 */ int* trackupdate;
+        /* 0x44 */ u32* trackupdate;
         /* 0x48 */ JAISound* field_0x48;
         /* 0x4C */ PlayerParameter* systemTrackParameter;
     };
@@ -81,7 +81,7 @@ namespace JAInter {
     class SeqParameter {
     public:
         SeqParameter() {}
-        void init() {}
+        void init();
         JASystem::TTrack* getRootTrackPointer() { return &mTrack; }
 
         /* 0x0000 */ MoveParaSet mTempo;
@@ -100,17 +100,22 @@ namespace JAInter {
         /* 0x0E60 */ u16 mTrackPortData[32][16];
         /* 0x1260 */ u8 field_0x1260;
         /* 0x1261 */ u8 field_0x1261;
-        /* 0x1262 */ u8 field_0x1262[0x1268 - 0x1262];
-        /* 0x1268 */ int field_0x1268;
-        /* 0x126C */ int field_0x126c;
-        /* 0x1270 */ int field_0x1270;
-        /* 0x1274 */ int field_0x1274;
-        /* 0x1278 */ int field_0x1278;
-        /* 0x127C */ int field_0x127c;
-        /* 0x1280 */ int field_0x1280;
-        /* 0x1284 */ u8 field_0x1284[0x1298 - 0x1284];
-        /* 0x1298 */ int field_0x1298;
-        /* 0x129C */ int field_0x129c[32];
+        /* 0x1262 */ u16 field_0x1262;
+        /* 0x1264 */ u32 field_0x1264;
+        /* 0x1268 */ u32 field_0x1268;
+        /* 0x126C */ u32 field_0x126c;
+        /* 0x1270 */ u32 field_0x1270;
+        /* 0x1274 */ u32 field_0x1274;
+        /* 0x1278 */ u32 field_0x1278;
+        /* 0x127C */ u32 field_0x127c;
+        /* 0x1280 */ u32 field_0x1280;
+        /* 0x1284 */ u32 field_0x1284;
+        /* 0x1288 */ u32 field_0x1288;
+        /* 0x128C */ u32 field_0x128c;
+        /* 0x1290 */ u32 field_0x1290;
+        /* 0x1294 */ u32 field_0x1294;
+        /* 0x1298 */ u32 field_0x1298;
+        /* 0x129C */ u32 field_0x129c[32];
         /* 0x131C */ u8 field_0x131c[32];
         /* 0x133C */ MuteBit mMuteBits[32];
         /* 0x135C */ SeqUpdateData* field_0x135c;

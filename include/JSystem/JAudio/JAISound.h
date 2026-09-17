@@ -136,7 +136,7 @@ public:
     void decWait() {}
     void getAct() {}
     void getAdjustPriority() {}
-    void getFadetime() {}
+    u32 getFadetime() { return mFadeCounter; }
     u32 getID() { return mSoundID; }
     void getInfoPointer() {}
     void getMapInfo() {}
@@ -147,8 +147,8 @@ public:
     void getPrevSound() {}
     void getPriority() {}
     void getStatus() {}
-    void getTrack() {}
-    void getTrans() {}
+    u8 getTrack() { return field_0x4; }
+    Vec* getTrans() { return field_0x28; }
     void getWait() {}
     void incPlayGameFrameCounter() {}
     void setCustomParameterPointer(void*) {}
