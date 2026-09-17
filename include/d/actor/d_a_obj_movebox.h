@@ -200,7 +200,21 @@ namespace daObjMovebox {
         void off_switch2() const { fopAcM_offSwitch(const_cast<Act_c*>(this), prmZ_get_swSave2()); };
         
         inline void mode_proc_call();
-        void chk_walk(cXyz*) { /* TODO */ }
+        bool chk_walk(cXyz* target) {
+            if (mMode == MODE_WALK) {
+                mDoMtx_stack_c::push();
+                mDoMtx_stack_c::YrotS(home.angle.y);
+                mDoMtx_stack_c::transM(m628, 0.0f, m62C);
+                cXyz grid(mDoMtx_stack_c::get()[0][3], mDoMtx_stack_c::get()[1][3], mDoMtx_stack_c::get()[2][3]);
+                cXyz direction;
+                mDoMtx_stack_c::YrotS(home.angle.y + M_dir_base[m634]);
+                mDoMtx_stack_c::multVecSR(&cXyz::BaseZ, &direction);
+                mDoMtx_stack_c::pop();
+                *target = (grid + direction) * 75.0f + home.pos;
+                return true;
+            }
+            return false;
+        }
         void set_rollCrash() {
             if (
                 mType == daObjMovebox::Act_c::TYPE_BREAKABLE_WOODEN_CRATE ||
