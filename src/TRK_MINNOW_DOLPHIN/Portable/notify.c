@@ -1,5 +1,6 @@
 #include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/notify.h"
 #include "trk.h"
+#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/msgbuf.h"
 
 DSError TRKDoNotifyStopped(MessageCommandID cmd) {
     int reqIdx;
@@ -10,8 +11,9 @@ DSError TRKDoNotifyStopped(MessageCommandID cmd) {
 
     bufError = TRKGetFreeBuffer(&bufIdx, &msg);
     if ((err = bufError) == FALSE) {
+        err = TRKAppendBuffer1_ui8(msg, cmd);
         if (err == DS_NoError) {
-            if (cmd == DSMSG_NotifyStopped) {
+            if ((u8)cmd == DSMSG_NotifyStopped) {
                 TRKTargetAddStopInfo(msg);
             } else {
                 TRKTargetAddExceptionInfo(msg);

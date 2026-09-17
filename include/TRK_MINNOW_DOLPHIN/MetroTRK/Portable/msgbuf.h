@@ -11,6 +11,16 @@ DSError TRKSetBufferPosition(TRKBuffer* msg, u32 pos);
 void* TRKGetBuffer(int);
 void TRKResetBuffer(TRKBuffer* msg, BOOL keepData);
 
+static inline DSError TRKAppendBuffer1_ui8(TRKBuffer* buffer, const u8 data) {
+    if (buffer->position >= 0x880) {
+        return DS_MessageBufferOverflow;
+    }
+
+    buffer->data[buffer->position++] = data;
+    buffer->length++;
+    return DS_NoError;
+}
+
 DSError TRKAppendBuffer1_ui16(TRKBuffer* buffer, const u16 data);
 DSError TRKAppendBuffer1_ui32(TRKBuffer* buffer, const u32 data);
 DSError TRKAppendBuffer1_ui64(TRKBuffer* buffer, const u64 data);

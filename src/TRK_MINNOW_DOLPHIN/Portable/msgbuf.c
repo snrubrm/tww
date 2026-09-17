@@ -168,16 +168,6 @@ DSError TRKAppendBuffer1_ui16(TRKBuffer* buffer, const u16 data) {
 	return TRKAppendBuffer(buffer, (const void*)bigEndianData, sizeof(data));
 }
 
-DSError TRKAppendBuffer1_ui8(TRKBuffer* buffer, const u8 data) {
-    if (buffer->position >= 0x880) {
-        return DS_MessageBufferOverflow;
-    }
-
-    buffer->data[buffer->position++] = data;
-    buffer->length++;
-    return DS_NoError;
-}
-
 DSError TRKAppendBuffer1_ui32(TRKBuffer* buffer, const u32 data) {
     u8* bigEndianData;
     u8* byteData;
