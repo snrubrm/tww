@@ -38,7 +38,7 @@ namespace JAInter {
 
     class StreamParameter {
     public:
-        void init() {} // TODO
+        void init();
 
         /* 0x000 */ u8 mPauseMode;
         /* 0x004 */ int field_0x4;
@@ -123,8 +123,7 @@ namespace JAInter {
             u16 field_0xe;
             u32 field_0x10;
             u32 field_0x14;
-            int field_0x18;
-            int field_0x1c;
+            u8 field_0x18[8];
         };
 
         extern s16 filter_table[];
@@ -135,7 +134,7 @@ namespace JAInter {
         extern JASystem::Kernel::TSolidHeap streamHeap;
         extern u32 LOOP_BLOCKS;
         extern int LOOP_SAMPLESIZE;
-        extern int outputmode;
+        extern u32 outputmode;
         extern u32 adpcm_remain;
         extern u32 adpcm_loadpoint;
         extern u32 loadsize;
@@ -163,9 +162,9 @@ namespace JAInter {
         extern u8 outflag_volume;
         extern bool outflag_pan;
         extern bool outflag_pitch;
-        extern int loop_start_flag;
+        extern u32 loop_start_flag;
         extern int outpause;
-        extern int playmode;
+        extern u32 playmode;
         extern int shift_sample;
         extern int extra_sample;
         extern int DvdLoadFlag;

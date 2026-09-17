@@ -135,9 +135,13 @@ namespace JASystem {
         }
         inline void setMixerInitDelayMax(u8, u8) {}
         inline void setMixerInitVolume(u8, u8, s16, u8) {}
-        inline void setMixerVolume(u8, u8, s16, u8) {}
+        inline void setMixerVolume(u8 channel, u8 mixer, s16 volume, u8 mode) {
+            getDSPHandle(channel)->setMixerVolume(mixer, volume, mode);
+        }
         inline void setPauseFlag(u8, u8) {}
-        inline void setPitch(u8, u16) {}
+        inline void setPitch(u8 channel, u16 pitch) {
+            getDSPHandle(channel)->setPitch(pitch);
+        }
         inline void sync(u32, u32, u32) {}
 
         extern u16 SEND_TABLE[12];
