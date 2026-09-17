@@ -570,7 +570,7 @@ u32 TRKTargetGetPC() {
 }
 
 DSError TRKTargetSupportRequest() {
-    DSIOResult ioResult;
+    u8 ioResult;
     size_t* length;
     MessageCommandID commandId;
     DSError error;
