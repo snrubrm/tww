@@ -2581,13 +2581,13 @@ static BOOL daFganon_Execute(fganon_class* i_this) {
         local_70.x = DEMO_SELECT(REG13_F(0), REG0_F(0)) + 35.0f;
         local_70.y = DEMO_SELECT(REG13_F(1), REG0_F(1));
         local_70.z = DEMO_SELECT(REG13_F(2), REG0_F(2)) + -30.0f;
-        MtxPosition(&local_70, &cape->m1BE0);
+        MtxPosition(&local_70, &cape->mAnchor[0]);
         mtx = i_this->mpMorf->getModel()->getAnmMtx(DEMO_SELECT(REG6_S(6), REG0_S(6)) + (s16)BPG_JNT_J_BPG_KATA_L1_e);
         cMtx_copy(mtx, *calc_mtx);
         local_70.x = DEMO_SELECT(REG13_F(3), REG0_F(3)) + 35.0f;
         local_70.y = DEMO_SELECT(REG13_F(4), REG0_F(4));
         local_70.z = DEMO_SELECT(REG13_F(5), REG0_F(5)) + 30.0f;
-        MtxPosition(&local_70, &cape->m1BEC);
+        MtxPosition(&local_70, &cape->mAnchor[1]);
         cape->current.pos = a_this->eyePos;
         cape->current.angle = a_this->current.angle;
         float fVar1;
