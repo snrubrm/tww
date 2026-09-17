@@ -78,18 +78,16 @@ void JASystem::TBasicWaveBank::incWaveTable(const TWaveGroup* waveGroup) {
 
 /* 80285D54-80285E28       .text decWaveTable__Q28JASystem14TBasicWaveBankFPCQ38JASystem14TBasicWaveBank10TWaveGroup */
 void JASystem::TBasicWaveBank::decWaveTable(const TWaveGroup* waveGroup) {
-    /* Nonmatching */
     OSLockMutex(&mMutex);
     for (int i = 0; i < waveGroup->getWaveCount(); i++) {
-        u32 waveID = waveGroup->getWaveID(i);
-        TWaveInfo* waveInfo = mWaveTable[waveID];
+        TWaveInfo** waveTable = &mWaveTable[waveGroup->getWaveID(i)];
         TWaveInfo* waveInfo2 = &waveGroup->mCtrlWaveArray[i];
-        for (; waveInfo; waveInfo = waveInfo->mPrev) {
+        for (TWaveInfo* waveInfo = *waveTable; waveInfo; waveInfo = waveInfo->mPrev) {
             if (waveInfo != waveInfo2) {
                 continue;
             }
             if (!waveInfo->mNext) {
-                mWaveTable[waveID] = waveInfo->mPrev;
+                *waveTable = waveInfo->mPrev;
             } else {
                 waveInfo->mNext->mPrev = waveInfo->mPrev;
             }
