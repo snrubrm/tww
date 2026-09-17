@@ -1,8 +1,7 @@
 #include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/msghndlr.h"
+#include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/msgbuf.h"
 #include "TRK_MINNOW_DOLPHIN/MetroTRK/Portable/nubevent.h"
-#include "TRK_MINNOW_DOLPHIN/utils/common/MWTrace.h"
 #include "trk.h"
-#include "string.h"
 
 static BOOL IsTRKConnected;
 
@@ -15,21 +14,25 @@ void SetTRKConnected(BOOL isTRKConnected) {
 }
 
 DSError TRKSendACK(TRKBuffer* buffer) {
-    DSError err;
-    err = TRKMessageSend(buffer);
-    return err;
+    DSError error;
+    int attempts = 3;
+    do {
+        error = TRKMessageSend(buffer);
+        attempts--;
+    } while (error != DS_NoError && attempts > 0);
+    return error;
 }
 
 DSError TRKStandardACK(TRKBuffer* buffer, MessageCommandID commandID,
-                              DSReplyError replyError) {
-    CommandReply reply;
+                      DSReplyError replyError) {
+    TRKResetBuffer(buffer, TRUE);
+    TRKAppendBuffer1_ui8(buffer, commandID);
+    TRKAppendBuffer1_ui8(buffer, replyError);
+    return TRKSendACK(buffer);
+}
 
-    memset(&reply, 0, sizeof(CommandReply));
-    reply.commandID.b = commandID;
-    reply._00 = 0x40;
-    reply.replyError.b = replyError;
-    TRKWriteUARTN(&reply, sizeof(CommandReply));
-    return DS_NoError;
+DSError TRKDoUnsupported(TRKBuffer* buffer) {
+    return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_UnsupportedCommandError);
 }
 
 DSError TRKDoConnect(TRKBuffer* buffer) {
@@ -39,17 +42,20 @@ DSError TRKDoConnect(TRKBuffer* buffer) {
 
 DSError TRKDoDisconnect(TRKBuffer* buffer) {
     TRKEvent event;
+    DSError error;
 
     IsTRKConnected = FALSE;
-    TRKStandardACK(buffer, 0x80, DSREPLY_NoError);
-    TRKConstructEvent(&event, 1);
-    TRKPostEvent(&event);
-    return DS_NoError;
+    error = TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_NoError);
+    if (error == DS_NoError) {
+        TRKConstructEvent(&event, 1);
+        TRKPostEvent(&event);
+    }
+    return error;
 }
 
 DSError TRKDoReset(TRKBuffer* buffer) {
     TRKStandardACK(buffer, 0x80, DSREPLY_NoError);
-    __TRK_reset();
+    __TRK_copy_vectors();
     return DS_NoError;
 }
 
@@ -59,58 +65,153 @@ DSError TRKDoOverride(TRKBuffer* buffer) {
     return DS_NoError;
 }
 
-DSError TRKDoVersions(TRKBuffer*) {
-    return DS_NoError;
+DSError TRKDoVersions(TRKBuffer* buffer) {
+    DSError error;
+    struct {
+        u8 kernelMajor;
+        u8 kernelMinor;
+        u8 protocolMajor;
+        u8 protocolMinor;
+    } result;
+    if (buffer->length != 1) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
+    TRKResetBuffer(buffer, TRUE);
+    TRKAppendBuffer1_ui8(buffer, DSMSG_ReplyACK);
+    TRKAppendBuffer1_ui8(buffer, DSREPLY_NoError);
+    error = TRKTargetVersions(&result);
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.kernelMajor);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.kernelMinor);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.protocolMajor);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.protocolMinor);
+    }
+    if (error != DS_NoError) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_CWDSError);
+    }
+    return TRKSendACK(buffer);
 }
 
-DSError TRKDoSupportMask(TRKBuffer*) {
-    return DS_NoError;
+DSError TRKDoSupportMask(TRKBuffer* buffer) {
+    DSError error;
+    u8 result[32];
+    if (buffer->length != 1) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
+    TRKResetBuffer(buffer, TRUE);
+    TRKAppendBuffer1_ui8(buffer, DSMSG_ReplyACK);
+    TRKAppendBuffer1_ui8(buffer, DSREPLY_NoError);
+    error = TRKTargetSupportMask(result);
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer(buffer, result, sizeof(result));
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, 2);
+    }
+    if (error != DS_NoError) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_CWDSError);
+    }
+    return TRKSendACK(buffer);
 }
 
-DSError TRKDoReadMemory(TRKBuffer* buffer) {
-    u8 buf[0x820] ATTRIBUTE_ALIGN(32);
-    size_t tempLength;
-    int result;
-    int replyErr;
-    int options;
-    size_t length;
+DSError TRKDoCPUType(TRKBuffer* buffer) {
+    DSError error;
+    struct {
+        u8 major;
+        u8 minor;
+        u8 bigEndian;
+        u8 defaultSize;
+        u8 floatingSize;
+        u8 extended1Size;
+        u8 extended2Size;
+    } result;
+    if (buffer->length != 1) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
+    TRKResetBuffer(buffer, TRUE);
+    TRKAppendBuffer1_ui8(buffer, DSMSG_ReplyACK);
+    TRKAppendBuffer1_ui8(buffer, DSREPLY_NoError);
+    error = TRKTargetCPUType(&result);
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.major);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.minor);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.bigEndian);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.defaultSize);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.floatingSize);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.extended1Size);
+    }
+    if (error == DS_NoError) {
+        error = TRKAppendBuffer1_ui8(buffer, result.extended2Size);
+    }
+    if (error != DS_NoError) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_CWDSError);
+    }
+    return TRKSendACK(buffer);
+}
+
+DSError TRKDoReadMemory(TRKBuffer* b) {
+    u8 buf[0x800];
     u32 start;
+    size_t tempLength;
+    u16 length;
+    u8 command;
+    u8 options;
+    DSError result;
+    DSReplyError replyErr;
 
-    start = *(u32*)(buffer->data + 16);
-    length = *(u16*)(buffer->data + 12);
-    options = buffer->data[8];
-
-    if (options & DSMSGMEMORY_Extended) {
-        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_UnsupportedOptionError);
+    if (b->length != 8) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
     }
-
-    tempLength = length;
-
-    if (options & DSMSGMEMORY_Space_data) {
-        result = TRKTargetAccessARAM(buf, start, &tempLength, TRUE);
-    } else {
-        result = TRKTargetAccessMemory(buf, start, &tempLength,
-                                       options & DSMSGMEMORY_Userview ? 0 : 1, TRUE);
-    }
-
-    TRKResetBuffer(buffer, 0);
-
+    TRKSetBufferPosition(b, 0);
+    result = TRKReadBuffer1_ui8(b, &command);
     if (result == DS_NoError) {
-        CommandReply reply;
-        memset(&reply, 0, sizeof(CommandReply));
-        reply.replyError.b = result;
-        reply._00 = tempLength + 0x40;
-        reply.commandID.b = DSMSG_ReplyACK;
-        TRKAppendBuffer(buffer, &reply, sizeof(CommandReply));
-
-        if (options & 0x40) {
-            result = TRKAppendBuffer(buffer, buf + (start & 0x1F), tempLength);
-        } else {
-            result = TRKAppendBuffer(buffer, buf, tempLength);
+        result = TRKReadBuffer1_ui8(b, &options);
+    }
+    if (result == DS_NoError) {
+        result = TRKReadBuffer1_ui16(b, &length);
+    }
+    if (result == DS_NoError) {
+        result = TRKReadBuffer1_ui32(b, &start);
+    }
+    if (options & DSMSGMEMORY_Extended) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_UnsupportedOptionError);
+    }
+    if (length > sizeof(buf)) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_ParameterError);
+    }
+    TRKResetBuffer(b, TRUE);
+    TRKAppendBuffer1_ui8(b, DSMSG_ReplyACK);
+    TRKAppendBuffer1_ui8(b, DSREPLY_NoError);
+    if (result == DS_NoError) {
+        tempLength = length;
+        result = TRKTargetAccessMemory(buf, start, &tempLength,
+                                      options & DSMSGMEMORY_Userview ? 0 : 1, TRUE);
+        length = tempLength;
+        if (result == DS_NoError) {
+            result = TRKAppendBuffer1_ui16(b, length);
+        }
+        if (result == DS_NoError) {
+            result = TRKAppendBuffer(b, buf, tempLength);
         }
     }
 
-    if (result) {
+    if (result != DS_NoError) {
         switch (result) {
         case DS_CWDSException:
             replyErr = DSREPLY_CWDSException;
@@ -131,50 +232,59 @@ DSError TRKDoReadMemory(TRKBuffer* buffer) {
             replyErr = DSREPLY_CWDSError;
             break;
         }
-        return TRKStandardACK(buffer, DSMSG_ReplyACK, replyErr);
+        return TRKStandardACK(b, DSMSG_ReplyACK, replyErr);
     }
 
-    return TRKSendACK(buffer);
+    return TRKSendACK(b);
 }
 
 DSError TRKDoWriteMemory(TRKBuffer* b) {
-    u8 buf[0x820] ATTRIBUTE_ALIGN(32);
-    size_t tempLength;
-    int options;
-    int result;
-    int replyErr;
-    size_t length;
+    u8 buf[0x800];
     u32 start;
+    size_t tempLength;
+    u16 length;
+    u8 command;
+    u8 options;
+    DSError result;
+    DSReplyError replyErr;
 
-    start = *(u32*)(&b->data[16]);
-    length = *(u16*)(&b->data[12]);
-    options = b->data[8];
-
+    if (b->length <= 8) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
+    TRKSetBufferPosition(b, 0);
+    result = TRKReadBuffer1_ui8(b, &command);
+    if (result == DS_NoError) {
+        result = TRKReadBuffer1_ui8(b, &options);
+    }
+    if (result == DS_NoError) {
+        result = TRKReadBuffer1_ui16(b, &length);
+    }
+    if (result == DS_NoError) {
+        result = TRKReadBuffer1_ui32(b, &start);
+    }
     if (options & DSMSGMEMORY_Extended) {
-        return TRKStandardACK(b, DSMSG_ReplyACK, DSMSG_ReadRegisters);
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_UnsupportedOptionError);
     }
-
-    tempLength = length;
-
-    TRKSetBufferPosition(b, DSMSGMEMORY_Space_data);
-    if (options & DSMSGMEMORY_Space_data) {
-        TRKReadBuffer(b, buf + (start & 0x1f), tempLength);
-        result = TRKTargetAccessARAM(buf, start, &tempLength, FALSE);
-    } else {
-        TRKReadBuffer(b, buf, tempLength);
-        result = TRKTargetAccessMemory(buf, start, &tempLength,
-                                       options & DSMSGMEMORY_Userview ? 0 : 1, FALSE);
+    if (b->length != length + 8 || length > sizeof(buf)) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_ParameterError);
     }
-
-    TRKResetBuffer(b, 0);
+    if (result == DS_NoError) {
+        tempLength = length;
+        result = TRKReadBuffer(b, buf, tempLength);
+        if (result == DS_NoError) {
+            result = TRKTargetAccessMemory(buf, start, &tempLength,
+                                          options & DSMSGMEMORY_Userview ? 0 : 1, FALSE);
+        }
+        length = tempLength;
+    }
+    if (result == DS_NoError) {
+        TRKResetBuffer(b, TRUE);
+        TRKAppendBuffer1_ui8(b, DSMSG_ReplyACK);
+        TRKAppendBuffer1_ui8(b, DSREPLY_NoError);
+    }
 
     if (result == DS_NoError) {
-        CommandReply reply;
-        memset(&reply, 0, sizeof(CommandReply));
-        reply._00 = 0x40;
-        reply.commandID.b = DSMSG_ReplyACK;
-        reply.replyError.b = result;
-        result = TRKAppendBuffer(b, &reply, sizeof(CommandReply));
+        result = TRKAppendBuffer1_ui16(b, length);
     }
 
     if (result != DS_NoError) {
@@ -205,43 +315,57 @@ DSError TRKDoWriteMemory(TRKBuffer* b) {
 }
 
 DSError TRKDoReadRegisters(TRKBuffer* b) {
-    int error;
-    u8 options;
+    DSError error;
+    DSReplyError replyError;
+    size_t registersLength;
     u16 firstRegister;
     u16 lastRegister;
-    size_t registersLength;
-    CommandReply local_50;
+    u8 command;
+    u8 options;
 
-    options = b->data[8];
-    firstRegister = *(u16*)(b->data + 12);
-    lastRegister = *(u16*)(b->data + 16);
-
+    if (b->length != 6) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
+    TRKSetBufferPosition(b, 0);
+    error = TRKReadBuffer1_ui8(b, &command);
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui8(b, &options);
+    }
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui16(b, &firstRegister);
+    }
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui16(b, &lastRegister);
+    }
     if (firstRegister > lastRegister) {
         return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_InvalidRegisterRange);
     }
 
-    local_50.commandID.b = DSMSG_ReplyACK;
-    local_50._00 = 0x468;
-
-    TRKResetBuffer(b, 0);
-
-    TRKAppendBuffer_ui8(b, (u8*)&local_50, sizeof(CommandReply));
-
-    error = TRKTargetAccessDefault(0, 36, b, &registersLength, TRUE);
-
     if (error == DS_NoError) {
-        error = TRKTargetAccessFP(0, 33, b, &registersLength, TRUE);
-    }
-    if (error == DS_NoError) {
-        error = TRKTargetAccessExtended1(0, 0x60, b, &registersLength, TRUE);
-    }
-    if (error == DS_NoError) {
-        error = TRKTargetAccessExtended2(0, 31, b, &registersLength, TRUE);
+        TRKResetBuffer(b, TRUE);
+        TRKAppendBuffer1_ui8(b, DSMSG_ReplyACK);
+        TRKAppendBuffer1_ui8(b, DSREPLY_NoError);
     }
 
-    // Check if there was an error, and respond accordingly
+    switch (options & 7) {
+    case DSREG_Default:
+        error = TRKTargetAccessDefault(firstRegister, lastRegister, b, &registersLength, TRUE);
+        break;
+    case DSREG_FP:
+        error = TRKTargetAccessFP(firstRegister, lastRegister, b, &registersLength, TRUE);
+        break;
+    case DSREG_Extended1:
+        error = TRKTargetAccessExtended1(firstRegister, lastRegister, b, &registersLength, TRUE);
+        break;
+    case DSREG_Extended2:
+        error = TRKTargetAccessExtended2(firstRegister, lastRegister, b, &registersLength, TRUE);
+        break;
+    default:
+        error = DS_UnsupportedError;
+        break;
+    }
+
     if (error != DS_NoError) {
-        int replyError;
         switch (error) {
         case DS_UnsupportedError:
             replyError = DSREPLY_UnsupportedOptionError;
@@ -267,30 +391,36 @@ DSError TRKDoReadRegisters(TRKBuffer* b) {
 
         return TRKStandardACK(b, DSMSG_ReplyACK, replyError);
     } else {
-        // No error, send ack
         return TRKSendACK(b);
     }
 }
 
 DSError TRKDoWriteRegisters(TRKBuffer* b) {
-    int error;
-    int replyError;
-    u8 options;
+    DSError error;
+    DSReplyError replyError;
+    size_t registersLength;
     u16 firstRegister;
     u16 lastRegister;
-    size_t registersLength;
+    u8 command;
+    u8 options;
 
-    options = b->data[8];
-    firstRegister = *(u16*)(b->data + 12);
-    lastRegister = *(u16*)(b->data + 16);
-
+    if (b->length <= 6) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
     TRKSetBufferPosition(b, 0);
-
+    error = TRKReadBuffer1_ui8(b, &command);
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui8(b, &options);
+    }
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui16(b, &firstRegister);
+    }
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui16(b, &lastRegister);
+    }
     if (firstRegister > lastRegister) {
         return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_InvalidRegisterRange);
     }
-
-    TRKSetBufferPosition(b, 0x40);
 
     switch (options) {
     case DSREG_Default:
@@ -306,23 +436,16 @@ DSError TRKDoWriteRegisters(TRKBuffer* b) {
         error = TRKTargetAccessExtended2(firstRegister, lastRegister, b, &registersLength, FALSE);
         break;
     default:
-        // invalid option
         error = DS_UnsupportedError;
         break;
     }
 
-    TRKResetBuffer(b, 0);
-
     if (error == DS_NoError) {
-        CommandReply local_50;
-        memset(&local_50, 0, sizeof(CommandReply));
-        local_50._00 = 0x40;
-        local_50.commandID.b = DSMSG_ReplyACK;
-        local_50.replyError.b = error;
-        error = TRKAppendBuffer(b, (u8*)&local_50, sizeof(CommandReply));
+        TRKResetBuffer(b, TRUE);
+        TRKAppendBuffer1_ui8(b, DSMSG_ReplyACK);
+        TRKAppendBuffer1_ui8(b, DSREPLY_NoError);
     }
 
-    // Check if there was an error, and respond accordingly
     if (error != DS_NoError) {
         switch (error) {
         case DS_UnsupportedError:
@@ -352,62 +475,108 @@ DSError TRKDoWriteRegisters(TRKBuffer* b) {
 
         return TRKStandardACK(b, DSMSG_ReplyACK, replyError);
     } else {
-        // No error, send ack
         return TRKSendACK(b);
     }
 }
 
-void TRKDoFlushCache(void) {
-    // UNUSED FUNCTION
+DSError TRKDoFlushCache(TRKBuffer* buffer) {
+    DSError error;
+    DSReplyError replyError;
+    u32 start;
+    u32 end;
+    u8 command;
+    u8 options;
+
+    if (buffer->length != 10) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
+    TRKSetBufferPosition(buffer, 0);
+    error = TRKReadBuffer1_ui8(buffer, &command);
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui8(buffer, &options);
+    }
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui32(buffer, &start);
+    }
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui32(buffer, &end);
+    }
+    if (start > end) {
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_InvalidMemoryRange);
+    }
+    if (error == DS_NoError) {
+        error = TRKTargetFlushCache(options, start, end);
+    }
+    if (error == DS_NoError) {
+        TRKResetBuffer(buffer, TRUE);
+        TRKAppendBuffer1_ui8(buffer, DSMSG_ReplyACK);
+        TRKAppendBuffer1_ui8(buffer, DSREPLY_NoError);
+    }
+    if (error != DS_NoError) {
+        switch (error) {
+        case DS_UnsupportedError:
+            replyError = DSREPLY_UnsupportedOptionError;
+            break;
+        default:
+            replyError = DSREPLY_CWDSError;
+            break;
+        }
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, replyError);
+    }
+    return TRKSendACK(buffer);
 }
 
-DSError TRKDoContinue(TRKBuffer*) {
+DSError TRKDoContinue(TRKBuffer* buffer) {
+    DSError error;
     if (!TRKTargetStopped()) {
-        u8 arr[0x40];
-        memset(arr, 0, 0x40);
-
-        arr[4] = 0x80;
-        *(u32*)arr = 0x40;
-        arr[8] = 0x16;
-
-        TRKWriteUARTN(arr, 0x40);
-        return DS_NoError;
+        return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_NotStopped);
     } else {
-        u8 arr[0x40];
-        memset(arr, 0, 0x40);
-
-        arr[4] = 0x80;
-        *(u32*)arr = 0x40;
-        arr[8] = 0x00;
-
-        TRKWriteUARTN(arr, 0x40);
-        return TRKTargetContinue();
+        error = TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_NoError);
+        if (error == DS_NoError) {
+            error = TRKTargetContinue();
+        }
+        return error;
     }
 }
 
 DSError TRKDoStep(TRKBuffer* b) {
     DSError result;
+    u8 command;
     u8 options;
     u8 count;
     u32 rangeStart;
     u32 rangeEnd;
     u32 pc;
+    if (b->length < 3) {
+        return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+    }
     TRKSetBufferPosition(b, 0);
-
-    options = *(u8*)&b->data[8];
-    rangeStart = *(u32*)&b->data[16];
-    rangeEnd = *(u32*)&b->data[20];
+    result = TRKReadBuffer1_ui8(b, &command);
+    if (result == DS_NoError) {
+        result = TRKReadBuffer1_ui8(b, &options);
+    }
 
     switch (options) {
     case DSSTEP_IntoCount:
     case DSSTEP_OverCount:
-        count = b->data[12];
+        if (result == DS_NoError) {
+            result = TRKReadBuffer1_ui8(b, &count);
+        }
         if (count >= 1) {
             break;
         }
         return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_ParameterError);
     case DSSTEP_IntoRange:
     case DSSTEP_OverRange:
+        if (b->length != 10) {
+            return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_PacketSizeError);
+        }
+        if (result == DS_NoError) {
+            result = TRKReadBuffer1_ui32(b, &rangeStart);
+        }
+        if (result == DS_NoError) {
+            result = TRKReadBuffer1_ui32(b, &rangeEnd);
+        }
         pc = TRKTargetGetPC();
         if (pc >= rangeStart && pc <= rangeEnd) {
             break;
@@ -421,15 +590,17 @@ DSError TRKDoStep(TRKBuffer* b) {
         return TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_NotStopped);
     } else {
         result = TRKStandardACK(b, DSMSG_ReplyACK, DSREPLY_NoError);
-        switch (options) {
-        case DSSTEP_IntoCount:
-        case DSSTEP_OverCount:
-            result = TRKTargetSingleStep(count, (options == DSSTEP_OverCount));
-            break;
-        case DSSTEP_IntoRange:
-        case DSSTEP_OverRange:
-            result = TRKTargetStepOutOfRange(rangeStart, rangeEnd, (options == DSSTEP_OverRange));
-            break;
+        if (result == DS_NoError) {
+            switch (options) {
+            case DSSTEP_IntoCount:
+            case DSSTEP_OverCount:
+                result = TRKTargetSingleStep(count, (options == DSSTEP_OverCount));
+                break;
+            case DSSTEP_IntoRange:
+            case DSSTEP_OverRange:
+                result = TRKTargetStepOutOfRange(rangeStart, rangeEnd, (options == DSSTEP_OverRange));
+                break;
+            }
         }
 
         return result;
@@ -437,33 +608,47 @@ DSError TRKDoStep(TRKBuffer* b) {
 }
 
 DSError TRKDoStop(TRKBuffer* b) {
-    MessageCommandID c;
+    DSReplyError replyError;
 
     switch (TRKTargetStop()) {
     case DS_NoError:
-        c = DSMSG_Ping;
+        replyError = DSREPLY_NoError;
         break;
     case DS_InvalidProcessID:
-        c = '!';
+        replyError = DSREPLY_InvalidProcessID;
         break;
     case DS_InvalidThreadID:
-        c = '\"';
+        replyError = DSREPLY_InvalidThreadID;
         break;
     case DS_OSError:
-        c = ' ';
+        replyError = DSREPLY_OSError;
         break;
     default:
-        c = DSMSG_Connect;
+        replyError = DSREPLY_Error;
         break;
     }
 
-    TRKStandardACK(b, DSMSG_ReplyACK, c);
-
-    return DS_NoError;
+    return TRKStandardACK(b, DSMSG_ReplyACK, replyError);
 }
 
-DSError TRKDoSetOption(TRKBuffer* message) {
-    u8 enable = message->data[0xc];
-    TRKStandardACK(message, DSMSG_ReplyACK, DS_NoError);
-    return 0;
+DSError TRKDoSetOption(TRKBuffer* buffer) {
+    DSError error;
+    u8 command = 0;
+    u8 option = 0;
+    u8 value = 0;
+
+    TRKSetBufferPosition(buffer, 0);
+    error = TRKReadBuffer1_ui8(buffer, &command);
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui8(buffer, &option);
+    }
+    if (error == DS_NoError) {
+        error = TRKReadBuffer1_ui8(buffer, &value);
+    }
+    if (error != DS_NoError) {
+        TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_Error);
+    } else if (option == 1) {
+        SetUseSerialIO(value);
+    }
+    return TRKStandardACK(buffer, DSMSG_ReplyACK, DSREPLY_NoError);
 }

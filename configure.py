@@ -1365,7 +1365,7 @@ config.libs = [
             Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/serpoll.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Portable/usr_put.c"),
             Object(NonMatching, "TRK_MINNOW_DOLPHIN/Portable/dispatch.c"),
-            Object(NonMatching, "TRK_MINNOW_DOLPHIN/Portable/msghndlr.c"),
+            Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/msghndlr.c"),
             Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/support.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Portable/mutex_TRK.c"),
             Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/notify.c"),
