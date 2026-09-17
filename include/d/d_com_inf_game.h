@@ -356,6 +356,7 @@ public:
     void setAuctionGauge(s16 gauge) { mAuctionGauge = gauge; }
     s16 getAuctionGauge() { return mAuctionGauge; }
 
+    u16 getItemNowRupee() { return mItemNowRupee; }
     int getItemRupeeCount() { return mItemRupeeCount; }
     void setItemRupeeCount(s32 count) { mItemRupeeCount += count; }
     void setMessageCountNumber(s16 num) { mMsgCountNumber = num; }
@@ -804,7 +805,7 @@ public:
     /* 0x4920 */ s16 mAuctionGauge;
     /* 0x4922 */ s16 mItemTimer;
     /* 0x4924 */ u16 mItemNowLife;
-    /* 0x4926 */ s16 mItemNowRupee;
+    /* 0x4926 */ u16 mItemNowRupee;
     /* 0x4928 */ bool mItemSwimTimerStatus;
     /* 0x4929 */ u8 mItemScopeWipeTimer;
     /* 0x492A */ u8 mMesgStatus;
@@ -2607,6 +2608,10 @@ inline void dComIfGp_saveCameraPosition(int i, cXyz* i_pos, cXyz* i_target, f32 
 
 inline void dComIfGp_loadCameraPosition(int i, cXyz* o_pos, cXyz* o_target, f32* o_fovy, s16* o_bank) {
     g_dComIfG_gameInfo.play.loadCameraPosition(i, o_pos, o_target, o_fovy, o_bank);
+}
+
+inline u16 dComIfGp_getItemNowRupee() {
+    return g_dComIfG_gameInfo.play.getItemNowRupee();
 }
 
 inline int dComIfGp_getItemRupeeCount() {
