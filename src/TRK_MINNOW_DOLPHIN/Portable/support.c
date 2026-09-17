@@ -96,7 +96,7 @@ DSError TRKRequestSend(TRKBuffer* msgBuf, int* bufferId, u32 p1, u32 p2, int p3)
     u32 counter;
     int count;
     u8 msgCmd;
-    int msgReplyError;
+    u8 msgReplyError;
     BOOL badReply = TRUE;
 
     *bufferId = -1;
@@ -122,10 +122,9 @@ DSError TRKRequestSend(TRKBuffer* msgBuf, int* bufferId, u32 p1, u32 p2, int p3)
 
                 buffer = TRKGetBuffer(*bufferId);
                 TRKSetBufferPosition(buffer, 0);
-                OutputData(&buffer->data[0], buffer->length);
-                msgCmd = buffer->data[4];
+                error = TRKReadBuffer1_ui8(buffer, &msgCmd);
 
-                if (msgCmd >= DSMSG_ReplyACK)
+                if (error != DS_NoError || msgCmd >= DSMSG_ReplyACK)
                     break;
 
                 TRKProcessInput(*bufferId);
@@ -133,15 +132,15 @@ DSError TRKRequestSend(TRKBuffer* msgBuf, int* bufferId, u32 p1, u32 p2, int p3)
             }
 
             if (*bufferId != -1) {
-                if (buffer->length < 0x40) {
+                if (buffer->length < p1) {
                     // OSReport("MetroTRK - bad reply size %ld\n", buffer->length);
                     badReply = TRUE;
                 }
                 if (error == DS_NoError && !badReply) {
-                    msgReplyError = buffer->data[8];
+                    error = TRKReadBuffer1_ui8(buffer, &msgReplyError);
                 }
                 if (error == DS_NoError && !badReply) {
-                    if ((int)msgCmd != DSMSG_ReplyACK || msgReplyError != DSREPLY_NoError) {
+                    if (msgCmd != DSMSG_ReplyACK || msgReplyError != DSREPLY_NoError) {
                         badReply = TRUE;
                     }
                 }
