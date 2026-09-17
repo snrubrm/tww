@@ -5,20 +5,64 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_obj_msdan2.h"
+#include "d/d_com_inf_game.h"
+#include "f_op/f_op_actor_mng.h"
 
 /* 00000078-0000024C       .text Mthd_Create__Q211daObjMsdan25Act_cFv */
 cPhs_State daObjMsdan2::Act_c::Mthd_Create() {
-    /* Nonmatching */
+    fopAcM_SetupActor(this, Act_c);
+    cXyz pos = current.pos;
+    csXyz angle = current.angle;
+    angle.y += 0x8000;
+    pos.y += 400.0f;
+    for (int i = 0; i < 16; i++) {
+        pos.x += 50.0f * cM_ssin(current.angle.y);
+        pos.z += 50.0f * cM_scos(current.angle.y);
+        int sw = prm_get_swSave();
+        fopAcM_create(fpcNm_Obj_MsdanSub2_e, (i << 8) + sw, &pos,
+                     fopAcM_GetRoomNo(this), &angle);
+    }
+    mEventIdx = dComIfGp_evmng_getEventIdx("Msdan2");
+    int sw = prm_get_swSave();
+    if (dComIfGs_isSwitch(sw, home.roomNo)) {
+        mState = 3;
+    } else {
+        mState = 0;
+    }
+    return cPhs_COMPLEATE_e;
 }
 
 /* 0000024C-00000344       .text Mthd_Execute__Q211daObjMsdan25Act_cFv */
 BOOL daObjMsdan2::Act_c::Mthd_Execute() {
-    /* Nonmatching */
+    switch (mState) {
+    case 3:
+        break;
+    case 0: {
+        int sw = prm_get_swSave();
+        if (dComIfGs_isSwitch(sw, home.roomNo)) {
+            fopAcM_orderOtherEventId(this, mEventIdx);
+            mState = 1;
+        }
+        break;
+    }
+    case 1:
+        if (eventInfo.checkCommandDemoAccrpt()) {
+            mState = 2;
+        }
+        break;
+    case 2:
+        if (dComIfGp_evmng_endCheck(mEventIdx)) {
+            dComIfGp_event_reset();
+            mState = 3;
+        }
+        break;
+    }
+    return TRUE;
 }
 
 /* 00000344-0000034C       .text Mthd_Delete__Q211daObjMsdan25Act_cFv */
 BOOL daObjMsdan2::Act_c::Mthd_Delete() {
-    /* Nonmatching */
+    return TRUE;
 }
 
 namespace daObjMsdan2 {
