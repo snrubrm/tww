@@ -14,6 +14,7 @@ public:
     dDlst_2DNumber_c();
     ~dDlst_2DNumber_c();
     bool init(int, s16, s16, s16, s16, u8);
+    void setValue(int value) { mValue = value; }
     void draw();
 
 private:
@@ -34,7 +35,7 @@ public:
     void setTitlePos(f32 x, f32 y) { mTitlePos.x = x; mTitlePos.y = y; }
     void setScorePos(f32 x, f32 y) { mScorePos.x = x; mScorePos.y = y; }
     void setTitleAlpha(u8 alpha) { mTitle->setAlpha(alpha); }
-    void setScoreAlpha(u8 alpha) { mScore->setAlpha(0xFF); mScoreShadow->setAlpha(alpha); } // ???
+    void setScoreAlpha(f32 alpha) { mScore->setAlpha(0xFF); mScoreShadow->setAlpha(alpha); } // ???
 
 public:
     /* 0x04 */ J2DPicture* mTitle;
