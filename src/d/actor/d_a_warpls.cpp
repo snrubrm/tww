@@ -5,75 +5,239 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_warpls.h"
+#include "d/d_com_inf_game.h"
+#include "d/d_com_lib_game.h"
+#include "d/d_lib.h"
+#include "f_op/f_op_actor_mng.h"
+#include "JSystem/JUtility/JUTAssert.h"
+#include "res/Object/Ywarp00.h"
+#include "res/Object/Ysdls00.h"
+
+const char* daWarpls_c::m_arcname[2] = {"Ywarp00", "Ysdls00"};
+const s16 daWarpls_c::m_bdlidx[2] = {dRes_INDEX_YWARP00_BMD_YWARP00_e, dRes_INDEX_YSDLS00_BDL_YSDLS00_e};
+const s16 daWarpls_c::m_brkidx[2] = {dRes_INDEX_YWARP00_BRK_YWARP00_e, -1};
+const s16 daWarpls_c::m_bckidx[2] = {dRes_INDEX_YWARP00_BCK_YWARP00_e, -1};
+const u32 daWarpls_c::m_heapsize[2] = {0x2000, 0x2000};
+const f32 daWarpls_c::m_warp_distance = 112.5f;
 
 /* 00000078-000000E0       .text _delete__10daWarpls_cFv */
 bool daWarpls_c::_delete() {
-    /* Nonmatching */
+    if (mpEmitter != NULL) {
+        mpEmitter->becomeInvalidEmitter();
+        mpEmitter = NULL;
+    }
+    dComIfG_resDelete(&mPhase, m_arcname[mType]);
+    return true;
 }
 
 /* 000000E0-00000100       .text CheckCreateHeap__FP10fopAc_ac_c */
-static BOOL CheckCreateHeap(fopAc_ac_c*) {
-    /* Nonmatching */
+static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
+    return static_cast<daWarpls_c*>(actor)->CreateHeap();
 }
 
 /* 00000100-000003D8       .text CreateHeap__10daWarpls_cFv */
-void daWarpls_c::CreateHeap() {
-    /* Nonmatching */
+BOOL daWarpls_c::CreateHeap() {
+    J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname[mType], m_bdlidx[mType]);
+    JUT_ASSERT(233, modelData != 0);
+    mpModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
+    if (mpModel == NULL) return FALSE;
+    mpBrk = NULL;
+    if (m_brkidx[mType] != -1) {
+        J3DAnmTevRegKey* pbrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(m_arcname[mType], m_brkidx[mType]);
+        JUT_ASSERT(248, pbrk != 0);
+        mpBrk = new mDoExt_brkAnm;
+        if (mpBrk == NULL || !mpBrk->init(modelData, pbrk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) return FALSE;
+    }
+    mpBck = NULL;
+    if (m_bckidx[mType] != -1) {
+        J3DAnmTransform* pbck = (J3DAnmTransform*)dComIfG_getObjectRes(m_arcname[mType], m_bckidx[mType]);
+        JUT_ASSERT(267, pbck != 0);
+        mpBck = new mDoExt_bckAnm;
+        if (mpBck == NULL || !mpBck->init(modelData, pbck, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false)) return FALSE;
+    }
+    return TRUE;
 }
 
 /* 00000420-00000764       .text CreateInit__10daWarpls_cFv */
 void daWarpls_c::CreateInit() {
-    /* Nonmatching */
+    const char* events[] = {"TOWER_WARP_U", "TOWER_WARP_D", "DUNGEON_WARP"};
+    if (strcmp(dComIfGp_getStartStageName(), "Siren") == 0) {
+        if (current.roomNo == 7) mWarpType = 0;
+        else if (current.roomNo == 17) mWarpType = 1;
+    } else {
+        mWarpType = 2;
+    }
+    mSwitch = fopAcM_GetParam(this) & 0xFF;
+    mExit = (fopAcM_GetParam(this) >> 8) & 0xFF;
+    switch (mType) {
+    case 0:
+        scale.x = scale.z = 2.0f;
+        mpEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WARPLIGHTSHAFT00, &current.pos, &current.angle);
+        if (mpEmitter != NULL) {
+            mpEmitter->becomeImmortalEmitter();
+            mpEmitter->setGlobalDynamicsScale(scale);
+        }
+        break;
+    case 1:
+        mpEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_SUBDUNLIGHTSHAFT00, &current.pos, &current.angle);
+        break;
+    }
+    if (dComIfGs_isSwitch(mSwitch, home.roomNo) || mSwitch == 0xFF) {
+        if (mpEmitter != NULL) mpEmitter->playCreateParticle();
+        if (mpBrk != NULL) mpBrk->setFrame(mpBrk->getEndFrame());
+        if (mpBck != NULL) mpBck->setFrame(mpBck->getEndFrame());
+        mPrevSwitch = 1;
+        mActive = 1;
+        mInitiallyActive = 1;
+        mTimer = 0;
+    } else {
+        if (mpEmitter != NULL) mpEmitter->stopCreateParticle();
+        mActive = 0;
+        mTimer = 10;
+    }
+    mOrder = 0;
+    mAppearEvent = dComIfGp_evmng_getEventIdx(NULL, fopAcM_GetParamBit(fopAcM_GetParam(this), 16, 8));
+    mWarpEvent = dComIfGp_evmng_getEventIdx(events[mWarpType]);
+    fopAcM_SetMtx(this, mpModel->getBaseTRMtx());
+    fopAcM_setCullSizeBox(this, -250.0f, 0.0f, -250.0f, 250.0f, 2600.0f, 250.0f);
+    fopAcM_setCullSizeFar(this, 1.0f);
+    set_mtx();
+    if (check_warp_distance()) mWaitForExit = 1;
 }
 
 /* 00000764-0000082C       .text _create__10daWarpls_cFv */
 cPhs_State daWarpls_c::_create() {
-    /* Nonmatching */
+    fopAcM_SetupActor(this, daWarpls_c);
+    mType = fopAcM_GetParam(this) >> 28;
+    cPhs_State phase = dComIfG_resLoad(&mPhase, m_arcname[mType]);
+    if (phase == cPhs_COMPLEATE_e) {
+        if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, m_heapsize[mType])) return cPhs_ERROR_e;
+        CreateInit();
+    }
+    return phase;
 }
 
 /* 0000082C-0000089C       .text set_mtx__10daWarpls_cFv */
-void daWarpls_c::set_mtx() {
-    /* Nonmatching */
+inline void daWarpls_c::set_mtx() {
+    mpModel->setBaseScale(scale);
+    mDoMtx_stack_c::transS(current.pos);
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
 }
 
 /* 0000089C-00000984       .text _execute__10daWarpls_cFv */
 bool daWarpls_c::_execute() {
-    /* Nonmatching */
+    u8 sw = dComIfGs_isSwitch(mSwitch, home.roomNo);
+    if (mTimer > 0) mTimer--;
+    checkOrder();
+    eventOrder();
+    setStatus();
+    if (mpBrk != NULL) mpBrk->play();
+    if (mpBck != NULL) mpBck->play();
+    set_mtx();
+    mPrevSwitch = sw;
+    return true;
 }
 
 /* 00000984-00000AC4       .text checkOrder__10daWarpls_cFv */
 void daWarpls_c::checkOrder() {
-    /* Nonmatching */
+    if (eventInfo.checkCommandDemoAccrpt()) {
+        if (dComIfGp_evmng_startCheck(mAppearEvent) && mOrder == 1) {
+            mOrder = 0;
+            warp_eff_start();
+        }
+        if (dComIfGp_evmng_endCheck(mAppearEvent)) dComIfGp_event_reset();
+        if (dComIfGp_evmng_startCheck(mWarpEvent) && mOrder == 2) {
+            mOrder = 0;
+            dComIfGp_evmng_setGoal(&current.pos);
+        }
+        if (dComIfGp_evmng_endCheck(mWarpEvent)) {
+            dLib_setNextStageBySclsNum(mExit, current.roomNo);
+            mDoAud_seStart(JA_SE_LK_WAPR_EFF_WARP, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+        }
+    } else {
+        demo();
+    }
 }
 
 /* 00000AC4-00000BFC       .text eventOrder__10daWarpls_cFv */
 void daWarpls_c::eventOrder() {
-    /* Nonmatching */
+    u8 sw = dComIfGs_isSwitch(mSwitch, home.roomNo);
+    if (mOrder == 1) {
+        fopAcM_orderOtherEventId(this, mAppearEvent, (fopAcM_GetParam(this) >> 16) & 0xFF);
+        eventInfo.onCondition(2);
+    } else if (mOrder == 2) {
+        if (mWarpType == 0) {
+            if (!check_warp_distance()) mOrder = 0;
+            else fopAcM_orderOtherEventId(this, mWarpEvent, 0xFF, 0xFFFF, 0, 5);
+        } else {
+            fopAcM_orderOtherEventId(this, mWarpEvent);
+        }
+        eventInfo.onCondition(2);
+    } else if ((mAppearEvent == -1 && mSwitch == 0xFF) || (mAppearEvent == -1 && sw != 0)) {
+        warp_eff_start();
+    }
 }
 
 /* 00000BFC-00000C7C       .text setStatus__10daWarpls_cFv */
-void daWarpls_c::setStatus() {
-    /* Nonmatching */
+BOOL daWarpls_c::setStatus() {
+    if (mActive != 0) mDoAud_seStart(JA_SE_OBJ_WARP_EFF_SUS, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    return TRUE;
 }
 
 /* 00000C7C-00000DC4       .text demo__10daWarpls_cFv */
-void daWarpls_c::demo() {
-    /* Nonmatching */
+BOOL daWarpls_c::demo() {
+    u8 sw = dComIfGs_isSwitch(mSwitch, home.roomNo);
+    if (mWaitForExit != 0) {
+        if (!check_warp_distance()) mWaitForExit = 0;
+        return TRUE;
+    }
+    if (mOrder == 0 && mInitiallyActive == 0 && sw != 0 && mActive == 0 && mAppearEvent != -1) mOrder = 1;
+    if (sw != 0 || mSwitch == 0xFF) {
+        if (check_warp_link() && mOrder == 0) mOrder = 2;
+    } else {
+        if (mpBrk != NULL) mpBrk->setPlaySpeed(-1.0f);
+        if (mpBck != NULL) mpBck->setPlaySpeed(-1.0f);
+        if (mpEmitter != NULL) mpEmitter->stopCreateParticle();
+        mActive = 0;
+    }
+    return TRUE;
 }
 
 /* 00000DC4-00000EE8       .text check_warp_link__10daWarpls_cFv */
-void daWarpls_c::check_warp_link() {
-    /* Nonmatching */
+BOOL daWarpls_c::check_warp_link() {
+    fopAc_ac_c* link = dComIfGp_getLinkPlayer();
+    if (link != dComIfGp_getPlayer(0) || mActive == 0 || mWaitForExit != 0) return FALSE;
+    if ((link->current.pos - current.pos).absXZ() < m_warp_distance * scale.x) return TRUE;
+    return FALSE;
 }
 
 /* 00000EE8-00000FF4       .text check_warp_distance__10daWarpls_cFv */
-void daWarpls_c::check_warp_distance() {
-    /* Nonmatching */
+BOOL daWarpls_c::check_warp_distance() {
+    fopAc_ac_c* link = dComIfGp_getLinkPlayer();
+    if (link != dComIfGp_getPlayer(0)) return FALSE;
+    if ((link->current.pos - current.pos).absXZ() < m_warp_distance * scale.x) return TRUE;
+    return FALSE;
 }
 
 /* 00000FF4-000010C8       .text warp_eff_start__10daWarpls_cFv */
 void daWarpls_c::warp_eff_start() {
-    /* Nonmatching */
+    if (mActive == 0) {
+        if (mpBrk != NULL) mpBrk->setPlaySpeed(1.0f);
+        if (mpBck != NULL) mpBck->setPlaySpeed(1.0f);
+        if (mpEmitter != NULL) mpEmitter->playCreateParticle();
+        mDoAud_seStart(JA_SE_OBJ_WARP_EFF_APPEAR, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+        mActive = 1;
+    }
+}
+
+inline bool daWarpls_c::_draw() {
+    if (mActive == 0) return true;
+    g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &tevStr);
+    g_env_light.setLightTevColorType(mpModel, &tevStr);
+    if (mpBrk != NULL) mpBrk->entry(mpModel->getModelData());
+    if (mpBck != NULL) mpBck->entry(mpModel->getModelData());
+    mDoExt_modelUpdateDL(mpModel);
+    return true;
 }
 
 /* 000010C8-000010E8       .text daWarpls_Create__FPv */
@@ -87,8 +251,8 @@ static BOOL daWarpls_Delete(void* i_this) {
 }
 
 /* 0000110C-000011D0       .text daWarpls_Draw__FPv */
-static BOOL daWarpls_Draw(void*) {
-    /* Nonmatching */
+static BOOL daWarpls_Draw(void* actor) {
+    return static_cast<daWarpls_c*>(actor)->_draw();
 }
 
 /* 000011D0-000011F4       .text daWarpls_Execute__FPv */
