@@ -10,7 +10,7 @@ extern "C" {
 typedef u32 NubEventID;
 
 typedef struct TRKEvent {
-    NubEventType eventType;
+    u8 eventType;
     NubEventID eventID;
     MessageBufferID msgBufID;
 } TRKEvent;
