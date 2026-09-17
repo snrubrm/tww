@@ -1361,7 +1361,7 @@ config.libs = [
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Portable/nubevent.c", extra_cflags=["-enum min"]),
             Object(NonMatching, "TRK_MINNOW_DOLPHIN/Portable/nubinit.c"),
             Object(NonMatching, "TRK_MINNOW_DOLPHIN/Portable/msg.c"),
-            Object(NonMatching, "TRK_MINNOW_DOLPHIN/Portable/msgbuf.c"),
+            Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/msgbuf.c"),
             Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/serpoll.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Portable/usr_put.c"),
             Object(NonMatching, "TRK_MINNOW_DOLPHIN/Portable/dispatch.c"),
