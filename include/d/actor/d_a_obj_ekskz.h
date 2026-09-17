@@ -10,7 +10,10 @@
 namespace daObjEkskz {
     class Act_c : public dBgS_MoveBgActor {
     public:
-        void prm_get_swSave() const {}
+        enum Prm_e { PRM_SWSAVE_W = 8, PRM_SWSAVE_S = 0 };
+        s32 prm_get_swSave() const { return daObj::PrmAbstract(this, PRM_SWSAVE_W, PRM_SWSAVE_S); }
+        static const char M_arcname[];
+        static Mtx M_tmp_mtx;
     
         virtual BOOL CreateHeap();
         virtual BOOL Create();
@@ -23,7 +26,7 @@ namespace daObjEkskz {
         virtual BOOL Draw();
     
     public:
-        /* 0x2C8 */ u8 m2C8[0x2D0 - 0x2C8];
+        /* 0x2C8 */ request_of_phase_process_class mPhs;
         /* 0x2D0 */ J3DModel* mpModel;
         /* 0x2D4 */ dCcD_Stts mStts;
         /* 0x310 */ dCcD_Cyl mCyl;
@@ -34,9 +37,10 @@ namespace daObjEkskz {
         /* 0x480 */ u8 m480;
         /* 0x481 */ u8 m481[0x484 - 0x481];
         /* 0x484 */ dPa_smokeEcallBack mSmokeCallback[4];
-        /* 0x504 */ u8 m504[0x50C - 0x504];
+        /* 0x504 */ JPABaseEmitter* mpEmitter0;
+        /* 0x508 */ JPABaseEmitter* mpEmitter1;
         /* 0x50C */ JPABaseEmitter* mpSmoke0;
-        /* 0x510 */ u8 m510[0x514 - 0x510];
+        /* 0x510 */ JPABaseEmitter* mpEmitter3;
         /* 0x514 */ dKy_tevstr_c mTevStr;
     };
 };
