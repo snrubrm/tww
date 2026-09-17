@@ -3,6 +3,7 @@
 
 #include "f_op/f_op_actor.h"
 #include "d/d_cc_d.h"
+#include "d/d_a_obj.h"
 #include "SSystem/SComponent/c_phase.h"
 
 class JPABaseEmitter;
@@ -16,19 +17,46 @@ namespace daObjFlame {
         inline bool _delete();
         inline bool _draw();
         inline bool _execute();
-        void _is_delete() {}
-        void attr_base() const {}
-        void attr_scl() const {}
-        void prm_get_haze() const {}
-        void prm_get_kiCycle() const {}
-        void prm_get_kiNum() const {}
-        void prm_get_sch() const {}
-        void prm_get_scl() const {}
-        void prm_get_swSave() const {}
-    
+        inline bool _is_delete();
+        struct AttrBase_c {
+            int kiInterval;
+            s16 largeRotation, rotation, liftRadius, liftBottom, liftTop, liftOffset, liftExtra;
+        };
+        struct AttrScale_c {
+            f32 radius, height, modelXZ, modelY;
+            int model, btk, brk;
+            u32 heapSize;
+            f32 animationSpeed, cycleSpeed;
+            int footEffect;
+            bool simple, hideCovered;
+            f32 headXZ, headY, bodyXZ, bodyY, footScale, unused;
+            s16 cullMinX, cullMinY, cullMinZ, cullMaxX, cullMaxY, cullMaxZ;
+            f32 collisionEnd;
+        };
+        enum Prm_e {
+            PRM_SCH_W = 8, PRM_SCH_S = 0,
+            PRM_KINUM_W = 5, PRM_KINUM_S = 8,
+            PRM_KICYCLE_W = 2, PRM_KICYCLE_S = 13,
+            PRM_SWITCH_W = 8, PRM_SWITCH_S = 16,
+            PRM_SCALE_W = 2, PRM_SCALE_S = 28,
+            PRM_HAZE_W = 1, PRM_HAZE_S = 31,
+        };
+        static const AttrBase_c M_attr_base;
+        static const dCcD_SrcCps M_cps_src;
+        static const AttrScale_c M_attr_scl[4];
+        static char M_arcname[];
+        const AttrBase_c& attr_base() const { return M_attr_base; }
+        const AttrScale_c& attr_scl() const { return M_attr_scl[mType]; }
+        int prm_get_haze() const { return daObj::PrmAbstract(this, PRM_HAZE_W, PRM_HAZE_S); }
+        int prm_get_kiCycle() const { return daObj::PrmAbstract(this, PRM_KICYCLE_W, PRM_KICYCLE_S); }
+        int prm_get_kiNum() const { int n = daObj::PrmAbstract(this, PRM_KINUM_W, PRM_KINUM_S) + 1; return n == 32 ? 0 : n; }
+        u8 prm_get_sch() const { return daObj::PrmAbstract(this, PRM_SCH_W, PRM_SCH_S); }
+        int prm_get_scl() const { return daObj::PrmAbstract(this, PRM_SCALE_W, PRM_SCALE_S); }
+        int prm_get_swSave() const { return daObj::PrmAbstract(this, PRM_SWITCH_W, PRM_SWITCH_S); }
+
         void set_switch();
-        void solidHeapCB(fopAc_ac_c*);
-        void create_heap();
+        static BOOL solidHeapCB(fopAc_ac_c*);
+        bool create_heap();
         void create_mode_init();
         void set_mtx();
         void init_mtx();
@@ -41,8 +69,8 @@ namespace daObjFlame {
         void ki_make();
         void eff_hase();
         void se_fireblast_omen();
-        void liftup_magmarock(void*, void*);
-        void liftup_mflft(void*, void*);
+        static void* liftup_magmarock(void*, void*);
+        static void* liftup_mflft(void*, void*);
         void mode_wait();
         void mode_wait2();
         void mode_l_before();
@@ -71,11 +99,11 @@ namespace daObjFlame {
         /* 0x448 */ JPABaseEmitter* mpEmitter0;
         /* 0x44C */ JPABaseEmitter* mpEmitter1;
         /* 0x450 */ JPABaseEmitter* mpEmitter2;
-        /* 0x454 */ u8 mEm0State;
-        /* 0x455 */ u8 mEm1State;
-        /* 0x456 */ u8 mEm2State;
-        /* 0x457 */ u8 m457;
-        /* 0x458 */ u8 m458;
+        /* 0x454 */ s8 mEm0State;
+        /* 0x455 */ s8 mEm1State;
+        /* 0x456 */ s8 mEm2State;
+        /* 0x457 */ s8 m457;
+        /* 0x458 */ s8 m458;
         /* 0x459 */ u8 m459;
         /* 0x45A */ u8 m45A;
         /* 0x45B */ u8 m45B[0x45C - 0x45B];
@@ -87,9 +115,10 @@ namespace daObjFlame {
         /* 0x46C */ f32 m46C;
         /* 0x470 */ f32 mExtraScaleY;
         /* 0x474 */ cXyz mOrigScale;
-        /* 0x480 */ u8 m480[0x500 - 0x480];
     };
     
+    STATIC_ASSERT(sizeof(Act_c) == 0x480);
+
     namespace Method {
         cPhs_State Create(void*);
         BOOL Delete(void*);
