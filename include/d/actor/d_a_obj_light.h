@@ -2,22 +2,25 @@
 #define D_A_OBJ_LIGHT_H
 
 #include "f_op/f_op_actor.h"
+#include "d/d_bg_w.h"
+#include "d/d_cc_d.h"
+#include "d/d_particle.h"
 
 namespace daObjLight {
     class Act_c : public fopAc_ac_c {
     public:
-        void solidHeapCB(fopAc_ac_c*);
-        void create_heap();
+        static BOOL solidHeapCB(fopAc_ac_c*);
+        bool create_heap();
         void init_collision();
         void set_collision();
         cPhs_State _create();
         bool _delete();
-        void set_fire(int);
+        BOOL set_fire(int);
         void draw_fire();
         void exe_fire();
         void delete_fire();
-        void now_event(s16);
-        void set_event(s16);
+        bool now_event(s16);
+        BOOL set_event(s16);
         void exe_event();
         void set_mtx();
         void renew_angle();
@@ -38,7 +41,27 @@ namespace daObjLight {
         static u8 M_S_lod_access;
 
 public:
-        /* Place member variables here */
+        static const char M_arcname[];
+        static const dCcD_SrcCyl M_cyl_src;
+        /* 0x290 */ request_of_phase_process_class mPhase;
+        /* 0x298 */ J3DModel* mpModel[3];
+        /* 0x2A4 */ dBgW* mpBgW;
+        /* 0x2A8 */ Mtx mBgMtx;
+        /* 0x2D8 */ s16 mLightAngle;
+        /* 0x2DA */ s16 mLightTimer;
+        /* 0x2DC */ s16 mLit;
+        /* 0x2DE */ s16 mTreasureTimer;
+        /* 0x2E0 */ dCcD_Stts mStts;
+        /* 0x31C */ dCcD_Cyl mCyl;
+        /* 0x44C */ dPa_followEcallBack mFireCallback;
+        /* 0x460 */ s16 mFirePhase;
+        /* 0x462 */ s16 mFireAngle;
+        /* 0x464 */ u8 mFireAlpha;
+        /* 0x468 */ f32 mFireScale;
+        /* 0x46C */ Mtx mFireMtx;
+        /* 0x49C */ s16 mEventIdx;
+        /* 0x49E */ s16 mEventState;
+        /* 0x4A0 */ s16 mLightEvent;
     };
 };
 
