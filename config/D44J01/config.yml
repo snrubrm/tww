@@ -2226,6 +2226,27 @@ modules:
   symbols: config/D44J01/rels/d_a_obj_buoyflag/symbols.txt
   # map: orig/D44J01/files/maps/d_a_obj_buoyflag.map
   ldscript_template: config/GZLE01/rels/ldscript.tpl
+  extract:
+    - symbol: l_k_taru02TEX__Q313daObjBuoyflag30@unnamed@d_a_obj_buoyflag_cpp@5Khasi
+      binary: assets/l_k_taru02TEX__d_a_obj_buoyflag.bin
+      header: assets/l_k_taru02TEX__d_a_obj_buoyflag.h
+      rename: l_k_taru02TEX
+    - symbol: l_Khasi_00DL__Q313daObjBuoyflag30@unnamed@d_a_obj_buoyflag_cpp@5Khasi
+      binary: assets/l_Khasi_00DL__d_a_obj_buoyflag.bin
+      header: assets/l_Khasi_00DL__d_a_obj_buoyflag.h
+      rename: l_Khasi_00DL
+    - symbol: l_k_hata01TEX__Q313daObjBuoyflag30@unnamed@d_a_obj_buoyflag_cpp@5Khata
+      binary: assets/l_k_hata01TEX__d_a_obj_buoyflag.bin
+      header: assets/l_k_hata01TEX__d_a_obj_buoyflag.h
+      rename: l_k_hata01TEX
+    - symbol: l_Khata_00DL__Q313daObjBuoyflag30@unnamed@d_a_obj_buoyflag_cpp@5Khata
+      binary: assets/l_Khata_00DL__d_a_obj_buoyflag.bin
+      header: assets/l_Khata_00DL__d_a_obj_buoyflag.h
+      rename: l_Khata_00DL
+    - symbol: l_matDL__Q313daObjBuoyflag30@unnamed@d_a_obj_buoyflag_cpp@5Khata
+      binary: assets/l_matDL__d_a_obj_buoyflag.bin
+      header: assets/l_matDL__d_a_obj_buoyflag.h
+      rename: l_matDL
 
 - object: files/rels/d_a_obj_buoyrace.rel
   hash: 5765e1e93cfbd11c31c7a633dd5727bb3fdeefc9
