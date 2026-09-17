@@ -309,7 +309,7 @@ private:
 class dDemo_system_c : public JStage::TSystem {
 public:
     dDemo_system_c() : mObject(NULL) {}
-    ~dDemo_system_c();
+    ~dDemo_system_c() {}
     void* JSGFindObject(const char*, JStage::TEObject) const;
 
     void setObject(dDemo_object_c* obj) { mObject = obj; }
