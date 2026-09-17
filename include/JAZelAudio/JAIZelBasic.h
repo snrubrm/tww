@@ -39,7 +39,7 @@ public:
     void onEnemyDamage();
     void mbossBgmMuteProcess();
     void mbossBgmNearByProcess(f32);
-    bool checkBgmPlaying();
+    BOOL checkBgmPlaying();
     int checkPlayingMainBgmFlag();
     BOOL checkSubBgmPlaying();
     int checkPlayingSubBgmFlag();
@@ -122,7 +122,7 @@ public:
     void processTime();
     void processMorningToNormal();
     int checkOnOuterSea(f32*);
-    void checkSeqIDDemoPlaying(u32);
+    BOOL checkSeqIDDemoPlaying(u32);
     u32 checkDemoFanfarePlaying();
     void processDemoFanfareMute();
     void muteMainBgmAll();
@@ -194,8 +194,8 @@ public:
 
     static u8 m_bgm_mute_state[];
 
-    // static charVoiceTable;
-    // static linkVoiceTable;
+    static u16 charVoiceTable[][2];
+    static u8 linkVoiceTable[][4][2];
 
     static u8 m_bgm_wave_info[];
     static u8 m_dy_wave_set_1st[][2];
@@ -341,7 +341,20 @@ public:
     /* 0x0238 */ u8 mIslandRoomNo;
     /* 0x0239 */ u8 field_0x0239;
     /* 0x023A */ u8 field_0x023a;
-    /* 0x023B */ u8 field_0x023B[0x1580 - 0x023B];
+    /* 0x023B */ u8 field_0x023B[0x244 - 0x023B];
+    struct LevelSoundEntry {
+        f32 volume;
+        f32 pan;
+        f32 dolby;
+        s8 reverb;
+    };
+    struct LevelSoundGroup {
+        u32 id;
+        u32 count;
+        LevelSoundEntry entries[20];
+    };
+    /* 0x0244 */ LevelSoundGroup mLevelSounds[15];
+    /* 0x157C */ u32 mLevelSoundCount;
     /* 0x1580 */ Vec mSeaEnvPos[64];
     /* 0x1880 */ Vec mSeaEnvCameraPos[64];
     /* 0x1B80 */ int field_0x1b80;
@@ -369,12 +382,12 @@ public:
     /* 0x1F48 */ int field_0x1f48;
     /* 0x1F4C */ struct {
         int field_0x00;
-        int field_0x04;
+        JAISound* field_0x04;
     } field_0x1f4c[0x1E];
     /* 0x203C */ u8 field_0x203c;
     /* 0x203D */ u8 field_0x203d;
-    /* 0x2040 */ int field_0x2040[4];
-    /* 0x2050 */ int field_0x2050[4];
+    /* 0x2040 */ JAISound* field_0x2040[4];
+    /* 0x2050 */ JAISound* field_0x2050[4];
     /* 0x2060 */ JAISound* field_0x2060;
     /* 0x2064 */ int field_0x2064;
     /* 0x2068 */ JMath::TRandom_enough_ field_0x2068;

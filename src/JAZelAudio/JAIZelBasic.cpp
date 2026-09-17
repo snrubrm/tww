@@ -14,6 +14,7 @@
 #include "JSystem/JAudio/JAIStreamMgr.h"
 #include "JSystem/JAudio/JAIBankWave.h"
 #include "JSystem/JAudio/JASSystemHeap.h"
+#include "JSystem/JAudio/JASWaveBankMgr.h"
 #include "JSystem/JKernel/JKRSolidHeap.h"
 #include "d/d_com_inf_game.h"
 
@@ -372,12 +373,44 @@ void JAIZelBasic::subBgmStart(u32) {
 
 /* 802A4CDC-802A4DA4       .text subBgmStop__11JAIZelBasicFv */
 void JAIZelBasic::subBgmStop() {
-    /* Nonmatching */
+    switch (mSubBgmNum) {
+    case JA_BGM_ITEM_GET: case JA_BGM_OPEN_BOX: case JA_BGM_GET_HEART: case JA_BGM_ITEM_GET_S:
+    case JA_BGM_GET_SONG: case JA_BGM_TAKT_CHUYA: case JA_BGM_TAKT_KAZE: case JA_BGM_TAKT_SHIPPU:
+    case JA_BGM_GET_PEARL: case JA_BGM_BGN_GET_BOX:
+        return;
+    }
+    field_0x00b0 = 15;
+    mLastMinibossSubBGMType = 0;
+    if (mSubBgmNum == JA_BGM_MBOSS || mSubBgmNum == JA_BGM_MBOSS_S) {
+        field_0x00ce = 20;
+    }
 }
 
 /* 802A4DA4-802A4EB8       .text subBgmStopInner__11JAIZelBasicFv */
 void JAIZelBasic::subBgmStopInner() {
-    /* Nonmatching */
+    if (field_0x00b0 != -1) {
+        if (mSubBgmNum == JA_BGM_MBOSS || mSubBgmNum == JA_BGM_MBOSS_S) {
+            field_0x00ce = 20;
+        }
+        mLastMinibossSubBGMType = 0;
+        field_0x0064 = 0;
+        if (mpSubBgmSound) {
+            mpSubBgmSound->stop(45);
+        } else if (mSubBgmNum == 0xFFFFFFFF) {
+            return;
+        }
+        mpSubBgmSound = NULL;
+        mSubBgmNum = -1;
+        field_0x008c = 1.0f;
+        field_0x0080 = 1.0f;
+        if (mpMainBgmSound) {
+            mpMainBgmSound->setVolume(field_0x00ac * (field_0x009c * (field_0x0098 * (field_0x0094 *
+                (field_0x0090 * (field_0x008c * (field_0x0088 * (field_0x0080 * field_0x0084))))))), 45, 0);
+        }
+        field_0x00b0 = -1;
+        field_0x00c1 = 0;
+        field_0x00c4 = 0;
+    }
 }
 
 /* 802A4EB8-802A53B4       .text bgmNowBattle__11JAIZelBasicFf */
@@ -468,7 +501,7 @@ void JAIZelBasic::mbossBgmNearByProcess(f32 param_1) {
 }
 
 /* 802A59B0-802A59D8       .text checkBgmPlaying__11JAIZelBasicFv */
-bool JAIZelBasic::checkBgmPlaying() {
+BOOL JAIZelBasic::checkBgmPlaying() {
     if (mpMainBgmSound || mpStreamBgmSound) {
         return true;
     } else {
@@ -758,13 +791,60 @@ void JAIZelBasic::seDeleteObject(Vec* param_1) {
 }
 
 /* 802A86A8-802A8748       .text getLinkVoiceVowel__11JAIZelBasicFUl */
-u8 JAIZelBasic::getLinkVoiceVowel(u32) {
-    /* Nonmatching */
+u8 JAIZelBasic::getLinkVoiceVowel(u32 id) {
+    u8 (*table)[2] = linkVoiceTable[id];
+    int tries = 0;
+    u32 choice;
+    do {
+        choice = 4.0f * field_0x2068.get();
+        if (table[choice][0] != 0xFF) {
+            break;
+        }
+        tries++;
+    } while (tries < 400);
+    if (tries == 400) {
+        return 0xFF;
+    }
+    return table[choice][1];
 }
 
 /* 802A8748-802A892C       .text linkVoiceStart__11JAIZelBasicFUlP3VecUcSc */
-void JAIZelBasic::linkVoiceStart(u32, Vec*, u8, s8) {
-    /* Nonmatching */
+void JAIZelBasic::linkVoiceStart(u32 id, Vec* pos, u8 vowel, s8 reverb) {
+    if (!field_0x022d) return;
+    if (mStreamBgmNum == 0xC0000005) {
+        if (field_0x00b8) {
+            if (id == 16) return;
+        } else if (id == 16 && getRandomU32(3) != 0) {
+            return;
+        }
+    }
+    if (mMainBgmNum == JA_BGM_SEA_GAME && id == 3) {
+        field_0x0090 = JAIZelParam::VOL_BGM_TALKING;
+        if (mpMainBgmSound && !mpSubBgmSound) {
+            mpMainBgmSound->setVolume(field_0x00ac * (field_0x009c * (field_0x0098 * (field_0x0094 *
+                (field_0x0090 * (field_0x008c * (field_0x0088 * (field_0x0080 * field_0x0084))))))), 2, 0);
+        }
+    }
+    if (id == 12) pos = NULL;
+    u8 (*table)[2] = linkVoiceTable[id];
+    u32 voice = 0;
+    if (vowel == 0xFF) {
+        voice = table[0][0];
+    } else {
+        int tries = 0;
+        do {
+            u32 choice = 4.0f * field_0x2068.get();
+            if (vowel == table[choice][1] && table[choice][0] != 0xFF) {
+                voice = table[choice][0];
+                break;
+            }
+            tries++;
+        } while (tries < 400);
+        if (tries == 400) voice = table[0][0];
+    }
+    if (voice != 0xFF) {
+        seStart(voice + JA_SE_LK_V_01_01, pos, 0, reverb, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+    }
 }
 
 /* 802A892C-802A8958       .text monsSeInit__11JAIZelBasicFv */
@@ -776,33 +856,164 @@ void JAIZelBasic::monsSeInit() {
 }
 
 /* 802A8958-802A8B24       .text monsSeStart__11JAIZelBasicFUlP3VecUlUlSc */
-void JAIZelBasic::monsSeStart(u32 i_seNum, Vec*, u32, u32, s8) {
-    /* Nonmatching */
+void JAIZelBasic::monsSeStart(u32 i_seNum, Vec* pos, u32 actorId, u32 variation, s8 reverb) {
+    if (field_0x0201 == 1) return;
+    if (i_seNum >= JA_SE_CV_KS_ATTACK && i_seNum <= JA_SE_CV_KS_BLOW) {
+        kuroboVoicePlay(i_seNum, pos, reverb);
+        return;
+    }
+    if (i_seNum >= JA_SE_CV_PT_ATTACK && i_seNum <= JA_SE_CV_PT_HAPPY) {
+        kuroboVoicePlay(i_seNum, pos, reverb);
+        return;
+    }
+    if (field_0x0224 == 45) {
+        switch (i_seNum) {
+        case JA_SE_CV_PW_RUN: case JA_SE_CV_PW_APPEAR: case JA_SE_CV_PW_ATTACK: case JA_SE_CV_PW_GO_CURSE: case JA_SE_CV_PW_DAMAGE: case JA_SE_CV_PW_DIE: case JA_SE_CV_PW_CURSE_IN:
+            kuroboVoicePlay(i_seNum, pos, reverb);
+            return;
+        }
+    }
+    int i;
+    for (i = 0; i < 30; i++) {
+        if (field_0x1f4c[i].field_0x00 == actorId) {
+            if (field_0x1f4c[i].field_0x04) field_0x1f4c[i].field_0x04->stop(0);
+            break;
+        }
+    }
+    if (i == 30) {
+        for (i = 0; i < 30; i++) {
+            if (field_0x1f4c[i].field_0x00 == 0xFFFFFFFF) {
+                field_0x1f4c[i].field_0x00 = actorId;
+                break;
+            }
+        }
+        if (i == 30) i = 29;
+    }
+    if (variation > 9) variation = actorId % 10;
+    startSoundVec(i_seNum, &field_0x1f4c[i].field_0x04, pos, 0, variation, 4);
+    if (field_0x1f4c[i].field_0x04) field_0x1f4c[i].field_0x04->setPortData(9, reverb);
 }
 
 /* 802A8B24-802A8BE4       .text kuroboMotionPlay__11JAIZelBasicFUlP3VecUlSc */
-void JAIZelBasic::kuroboMotionPlay(u32, Vec*, u32, s8) {
-    /* Nonmatching */
+void JAIZelBasic::kuroboMotionPlay(u32 id, Vec* pos, u32 variation, s8 reverb) {
+    if (field_0x203c < 4) {
+        field_0x203c++;
+        int i;
+        for (i = 0; i < 4; i++) {
+            if (!field_0x2040[i]) break;
+        }
+        if (i == 4) return;
+        startSoundVec(id, &field_0x2040[i], pos, 0, variation, 4);
+        if (field_0x2040[i]) field_0x2040[i]->setPortData(9, reverb);
+    }
 }
 
 /* 802A8BE4-802A8CB4       .text kuroboVoicePlay__11JAIZelBasicFUlP3VecSc */
-void JAIZelBasic::kuroboVoicePlay(u32, Vec*, s8) {
-    /* Nonmatching */
+void JAIZelBasic::kuroboVoicePlay(u32 id, Vec* pos, s8 reverb) {
+    if (field_0x203d < 4) {
+        field_0x203d++;
+        stopAllSe(4, pos);
+        int i;
+        for (i = 0; i < 4; i++) {
+            if (!field_0x2050[i]) break;
+        }
+        if (i == 4) return;
+        startSoundVec(id, &field_0x2050[i], pos, 0, 0, 4);
+        if (field_0x2050[i]) field_0x2050[i]->setPortData(9, reverb);
+    }
 }
 
 /* 802A8CB4-802A8F58       .text setLevObjSE__11JAIZelBasicFUlP3VecSc */
-void JAIZelBasic::setLevObjSE(u32, Vec*, s8) {
-    /* Nonmatching */
+void JAIZelBasic::setLevObjSE(u32 id, Vec* pos, s8 reverb) {
+    MtxP matrix = mAudioCamera->field_0x8;
+    Vec position = {0.0f, 0.0f, 0.0f};
+    if (!pos) {
+        if (mAudioCamera->field_0x0) {
+            position.x = mAudioCamera->field_0x0->x;
+            position.y = mAudioCamera->field_0x0->y;
+            position.z = mAudioCamera->field_0x0->z;
+        }
+    } else {
+        position.x = pos->x;
+        position.y = pos->y;
+        position.z = pos->z;
+    }
+    if (id == JA_SE_FIREBLAST_NOISE && position.y > mAudioCamera->field_0x0->y) {
+        position.y = mAudioCamera->field_0x0->y;
+    }
+    if (matrix) PSMTXMultVec(matrix, &position, &position);
+    f32 scale = 1.0f;
+    switch (id) {
+    case JA_SE_OBJ_TORCH_BURNING: case JA_SE_CM_BST_HORI: scale = 0.5f; break;
+    case JA_SE_ATM_RIVER_M: case JA_SE_ATM_RIVER_S: case JA_SE_CM_BTD_HIFUKI_BEF: case JA_SE_FIREBLAST_NOISE: scale = 3.0f; break;
+    case JA_SE_ATM_RAKUBAN: case JA_SE_CM_BTD_HIFUKI: case JA_SE_CM_BKM_ATKVINE_DIG: case JA_SE_CM_BKM_ATKVINE_L_ATK: scale = 4.0f; break;
+    case JA_SE_ATM_WATER_GATE: scale = 6.0f; break;
+    case JA_SE_OBJ_STEAM: scale = 0.4f; break;
+    case JA_SE_OBJ_OTOSHIANA_SUS: case JA_SE_OBJ_SEARCH_LIGHT: case JA_SE_OBJ_BAR_FRAME_BURN: break;
+    }
+    f32 volume = calcPosVolume(&position, scale);
+    f32 pan = calcPosPanLR(&position);
+    f32 dolby = calcPosPanSR(&position, 1.0f);
+    if (0.0f == volume) return;
+    u32 i;
+    for (i = 0; i < mLevelSoundCount; i++) {
+        if (mLevelSounds[i].id == id) break;
+    }
+    if (i == mLevelSoundCount) {
+        if (mLevelSoundCount == 15) return;
+        mLevelSounds[i].id = id;
+        mLevelSoundCount++;
+    }
+    if (mLevelSounds[i].count == 20) return;
+    u32 index = mLevelSounds[i].count;
+    mLevelSounds[i].entries[index].volume = volume;
+    mLevelSounds[i].entries[index].pan = pan;
+    mLevelSounds[i].entries[index].dolby = dolby;
+    mLevelSounds[i].entries[index].reverb = reverb;
+    mLevelSounds[i].count++;
 }
 
 /* 802A8F58-802A90C0       .text processLevObjSE__11JAIZelBasicFv */
 void JAIZelBasic::processLevObjSE() {
-    /* Nonmatching */
+    for (u32 i = 0; i < mLevelSoundCount; i++) {
+        f32 left = 0.0f;
+        f32 right = left;
+        f32 rear = left;
+        s8 reverb = 0;
+        for (u32 j = 0; j < mLevelSounds[i].count; j++) {
+            f32 volume = mLevelSounds[i].entries[j].volume;
+            if (volume > 0.0f) reverb = mLevelSounds[i].entries[j].reverb;
+            f32 leftVolume = (1.0f - mLevelSounds[i].entries[j].pan) * volume;
+            f32 rightVolume = mLevelSounds[i].entries[j].pan * volume;
+            f32 rearVolume = mLevelSounds[i].entries[j].dolby * volume;
+            if (leftVolume > left) left = leftVolume;
+            if (rightVolume > right) right = rightVolume;
+            if (rearVolume > rear) rear = rearVolume;
+        }
+        f32 volume = left > right ? left : right;
+        volume = volume > rear ? volume : rear;
+        f32 pan = 0.5f;
+        if (0.0f != left || 0.0f != right) pan = right / (left + right);
+        int muted = field_0x0207;
+        if (muted == 0) {
+            seStart(mLevelSounds[i].id, NULL, 0, reverb, 1.0f, volume, pan, rear, 1);
+        }
+    }
+    initLevObjSE();
 }
 
 /* 802A90C0-802A9120       .text initLevObjSE__11JAIZelBasicFv */
 void JAIZelBasic::initLevObjSE() {
-    /* Nonmatching */
+    mLevelSoundCount = 0;
+    for (int i = 0; i < 15; i++) {
+        mLevelSounds[i].id = -1;
+        mLevelSounds[i].count = 0;
+        for (int j = 0; j < 20; j++) {
+            mLevelSounds[i].entries[j].volume = 0.0f;
+            mLevelSounds[i].entries[j].pan = 0.5f;
+            mLevelSounds[i].entries[j].dolby = 0.0f;
+        }
+    }
 }
 
 /* 802A9120-802A91CC       .text charVoicePlay__11JAIZelBasicFllP3VecSc */
@@ -822,8 +1033,25 @@ void JAIZelBasic::charVoicePlay(s32 param_1, s32 param_2, Vec* param_3, s8 param
 }
 
 /* 802A91CC-802A92CC       .text messageSePlay__11JAIZelBasicFUsP3VecSc */
-void JAIZelBasic::messageSePlay(u16, Vec*, s8) {
-    /* Nonmatching */
+void JAIZelBasic::messageSePlay(u16 id, Vec* pos, s8 reverb) {
+    if (id < 0x118) {
+        switch (id) {
+        case 0xB4: case 0xB5: case 0xB6: case 0xB7: case 0xB8: case 0xB9: case 0xBA: case 0x104:
+            pos = NULL;
+            break;
+        }
+        s32 character = charVoiceTable[id][0];
+        s32 voice = charVoiceTable[id][1];
+        if (character == 0xFFFF || voice == 0xFFFF) return;
+        switch (character & 0xF000) {
+        case 0:
+            charVoicePlay(character, voice, pos, reverb);
+            break;
+        case 0x1000: case 0x2000: case 0x3000: case 0x8000:
+            seStart(voice, pos, 0, reverb, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+            break;
+        }
+    }
 }
 
 /* 802A92CC-802A965C       .text shipCruiseSePlay__11JAIZelBasicFP3Vecf */
@@ -1456,33 +1684,257 @@ int JAIZelBasic::spotNameToId(char* param_1) {
 }
 
 /* 802AAF04-802AB204       .text sceneChange__11JAIZelBasicFUlUlUll */
-void JAIZelBasic::sceneChange(u32, u32, u32, s32) {
-    /* Nonmatching */
-    OSReport("[JAIZelBasic::sceneChange] bgm = 0x%08x, wave1 = %d, wave2 = %d (%d)\n");
+void JAIZelBasic::sceneChange(u32 bgm, u32 wave1, u32 wave2, s32 keepBgm) {
+    OSReport("[JAIZelBasic::sceneChange] bgm = 0x%08x, wave1 = %d, wave2 = %d (%d)\n", bgm, wave1, wave2, keepBgm);
+    if (field_0x0224 == 0x12 && field_0x0033 && checkDayTime() == 1) {
+        bgm = 0;
+    }
+    if (bgm != mNextSceneBgmId) {
+        if (mMainBgmNum == JA_BGM_D_GANON_1 && checkBgmPlaying() == 1) {
+            switch (bgm) {
+            case JA_BGM_D_GANON_1:
+            case JA_BGM_UNK_130:
+            case JA_BGM_UNK_131:
+            case JA_BGM_UNK_132:
+            case JA_BGM_UNK_133:
+                field_0x022e = 0;
+                break;
+            default:
+                field_0x022e = 1;
+                break;
+            }
+        } else if (bgm == mMainBgmNum && checkBgmPlaying() == 1) {
+            field_0x022e = 0;
+        } else if (checkSeqIDDemoPlaying(bgm) == 1) {
+            field_0x022e = 0;
+        } else {
+            field_0x022e = 1;
+        }
+    } else {
+        if (bgm != mMainBgmNum || checkBgmPlaying() == 0) {
+            if (checkSeqIDDemoPlaying(bgm) == 1) {
+                field_0x022e = 0;
+            } else {
+                field_0x022e = 1;
+            }
+        } else {
+            field_0x022e = 0;
+        }
+    }
+    mNextSceneBgmId = bgm;
+    if (mpStreamBgmSound) {
+        mpStreamBgmSound->stop(JAIZelParam::BGM_SCENE_CHANGE_FO_TIME);
+    }
+    mpStreamBgmSound = NULL;
+    mStreamBgmNum = -1;
+    if (field_0x022e) {
+        if (keepBgm == 0) {
+            switch (mSubBgmNum) {
+            case JA_BGM_TAKT_CHUYA:
+            case JA_BGM_TAKT_SHIPPU:
+                if (mpSubBgmSound) {
+                    bgmStop(JAIZelParam::BGM_SCENE_CHANGE_FO_TIME, 1);
+                } else {
+                    bgmStop(JAIZelParam::BGM_SCENE_CHANGE_FO_TIME, 0);
+                }
+                break;
+            default:
+                bgmStop(JAIZelParam::BGM_SCENE_CHANGE_FO_TIME, 0);
+                break;
+            }
+        }
+        u32 wave = m_bgm_wave_info[bgm & 0xFF];
+        if (wave != field_0x022f && wave != 0) {
+            field_0x0231 = 1;
+            field_0x0230 = field_0x022f;
+            field_0x022f = wave;
+        } else {
+            field_0x0231 = 0;
+        }
+    }
+    if (wave1 != mFirstDynamicSceneWaveIndex && wave1 != 0) {
+        mSetNum = 1;
+        field_0x0233 = mFirstDynamicSceneWaveIndex;
+        mFirstDynamicSceneWaveIndex = wave1;
+    } else {
+        mSetNum = 0;
+    }
+    if ((wave2 != mSecondDynamicSceneWaveIndex && wave2 != 0) || mSetNum) {
+        field_0x0237 = 1;
+        field_0x0236 = mSecondDynamicSceneWaveIndex;
+        mSecondDynamicSceneWaveIndex = wave2;
+    } else {
+        field_0x0237 = 0;
+    }
 }
 
 /* 802AB204-802AB374       .text sceneBgmStart__11JAIZelBasicFv */
 void JAIZelBasic::sceneBgmStart() {
-    /* Nonmatching */
-    OSReport("[JAIZelBasic::sceneBgmStart] %08x\n");
-    OSReport("--- No BGM because of night time ---\n");
+    OSReport("[JAIZelBasic::sceneBgmStart] %08x\n", mNextSceneBgmId);
+    field_0x0021 = 1;
+    int night = 0;
+    if (field_0x0224 == 0x12 && checkDayTime() == 0) {
+        field_0x022e = 0;
+        night = 1;
+        OSReport("--- No BGM because of night time ---\n");
+    }
+    if (field_0x0032 != 1) {
+        field_0x00ca = 0;
+        field_0x022d = 1;
+#if VERSION > VERSION_DEMO
+        field_0x0205 = 0;
+#endif
+        if (!field_0x022e) {
+            switch (field_0x0224) {
+            case 5: case 6: case 10: case 20: case 21: case 25:
+            case 46: case 47: case 48: case 49: case 50: case 51: case 52:
+            case 56: case 105: case 106:
+                break;
+            default:
+                return;
+            }
+        }
+        if (mNextSceneBgmId != 0 && mNextSceneBgmId != 0x80000000 && night == 0) {
+            bgmStart(mNextSceneBgmId, 0, 0);
+        }
+        field_0x0033 = 0;
+        field_0x022e = 0;
+    }
 }
 
 /* 802AB374-802AB678       .text load1stDynamicWave__11JAIZelBasicFv */
 void JAIZelBasic::load1stDynamicWave() {
-    /* Nonmatching */
-    OSReport("[JAIZelBasic::load1stDynamicWave] (%d) set num = %d\n");
+    OSReport("[JAIZelBasic::load1stDynamicWave] (%d) set num = %d\n", mSetNum, mFirstDynamicSceneWaveIndex);
+    field_0x0224 = field_0x0220;
+    if (field_0x0231 || mSetNum || field_0x0237) {
+        u32 second;
+        u32 first = m_dy_wave_set_2nd[field_0x0236][0];
+        second = m_dy_wave_set_2nd[field_0x0236][1];
+        if (second) {
+            JASystem::WaveBankMgr::eraseWave(second, 0);
+            JAInter::BankWave::setWsLoadStatus(second, 0);
+            JAInter::BankWave::setWsGroupNumber(second, -1);
+        }
+        if (first) {
+            JASystem::WaveBankMgr::eraseWave(first, 0);
+            JAInter::BankWave::setWsLoadStatus(first, 0);
+            JAInter::BankWave::setWsGroupNumber(first, -1);
+        }
+    }
+    if (field_0x0231 || mSetNum) {
+        u32 second;
+        u32 first = m_dy_wave_set_1st[field_0x0233][0];
+        second = m_dy_wave_set_1st[field_0x0233][1];
+        if (second) {
+            JASystem::WaveBankMgr::eraseWave(second, 0);
+            JAInter::BankWave::setWsLoadStatus(second, 0);
+            JAInter::BankWave::setWsGroupNumber(second, -1);
+        }
+        if (first) {
+            JASystem::WaveBankMgr::eraseWave(first, 0);
+            JAInter::BankWave::setWsLoadStatus(first, 0);
+            JAInter::BankWave::setWsGroupNumber(first, -1);
+        }
+    }
+    if (field_0x0231 && field_0x0230) {
+        JASystem::WaveBankMgr::eraseWave(field_0x0230, 0);
+        JAInter::BankWave::setWsLoadStatus(field_0x0230, 0);
+        JAInter::BankWave::setWsGroupNumber(field_0x0230, -1);
+    }
+    if (field_0x0231 && field_0x022f) {
+        JAInter::BankWave::loadSceneWave(field_0x022f, 0);
+    }
+    if (mSetNum) {
+        u32 first = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][0];
+        u32 second = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][1];
+        if (first) JAInter::BankWave::loadSceneWave(first, 0);
+        if (second) JAInter::BankWave::loadSceneWave(second, 0);
+    }
+    field_0x022c = 0;
+    field_0x1f3c = 0;
+    field_0x0080 = 1.0f;
+    field_0x0084 = 1.0f;
+    field_0x0088 = 1.0f;
+    switch (mSubBgmNum) {
+    case JA_BGM_SEA_ENEMY:
+    case JA_BGM_TAKT_CHUYA:
+    case JA_BGM_TAKT_SHIPPU:
+        break;
+    default:
+        field_0x008c = 1.0f;
+        break;
+    }
+    if (mMainBgmNum != JA_BGM_ISLAND_WOOD) field_0x0090 = 1.0f;
+    field_0x0094 = 1.0f;
+    field_0x0098 = 1.0f;
+    field_0x009c = 1.0f;
+    field_0x00ac = 1.0f;
+    field_0x00a0 = 1.0f;
+    field_0x00a4 = 1.0f;
+#if VERSION > VERSION_DEMO
+    field_0x00a8 = 1.0f;
+#endif
+    if (!mpMainBgmSound || mMainBgmNum != JA_BGM_MORNING) field_0x0032 = 0;
+    field_0x00b9 = 0;
+    field_0x021e = 1;
+    field_0x022d = 0;
+    field_0x1dd4 = 0;
+    mbLandingDemoStarted = 0;
+    field_0x0208 = 0;
+    field_0x00d0 = 0;
+    field_0x0204 = 0;
+    field_0x00be = 0;
+#if VERSION > VERSION_JPN
+    field_0x0028 = 0;
+    field_0x0062 = 0;
+#endif
 }
 
 /* 802AB678-802AB6F4       .text check1stDynamicWave__11JAIZelBasicFv */
 BOOL JAIZelBasic::check1stDynamicWave() {
-    /* Nonmatching */
+    s32 firstStatus = 0;
+    s32 secondStatus = 0;
+    u32 first = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][0];
+    u32 second = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][1];
+    if (first) {
+        firstStatus = 2 - JAInter::BankWave::getWaveLoadStatus(first);
+    }
+    if (second) {
+        secondStatus = 2 - JAInter::BankWave::getWaveLoadStatus(second);
+    }
+    return (firstStatus << 8) + secondStatus;
 }
 
 /* 802AB6F4-802AB858       .text load2ndDynamicWave__11JAIZelBasicFv */
 void JAIZelBasic::load2ndDynamicWave() {
-    /* Nonmatching */
-    OSReport("[JAIZelBasic::load2ndDynamicWave] (%d) set num = %d\n");
+    OSReport("[JAIZelBasic::load2ndDynamicWave] (%d) set num = %d\n", field_0x0237, mSecondDynamicSceneWaveIndex);
+    u32 stream = 0;
+    switch (field_0x0224) {
+    case 2:
+        if (!field_0x00cd) stream = JA_STRM_BTD_START;
+        break;
+    case 7:
+        if (!field_0x00cd) stream = JA_STRM_BKM_START;
+        break;
+    case 37:
+        if (!field_0x00cd) stream = JA_STRM_BST_START;
+        break;
+    case 24:
+        if (!field_0x00cd) stream = JA_STRM_RANE_START;
+        break;
+    case 45:
+        if (!field_0x00cd) stream = JA_STRM_BPW_START;
+        break;
+    }
+    if (field_0x0237) {
+        u32 first = m_dy_wave_set_2nd[mSecondDynamicSceneWaveIndex][0];
+        u32 second = m_dy_wave_set_2nd[mSecondDynamicSceneWaveIndex][1];
+        if (first) JAInter::BankWave::loadSceneWave(first, 0);
+        if (second) JAInter::BankWave::loadSceneWave(second, 0);
+    }
+    if (stream) {
+        bgmStreamPrepare(stream);
+    }
 }
 
 static void dummy() {
@@ -1508,8 +1960,29 @@ s32 JAIZelBasic::checkFirstWaves() {
 }
 
 /* 802AB8B0-802AB9F4       .text setLinkHp__11JAIZelBasicFll */
-void JAIZelBasic::setLinkHp(s32, s32) {
-    /* Nonmatching */
+void JAIZelBasic::setLinkHp(s32 hp, s32 maxHp) {
+    field_0x0034 = hp;
+    field_0x0038 = maxHp;
+    if (maxHp != 0) {
+        field_0x003c = (f32)hp / (f32)maxHp;
+    } else {
+        field_0x003c = 1.0f;
+    }
+    if (field_0x003c > 1.0f) field_0x003c = 1.0f;
+    if (mpSubBgmSound) {
+        switch (mSubBgmNum) {
+        case JA_BGM_BATTLE_NORM:
+            mpSubBgmSound->setTempoProportion(1.0f + 0.2667f * (1.0f - field_0x003c), 0);
+            break;
+        case JA_BGM_MBOSS:
+        case JA_BGM_MBOSS_S:
+            mpSubBgmSound->setTempoProportion(1.0f + 0.1765f * (1.0f - field_0x003c), 0);
+            break;
+        case JA_BGM_SEA_ENEMY:
+            mpSubBgmSound->setTempoProportion(1.0f + 0.2069f * (1.0f - field_0x003c), 0);
+            break;
+        }
+    }
 }
 
 /* 802AB9F4-802ABA44       .text setLinkSwordType__11JAIZelBasicFll */
@@ -1719,13 +2192,40 @@ JAISound* JAIZelBasic::makeSound(u32 param_1) {
 }
 
 /* 802AC258-802AC300       .text checkSeqIDDemoPlaying__11JAIZelBasicFUl */
-void JAIZelBasic::checkSeqIDDemoPlaying(u32) {
-    /* Nonmatching */
+BOOL JAIZelBasic::checkSeqIDDemoPlaying(u32 id) {
+    for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
+        JAInter::SeqUpdateData* info = JAInter::SequenceMgr::getPlayTrackInfo(i);
+        if (info && info->field_0x48) {
+            JAISound* sound = info->field_0x48;
+            if (sound != mpMainBgmSound && sound != mpSubBgmSound && sound->getID() != JA_BGM_SE_SEQUENCE && id == sound->getID()) {
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 /* 802AC300-802AC400       .text checkDemoFanfarePlaying__11JAIZelBasicFv */
 u32 JAIZelBasic::checkDemoFanfarePlaying() {
-    /* Nonmatching */
+    if (checkSeqIDDemoPlaying(JA_BGM_ITEM_GET) == 1) {
+        return JA_BGM_ITEM_GET;
+    }
+    if (checkSeqIDDemoPlaying(JA_BGM_ITEM_GET_S) == 1) {
+        return JA_BGM_ITEM_GET_S;
+    }
+    if (checkSeqIDDemoPlaying(JA_BGM_GET_SONG) == 1) {
+        return JA_BGM_GET_SONG;
+    }
+    if (checkSeqIDDemoPlaying(JA_BGM_GET_HEART) == 1) {
+        return JA_BGM_GET_HEART;
+    }
+    if (checkSeqIDDemoPlaying(JA_BGM_GET_PEARL) == 1) {
+        return JA_BGM_GET_PEARL;
+    }
+    if (checkSeqIDDemoPlaying(JA_BGM_BGN_GET_BOX) == 1) {
+        return JA_BGM_BGN_GET_BOX;
+    }
+    return 0;
 }
 
 /* 802AC400-802AC468       .text processDemoFanfareMute__11JAIZelBasicFv */
