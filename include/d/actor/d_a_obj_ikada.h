@@ -18,7 +18,7 @@ public:
         PROC_EXEC_e = 1,
     };
 
-    void getCranePos() {}
+    cXyz getCranePos() { return m0474; }
     void getFrame() {}
     void getMode() {}
     void getSvDirection() {}
