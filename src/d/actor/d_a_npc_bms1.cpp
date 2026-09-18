@@ -438,11 +438,11 @@ u16 daNpc_Bms1_c::next_msgStatus(u32* msg) {
                 mShopItems.hideSelectItem();
                 mItemNo = mShopItems.getSelectItemNo();
                 dComIfGp_setItemRupeeCount(- price);
-                if (!checkItemGet(mShopItems.getSelectItemNo(), 1)) {
+                if (!checkItemGet((int)mShopItems.getSelectItemNo(), 1)) {
                     mOrder = 3;
                     status = 16;
                 } else {
-                    execItemGet(mShopItems.getSelectItemNo());
+                    execItemGet((int)mShopItems.getSelectItemNo());
                     *msg = 0x2790;
                 }
             }
