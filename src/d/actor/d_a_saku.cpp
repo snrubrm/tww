@@ -682,23 +682,21 @@ cPhs_State daSaku_c::_daSaku_create() {
 }
 
 /* 00002264-000023D8       .text daSaku_Delete__FP8daSaku_c */
-// Nonmatching - register allocation.
 inline BOOL daSaku_c::_daSaku_delete() {
-    int i, j;
     if (l_sakuHIO.mNo >= 0) {
         mDoHIO_deleteChild(l_sakuHIO.mNo);
         l_sakuHIO.mNo = -1;
     }
-    for (i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         mSmoke[i].end();
     }
-    for (i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         if (mState[i] != 0) {
             dComIfG_Bgsp()->Release(mActiveBgW[i]);
         }
     }
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 2; j++) {
+    for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < 2; j++) {
             if (m_heap[i][j]) {
                 mDoExt_destroySolidHeap(m_heap[i][j]);
                 m_heap[i][j] = NULL;
