@@ -101,12 +101,11 @@ BOOL daObjFlame::Act_c::solidHeapCB(fopAc_ac_c* actor) {
 
 /* 00000134-00000414       .text create_heap__Q210daObjFlame5Act_cFv */
 bool daObjFlame::Act_c::create_heap() {
-    // USA: the success flag and model data use swapped r29/r30 registers.
     bool success = false;
     J3DModelData* mdl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, attr_scl().model);
     JUT_ASSERT(0x1F3, mdl_data != 0);
     mpModel = mDoExt_J3DModel__create(mdl_data, 0, 0x11020203);
-    J3DAnmTextureSRTKey* btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(M_arcname, attr_scl().btk);
+    J3DAnmTextureSRTKey* btk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(M_arcname, attr_scl().btk));
     mpBtkAnm = new mDoExt_btkAnm;
     BOOL btkOK = FALSE;
     JUT_ASSERT(0x1FC, btk != 0);
@@ -115,7 +114,7 @@ bool daObjFlame::Act_c::create_heap() {
     }
     BOOL brkOK = FALSE;
     if (attr_scl().brk >= 0) {
-        J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, attr_scl().brk);
+        J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, attr_scl().brk));
         mpBrkAnm = new mDoExt_brkAnm;
         JUT_ASSERT(0x212, brk != 0);
         if (mpBrkAnm != NULL) {
