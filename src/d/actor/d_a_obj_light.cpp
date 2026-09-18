@@ -38,22 +38,28 @@ BOOL daObjLight::Act_c::solidHeapCB(fopAc_ac_c* actor) {
 
 /* 00000110-00000344       .text create_heap__Q210daObjLight5Act_cFv */
 bool daObjLight::Act_c::create_heap() {
-    // USA: light and collision resource pointers still use different registers.
-    J3DModelData* mdl_data_lighthouse = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_BDL_STOUDAI_e);
+    J3DModelData* mdl_data_lighthouse;
+    J3DModelData* mdl_data_light;
+
+    mdl_data_lighthouse = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_BDL_STOUDAI_e));
     JUT_ASSERT(267, mdl_data_lighthouse != 0);
-    if (mdl_data_lighthouse != NULL) mpModel[0] = mDoExt_J3DModel__create(mdl_data_lighthouse, 0, 0x11020203);
-    J3DModelData* mdl_data_light = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_BDL_SHIKARI_e);
+    if (mdl_data_lighthouse != NULL) {
+        mpModel[0] = mDoExt_J3DModel__create(mdl_data_lighthouse, 0, 0x11020203);
+    }
+    mdl_data_light = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_BDL_SHIKARI_e));
     JUT_ASSERT(274, mdl_data_light != 0);
     if (mdl_data_light != NULL) {
         mpModel[1] = mDoExt_J3DModel__create(mdl_data_light, 0, 0x11020203);
         mpModel[2] = mDoExt_J3DModel__create(mdl_data_light, 0, 0x11020203);
     }
     set_mtx();
-    cBgD_t* bgw_data = (cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_DZB_STOUDAI_e);
+    cBgD_t* bgw_data = static_cast<cBgD_t*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_DZB_STOUDAI_e));
     JUT_ASSERT(284, bgw_data != 0);
     if (bgw_data != NULL) {
         mpBgW = new dBgW;
-        if (mpBgW != NULL && mpBgW->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx) == 1) return false;
+        if (mpBgW != NULL && mpBgW->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx) == 1) {
+            return false;
+        }
     }
     return mdl_data_lighthouse != NULL && mpModel[0] != NULL && mdl_data_light != NULL && mpModel[1] != NULL && mpModel[2] != NULL && bgw_data != NULL && mpBgW != NULL;
 }
@@ -235,8 +241,7 @@ void daObjLight::Act_c::set_mtx() {
             cXyz pos = offset[i];
             pos.z += 700.0f;
             mDoMtx_stack_c::transS(current.pos);
-            // USA: the compiler reassociates this half-turn addition differently.
-            mDoMtx_stack_c::YrotM(shape_angle.y + (mLightAngle + 0x8000));
+            mDoMtx_stack_c::YrotM(shape_angle.y + mLightAngle + 0x8000);
             mDoMtx_stack_c::transM(pos);
             mpModel[i]->setBaseTRMtx(mDoMtx_stack_c::get());
         }
