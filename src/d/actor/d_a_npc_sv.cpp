@@ -967,8 +967,11 @@ u8 daNpcSv_c::getTalkNo() {
 
 /* 0000293C-00002958       .text isTalkOK__9daNpcSv_cFv */
 BOOL daNpcSv_c::isTalkOK() {
-    // Nonmatching - boolean result conversion mask.
-    return !dComIfGp_checkPlayerStatus0(0, 0x100000);
+    if (dComIfGp_checkPlayerStatus0(0, daPyStts0_SWIM_e)) {
+        return FALSE;
+    } else {
+        return TRUE;
+    }
 }
 
 /* 00002958-00002978       .text daNpc_PeopleCreate__FPv */
