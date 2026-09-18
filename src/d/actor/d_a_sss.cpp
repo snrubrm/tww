@@ -9,6 +9,7 @@
 #include "d/d_cc_uty.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_s_play.h"
+#include "d/d_bg_s_gnd_chk.h"
 #include "d/actor/d_a_player.h"
 #include "m_Do/m_Do_mtx.h"
 #include "res/Object/Sss.h"
@@ -251,8 +252,9 @@ static void cut_control2(sss_class* i_this) {
 /* 000014F4-00002614       .text hand_move__FP9sss_class */
 static void hand_move(sss_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    fopAc_ac_c* player_ac = dComIfGp_getPlayer(0);
     fopAc_ac_c* link = dComIfGp_getLinkPlayer();
+    daPy_py_c* player = (daPy_py_c*)player_ac;
     s8 emerged;
     cXyz offset, rotated, target, center;
     dBgS_GndChk ground;
@@ -320,7 +322,7 @@ static void hand_move(sss_class* i_this) {
             actor->speedF = 0.0f;
         }
         offset = target - i_this->mEndPos;
-        if (offset.abs() < 20.0f && player == link) {
+        if (offset.abs() < 20.0f && player_ac == link) {
             i_this->mAction = 3;
             hand_close(i_this);
             fopAcM_seStart(actor, JA_SE_OBJ_SVINE_GRASP, 0);
@@ -366,7 +368,7 @@ static void hand_move(sss_class* i_this) {
             f32 y = i_this->mEndPos.y;
             f32 z = i_this->mEndPos.z;
             y += 200.0f;
-            ground.GetPointP()->set(i_this->mEndPos.x, y, z);
+            ground.m_pos.set(i_this->mEndPos.x, y, z);
         }
         i_this->mGroundY = dComIfG_Bgsp()->GroundCross(&ground);
         if (i_this->mGroundY == -G_CM3D_F_INF || i_this->mEndPos.y <= 10.0f + i_this->mGroundY) {
