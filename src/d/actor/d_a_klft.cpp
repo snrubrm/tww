@@ -25,7 +25,6 @@ static f32* wp;
 
 /* 00000078-00000374       .text ride_call_back__FP4dBgWP10fopAc_ac_cP10fopAc_ac_c */
 static void ride_call_back(dBgW*, fopAc_ac_c* base, fopAc_ac_c* rider) {
-    // USA: remaining differences are register allocation for the actor and constant pool.
     klft_class* actor = (klft_class*)base;
     cXyz delta, pos, oldPos;
     mDoMtx_YrotS(*calc_mtx, -base->current.angle.y);
@@ -38,8 +37,10 @@ static void ride_call_back(dBgW*, fopAc_ac_c* base, fopAc_ac_c* rider) {
     }
     actor->mSinkTarget = -50.0f;
     f32 distance = std::sqrtf(pos.x * pos.x + pos.z * pos.z);
-    cLib_addCalcAngleS2(&actor->mRideTilt, distance * ((30.0f + REG0_F(0)) / base->scale.z), 10, 0x800);
-    cLib_addCalcAngleS2(&actor->mRideAngle, cM_atan2s(pos.x, pos.z), 2, 0x2000);
+    s16 tilt_target = distance * ((30.0f + REG0_F(0)) / base->scale.z);
+    cLib_addCalcAngleS2(&actor->mRideTilt, tilt_target, 10, 0x800);
+    s16 angle_target = cM_atan2s(pos.x, pos.z);
+    cLib_addCalcAngleS2(&actor->mRideAngle, angle_target, 2, 0x2000);
     f32 stickX = CPad_GET_STICK_POS_X(0);
     f32 stickY = CPad_GET_STICK_POS_Y(0);
     if (std::fabsf(stickX) + std::fabsf(stickY) > 0.1f || std::fabsf(actor->mMoveSpeed) > 0.0001f) {
