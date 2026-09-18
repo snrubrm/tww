@@ -82,27 +82,29 @@ static const int l_btp_ix_tbl[] = {
 cXyz daNpc_Kg1_c::m_camera_ctr(-200.0f, 140.0f, 85.0f);
 cXyz daNpc_Kg1_c::m_camera_eye(-117.0f, 92.0f, 344.0f);
 
-// Nonmatching: register allocation for the joint index and static data bases.
 static BOOL daNpc_Kg1_nodeCallBack(J3DNode* node, int phase) {
+    J3DModel* model;
+    daNpc_Kg1_c* i_this;
+    int joint;
     if (phase == 0) {
-        J3DModel* model = j3dSys.getModel();
-        daNpc_Kg1_c* i_this = (daNpc_Kg1_c*)model->getUserArea();
-        int joint = ((J3DJoint*)node)->getJntNo();
+        model = j3dSys.getModel();
+        i_this = (daNpc_Kg1_c*)model->getUserArea();
+        joint = ((J3DJoint*)node)->getJntNo();
         mDoMtx_stack_c::copy(model->getAnmMtx(joint));
         if (joint == i_this->m_jnt.getHeadJntNum()) {
-            mDoMtx_XrotM(mDoMtx_stack_c::get(), i_this->m_jnt.getHead_y());
+            mDoMtx_stack_c::XrotM((s16)i_this->m_jnt.getHead_y());
             mDoMtx_stack_c::ZrotM(-i_this->m_jnt.getHead_x());
             static cXyz attn(24.0f, 5.0f, 0.0f);
             static cXyz eye(24.0f, -16.0f, 0.0f);
             mDoMtx_stack_c::multVec(&attn, &i_this->mHeadPos);
-            mDoMtx_XrotM(mDoMtx_stack_c::get(), i_this->m_jnt.getHead_y());
+            mDoMtx_stack_c::XrotM((s16)i_this->m_jnt.getHead_y());
             mDoMtx_stack_c::ZrotM(-i_this->m_jnt.getHead_x());
             mDoMtx_stack_c::multVec(&eye, &i_this->mLookPos);
             mDoMtx_stack_c::multVec(&attn, &i_this->attention_info.position);
             i_this->attention_info.position.y += l_HIO.mNpc[0].mAttnYOffset;
         }
         if (joint == i_this->m_jnt.getBackboneJntNum()) {
-            mDoMtx_XrotM(mDoMtx_stack_c::get(), i_this->m_jnt.getBackbone_y());
+            mDoMtx_stack_c::XrotM((s16)i_this->m_jnt.getBackbone_y());
             mDoMtx_stack_c::ZrotM(-i_this->m_jnt.getBackbone_x());
         }
         PSMTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
