@@ -273,7 +273,6 @@ bool daNpcMn_c::_delete() {
 
 /* 00000FE4-00001154       .text _draw__9daNpcMn_cFv */
 bool daNpcMn_c::_draw() {
-    // Nonmatching - bag model load ordering.
     if (dComIfGs_isTmpBit(0x408)) {
         return true;
     }
@@ -284,7 +283,8 @@ bool daNpcMn_c::_draw() {
     mBtp.entry(data, mBtpFrame);
     mpMorf->updateDL();
     mBtp.remove(data);
-    g_env_light.setLightTevColorType(mpBagModel, &tevStr);
+    J3DModel* bagModel = mpBagModel;
+    g_env_light.setLightTevColorType((bagModel, bagModel), &tevStr);
     MtxP mtx = model->getAnmMtx(mBagJoint);
     MTXCopy(mtx, mpBagModel->getBaseTRMtx());
     mDoExt_modelUpdateDL(mpBagModel);
