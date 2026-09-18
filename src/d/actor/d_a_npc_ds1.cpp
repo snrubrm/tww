@@ -328,9 +328,8 @@ void daNpc_Ds1_c::checkOrder() {
 
 /* 000011F8-00001698       .text next_msgStatus__11daNpc_Ds1_cFPUl */
 u16 daNpc_Ds1_c::next_msgStatus(u32* msg) {
-    // Nonmatching: return-value narrowing and register allocation.
-    int price;
     u16 status = 15;
+    int price;
     u32 msgNo = *msg;
     switch (msgNo) {
     case 0x1DB1:
@@ -795,10 +794,9 @@ bool daNpc_Ds1_c::talk01() {
 
 /* 00002760-00002A04       .text getdemo_action__11daNpc_Ds1_cFPv */
 int daNpc_Ds1_c::getdemo_action(void*) {
-    // Nonmatching: staff ID and event-manager register allocation.
     int staff;
-    dEvent_manager_c& mgr = *dComIfGp_getPEvtManager();
-    staff = mgr.getMyStaffId("Ds1", NULL, 0);
+    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
+    staff = mgr->getMyStaffId("Ds1", NULL, 0);
     if (mActionState == 0) {
         u8 item;
         if (m7D4 != 255) {
@@ -817,12 +815,12 @@ int daNpc_Ds1_c::getdemo_action(void*) {
         if (id != fpcM_ERROR_PROCESS_ID_e) {
             dComIfGp_event_setItemPartnerId(id);
         }
-        mgr.cutEnd(staff);
+        mgr->cutEnd(staff);
         mActionState++;
     } else if (mActionState != -1) {
         fopMsgM_demoMsgFlagOn();
-        mgr.cutEnd(staff);
-        if (mgr.endCheck(mGetDrugEvent)) {
+        mgr->cutEnd(staff);
+        if (mgr->endCheck(mGetDrugEvent)) {
             mOrder = 1;
             if (m7D4 != 255) {
                 m7D0 = 0x1DDA;
@@ -848,20 +846,20 @@ int daNpc_Ds1_c::getdemo_action(void*) {
 
 /* 00002A04-00002BD0       .text privateCut__11daNpc_Ds1_cFv */
 int daNpc_Ds1_c::privateCut() {
-    // Nonmatching: staff ID and event-manager register allocation.
+    int cut;
     int staff;
     char* name = mEventCut.getActorName();
-    dEvent_manager_c& mgr = *dComIfGp_getPEvtManager();
-    staff = mgr.getMyStaffId(name, NULL, 0);
+    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
+    staff = mgr->getMyStaffId(name, NULL, 0);
     if (staff == -1) {
         return 0;
     }
     static const char* cut_name_tbl[] = {"TALKMSG", "CONTINUE_TALK", "SHOWITEM", "HEADSWING", "SOUND", "SETANM", "MOVEPOS", "INITPOS", "JNTLOCK", "PLAYER_HIDE"};
-    int cut = mgr.getMyActIdx(staff, cut_name_tbl, 10, 1, 0);
+    cut = mgr->getMyActIdx(staff, cut_name_tbl, 10, 1, 0);
     if (cut == -1) {
-        mgr.cutEnd(staff);
+        mgr->cutEnd(staff);
     } else {
-        if (mgr.getIsAddvance(staff)) {
+        if (mgr->getIsAddvance(staff)) {
             switch (cut) {
             case 0:
                 evn_talk_init(staff);
@@ -908,7 +906,7 @@ int daNpc_Ds1_c::privateCut() {
             break;
         }
         if (done) {
-            mgr.cutEnd(staff);
+            mgr->cutEnd(staff);
         }
     }
     return 1;
@@ -1266,9 +1264,11 @@ void daNpc_Ds1_c::RoomEffectSet() {
 
 /* 00003EE4-00003F20       .text RoomEffectDelete__11daNpc_Ds1_cFv */
 void daNpc_Ds1_c::RoomEffectDelete() {
-    // Nonmatching: initial instruction order.
-    // Preserve the original cleanup range, including the slot following the emitters.
-    for (int i = 1;i < 8;i++) if (mpEmitters[i + 2]) mpEmitters[i + 2]->becomeInvalidEmitter();
+    for (int i = 1; i < 8; i++) {
+        if (mpEmitters[i + 2]) {
+            mpEmitters[i + 2]->becomeInvalidEmitter();
+        }
+    }
 }
 
 /* 00003F20-000041D0       .text _draw__11daNpc_Ds1_cFv */
@@ -1421,8 +1421,10 @@ cPhs_State daNpc_Ds1_c::_create() {
 
 /* 00004E08-000052D4       .text CreateHeap__11daNpc_Ds1_cFv */
 BOOL daNpc_Ds1_c::CreateHeap() {
-    // Nonmatching: resource pointer register allocation.
-    J3DModelData* data = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_CK_e);
+    J3DModelData* data;
+    J3DAnmTextureSRTKey* btk;
+    J3DAnmTevRegKey* brk;
+    data = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_CK_e);
     mpMorf = new mDoExt_McaMorf(data, NULL, NULL, (J3DAnmTransform*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BCK_WAIT01_e), 2, 1.0f, 0, -1, 1, NULL, 0, 0x11020203);
     if (!mpMorf || !mpMorf->getModel()) {
         mpMorf = NULL;
@@ -1444,11 +1446,12 @@ BOOL daNpc_Ds1_c::CreateHeap() {
     if (!initTexPatternAnm(false)) {
         return FALSE;
     }
-    J3DAnmTextureSRTKey* btk;
-    J3DModelData* room = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_GTYDS00_e);
-    btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BTK_GTYDS00_e);
-    mpRoomModel = mDoExt_J3DModel__create(room, 0, 0x11020203);
-    mRoomBtk.init(room, btk, 1, 2, 1.0f, 0, -1, false, 0);
+    {
+        J3DModelData* model_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_GTYDS00_e));
+        btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BTK_GTYDS00_e);
+        mpRoomModel = mDoExt_J3DModel__create(model_data, 0, 0x11020203);
+        mRoomBtk.init(model_data, btk, 1, 2, 1.0f, 0, -1, false, 0);
+    }
     mRoomEffects = 1;
     J3DModelData* left = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_CK_FLASCO_e);
     J3DModelData* right = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_CK_JAR_e);
@@ -1464,9 +1467,9 @@ BOOL daNpc_Ds1_c::CreateHeap() {
     mpMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 0.0f);
     mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
-    J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BRK_SHOP_CURSOR01_e);
-    J3DModelData* cursor = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BMD_SHOP_CURSOR01_e);
-    mpShopCursor = ShopCursor_create(cursor, brk, l_HIO.mChild[mType].mCursorMin);
+    brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BRK_SHOP_CURSOR01_e));
+    data = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BMD_SHOP_CURSOR01_e);
+    mpShopCursor = ShopCursor_create(data, brk, l_HIO.mChild[mType].mCursorMin);
     if (mpShopCursor) {
         return TRUE;
     }
