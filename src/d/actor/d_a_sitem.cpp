@@ -95,9 +95,8 @@ static void control1(sitem_class* i_this) {
 
 /* 00000748-000009E8       .text control2__FP11sitem_class */
 static void control2(sitem_class* i_this) {
-    // USA: remaining differences are register allocation.
-    int yaw, pitch;
     int i;
+    s16 pitch, yaw;
     f32 x, y, z;
     cXyz offset, direction;
     offset.x = 0.0f;
@@ -232,7 +231,7 @@ static f32 max_d[4] = {100.0f, 250.0f, 400.0f, 600.0f};
 
 /* 000015C0-00002304       .text hand_move__FP11sitem_class */
 static void hand_move(sitem_class* i_this) {
-    // USA: remaining differences are register allocation and expression scheduling.
+    fopAc_ac_c* actor = i_this;
     f32 approach, length, lengthStep, wave;
     cXyz offset, direction, target, center;
     dBgS_GndChk ground;
@@ -242,8 +241,8 @@ static void hand_move(sitem_class* i_this) {
     wave = 5.0f + REG0_F(11);
     length = REG0_F(5) + hr_d[i_this->mLengthType];
     f32 maxLength = max_d[i_this->mLengthType];
-    mDoMtx_YrotS(*calc_mtx, i_this->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, i_this->current.angle.x);
+    mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
     switch (i_this->mMode) {
     case 0:
     case 1:
@@ -251,7 +250,7 @@ static void hand_move(sitem_class* i_this) {
         offset.y = maxLength;
         offset.z = (25.0f + REG0_F(13)) * cM_ssin(i_this->mFrame * 700);
         MtxPosition(&offset, &direction);
-        target = i_this->current.pos + direction;
+        target = actor->current.pos + direction;
         if (i_this->mMode == 0) {
             i_this->mPos = target;
             i_this->mMode = 1;
@@ -263,13 +262,18 @@ static void hand_move(sitem_class* i_this) {
         cut = true;
         length = 25.0f;
         i_this->mOldPos = i_this->mPos;
-        i_this->mPos += i_this->speed;
-        i_this->speed.y -= 3.0f;
-        if (i_this->speed.y < -90.0f) i_this->speed.y = -90.0f;
+        i_this->mPos += actor->speed;
+        actor->speed.y -= 3.0f;
+        if (actor->speed.y < -90.0f) actor->speed.y = -90.0f;
         i_this->mAcch.CrrPos(*dComIfG_Bgsp());
         i_this->mHitTimer = 5;
-        if (i_this->speed.y < 0.0f) {
-            ground.m_pos.set(i_this->mPos.x, i_this->mPos.y + 100.0f, i_this->mPos.z);
+        if (actor->speed.y < 0.0f) {
+            {
+                f32 y = i_this->mPos.y;
+                f32 z = i_this->mPos.z;
+                y += 100.0f;
+                ground.m_pos.set(i_this->mPos.x, y, z);
+            }
             i_this->mGroundY = dComIfG_Bgsp()->GroundCross(&ground);
             if (i_this->mGroundY == -1000000000.0f || i_this->mPos.y <= 30.0f + i_this->mGroundY) {
                 i_this->mPos.y = 30.0f + i_this->mGroundY;
@@ -285,27 +289,29 @@ static void hand_move(sitem_class* i_this) {
             lengthStep = 0.05f * length;
             length = 0.0f;
         }
-        if (i_this->mTimers[0] == 0) fopAcM_delete(i_this);
+        if (i_this->mTimers[0] == 0) fopAcM_delete(actor);
         break;
     }
     cLib_addCalc2(&i_this->mSegmentLength, length, 0.5f, lengthStep);
     cLib_addCalc2(&i_this->mExtension, 0.0f, 1.0f, 0.2f);
     cLib_addCalc2(&i_this->mWave, wave, 1.0f, 1.5f);
     if (!cut) {
-        cLib_addCalc2(&i_this->speedF, 8.0f, 1.0f, 0.1f);
+        cLib_addCalc2(&actor->speedF, 8.0f, 1.0f, 0.1f);
         if (i_this->mHitSpeed > 1.0f && i_this->mMode != 3) {
             mDoMtx_YrotS(*calc_mtx, i_this->mHitAngle);
-            offset.set(0.0f, REG6_F(9), i_this->mHitSpeed);
+            offset.x = 0.0f;
+            offset.y = REG6_F(9);
+            offset.z = i_this->mHitSpeed;
             MtxPosition(&offset, &direction);
             target += direction;
             approach = 0.1f;
-            i_this->speedF = 0.2f * i_this->mHitSpeed;
-            if (i_this->speedF > 30.0f + REG6_F(8)) i_this->speedF = 30.0f + REG6_F(8);
+            actor->speedF = 0.2f * i_this->mHitSpeed;
+            if (actor->speedF > 30.0f + REG6_F(8)) actor->speedF = 30.0f + REG6_F(8);
         }
         cLib_addCalc0(&i_this->mHitSpeed, 1.0f, 5.0f + REG6_F(7));
-        cLib_addCalc2(&i_this->mPos.x, target.x, approach, i_this->speedF);
-        cLib_addCalc2(&i_this->mPos.y, target.y, approach, i_this->speedF);
-        cLib_addCalc2(&i_this->mPos.z, target.z, approach, i_this->speedF);
+        cLib_addCalc2(&i_this->mPos.x, target.x, approach, actor->speedF);
+        cLib_addCalc2(&i_this->mPos.y, target.y, approach, actor->speedF);
+        cLib_addCalc2(&i_this->mPos.z, target.z, approach, actor->speedF);
         control1(i_this);
         control2(i_this);
     } else {
@@ -329,15 +335,16 @@ static void hand_move(sitem_class* i_this) {
         *size = segment->size;
     }
     pos = i_this->mLine.getPos(0);
-    i_this->eyePos = pos[5];
-    i_this->attention_info.position = i_this->eyePos;
+    actor->eyePos = pos[5];
+    actor->attention_info.position = actor->eyePos;
     i_this->mStts.Move();
-    if (!cut) i_this->mBoomerangSph.SetC(i_this->eyePos);
+    if (!cut) i_this->mBoomerangSph.SetC(actor->eyePos);
     else i_this->mBoomerangSph.SetC(non_pos);
     u8 hit = 0;
     dComIfG_Ccsp()->Set(&i_this->mBoomerangSph);
     for (int i = 0; i < 3; i++) {
-        int index = ((i_this->mFrame & 3) + i * 2) % 10;
+        int index = (i_this->mFrame & 3) + i * 2;
+        index %= 10;
         center = pos[index];
         if (!cut) i_this->mSph[i].SetC(center);
         else i_this->mSph[i].SetC(non_pos);
@@ -373,22 +380,22 @@ static void hand_move(sitem_class* i_this) {
                     at_power_check(&atInfo);
                     if (atInfo.mResultingAttackType == 8) {
                         i_this->mHitSpeed = 300.0f + REG6_F(6);
-                        i_this->mHitAngle = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0)) + 0x8000;
+                        i_this->mHitAngle = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
                         return;
                     }
                 }
                 i_this->mMode = 5;
-                i_this->speed.x = cM_rndFX(10.0f);
-                i_this->speed.y = 10.0f + cM_rndF(5.0f);
-                i_this->speed.z = cM_rndFX(10.0f);
+                actor->speed.x = cM_rndFX(10.0f);
+                actor->speed.y = 10.0f + cM_rndF(5.0f);
+                actor->speed.z = cM_rndFX(10.0f);
                 cXyz scale(0.3f, 0.3f, 0.3f);
-                dComIfGp_particle_set(0x16, &i_this->eyePos, NULL, &scale);
+                dComIfGp_particle_set(0x16, &actor->eyePos, NULL, &scale);
                 i_this->mSmokeActive = true;
                 hit = 1;
             }
         }
         if (hit) {
-            if (atInfo.mpObj) def_se_set(i_this, atInfo.mpObj, 0x21);
+            if (atInfo.mpObj) def_se_set(actor, atInfo.mpObj, 0x21);
             sitem_s* from = i_this->mSegments;
             sitem_s* to = i_this->mCutSegments;
             for (int i = 0; i < 5; i++, from++, to++) {
@@ -503,7 +510,7 @@ static cPhs_State daSitem_Create(fopAc_ac_c* actor) {
         }},
     };
     fopAcM_SetupActor(actor, sitem_class);
-    sitem_class* i_this = (sitem_class*)actor;
+    sitem_class* i_this = static_cast<sitem_class*>(actor);
     cPhs_State phase = dComIfG_resLoad(&i_this->mPhase, "Sitem");
     if (phase == cPhs_COMPLEATE_e) {
         i_this->mType = fopAcM_GetParam(i_this);
