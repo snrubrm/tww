@@ -257,7 +257,6 @@ void daNpc_Uk_c::aroundWalk(fopAc_ac_c* actor) {
 
 /* 00000964-00000AD4       .text surrender__10daNpc_Uk_cFv */
 void daNpc_Uk_c::surrender() {
-    /* Nonmatching - register allocation. */
     daNpc_Mk_c* leader = (daNpc_Mk_c*)fopAcM_SearchByID(mLeaderID);
 
     if (leader == NULL) {
@@ -274,13 +273,19 @@ void daNpc_Uk_c::surrender() {
         return;
     }
 
-    s16 angle = fopAcM_searchActorAngleY(leader, this) - leader->shape_angle.y;
+    s16 angle = fopAcM_searchActorAngleY(leader, this);
+    angle -= leader->shape_angle.y;
 
     if (angle > 0x2AAA || angle < -0x2AAA) {
         return;
     }
 
-    speed.x = speed.x + 0.5f * cM_ssin(angle = angle >= 0 ? (s16)(leader->shape_angle.y + 0x4000) : (s16)(leader->shape_angle.y - 0x4000));
+    if (angle >= 0) {
+        angle = leader->shape_angle.y + 0x4000;
+    } else {
+        angle = leader->shape_angle.y - 0x4000;
+    }
+    speed.x = speed.x + 0.5f * cM_ssin(angle);
 
     speed.z = speed.z + 0.5f * cM_scos(angle);
 
