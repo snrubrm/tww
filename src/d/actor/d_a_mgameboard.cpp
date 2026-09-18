@@ -255,7 +255,8 @@ void daMgBoard_c::set_2dposition() {
     mpMinigameDList->setTitlePos(282.0f, 70.0f);
     mpMinigameDList->setScorePos(440.0f, 60.0f);
     mpMinigameDList->setTitleAlpha(255);
-    mpMinigameDList->setScoreAlpha(80.5f);
+    f32 scoreAlpha = 80.5f;
+    mpMinigameDList->setScoreAlpha(scoreAlpha);
 }
 
 /* 00000904-000009E0       .text CreateInit__11daMgBoard_cFv */
