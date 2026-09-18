@@ -107,19 +107,16 @@ BOOL daNpc_Uk_c::chkPositioning(f32 distance, f32 minY, f32 maxY, s16 minAngle, 
 
 /* 0000045C-000008B0       .text nextVisitMode__10daNpc_Uk_cFv */
 u8 daNpc_Uk_c::nextVisitMode() {
-    /* Nonmatching - register allocation. */
     cXyz delta;
-
-    daNpc_Mk_c* leader = (daNpc_Mk_c*)fopAcM_SearchByID(mLeaderID);
-
+    fopAc_ac_c* actor = fopAcM_SearchByID(mLeaderID);
+    daNpc_Mk_c* leader = (daNpc_Mk_c*)actor;
     daPy_lk_c* player = daPy_getPlayerLinkActorClass();
-
     u8 mode;
 
-    if (leader == NULL) {
+    if (actor == NULL) {
         mVisitMode = 0;
     } else {
-        mode = leader->mVisitMode;
+        mode = ((daNpc_Mk_c*)actor)->mVisitMode;
     }
 
     if (mVisitMode == 10 && mWaitTimer != 0) {
@@ -1111,7 +1108,6 @@ void daNpc_Uk_c::visitSetEvent() {
 
 /* 00002A44-00002C80       .text visit01__10daNpc_Uk_cFv */
 bool daNpc_Uk_c::visit01() {
-    /* Nonmatching - register allocation. */
     if (chkFlag(1)) {
         mPrevState = mState;
         mState = visitTalkInit();
