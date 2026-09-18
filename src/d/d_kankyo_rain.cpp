@@ -832,7 +832,7 @@ void dKyr_rain_move() {
     sp28 = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo());
 
     spA8.x = 0.0f;
-    spA8.y = -2.5f;
+    spA8.y = -2.0f;
     spA8.z = 0.0f;
 
     if (rain_packet->mRainCount <= g_env_light.mRainCount) {
@@ -3933,7 +3933,6 @@ void dKyr_drawSibuki(Mtx drawMtx, u8** pImg) {
 
 /* 80096D18-800973CC       .text drawPoison__FPA4_fPPUc */
 void drawPoison(Mtx drawMtx, u8** pImg) {
-    /* Nonmatching - just mul order when computing reg0/reg1 */
     dScnKy_env_light_c& envLight = dKy_getEnvlight();
     dKankyo_poison_Packet* pPkt;
     GXTexObj texObj;
@@ -4007,14 +4006,18 @@ void drawPoison(Mtx drawMtx, u8** pImg) {
 
         f32 cosR = std::fabsf(cM_scos(envLight.mpPoisonPacket->mCount * 500.0f + i * 4000));
         cosR *= cosR;
+        f32 t50 = -50.0f;
+        f32 t56 = -56.0f;
+        f32 t6 = -6.0f;
+        f32 t146 = -146.0f;
 
-        reg0.r = 95.0f + -50.0f * cosR;
-        reg0.g = 186.0f + -50.0f * cosR;
-        reg0.b = 226.0f + -56.0f * cosR;
+        reg0.r = 95.0f + cosR * t50;
+        reg0.g = 186.0f + cosR * t50;
+        reg0.b = 226.0f + cosR * t56;
 
-        reg1.r = 115.0f + -6.0f * cosR;
-        reg1.g = 206.0f + -146.0f * cosR;
-        reg1.b = 255.0f + -50.0f * cosR;
+        reg1.r = 115.0f + cosR * t6;
+        reg1.g = 206.0f + cosR * t146;
+        reg1.b = 255.0f + cosR * t50;
 
         reg0.a = pPkt->mEff[i].mAlpha * 255.0f;
 
