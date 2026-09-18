@@ -53,11 +53,11 @@ static void anm_init(ss_class* i_this, int anm, float morph, unsigned char mode,
 
 static void hand_1_set(ss_class* i_this, ss_s* hand) {
     // Nonmatching: Register allocation differs.
+    cXyz step, world, end, start, delta;
     fopAc_ac_c* actor = i_this;
     ss_s_s* segment;
     s16 angle;
     int i;
-    cXyz step, world, end, start, delta;
     dBgS_LinChk line;
     segment = hand->segments;
     mDoMtx_YrotS(*calc_mtx, hand->angle.y);
@@ -96,11 +96,11 @@ static void hand_1_set(ss_class* i_this, ss_s* hand) {
 
 static void hand_1_set_2(ss_class* i_this, ss_s* hand) {
     // Nonmatching: Register allocation differs.
+    cXyz step, world, start, delta;
     fopAc_ac_c* actor = i_this;
     ss_s_s* segment;
     s16 angle;
     int i;
-    cXyz step, world, start, delta;
     dBgS_LinChk line;
     segment = hand->segments;
     mDoMtx_YrotS(*calc_mtx, hand->angle.y);
@@ -142,13 +142,18 @@ static void hand_1_set_2(ss_class* i_this, ss_s* hand) {
 
 static void hand_1_move(ss_class* i_this, ss_s* hand) {
     // Nonmatching: Register allocation differs.
+    fopAc_ac_c* actor = i_this;
+    ss_s_s* segment;
+    int length;
     int i;
-    cXyz speed;
+    int collider;
     CcAtInfo hit;
-    ss_s_s* segment = hand->segments;
-    int length = (s8)hand->length;
+    cXyz speed;
+    u8 damage;
+    segment = hand->segments;
+    length = (s8)hand->length;
     if ((i_this->mFrame & 3) == 0 && i_this->mMode < 50 && length < 20) hand->length++;
-    int collider = 0;
+    collider = 0;
     for (i = 0; i < 20; i++, segment++) {
         if (i >= length - 1) segment->size = 0;
         else if (i == length - 2) segment->size = 1;
@@ -164,7 +169,7 @@ static void hand_1_move(ss_class* i_this, ss_s* hand) {
             }
         }
     }
-    u8 damage = 0;
+    damage = 0;
     for (i = 0; i < 4; i++) {
         if (hand->sph[i].ChkTgHit()) {
             hit.mpObj = hand->sph[i].GetTgHitObj();
@@ -182,7 +187,7 @@ static void hand_1_move(ss_class* i_this, ss_s* hand) {
         hand->mode = 2;
         hand->pos = segment[-1].pos;
         hand->sink = 0.0f;
-        if (damage != 0) def_se_set(i_this, hit.mpObj, 0x21);
+        if (damage != 0) def_se_set(actor, hit.mpObj, 0x21);
         hand->gravity = 20.0f + REG8_F(3);
         hand->wave = 0.0f;
         hand->phase = cM_rndF(65536.0f);
@@ -205,15 +210,16 @@ static void hand_1_move(ss_class* i_this, ss_s* hand) {
 }
 
 static void hand_1_cut(ss_class* i_this, ss_s* hand) {
-    // Nonmatching: Ground-query load ordering and register allocation differ.
+    fopAc_ac_c* actor = i_this;
     cXyz step, delta, world, wave;
-    f32 groundY;
+    f32 x, yPos, z, y, groundY;
+    s16 rot_target;
     step.y = 0.0f;
     step.x = 0.0f;
     step.z = 15.0f + REG8_F(11);
     if (hand->cutTimer != 0) {
         hand->cutTimer--;
-        hand->segments[0].pos = i_this->home.pos;
+        hand->segments[0].pos = actor->home.pos;
         ss_s_s* segment;
         int i = 1;
         segment = &hand->segments[1];
@@ -235,15 +241,13 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
     cLib_addCalc2(&hand->gravity, -20.0f + REG8_F(2), 1.0f, 1.0f + REG8_F(4));
     wave.y = 0.0f;
     for (int i = 18; i >= 0; i--, segment--) {
-        f32 x = segment->pos.x;
-        f32 yPos = segment->pos.y;
-        f32 z = segment->pos.z;
+        x = segment->pos.x;
+        yPos = segment->pos.y;
+        z = segment->pos.z;
         yPos += 50.0f;
-        ground.m_pos.x = x;
-        ground.m_pos.y = yPos;
-        ground.m_pos.z = z;
+        ground.m_pos.set(x, yPos, z);
         groundY = 5.0f + dComIfG_Bgsp()->GroundCross(&ground);
-        f32 y = segment->pos.y + hand->gravity;
+        y = segment->pos.y + hand->gravity;
         if (y < groundY + hand->sink) y = groundY + hand->sink;
         wave.z = -2.0f + REG8_F(17);
         wave.x = hand->wave * cM_ssin(hand->phase + i * hand->frequency);
@@ -256,19 +260,17 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
         mDoMtx_YrotS(*calc_mtx, yaw);
         mDoMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
         MtxPosition(&step, &delta);
-        if (hand->cutTimer != 0 && i == 0) segment->pos = i_this->home.pos;
+        if (hand->cutTimer != 0 && i == 0) segment->pos = actor->home.pos;
         else segment->pos = segment[1].pos + delta;
         if ((i & 3) == 0 && hand->burning != 0) dComIfGp_particle_setSimple(1, &segment->pos);
     }
     hand->pos += hand->speed;
     hand->speed.y -= 3.0f + REG8_F(14);
-    f32 x = hand->pos.x;
-    f32 yPos = hand->pos.y;
-    f32 z = hand->pos.z;
+    x = hand->pos.x;
+    yPos = hand->pos.y;
+    z = hand->pos.z;
     yPos += 50.0f;
-    ground.m_pos.x = x;
-    ground.m_pos.y = yPos;
-    ground.m_pos.z = z;
+    ground.m_pos.set(x, yPos, z);
     groundY = 5.0f + dComIfG_Bgsp()->GroundCross(&ground);
     if (hand->groundTimer == 0) {
         if (hand->speed.y < -300.0f) {
@@ -280,13 +282,14 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
         cLib_addCalc0(&hand->speed.x, 1.0f, 0.4f + REG8_F(1));
         cLib_addCalc0(&hand->speed.z, 1.0f, 0.4f + REG8_F(1));
         hand->angle.y += hand->rotation;
-        cLib_addCalcAngleS2(&hand->rotation, 0, 1, 30);
+        rot_target = 0;
+        cLib_addCalcAngleS2(&hand->rotation, rot_target, 1, 30);
         hand->groundTimer--;
         if (hand->groundTimer == 0) {
             hand->mode = 0;
             hand->burning = 0;
             hand->length = 0;
-            fopAcM_seStart(i_this, JA_SE_OBJ_VINE_S_RECOVER, 0);
+            fopAcM_seStart(actor, JA_SE_OBJ_VINE_S_RECOVER, 0);
         }
     }
     if (hand->pos.y < groundY + hand->sink) {
@@ -299,18 +302,20 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
 static cXyz non_pos;
 
 static void hand_move(ss_class* i_this) {
-    // Nonmatching: Switch lowering and register allocation differ.
-    int j, i;
+    // Nonmatching: Register allocation differs.
+    ss_s* hand;
+    int i, j;
+    int angle;
     cXyz offset, world;
     dBgS_LinChk line;
     non_pos.set(0.0f, -10000.0f, 0.0f);
-    int angle = 0;
+    angle = 0;
     for (i = 0; i < 10; i++, angle += 0x1999) {
         for (j = 0; j < 4; j++) {
             i_this->mHands[i].sph[j].SetC(non_pos);
             dComIfG_Ccsp()->Set(&i_this->mHands[i].sph[j]);
         }
-        ss_s* hand = &i_this->mHands[i];
+        hand = &i_this->mHands[i];
         switch (i_this->mHands[i].mode) {
         case 0:
             if (i_this->mWall == 1) {
@@ -344,13 +349,15 @@ static void hand_move(ss_class* i_this) {
                 i_this->mHands[i].angle.y = angle;
                 hand_1_set(i_this, &i_this->mHands[i]);
             }
-            hand->mode++;
+            i_this->mHands[i].mode++;
             break;
         case 1:
-            hand_1_move(i_this, hand);
+            hand_1_move(i_this, &i_this->mHands[i]);
             break;
         case 2:
-            hand_1_cut(i_this, hand);
+            hand_1_cut(i_this, &i_this->mHands[i]);
+            break;
+        case 3:
             break;
         default:
             break;
@@ -578,7 +585,7 @@ static cPhs_State daSs_Create(fopAc_ac_c* actor) {
         }},
     };
     fopAcM_SetupActor(actor, ss_class);
-    ss_class* i_this = (ss_class*)actor;
+    ss_class* i_this = static_cast<ss_class*>(actor);
     cPhs_State phase = dComIfG_resLoad(&i_this->mPhase, "Ss");
     if (phase == cPhs_ERROR_e) return cPhs_ERROR_e;
     if (phase != cPhs_COMPLEATE_e) return phase;
@@ -590,7 +597,8 @@ static cPhs_State daSs_Create(fopAc_ac_c* actor) {
     if (i_this->mType == 1) i_this->mMode = 10;
     else if (i_this->mType == 2 || i_this->mType == 3) i_this->mMode = 20;
     else i_this->mMode = 0;
-    if (!fopAcM_entrySolidHeap(i_this, useHeapInit, 0x7240)) return cPhs_ERROR_e;
+    BOOL success = fopAcM_entrySolidHeap(i_this, useHeapInit, 0x7240);
+    if (!success) return cPhs_ERROR_e;
     i_this->health = 2;
     i_this->mFrame = cM_rndF(10000.0f);
     i_this->max_health = i_this->health = 2;
