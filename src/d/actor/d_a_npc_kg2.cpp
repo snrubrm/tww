@@ -112,13 +112,13 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
                 cXyz offset(24.0f + REG10_F(0), 5.0f + REG10_F(1), REG10_F(2));
                 static cXyz l_offsetEyePos(24.0f, -16.0f, 0.0f);
                 mDoMtx_stack_c::multVec(&offset, &actor->mAttentionBasePos);
-                mDoMtx_XrotM(mDoMtx_stack_c::get(), actor->m_jnt.getHead_y());
+                mDoMtx_stack_c::XrotM((s16)actor->m_jnt.getHead_y());
                 mDoMtx_stack_c::ZrotM(-actor->m_jnt.getHead_x());
                 mDoMtx_stack_c::multVec(&l_offsetEyePos, &actor->mEyePos);
                 mDoMtx_stack_c::multVec(&offset, &actor->attention_info.position);
                 actor->attention_info.position.y += l_HIO.mNpc.mAttnYOffset;
             } else if (joint == actor->m_jnt.getBackboneJntNum()) {
-                mDoMtx_XrotM(mDoMtx_stack_c::get(), actor->m_jnt.getBackbone_y());
+                mDoMtx_stack_c::XrotM((s16)actor->m_jnt.getBackbone_y());
                 mDoMtx_stack_c::ZrotM(-actor->m_jnt.getBackbone_x());
             }
             MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
@@ -333,7 +333,9 @@ void daNpc_Kg2_c::lookBack() {
 static BOOL CallbackCreateHeap(fopAc_ac_c* actor) { return ((daNpc_Kg2_c*)actor)->CreateHeap(); }
 BOOL daNpc_Kg2_c::CreateHeap() {
     J3DModelData* modelData;
-    modelData = (J3DModelData*)dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BDL_KG_e);
+    J3DAnmTexPattern* plateBtp;
+    J3DModelData* data;
+    modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BDL_KG_e));
     JUT_ASSERT(0x391, modelData != 0);
     mpMorf = new mDoExt_McaMorf(modelData, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BCK_KG_WAIT02_e),
@@ -348,12 +350,14 @@ BOOL daNpc_Kg2_c::CreateHeap() {
     mBtpNo = 0;
     if (!initTexPatternAnm(false)) return FALSE;
     // The plate has its own texture animation for the faces Salvatore holds up.
-    modelData = (J3DModelData*)dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BDL_KG_PLATE_e);
-    mpPlateModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11020002);
-    if (mpPlateModel == NULL) return FALSE;
-    J3DAnmTexPattern* plateBtp = (J3DAnmTexPattern*)dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BTP_KG_PLATE_e);
-    if (!mPlateBtp.init(modelData, plateBtp, true, 2, 0.0f, 0, -1, false, 0)) return FALSE;
-    J3DModelData* data = mpMorf->getModel()->getModelData();
+    {
+        J3DModelData* model_data = static_cast<J3DModelData*>(dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BDL_KG_PLATE_e));
+        mpPlateModel = mDoExt_J3DModel__create(model_data, 0x80000, 0x11020002);
+        if (mpPlateModel == NULL) return FALSE;
+        plateBtp = static_cast<J3DAnmTexPattern*>(dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BTP_KG_PLATE_e));
+        if (!mPlateBtp.init(model_data, plateBtp, true, 2, 0.0f, 0, -1, false, 0)) return FALSE;
+    }
+    data = mpMorf->getModel()->getModelData();
     data->getJointNodePointer(m_jnt.getHeadJntNum())->setCallBack(nodeCallBack);
     data->getJointNodePointer(m_jnt.getBackboneJntNum())->setCallBack(nodeCallBack);
     mpMorf->getModel()->setUserArea((u32)this);
@@ -448,9 +452,17 @@ BOOL daNpc_Kg2_c::evn_talk() { return talk(1) == 18 ? TRUE : FALSE; }
 BOOL daNpc_Kg2_c::evn_createItem_init(int staff) {
     u8 item;
     switch (dComIfGs_getEventReg(0xB703)) {
-    case 0: case 1: item = 7; break;
-    case 2: item = 0xD7; break;
-    default: item = 6; break;
+    case 0:
+    case 1:
+        item = 7;
+        break;
+    case 2:
+        item = 0xD7;
+        break;
+    case 3:
+    default:
+        item = 6;
+        break;
     }
     fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item, 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
     if (id != fpcM_ERROR_PROCESS_ID_e) dComIfGp_event_setItemPartnerId(id);
@@ -491,10 +503,7 @@ BOOL daNpc_Kg2_c::processMove() {
 int daNpc_Kg2_c::wait_action(void* arg) {
     if (mActionState == 0) { mState = 1; mActionState++; }
     else if (mActionState != -1) {
-        s16 angle = current.angle.y;
-        int jointAngle = m_jnt.getHead_y();
-        jointAngle += m_jnt.getBackbone_y();
-        angle += jointAngle;
+        s16 angle = current.angle.y + m_jnt.getHead_y() + m_jnt.getBackbone_y();
         mHasAttention = chkAttention(current.pos, angle);
         mOrder = 0;
         switch (mState) { case 1: wait01(); break; case 2: talk01(); break; }
@@ -505,10 +514,7 @@ int daNpc_Kg2_c::wait_action(void* arg) {
 int daNpc_Kg2_c::event_wait_action(void* arg) {
     if (mActionState == 0) { mState = 1; mActionState++; }
     else if (mActionState != -1) {
-        s16 angle = current.angle.y;
-        int jointAngle = m_jnt.getHead_y();
-        jointAngle += m_jnt.getBackbone_y();
-        angle += jointAngle;
+        s16 angle = current.angle.y + m_jnt.getHead_y() + m_jnt.getBackbone_y();
         mHasAttention = chkAttention(current.pos, angle);
         lookBack(); setAttention();
         if (dComIfGp_evmng_endCheck(mEventIdx[mEventNo])) {
