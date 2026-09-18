@@ -118,8 +118,8 @@ static BOOL nodeCallBack_Bms(J3DNode* node, int timing) {
             MTXCopy(model->getAnmMtx(joint), *calc_mtx);
             if (joint == actor->getHeadJntNum()) {
                 cXyz offset(0.0f, 0.0f, 0.0f), pos;
-                mDoMtx_YrotM(*calc_mtx, -(actor->getHead_y() + actor->mHeadAnm.field_0x02));
-                mDoMtx_ZrotM(*calc_mtx, -(actor->getHead_x() + actor->mHeadAnm.field_0x00));
+                mDoMtx_YrotM(*calc_mtx, -actor->getHead_y() - actor->mHeadAnm.field_0x02);
+                mDoMtx_ZrotM(*calc_mtx, -actor->getHead_x() - actor->mHeadAnm.field_0x00);
                 MtxPosition(&offset, &pos);
                 actor->setAttentionBasePos(pos);
                 offset.set(28.0f, -20.0f, 0.0f);
@@ -694,20 +694,19 @@ u8 daNpc_Bms1_c::talk01() {
 }
 
 int daNpc_Bms1_c::getdemo_action(void*) {
-    dEvent_manager_c& evm = g_dComIfG_gameInfo.play.getEvtManager();
-    int staff = evm.getMyStaffId("Bms1", NULL, 0);
+    int staff = dComIfGp_evmng_getMyStaffId("Bms1", NULL, 0);
     if (mActionState == 0) {
         daPy_getPlayerActorClass()->offPlayerNoDraw();
         mState = mPreviousState;
         mShopCam.Reset();
         fpc_ProcID item = fopAcM_createItemForPresentDemo(&current.pos, mShopItems.getSelectItemNo(), 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
         if (item != fpcM_ERROR_PROCESS_ID_e) dComIfGp_event_setItemPartnerId(item);
-        evm.cutEnd(staff);
+        dComIfGp_evmng_cutEnd(staff);
         mActionState++;
     } else if (mActionState != -1) {
         fopMsgM_demoMsgFlagOn();
-        evm.cutEnd(staff);
-        if (evm.endCheckOld("BMS_GET_DEMO")) {
+        dComIfGp_evmng_cutEnd(staff);
+        if (dComIfGp_evmng_endCheck("BMS_GET_DEMO")) {
             mOrder = 1;
             dComIfGp_event_reset();
             mOverrideMsgNo = 0x2790;
