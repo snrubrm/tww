@@ -49,27 +49,25 @@ BOOL daObjTrap_c::solidHeapCB(fopAc_ac_c* actor) {
 
 /* 0000010C-000002A4       .text create_heap__11daObjTrap_cFv */
 BOOL daObjTrap_c::create_heap() {
-    // USA: remaining differences are register allocation for resources and the background matrix.
-    J3DAnmTextureSRTKey* btk_data;
-    J3DModelData* mdl_data;
-    Mtx* bg_mtx;
     BOOL success = FALSE;
-    mdl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_BDL_HTORA1_e);
-    JUT_ASSERT(0x163, mdl_data != 0);
+
+    J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_BDL_HTORA1_e));
+    JUT_ASSERT(0x163, mdl_data != NULL);
+
     if (mdl_data != NULL) {
         mpModel = mDoExt_J3DModel__create(mdl_data, 0x80000, 0x11000222);
         if (mpModel != NULL) {
-            btk_data = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_BTK_HTORA1_e);
-            JUT_ASSERT(0x16C, btk_data != 0);
+            J3DAnmTextureSRTKey* btk_data = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_BTK_HTORA1_e));
+            JUT_ASSERT(0x16C, btk_data != NULL);
             if (btk_data != NULL && mBtk.init(mdl_data, btk_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) {
-                bg_mtx = (Mtx*)mpModel->getBaseTRMtx();
-                mpBgW = dBgW_NewSet((cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_DZB_HTORA1_e), 1, bg_mtx);
+                mpBgW = dBgW_NewSet((cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_DZB_HTORA1_e), cBgW::MOVE_BG_e, &mpModel->getBaseTRMtx());
                 if (mpBgW != NULL) {
                     success = TRUE;
                 }
             }
         }
     }
+
     return success;
 }
 
