@@ -281,14 +281,15 @@ void daNpc_Kg1_c::wait_action_init() {
     setAction(&daNpc_Kg1_c::wait_action);
 }
 
-// Nonmatching: register allocation, local stack ordering, and prize-index scheduling.
 void daNpc_Kg1_c::wait_action() {
-    int staff = dComIfGp_evmng_getMyStaffId("Kg1");
+    int staff;
     daMgBoard_c* board;
-    {
-        s16 name = fpcNm_MGBOARD_e;
-        board = (daMgBoard_c*)fopAcIt_Judge((fopAcIt_JudgeFunc)fpcSch_JudgeForPName, &name);
-    }
+    u8 rec_items[2];
+    s16 name;
+    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
+    staff = mgr->getMyStaffId("Kg1", NULL, 0);
+    name = fpcNm_MGBOARD_e;
+    board = (daMgBoard_c*)fopAcIt_Judge((fopAcIt_JudgeFunc)fpcSch_JudgeForPName, &name);
     switch (mWaitMode) {
     case 0:
         m751 = 0;
@@ -355,7 +356,7 @@ void daNpc_Kg1_c::wait_action() {
             if (board) board->clrGInfoDraw();
             mWaitMode = 5;
             m732 = 2;
-            dComIfGp_evmng_cutEnd(staff);
+            mgr->cutEnd(staff);
             dComIfGp_event_reset();
         }
         break;
@@ -385,15 +386,14 @@ void daNpc_Kg1_c::wait_action() {
         if (m732 == 0) {
             m751 = 0;
             u8 items[] = {0x07, 0xCC, 0x05};
-            u8 index = dComIfGs_getEventReg(0xFE07);
-            index--;
+            int index = dComIfGs_getEventReg(0xFE07) - 1;
             mItemId = fopAcM_createItemForPresentDemo(&current.pos, items[index], 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
             if (mItemId != fpcM_ERROR_PROCESS_ID_e) dComIfGp_event_setItemPartnerId(mItemId);
             mWaitMode = 7;
         }
         break;
     case 7:
-        if (dComIfGp_evmng_endCheck(m788)) {
+        if (mgr->endCheck(m788)) {
             dComIfGp_event_reset();
             mPrizeGiven = 1;
             m732 = 2;
@@ -424,16 +424,17 @@ void daNpc_Kg1_c::wait_action() {
     case 9:
         if (m732 == 0) {
             m751 = 0;
-            u8 items[] = {0xF1, 0x06};
+            static const u8 items[] = {0xF1, 0x06};
+            *(u16*)rec_items = *(u16*)items;
             u8 index = dComIfGs_getEventReg(0xFF07) - 1;
             if (index > 1) index = 1;
-            mItemId = fopAcM_createItemForPresentDemo(&current.pos, items[index], 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
+            mItemId = fopAcM_createItemForPresentDemo(&current.pos, rec_items[index], 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
             if (mItemId != fpcM_ERROR_PROCESS_ID_e) dComIfGp_event_setItemPartnerId(mItemId);
             mWaitMode = 10;
         }
         break;
     case 10:
-        if (dComIfGp_evmng_endCheck(m788)) {
+        if (mgr->endCheck(m788)) {
             dComIfGp_event_reset();
             mRecordPrizeGiven = 1;
             m732 = 2;
@@ -465,7 +466,6 @@ void daNpc_Kg1_c::clr_seq_flag() {
     mNewRecord = 0;
 }
 
-// Nonmatching: an extra byte truncation when incrementing the record-prize count.
 u32 daNpc_Kg1_c::getMsg() {
     u32 msg;
     if (mbGameEnd) {
@@ -475,7 +475,10 @@ u32 daNpc_Kg1_c::getMsg() {
                     dComIfGs_onEventBit(0xE04);
                     dComIfGs_setEventReg(0xBEFF, mGameBoardScore);
                     u8 count = dComIfGs_getEventReg(0xFF07);
-                    if (count < 3) g_dComIfG_gameInfo.save.getEvent().setEventReg(0xFF07, count + 1);
+                    if (count < 3) {
+                        count++;
+                        g_dComIfG_gameInfo.save.getEvent().setEventReg(0xFF07, count);
+                    }
                     mNewRecord = 1;
                     msg = 0x1D63;
                 } else msg = 0x1D64;
