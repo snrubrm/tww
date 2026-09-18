@@ -826,7 +826,6 @@ static s32 ki_check(bgn2_class* i_this) {
 
 /* 00002D24-000037B0       .text daBgn2_Execute__FP10bgn2_class */
 static BOOL daBgn2_Execute(bgn2_class* i_this) {
-    /* Nonmatching - retail-only regalloc */
     static s32 body_d[] = {
         0x00000001,
         0x00000022,
@@ -914,7 +913,7 @@ static BOOL daBgn2_Execute(bgn2_class* i_this) {
     i_this->mJyakutenBBrkAnm->play();
     mDoMtx_stack_c::transS(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z);
     mDoMtx_stack_c::YrotM(actor->shape_angle.y);
-    mDoMtx_stack_c::XrotM(actor->shape_angle.x);
+    mDoMtx_stack_c::XrotM(DEMO_SELECT(actor->shape_angle.x, (s16)actor->shape_angle.x));
     mDoMtx_stack_c::ZrotM(actor->shape_angle.z);
     J3DModel* bodyModel = i_this->mpBodyMorf->getModel();
     MtxP mtx = mDoMtx_stack_c::get();
