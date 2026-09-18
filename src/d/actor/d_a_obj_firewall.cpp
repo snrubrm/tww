@@ -40,25 +40,19 @@ BOOL daObjFirewall_c::solidHeapCB(fopAc_ac_c* actor) {
 
 /* 00000110-000002DC       .text create_heap__15daObjFirewall_cFv */
 bool daObjFirewall_c::create_heap() {
-    // USA: remaining differences are register allocation for resources and animation results.
-    J3DModelData* modelData;
-    J3DAnmTextureSRTKey* btk;
-    J3DAnmTevRegKey* brk;
-    BOOL btkSuccess;
-    BOOL brkSuccess;
     bool success = true;
-    modelData = (J3DModelData*)dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_BDL_YSWDR00_e);
-    btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_BTK_YSWDR00_e);
-    brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_BRK_YSWDR00_e);
-    if (!modelData || !btk || !brk) {
-        JUT_ASSERT(0x171, 0);
+    J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_BDL_YSWDR00_e));
+    J3DAnmTextureSRTKey* btk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_BTK_YSWDR00_e));
+    J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_BRK_YSWDR00_e));
+    if (modelData == NULL || btk == NULL || brk == NULL) {
+        JUT_ASSERT(0x171, FALSE);
         success = false;
     } else {
         mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000222);
-        mpBgW = dBgW_NewSet((cBgD_t*)dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_DZB_FWALL_e), 1, &mpModel->getBaseTRMtx());
-        btkSuccess = mBtk.init(modelData, btk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0);
-        brkSuccess = mBrk.init(modelData, brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
-        if (!mpModel || !mpBgW || !btkSuccess || !brkSuccess) {
+        mpBgW = dBgW_NewSet((cBgD_t*)dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_DZB_FWALL_e), cBgW::MOVE_BG_e, &mpModel->getBaseTRMtx());
+        BOOL btkSuccess = mBtk.init(modelData, btk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0);
+        BOOL brkSuccess = mBrk.init(modelData, brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+        if (mpModel == NULL || mpBgW == NULL || !btkSuccess || !brkSuccess) {
             success = false;
         }
     }
