@@ -771,9 +771,9 @@ void daNpc_Yw1_c::setHairAngle() {
     if (std::fabsf(front.y) > 0.7f) mNeckY = oldNeckY;
     s16 neckDX = (s16)(mNeckX - oldNeckX) / 2, neckDY = (s16)(mNeckY - oldNeckY) / 2;
     if (neckDX > 0x200) neckDX = 0x200;
-    else if (neckDX < - 0x200) neckDX = -0x200;
+    else if (neckDX < -0x200) neckDX = -0x200;
     if (neckDY > 0x800) neckDY = 0x800;
-    else if (neckDY < - 0x800) neckDY = -0x800;
+    else if (neckDY < -0x800) neckDY = -0x800;
     delta.x = mOldHeadPos.x - pos.x;
     delta.y = mOldHeadPos.y - pos.y - 7.5f;
     delta.z = mOldHeadPos.z - pos.z;
@@ -784,13 +784,13 @@ void daNpc_Yw1_c::setHairAngle() {
     f32 projected = delta.z * cos + delta.x * sin;
     s16 target = cM_atan2s(-projected, -delta.y);
     if (mHairX < 0) target = 0;
-    else if (target < 0 && target > - 0x7800) target = 0;
+    else if (target < 0 && target > -0x7800) target = 0;
     else if (target > 0x7800 || target <= -0x7800) target = 0x7800;
     cLib_addCalcAngleS2(&mHairX, target, 5, 0x400);
-    mHairX = mHairVelX + (neckDX + mHairX);
+    mHairX = (neckDX + mHairX) + mHairVelX;
     target = cM_atan2s(-(delta.x * cos - delta.z * sin), std::sqrtf(projected * projected + delta.y * delta.y));
     if (target > 0x3800) target = 0x3800;
-    else if (target < - 0x3800) target = -0x3800;
+    else if (target < -0x3800) target = -0x3800;
     cLib_addCalcAngleS2(&mHairY, target, 5, 0x400);
     mHairY += mHairVelY - neckDY;
     mHairVelX = 0.2f * (s16)(mHairX - oldX);
@@ -801,7 +801,7 @@ void daNpc_Yw1_c::setHairAngle() {
     s16 old2X = mHair2X, old2Y = mHair2Y;
     cLib_addCalcAngleS2(&mHair2X, 0, 5, 0x400);
     cLib_addCalcAngleS2(&mHair2Y, 0, 5, 0x400);
-    mHair2X = mHair2VelX + (neckDX + mHair2X);
+    mHair2X = (neckDX + mHair2X) + mHair2VelX;
     mHair2Y += mHair2VelY - neckDY;
     mHair2VelX = 0.2f * (s16)(mHair2X - old2X);
     mHair2VelY = 0.2f * (s16)(mHair2Y - old2Y);
@@ -812,12 +812,13 @@ void daNpc_Yw1_c::setHairAngle() {
     s16 old3X = mHair3X, old3Y = mHair3Y;
     cLib_addCalcAngleS2(&mHair3X, 0, 5, 0x400);
     cLib_addCalcAngleS2(&mHair3Y, 0, 5, 0x400);
-    mHair3X = mHair3VelX + (neckDX + mHair3X);
+    mHair3X = (neckDX + mHair3X) + mHair3VelX;
     mHair3Y += mHair3VelY - neckDY;
     mHair3VelX = 0.2f * (s16)(mHair3X - old3X);
     mHair3VelY = 0.2f * (s16)(mHair3Y - old3Y);
     f32 distance = mOldHeadPos.abs(pos);
-    f32 wave = (windPower + 0.65f * distance) * 0.25f;
+    f32 wave = windPower + 0.65f * distance;
+    wave = wave * 0.25f;
     if (wave > 1.0f) wave = 1.0f;
     s16 phaseStep = 1500.0f + 4096.0f * wave;
     mHairPhase += phaseStep;
@@ -936,8 +937,11 @@ int daNpc_Yw1_c::walk_1() {
             int angle = cLib_targetAngleY(&current.pos, &pos);
             cLib_addCalcAngleS(&current.angle.y, angle, l_HIO.mChild[mType].mPrm.walkTurnRate, l_HIO.mChild[mType].mPrm.walkTurnSpeed, 0);
             targetSpeed = l_HIO.mChild[mType].mPrm.walkSpeed;
-        } else targetSpeed = 0.0f;
-    } else targetSpeed = 0.0f;
+            goto walk_speed_set;
+        }
+    }
+    targetSpeed = 0.0f;
+walk_speed_set:
     cLib_chaseF(&speedF, targetSpeed, l_HIO.mChild[mType].mPrm.acceleration);
     f32 rate = speedF * l_HIO.mChild[mType].mPrm.animationSpeed;
     f32 playSpeed = rate < 0.5f ? 0.5f : rate;
