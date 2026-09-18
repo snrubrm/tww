@@ -162,7 +162,8 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
         jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[10]) >> jmaSinShift] +
         jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[11]) >> jmaSinShift]);
     f32 dot = normal->inprod(mWind);
-    mForce += *normal * (dot * ((1.0f / L_attr.windScale) * (wave * L_attr.wave)));
+    f32 w = wave * L_attr.wave;
+    mForce += *normal * (dot * (w * (1.0f / L_attr.windScale)));
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_spd(int y, int x) {
     cXyz* speed = &mMove.speed[y][x];
@@ -588,7 +589,6 @@ bool daObjBuoyflag::Act_c::mode_afl() {
 
 /* 000024B0-0000278C       .text mode_jumpToSea__Q213daObjBuoyflag5Act_cFv */
 bool daObjBuoyflag::Act_c::mode_jumpToSea() {
-    // USA: quaternion argument setup is scheduled earlier than the original.
     if (m1128) {
         gravity = L_attr.fallGravity;
         mTilt = 0;
@@ -613,9 +613,8 @@ bool daObjBuoyflag::Act_c::mode_jumpToSea() {
     }
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::transM(0.0f, 60.0f, 0.0f);
-    f32 tilt = 0.0000958738f * mTilt;
-    mDoMtx_quatStack_c::rotAxisRadS(&mTiltAxis, tilt);
-    mDoMtx_stack_c::quatM(mDoMtx_quatStack.get());
+    mDoMtx_quatStack_c::rotAxisRadS(&mTiltAxis, cM_s2rad(mTilt));
+    mDoMtx_stack_c::quatM(mDoMtx_quatStack_c::get());
     mDoMtx_stack_c::concat(m10F0);
     mDoMtx_stack_c::transM(0.0f, -60.0f, 0.0f);
     cMtx_copy(mDoMtx_stack_c::get(), m1090);
