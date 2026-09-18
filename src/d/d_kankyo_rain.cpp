@@ -1839,11 +1839,17 @@ void wave_move() {
     vectle_calc(&deltaXZ, &vectle);
 
     pPkt->mSkewDir = cM3d_VectorProduct2d(0.0f, 0.0f, -windPowVec2.x, -windPowVec2.z, vectle.x, vectle.z);
-    pPkt->mSkewWidth = windPow * (1.0f - std::fabsf(windPowVec2.y)) * (1.0f - std::fabsf(windPowVec2.x * vectle.x + windPowVec2.z * vectle.z));
+    {
+        f32 t1 = 1.0f;
+        f32 a = std::fabsf(windPowVec2.x * vectle.x + windPowVec2.z * vectle.z);
+        f32 b = std::fabsf(windPowVec2.y);
+        pPkt->mSkewWidth = (t1 - a) * windPow * (t1 - b);
+    }
     pPkt->mSkewWidth *= 0.6f * std::fabsf(pPkt->mSkewDir);
 
     for (s32 i = 0; i < g_env_light.mWaveChan.mWaveCount; i++) {
-        if (g_env_light.mWaveChan.mWaveReset)
+        s32 waveReset = g_env_light.mWaveChan.mWaveReset;
+        if (waveReset)
             pPkt->mEff[i].mStatus = 0;
 
         switch (pPkt->mEff[i].mStatus) {
@@ -4766,14 +4772,14 @@ void dKyr_drawStar(Mtx drawMtx, u8** pImg) {
     f32 var_f30 = 0.0f;
 
     if (dComIfGd_getView() != NULL) {
-        var_f30 = dComIfGd_getView()->mFovy / 45.0f;
+        var_f30 = dComIfGd_getView()->mFovy / 40.0f;
         if (var_f30 >= 1.0f) {
             var_f30 = 1.0f;
         }
         var_f30 = 1.0f - var_f30;
     }
 
-    f32 temp_f27 = 0.28f * (1.0f - var_f30);
+    f32 temp_f27 = 0.9f - 0.6f * var_f30;
 
     sp98.x = 0.0f;
     sp98.y = temp_f27;
@@ -4831,13 +4837,13 @@ void dKyr_drawStar(Mtx drawMtx, u8** pImg) {
             star_pos.z = temp_f29 * (sp2C * cM_scos((sp48 - 0x8000)));
 
             sp48 += sp44;
-            sp44 += 2250;
+            sp44 += 2500;
 
             temp_f29 = var_f28 / 200.0f;
             temp_f29 *= temp_f29 * temp_f29;
             var_f28 += 1.0f + (3.0f * temp_f29);
             if (var_f28 > 200.0f) {
-                var_f28 = (20.0f * i) / 1000.0f;
+                var_f28 = (i / 1000.0f) * 20.0f;
             }
         }
 
@@ -4963,10 +4969,11 @@ void drawWave(Mtx drawMtx, u8** pImg) {
         if (wave <= 0.0f)
             continue;
 
-        f32 scale = dKy_getEnvlight().mWaveChan.mWaveScale * pPkt->mEff[i].mScale * wave;
+        f32 waveScale = dKy_getEnvlight().mWaveChan.mWaveScale;
+        f32 scale = waveScale * pPkt->mEff[i].mScale * wave;
         f32 scaleBottom = dKy_getEnvlight().mWaveChan.mWaveScaleBottom * scale;
         f32 strength = pPkt->mEff[i].mStrengthEnv;
-        f32 height = strength * scale;
+        f32 height = scale * strength;
         f32 width = scaleBottom * (strength - 0.00000015f * (i * 32) * height);
         if (height <= 0.0f)
             continue;
