@@ -410,7 +410,7 @@ u16 daNpc_Ds1_c::next_msgStatus(u32* msg) {
                 *msg = 0x1DD8;
             } else if (error&32) {
                 *msg = 0x1DD9;
-            } else if (!checkItemGet(mShopItems.getSelectItemNo(), 0)) {
+            } else if (!checkItemGet((int)mShopItems.getSelectItemNo(), 0)) {
                 mDoAud_seStart(0x87F, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
                 mShopItems.hideSelectItem();
                 m7D4 = mShopItems.getSelectItemNo();
@@ -422,7 +422,7 @@ u16 daNpc_Ds1_c::next_msgStatus(u32* msg) {
                 mDoAud_seStart(0x87F, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
                 mShopItems.hideSelectItem();
                 m7D4 = mShopItems.getSelectItemNo();
-                execItemGet(mShopItems.getSelectItemNo());
+                execItemGet((int)mShopItems.getSelectItemNo());
                 dComIfGp_setItemRupeeCount(-price);
                 *msg = 0x1DDA;
             }
