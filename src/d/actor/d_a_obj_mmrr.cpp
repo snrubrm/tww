@@ -106,20 +106,22 @@ BOOL daObjMmrr::Act_c::solidHeapCB(fopAc_ac_c* actor) {
 }
 
 /* 00000110-00000360       .text create_heap__Q29daObjMmrr5Act_cFv */
-// Nonmatching - register allocation.
 bool daObjMmrr::Act_c::create_heap() {
-    J3DModelData* const bdl_Mmrr = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BDL_MMRR_e);
+    J3DModelData* bdl_Mmrr;
+    J3DModelData* bdl_Yssmr00;
+
+    bdl_Mmrr = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BDL_MMRR_e));
     JUT_ASSERT(488, bdl_Mmrr != 0);
     mpMirrorModel = mDoExt_J3DModel__create(bdl_Mmrr, 0x80000, 0x11000222);
-    J3DModelData* const bdl_Yssmr00 = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BDL_YSSMR00_e);
+    bdl_Yssmr00 = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BDL_YSSMR00_e));
     JUT_ASSERT(497, bdl_Yssmr00 != 0);
     mpLightModel = mDoExt_J3DModel__create(bdl_Yssmr00, 0x80000, 0x11000222);
-    J3DAnmTextureSRTKey* const btk_Mmrr = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BTK_MMRR_e);
+    J3DAnmTextureSRTKey* btk_Mmrr = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BTK_MMRR_e));
     JUT_ASSERT(508, btk_Mmrr != 0);
-    const BOOL mirror = mMirrorBtk.init(bdl_Mmrr, btk_Mmrr, TRUE, 2, 1.0f, 0, -1, false, FALSE);
-    J3DAnmTextureSRTKey* const btk_Yssmr00 = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BTK_YSSMR00_e);
+    BOOL mirror = mMirrorBtk.init(bdl_Mmrr, btk_Mmrr, TRUE, 2, 1.0f, 0, -1, false, FALSE);
+    J3DAnmTextureSRTKey* btk_Yssmr00 = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MMIRROR_BTK_YSSMR00_e));
     JUT_ASSERT(515, btk_Yssmr00 != 0);
-    const BOOL light = mLightBtk.init(bdl_Yssmr00, btk_Yssmr00, TRUE, 2, 1.0f, 0, -1, false, FALSE);
+    BOOL light = mLightBtk.init(bdl_Yssmr00, btk_Yssmr00, TRUE, 2, 1.0f, 0, -1, false, FALSE);
     return mpMirrorModel && mpLightModel && mirror && light;
 }
 
