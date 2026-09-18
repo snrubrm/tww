@@ -136,7 +136,6 @@ void msw_move(msw_class* i_this) {
 
 /* 0000080C-00000AD4       .text daMsw_Execute__FP9msw_class */
 static BOOL daMsw_Execute(msw_class* i_this) {
-    /* Nonmatching - retail-only regalloc */
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
 
@@ -144,7 +143,7 @@ static BOOL daMsw_Execute(msw_class* i_this) {
 
     MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, false);
     cMtx_YrotM(*calc_mtx, actor->shape_angle.y);
-    cMtx_XrotM(*calc_mtx, actor->shape_angle.x);
+    cMtx_XrotM(*calc_mtx, DEMO_SELECT(actor->shape_angle.x, (s16)actor->shape_angle.x));
     cMtx_ZrotM(*calc_mtx, actor->shape_angle.z);
     MtxScale(actor->scale.x, 1.0f, actor->scale.z, true);
     i_this->mpModel->setBaseTRMtx(*calc_mtx);

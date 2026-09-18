@@ -1472,7 +1472,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_magma"),
     ActorRel(Matching,    "d_a_majuu_flag"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"), "d_a_mdoor"),
-    ActorRel(MatchingFor("D44J01"), "d_a_msw"),
+    ActorRel(MatchingFor("D44J01", "GZLE01"), "d_a_msw"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_mtoge"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_obj_AjavW"),
     ActorRel(Matching,    "d_a_obj_Ygush00"),
