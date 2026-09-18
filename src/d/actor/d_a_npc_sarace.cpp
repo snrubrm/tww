@@ -77,7 +77,6 @@ static const int l_btp_ix_tbl[] = {dRes_INDEX_SARACE_BTP_SA01_MABA_e};
 
 /* 00000198-00000328       .text nodeCallBack__FP7J3DNodei */
 static BOOL nodeCallBack(J3DNode* node, int phase) {
-    // Nonmatching - rotation argument load scheduling.
     if (phase == 0) {
         J3DModel* model = j3dSys.getModel();
         daNpc_Sarace_c* npc = (daNpc_Sarace_c*)model->getUserArea();
@@ -88,11 +87,11 @@ static BOOL nodeCallBack(J3DNode* node, int phase) {
                 static cXyz offset(0.0f, 0.0f, 0.0f);
                 cXyz eyeOffset(24.0f, 14.0f, 0.0f);
                 mDoMtx_stack_c::multVec(&offset, npc->getAttentionBasePos());
-                cMtx_XrotM(mDoMtx_stack_c::get(), npc->m_jnt.getHead_y());
+                mDoMtx_stack_c::XrotM((s16)npc->m_jnt.getHead_y());
                 mDoMtx_stack_c::ZrotM(-npc->m_jnt.getHead_x());
                 mDoMtx_stack_c::multVec(&eyeOffset, npc->getEyePos());
             } else if (joint == npc->m_jnt.getBackboneJntNum()) {
-                cMtx_XrotM(mDoMtx_stack_c::get(), npc->m_jnt.getBackbone_y());
+                mDoMtx_stack_c::XrotM((s16)npc->m_jnt.getBackbone_y());
                 mDoMtx_stack_c::ZrotM(-npc->m_jnt.getBackbone_x());
             }
             cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
@@ -553,10 +552,9 @@ cPhs_State daNpc_Sarace_c::_create() {
 
 /* 000020CC-00002498       .text CreateHeap__14daNpc_Sarace_cFv */
 BOOL daNpc_Sarace_c::CreateHeap() {
-    // Nonmatching - model and resource pointer register allocation.
     J3DModelData* headModelData;
     J3DModelData* modelData;
-    modelData = (J3DModelData*)dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BDL_SA_e);
+    modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BDL_SA_e));
     JUT_ASSERT(1008, modelData != 0);
     mpMorf = new mDoExt_McaMorf(modelData, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BCK_SA_WAIT01_e),
@@ -569,7 +567,7 @@ BOOL daNpc_Sarace_c::CreateHeap() {
     JUT_ASSERT(1024, m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
     JUT_ASSERT(1026, m_jnt.getBackboneJntNum() >= 0);
-    headModelData = (J3DModelData*)dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BDL_SA01_HEAD_e);
+    headModelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BDL_SA01_HEAD_e));
     JUT_ASSERT(1034, headModelData != 0);
     mpHeadMorf = new mDoExt_McaMorf(headModelData, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BCK_SA01HEAD_WAIT01_e),
