@@ -37,18 +37,17 @@ BOOL daObjHtetu1_c::solidHeapCB(fopAc_ac_c* actor) {
 
 /* 00000198-00000298       .text create_heap__13daObjHtetu1_cFv */
 BOOL daObjHtetu1_c::create_heap() {
-    // Remaining USA mismatch: register allocation.
     BOOL result = TRUE;
-    J3DModelData* mdl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_HTETU1_BDL_HTETU1_e);
-    JUT_ASSERT(281, mdl_data != 0);
+    J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_HTETU1_BDL_HTETU1_e));
+    JUT_ASSERT(281, mdl_data != NULL);
     if (mdl_data == NULL) {
         result = FALSE;
     } else {
         mpModel = mDoExt_J3DModel__create(mdl_data, 0, 0x11020203);
-        Mtx* matrix = &mpModel->getBaseTRMtx();
-        cBgD_t* bgData = (cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_HTETU1_DZB_HTETU1_e);
-        mpBgW = dBgW_NewSet(bgData, cBgW::MOVE_BG_e, matrix);
-        if (mpBgW == NULL) result = FALSE;
+        mpBgW = dBgW_NewSet((cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_HTETU1_DZB_HTETU1_e), cBgW::MOVE_BG_e, &mpModel->getBaseTRMtx());
+        if (mpBgW == NULL) {
+            result = FALSE;
+        }
     }
     return result;
 }
@@ -111,13 +110,11 @@ void daObjHtetu1_c::init_mtx() {
 
 /* 000006E4-000007F8       .text unlock__13daObjHtetu1_cFv */
 void daObjHtetu1_c::unlock() {
-    // Remaining USA mismatch: floating-point result register.
     cXyz offset = cXyz::BaseY;
     mNextPos -= mShakeOffset;
-    f32 displacement = mShakeAmplitude;
-    displacement *= cM_ssin(mShakeTimer * 0x859);
-    displacement = (s16)displacement;
-    offset *= std::fabsf(displacement);
+    f32 amplitude = mShakeAmplitude;
+    s16 angle = mShakeTimer * 0x859;
+    offset *= std::fabsf((s16)(amplitude * cM_ssin(angle)));
     mNextPos += offset;
     mShakeOffset = offset;
     cLib_addCalc(&mShakeAmplitude, 0.0f, 0.13f, 50.0f, 1.0f);
