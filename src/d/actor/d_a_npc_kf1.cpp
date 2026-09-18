@@ -315,7 +315,6 @@ void daNpc_Kf1_c::chngAnmAtr(u8 attr) {
 
 /* 00000DEC-00000E60       .text ctrlAnmAtr__11daNpc_Kf1_cFv */
 void daNpc_Kf1_c::ctrlAnmAtr() {
-    // Nonmatching - switch branch layout.
     switch (mAnmAttr) {
     case 7:
     case 9:
@@ -367,8 +366,8 @@ void daNpc_Kf1_c::anmAtr(u16 status) {
 
 /* 00000F80-000010F4       .text next_msgStatus__11daNpc_Kf1_cFPUl */
 u16 daNpc_Kf1_c::next_msgStatus(u32* msg) {
-    // Nonmatching - register allocation or equivalent branch generation.
-    u16 result = 15;switch (*msg) {
+    u16 result = 15;
+    switch (*msg) {
     case 0x1C23:
         switch (mpCurrMsg->mSelectNum) {
         case 0:
@@ -419,7 +418,7 @@ u16 daNpc_Kf1_c::next_msgStatus(u32* msg) {
         *msg = 0x1C2E;
         break;
     case 0x1C33:
-        *msg = (s32)mSavedRupees < (s32)(mBrokenPots*10) ? 0x1C2F : 0x1C30;
+        *msg = mSavedRupees < mBrokenPots * 10 ? 0x1C2F : 0x1C30;
         break;
     case 0x1C36:
         *msg = 0x1C37;
@@ -475,7 +474,6 @@ void daNpc_Kf1_c::eventOrder() {
 
 /* 000012A4-00001380       .text checkOrder__11daNpc_Kf1_cFv */
 void daNpc_Kf1_c::checkOrder() {
-    // Nonmatching - register allocation or equivalent branch generation.
     if (eventInfo.checkCommandDemoAccrpt()) {
         if (dComIfGp_evmng_startCheck(mEventIds[mEventIndex]) && mEventOrder >= 3) {
             switch (mEventIndex) {
@@ -490,7 +488,10 @@ void daNpc_Kf1_c::checkOrder() {
             mAnmAttr = 0xFF;
             mAnmTag = 0xFF;
         }
-    } else if (eventInfo.checkCommandTalk() && (mEventOrder == 1 || mEventOrder == 2)) { mEventOrder = 0; mTalking = true; }
+    } else if (eventInfo.checkCommandTalk() && (mEventOrder == 1 || mEventOrder == 2)) {
+        mEventOrder = 0;
+        mTalking = true;
+    }
 }
 
 /* 00001380-00001418       .text chk_talk__11daNpc_Kf1_cFv */
@@ -518,7 +519,6 @@ fopAc_ac_c* daNpc_Kf1_c::searchByID(fpc_ProcID id, int* missing) {
 
 /* 0000146C-0000156C       .text srch_Tsubo__11daNpc_Kf1_cFv */
 BOOL daNpc_Kf1_c::srch_Tsubo() {
-    // Nonmatching - register allocation or equivalent branch generation.
     BOOL result = FALSE;
     if (mActionState != 1) {
         return result;
@@ -528,7 +528,7 @@ BOOL daNpc_Kf1_c::srch_Tsubo() {
     for (int i = 0; i < 20; i++) {
         l_check_inf[i] = NULL;
     }
-    fpcEx_Search(searchActor_Tsubo, (void*)result);
+    fpcEx_Search(searchActor_Tsubo, this);
     if (l_check_wrk >= 8) {
         mPotCount = 0;
         for (int i = 0; i < 8; i++) {
@@ -543,17 +543,22 @@ BOOL daNpc_Kf1_c::srch_Tsubo() {
 
 /* 0000156C-000017F4       .text create_rupee__11daNpc_Kf1_cF4cXyzi */
 void daNpc_Kf1_c::create_rupee(cXyz pos, int count) {
-    // Nonmatching - register allocation or equivalent branch generation.
     cXyz itemScale(0.2f, 0.2f, 0.2f);
     csXyz angle(0, 0, 0);
+    fopAc_ac_c* a_actor_p;
+    s8 room;
     int i;
-    int counter = g_Counter.mCounter0;
-    for (i = 0; i < count; i++) {
+    int counter;
+    f32 random;
+    f32 angleScale;
+    counter = g_Counter.mCounter0;
+    for (i = 0; i < count; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
-        f32 random = cM_rndF(30.0f)-15.0f;
-        angle.y = current.angle.y+(s16)((32767.0f/180.0f)*(s16)(offsets[counter%3]+random));
-        s8 room = current.roomNo;
-        fopAc_ac_c* a_actor_p = fopAcM_createItemForKP2(&pos, 4, room, NULL, NULL, 13.0f+cM_rndFX(2.0f), 31.0f+cM_rndFX(4.0f), -2.0f, 1);
+        random = cM_rndF(30.0f) - 15.0f;
+        angleScale = 32767.0f / 180.0f;
+        angle.y = current.angle.y + (s16)(angleScale * (s16)(offsets[counter % 3] + random));
+        room = current.roomNo;
+        a_actor_p = fopAcM_createItemForKP2(&pos, 4, room, NULL, NULL, 13.0f + cM_rndFX(2.0f), 31.0f + cM_rndFX(4.0f), -2.0f, 1);
         JUT_ASSERT(1042, a_actor_p != 0);
         if (a_actor_p) {
             fopAcM_OnStatus(a_actor_p, 0x4000);
@@ -563,7 +568,6 @@ void daNpc_Kf1_c::create_rupee(cXyz pos, int count) {
             a_actor_p->current.angle = a_actor_p->shape_angle;
             mRupeeIDs[i] = fopAcM_GetID(a_actor_p);
         }
-        counter++;
     }
 }
 
@@ -661,8 +665,7 @@ bool daNpc_Kf1_c::decideType(int) {
 
 /* 00001D30-00001E04       .text cut_init_ANGRY_START__11daNpc_Kf1_cFi */
 void daNpc_Kf1_c::cut_init_ANGRY_START(int staff) {
-    // Nonmatching - register allocation or equivalent branch generation.
-    cXyz* pos = dComIfGp_evmng_getMyXyzP(staff,"Pos");
+    cXyz* pos = dComIfGp_evmng_getMyXyzP(staff, "Pos");
     if (pos) {
         current.pos.set(pos->x, pos->y, pos->z);
         cXyz* src = mObjAcch.GetPos();
@@ -797,16 +800,15 @@ bool daNpc_Kf1_c::cut_move_START_AGE() {
 
 /* 00002178-00002284       .text cut_init_PLYER_MOV__11daNpc_Kf1_cFi */
 void daNpc_Kf1_c::cut_init_PLYER_MOV(int) {
-    // Nonmatching - register allocation or equivalent branch generation.
-    s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getPlayer(0)->current.pos)-current.angle.y;
-    if (abs(angle)>0x2000) {
+    s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getPlayer(0)->current.pos) - current.angle.y;
+    if (abs(angle) > 0x2000) {
         dComIfGp_evmng_setGoal(&dComIfGp_getPlayer(0)->current.pos);
     } else {
         cXyz pos, offset(0, 0, 0);
         s16 side;
-        side = angle>0?0x2800:-0x2800;
+        side = angle > 0 ? 0x2800 : -0x2800;
         mDoMtx_stack_c::transS(current.pos);
-        mDoMtx_stack_c::YrotM(current.angle.y+side);
+        mDoMtx_stack_c::YrotM(current.angle.y + side);
         offset.z = 150;
         mDoMtx_stack_c::multVec(&offset, &pos);
         dComIfGp_evmng_setGoal(&pos);
@@ -820,19 +822,17 @@ bool daNpc_Kf1_c::cut_move_PLYER_MOV() {
 
 /* 0000228C-000023E8       .text cut_init_RUPEE_SET__11daNpc_Kf1_cFi */
 void daNpc_Kf1_c::cut_init_RUPEE_SET(int) {
-    // Nonmatching - register allocation or equivalent branch generation.
     if (mPotCount == 8) {
         u8 selected[8] = {0, 0, 0, 0, 0, 0, 0, 0};
         int index;
         for (int i = 0; i < 3; i++) {
             do {
                 f32 random = cM_rndF(32.0f);
-                index = random*0.25f;
-            }
-            while (selected[index]);
+                index = random * 0.25f;
+            } while (selected[index]);
             fopAc_ac_c* a_tsubo_actor = fopAcM_SearchByID(mPotIDs[index]);
             JUT_ASSERT(1475, 0 != a_tsubo_actor);
-            fopAcM_SetParam(a_tsubo_actor, (fopAcM_GetParam(a_tsubo_actor)&~0x3F)|4);
+            fopAcM_SetParam(a_tsubo_actor, (fopAcM_GetParam(a_tsubo_actor) & ~0x3F) | 4);
             dComIfGp_event_setItemPartner(a_tsubo_actor);
             mAttentionPotIDs[i] = mPotIDs[index];
             selected[index] = 1;
@@ -919,8 +919,7 @@ bool daNpc_Kf1_c::cut_move_TSUBO_ATN() {
 
 /* 00002794-000028F4       .text cut_init_TLK_MSG__11daNpc_Kf1_cFi */
 void daNpc_Kf1_c::cut_init_TLK_MSG(int staff) {
-    // Nonmatching - register allocation or equivalent branch generation.
-    int* msg = dComIfGp_evmng_getMyIntegerP(staff,"MsgNum");
+    int* msg = dComIfGp_evmng_getMyIntegerP(staff, "MsgNum");
     int* end = dComIfGp_evmng_getMyIntegerP(staff,"EndMsg");
     mAnmAttr = 0xFF;
     mAnmTag = 0xFF;
@@ -940,7 +939,7 @@ void daNpc_Kf1_c::cut_init_TLK_MSG(int staff) {
             break;
         case 0x1C2F:
         case 0x1C30:
-            mCurrMsgNo = (s32)mSavedRupees < (s32)(mBrokenPots*10) ? 0x1C2F : 0x1C30;
+            mCurrMsgNo = mSavedRupees < mBrokenPots * 10 ? 0x1C2F : 0x1C30;
             break;
         case 0x1C39:
             dComIfGp_getVibration().StartShock(5, -33, cXyz(0, 1, 0));
@@ -1095,7 +1094,6 @@ int daNpc_Kf1_c::isEventEntry() {
 
 /* 00002CBC-00002E14       .text event_proc__11daNpc_Kf1_cFi */
 void daNpc_Kf1_c::event_proc(int staff) {
-    // Nonmatching - register allocation or equivalent branch generation.
     if (dComIfGp_evmng_endCheck(mEventIds[mEventIndex])) {
         switch (mEventIndex) {
         case 0:
@@ -1105,7 +1103,8 @@ void daNpc_Kf1_c::event_proc(int staff) {
         case 1:
             {
                 u8 flags = dComIfGs_getEventReg(0xBCFF);
-                dComIfGs_setEventReg(0xBCFF, flags|1);
+                flags |= 1;
+                dComIfGs_setEventReg(0xBCFF, flags);
             }
             mFreezeAngle = 0;
             setStt(1);
