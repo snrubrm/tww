@@ -75,8 +75,10 @@ bool daNpc_Gp1_c::init_GP1_0() {
 
 /* 00000468-00000638       .text createInit__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::createInit() {
-    // Nonmatching - collision weight register allocation.
-    for (int i = 0; i < 3; i++) {
+    bool result;
+    int weight;
+    int i;
+    for (i = 0; i < 3; i++) {
         mEventIds[i] = dComIfGp_evmng_getEventIdx(l_evn_tbl[i]);
     }
     attention_info.flags = 0xA;
@@ -84,7 +86,7 @@ bool daNpc_Gp1_c::createInit() {
     attention_info.distances[fopAc_Attn_TYPE_SPEAK_e] = 0xAB;
     gravity = -4.5f;
     mLookPos = current.pos;
-    int weight = 0xFF;
+    weight = 0xFF;
     u8 pathNo = (fopAcM_GetParam(this) >> 16) & 0xFF;
     if (pathNo != 0xFF) {
         mPath.setInf(pathNo, current.roomNo, 1);
@@ -95,7 +97,6 @@ bool daNpc_Gp1_c::createInit() {
     }
     mCut.setActorInfo2("Gp1", this);
     mAnmIndex = 8;
-    bool result;
     switch (mSubtype) {
     case 0:
         result = init_GP1_0();
@@ -374,8 +375,8 @@ bool daNpc_Gp1_c::chk_partsNotMove() {
     }
     return result;
 }
-// Retain the unused angle conversion constant in the original actor.
-extern const f32 l_gp1AngleScale = 182.04445f;
+// Retain the unused angle conversion constant so it is emitted at this .rodata slot.
+extern const f32 l_gp1AngleScale = 0x8000 / 180.0f;
 /* 00001048-00001168       .text chk_forceTlkArea__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::chk_forceTlkArea() {
     f32 distance = (dComIfGp_getPlayer(0)->current.pos - current.pos).absXZ();
@@ -621,10 +622,9 @@ void daNpc_Gp1_c::ctrl_WAITanm() {
 
 /* 000019AC-00001B1C       .text gp_movPass__11daNpc_Gp1_cFv */
 int daNpc_Gp1_c::gp_movPass() {
-    // Nonmatching - path direction bool conversion.
     int result = 0;
     if (mPath.isPath() && dPath_ChkClose(mPath.getPath())) {
-        if (mPath.chkPointPass(current.pos, mPath.getDir() != 0)) {
+        if (mPath.chkPointPass(current.pos, (u8)(mPath.getDir() != 0))) {
             mPath.nextIdxAuto();
             result = 1;
         }
@@ -675,7 +675,6 @@ void daNpc_Gp1_c::gp_nMove() {
 
 /* 00001C40-00001ED8       .text create_rupee__11daNpc_Gp1_cFv */
 BOOL daNpc_Gp1_c::create_rupee() {
-    // Nonmatching - loop register allocation and constant placement.
     cXyz itemScale(0.2f, 0.2f, 0.2f);
     csXyz angle(0, 0, 0);
     mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_hnd_L_jnt_num));
@@ -896,7 +895,6 @@ BOOL daNpc_Gp1_c::wait_1() {
 
 /* 0000255C-00002724       .text talk_1__11daNpc_Gp1_cFv */
 BOOL daNpc_Gp1_c::talk_1() {
-    // Nonmatching - necklace count register allocation.
     BOOL result = chk_partsNotMove();
     talk(1);
     if (mpCurrMsg != NULL) {
@@ -932,13 +930,15 @@ BOOL daNpc_Gp1_c::talk_1() {
             if (mConsumeNecklaces) {
                 dComIfGp_evmng_CancelPresent();
                 if (mNecklaceCount != 0) {
-                    u8 count = dComIfGs_getEventReg(0xC5FF);
+                    int count = dComIfGs_getEventReg(0xC5FF);
+                    count &= 0xFF;
                     dComIfGp_setItemBeastNumCount(dBeastIdx_SKULL_NECKLACE_e, -mNecklaceCount);
                     int total = count + mNecklaceCount;
-                    if (total > 127) {
-                        total = 127;
+                    int value = 127;
+                    if (total <= 127) {
+                        value = total;
                     }
-                    dComIfGs_setEventReg(0xC5FF, total);
+                    dComIfGs_setEventReg(0xC5FF, value);
                 }
                 mConsumeNecklaces = 0;
             }
@@ -1177,8 +1177,8 @@ cPhs_State daNpc_Gp1_c::_create() {
     if (!charDecide(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
     }
-    static u32 a_heap_size_tbl[] = {0x272E0};
-    if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_heap_size_tbl[mType])) {
+    static u32 a_size_tbl[] = {0x272E0};
+    if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_size_tbl[mType])) {
         return cPhs_ERROR_e;
     }
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
