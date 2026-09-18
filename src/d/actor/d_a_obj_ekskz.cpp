@@ -47,22 +47,27 @@ static dCcD_SrcCyl cyl_check_src = {
 
 /* 00000078-00000368       .text CreateHeap__Q210daObjEkskz5Act_cFv */
 BOOL daObjEkskz::Act_c::CreateHeap() {
-    // Remaining USA mismatch: model_data uses r29 instead of r28.
-    J3DModelData* model_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BDL_EKSKZ_e);
-    JUT_ASSERT(144, model_data != NULL);
-    mpModel = mDoExt_J3DModel__create(model_data, 0, 0x11020203);
-    if (mpModel == NULL) return FALSE;
-    J3DModelData* model_data_eff = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BDL_YOCWD00_e);
+    J3DModelData* model_data_eff;
+    J3DAnmTransform* bck;
+    J3DAnmTextureSRTKey* btk;
+    J3DAnmTevRegKey* brk;
+    {
+        J3DModelData* model_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BDL_EKSKZ_e);
+        JUT_ASSERT(144, model_data != NULL);
+        mpModel = mDoExt_J3DModel__create(model_data, 0, 0x11020203);
+        if (mpModel == NULL) return FALSE;
+    }
+    model_data_eff = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BDL_YOCWD00_e);
     JUT_ASSERT(155, model_data_eff != NULL);
     mpModelEff = mDoExt_J3DModel__create(model_data_eff, 0, 0x11020203);
     if (mpModelEff == NULL) return FALSE;
-    J3DAnmTransform* bck = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BCK_YOCWD00_e);
+    bck = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BCK_YOCWD00_e);
     JUT_ASSERT(164, bck != NULL);
     if (!mBckAnm.init(model_data_eff, bck, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false)) return FALSE;
-    J3DAnmTextureSRTKey* btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BTK_YOCWD00_e);
+    btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BTK_YOCWD00_e);
     JUT_ASSERT(171, btk != NULL);
     if (!mBtkAnm.init(model_data_eff, btk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0)) return FALSE;
-    J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BRK_YOCWD00_e);
+    brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BRK_YOCWD00_e);
     JUT_ASSERT(178, brk != NULL);
     if (!mBrkAnm.init(model_data_eff, brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) return FALSE;
     return TRUE;
