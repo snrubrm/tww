@@ -180,7 +180,8 @@ u8 daNpc_Uk_c::nextVisitMode() {
             return 5;
         }
 
-        s16 angle = fopAcM_searchActorAngleY(this, leader) - shape_angle.y;
+        s16 angle = fopAcM_searchActorAngleY(this, leader);
+        angle -= shape_angle.y;
 
         if (angle < 0) {
             angle = -angle;
@@ -1154,7 +1155,8 @@ bool daNpc_Uk_c::visit01() {
         if (mVisitMode == 6 || mVisitMode == 7) {
             daPy_lk_c* player = daPy_getPlayerLinkActorClass();
 
-            s16 angle = fopAcM_searchActorAngleY(player, this) - player->shape_angle.y;
+            s16 angle = fopAcM_searchActorAngleY(player, this);
+            angle -= player->shape_angle.y;
 
             if (angle < 0) {
                 angle = -angle;
