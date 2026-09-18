@@ -375,7 +375,7 @@ bool daNpc_Gp1_c::chk_partsNotMove() {
     }
     return result;
 }
-// Retain the unused angle conversion constant so it is emitted at this .rodata slot.
+// Emitted at this .rodata slot; create_rupee loads it via pointer-cast to avoid a second copy.
 extern const f32 l_gp1AngleScale = 0x8000 / 180.0f;
 /* 00001048-00001168       .text chk_forceTlkArea__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::chk_forceTlkArea() {
@@ -677,18 +677,25 @@ void daNpc_Gp1_c::gp_nMove() {
 BOOL daNpc_Gp1_c::create_rupee() {
     cXyz itemScale(0.2f, 0.2f, 0.2f);
     csXyz angle(0, 0, 0);
-    mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_hnd_L_jnt_num));
     cXyz pos;
+    fopAc_ac_c* item;
+    s8 room;
+    int i;
+    int counter;
+    f32 random;
+    f32 angleScale;
+    mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_hnd_L_jnt_num));
     pos.x = mDoMtx_stack_c::get()[0][3];
     pos.y = mDoMtx_stack_c::get()[1][3];
     pos.z = mDoMtx_stack_c::get()[2][3];
-    int i;
-    int counter = g_Counter.mCounter0;
+    counter = g_Counter.mCounter0;
     for (i = 0; i < mRupeeCount; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
-        angle.y = current.angle.y + cM_deg2s((s16)(offsets[counter % 3] + (cM_rndF(30.0f) - 15.0f)));
-        s8 room = current.roomNo;
-        fopAc_ac_c* item = (fopAc_ac_c*)fopAcM_fastCreateItem(&pos, 4, room, NULL, NULL, 10.0f + cM_rndFX(3.0f), 33.0f + cM_rndFX(6.0f), -2.0f, -1, NULL);
+        random = cM_rndF(30.0f) - 15.0f;
+        angleScale = *(f32*)&l_gp1AngleScale;
+        angle.y = current.angle.y + (s16)(angleScale * (s16)(offsets[counter % 3] + random));
+        room = current.roomNo;
+        item = (fopAc_ac_c*)fopAcM_fastCreateItem(&pos, 4, room, NULL, NULL, 10.0f + cM_rndFX(3.0f), 33.0f + cM_rndFX(6.0f), -2.0f, -1, NULL);
         if (item == NULL) {
             break;
         }
@@ -933,12 +940,7 @@ BOOL daNpc_Gp1_c::talk_1() {
                     int count = dComIfGs_getEventReg(0xC5FF);
                     count &= 0xFF;
                     dComIfGp_setItemBeastNumCount(dBeastIdx_SKULL_NECKLACE_e, -mNecklaceCount);
-                    int total = count + mNecklaceCount;
-                    int value = 127;
-                    if (total <= 127) {
-                        value = total;
-                    }
-                    dComIfGs_setEventReg(0xC5FF, value);
+                    dComIfGs_setEventReg(0xC5FF, cLib_maxLimit<int>(count + mNecklaceCount, 127));
                 }
                 mConsumeNecklaces = 0;
             }
