@@ -319,8 +319,9 @@ void daNpc_P2_c::setAttention() {
 }
 
 /* 00000B90-00000CEC       .text chkAttention__10daNpc_P2_cFv */
-void daNpc_P2_c::chkAttention() {
+BOOL daNpc_P2_c::chkAttention() {
     /* Nonmatching */
+    return FALSE;
 }
 
 /* 00000CEC-000010E8       .text lookBack__10daNpc_P2_cFv */
@@ -383,8 +384,41 @@ u16 daNpc_P2_c::next_msgStatus(unsigned long*) {
 
 /* 00001534-000016CC       .text getMsg__10daNpc_P2_cFv */
 u32 daNpc_P2_c::getMsg() {
-    /* Nonmatching */
-    return 0;
+    u32 msg = 0;
+    switch (mType) {
+    case 0:
+        if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0808)) {
+            msg = dLib_setFirstMsg(dSv_event_flag_c::UNK_0702, 0x100E, 0x100F);
+        } else {
+            msg = 0x1010;
+        }
+        break;
+    case 1:
+        if (m291 == 1) {
+            if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_0F02)) {
+                msg = dLib_setFirstMsg(dSv_event_flag_c::UNK_1502, 0x1B35, 0x1B36);
+            } else {
+                msg = 0x1028;
+            }
+        } else if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0720)) {
+            msg = dLib_setFirstMsg(dSv_event_flag_c::UNK_0940, 0xC96, 0xC97);
+        } else if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0808)) {
+            if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_0710)) {
+                msg = 0x1028;
+            }
+        } else {
+            msg = dLib_setFirstMsg(dSv_event_flag_c::UNK_0704, 0x1029, 0x102A);
+        }
+        break;
+    case 2:
+        if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0808)) {
+            msg = dLib_setFirstMsg(dSv_event_flag_c::UNK_0701, 0x1011, 0x1012);
+        } else {
+            msg = 0x1013;
+        }
+        break;
+    }
+    return msg;
 }
 
 /* 000016CC-000016D8       .text talkInit__10daNpc_P2_cFv */
@@ -722,8 +756,36 @@ int daNpc_P2_c::intro_action(void*) {
 
 /* 00003030-00003158       .text wait_action__10daNpc_P2_cFPv */
 int daNpc_P2_c::wait_action(void*) {
-    /* Nonmatching */
-    return 0;
+    if (m808 == 0) {
+        if (mType == 2) {
+            m7D6 = 0x10;
+        } else if (mType == 0 && !dComIfGs_isEventBit(dSv_event_flag_c::UNK_0808)) {
+            m7D6 = 0x11;
+        } else {
+            m7D6 = 1;
+        }
+        m808++;
+    } else if ((s8)m808 != -1) {
+        m724 = chkAttention();
+        m7D5 = 0;
+        switch ((s8)m7D6) {
+        case 1:
+            wait01();
+            break;
+        case 2:
+            talk01();
+            break;
+        case 0x10:
+            moccowait();
+            break;
+        case 0x11:
+            zukotelescope();
+            break;
+        }
+        lookBack();
+        setAnm();
+    }
+    return TRUE;
 }
 
 /* 00003158-00003520       .text _execute__10daNpc_P2_cFv */

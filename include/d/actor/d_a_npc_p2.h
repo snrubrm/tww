@@ -29,7 +29,7 @@ public:
     void setAnm();
     void setTexAnm();
     void setAttention();
-    void chkAttention();
+    BOOL chkAttention();
     void lookBack();
     void setMtx();
     void setCollision();
@@ -145,7 +145,8 @@ public:
     /* 0x6F8 */ cXyz mEyePos;
     /* 0x704 */ cXyz mAttnPos;
     /* 0x710 */ u8 mAttnSetCount;
-    /* 0x711 */ u8 m711[0x725 - 0x711];
+    /* 0x711 */ u8 m711[0x724 - 0x711];
+    /* 0x724 */ u8 m724;
     /* 0x725 */ u8 mHasAttention;
     /* 0x726 */ u8 m726[0x728 - 0x726];
     /* 0x728 */ u32 mMsgNo;
