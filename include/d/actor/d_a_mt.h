@@ -9,6 +9,7 @@
 #include "m_Do/m_Do_hostIO.h"
 #include "SSystem/SComponent/c_phase.h"
 #include "JSystem/J3DGraphAnimator/J3DMaterialAnm.h"
+#include "c/c_damagereaction.h"
 
 struct dPath;
 
@@ -66,8 +67,8 @@ public:
     /* 0x02BA */ u8 m2BA;
     /* 0x02BB */ u8 m2BB;
     /* 0x02BC */ u8 m2BC;
-    /* 0x02BD */ u8 m2BD;
-    /* 0x02BE */ u8 m2BE;
+    /* 0x02BD */ s8 m2BD;
+    /* 0x02BE */ s8 m2BE;
     /* 0x02BF */ u8 m2BF;
     /* 0x02C0 */ dPath* mpPath;
     /* 0x02C4 */ mDoExt_McaMorf* mpMorf[8];
@@ -77,7 +78,10 @@ public:
     /* 0x02EC */ int m2EC;
     /* 0x02F0 */ mDoExt_btkAnm* btk[8];
     /* 0x0310 */ mDoExt_brkAnm* brk[8];
-    /* 0x0330 */ u8 m330[0x033C - 0x0330];
+    /* 0x0330 */ f32 m330;
+    /* 0x0334 */ s16 m334;
+    /* 0x0336 */ u8 m336[0x0338 - 0x0336];
+    /* 0x0338 */ f32 m338;
     /* 0x033C */ J3DAnmTexPattern* mpBtp;
     /* 0x0340 */ J3DTexNoAnm* mpTexNoAnm;
     /* 0x0344 */ u8 m344;
@@ -85,31 +89,42 @@ public:
     /* 0x0346 */ u8 m346;
     /* 0x0347 */ u8 m347;
     /* 0x0348 */ u8 m348;
-    /* 0x0349 */ u8 m349[0x0350 - 0x0349];
+    /* 0x0349 */ u8 m349;
+    /* 0x034A */ s16 m34A;
+    /* 0x034C */ u8 m34C;
+    /* 0x034D */ u8 m34D[0x0350 - 0x034D];
     /* 0x0350 */ cXyz m350[8];
     /* 0x03B0 */ dPa_followEcallBack mPa[8];
     /* 0x0450 */ fopAc_ac_c* mp450;
     /* 0x0454 */ u8 m454;
     /* 0x0455 */ u8 m455;
     /* 0x0456 */ s16 m456;
-    /* 0x0458 */ u8 m458[0x045A - 0x0458];
+    /* 0x0458 */ s16 m458;
     /* 0x045A */ s16 m45A;
-    /* 0x045C */ u8 m45C[0x0460 - 0x045C];
+    /* 0x045C */ s16 m45C;
+    /* 0x045E */ s16 m45E;
     /* 0x0460 */ s16 m460;
-    /* 0x0462 */ u8 m462[0x0464 - 0x0462];
+    /* 0x0462 */ s16 m462;
     /* 0x0464 */ s16 m464;
-    /* 0x0466 */ u8 m466[0x0468 - 0x0466];
+    /* 0x0466 */ s16 m466;
     /* 0x0468 */ s16 m468;
     /* 0x046A */ s16 m46A;
-    /* 0x046C */ u8 m46C[0x0470 - 0x046C];
+    /* 0x046C */ s16 m46C;
+    /* 0x046E */ s16 m46E;
     /* 0x0470 */ f32 m470;
     /* 0x0474 */ f32 m474;
-    /* 0x0478 */ u8 m478[0x047C - 0x0478];
+    /* 0x0478 */ f32 m478;
     /* 0x047C */ cXyz m47C;
     /* 0x0488 */ s16 m488;
-    /* 0x048A */ u8 m48A[0x048E - 0x048A];
+    /* 0x048A */ s16 m48A;
+    /* 0x048C */ s16 m48C;
     /* 0x048E */ s16 m48E;
-    /* 0x0490 */ u8 m490[0x04A0 - 0x0490];
+    /* 0x0490 */ s16 m490;
+    /* 0x0492 */ s16 m492;
+    /* 0x0494 */ s16 m494;
+    /* 0x0496 */ s16 m496;
+    /* 0x0498 */ u8 m498[0x049A - 0x0498];
+    /* 0x049A */ csXyz m49A;
     /* 0x04A0 */ cXyz m4A0[8];
     /* 0x0500 */ cXyz m500[8];
     /* 0x0560 */ csXyz m560[8];
@@ -125,7 +140,9 @@ public:
     /* 0x0BF8 */ u8 mBF8[0x0C00 - 0x0BF8];
     /* 0x0C00 */ u8 mC00;
     /* 0x0C01 */ u8 mC01;
-    /* 0x0C02 */ u8 mC02[0x0C08 - 0x0C02];
+    /* 0x0C02 */ s16 mC02;
+    /* 0x0C04 */ u8 mC04;
+    /* 0x0C05 */ u8 mC05[0x0C08 - 0x0C05];
     /* 0x0C08 */ dBgS_AcchCir mAcchCir;
     /* 0x0C48 */ dBgS_ObjAcch mAcch;
     /* 0x0E0C */ dCcD_Stts mStts;
@@ -136,24 +153,14 @@ public:
     /* 0x18D8 */ J3DModel* br_modelL[3];
     /* 0x18E4 */ J3DModel* br_modelR[3];
     /* 0x18F0 */ f32 m18F0;
-    /* 0x18F4 */ u8 m18F4[0x18F8 - 0x18F4];
+    /* 0x18F4 */ f32 m18F4;
     /* 0x18F8 */ s8 m18F8;
-    /* 0x18F9 */ u8 m18F9[0x18FB - 0x18F9];
+    /* 0x18F9 */ u8 m18F9;
+    /* 0x18FA */ u8 m18FA;
     /* 0x18FB */ u8 m18FB;
-    /* 0x18FC */ u8 m18FC[0x1900 - 0x18FC];
-    /* 0x1900 */ fopAc_ac_c* mp1900;
-    /* 0x1904 */ u8 m1904[0x1906 - 0x1904];
-    /* 0x1906 */ s8 m1906;
-    /* 0x1907 */ u8 m1907[0x1930 - 0x1907];
-    /* 0x1930 */ dCcD_Stts mStts2;
-    /* 0x196C */ dCcD_Cyl mCyl;
-    /* 0x1A9C */ u8 m1A9C[0x1AA4 - 0x1A9C];
-    /* 0x1AA4 */ f32 m1AA4;
-    /* 0x1AA8 */ u8 m1AA8[0x1AB1 - 0x1AA8];
-    /* 0x1AB1 */ u8 m1AB1;
-    /* 0x1AB2 */ u8 m1AB2[0x1AB4 - 0x1AB2];
-    /* 0x1AB4 */ dBgS_AcchCir mAcchCir2;
-    /* 0x1AF4 */ dBgS_ObjAcch mAcch2;
+    /* 0x18FC */ s16 m18FC;
+    /* 0x18FE */ u8 m18FE[0x1900 - 0x18FE];
+    /* 0x1900 */ enemyice mEnemyIce;
     /* 0x1CB8 */ u32 mShadowId;
     /* 0x1CBC */ s8 m1CBC;
 };  // Size: 0x1CC0
