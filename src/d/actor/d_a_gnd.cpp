@@ -1277,7 +1277,7 @@ static void attackPZ(gnd_class* i_this) {
     case 11:
         if (frame == REG0_S(5) + 2) {
             i_this->m155C = 150;
-            ((daPz_c*)zelda)->m08B0 = 1;
+            ((daPz_c*)zelda)->mTalkState = 1;
             fopAc_ac_c* p = pz;
             mDoAud_seStart(JA_SE_LK_LAST_HIT, &p->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(p)));
             dComIfGp_getVibration().StartShock(REG0_S(2) + 4, -0x21, cXyz(0.0f, 1.0f, 0.0f));
@@ -2218,7 +2218,7 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m1564 = pz->current.pos + sp;
         i_this->m1570 = pz->eyePos;
         i_this->m1570.y += REG0_F(7) - 30.0f;
-        zelda->m08B0 = 2;
+        zelda->mTalkState = 2;
         i_this->m2CE = 0x14;
         i_this->m15AC = 0.0f;
         // fallthrough
