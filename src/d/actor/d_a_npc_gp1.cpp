@@ -375,7 +375,7 @@ bool daNpc_Gp1_c::chk_partsNotMove() {
     }
     return result;
 }
-// Emitted at this .rodata slot; create_rupee loads it via pointer-cast to avoid a second copy.
+// Pin DEG2S at this .rodata slot so create_rupee can reuse it from the literal pool.
 extern const f32 l_gp1AngleScale = 0x8000 / 180.0f;
 /* 00001048-00001168       .text chk_forceTlkArea__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::chk_forceTlkArea() {
@@ -683,7 +683,6 @@ BOOL daNpc_Gp1_c::create_rupee() {
     int i;
     int counter;
     f32 random;
-    f32 angleScale;
     mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_hnd_L_jnt_num));
     pos.x = mDoMtx_stack_c::get()[0][3];
     pos.y = mDoMtx_stack_c::get()[1][3];
@@ -692,8 +691,11 @@ BOOL daNpc_Gp1_c::create_rupee() {
     for (i = 0; i < mRupeeCount; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
         random = cM_rndF(30.0f) - 15.0f;
-        angleScale = *(f32*)&l_gp1AngleScale;
-        angle.y = current.angle.y + (s16)(angleScale * (s16)(offsets[counter % 3] + random));
+        f32 off = offsets[counter % 3];
+        f32 angleScale = *(f32*)&l_gp1AngleScale;
+        s16 scaled = (s16)(angleScale * (s16)(off + random));
+        angle.y = current.angle.y;
+        angle.y += scaled;
         room = current.roomNo;
         item = (fopAc_ac_c*)fopAcM_fastCreateItem(&pos, 4, room, NULL, NULL, 10.0f + cM_rndFX(3.0f), 33.0f + cM_rndFX(6.0f), -2.0f, -1, NULL);
         if (item == NULL) {
