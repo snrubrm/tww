@@ -169,8 +169,8 @@ public:
     /* 0x7A4 */ s16 m7A4;
     /* 0x7A6 */ u8 m7A6[0x7AA - 0x7A6];
     /* 0x7AA */ s16 m7AA;
-    /* 0x7AC */ s16 mLookAngle;
-    /* 0x7AE */ u8 m7AE[0x7B0 - 0x7AE];
+    /* 0x7AC */ s16 m7AC;
+    /* 0x7AE */ s16 mLookAngle;
     /* 0x7B0 */ s16 m7B0;
     /* 0x7B2 */ s8 mAnmEnd;
     /* 0x7B3 */ s8 mAnmRepeat;
