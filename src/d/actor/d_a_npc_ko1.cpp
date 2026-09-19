@@ -1181,9 +1181,18 @@ void daNpc_Ko1_c::ko_setPthPos() {
 }
 
 /* 0000299C-00002AA4       .text set_tgtPos__11daNpc_Ko1_cF4cXyz */
-cXyz daNpc_Ko1_c::set_tgtPos(cXyz) {
-    /* Nonmatching */
-    return cXyz(0.0f, 0.0f, 0.0f);
+cXyz daNpc_Ko1_c::set_tgtPos(cXyz pos) {
+    cXyz offset(0.0f, 0.0f, 0.0f);
+    mDoMtx_stack_c::transS(pos);
+    mDoMtx_stack_c::YrotM(dComIfGp_getLinkPlayer()->current.angle.y);
+    f32 s = cM_ssin(mTgtAngle);
+    offset.x = 80.0f * s;
+    f32 c = cM_scos(mTgtAngle);
+    offset.z = 40.0f * c;
+    mTgtAngle += 0x400;
+    cXyz result;
+    mDoMtx_stack_c::multVec(&offset, &result);
+    return result;
 }
 
 /* 00002AA4-00002C14       .text ko_movPass__11daNpc_Ko1_cFv */
@@ -1229,7 +1238,13 @@ void daNpc_Ko1_c::ko_clcMovSpd() {
 
 /* 00002D50-00002E3C       .text ko_clcSwmSpd__11daNpc_Ko1_cFv */
 void daNpc_Ko1_c::ko_clcSwmSpd() {
-    /* Nonmatching */
+    f32 dist2 = (mMoveTarget - current.pos).abs2XZ();
+    s16 angle = cLib_targetAngleY(&current.pos, &mMoveTarget);
+    if (routeCheck(dist2, &angle)) {
+        cLib_chaseAngleS(&current.angle.y, angle, l_HIO.mChild[mType].mPrm.m1C);
+        cLib_chaseF(&speed.y, m830, 1.6f);
+        cLib_chaseF(&speedF, 0.0f, 0.4f);
+    }
 }
 
 /* 00002E3C-00003028       .text ko_nMove__11daNpc_Ko1_cFv */
@@ -1337,14 +1352,26 @@ f32 daNpc_Ko1_c::chk_ForwardGroundY(s16 angle) {
 }
 
 /* 00003B9C-00003C54       .text chk_wallJump__11daNpc_Ko1_cFs */
-f32 daNpc_Ko1_c::chk_wallJump(s16) {
-    /* Nonmatching */
-    return 0.0f;
+f32 daNpc_Ko1_c::chk_wallJump(s16 angle) {
+    f32 y = chk_ForwardGroundY(angle);
+    if (0.0f < y && y < 100.0f) {
+        return std::sqrtf(y) * 3.2f;
+    }
+    return -1.0f;
 }
 
 /* 00003C54-00003D34       .text routeCheck__11daNpc_Ko1_cFfPs */
-BOOL daNpc_Ko1_c::routeCheck(f32, s16*) {
-    /* Nonmatching */
+BOOL daNpc_Ko1_c::routeCheck(f32, s16* pAngle) {
+    if (m898 != 3) {
+        if (mObjAcch.ChkWallHit()) {
+            chk_wallJump(*pAngle);
+        }
+    }
+    cXyz start(current.pos.x, current.pos.y + 80.0f, current.pos.z);
+    f32 z = current.pos.z + 80.0f * cM_scos(*pAngle);
+    f32 x = current.pos.x + 80.0f * cM_ssin(*pAngle);
+    cXyz end(x, current.pos.y + 80.0f, z);
+    routeWallCheck(start, end, pAngle);
     return TRUE;
 }
 
@@ -1567,8 +1594,202 @@ void daNpc_Ko1_c::clrSpd() {
 }
 
 /* 000044E8-00004B18       .text setStt__11daNpc_Ko1_cFSc */
-void daNpc_Ko1_c::setStt(signed char) {
-    /* Nonmatching */
+void daNpc_Ko1_c::setStt(signed char state) {
+    fopAc_ac_c* a_partner = searchByID(mPartnerId);
+    s8 prev = mState;
+    m84E = 0;
+    mState = state;
+    switch (mState) {
+    case 1:
+    case 2:
+    case 12:
+    case 22:
+    case 29:
+        switch (mState) {
+        case 1:
+            mNeruTimer = 90.0f + cM_rndF(90.0f);
+            break;
+        case 2:
+            mWaitTimer = (g_Counter.mCounter0 & 3) + 1;
+            break;
+        }
+        if (prev != 3) {
+            mLookMode = 3;
+            mLookAngle = mHomeAngle.y;
+            m_jnt.setTrn();
+            mNoTurn = false;
+        }
+        mEventOrder = 0;
+        m898 = 0;
+        clrSpd();
+        break;
+    case 3:
+        mLookMode = 1;
+        m_jnt.setTrn();
+        mNoTurn = false;
+        mEventOrder = 0;
+        m898 = 0;
+        clrSpd();
+        mAnmAttr = 0xFF;
+        mAnmTag = 0xFF;
+        m8A4 = prev;
+        break;
+    case 4:
+    case 11:
+        switch (mState) {
+        case 4:
+            mNeruTimer = 180.0f + cM_rndF(180.0f);
+            break;
+        case 11:
+            if (mpSavedPath != NULL) {
+                mPath.setInfDrct(mpSavedPath);
+                mPath.setNearPathIndx(&current.pos, 0.0f);
+                mpSavedPath = NULL;
+            }
+            break;
+        }
+        mMoveTarget = mPath.getPoint(mPath.getIdx());
+        mLookMode = 0;
+        mNoTurn = true;
+        mEventOrder = 0;
+        m898 = 1;
+        mArrived = 0;
+        goto walk_spd;
+    case 5:
+        mLookMode = 0;
+        mNoTurn = false;
+        mEventOrder = 0;
+        m898 = 0;
+        clrSpd();
+        break;
+    case 6:
+    case 13:
+    case 23:
+        switch (mState) {
+        case 6:
+            if (mPath.getPath() != NULL) {
+                mpSavedPath = mPath.getPath();
+                mPath.setInfDrct(NULL);
+            }
+            break;
+        }
+        mMoveTarget = dComIfGp_getLinkPlayer()->current.pos;
+        mLookMode = 1;
+        mNoTurn = true;
+        mEventOrder = 0;
+        m898 = 2;
+        mArrived = 0;
+        goto run_spd;
+    case 7:
+        if (mPath.getPath() != NULL) {
+            mpSavedPath = mPath.getPath();
+            mPath.setInfDrct(NULL);
+        }
+        mMoveTarget = dComIfGp_getLinkPlayer()->current.pos;
+        mLookMode = 1;
+        mNoTurn = true;
+        goto swim_setup;
+    case 8:
+        if (mpSavedPath != NULL) {
+            mPath.setInfDrct(mpSavedPath);
+            mPath.setNearPathIndx(&current.pos, 0.0f);
+            mpSavedPath = NULL;
+        }
+        mMoveTarget = mPath.getPoint(mPath.getIdx());
+        mLookMode = 0;
+        mNoTurn = true;
+    swim_setup:
+        mEventOrder = 0;
+        m898 = 3;
+        mArrived = 0;
+        m830 = -4.0f;
+        speed.y = m830;
+        speedF = 0.0f;
+        mSpeedStep = 0.0f;
+        mTargetSpeed = 0.0f;
+        gravity = 0.0f;
+        mArriveDistance = l_HIO.mChild[mType].mPrm.m40;
+        break;
+    case 9:
+    case 16:
+    case 18:
+    case 25:
+        mLookMode = 0;
+        mNoTurn = false;
+        mEventOrder = 0;
+        m899 = m898;
+        m898 = 4;
+        m86C = 1;
+        speed.y = 10.0f;
+        speedF = -3.0f;
+        gravity = -1.6f;
+        mSpeedStep = 0.1f;
+        break;
+    case 10:
+    case 14:
+    case 26:
+        mLookMode = 1;
+        mNoTurn = false;
+        mEventOrder = 0;
+        m898 = 0;
+        clrSpd();
+        break;
+    case 15:
+    case 24:
+        mMoveTarget = mHomePos;
+        mLookMode = 0;
+        mNoTurn = true;
+        mEventOrder = 0;
+        m898 = 1;
+        mArrived = 0;
+    walk_spd:
+        gravity = -4.5f;
+        mTargetSpeed = l_HIO.mChild[mType].mPrm.m24;
+        mSpeedStep = l_HIO.mChild[mType].mPrm.m28;
+        mArriveDistance = l_HIO.mChild[mType].mPrm.m2C;
+        break;
+    case 17:
+        JUT_ASSERT(0xA73, a_partner != 0);
+        mMoveTarget = a_partner->current.pos;
+        mLookMode = 2;
+        mLookPos = mMoveTarget;
+        mLookPos.y = a_partner->eyePos.y;
+        mNoTurn = true;
+        mEventOrder = 0;
+        m898 = 2;
+        mArrived = 0;
+    run_spd:
+        gravity = -4.5f;
+        mTargetSpeed = l_HIO.mChild[mType].mPrm.m34;
+        mSpeedStep = l_HIO.mChild[mType].mPrm.m38;
+        mArriveDistance = l_HIO.mChild[mType].mPrm.m3C;
+        break;
+    case 19:
+        if (a_partner != NULL) {
+            mLookMode = 2;
+            mLookPos = a_partner->current.pos;
+            mLookPos.y = a_partner->eyePos.y;
+        } else {
+            mLookMode = 0;
+        }
+        mNoTurn = false;
+        mEventOrder = 0;
+        m898 = 0;
+        clrSpd();
+        break;
+    case 20:
+        mAnmAttr = 0xFF;
+        mAnmTag = 0xFF;
+        m8A4 = prev;
+        break;
+    case 27:
+    case 28:
+        mNeruTimer = 180.0f + cM_rndF(180.0f);
+        mWaitTimer = cLib_getRndValue<int>(3, 10);
+        m865 = 0;
+        break;
+    }
+    setAnm();
 }
 
 /* 00004B18-00004C70       .text wait_1__11daNpc_Ko1_cFv */

@@ -170,7 +170,7 @@ public:
     /* 0x72E */ s16 mBlinkTimer;
     /* 0x730 */ ActionFunc mAction;
     /* 0x73C */ dNpc_PathRun_c mPath;
-    /* 0x744 */ u8 m744[0x748 - 0x744];
+    /* 0x744 */ dPath* mpSavedPath;
     /* 0x748 */ dNpc_EventCut_c mCut;
     /* 0x7B4 */ fpc_ProcID mPartnerId;
     /* 0x7B8 */ fpc_ProcID mObId;
