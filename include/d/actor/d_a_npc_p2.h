@@ -129,10 +129,11 @@ public:
     /* 0x2BC */ J3DModel* mpModel2BC;
     /* 0x2C0 */ J3DModel* mpModel2C0;
     /* 0x2C4 */ J3DModel* mpModel2C4;
-    /* 0x2C8 */ J3DModel* mpModel2C8;
+    /* 0x2C8 */ u32 mShadowId;
     /* 0x2CC */ dNpc_JntCtrl_c mJnt;
     /* 0x300 */ dNpc_EventCut_c mEventCut;
-    /* 0x36C */ u8 m36C[0x378 - 0x36C];
+    /* 0x36C */ u8 m36C[0x374 - 0x36C];
+    /* 0x374 */ f32 m374;
     /* 0x378 */ u8 mBtpFrame;
     /* 0x379 */ u8 m379;
     /* 0x37A */ s16 mBtpTimer;
@@ -149,7 +150,8 @@ public:
     /* 0x726 */ u8 m726[0x728 - 0x726];
     /* 0x728 */ u32 mMsgNo;
     /* 0x72C */ u8 m72C;
-    /* 0x72D */ u8 m72D[0x748 - 0x72D];
+    /* 0x72D */ u8 m72D[0x73C - 0x72D];
+    /* 0x73C */ cXyz m73C;
     /* 0x748 */ s16 m748;
     /* 0x74A */ u8 m74A[0x74C - 0x74A];
     /* 0x74C */ int m74C;
@@ -172,9 +174,13 @@ public:
     /* 0x7D5 */ s8 m7D5;
     /* 0x7D6 */ s8 m7D6;
     /* 0x7D7 */ u8 m7D7;
-    /* 0x7D8 */ u8 m7D8[0x7F4 - 0x7D8];
+    /* 0x7D8 */ u8 m7D8[0x7DC - 0x7D8];
+    /* 0x7DC */ cXyz m7DC;
+    /* 0x7E8 */ cXyz m7E8;
     /* 0x7F4 */ int m7F4;
-    /* 0x7F8 */ u8 m7F8[0x804 - 0x7F8];
+    /* 0x7F8 */ f32 m7F8;
+    /* 0x7FC */ f32 m7FC;
+    /* 0x800 */ f32 m800;
     /* 0x804 */ int m804;
     /* 0x808 */ u8 m808;
     /* 0x809 */ s8 mTalkState;
@@ -192,9 +198,7 @@ public:
 public:
     /* 0x04 */ dNpc_HIO_c mNpc;
     /* 0x2C */ u8 m2C;
-    /* 0x30 */ f32 m30;
-    /* 0x34 */ f32 m34;
-    /* 0x38 */ f32 m38;
+    /* 0x30 */ cXyz m30;
     /* 0x3C */ f32 m3C;
     /* 0x40 */ f32 m40;
     /* 0x44 */ f32 m44;
