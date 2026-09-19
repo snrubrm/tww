@@ -949,6 +949,7 @@ BOOL daNpc_Ko1_c::wait_2() {
         cLib_calcTimer(&mWaitTimer);
         if (mWaitTimer == 0 || m874 != 0 || mTalking != 0) {
             setStt(1);
+            return TRUE;
         }
     }
     return TRUE;
