@@ -151,10 +151,10 @@ void anm_init(pw_class* i_this, int bckFileIdx, f32 morf, u8 loopMode, f32 speed
 
 /* 00000600-000006F4       .text kantera_break__FP8pw_class */
 void kantera_break(pw_class* i_this) {
+    fopAc_ac_c* actor;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
     i_this->m346 = 0;
     if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e) {
-        fopAc_ac_c* actor;
         if (fopAcM_SearchByID(i_this->mKanteraID, &actor) && actor != NULL && fopAcM_GetName(actor) == fpcNm_KANTERA_e) {
             kantera_class* kantera = (kantera_class*)actor;
             cMtx_YrotS(*calc_mtx, cM_atan2s(actor->current.pos.x - player->current.pos.x, actor->current.pos.z - player->current.pos.z));
@@ -254,8 +254,6 @@ void kantera_calc(pw_class* i_this) {
             actor->current.pos = i_this->m2CC;
             actor->current.angle.y = i_this->shape_angle.y;
             switch (i_this->m341) {
-            default:
-                break;
             case 0:
                 {
                     s16 target = 0xBB8;
@@ -272,6 +270,8 @@ void kantera_calc(pw_class* i_this) {
                     cLib_addCalc2(&i_this->m3B8, -10000.0f, 1.0f, 1000.0f);
                     break;
                 }
+            case 2:
+                break;
             }
             if (i_this->m341 != 2) {
                 i_this->m394 += i_this->m396;
@@ -330,8 +330,8 @@ void alpha_anime(pw_class* i_this) {
 
 /* 00002254-00002400       .text fuwafuwa_calc__FP8pw_class */
 void fuwafuwa_calc(pw_class* i_this) {
-    dBgS* bgsp;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    dBgS* bgsp;
     f32 f31 = i_this->m2F0.y;
     i_this->m390 += 0x2BC;
     if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF &&
@@ -393,11 +393,12 @@ BOOL kougen_hani_check(pw_class* i_this, u8 param_2) {
 /* 00002560-00002714       .text kyori_sub__FP8pw_class */
 void kyori_sub(pw_class* i_this) {
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
-    if (fopAcM_searchActorDistance(i_this, player) > 300.0f) {
+    fopAc_ac_c* actor = i_this;
+    if (fopAcM_searchActorDistance(actor, player) > 300.0f) {
         return;
     }
 
-    cMtx_YrotS(*calc_mtx, fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0)));
+    cMtx_YrotS(*calc_mtx, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)));
     cXyz offset;
     cXyz pos2;
     cXyz pos;
@@ -424,10 +425,10 @@ void kyori_sub(pw_class* i_this) {
     if (vol > 100) {
         vol = 100;
     }
-    fopAcM_seStart(i_this, JA_SE_CHR_PW_MOVE, vol);
+    fopAcM_seStart(actor, JA_SE_CHR_PW_MOVE, vol);
     f31 *= 1.5f;
-    cLib_addCalc2(&i_this->current.pos.x, pos.x, 1.0f, f31);
-    cLib_addCalc2(&i_this->current.pos.z, pos.z, 1.0f, f31);
+    cLib_addCalc2(&actor->current.pos.x, pos.x, 1.0f, f31);
+    cLib_addCalc2(&actor->current.pos.z, pos.z, 1.0f, f31);
 }
 
 /* 00002714-0000289C       .text hani_check__FP8pw_class */
@@ -505,7 +506,7 @@ void first_mode_change(pw_class* i_this) {
 /* 00002A90-00003B08       .text action_dousa__FP8pw_class */
 void action_dousa(pw_class* i_this) {
     /* Nonmatching */
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
     camera_process_class* camera = dComIfGp_getCamera(0);
     cXyz camfwd;
     switch (i_this->mMode) {
@@ -515,9 +516,9 @@ void action_dousa(pw_class* i_this) {
         i_this->mMode += 1;
         break;
     case 1:
-        if (fopAcM_searchPlayerDistance(i_this) < 500.0f) {
+        if (fopAcM_searchActorDistance(i_this, player) < 500.0f) {
             anm_init(i_this, dRes_INDEX_PW_BCK_DERUA1_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
-            i_this->m38C = fopAcM_searchPlayerAngleY(i_this);
+            i_this->m38C = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0));
             i_this->current.angle.y = i_this->m38C;
             i_this->shape_angle.y = i_this->m38C;
             i_this->m3A4 = -80.0f;
@@ -535,7 +536,7 @@ void action_dousa(pw_class* i_this) {
         if (i_this->mpMorf->checkFrame(25.0f)) {
             i_this->m3A4 = 0.0f;
             first_mode_change(i_this);
-            i_this->m38C = fopAcM_searchPlayerAngleY(i_this);
+            i_this->m38C = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0));
             JPABaseEmitter* particle = dComIfGp_particle_set(dPa_name::ID_AK_SN_POUGETLAMP00, &i_this->m2CC, &i_this->shape_angle);
             if (particle != NULL) {
                 particle->setGlobalRTMatrix(i_this->mpMorf->getModel()->getAnmMtx(PW_JNT_J_PW_ITEM_R1_e));
@@ -551,7 +552,7 @@ void action_dousa(pw_class* i_this) {
         // Fall-through
     case 10:
         if (i_this->mBehaviorType == InvisibleAtStart) {
-            i_this->m38C = fopAcM_searchPlayerAngleY(i_this);
+            i_this->m38C = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0));
         }
         i_this->mKanteraID = fopAcM_create(fpcNm_KANTERA_e, 0xFF000001, &i_this->m2CC, i_this->current.roomNo);
         if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e) {
@@ -607,8 +608,8 @@ void action_dousa(pw_class* i_this) {
         }
         break;
     case 7:
-        if (fopAcM_searchPlayerDistance(i_this) < i_this->mNoticeRange) {
-            i_this->m38C = fopAcM_searchPlayerAngleY(i_this);
+        if (fopAcM_searchActorDistance(i_this, player) < i_this->mNoticeRange) {
+            i_this->m38C = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0));
             i_this->current.angle.y = i_this->m38C;
             i_this->shape_angle.y = i_this->m38C;
             anm_init(i_this, dRes_INDEX_PW_BCK_DERUB2_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
@@ -618,7 +619,7 @@ void action_dousa(pw_class* i_this) {
     case 8:
         i_this->m380 = 2;
         i_this->m346 = 1;
-        if (fopAcM_searchPlayerDistance(i_this) < i_this->m3AC) {
+        if (fopAcM_searchActorDistance(i_this, player) < i_this->m3AC) {
             anm_init(i_this, dRes_INDEX_PW_BCK_DERUB1_e, 3.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
             i_this->mMode = 7;
         }
@@ -630,7 +631,7 @@ void action_dousa(pw_class* i_this) {
         i_this->m340 = 0;
         i_this->m341 = 0;
         i_this->m378 = cM_rndF(60.0f) + 60.0f;
-        if (i_this->m346 && i_this->mBckIdx != dRes_INDEX_PW_BCK_WAIT1_e) {
+        if (i_this->m346 == 1 && i_this->mBckIdx != dRes_INDEX_PW_BCK_WAIT1_e) {
             anm_init(i_this, dRes_INDEX_PW_BCK_WAIT1_e, 7.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
         } else if (i_this->mBckIdx != dRes_INDEX_PW_BCK_WAIT2_e) {
             anm_init(i_this, dRes_INDEX_PW_BCK_WAIT2_e, 7.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
@@ -692,7 +693,7 @@ void action_dousa(pw_class* i_this) {
         }
         break;
     case 25:
-        i_this->m38C = fopAcM_searchPlayerAngleY(i_this);
+        i_this->m38C = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0));
         anm_init(i_this, dRes_INDEX_PW_BCK_DAMAGE_K1_e, 9.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
         i_this->speedF = -2.0f;
         i_this->mMode += 1;
@@ -752,8 +753,8 @@ void action_dousa(pw_class* i_this) {
     }
     if (i_this->m37C == 0 && i_this->mMode < 90) {
         if (i_this->mMode == 14 || i_this->mMode == 16 || i_this->mMode == 20) {
-            if (!hani_check(i_this) && fopAcM_searchPlayerDistance(i_this) < 500.0f && std::fabsf(i_this->current.pos.y - player->current.pos.y) < 100.0f) {
-                if (!Line_check(i_this, i_this->current.pos, 1) && (i_this->m346 == 1 || !TORITUKI_ON)) {
+            if (!hani_check(i_this) && fopAcM_searchActorDistance(i_this, dComIfGp_getPlayer(0)) < 500.0f && std::fabsf(i_this->current.pos.y - player->current.pos.y) < 100.0f) {
+                if (!Line_check(i_this, player->current.pos, 1) && (i_this->m346 == 1 || !TORITUKI_ON)) {
                     i_this->mAction = 1;
                     i_this->mMode = 30;
                 }
@@ -836,14 +837,14 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
         0x80000,
         0x37441422
     );
-    if (a_this->mpMorf == NULL || a_this->mpMorf->getModel() == NULL) {
+    J3DModel* model;
+    if (a_this->mpMorf == NULL || (model = a_this->mpMorf->getModel()) == NULL) {
         return FALSE;
     }
 
-    J3DModel* model;
-    a_this->mpMorf->getModel()->setUserArea((u32)a_this);
+    model->setUserArea((u32)a_this);
     for (u16 i = 0; i < (model = a_this->mpMorf->getModel())->getModelData()->getJointNum(); i++) {
-        model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
+        (model = a_this->mpMorf->getModel())->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
     }
 
     a_this->m2BC = new mDoExt_btpAnm();
