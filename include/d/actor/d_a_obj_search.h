@@ -4,6 +4,7 @@
 #include "f_op/f_op_actor.h"
 #include "d/d_cc_d.h"
 #include "d/d_bg_s_lin_chk.h"
+#include "d/d_lib.h"
 #include "d/d_particle.h"
 #include "d/d_kankyo.h"
 #include "SSystem/SComponent/c_phase.h"
@@ -176,7 +177,9 @@ namespace daObj_Search {
         /* 0x7B6 */ u8 mCullBeamA;
         /* 0x7B7 */ u8 mCullBeamB;
         /* 0x7B8 */ u8 mCullBase;
-        /* 0x7B9 */ u8 m7B9[0x7E2 - 0x7B9];
+        /* 0x7B9 */ u8 m7B9[0x7BC - 0x7B9];
+        /* 0x7BC */ dLib_circle_path_c mCirclePath;
+        /* 0x7E0 */ s16 mPlayerTurnY;
         /* 0x7E2 */ u8 m7E2;
         /* 0x7E3 */ u8 m7E3[0x7F4 - 0x7E3];
         /* 0x7F4 */ cXyz mSmokePos;
@@ -206,10 +209,13 @@ namespace daObj_Search {
         /* 0x8E0 */ s16 mDebugFanAngleY;
         /* 0x8E2 */ u8 m8E2[0x8E4 - 0x8E2];
         /* 0x8E4 */ f32 mDebugFanRadius;
-        /* 0x8E8 */ u8 m8E8[0x8EC - 0x8E8];
+        /* 0x8E8 */ f32 mDebugCircleRadius;
         /* 0x8EC */ s16 mDebugFanSpread;
         /* 0x8EE */ u8 mDebugFanOk;
-        /* 0x8EF */ u8 m8EF[0x908 - 0x8EF];
+        /* 0x8F0 */ int mIdleTimer;
+        /* 0x8F4 */ cXyz mHoldPos;
+        /* 0x900 */ int mSearchSide;
+        /* 0x904 */ int mBdkTimer;
     };
 
     STATIC_ASSERT(sizeof(Bgc_c) == 0x78);

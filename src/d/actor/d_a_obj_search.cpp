@@ -5,8 +5,11 @@
 
 #include "d/dolzel.h" // IWYU pragma: keep
 #include "d/actor/d_a_obj_search.h"
+#include "d/actor/d_a_bdk.h"
 #include "d/actor/d_a_bk.h"
 #include "d/actor/d_a_player.h"
+#include "SSystem/SComponent/c_angle.h"
+#include "f_pc/f_pc_name.h"
 #include "d/d_bg_s_movebg_actor.h"
 #include "d/d_bg_w.h"
 #include "d/d_cc_d.h"
@@ -247,7 +250,96 @@ void daObj_Search::Act_c::modeSearchPathInit() {
 
 /* 800FE244-800FEA6C       .text modeSearchPath__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::modeSearchPath() {
-    /* Nonmatching */
+    dLib_pathMove(&mPathPos, &mPathPntIdx, mpPath, (f32)attr()->m02, NULL, NULL);
+
+    if (m834 != 0) {
+        fopAc_ac_c* fganon = fopAcM_SearchByName(fpcNm_FGANON_e);
+        if (mSwSave != 0xFF && fganon != NULL) {
+            bk_class* bk = (bk_class*)fopAcM_SearchByID(mChildId);
+            if (bk != NULL) {
+                bk->m1224 = m7AC;
+            }
+            if (attr()->m39 != 0 || m8D0 == 4) {
+                modeProcInit(MODE_TO_STOP_e);
+                return;
+            }
+            if (attr()->m3A[0] != 0) {
+                daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+                static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
+                cXyz offset = pos;
+                cXyz dir = (offset + player->current.pos) - mBeamStart[0];
+                m7B0 = mLightAng[0].y;
+                s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+                s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+                cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
+                cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
+                return;
+            }
+            if (m8D0 == 2) {
+                daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+                static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
+                cXyz offset = pos;
+                cXyz dir = (offset + player->current.pos) - mBeamStart[0];
+                m7B0 = mLightAng[0].y;
+                s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+                s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+                cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
+                cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
+                return;
+            }
+            if (m8D0 == 3) {
+                static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
+                cXyz offset = pos;
+                cXyz dir = (offset + fganon->current.pos) - mBeamStart[0];
+                m7B0 = mLightAng[0].y;
+                s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+                s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+                cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
+                cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
+                return;
+            }
+        } else {
+            if (attr()->m38 != 0) {
+                if (player_check()) {
+                    if (dComIfGp_demo_mode() != 1) {
+                        m7A0++;
+                        if (m7A0 > attr()->m5E) {
+                            modeProcInit(MODE_FIND_e);
+                            m7A0 = 0;
+                        }
+                    }
+                } else {
+                    m7A0 = 0;
+                }
+            }
+        }
+    }
+
+    m60C[0] = mPathPos;
+    cXyz dir = m60C[0] - mBeamStart[0];
+    m7B0 = mLightAng[0].y;
+    m7B2 = mLightAng[0].x;
+    m7B4 = mLightAng[1].x;
+    s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+    s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+    if (attr()->m3E != 0) {
+        s16 tgtY = yaw;
+        s16 tgtX = pitch;
+        cLib_addCalcAngleS2(&mLightAng[0].y, tgtY, 0x1E, 0x400);
+        cLib_addCalcAngleS2(&mLightAng[0].x, tgtX, 0x1E, 0x400);
+        mLightAng[1].y = mLightAng[0].y;
+    } else if (REG12_S(4) == 0) {
+        s16 tgtY = yaw;
+        s16 tgtX = pitch;
+        cLib_addCalcAngleS2(&mLightAng[0].y, tgtY, 0x1E, 0x400);
+        cLib_addCalcAngleS2(&mLightAng[0].x, tgtX, 0x1E, 0x400);
+        mLightAng[1].y = mLightAng[0].y;
+    } else {
+        mLightAng[0].y = yaw;
+        mLightAng[0].x = pitch;
+        mLightAng[1].y = mLightAng[0].y;
+    }
+    mLightAng[1].x = (s16)(attr()->m3C * DEG2S_CONSTANT);
 }
 
 /* 800FEA6C-800FEA80       .text modeStopInit__Q212daObj_Search5Act_cFv */
@@ -363,7 +455,75 @@ void daObj_Search::Act_c::modeFindInit() {
 
 /* 800FEF80-800FF44C       .text modeFind__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::modeFind() {
-    /* Nonmatching */
+    dEvent_manager_c* evtMgr = dComIfGp_getPEvtManager();
+    evtMgr->getEventIdx("Search_Light_Find", 0xFF);
+    evtMgr->getEventIdx("Search_Light_Find_With_Barrel", 0xFF);
+    evtMgr->getEventIdx("Search_Light_Find_Wall", 0xFF);
+
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    player_check();
+    mLightInf.mColor.r = attr()->m5C;
+    mLightInf.mColor.g = attr()->m5C;
+
+    static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
+    cXyz offset = pos;
+    cXyz dir = (offset + player->current.pos) - mBeamStart[m830];
+    m7B0 = mLightAng[0].y;
+    s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+    s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+    if (m830 == 0) {
+        mLightAng[1].y = yaw;
+    } else {
+        yaw += 0x8000;
+        pitch = -pitch;
+        mLightAng[0].y = yaw;
+    }
+    s16 tgtY = yaw;
+    s16 tgtX = pitch;
+    cLib_addCalcAngleS2(&mLightAng[m830].y, tgtY, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].x, tgtX, 10, 0x400);
+
+    if (eventInfo.checkCommandDemoAccrpt()) {
+        int staffId = evtMgr->getMyStaffId("Search", NULL, 0);
+        if (evtMgr->endCheckOld("Search_Light_Find") || evtMgr->endCheckOld("Search_Light_Find_With_Barrel") ||
+            evtMgr->endCheckOld("Search_Light_Find_Wall"))
+        {
+            mDoAud_seStop(JA_SE_MAJUTOU_ALERM, 0x14);
+            if (attr()->m43 != 0) {
+                dComIfGp_event_onEventFlag(8);
+                modeProcInit(MODE_SEARCH_PATH_e);
+            } else {
+                dComIfGp_setNextStage("majroom", 0, 0, -1, 0.0f, 0, 1, 0);
+            }
+        } else {
+            if (!dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK1_e) &&
+                !dComIfGp_checkPlayerStatus0(0, daPyStts0_HANG_e))
+            {
+                player->changeOriginalDemo();
+                s16 ang = mLightAng[m830].y + current.angle.y;
+                if (m830 == 0) {
+                    ang += 0x8000;
+                }
+                s16 tgtAng = ang;
+                cLib_addCalcAngleS2(&mPlayerTurnY, tgtAng, 4, 0x400);
+                player->setPlayerPosAndAngle(&player->current.pos, mPlayerTurnY);
+                if (cLib_distanceAngleS(ang, mPlayerTurnY) < 0x500) {
+                    player->cancelOriginalDemo();
+                }
+            }
+            evtMgr->cutEnd(staffId);
+        }
+    } else {
+        if (!player->checkPlayerFly()) {
+            if (player->checkGrabWear()) {
+                fopAcM_orderOtherEvent2(this, "Search_Light_Find_With_Barrel", dEvtFlag_NOPARTNER_e, -1);
+            } else if (dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK1_e)) {
+                fopAcM_orderOtherEvent2(this, "Search_Light_Find_Wall", dEvtFlag_NOPARTNER_e, -1);
+            } else {
+                fopAcM_orderOtherEvent2(this, "Search_Light_Find", dEvtFlag_NOPARTNER_e, -1);
+            }
+        }
+    }
 }
 
 /* 800FF44C-800FF49C       .text modeFind2ndInit__Q212daObj_Search5Act_cFv */
@@ -437,7 +597,140 @@ void daObj_Search::Act_c::modeSearchBdkInit() {}
 
 /* 800FF7A8-800FFE78       .text modeSearchBdk__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::modeSearchBdk() {
-    /* Nonmatching */
+    fopAc_ac_c* pBdk;
+    if (!fopAcM_SearchByName(fpcNm_BDK_e, &pBdk)) {
+        return;
+    }
+    if (pBdk == NULL) {
+        return;
+    }
+
+    bdk_class* bdk = (bdk_class*)pBdk;
+    f32 radius = REG12_F(0);
+    cXyz target = pBdk->current.pos;
+    target.y += REG12_F(2);
+    bool track = true;
+
+    mDebugFanPos.set(3600.0f, 10000.0f, -3800.0f);
+    mDebugCircleRadius = 4000.0f + REG8_F(0);
+    mDebugFanRadius = 15000.0f + REG8_F(5);
+    mDebugFanSpread = REG8_S(0) + 0x3500;
+    mDebugFanAngleY = REG8_S(1);
+
+    cXyz tmp = mDebugFanPos - pBdk->current.pos;
+    cXyz xz;
+    xz.x = tmp.x;
+    xz.y = 0.0f;
+    xz.z = tmp.z;
+    f32 mag = xz.abs();
+    (void)mag;
+
+    mDebugFanOk = dLib_checkActorInFan(mDebugFanPos, pBdk, mDebugFanAngleY, mDebugFanSpread, mDebugFanRadius, 3000.0f);
+    if (dLib_checkActorInCircle(mDebugFanPos, pBdk, mDebugCircleRadius, 10000.0f)) {
+        mDebugFanOk = 0;
+    }
+
+    switch (bdk->mAction) {
+    case 0:
+    case 1:
+    case 7:
+        if (mDebugFanOk != 0) {
+            radius += 500.0f;
+            target.y += 100.0f;
+        } else {
+            track = false;
+        }
+        break;
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+    case 8:
+    case 9:
+        if (mDebugFanOk != 0) {
+            radius += 3000.0f;
+            target.y += 1000.0f;
+        } else {
+            track = false;
+        }
+        break;
+    case 10:
+        if (bdk->mState == 8) {
+            if (cLib_calcTimer(&mBdkTimer) == 0) {
+                track = false;
+            } else {
+                target = mHoldPos;
+            }
+        } else if (bdk->mState == 7) {
+            mBdkTimer = (int)(cM_rndF(100.0f) + 300.0f + REG8_S(4));
+            target = mHoldPos;
+        } else if (bdk->mState >= 6) {
+            mHoldPos = target;
+        } else if (bdk->mState >= 5) {
+            radius += 100.0f;
+            target.y += 100.0f;
+        } else {
+            track = false;
+        }
+        break;
+    case 15:
+        track = false;
+        break;
+    default:
+        track = false;
+        break;
+    }
+
+    fpc_ProcID id = fopAcM_GetID(this);
+    s16 dir = 1;
+    if ((id & 1) == 1) {
+        dir = -1;
+    }
+
+    if (track) {
+        cLib_addCalc2(&mCirclePath.mRadius, radius, 0.1f, 100.0f);
+        mCirclePath.mWobbleAmplitude = 200.0f + REG12_F(1);
+        mCirclePath.mAngleSpeed = (REG12_S(0) + 0x150) * dir;
+        mCirclePath.mTranslation = target;
+        dLib_setCirclePath(&mCirclePath);
+
+        static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
+        cXyz offset = pos;
+        cXyz aim = (offset + mCirclePath.mPos) - mBeamStart[0];
+        m7B0 = mLightAng[0].y;
+        s16 yaw = cM_atan2s(aim.x, aim.z) - current.angle.y;
+        s16 pitch = cM_atan2s(aim.y, std::sqrtf(aim.x * aim.x + aim.z * aim.z));
+        s16 tgtY = yaw;
+        s16 tgtX = pitch;
+        cLib_addCalcAngleS2(&mLightAng[0].y, tgtY, 10, 0x100);
+        cLib_addCalcAngleS2(&mLightAng[0].x, tgtX, 10, 0x100);
+        mLightAng[1].y = mLightAng[0].y;
+        mLightAng[1].x = -mLightAng[0].x;
+    } else {
+        static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
+        cXyz offset = pos;
+        (void)offset;
+
+        s16 pitch;
+        if (mSearchSide == 1) {
+            pitch = REG8_S(7) + 0x3400;
+        } else {
+            pitch = REG8_S(8) + 0x2600;
+        }
+        if (cLib_calcTimer(&mIdleTimer) == 0) {
+            mIdleTimer = (int)(cM_rndF(60.0f + REG8_F(5)) + (REG8_S(2) + 0x3C));
+            if (mSearchSide == 1) {
+                mSearchSide = -1;
+            } else {
+                mSearchSide = 1;
+            }
+        }
+        m7B0 = mLightAng[0].y;
+        s16 tgtX = pitch;
+        cLib_addCalcAngleS2(&mLightAng[0].x, tgtX, 0x14, 0x20);
+        mLightAng[1].x = -mLightAng[0].x;
+    }
 }
 
 /* 800FFE78-80100080       .text modeProc__Q212daObj_Search5Act_cFQ312daObj_Search5Act_c6Proc_ei */
@@ -872,6 +1165,74 @@ void daObj_Search::Act_c::bg_check() {
 
 /* 80101D94-8010234C       .text player_check__Q212daObj_Search5Act_cFv */
 bool daObj_Search::Act_c::player_check() {
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    cXyz diffA;
+    diffA = player->current.pos - mBeamStart[0];
+    f32 distA = diffA.abs();
+    cXyz diffB;
+    diffB = player->current.pos - mBeamStart[1];
+    f32 distB = diffB.abs();
+
+    mCps[0].SetStartEnd(mBeamStart[0], mBeamEnd[0]);
+    mCps[0].SetR(m_attr.mCpsR);
+    dComIfG_Ccsp()->Set(&mCps[0]);
+    if (mCps[0].ChkCoHit()) {
+        fopAc_ac_c* hit = mCps[0].GetCoHitAc();
+        cXyz toHit;
+        toHit = hit->current.pos - mBeamStart[0];
+        cXyz beam;
+        beam = mBeamEnd[0] - mBeamStart[0];
+        cXyz n = beam.normZP();
+        volatile f32 t = n.getDotProduct(toHit) - 250.0f;
+        mLightInf.mPos = mBeamStart[0] + n * t;
+        mLightInf.mColor.r = m_attr.m50;
+        mLightInf.mColor.g = m_attr.m50;
+        mLightInf.mPower = m_attr.m54;
+        if (fopAcM_GetName(hit) == fpcNm_PLAYER_e) {
+            if (distA < 2000.0f || distB < 2000.0f) {
+                return false;
+            }
+            if (!(std::fabsf(player->speedF) < 0.1f && player->checkGrabWear())) {
+                return true;
+            }
+        }
+    }
+
+    mCps[1].SetStartEnd(mBeamStart[1], mBeamEnd[1]);
+    mCps[1].SetR(m_attr.mCpsR);
+    dComIfG_Ccsp()->Set(&mCps[1]);
+    if (mCps[1].ChkCoHit()) {
+        fopAc_ac_c* hit = mCps[1].GetCoHitAc();
+        cXyz toHit;
+        toHit = hit->current.pos - mBeamStart[1];
+        cXyz beam;
+        beam = mBeamEnd[1] - mBeamStart[1];
+        cXyz n = beam.normZP();
+        volatile f32 t = n.getDotProduct(toHit) - 250.0f;
+        mLightInf.mPos = mBeamStart[1] + n * t;
+        mLightInf.mColor.r = m_attr.m50;
+        mLightInf.mColor.g = m_attr.m50;
+        mLightInf.mPower = m_attr.m54;
+        if (distA < 2000.0f || distB < 2000.0f) {
+            return false;
+        }
+        if (!(std::fabsf(player->speedF) < 0.1f && player->checkGrabWear())) {
+            return true;
+        }
+    }
+
+    if (!mCps[0].ChkCoHit() && !mCps[1].ChkCoHit()) {
+        cXyz toPt;
+        toPt = m60C[0] - mBeamStart[0];
+        cXyz beam;
+        beam = mBeamEnd[0] - mBeamStart[0];
+        cXyz n = beam.normZP();
+        volatile f32 t = n.getDotProduct(toPt) - 250.0f;
+        mLightInf.mPos = mBeamStart[0] + n * t;
+        mLightInf.mColor.r = m_attr.m50;
+        mLightInf.mColor.g = m_attr.m50;
+        mLightInf.mPower = m_attr.m54;
+    }
     return false;
 }
 
