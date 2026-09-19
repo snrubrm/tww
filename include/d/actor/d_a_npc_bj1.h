@@ -1,6 +1,7 @@
 #ifndef D_A_NPC_BJ1_H
 #define D_A_NPC_BJ1_H
 
+#include "JSystem/JParticle/JPAEmitter.h"
 #include "d/d_npc.h"
 #include "m_Do/m_Do_hostIO.h"
 
@@ -45,7 +46,7 @@ public:
     bool chk_drct(float);
     bool chk_partsNotMove();
     void lookBack();
-    void getMaskInf(unsigned char*);
+    bool getMaskInf(unsigned char*);
     bool chkReg(unsigned short);
     void setReg(unsigned short);
     virtual u16 next_msgStatus(unsigned long*);
@@ -173,39 +174,47 @@ public:
     /* 0x81C */ f32 m81C;
     /* 0x820 */ s16 mPreviousHeadY;
     /* 0x822 */ s16 mPreviousBackboneY;
-    /* 0x824 */ u8 pad824[0x826 - 0x824];
+    /* 0x824 */ s16 mPreviousAngleY;
     /* 0x826 */ s16 mEventIdTable[3];
     /* 0x82C */ s16 mEventIdx;
     /* 0x82E */ u8 pad82E[0x830 - 0x82E];
     /* 0x830 */ s16 mEvTimer;
     /* 0x832 */ s16 m832;
-    /* 0x834 */ u8 pad834[0x83C - 0x834];
+    /* 0x834 */ s16 m834;
+    /* 0x836 */ u8 pad836[0x838 - 0x836];
+    /* 0x838 */ s16 mTurnSpeed;
+    /* 0x83A */ s16 mLookAngle;
     /* 0x83C */ s8 mAnmEnd;
     /* 0x83D */ s8 mAnmLoops;
-    /* 0x83E */ u8 pad83E;
+    /* 0x83E */ u8 mPresentItem;
     /* 0x83F */ u8 mPathIdx;
-    /* 0x840 */ u8 pad840[0x842 - 0x840];
+    /* 0x840 */ u8 m840;
+    /* 0x841 */ u8 m841;
     /* 0x842 */ u8 m842;
     /* 0x843 */ u8 m843;
     /* 0x844 */ u8 pad844[0x846 - 0x844];
     /* 0x846 */ bool mKeepShapeAngle;
-    /* 0x847 */ u8 pad847[0x84A - 0x847];
+    /* 0x847 */ u8 pad847[0x849 - 0x847];
+    /* 0x849 */ u8 m849;
     /* 0x84A */ u8 m84A;
     /* 0x84B */ u8 m84B;
-    /* 0x84C */ u8 pad84C[0x84D - 0x84C];
+    /* 0x84C */ u8 m84C;
     /* 0x84D */ u8 m84D;
     /* 0x84E */ u8 pad84E[0x850 - 0x84E];
     /* 0x850 */ int m850;
-    /* 0x854 */ u8 pad854[0x856 - 0x854];
+    /* 0x854 */ u8 m854;
+    /* 0x855 */ u8 mTalking;
     /* 0x856 */ bool mNoTurn;
     /* 0x857 */ u8 m857;
     /* 0x858 */ u8 pad858[0x860 - 0x858];
     /* 0x860 */ cXyz m860;
     /* 0x86C */ u8 pad86C[0x888 - 0x86C];
     /* 0x888 */ u32 m888;
-    /* 0x88C */ u8 pad88C[0x894 - 0x88C];
+    /* 0x88C */ JPABaseEmitter* mpDanceEmitterL;
+    /* 0x890 */ JPABaseEmitter* mpDanceEmitterR;
     /* 0x894 */ s16 m894;
-    /* 0x896 */ u8 pad896[0x8A9 - 0x896];
+    /* 0x896 */ u8 pad896[0x8A8 - 0x896];
+    /* 0x8A8 */ s8 m8A8;
     /* 0x8A9 */ s8 m8A9;
     /* 0x8AA */ s8 m8AA;
     /* 0x8AB */ s8 mCutIdx;
