@@ -12,14 +12,18 @@
 #include "m_Do/m_Do_graphic.h"
 #include "d/d_demo.h"
 #include "d/d_particle_name.h"
+#include "d/actor/d_a_player.h"
+#include "d/actor/d_a_arrow.h"
 #include "f_op/f_op_actor_mng.h"
 #include "m_Do/m_Do_audio.h"
 #include "m_Do/m_Do_hostIO.h"
 #include "JSystem/JParticle/JPAEmitter.h"
+#include "JSystem/JUtility/JUTReport.h"
 #include "res/Object/Gnd.h"
 
-static daGnd_HIO_c l_HIO;
+static cXyz non_pos(-20000.0f, -20000.0f, -20000.0f);
 static bool hio_set;
+static daGnd_HIO_c l_HIO;
 
 static u32 attack_eff_joint_d[] = {
     0x1A, 0x2C, 0x04, 0x07, 0x1A, 0x2C,
@@ -232,6 +236,8 @@ static void setRipple(gnd_class* i_this) {
         i_this->mRippleCb.end();
     }
 }
+
+static fopAc_ac_c* pz;
 
 /* 0000054C-000005DC       .text splash_set__FP9gnd_class */
 static void splash_set(gnd_class* i_this) {
@@ -554,8 +560,63 @@ static void attack0(gnd_class*) {
 }
 
 /* 000028D0-00002B68       .text attack1__FP9gnd_class */
-static void attack1(gnd_class*) {
-    /* Nonmatching */
+static void attack1(gnd_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    int frame = (int)i_this->mpMorf->getFrame();
+    s8 done = 0;
+
+    f32 rad = 110.0f + REG0_F(13);
+    i_this->m13C8 = rad;
+    i_this->m13C4 = rad;
+
+    switch (i_this->m2D0) {
+    case 0:
+        anm_init(i_this, dRes_INDEX_GND_BCK_NOM_ATTACK1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_NOM_ATTACK1_e);
+        fopAcM_monsSeStart(actor, JA_SE_CV_GN_ATTACK_4, 0);
+        i_this->m2D0 = 5;
+        break;
+    case 1:
+        anm_init(i_this, dRes_INDEX_GND_BCK_NOM_ATTACK2_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_NOM_ATTACK2_e);
+        fopAcM_monsSeStart(actor, JA_SE_CV_GN_ATTACK_6, 0);
+        i_this->m2D0 = 6;
+        break;
+    case 5:
+        if (frame >= 0xF && frame <= 0x12) {
+            i_this->m13B8 = 1;
+        } else {
+            i_this->m2D4.x = player->current.pos.x;
+            i_this->m2D4.y = player->current.pos.y;
+            i_this->m2D4.z = player->current.pos.z;
+        }
+        if (i_this->mpMorf->isStop()) {
+            done = 1;
+        }
+        break;
+    case 6:
+        if (frame >= 0xC && frame <= 0x22) {
+            i_this->m13B9 = 1;
+        } else {
+            i_this->m2D4.x = player->current.pos.x;
+            i_this->m2D4.y = player->current.pos.y;
+            i_this->m2D4.z = player->current.pos.z;
+        }
+        if (i_this->mpMorf->isStop()) {
+            done = 1;
+        }
+        break;
+    }
+
+    i_this->m2F8 = l_HIO.m14;
+    pos_move(i_this, 0);
+    s16 target = actor->current.angle.y;
+    cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, 0x1000);
+    if (done) {
+        i_this->m2CE = 0;
+        i_this->m2D0 = 0;
+        actor->current.angle.y = actor->shape_angle.y;
+        i_this->m304 = 0;
+    }
 }
 
 /* 00002B68-00002D7C       .text attack2__FP9gnd_class */
@@ -633,18 +694,194 @@ static void yawait(gnd_class* i_this) {
 }
 
 /* 000050C8-000054F0       .text gnd_move__FP9gnd_class */
-static void gnd_move(gnd_class*) {
-    /* Nonmatching */
+static void gnd_move(gnd_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+
+    switch (i_this->m2CE) {
+    case 0:
+        move0(i_this);
+        break;
+    case 1:
+        attack0(i_this);
+        break;
+    case 2:
+        attack1(i_this);
+        break;
+    case 3:
+        attack2(i_this);
+        break;
+    case 4:
+        attackPZ(i_this);
+        break;
+    case 5:
+        attack_last(i_this);
+        break;
+    case 10:
+        defence0(i_this);
+        break;
+    case 11:
+        damage(i_this);
+        break;
+    case 20:
+        demowait(i_this);
+        break;
+    case 21:
+        yawait(i_this);
+        break;
+    case 30:
+        finish(i_this);
+        return;
+    }
+
+    if (i_this->m3D8 >= 2 && i_this->m2CE != 11) {
+        i_this->m30E = 3;
+    }
+
+    if (player->getCutType() == 5 || player->getCutType() == 0xF) {
+        if (i_this->m3D8 < 2) {
+            i_this->m13CE = 0;
+            i_this->m3D7 = 0;
+        }
+    }
+
+    if (i_this->m13CE) {
+        s8 found_near = 0;
+        fopAc_ac_c* shot = (fopAc_ac_c*)fpcEx_Search(shot_s_sub, i_this);
+        if (shot != NULL) {
+            cXyz diff = shot->current.pos - actor->eyePos;
+            if (fopAcM_GetName(shot) == fpcNm_ARROW_e) {
+                f32 dist = diff.abs();
+                if (dist < 10.0f * shot->speedF) {
+                    if (((daArrow_c*)shot)->mbSetByZelda && i_this->m3D8 < 2) {
+                        s16 ang_diff = actor->shape_angle.y - shot->current.angle.y;
+                        if (ang_diff < 0) {
+                            ang_diff = -ang_diff;
+                        }
+                        if ((u16)ang_diff < 0x4000) {
+                            i_this->m13CE = 0;
+                        } else {
+                            i_this->m2CE = 10;
+                            if (checkGround(i_this, 50.0f)) {
+                                i_this->m2D0 = 15;
+                            } else {
+                                i_this->m2D0 = 0;
+                            }
+                            i_this->mAction = 30;
+                            i_this->m3DB = 0;
+                        }
+                    }
+                }
+            } else {
+                f32 dist = diff.abs();
+                if (dist < 10.0f * shot->speedF) {
+                    found_near = 1;
+                }
+            }
+        }
+
+        f32 player_dist = fopAcM_searchActorDistance(actor, player);
+        if (found_near || (player->getCutType() != 0 && player_dist < l_HIO.m40)) {
+            if (i_this->m2CE != 10) {
+                i_this->m2CE = 10;
+                i_this->m2D0 = 0;
+                i_this->m3D5 = 0;
+                i_this->m3DB = 0;
+                i_this->m3DC = 0;
+            }
+            i_this->m302 = 10;
+        }
+    }
+
+    damage_check(i_this);
+    i_this->m13CE = 1;
+
+    cXyz* cc_move = i_this->mStts.GetCCMoveP();
+    if (cc_move != NULL) {
+        actor->current.pos.x += cc_move->x;
+        actor->current.pos.y += cc_move->y;
+        actor->current.pos.z += cc_move->z;
+    }
+
+    if (i_this->m310 > 0.01f) {
+        cXyz offset;
+        offset.x = 0.0f;
+        offset.y = 0.0f;
+        offset.z = i_this->m310;
+        cMtx_YrotS(*calc_mtx, i_this->m314);
+        cXyz out;
+        MtxPosition(&offset, &out);
+        actor->current.pos += out;
+        cLib_addCalc0(&i_this->m310, 1.0f, 7.0f + REG0_F(12));
+    }
 }
 
+static u32 eff_d[] = {
+    0x2F, 0x3C, 0x3D, 0x3E, 0x09, 0x0B, 0x0E, 0x11, 0x0D, 0x10, 0x1D, 0x20, 0x23, 0x1F, 0x22,
+};
+static u32 fl_check_d[] = {
+    0x0A, 0x02, 0x02, 0x05, 0x05, 0x0A, 0x0F, 0x14, 0x0D, 0x12, 0x0A, 0x0F, 0x14, 0x0D, 0x12,
+};
+static f32 fl_scale[] = {
+    1.0f, 2.0f, 2.0f, 2.0f, 2.0f, 1.0f, 1.0f, 0.8f, 0.8f, 0.8f, 1.0f, 1.0f, 0.8f, 0.8f, 0.8f,
+};
+
+static cXyz f_ctr[] = {
+    cXyz(-34.5f, 129.7f, -26.3f),
+    cXyz(-37.9f, 202.6f, -77.5f),
+    cXyz(-11.5f, 446.0f, -235.0f),
+    cXyz(7.3f, 293.0f, 55.9f),
+    cXyz(-7.3f, -51.6f, 116.5f),
+};
+static cXyz f_eye[] = {
+    cXyz(101.9f, 38.0f, 550.0f),
+    cXyz(-10.0f, 7.0f, -644.0f),
+    cXyz(-10.0f, 7.0f, -644.0f),
+    cXyz(83.6f, 870.4f, -88.0f),
+    cXyz(89.0f, 519.0f, -43.3f),
+};
+
 /* 000054F0-00006B04       .text demo_camera__FP9gnd_class */
-static void demo_camera(gnd_class*) {
-    /* Nonmatching */
+static void demo_camera(gnd_class* i_this) {
+    dComIfGp_setNextStage("GTower", 2, 0, 9, 0.0f, 0, 1, 7);
+    JUTReport(0x19A, 0x1AE, "K SUB  COUNT  %d", i_this->m155E);
 }
 
 /* 00006B04-00006D0C       .text body_flash__FP9gnd_class */
-static void body_flash(gnd_class*) {
-    /* Nonmatching */
+static void body_flash(gnd_class* i_this) {
+    J3DModel* model = i_this->mpMorf->getModel();
+
+    if (i_this->m142E != 0) {
+        i_this->m142E++;
+        if (i_this->m142E > 100) {
+            i_this->m142E = 0;
+        }
+    }
+
+    for (int i = 0; i < 15; i++) {
+        if (i_this->m142E == (int)fl_check_d[i]) {
+            i_this->mFlashTimer[i] = 100;
+        }
+
+        if (i_this->mFlashTimer[i] != 0) {
+            i_this->mFlashTimer[i]--;
+            MTXCopy(model->getAnmMtx(eff_d[i]), *calc_mtx);
+            cXyz pos;
+            MtxPosition(&i_this->m14A8[i], &pos);
+            f32 scale = (0.01f + REG8_F(0)) * (i_this->mFlashTimer[i] * fl_scale[i]);
+            if (i_this->mpFlashEff[i] == NULL) {
+                i_this->mpFlashEff[i] = dComIfGp_particle_set(dPa_name::ID_AK_JN_CCTHUNDER00, &pos);
+            } else {
+                JPABaseEmitter* emitter = i_this->mpFlashEff[i];
+                emitter->setGlobalTranslation(pos.x, pos.y, pos.z);
+                JGeometry::TVec3<f32> gscale(scale, scale, scale);
+                emitter->setGlobalScale(gscale);
+            }
+        } else if (i_this->mpFlashEff[i] != NULL) {
+            i_this->mpFlashEff[i]->becomeInvalidEmitter();
+            i_this->mpFlashEff[i] = NULL;
+        }
+    }
 }
 
 /* 00006D0C-000076B8       .text daGnd_Execute__FP9gnd_class */
@@ -670,14 +907,89 @@ static BOOL daGnd_Delete(gnd_class* i_this) {
 }
 
 /* 00007738-00007A78       .text useHeapInit__FP10fopAc_ac_c */
-static BOOL useHeapInit(fopAc_ac_c*) {
-    /* Nonmatching */
-    return TRUE;
+static BOOL useHeapInit(fopAc_ac_c* a_this) {
+    gnd_class* i_this = (gnd_class*)a_this;
+
+    i_this->mpMorf = new mDoExt_McaMorf(
+        (J3DModelData*)dComIfG_getObjectRes("Gnd", dRes_INDEX_GND_BDL_GND_e),
+        NULL,
+        NULL,
+        (J3DAnmTransform*)dComIfG_getObjectRes("Gnd", dRes_INDEX_GND_BCK_SAMPLE_e),
+        J3DFrameCtrl::EMode_LOOP,
+        1.0f,
+        0,
+        -1,
+        1,
+        NULL,
+        0,
+        0x11020203
+    );
+    if (i_this->mpMorf == NULL || i_this->mpMorf->getModel() == NULL) {
+        return FALSE;
+    }
+
+    i_this->mpBrkAnm = new mDoExt_brkAnm();
+    if (i_this->mpBrkAnm == NULL) {
+        return FALSE;
+    }
+    if (i_this->mpBrkAnm->init(
+            i_this->mpMorf->getModel()->getModelData(),
+            (J3DAnmTevRegKey*)dComIfG_getObjectRes("Gnd", dRes_INDEX_GND_BRK_SAMPLE_e),
+            TRUE,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            false,
+            0
+        ) == 0)
+    {
+        return FALSE;
+    }
+
+    i_this->mpBtkAnm = new mDoExt_btkAnm();
+    if (i_this->mpBtkAnm == NULL) {
+        return FALSE;
+    }
+    if (i_this->mpBtkAnm->init(
+            i_this->mpMorf->getModel()->getModelData(),
+            (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Gnd", dRes_INDEX_GND_BTK_SAMPLE_e),
+            TRUE,
+            J3DFrameCtrl::EMode_NONE,
+            1.0f,
+            0,
+            -1,
+            false,
+            0
+        ) == 0)
+    {
+        return FALSE;
+    }
+
+    i_this->mpBtpAnm = new mDoExt_btpAnm();
+    if (i_this->mpBtpAnm == NULL) {
+        return FALSE;
+    }
+    if (i_this->mpBtpAnm->init(
+            i_this->mpMorf->getModel()->getModelData(),
+            (J3DAnmTexPattern*)dComIfG_getObjectRes("Gnd", dRes_INDEX_GND_BTP_SAMPLE_e),
+            TRUE,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            false,
+            0
+        ) == 0)
+    {
+        return FALSE;
+    }
+
+    return i_this->mLineMat.init(4, 20, FALSE) != 0 ? TRUE : FALSE;
 }
 
 /* 00007AC0-00007CFC       .text daGnd_Create__FP10fopAc_ac_c */
-static cPhs_State daGnd_Create(fopAc_ac_c*) {
-    /* Nonmatching */
+static cPhs_State daGnd_Create(fopAc_ac_c* a_this) {
     static dCcD_SrcCyl cc_cyl_src = {
         // dCcD_SrcGObjInf
         {
@@ -791,7 +1103,61 @@ static cPhs_State daGnd_Create(fopAc_ac_c*) {
             /* Radius */ 70.0f,
         }},
     };
-    return cPhs_ERROR_e;
+
+    gnd_class* i_this = (gnd_class*)a_this;
+    fopAcM_ct(a_this, gnd_class);
+
+    cPhs_State phase = dComIfG_resLoad(&i_this->mPhase, "Gnd");
+    if (phase == cPhs_COMPLEATE_e) {
+        pz = NULL;
+        i_this->m2B4 = fopAcM_GetParam(a_this) & 0xF;
+        if (!fopAcM_entrySolidHeap(a_this, useHeapInit, 0x96000)) {
+            return cPhs_ERROR_e;
+        }
+
+        a_this->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+        a_this->attention_info.distances[fopAc_Attn_TYPE_BATTLE_e] = 4;
+
+        if (!hio_set) {
+            i_this->mHioSet = 1;
+            hio_set = true;
+            l_HIO.mNo = mDoHIO_createChild("ガノンｄ", &l_HIO);
+        }
+
+        i_this->initBt(400.0f + REG0_F(6), 150.0f + REG0_F(5));
+        i_this->mAcch.Set(
+            fopAcM_GetPosition_p(a_this),
+            fopAcM_GetOldPosition_p(a_this),
+            a_this,
+            1,
+            &i_this->mAcchCir,
+            fopAcM_GetSpeed_p(a_this),
+            NULL,
+            NULL
+        );
+        i_this->mAcch.OffSameActorChk();
+        i_this->mAcchCir.SetWall(200.0f, 200.0f);
+        i_this->mStts.Init(0xFF, 0xFF, a_this);
+        i_this->mBodyCyl.Set(cc_cyl_src);
+        i_this->mBodyCyl.SetStts(&i_this->mStts);
+        i_this->mHeadSph.Set(head_sph_src);
+        i_this->mHeadSph.SetStts(&i_this->mStts);
+        i_this->mChestSph.Set(chest_sph_src);
+        i_this->mChestSph.SetStts(&i_this->mStts);
+        for (int i = 0; i < 2; i++) {
+            i_this->mWeponSph[i].Set(wepon_sph_src);
+            i_this->mWeponSph[i].SetStts(&i_this->mStts);
+        }
+
+        daGnd_Execute(i_this);
+        a_this->max_health = 0x4B;
+        a_this->health = 0x4B;
+        if (i_this->m2B4 != 0) {
+            mDoAud_bgmStart(JA_BGM_GANON_BATTLE);
+        }
+    }
+
+    return phase;
 }
 
 static actor_method_class l_daGnd_Method = {
