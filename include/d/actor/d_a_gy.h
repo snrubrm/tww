@@ -9,6 +9,7 @@
 #include "m_Do/m_Do_hostIO.h"
 #include "SSystem/SComponent/c_phase.h"
 #include "dolphin/mtx/quat.h"
+#include "c/c_damagereaction.h"
 
 class daGy_Ctrl_c;
 class JntHit_c;
@@ -63,7 +64,7 @@ public:
 public:
     /* 0x2AC */ s32 m2AC;
     /* 0x2B0 */ s32 m2B0;
-    /* 0x2B4 */ u8 m2B4[0x2B8 - 0x2B4];
+    /* 0x2B4 */ s32 m2B4;
     /* 0x2B8 */ daGy_Ctrl_c* mpCtrl;
     /* 0x2BC */ cXyz m2BC;
     /* 0x2C8 */ request_of_phase_process_class mPhs;
@@ -99,24 +100,14 @@ public:
     /* 0x910 */ u8 m910[0x914 - 0x910];
     /* 0x914 */ s32 m914;
     /* 0x918 */ f32 m918;
-    /* 0x91C */ u8 m91C[0x920 - 0x91C];
+    /* 0x91C */ f32 m91C;
     /* 0x920 */ f32 m920;
     /* 0x924 */ s32 m924;
     /* 0x928 */ s32 m928;
-    /* 0x92C */ fopAc_ac_c* m92C;
-    /* 0x930 */ u8 m930[0x938 - 0x930];
-    /* 0x938 */ u8 m938;
-    /* 0x939 */ u8 m939[0x978 - 0x939];
-    /* 0x978 */ dCcD_GStts m978;
-    /* 0x998 */ dCcD_GObjInf m998;
-    /* 0xA90 */ u8 mA90[0xAC8 - 0xA90];
-    /* 0xAC8 */ f32 mAC8;
-    /* 0xACC */ f32 mACC;
-    /* 0xAD0 */ u8 mAD0[0xAE0 - 0xAD0];
-    /* 0xAE0 */ dBgS_AcchCir mAE0;
-    /* 0xB20 */ dBgS_Acch mB20;
+    /* 0x92C */ enemyice mEnemyIce;
     /* 0xCE4 */ JntHit_c* mpJntHit;
-    /* 0xCE8 */ u8 mCE8[0xCEC - 0xCE8];
+    /* 0xCE8 */ u8 mCE8;
+    /* 0xCE9 */ u8 mCE9[0xCEC - 0xCE9];
     /* 0xCEC */ cXyz mCEC;
     /* 0xCF8 */ Quaternion mCF8;
     /* 0xD08 */ cXyz mD08;
@@ -127,7 +118,9 @@ public:
     /* 0xD7C */ dPa_waveEcallBack mD7C;
     /* 0xDE0 */ dPa_splashEcallBack mDE0;
     /* 0xDFC */ cXyz mDFC;
-    /* 0xE08 */ u8 mE08[0xE14 - 0xE08];
+    /* 0xE08 */ csXyz mE08;
+    /* 0xE0E */ u8 mE0E[0xE10 - 0xE0E];
+    /* 0xE10 */ f32 mE10;
     /* 0xE14 */ dBgS_LinChk mLinChk;
     /* 0xE80 */ u8 mE80;
     /* 0xE81 */ u8 mE81[0xE84 - 0xE81];
@@ -183,7 +176,7 @@ public:
     /* 0x097 */ u8 m97;
     /* 0x098 */ u8 m98;
     /* 0x099 */ u8 m99;
-    /* 0x09A */ u8 m9A[0x09C - 0x09A];
+    /* 0x09A */ s16 m9A;
     /* 0x09C */ f32 m9C;
     /* 0x0A0 */ f32 mA0;
     /* 0x0A4 */ f32 mA4;
@@ -230,7 +223,7 @@ public:
     /* 0x142 */ s16 m142;
     /* 0x144 */ f32 m144;
     /* 0x148 */ f32 m148;
-    /* 0x14C */ u8 m14C[0x150 - 0x14C];
+    /* 0x14C */ f32 m14C;
     /* 0x150 */ f32 m150;
     /* 0x154 */ f32 m154;
     /* 0x158 */ f32 m158;

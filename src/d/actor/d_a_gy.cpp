@@ -14,8 +14,10 @@
 #include "d/d_com_inf_game.h"
 #include "d/d_jnt_hit.h"
 #include "d/d_lib.h"
+#include "d/d_material.h"
 #include "d/d_particle_name.h"
 #include "d/d_s_play.h"
+#include "d/d_snap.h"
 #include "f_op/f_op_actor_mng.h"
 #include "m_Do/m_Do_audio.h"
 #include "m_Do/m_Do_mtx.h"
@@ -1017,42 +1019,223 @@ void daGy_c::modeDamage() {
 
 /* 00002754-000028B8       .text modeDeleteInit__6daGy_cFv */
 void daGy_c::modeDeleteInit() {
-    /* Nonmatching */
+    fopAc_ac_c* actor = this;
+    fopAcM_OffStatus(actor, fopAcStts_SHOWMAP_e);
+    actor->attention_info.flags &= ~fopAc_Attn_LOCKON_BATTLE_e;
+
+    dSv_event_c& event = g_dComIfG_gameInfo.save.getEvent();
+    int n = event.getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
+    n = cLib_maxLimit<int>(n, 0xFF);
+    u8 val = n;
+    event.setEventReg(dSv_event_flag_c::UNK_7EFF, val);
+
+    m2B0 = 8;
+    mPrmIdx = 8;
+    mAimSpeedF = 0.0f;
+    speedF = 0.0f;
+    speed.y = l_HIO.m15C;
+    fopAcM_seStart(this, JA_SE_CM_GY_JUMP_L, 0);
+    f32 s = 2.0f + REG10_F(0);
+    cXyz scale(s, s + REG10_F(1), s);
+    dComIfGp_particle_set(dPa_name::ID_IT_JN_MIZUSHIBUKI_A, &current.pos, NULL, &scale);
 }
 
 /* 000028B8-00002998       .text modeDelete__6daGy_cFv */
 void daGy_c::modeDelete() {
-    /* Nonmatching */
-    volatile f32 pool;
-    pool = -0.3f;
-    pool = -0.5f;
-    pool = 0.6f;
-    pool = 0.7f;
+    if (m500 != -1) {
+        if (cLib_calcTimer(&m500) == 0) {
+            mEnemyIce.mLightShrinkTimer = 1;
+        }
+    } else if (m4FC != -1) {
+        if (cLib_calcTimer(&m4FC) == 0) {
+            mEnemyIce.mFreezeDuration = l_HIO.m0C;
+        }
+    } else if (mPrmIdx == 8) {
+        if (mpMorf->isStop()) {
+            fopAcM_createDisappear(this, &current.pos, 10, daDisItem_IBALL_e, 0xFF);
+            fopAcM_delete(this);
+        }
+    }
 }
 
 /* 00002998-00002A70       .text modeDeleteBombInit__6daGy_cFv */
 void daGy_c::modeDeleteBombInit() {
-    /* Nonmatching */
+    fopAcM_OffStatus(this, fopAcStts_SHOWMAP_e);
+    attention_info.flags &= ~fopAc_Attn_LOCKON_BATTLE_e;
+    m2B0 = 9;
+    mPrmIdx = 7;
+    mAimSpeedF = 0.0f;
+    speedF = 0.0f;
+    m4E4 = 0.0f;
+    speed.y = l_HIO.m15C;
+    fopAcM_seStart(this, JA_SE_CM_GY_JUMP_L, 0);
+    m4EC = 10.0f * l_HIO.mC8;
 }
 
 /* 00002A70-00002CBC       .text modeDeleteBomb__6daGy_cFv */
 void daGy_c::modeDeleteBomb() {
-    /* Nonmatching */
+    if (m920 > 0.01f) {
+        fopAc_ac_c* player = dComIfGp_getPlayer(0);
+        cXyz src(0.0f, 0.0f, -m920);
+        cXyz dst(0.0f, 0.0f, 0.0f);
+        mDoMtx_stack_c::YrotS(fopAcM_searchActorAngleY(this, player));
+        mDoMtx_stack_c::multVec(&src, &dst);
+        current.pos.x += dst.x;
+        current.pos.y += dst.y;
+        current.pos.z += dst.z;
+        cLib_addCalc0(&m920, 1.0f, 2.0f);
+    }
+
+    if (mPrmIdx == 7) {
+        m4E8 = l_HIO.m168;
+        if (m4E4 <= 10.0f + l_HIO.m168) {
+            mPrmIdx = 9;
+            m4EC = l_HIO.mC4;
+        }
+    }
+
+    if (mPrmIdx == 9) {
+        f32 f2 = m4E4;
+        daGy_HIO_c* hio = &l_HIO;
+        f32 f1 = hio->m16C;
+        if (f2 >= f1 - 10.0f) {
+            if ((f32)m8EC == 0.0f) {
+                m8EC = hio->m164;
+            }
+            m4EC = l_HIO.m178;
+            m918 = l_HIO.m17C;
+        }
+
+        f32 f4 = m4E4;
+        f32 f_10 = 10.0f;
+        f32 f3 = hio->m16C;
+        f32 f_170 = l_HIO.m170;
+        f32 f5 = f3 - f_170;
+        if (f4 <= f_10 + f5) {
+            m4E8 = f3 + f_170;
+        } else if (f4 >= (f3 + f_170) - f_10) {
+            m4E8 = f5;
+        }
+
+        if ((f32)m8EC != 0.0f) {
+            if (cLib_calcTimer(&m8EC) == 0) {
+                fopAcM_createDisappear(this, &current.pos, 10, daDisItem_IBALL_e, 0xFF);
+                fopAcM_delete(this);
+            }
+        }
+    }
 }
 
 /* 00002CBC-00002E24       .text modeProcCall__6daGy_cFv */
 void daGy_c::modeProcCall() {
-    /* Nonmatching */
+    typedef void (daGy_c::*modeProcFunc)();
+
+    if (l_HIO.m95 != 0) {
+        m2B0 = l_HIO.m9A;
+    }
+
+    static modeProcFunc mode_proc[] = {
+        &daGy_c::modeDive,
+        &daGy_c::modeCircle,
+        &daGy_c::modeAttack,
+        &daGy_c::modeAttackPlayer,
+        &daGy_c::modeAttackBack,
+        &daGy_c::modeWithAttack,
+        &daGy_c::modeWithCircle,
+        &daGy_c::modeDamage,
+        &daGy_c::modeDelete,
+        &daGy_c::modeDeleteBomb,
+    };
+    (this->*mode_proc[m2B0])();
 }
 
 /* 00002E24-00003004       .text createWave__6daGy_cFv */
 void daGy_c::createWave() {
-    /* Nonmatching */
+    static JGeometry::TVec3<f32> wave_l_direction(0.5f, 1.0f, -0.3f);
+    static JGeometry::TVec3<f32> wave_r_direction(-0.5f, 1.0f, -0.3f);
+
+    if (mD18.getEmitter() == NULL) {
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPWAVE00, &mDFC, &mE08, NULL, 0xFF, &mD18);
+        if (mD18.getEmitter() != NULL) {
+            mD18.getEmitter()->setDirection(wave_l_direction);
+        }
+    }
+
+    if (mD7C.getEmitter() == NULL) {
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPWAVE00, &mDFC, &mE08, NULL, 0xFF, &mD7C);
+        if (mD7C.getEmitter() != NULL) {
+            mD7C.getEmitter()->setDirection(wave_r_direction);
+        }
+    }
+
+    if (mDE0.getEmitter() == NULL) {
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPSPLASH00, &mDFC, &mE08, NULL, 0xFF, &mDE0);
+    }
 }
 
 /* 00003004-00003268       .text setWave__6daGy_cFv */
 void daGy_c::setWave() {
-    /* Nonmatching */
+    f32 max_speed = l_HIO.m24;
+    f32 wave_speed;
+    f32 splash_target;
+    s8 prm = mPrmIdx;
+
+    if (prm == 5 || prm == 8 || prm == 9 || prm == 6) {
+        wave_speed = 0.0f;
+        splash_target = 0.0f;
+    } else {
+        f32 one = 1.0f;
+        wave_speed = l_HIO.m18 * one;
+        splash_target = l_HIO.m10;
+    }
+
+    switch (m2B0) {
+    case 1: {
+        f32 reg = REG12_F(13);
+        max_speed = l_HIO.m24 * (0.6f + reg);
+        wave_speed = wave_speed * (0.7f + reg);
+        break;
+    }
+    case 0:
+        wave_speed = 0.0f;
+        splash_target = 0.0f;
+        break;
+    case 8:
+        wave_speed = 0.0f;
+        splash_target = 0.0f;
+        break;
+    }
+
+    if (prm == 0xA) {
+        wave_speed = 0.0f;
+        splash_target = 0.0f;
+    } else {
+    }
+
+    mDFC.y = daSea_calcWave(mDFC.x, mDFC.z);
+    mE08.y = current.angle.y;
+
+    mD7C.setSpeed(wave_speed);
+    mD18.setSpeed(wave_speed);
+    mD7C.setMaxSpeed(max_speed);
+    mD18.setMaxSpeed(max_speed);
+    mD7C.setPitch(1.0f + l_HIO.m20);
+    mD18.setPitch(1.0f - l_HIO.m20);
+
+    cXyz collapse0(l_HIO.m28, l_HIO.m2C, l_HIO.m30);
+    cXyz collapse1(l_HIO.m34, l_HIO.m38, l_HIO.m3C);
+    cXyz collapse0_l = collapse0;
+    cXyz collapse1_l = collapse1;
+    mD7C.setAnchor(&collapse0, &collapse1);
+    collapse0_l.x *= -1.0f;
+    collapse1_l.x *= -1.0f;
+    mD18.setAnchor(&collapse0_l, &collapse1_l);
+
+    mD7C.setMaxDisSpeed(l_HIO.m1C);
+    mD18.setMaxDisSpeed(l_HIO.m1C);
+    cLib_addCalc2(&mE10, splash_target, 0.1f, 10.0f);
+    mDE0.setSpeed(mE10);
+    mDE0.setMaxSpeed(l_HIO.m14);
 }
 
 /* 00003268-000032E4       .text lineCheck__6daGy_cFP4cXyzP4cXyz */
@@ -1066,7 +1249,97 @@ void daGy_c::lineCheck(cXyz* i_start, cXyz* i_end) {
 
 /* 000032E4-000038EC       .text checkTgHit__6daGy_cFv */
 void daGy_c::checkTgHit() {
-    /* Nonmatching */
+    mStts.Move();
+
+    cCcD_Obj* hit_obj = mCps.GetTgHitObj();
+    cXyz hit_pos = *mCps.GetTgHitPosP();
+    if (hit_obj == NULL) {
+        hit_obj = mHeadSph.GetTgHitObj();
+        hit_pos = *mHeadSph.GetTgHitPosP();
+    }
+    if (hit_obj == NULL) {
+        hit_obj = mSph.GetTgHitObj();
+        hit_pos = *mSph.GetTgHitPosP();
+    }
+    if (hit_obj == NULL) {
+        return;
+    }
+
+    u8 damaged = 0;
+    u32 atType = hit_obj->GetAtType();
+    if (atType & AT_TYPE_BOMB) {
+        health = 0;
+        m920 = l_HIO.m14C;
+        damaged = 1;
+    } else if (atType & AT_TYPE_NORMAL_ARROW) {
+        fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
+        health -= 2;
+        m920 = l_HIO.m150;
+        damaged = 1;
+    } else if (atType & AT_TYPE_ICE_ARROW) {
+        mCE8 = 9;
+        fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
+        m4FC = 10;
+        mDE0.remove();
+        mD18.remove();
+        mD7C.remove();
+        damaged = 0;
+    } else if (atType & AT_TYPE_FIRE_ARROW) {
+        fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
+        health -= 2;
+        m920 = l_HIO.m150;
+        damaged = 1;
+    } else if (atType & AT_TYPE_LIGHT_ARROW) {
+        mCE8 = 0xB;
+        fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
+        m500 = 10;
+        mDE0.remove();
+        mD18.remove();
+        mD7C.remove();
+        damaged = 0;
+    } else if (atType & AT_TYPE_HOOKSHOT) {
+        fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
+        health -= 2;
+        m920 = l_HIO.m154;
+        damaged = 1;
+    } else if (atType & AT_TYPE_BOOMERANG) {
+        fopAcM_seStart(this, JA_SE_LK_W_WEP_HIT, 0x20);
+        health -= 2;
+        m920 = l_HIO.m158;
+        damaged = 1;
+    }
+
+    if (damaged == 1) {
+        mDoAud_onEnemyDamage();
+        fopAc_ac_c* player = dComIfGp_getPlayer(0);
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hit_pos);
+        if (mCE8 == 0xB) {
+            cXyz scale(2.0f, 2.0f, 2.0f);
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hit_pos, &player->shape_angle, &scale);
+            fopAcM_seStart(this, JA_SE_LK_LAST_HIT, 0);
+            return;
+        }
+        if (health <= 0) {
+            cXyz scale(2.0f, 2.0f, 2.0f);
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hit_pos, &player->shape_angle, &scale);
+            fopAcM_seStart(this, JA_SE_LK_LAST_HIT, 0);
+            health = 0;
+            fopAcM_monsSeStart(this, JA_SE_CV_GY_DIE, 0);
+            if (m920 == l_HIO.m14C) {
+                modeDeleteBombInit();
+            } else {
+                modeDeleteInit();
+            }
+        } else {
+            m2B4 = m2B0;
+            fopAcM_monsSeStart(this, JA_SE_CV_GY_DAMAGE, 0);
+            modeDamageInit();
+        }
+    } else {
+        if (mCE8 == 9 || mCE8 == 0xB) {
+            modeDeleteInit();
+        }
+    }
 }
 
 /* 000038EC-000039AC       .text getWaterY__6daGy_cFv */
@@ -1096,17 +1369,251 @@ f32 daGy_c::getWaterY() {
 
 /* 000039AC-00004264       .text _execute__6daGy_cFv */
 bool daGy_c::_execute() {
-    /* Nonmatching */
+    mpCtrl = NULL;
+    fpc_ProcID parent_id = fopAcM_GetLinkId(this);
+    if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
+        fopAc_ac_c* actor;
+        if (fopAcM_SearchByID(parent_id, &actor)) {
+            if (actor != NULL) {
+                if (fopAc_IsActor(actor)) {
+                    s16 name = fopAcM_GetName(actor);
+                    if (name == fpcNm_GY_CTRL_e || name == fpcNm_GY_CTRLB_e) {
+                        mpCtrl = (daGy_Ctrl_c*)actor;
+                    } else {
+                        goto lost_parent;
+                    }
+                } else {
+                lost_parent:
+                    if (cLib_calcTimer(&m8F0) == 0) {
+                        fopAcM_delete(this);
+                    }
+                    return true;
+                }
+            } else {
+                fopAcM_delete(this);
+                return true;
+            }
+        } else {
+            fopAcM_delete(this);
+            return true;
+        }
+    } else {
+        fopAcM_delete(this);
+        return true;
+    }
+
+    daGy_Ctrl_c* ctrl = mpCtrl;
+    shape_angle = current.angle;
+    if (enemy_ice(&mEnemyIce)) {
+        J3DModel* model = mpMorf->getModel();
+        model->setBaseTRMtx(mDoMtx_stack_c::get());
+        mpMorf->calc();
+        return true;
+    }
+
+    lineCheck(&current.pos, &mE84);
+    if (m2B0 != 0 && mE80 != 0) {
+        modeDiveInit();
+    }
+    if (m2B0 != 0 && ctrl->m324 == 3) {
+        modeDiveInit();
+    }
+    m2BC = ctrl->m290[m2AC];
+
+    mpMorf->play(NULL, 0, 0);
+    mpMorf->calc();
+    if (m2B0 != 0) {
+        setAtCollision();
+        setCollision();
+        checkTgHit();
+    }
+
+    if (gravity == 0.0f) {
+        cLib_addCalc2(&m4E4, m4E8, m918, m4EC);
+    }
+    cLib_addCalc2(&speedF, mAimSpeedF, 0.1f, 1.0f);
+    setAnm();
+
+    if (l_HIO.m97 != 0) {
+        cXyz pos = current.pos;
+        pos.y += 1000.0f;
+        current.pos.y = dBgS_GetWaterHeight(pos);
+        setMtx();
+        setWave();
+        return true;
+    }
+
+    modeProcCall();
+    fopAcM_posMoveF(this, mStts.GetCCMoveP());
+    current.pos.y = getWaterY();
+
+    s8 prm = mPrmIdx;
+    if (prm == 5) {
+        if (speed.y < -10.0f) {
+            s16* pAngleX = &current.angle.x;
+            s16 target = REG12_S(1) + 0x2000;
+            cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
+        } else if (speed.y > 10.0f) {
+            s16* pAngleX = &current.angle.x;
+            s16 target = REG12_S(2) - 0x1000;
+            cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
+        } else {
+            cLib_addCalcAngleS2(&current.angle.x, 0, 8, 0x800);
+        }
+        if (gravity == 0.0f && m91C < 0.0f) {
+            mPrmIdx = 1;
+            f32 s = 2.0f + REG10_F(0);
+            cXyz scale(s, s + REG10_F(1), s);
+            dComIfGp_particle_set(dPa_name::ID_IT_JT_MIZUBASHIRA, &current.pos, NULL, &scale);
+            dComIfGp_particle_set(dPa_name::ID_IT_JN_MIZUSHIBUKI_A, &current.pos, NULL, &scale);
+            fopAcM_seStart(this, JA_SE_CM_GY_LANDING_L, 0);
+        }
+    } else if (prm == 6 || prm == 4) {
+        if (m2B0 == 4) {
+            cLib_addCalcAngleS2(&current.angle.x, 0, 8, 0x800);
+        }
+        daSea_calcWave(current.pos.x, current.pos.z);
+        if (gravity == 0.0f && m91C < 0.0f) {
+            f32 s = 1.0f + REG10_F(0);
+            cXyz scale(s, s + REG10_F(1), s);
+            dComIfGp_particle_set(dPa_name::ID_IT_JN_MIZUSHIBUKI_A, &current.pos, NULL, &scale);
+            fopAcM_seStart(this, JA_SE_CM_GY_LANDING_S, 0);
+        }
+    } else if (prm == 7 || prm == 9) {
+        daSea_calcWave(current.pos.x, current.pos.z);
+        if (gravity == 0.0f && m91C < 0.0f) {
+            f32 s = 2.0f + REG10_F(0);
+            cXyz scale(s, s + REG10_F(1), s);
+            dComIfGp_particle_set(dPa_name::ID_IT_JT_MIZUBASHIRA, &current.pos, NULL, &scale);
+            dComIfGp_particle_set(dPa_name::ID_IT_JN_MIZUSHIBUKI_A, &current.pos, NULL, &scale);
+            fopAcM_seStart(this, JA_SE_CM_GY_LANDING_L, 0);
+        }
+    } else {
+        cLib_addCalcAngleS2(&current.angle.x, 0, 8, 0x800);
+    }
+
+    if (m2B0 != 0) {
+        mAcch.CrrPos(*dComIfG_Bgsp());
+    }
+    tevStr.mRoomNo = current.roomNo;
+    tevStr.mEnvrIdxOverride = dComIfG_Bgsp()->GetPolyColor(mAcch.m_gnd);
+    setMtx();
+    setWave();
+    attention_info.position = current.pos;
+    attention_info.position.y += 150.0f;
+    eyePos = current.pos;
+    eyePos.y += 80.0f;
+    m91C = gravity;
+
+    if (mPrmIdx != 5 && m2B0 != 0) {
+        f32 dist = (current.pos - old.pos).abs();
+        f32 f31 = dist / 40.0f;
+        if (f31 <= 0.0f) {
+            f31 = 0.0f;
+        } else if (f31 >= 1.0f) {
+            f31 = 1.0f;
+        }
+        fopAcM_seStart(this, JA_SE_CM_GY_CRUISING, (s8)(s32)(127.0f * f31));
+        if (mPrmIdx == 1) {
+            f32 play = f31 * l_HIO.m04;
+            f32 out = l_HIO.m08;
+            if (play < out) {
+                goto set_play;
+            }
+            out = play;
+        set_play:
+            mpMorf->setPlaySpeed(out);
+        }
+    }
+
+    g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &tevStr);
+    return true;
 }
 
 /* 00004264-00004560       .text drawDebug__6daGy_cFv */
 void daGy_c::drawDebug() {
-    /* Nonmatching */
+    s16 spread = l_HIO.m180;
+    if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        cXyz pos = current.pos;
+        pos.y += 10.0f;
+        int angle1 = shape_angle.y + spread;
+        cXyz corner1(pos);
+        corner1.z += l_HIO.m184 * cM_scos(angle1);
+        corner1.x += l_HIO.m184 * cM_ssin(angle1);
+        int angle2 = shape_angle.y - spread;
+        cXyz corner2(pos);
+        corner2.z += l_HIO.m184 * cM_scos(angle2);
+        corner2.x += l_HIO.m184 * cM_ssin(angle2);
+    }
+
+    spread = l_HIO.m140;
+    if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        daShip_c* ship = dComIfGp_getShipActor();
+        if (ship != NULL) {
+            cXyz pos = ship->current.pos;
+            pos.y += 100.0f;
+            int angle1 = ship->shape_angle.y + spread;
+            cXyz corner1(pos);
+            corner1.z += 5000.0f * cM_scos(angle1);
+            corner1.x += 5000.0f * cM_ssin(angle1);
+            int angle2 = ship->shape_angle.y - spread;
+            cXyz corner2(pos);
+            corner2.z += 5000.0f * cM_scos(angle2);
+            corner2.x += 5000.0f * cM_ssin(angle2);
+        }
+    }
+
+    spread = l_HIO.m142;
+    if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        daShip_c* ship = dComIfGp_getShipActor();
+        if (ship != NULL) {
+            cXyz pos = ship->current.pos;
+            pos.y += 100.0f;
+            int angle1 = ship->shape_angle.y + spread;
+            cXyz corner1(pos);
+            corner1.z += 5000.0f * cM_scos(angle1);
+            corner1.x += 5000.0f * cM_ssin(angle1);
+            int angle2 = ship->shape_angle.y - spread;
+            cXyz corner2(pos);
+            corner2.z += 5000.0f * cM_scos(angle2);
+            corner2.x += 5000.0f * cM_ssin(angle2);
+        }
+    }
 }
 
 /* 00004560-000046C8       .text _draw__6daGy_cFv */
 bool daGy_c::_draw() {
-    /* Nonmatching */
+    if (l_HIO.m94 != 0) {
+        drawDebug();
+    }
+
+    if (m4E4 <= l_HIO.mA0 && mPrmIdx != 5) {
+        return true;
+    }
+
+    if (l_HIO.m96 != 0) {
+        return true;
+    }
+
+    g_env_light.setLightTevColorType(mpMorf->getModel(), &tevStr);
+
+    if (mEnemyIce.mFreezeTimer > 0x14) {
+        dMat_control_c::iceEntryDL(mpMorf, -1, &m2D8);
+        return true;
+    }
+
+    mpMorf->entryDL();
+    dSnap_RegistFig(DSNAP_TYPE_UNKBC, this, 1.0f, 1.0f, 1.0f);
+
+    f32 z = current.pos.z;
+    cXyz pos(current.pos.x, 150.0f + current.pos.y, z);
+    m8E4 = dComIfGd_setShadow(
+        m8E4, 0, mpMorf->getModel(), &pos,
+        800.0f, 40.0f, current.pos.y, mAcch.GetGroundH(),
+        mAcch.m_gnd, &tevStr, 0, 1.0f,
+        dDlst_shadowControl_c::getSimpleTex()
+    );
+    return true;
 }
 
 /* 000046C8-00004920       .text createInit__6daGy_cFv */
@@ -1116,10 +1623,10 @@ void daGy_c::createInit() {
     scale.setall(l_HIO.m90);
     m4FC = -1;
     m500 = -1;
-    m92C = this;
-    m938 = 1;
-    mACC = 0.0f;
-    mAC8 = 0.0f;
+    mEnemyIce.mpActor = this;
+    mEnemyIce.m00C = 1;
+    mEnemyIce.mWallRadius = 0.0f;
+    mEnemyIce.mCylHeight = 0.0f;
     itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("GyCtrl", 0);
     attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
     attention_info.distances[fopAc_Attn_TYPE_BATTLE_e] = 0x22;
@@ -1158,7 +1665,53 @@ void daGy_c::createInit() {
 
 /* 00004920-00004A80       .text _create__6daGy_cFv */
 cPhs_State daGy_c::_create() {
-    /* Nonmatching */
+    fopAcM_ct(this, daGy_c);
+
+    cPhs_State phase_state = dComIfG_resLoad(&mPhs, m_arc_name);
+    if (phase_state == cPhs_COMPLEATE_e) {
+        if (!dComIfGs_checkGetItem(dItemNo_BOOMERANG_e)) {
+            return cPhs_ERROR_e;
+        }
+
+        fpc_ProcID parent_id = fopAcM_GetLinkId(this);
+        if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
+            fopAc_ac_c* actor;
+            if (fopAcM_SearchByID(parent_id, &actor)) {
+                if (actor != NULL) {
+                if (fopAc_IsActor(actor)) {
+                    s16 name = fopAcM_GetName(actor);
+                    if (name == fpcNm_GY_CTRL_e || name == fpcNm_GY_CTRLB_e) {
+                        mpCtrl = (daGy_Ctrl_c*)actor;
+                        daGy_Ctrl_c* ctrl = mpCtrl;
+                        m2AC = ctrl->m31C;
+                        ctrl->m31C += 1;
+                        if (fopAcM_GetName(actor) == fpcNm_GY_CTRL_e) {
+                            fopAcM_setStageLayer(this);
+                        }
+                    } else {
+                        goto create_error;
+                    }
+                } else {
+                create_error:
+                    return cPhs_ERROR_e;
+                }
+                } else {
+                    return cPhs_ERROR_e;
+                }
+            } else {
+                return cPhs_ERROR_e;
+            }
+        } else {
+            return cPhs_ERROR_e;
+        }
+
+        if (!fopAcM_entrySolidHeap(this, createHeap_CB, 0x3FA0)) {
+            return cPhs_ERROR_e;
+        }
+
+        createInit();
+    }
+    return phase_state;
 }
 
 /* 00005A80-00005AD4       .text _delete__6daGy_cFv */
