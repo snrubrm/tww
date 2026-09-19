@@ -499,7 +499,8 @@ BOOL body_atari_check(ph_class* i_this) {
         i_this->mBodyEnemyFire.mFireDuration = 100;
         {
             f32 x = i_this->m02FC.x;
-            if (x != 0.0f) {
+            f32 zero = 0.0f;
+            if (x != zero) {
                 i_this->mPropellerEnemyFire.mFireDuration = 100;
             }
         }
@@ -870,7 +871,7 @@ void ph_fly_move(ph_class* i_this) {
         cLib_addCalc2(&actor->speedF, 8.0f, 0.5f, 1.0f);
         fly_angle_set(i_this, 1);
         fuwafuwa_set(i_this);
-        if (ph_hani_check(i_this, 250.0f, 25344.0f, 0)) {
+        if (ph_hani_check(i_this, 250.0f, 25400.0f, 0)) {
             i_this->m034A = 0x2000;
             i_this->m034C = 0;
             i_this->m0364 = 0x14;
@@ -988,7 +989,7 @@ void ph_fly_sea_move(ph_class* i_this) {
         i_this->m0346++;
         // fallthrough
     case 3:
-        if (!ph_hani_check(i_this, i_this->m038C, 25344.0f, 1)) {
+        if (!ph_hani_check(i_this, i_this->m038C, 25400.0f, 1)) {
             i_this->m0346 = 4;
             break;
         }
@@ -1080,7 +1081,7 @@ void ph_fly_sea_move(ph_class* i_this) {
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 0x200);
         cLib_addCalc0(&actor->speedF, 1.0f, 5.0f + REG12_F(6));
         if (actor->speedF < 1.0f) {
-            if (!ph_hani_check(i_this, i_this->m038C, 25344.0f, 1)) {
+            if (!ph_hani_check(i_this, i_this->m038C, 25400.0f, 1)) {
                 i_this->m0346 = 4;
             } else {
                 i_this->m0346 = 0;
@@ -1145,20 +1146,20 @@ void ph_hane_move(ph_class* i_this) {
         fly_angle_set(i_this, 4);
         if (i_this->m0364 == 0) {
             if (i_this->speedF < 0.1f) {
-                s32 zero = 0;
-                i_this->m033F = zero;
+                s32 v = 0;
+                i_this->m033F = v;
                 if (i_this->mType == 0) {
                     i_this->m0364 = 0x3C;
                     i_this->mAtCyl.OnAtSetBit();
                     i_this->mAtCyl.OnAtHitBit();
-                    s32 i = zero;
+                    s32 i = v;
                     for (int n = 7; n != 0; n--) {
-                        *(s16*)((char*)i_this + 0x356 + i) = zero;
+                        *(s16*)((char*)i_this + 0x356 + i) = v;
                         i += 2;
                     }
                     i_this->m0346 = 1;
                 } else {
-                    i_this->m0346 = zero;
+                    i_this->m0346 = v;
                 }
             }
         }
@@ -1493,7 +1494,8 @@ void dead_item(ph_class* i_this) {
         int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
         n = cLib_maxLimit<int>(n, 0xFF);
         u8 val = n;
-        pEvent->setEventReg(dSv_event_flag_c::UNK_7EFF, val);
+        u16 flag = dSv_event_flag_c::UNK_7EFF;
+        pEvent->setEventReg(flag, val);
     }
 
     fopAcM_onActor(i_this);
@@ -1975,7 +1977,7 @@ void ph_water_move(ph_class* i_this) {
             }
             fopAcM_seStart(actor, JA_SE_CM_SH_CRUISING, vol);
         }
-        if (!ph_hani_check(i_this, i_this->m038C, 25344.0f, 1)) {
+        if (!ph_hani_check(i_this, i_this->m038C, 25400.0f, 1)) {
             i_this->m033F = 3;
             i_this->m0346 = 0x21;
             break;
@@ -2125,8 +2127,7 @@ static BOOL daPH_Execute(ph_class* i_this) {
 
     if (enemy_ice(&i_this->mEnemyIce)) {
         J3DModel* model = i_this->mpBodyMorf->getModel();
-        MtxP now = mDoMtx_stack_c::now;
-        mDoMtx_copy(now, model->getBaseTRMtx());
+        MTXCopy(mDoMtx_stack_c::now, model->getBaseTRMtx());
         i_this->mpBodyMorf->calc();
         f32 x = i_this->m02FC.x;
         f32 zero = 0.0f;
@@ -2151,7 +2152,7 @@ static BOOL daPH_Execute(ph_class* i_this) {
     actor->eyePos.y = i_this->m02C0.y;
     actor->eyePos.z = i_this->m02C0.z;
     actor->eyePos.y -= 30.0f;
-    actor->eyePos.y -= 35.0f * i_this->m039C;
+    actor->eyePos.y -= 50.0f * i_this->m039C;
 
     s32 i = 0;
     for (int n = 5; n != 0; n--) {
@@ -2164,7 +2165,8 @@ static BOOL daPH_Execute(ph_class* i_this) {
 
     {
         f32 x = REG8_F(0);
-        if (x != 0.0f) {
+        f32 zero = 0.0f;
+        if (x != zero) {
             i_this->m039C = 8.0f + x;
             f32 scl = 1.0f + i_this->m039C;
             actor->scale.setall(scl);
@@ -2172,7 +2174,8 @@ static BOOL daPH_Execute(ph_class* i_this) {
     }
     {
         f32 x = REG8_F(1);
-        if (x != 0.0f) {
+        f32 zero = 0.0f;
+        if (x != zero) {
             i_this->m03A0 = 5.0f + x;
         }
     }
@@ -2199,9 +2202,9 @@ static BOOL daPH_Execute(ph_class* i_this) {
         if (i_this->mType == 1) {
             if (sea_water_check(i_this, 1)) {
                 if (i_this->m0341 != 0) {
-                    f32 y = i_this->m05BC.y - 10.0f * i_this->m039C;
-                    if (actor->current.pos.y < y) {
-                        actor->current.pos.y = y;
+                    f32 mul = 10.0f * i_this->m039C;
+                    if (actor->current.pos.y < i_this->m05BC.y - mul) {
+                        actor->current.pos.y = i_this->m05BC.y - mul;
                     }
                 }
             }
@@ -2223,29 +2226,33 @@ static BOOL daPH_Execute(ph_class* i_this) {
     mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
     mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
 
-    if (i_this->m037C != 0.0f) {
-        if (i_this->m02FC.x != 0.0f) {
-            f32 lim = 1000.0f;
-            puropera_kaiten(i_this);
-            cLib_addCalc2(&i_this->m037C, 10.0f, 0.5f, 1.0f);
-            if (i_this->mType == 1) {
-                cLib_addCalc2(&i_this->m037C, 30.0f, 1.0f, 5.0f);
-                i_this->m034A = 0x2000;
-                lim = 2000.0f;
+    {
+        f32 zero = 0.0f;
+        f32 yOff = i_this->m037C;
+        if (yOff != zero) {
+            if (i_this->m02FC.x != zero) {
+                f32 lim = 1000.0f;
+                puropera_kaiten(i_this);
+                cLib_addCalc2(&i_this->m037C, 10.0f, 0.5f, 1.0f);
+                if (i_this->mType == 1) {
+                    cLib_addCalc2(&i_this->m037C, 30.0f, 1.0f, 5.0f);
+                    i_this->m034A = 0x2000;
+                    lim = 2000.0f;
+                }
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = -i_this->m037C;
+                MtxPosition(&offset, &pos);
+                i_this->m0314 += pos;
+                i_this->m0314.y += i_this->m037C;
+                if (i_this->m0314.y > actor->current.pos.y + lim) {
+                    i_this->m02FC.setall(0.0f);
+                    i_this->m037C = 0.0f;
+                }
             }
-            offset.x = 0.0f;
-            offset.y = 0.0f;
-            offset.z = -i_this->m037C;
-            MtxPosition(&offset, &pos);
-            i_this->m0314 += pos;
-            i_this->m0314.y += i_this->m037C;
-            if (i_this->m0314.y > actor->current.pos.y + lim) {
-                i_this->m02FC.setall(0.0f);
-                i_this->m037C = 0.0f;
-            }
+        } else {
+            i_this->m0314 = i_this->m02C0;
         }
-    } else {
-        i_this->m0314 = i_this->m02C0;
     }
 
     offset.x = 0.0f;
@@ -2267,9 +2274,8 @@ static BOOL daPH_Execute(ph_class* i_this) {
 
     if (i_this->m033F == 1) {
         if (i_this->m0341 != 0) {
-            f32 minY = 40.0f + i_this->m05BC.y;
-            if (actor->current.pos.y < minY) {
-                actor->current.pos.y = minY;
+            if (actor->current.pos.y < 40.0f + i_this->m05BC.y) {
+                actor->current.pos.y = 40.0f + i_this->m05BC.y;
             }
         }
     }
