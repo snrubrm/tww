@@ -87,17 +87,19 @@ void smoke_set(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
 
     if (i_this->mSmokeCb.getEmitter() == NULL) {
+        s8 roomNo = actor->current.roomNo;
         dComIfGp_particle_setToon(
-            dPa_name::ID_AK_JT_ELEMENTSMOKE01, (cXyz*)i_this->m6BC, &actor->shape_angle, NULL, 0xB9,
-            &i_this->mSmokeCb, actor->current.roomNo
+            dPa_name::ID_AK_JT_ELEMENTSMOKE01, (cXyz*)&i_this->m6BC, &actor->shape_angle, NULL, 0xB9,
+            &i_this->mSmokeCb, roomNo
         );
     }
 
-    if (i_this->mSmokeCb.getEmitter() != NULL) {
+    JPABaseEmitter* emitter = i_this->mSmokeCb.getEmitter();
+    if (emitter != NULL) {
         GXColor color = {0xA0, 0xA0, 0x80, 0xB4};
         JGeometry::TVec3<f32> scale;
         scale.x = scale.y = scale.z = 1.6f;
-        i_this->mSmokeCb.getEmitter()->setGlobalParticleScale(scale);
+        emitter->setGlobalParticleScale(scale);
         i_this->mSmokeCb.getEmitter()->setRate(10.0f);
         i_this->mSmokeCb.getEmitter()->setMaxFrame(1);
         i_this->mSmokeCb.getEmitter()->setAwayFromCenterSpeed(8.0f);
@@ -108,11 +110,13 @@ void smoke_set(bl_class* i_this) {
 
 /* 000003F8-000004AC       .text fire_move_set__FP8bl_class */
 void fire_move_set(bl_class* i_this) {
-    int particleID = dPa_name::ID_AK_SN_BUBBLEBLUE00 + (i_this->mType == 0);
+    u16 particleID = dPa_name::ID_AK_SN_BUBBLEBLUE00 + (i_this->mType == 0);
+    fopAc_ac_c* actor = i_this;
 
     if (i_this->mFireCb.getEmitter() == NULL) {
+        s8 roomNo = actor->current.roomNo;
         dComIfGp_particle_set(
-            particleID, &i_this->current.pos, NULL, NULL, 0xFF, &i_this->mFireCb, i_this->current.roomNo
+            particleID, &actor->current.pos, NULL, NULL, 0xFF, &i_this->mFireCb, roomNo
         );
         if (i_this->mType == 1) {
             i_this->mSph.SetTgSe(dCcG_SE_METAL);
@@ -236,9 +240,8 @@ BOOL skull_atari_check(bl_class* i_this) {
     }
 
     i_this->current.angle.y = fopAcM_searchPlayerAngleY(i_this) + 0x8000;
-    u8 no_kill;
+    u8 no_kill = 0;
     s16 hit_timer = 8;
-    no_kill = 0;
     i_this->mHitTimer = hit_timer;
     i_this->m2D4 = 0;
 
@@ -827,18 +830,337 @@ BOOL roll_check(bl_class* i_this) {
 }
 
 /* 00002CC4-00003054       .text way_check__FP8bl_classs */
-void way_check(bl_class*, short) {
-    /* Nonmatching */
+s16 way_check(bl_class* i_this, s16 param_1) {
+    fopAc_ac_c* actor = i_this;
+    dBgS_LinChk linChk;
+    s16 angle = param_1;
+    s16 step = 0x2000;
+    if (cM_rndFX(1.0f) < 0.5f) {
+        step = -0x2000;
+    }
+
+    for (int i = 0; i < 8; i++) {
+        cMtx_YrotS(*calc_mtx, angle);
+        cXyz offset;
+        offset.x = 0.0f;
+        offset.y = 0.0f;
+        offset.z = 300.0f;
+        cXyz dest;
+        MtxPosition(&offset, &dest);
+        dest += actor->current.pos;
+        linChk.Set(&actor->current.pos, &dest, actor);
+        if (!dComIfG_Bgsp()->LineCross(&linChk)) {
+            return angle;
+        }
+        angle += step;
+    }
+
+    return param_1;
 }
 
 /* 00003054-000039F0       .text action_dousa__FP8bl_class */
-void action_dousa(bl_class*) {
-    /* Nonmatching */
+void action_dousa(bl_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    s16 target_angle;
+
+    switch (i_this->m306) {
+    case 0:
+        i_this->m304 = 0;
+        if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > 1000.0f) {
+            break;
+        }
+        fopAcM_OnStatus(actor, fopAcStts_SHOWMAP_e);
+        actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+        anm_init(i_this, dRes_INDEX_BL_BCK_START01_e, 1.0f, 0, 1.0f, -1);
+        i_this->m306++;
+        break;
+    case 1:
+        i_this->m31C = 1.5f;
+        if (i_this->mFollowCb.getEmitter() == NULL) {
+            dComIfGp_particle_set(
+                dPa_name::ID_AK_SN_BUBBLEBOOT00, &actor->current.pos, NULL, NULL, 0xFF, &i_this->mFollowCb, -1
+            );
+            fopAcM_seStart(actor, JA_SE_CM_BL_ENTER, 0);
+        }
+        if (i_this->mFollowCb.getEmitter() != NULL) {
+            if (i_this->mType == 0) {
+                i_this->mFollowCb.getEmitter()->setGlobalEnvColor(0x55, 0x1A, 0x0D);
+            } else {
+                i_this->mFollowCb.getEmitter()->setGlobalEnvColor(0x0D, 0x20, 0x41);
+            }
+        }
+        if (!i_this->mpMorf->isStop()) {
+            break;
+        }
+        actor->gravity = 0.0f;
+        actor->speed.y = 0.0f;
+        i_this->m306++;
+        // fallthrough
+    case 2:
+        if (i_this->mFollowCb.getEmitter() != NULL) {
+            i_this->mFollowCb.getEmitter()->setGlobalRTMatrix(i_this->mpMorf->getModel()->getAnmMtx(0));
+        }
+        cLib_addCalc2(&actor->speed.y, 10.0f, 0.8f, 1.0f);
+        if (actor->current.pos.y < 100.0f + i_this->m320) {
+            break;
+        }
+        fire_move_set(i_this);
+        actor->speed.y = 0.0f;
+        fopAcM_seStart(actor, JA_SE_CM_BL_AGO, 0);
+        fopAcM_monsSeStart(actor, JA_SE_CV_BL_ENTER, 0);
+        anm_init(i_this, dRes_INDEX_BL_BCK_START02_e, 1.0f, 0, 1.0f, -1);
+        i_this->m306++;
+        break;
+    case 3:
+        if (i_this->mpMorf->checkFrame(10.0f)) {
+            i_this->mFollowCb.remove();
+        }
+        if (!i_this->mpMorf->isStop()) {
+            break;
+        }
+        i_this->m306 = 5;
+        break;
+    case 4:
+        fire_move_set(i_this);
+        fopAcM_OnStatus(actor, fopAcStts_SHOWMAP_e);
+        i_this->m2F2 = 5;
+        i_this->m306 = 5;
+        // fallthrough
+    case 5:
+        fopAcM_OnStatus(actor, fopAcStts_SHOWMAP_e);
+        if (i_this->mCurrBckIdx != dRes_INDEX_BL_BCK_FLY_e) {
+            anm_init(i_this, dRes_INDEX_BL_BCK_FLY_e, 1.0f, 2, 1.0f, -1);
+            i_this->mBtkMode = 1;
+            i_this->mStts.SetWeight(2);
+            i_this->mSph.OnAtSetBit();
+            i_this->mSph.OnAtHitBit();
+        }
+        actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+        if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
+            dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
+            target_angle = cM_atan2s(pnt->m_position.x - actor->current.pos.x, pnt->m_position.z - actor->current.pos.z);
+            actor->speedF = i_this->m324;
+        } else {
+            i_this->m2EC = (s16)(100.0f + cM_rndFX(50.0f));
+            target_angle = (s16)cM_rndFX(32767.0f);
+            if (actor->speedF == 0.0f) {
+                actor->speedF = 4.0f + cM_rndF(2.0f);
+            }
+        }
+        i_this->m300 = way_check(i_this, target_angle);
+        i_this->m306++;
+        break;
+    case 6:
+        if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
+            dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
+            f32 dx = pnt->m_position.x - actor->current.pos.x;
+            f32 dz = pnt->m_position.z - actor->current.pos.z;
+            target_angle = cM_atan2s(dx, dz);
+            f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
+            if (dist < 80.0f + REG8_F(3)) {
+                i_this->mPathPntIdx++;
+                if (i_this->mPathPntIdx >= i_this->mpPath->m_num) {
+                    i_this->mPathPntIdx = 0;
+                }
+            }
+            i_this->m2C4 = actor->current.pos;
+            if (i_this->m2EC == 0) {
+                i_this->m300 = way_check(i_this, target_angle);
+                if (i_this->m300 != target_angle) {
+                    i_this->m2EC = (s16)(10.0f + cM_rndF(10.0f));
+                }
+            }
+            break;
+        } else {
+            f32 dx = actor->current.pos.x - i_this->m2C4.x;
+            f32 dz = actor->current.pos.z - i_this->m2C4.z;
+            f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
+            if (dist < 250.0f) {
+                if (i_this->m2EC != 0) {
+                    break;
+                }
+                i_this->m306 = 5;
+                break;
+            }
+            i_this->m306 = 7;
+        }
+        // fallthrough
+    case 7: {
+        f32 dx = i_this->m2C4.x - actor->current.pos.x;
+        f32 dz = i_this->m2C4.z - actor->current.pos.z;
+        i_this->m300 = cM_atan2s(dx, dz);
+        f32 thresh = 10.0f;
+        if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
+            thresh = 80.0f;
+        }
+        f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
+        if (dist < thresh) {
+            i_this->m306 = 5;
+        }
+        break;
+    }
+    }
+
+    if (i_this->m306 >= 1 && i_this->m306 <= 3) {
+        if (i_this->mFollowCb.getEmitter() != NULL) {
+            i_this->mFollowCb.getEmitter()->setGlobalRTMatrix(i_this->mpMorf->getModel()->getAnmMtx(0));
+        }
+    }
+
+    if (i_this->m2F2 == 0) {
+        fire_kaiten_keisan(i_this);
+    }
+
+    s16 maxStep = 0x120;
+    s16 shapeStep = 0x400;
+    if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
+        maxStep = 0x1000;
+        shapeStep = 0x1000;
+    }
+    cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m300, 1, maxStep);
+    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, shapeStep);
+
+    if (i_this->m306 >= 3) {
+        i_this->m31C = 1.5f;
+        fuwafuwa_keisan(i_this);
+    }
+
+    if (i_this->mType == 1) {
+        if (blue_body_atari_check(i_this)) {
+            return;
+        }
+    } else {
+        if (red_body_atari_check(i_this)) {
+            return;
+        }
+    }
+
+    if (i_this->m306 >= 5) {
+        if (i_this->mSph.ChkAtShieldHit()) {
+            if (i_this->m2E9 == 0xFF || i_this->mpPath == NULL || i_this->m306 != 7) {
+                actor->current.angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
+                actor->speedF = 50.0f;
+                i_this->m2D2 = 1;
+                i_this->m306 = 0xA;
+            }
+        } else if (i_this->mBtkMode != 0) {
+            fopAc_ac_c* player = dComIfGp_getPlayer(0);
+            if (fopAcM_searchActorDistance(actor, player) < 600.0f) {
+                if (Line_check(i_this, player->current.pos)) {
+                    if (i_this->m2E9 == 0xFF || i_this->mpPath == NULL || i_this->m306 != 7) {
+                        i_this->m2D2 = 1;
+                        i_this->m306 = 0xA;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* 000039F0-00003F68       .text action_kougeki__FP8bl_class */
-void action_kougeki(bl_class*) {
-    /* Nonmatching */
+void action_kougeki(bl_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+
+    switch (i_this->m306) {
+    case 0xA: {
+        int i;
+        for (i = 0; i < 4; i++) {
+            i_this->m2F8[i] = 0;
+        }
+        i_this->mSph.OnAtSetBit();
+        i_this->mSph.OnAtHitBit();
+        i_this->m304 = 0;
+        anm_init(i_this, dRes_INDEX_BL_BCK_HAKKEN_e, 1.0f, 0, 1.0f, -1);
+        fopAcM_monsSeStart(actor, JA_SE_CV_BL_FOUND, 0);
+        actor->speedF = 0.0f;
+        i_this->m306++;
+        break;
+    }
+    case 0xB:
+        if (!i_this->mpMorf->isStop()) {
+            break;
+        }
+        i_this->m306++;
+        // fallthrough
+    case 0xC:
+        anm_init(i_this, dRes_INDEX_BL_BCK_ATACK_e, 1.0f, 2, 1.0f, dRes_INDEX_BL_BAS_ATACK_e);
+        actor->speedF = 10.0f;
+        i_this->m302 = (s16)(cM_rndFX(768.0f) * (fopAcM_GetID(i_this) & 3));
+        i_this->m306++;
+        // fallthrough
+    case 0xD:
+        if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
+            f32 dx = actor->current.pos.x - i_this->m2C4.x;
+            f32 dz = actor->current.pos.z - i_this->m2C4.z;
+            f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
+            if (dist > 700.0f) {
+                anm_init(i_this, dRes_INDEX_BL_BCK_FLY_e, 1.0f, 2, 1.0f, -1);
+                actor->speedF = 4.0f + cM_rndF(2.0f);
+                i_this->m2D2 = 0;
+                i_this->m306 = 7;
+                return;
+            }
+        } else if (fopAcM_searchActorDistance(actor, player) > 700.0f) {
+            actor->speedF = 4.0f + cM_rndF(2.0f);
+            i_this->m2D2 = 0;
+            i_this->m306 = 5;
+            return;
+        }
+        break;
+    case 0xE:
+        cLib_addCalc0(&actor->speedF, 0.5f, 1.0f);
+        if (std::fabsf(actor->speedF) < 0.2f) {
+            actor->speedF = 0.0f;
+            anm_init(i_this, dRes_INDEX_BL_BCK_WARAU_e, 1.0f, 0, 1.0f, -1);
+            fopAcM_monsSeStart(actor, JA_SE_CV_BL_FOUND, 0);
+            i_this->m306 = 0xF;
+        }
+        break;
+    case 0xF:
+        if (i_this->mpMorf->isStop()) {
+            i_this->m306 = 0xC;
+        }
+        break;
+    }
+
+    i_this->mpMorf->setPlaySpeed(1.0f);
+    if (i_this->m306 == 0xD) {
+        if (fopAcM_searchActorDistance(actor, player) < 230.0f) {
+            i_this->mpMorf->setPlaySpeed(2.0f);
+        }
+    }
+
+    if (i_this->mSph.ChkAtShieldHit()) {
+        if (i_this->m306 != 0xE) {
+            actor->speedF = -20.0f;
+            i_this->m2D2 = 1;
+            i_this->m306 = 0xE;
+        }
+    } else if (i_this->mSph.ChkAtHit() && i_this->mSph.GetAtHitAc() != NULL && i_this->mSph.GetAtHitAc() == player) {
+        if (i_this->m306 != 0xF) {
+            anm_init(i_this, dRes_INDEX_BL_BCK_OOWARAI_e, 1.0f, 0, 1.0f, -1);
+            fopAcM_monsSeStart(actor, JA_SE_CV_BL_SUCCESS, 0);
+            actor->speedF = 0.0f;
+            i_this->m2F8[0] = 0;
+            i_this->m306 = 0xF;
+        }
+    }
+
+    fire_kaiten_keisan(i_this);
+    i_this->m300 = fopAcM_searchActorAngleY(actor, player) + i_this->m302;
+    cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m300, 1, 0x1000);
+    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x400);
+
+    if (i_this->m306 >= 0xC) {
+        fuwafuwa_keisan(i_this);
+    }
+
+    if (i_this->mType == 1) {
+        blue_body_atari_check(i_this);
+    } else {
+        red_body_atari_check(i_this);
+    }
 }
 
 /* 00003F68-00004128       .text action_sagarimasu__FP8bl_class */
@@ -884,13 +1206,283 @@ void action_sagarimasu(bl_class* i_this) {
 }
 
 /* 00004128-000046BC       .text action_kaze_move__FP8bl_class */
-void action_kaze_move(bl_class*) {
-    /* Nonmatching */
+void action_kaze_move(bl_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    switch (i_this->m306) {
+    case 0x1E: {
+        int i;
+        for (i = 0; i < 4; i++) {
+            i_this->m2F8[i] = 0;
+        }
+        actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+        i_this->mSph.SetTgSe(0);
+        i_this->mSph.SetTgHitMark(dCcG_TgHitMark_None_e);
+        i_this->mSph.OffTgShield();
+        i_this->mSph.OffAtSetBit();
+        i_this->mSph.ClrAtSet();
+        actor->speedF = 15.0f;
+        i_this->m310 = 7.0f;
+        i_this->m2F8[0] = (s16)(512.0f + cM_rndF(500.0f));
+        if (cM_rnd() < 0.5f) {
+            i_this->m2F8[0] *= -1;
+        }
+        if (i_this->mCurrBckIdx != dRes_INDEX_BL_BCK_UCHIWA_e) {
+            anm_init(i_this, dRes_INDEX_BL_BCK_UCHIWA_e, 1.0f, 0, 1.0f, -1);
+        }
+        i_this->mFireClrTimer = 0;
+        fire_emitter_clr(i_this);
+        fopAcM_seStart(actor, JA_SE_CM_BL_WIND_HIT, 0);
+        fopAcM_monsSeStart(actor, JA_SE_CV_BL_DAMAGE, 0);
+        i_this->m306++;
+        // fallthrough
+    }
+    case 0x1F:
+        actor->shape_angle.z += i_this->m2F8[0];
+        cLib_addCalc2(&actor->speed.y, i_this->m310, 0.8f, 2.0f);
+        cLib_addCalc0(&actor->speedF, 0.8f, 3.0f);
+        if (actor->speedF > 0.1f) {
+            break;
+        }
+        i_this->m306++;
+        // fallthrough
+    case 0x20:
+        i_this->mBtkMode = 0;
+        actor->speedF = 0.0f;
+        i_this->m306++;
+        // fallthrough
+    case 0x21:
+        cLib_addCalc2(&actor->gravity, -3.0f, 0.8f, 0.1f);
+        cLib_addCalcAngleS2(&actor->shape_angle.x, -0x7FFF, 1, 0x120);
+        if (!i_this->mAcch.ChkGroundHit()) {
+            break;
+        }
+        i_this->m306++;
+        // fallthrough
+    case 0x22:
+        actor->speed.y = 15.0f;
+        actor->gravity = -3.0f;
+        bound_sound_set(i_this);
+        i_this->m306++;
+        // fallthrough
+    case 0x23:
+        cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 0x400);
+        cLib_addCalcAngleS2(&actor->shape_angle.z, 0, 1, 0x400);
+        if (abs(actor->shape_angle.x) < 0x100 && abs(actor->shape_angle.z) < 0x100) {
+            actor->shape_angle.x = 0;
+            actor->shape_angle.z = 0;
+            if (i_this->mType & 0x80) {
+                i_this->m2D2 = 0xA;
+                i_this->m306 = 0x64;
+            } else {
+                i_this->m306 = 0x26;
+            }
+        }
+        break;
+    case 0x24: {
+        int i;
+        for (i = 0; i < 4; i++) {
+            i_this->m2F8[i] = 0;
+        }
+        actor->speed.y = 15.0f;
+        actor->gravity = -3.0f;
+        bound_sound_set(i_this);
+        if (!(i_this->mType & 0x80)) {
+            actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+        }
+        i_this->mSph.OffAtSetBit();
+        i_this->mSph.ClrAtSet();
+        actor->speedF = 30.0f;
+        cXyz offset;
+        offset.x = 0.0f;
+        offset.y = 0.0f;
+        offset.z = 5000.0f;
+        s16 yrot = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+        cMtx_YrotS(*calc_mtx, yrot + 0x8000);
+        cXyz dest;
+        MtxPosition(&offset, &dest);
+        i_this->m2F8[0] = (s16)-dest.x;
+        i_this->m2F8[1] = (s16)dest.z;
+        i_this->mStts.SetWeight(0x50);
+        i_this->m306++;
+        // fallthrough
+    }
+    case 0x25:
+        actor->shape_angle.x += i_this->m2F8[0];
+        actor->shape_angle.z += i_this->m2F8[1];
+        if (actor->speedF < 5.0f) {
+            if (roll_check(i_this)) {
+                if (i_this->mType & 0x80) {
+                    i_this->m2D2 = 0xA;
+                    i_this->m306 = 0x64;
+                } else {
+                    i_this->m306 = 0x26;
+                }
+            }
+        } else if (i_this->mAcch.ChkGroundHit()) {
+            i_this->m2F8[2] = 1;
+            actor->speed.y = 10.0f;
+            bound_sound_set(i_this);
+        }
+        if (i_this->m2F8[2] != 0) {
+            cLib_addCalc0(&actor->speedF, 0.8f, 1.0f);
+        }
+        break;
+    case 0x26:
+        i_this->m2EE = (s16)(70.0f + cM_rndF(35.0f));
+        actor->speedF = 0.0f;
+        i_this->m306++;
+        // fallthrough
+    case 0x27:
+        if (i_this->m2EE == 0) {
+            anm_init(i_this, dRes_INDEX_BL_BCK_START01_e, 1.0f, 0, 1.0f, -1);
+            actor->speedF = 0.0f;
+            actor->current.angle.y = actor->shape_angle.y;
+            i_this->m2D2 = 0;
+            i_this->m306 = 1;
+        }
+        break;
+    }
+
+    i_this->mFollowCb.remove();
+    i_this->m31C = 1.0f;
+    if (i_this->mType & 0x80) {
+        skull_atari_check(i_this);
+    } else if (i_this->mType == 1) {
+        blue_body_atari_check(i_this);
+    } else {
+        red_body_atari_check(i_this);
+    }
 }
 
 /* 000046BC-00004B84       .text action_itaiyo_ne_san__FP8bl_class */
-void action_itaiyo_ne_san(bl_class*) {
-    /* Nonmatching */
+void action_itaiyo_ne_san(bl_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+
+    switch (i_this->m306) {
+    case 0x28: {
+        i_this->m31C = 1.0f;
+        int i;
+        for (i = 0; i < 4; i++) {
+            i_this->m2F8[i] = 0;
+        }
+        actor->gravity = -3.0f;
+        actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+        i_this->mSph.OffAtSetBit();
+        i_this->mSph.ClrAtSet();
+        if (i_this->mCurrBckIdx != dRes_INDEX_BL_BCK_UCHIWA_e) {
+            anm_init(i_this, dRes_INDEX_BL_BCK_UCHIWA_e, 1.0f, 0, 1.0f, -1);
+        }
+        i_this->mFireClrTimer = 0;
+        fire_emitter_clr(i_this);
+        cXyz offset;
+        offset.x = 0.0f;
+        offset.y = 0.0f;
+        if (actor->health <= 0) {
+            if (i_this->m2D4 == 4) {
+                i_this->m2EC = 0;
+            } else {
+                i_this->m2EC = 0x32;
+                i_this->m310 = 30.0f;
+                actor->speed.y = 30.0f;
+                actor->speedF = 20.0f;
+                offset.z = 5000.0f;
+                if (i_this->m2D4 == 5) {
+                    actor->current.angle.y = player->shape_angle.y - 0x4000;
+                }
+                bound_sound_set(i_this);
+            }
+            actor->attention_info.flags = 0;
+            i_this->m306 = 0x2A;
+        } else {
+            i_this->m306 = 0x29;
+            actor->speed.y = 15.0f;
+            actor->speedF = 10.0f;
+            offset.z = 5000.0f;
+            bound_sound_set(i_this);
+        }
+        s16 yrot = fopAcM_searchActorAngleY(actor, player) + 0x8000;
+        cMtx_YrotS(*calc_mtx, yrot);
+        cXyz dest;
+        MtxPosition(&offset, &dest);
+        i_this->m2F8[0] = (s16)-dest.x;
+        i_this->m2F8[1] = (s16)dest.z;
+        break;
+    }
+    case 0x29:
+        if (actor->speedF < 0.1f) {
+            if (roll_check(i_this)) {
+                i_this->m2D2 = 3;
+                i_this->m306 = 0x26;
+            }
+        }
+        cLib_addCalc0(&actor->speedF, 0.8f, 1.0f);
+        if (i_this->mType == 1) {
+            blue_body_atari_check(i_this);
+        } else {
+            red_body_atari_check(i_this);
+        }
+        break;
+    case 0x2A:
+        if (i_this->mAcch.ChkGroundHit()) {
+            i_this->m310 *= 0.5f;
+            if (i_this->m310 < 10.0f) {
+                i_this->m310 = 10.0f;
+            }
+            actor->speed.y = i_this->m310;
+            bound_sound_set(i_this);
+            if (i_this->m2EC == 0) {
+                cXyz pos = actor->current.pos;
+                pos.y += 30.0f;
+                fopAcM_createDisappear(actor, &pos, 5, 0, 0xFF);
+                if (i_this->m2D4 == 4) {
+                    cXyz skullPos = actor->current.pos;
+                    skullPos.y += 25.0f + REG8_F(2);
+                    s8 roomNo = actor->current.roomNo;
+                    JPABaseEmitter* emitter = dComIfGp_particle_set(
+                        dPa_name::ID_IT_JN_DOKURO00, &skullPos, &actor->current.angle, &actor->scale,
+                        0xFF, NULL, roomNo, &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
+                    );
+                    if (emitter != NULL) {
+                        emitter->setAwayFromAxisSpeed(30.0f);
+                        emitter->setDirectionalSpeed(20.0f);
+                    }
+                    *(cXyz*)&i_this->m6BC = skullPos;
+                    smoke_set(i_this);
+                    i_this->mSph.OffTgSetBit();
+                    i_this->mSph.OffCoSetBit();
+                    i_this->mSph.ClrTgHit();
+                    actor->scale.setall(0.0f);
+                    i_this->m31C = 0.0f;
+                    i_this->m2F8[2] = 0xB4;
+                    i_this->m2EE = 0xA;
+                    i_this->m306++;
+                } else {
+                    fopAcM_onActor(actor);
+                    fopAcM_delete(actor);
+                }
+            }
+        }
+        break;
+    case 0x2B:
+        if (i_this->mSmokeCb.getEmitter() != NULL) {
+            if (i_this->m2EE == 0) {
+                i_this->mSmokeCb.getEmitter()->setGlobalAlpha(i_this->m2F8[2]);
+                i_this->m2F8[2] -= 4;
+                if (i_this->m2F8[2] < 0) {
+                    i_this->mSmokeCb.remove();
+                }
+            }
+        } else {
+            fopAcM_onActor(actor);
+            fopAcM_delete(actor);
+        }
+        break;
+    }
+
+    actor->shape_angle.x += i_this->m2F8[0];
+    actor->shape_angle.z += i_this->m2F8[1];
 }
 
 /* 00004B84-00004D3C       .text action_hook_atari__FP8bl_class */
@@ -949,13 +1541,223 @@ void action_come_wait(bl_class* i_this) {
 }
 
 /* 00004DBC-00005104       .text action_normal_skull__FP8bl_class */
-void action_normal_skull(bl_class*) {
-    /* Nonmatching */
+void action_normal_skull(bl_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    cXyz pos = actor->current.pos;
+
+    switch (i_this->m306) {
+    case 0x64:
+        i_this->m328 = 30.0f + REG8_F(7);
+        actor->gravity = -3.0f;
+        if (fopAcM_checkCarryNow(actor)) {
+            actor->gravity = 0.0f;
+            i_this->mSph.OffCoSetBit();
+            i_this->m306++;
+        } else {
+            break;
+        }
+        // fallthrough
+    case 0x65:
+        if (fopAcM_checkCarryNow(actor)) {
+            break;
+        }
+        i_this->mSph.OnCoSetBit();
+        actor->gravity = -3.0f;
+        if (actor->speedF > 0.0f) {
+            actor->speed.y = 25.0f;
+            actor->speedF = 35.0f;
+            i_this->m306 = 0x66;
+        } else {
+            actor->speedF = 0.0f;
+            actor->speed.setall(0.0f);
+            actor->gravity = -3.0f;
+            i_this->m306 = 0x64;
+        }
+        break;
+    case 0x66:
+        if (i_this->mAcch.ChkGroundHit() || i_this->mAcch.ChkWallHit()) {
+            actor->speed.setall(0.0f);
+            if (i_this->mEnemyFire.mFireDuration == 0) {
+                actor->speedF = 0.0f;
+                actor->health = 0;
+                actor->attention_info.flags = 0;
+                i_this->m306 = 0x68;
+            }
+        }
+        break;
+    case 0x67:
+        bound_sound_set(i_this);
+        i_this->m306 = 0x66;
+        break;
+    case 0x68: {
+        pos.y += 25.0f + REG8_F(2);
+        s8 roomNo = actor->current.roomNo;
+        JPABaseEmitter* emitter = dComIfGp_particle_set(
+            dPa_name::ID_IT_JN_DOKURO00, &pos, &actor->current.angle, &actor->scale,
+            0xFF, NULL, roomNo, &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
+        );
+        if (emitter != NULL) {
+            emitter->setAwayFromAxisSpeed(30.0f);
+            emitter->setDirectionalSpeed(20.0f);
+        }
+        *(cXyz*)&i_this->m6BC = pos;
+        smoke_set(i_this);
+        for (int i = 0; i < (int)cM_rndF(1.99f); i++) {
+            fopAcM_createItem(&actor->current.pos, 0, -1, -1, 0, NULL, 4, NULL);
+        }
+        i_this->mSph.OffTgSetBit();
+        i_this->mSph.OffCoSetBit();
+        i_this->mSph.ClrTgHit();
+        i_this->m31C = 0.0f;
+        actor->scale.setall(0.0f);
+        i_this->m2F8[3] = 0xB4;
+        i_this->m2EE = 0xA;
+        i_this->m306++;
+        break;
+    }
+    case 0x69:
+        if (i_this->mSmokeCb.getEmitter() != NULL) {
+            if (i_this->m2EE == 0) {
+                i_this->mSmokeCb.getEmitter()->setGlobalAlpha(i_this->m2F8[3]);
+                i_this->m2F8[3] -= 4;
+                if (i_this->m2F8[3] < 0) {
+                    i_this->mSmokeCb.remove();
+                }
+            }
+        } else {
+            fopAcM_delete(actor);
+        }
+        break;
+    }
+
+    i_this->mYOffset = 24.0f;
+    skull_atari_check(i_this);
 }
 
 /* 00005104-00005504       .text daBL_Execute__FP8bl_class */
-static BOOL daBL_Execute(bl_class*) {
-    /* Nonmatching */
+static BOOL daBL_Execute(bl_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    if (i_this->mFireClrTimer == 1) {
+        i_this->mFireCb.remove();
+    }
+    if (i_this->m2F6 == 1) {
+        fopAcM_OffStatus(actor, fopAcStts_UNK4000_e);
+    }
+
+    actor->eyePos = actor->current.pos;
+    actor->attention_info.position = actor->current.pos;
+    actor->eyePos.y += 40.0f;
+    actor->attention_info.position.y += 80.0f;
+
+    if (!(i_this->mType & 0x80)) {
+        if (i_this->mBtkMode == 0) {
+            i_this->mpBtkOff->play();
+        } else {
+            i_this->mpBtkOn->play();
+        }
+    }
+
+    if (enemy_ice(&i_this->mEnemyIce)) {
+        i_this->mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+        i_this->mpMorf->calc();
+        if (i_this->mFireClrTimer != 0) {
+            i_this->mFireClrTimer--;
+        }
+        return TRUE;
+    }
+
+    for (int i = 0; i < 6; i++) {
+        if ((&i_this->m2EC)[i] != 0) {
+            (&i_this->m2EC)[i]--;
+        }
+    }
+
+    switch (i_this->m2D2) {
+    case 0:
+        action_dousa(i_this);
+        break;
+    case 1:
+        action_kougeki(i_this);
+        break;
+    case 2:
+        action_sagarimasu(i_this);
+        break;
+    case 3:
+        action_kaze_move(i_this);
+        break;
+    case 4:
+        action_itaiyo_ne_san(i_this);
+        break;
+    case 5:
+        action_hook_atari(i_this);
+        break;
+    case 6:
+        action_come_wait(i_this);
+        break;
+    case 10:
+        action_normal_skull(i_this);
+        break;
+    }
+
+    if (i_this->m306 != 0) {
+        s8 roomNo = actor->current.roomNo;
+        u32 mtrlSndId;
+        if (i_this->mAcch.ChkGroundHit()) {
+            mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd);
+        } else {
+            mtrlSndId = 0;
+        }
+        i_this->mpMorf->play(&actor->eyePos, mtrlSndId, dComIfGp_getReverb(roomNo));
+    }
+
+    cMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    cXyz move;
+    move.x = 0.0f;
+    move.y = 0.0f;
+    move.z = actor->speedF;
+    cXyz moveOut;
+    MtxPosition(&move, &moveOut);
+    actor->speed.x = moveOut.x;
+    actor->speed.z = moveOut.z;
+    actor->speed.y += actor->gravity;
+    if (actor->speed.y < -55.0f) {
+        actor->speed.y = -55.0f;
+    }
+
+    cLib_addCalc2(&actor->scale.x, i_this->m31C, 0.3f, 0.3f);
+    actor->scale.y = actor->scale.z = actor->scale.x;
+
+    cXyz sphPos = actor->current.pos;
+    sphPos.y += 20.0f;
+    i_this->mSph.SetC(sphPos);
+    i_this->mSph.SetR(i_this->m328);
+    dComIfG_Ccsp()->Set(&i_this->mSph);
+
+    if (i_this->mSph.ChkCoSet()) {
+        fopAcM_posMove(actor, i_this->mStts.GetCCMoveP());
+    } else {
+        fopAcM_posMove(actor, NULL);
+    }
+
+    BG_check(i_this);
+
+    if (i_this->m2D1 == 0 || actor->gravity != 0.0f) {
+        if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF &&
+            dComIfG_Bgsp()->ChkPolySafe(i_this->mAcch.m_gnd) &&
+            dComIfG_Bgsp()->GetGroundCode(i_this->mAcch.m_gnd) == 4 &&
+            actor->current.pos.y < i_this->m320 - 500.0f)
+        {
+            actor->speedF = 0.0f;
+            actor->speed.setall(0.0f);
+            actor->gravity = 0.0f;
+            fopAcM_onActor(actor);
+            fopAcM_delete(actor);
+        }
+    }
+
+    draw_SUB(i_this);
+    return TRUE;
 }
 
 /* 00005504-0000550C       .text daBL_IsDelete__FP8bl_class */
