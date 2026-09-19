@@ -6,13 +6,16 @@
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_gy.h"
 #include "d/actor/d_a_gy_ctrl.h"
+#include "d/d_bg_s_func.h"
 #include "d/d_cc_d.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_jnt_hit.h"
 #include "d/d_lib.h"
 #include "f_op/f_op_actor_mng.h"
+#include "m_Do/m_Do_audio.h"
 #include "m_Do/m_Do_mtx.h"
 #include "res/Object/gy.h"
+#include "SSystem/SComponent/c_math.h"
 
 const u32 daGy_c::m_heapsize = 0x3FA0;
 const char daGy_c::m_arc_name[] = "Gy";
@@ -112,7 +115,115 @@ static dCcD_SrcCps l_cps_src = {
 
 /* 000000EC-000003CC       .text __ct__10daGy_HIO_cFv */
 daGy_HIO_c::daGy_HIO_c() {
-    /* Nonmatching */
+    m0C = 0xC8;
+    m04 = 1.0f;
+    m08 = 0.9f;
+    m10 = 200.0f;
+    m14 = 300.0f;
+    m18 = 2.0f;
+    m1C = 2.0f;
+    m24 = 15.0f;
+    m20 = 0.0f;
+    m28 = -80.0f;
+    m2C = -50.0f;
+    m30 = -150.0f;
+    m34 = -40.0f;
+    m38 = -100.0f;
+    m3C = -350.0f;
+    m48 = 10.0f;
+    m4C = 20.0f;
+    m50 = 30.0f;
+    m54 = 40.0f;
+    m58 = 15.0f;
+    m5C = 5.0f;
+    m60 = 40.0f;
+    m64 = 20.0f;
+    m68 = 55.0f;
+    m6C = 10.0f;
+    m70 = 20.0f;
+    m198 = 1;
+    m40 = 60.0f;
+    m44 = 2500.0f;
+    m74 = 70.0f;
+    m78 = 70.0f;
+    m7C = 80.0f;
+    m80 = 70.0f;
+    m84 = 70.0f;
+    m88 = 110.0f;
+    m8C = 100.0f;
+    m90 = 1.0f;
+    m9C = 5000.0f;
+    mA4 = 180.0f;
+    mA8 = -400.0f;
+    m94 = 0;
+    m95 = 0;
+    m96 = 0;
+    m97 = 0;
+    m98 = 0;
+    m99 = 0;
+    mA0 = -500.0f;
+    mAC = -80.0f;
+    mB4 = -25.0f;
+    mB0 = 20.0f;
+    mB8 = 0.0f;
+    mBC = 0.0f;
+    mC0 = 0.0f;
+    mC4 = 8.0f;
+    m178 = 0.5f;
+    mC8 = 30.0f;
+    mD4 = 80.0f;
+    mD8 = 0.0f;
+    mDC = 0.0f;
+    mE0 = 0.0f;
+    mE4 = 0.0f;
+    mE8 = 0.0f;
+    mEC = 0.0f;
+    mF0 = 0.0f;
+    mF4 = 120.0f;
+    mF8 = 0.0f;
+    mFC = 0.0f;
+    m100 = 300.0f;
+    mCC = 2.0f;
+    mD0 = 20.0f;
+    m104 = -40.0f;
+    m108 = 25.0f;
+    m10C = 0x78;
+    m10E = 0x3C;
+    m110 = 0x78;
+    m112 = 0xB4;
+    m114 = 0x168;
+    m116 = 0x5A;
+    m118 = 0xF0;
+    m188 = 0.2f;
+    m12C = 10.0f;
+    m144 = 400.0f;
+    m148 = 350.0f;
+    m150 = 60.0f;
+    m154 = 60.0f;
+    m158 = 40.0f;
+    for (int i = 2; i < 11; i++) {
+        m11A[i] = 0;
+    }
+    m130 = 0x64;
+    m132 = 0x12C;
+    m134 = 45.0f;
+    m138 = 45.0f;
+    m13C = 30.0f;
+    m15C = 45.0f;
+    m160 = 10.0f;
+    m140 = 0x1500;
+    m142 = 0x800;
+    m164 = 0x5A;
+    m168 = -1000.0f;
+    m16C = -100.0f;
+    m170 = 50.0f;
+    m174 = 0.1f;
+    m17C = 0.1f;
+    m184 = 4000.0f;
+    m180 = 0x2000;
+    m18C = 3000.0f;
+    m190 = 200.0f;
+    m194 = 3000.0f;
 }
 
 /* 00000450-0000049C       .text nodeControl_CB__FP7J3DNodei */
@@ -130,6 +241,10 @@ static BOOL nodeControl_CB(J3DNode* i_node, int i_calcTiming) {
 /* 0000049C-00000888       .text _nodeControl__6daGy_cFP7J3DNodeP8J3DModel */
 void daGy_c::_nodeControl(J3DNode*, J3DModel*) {
     /* Nonmatching */
+    volatile f64 d1 = 1.5;
+    volatile f64 d2 = 3.0;
+    (void)d1;
+    (void)d2;
 }
 
 /* 00000888-000008A8       .text createHeap_CB__FP10fopAc_ac_c */
@@ -331,7 +446,12 @@ void daGy_c::setAtCollision() {
 
 /* 00000E74-00000F3C       .text setCollision__6daGy_cFv */
 void daGy_c::setCollision() {
-    /* Nonmatching */
+    mSph.SetR(140.0f * l_HIO.m90);
+    mSph.SetC(current.pos);
+    dComIfG_Ccsp()->Set(&mSph);
+    mCps.SetStartEnd(m89C, m89C);
+    mCps.SetR(l_HIO.m8C * l_HIO.m90);
+    dComIfG_Ccsp()->Set(&mCps);
 }
 
 /* 00000F3C-00000FC4       .text setAimSpeedF__6daGy_cFv */
@@ -364,6 +484,8 @@ void daGy_c::modeDiveInit() {
 /* 00000FDC-000012DC       .text modeDive__6daGy_cFv */
 void daGy_c::modeDive() {
     /* Nonmatching */
+    m508 = 0.01f;
+    mAimSpeedF = 0.05f;
 }
 
 /* 000012DC-0000141C       .text modeCircleInit__6daGy_cFv */
@@ -378,7 +500,12 @@ void daGy_c::modeCircle() {
 
 /* 000016E4-00001788       .text modeWithCircleInit__6daGy_cFv */
 void daGy_c::modeWithCircleInit() {
-    /* Nonmatching */
+    m2B0 = 6;
+    m4F8 = (s32)cM_rndF((f32)l_HIO.m132);
+    if (m4F8 <= l_HIO.m130) {
+        m4F8 = l_HIO.m130;
+    }
+    m914 = l_HIO.m110 + m4F8;
 }
 
 /* 00001788-000019AC       .text modeWithCircle__6daGy_cFv */
@@ -388,12 +515,21 @@ void daGy_c::modeWithCircle() {
 
 /* 000019AC-00001A14       .text modeAttackInit__6daGy_cFv */
 void daGy_c::modeAttackInit() {
-    /* Nonmatching */
+    m2B0 = 2;
+    mPrmIdx = 3;
+    m8F8 = dComIfGp_getPlayer(0)->current.pos;
+    m914 = l_HIO.m10C;
+    m904 = m2BC;
+    m928 = 0;
 }
 
 /* 00001A14-00001A74       .text modeWithAttackInit__6daGy_cFv */
 void daGy_c::modeWithAttackInit() {
-    /* Nonmatching */
+    m2B0 = 5;
+    m8F8 = dComIfGp_getPlayer(0)->current.pos;
+    m914 = l_HIO.m10C;
+    m904 = m2BC;
+    m928 = 0;
 }
 
 /* 00001A74-00001D60       .text modeWithAttack__6daGy_cFv */
@@ -431,12 +567,19 @@ void daGy_c::modeAttackBack() {
 
 /* 00002560-000025F0       .text modeDamageInit__6daGy_cFv */
 void daGy_c::modeDamageInit() {
-    /* Nonmatching */
+    m2B0 = 7;
+    mPrmIdx = 6;
+    speed.y = 30.0f;
+    fopAcM_seStart(this, JA_SE_CM_GY_JUMP_S, 0);
 }
 
 /* 000025F0-00002754       .text modeDamage__6daGy_cFv */
 void daGy_c::modeDamage() {
     /* Nonmatching */
+    m508 = -0.3f;
+    mAimSpeedF = -0.5f;
+    m4E4 = 0.6f;
+    speedF = 0.7f;
 }
 
 /* 00002754-000028B8       .text modeDeleteInit__6daGy_cFv */
@@ -489,8 +632,28 @@ void daGy_c::checkTgHit() {
 }
 
 /* 000038EC-000039AC       .text getWaterY__6daGy_cFv */
-void daGy_c::getWaterY() {
-    /* Nonmatching */
+f32 daGy_c::getWaterY() {
+    f32 waterY;
+    if (mAcch.ChkWaterHit()) {
+        waterY = mAcch.m_wtr.GetHeight();
+        if (current.pos.y > waterY) {
+            gravity = -2.5f;
+            waterY = current.pos.y;
+        } else {
+            gravity = 0.0f;
+        }
+    } else {
+        cXyz pos = current.pos;
+        pos.y += 1000.0f;
+        waterY = dBgS_GetWaterHeight(pos);
+        if (current.pos.y > waterY) {
+            gravity = -2.5f;
+            waterY = current.pos.y;
+        } else {
+            gravity = 0.0f;
+        }
+    }
+    return waterY;
 }
 
 /* 000039AC-00004264       .text _execute__6daGy_cFv */
@@ -520,7 +683,11 @@ cPhs_State daGy_c::_create() {
 
 /* 00005A80-00005AD4       .text _delete__6daGy_cFv */
 bool daGy_c::_delete() {
-    /* Nonmatching */
+    dComIfG_resDelete(&mPhs, m_arc_name);
+    mD7C.remove();
+    mD18.remove();
+    mDE0.remove();
+    return true;
 }
 
 /* 00005AD4-00005AF4       .text daGyCreate__FPv */
