@@ -5,6 +5,9 @@
 #include "c/c_damagereaction.h"
 #include "SSystem/SComponent/c_bg_s_gnd_chk.h"
 #include "SSystem/SComponent/c_phase.h"
+#include "d/d_cc_d.h"
+#include "d/d_bg_s_acch.h"
+#include "m_Do/m_Do_ext.h"
 
 class mDoExt_McaMorf;
 class mDoExt_brkAnm;
@@ -24,30 +27,64 @@ public:
     /* 0x2B8 */ mDoExt_McaMorf* mpMorfUP;
     /* 0x2BC */ mDoExt_McaMorf* mpMorfDW;
     /* 0x2C0 */ u8 m2C0;
-    /* 0x2C1 */ u8 m2C1[0x2DC - 0x2C1];
+    /* 0x2C1 */ u8 m2C1;
+    /* 0x2C2 */ u8 m2C2[0x2C4 - 0x2C2];
+    /* 0x2C4 */ u8 m2C4;
+    /* 0x2C5 */ u8 m2C5;
+    /* 0x2C6 */ u8 m2C6[0x2CC - 0x2C6];
+    /* 0x2CC */ u8 m2CC;
+    /* 0x2CD */ u8 m2CD;
+    /* 0x2CE */ u8 m2CE[0x2D0 - 0x2CE];
+    /* 0x2D0 */ u8 m2D0;
+    /* 0x2D1 */ u8 m2D1[0x2DC - 0x2D1];
     /* 0x2DC */ int mCurrBckIdx;
-    /* 0x2E0 */ u8 m2E0[0x304 - 0x2E0];
+    /* 0x2E0 */ cXyz m2E0;
+    /* 0x2EC */ u8 m2EC[0x2F8 - 0x2EC];
+    /* 0x2F8 */ cXyz m2F8;
     /* 0x304 */ cXyz m304;
-    /* 0x310 */ u8 m310[0x334 - 0x310];
+    /* 0x310 */ cXyz m310;
+    /* 0x31C */ cXyz m31C;
+    /* 0x328 */ cXyz m328;
     /* 0x334 */ csXyz m334;
     /* 0x33A */ csXyz m33A;
     /* 0x340 */ csXyz m340;
     /* 0x346 */ u8 m346[0x348 - 0x346];
     /* 0x348 */ s16 m348;
-    /* 0x34A */ u8 m34A[0x352 - 0x34A];
+    /* 0x34A */ u8 m34A[0x34E - 0x34A];
+    /* 0x34E */ s16 m34E;
+    /* 0x350 */ u8 m350[0x352 - 0x350];
     /* 0x352 */ csXyz m352;
-    /* 0x358 */ u8 m358[0x394 - 0x358];
+    /* 0x358 */ u8 m358[0x366 - 0x358];
+    /* 0x366 */ s16 m366;
+    /* 0x368 */ u8 m368[0x36A - 0x368];
+    /* 0x36A */ s16 m36A;
+    /* 0x36C */ u8 m36C[0x370 - 0x36C];
+    /* 0x370 */ s16 m370;
+    /* 0x372 */ s16 m372;
+    /* 0x374 */ u8 m374[0x376 - 0x374];
+    /* 0x376 */ s16 m376;
+    /* 0x378 */ u8 m378[0x37C - 0x378];
+    /* 0x37C */ s16 m37C;
+    /* 0x37E */ u8 m37E[0x394 - 0x37E];
     /* 0x394 */ f32 m394;
-    /* 0x398 */ u8 m398[0x39C - 0x398];
+    /* 0x398 */ f32 m398;
     /* 0x39C */ cXyz m39C;
     /* 0x3A8 */ u8 m3A8[0x3B0 - 0x3A8];
     /* 0x3B0 */ dPa_smokeEcallBack mSmokeCb;
     /* 0x3D0 */ JPABaseEmitter* m3D0;
     /* 0x3D4 */ JPABaseEmitter* m3D4;
-    /* 0x3D8 */ u8 m3D8[0x9FC - 0x3D8];
+    /* 0x3D8 */ JPABaseEmitter* m3D8;
+    /* 0x3DC */ yodare_ato_PcallBack_c mYodareCb;
+    /* 0x420 */ u8 m420[0x434 - 0x420];
+    /* 0x434 */ dBgS_AcchCir mAcchCir;
+    /* 0x474 */ dBgS_ObjAcch mAcch;
+    /* 0x638 */ dCcD_Stts mStts;
+    /* 0x674 */ dCcD_Sph mHeadSph;
+    /* 0x7A0 */ dCcD_Sph mFootSph;
+    /* 0x8CC */ dCcD_Cyl mBodyCyl;
     /* 0x9FC */ enemyice mEnemyIce;
     /* 0xDB4 */ enemyfire mEnemyFire;
-    /* 0xFDC */ u8 mFDC[0xFE4 - 0xFDC];
+    /* 0xFDC */ mDoExt_invisibleModel mInvisModel;
 };
 
 STATIC_ASSERT(sizeof(bo_class) == 0xFE4);

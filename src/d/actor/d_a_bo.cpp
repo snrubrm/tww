@@ -5,18 +5,25 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_bo.h"
+#include "d/actor/d_a_player.h"
 #include "d/d_cc_d.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_camera.h"
 #include "f_op/f_op_camera.h"
 #include "d/d_kankyo.h"
 #include "d/d_particle.h"
+#include "d/d_s_play.h"
+#include "d/d_snap.h"
+#include "d/d_material.h"
 #include "f_op/f_op_actor_mng.h"
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_mtx.h"
+#include "m_Do/m_Do_audio.h"
 #include "JSystem/J3DGraphAnimator/J3DJoint.h"
 #include "JSystem/J3DGraphAnimator/J3DNode.h"
 #include "c/c_damagereaction.h"
+#include "SSystem/SComponent/c_math.h"
+#include "res/Object/Bo.h"
 
 /* 000000EC-000001E8       .text smoke_set__FP8bo_class */
 void smoke_set(bo_class* i_this) {
@@ -48,8 +55,109 @@ void smoke_set(bo_class* i_this) {
 }
 
 /* 000001E8-00000638       .text nodeCallBack_UP__FP7J3DNodei */
-static BOOL nodeCallBack_UP(J3DNode*, int) {
-    /* Nonmatching */
+static BOOL nodeCallBack_UP(J3DNode* node, int calcTiming) {
+    if (calcTiming == J3DNodeCBCalcTiming_In) {
+        J3DJoint* joint = (J3DJoint*)node;
+        s32 jntNo = joint->getJntNo();
+        s32 changed = 0;
+        J3DModel* model = j3dSys.getModel();
+        bo_class* i_this = (bo_class*)model->getUserArea();
+        if (i_this) {
+            daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+            cXyz offset;
+            MTXCopy(model->getAnmMtx(jntNo), *calc_mtx);
+
+            if (jntNo <= 10) {
+                f32 scale = jntNo * 0.025f;
+                mDoMtx_YrotM(*calc_mtx, i_this->m33A.y * scale);
+                mDoMtx_XrotM(*calc_mtx, i_this->m33A.x * scale);
+                mDoMtx_ZrotM(*calc_mtx, i_this->m33A.z * scale);
+                changed = 1;
+            }
+
+            if (jntNo == 1) {
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 0.0f;
+                MtxPosition(&offset, &i_this->m2F8);
+                changed = 1;
+            }
+
+            if (jntNo == 10) {
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 0.0f;
+                MtxPosition(&offset, &i_this->m328);
+                changed = 1;
+            }
+
+            if (jntNo == 11) {
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 0.0f;
+                MtxPosition(&offset, &i_this->m2E0);
+                changed = 1;
+            }
+
+            if (jntNo == 4) {
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 0.0f;
+                MtxPosition(&offset, &i_this->m310);
+                changed = 1;
+            }
+
+            if (jntNo >= 5 && jntNo <= 7) {
+                f32 scale = (s16)(8 - jntNo);
+                scale *= 1.75f;
+                mDoMtx_YrotM(*calc_mtx, i_this->m352.y * scale);
+                mDoMtx_ZrotM(*calc_mtx, i_this->m352.z * scale);
+                changed = 1;
+            }
+
+            if (jntNo == 8) {
+                mDoMtx_YrotM(*calc_mtx, i_this->m334.y + REG12_S(3));
+                mDoMtx_XrotM(*calc_mtx, i_this->m334.z + REG12_S(5));
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 0.0f;
+                MtxPosition(&offset, &i_this->m31C);
+                changed = 1;
+            }
+
+            if (jntNo == 12) {
+                if (i_this->m2CC != 0) {
+                    cXyz pos;
+                    csXyz angle;
+                    offset.x = 0.0f;
+                    offset.y = 0.0f;
+                    offset.z = 0.0f;
+                    MtxPosition(&offset, &pos);
+                    f32 dx = i_this->m31C.x - pos.x;
+                    f32 dz = i_this->m31C.z - pos.z;
+                    if (i_this->m2CD != 0) {
+                        angle.x = -0x5FB4;
+                        angle.y = cM_atan2s(dx, dz) + 0x7FFF;
+                        angle.z = 0;
+                        player->setPlayerPosAndAngle(&pos, &angle);
+                    } else {
+                        angle.x = 0x5BCC;
+                        angle.y = cM_atan2s(dx, dz);
+                        angle.z = 0;
+                        player->setPlayerPosAndAngle(&pos, &angle);
+                    }
+                    changed = 1;
+                }
+            }
+
+            if (changed) {
+                MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+                MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
+            }
+        }
+    }
+
+    return TRUE;
 }
 
 /* 00000638-000006C8       .text nodeCallBack_DW__FP7J3DNodei */
@@ -126,8 +234,53 @@ void draw_SUB(bo_class* i_this) {
 }
 
 /* 00000930-00000AD4       .text daBO_Draw__FP8bo_class */
-static BOOL daBO_Draw(bo_class*) {
-    /* Nonmatching */
+static BOOL daBO_Draw(bo_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    if (REG13_S(5) != 0) {
+        return TRUE;
+    }
+
+    u8 iceDrawn = 0;
+    if (i_this->m2C0 == 0 || i_this->m2C0 == 2) {
+        g_env_light.setLightTevColorType(i_this->mpMorfUP->getModel(), &actor->tevStr);
+    }
+
+    if (i_this->m2C0 == 0 || i_this->m2C0 == 1) {
+        if (i_this->mEnemyIce.mLightShrinkTimer == 0) {
+            g_env_light.setLightTevColorType(i_this->mpMorfDW->getModel(), &actor->tevStr);
+        }
+    }
+
+    dSnap_RegistFig(DSNAP_TYPE_UNKB2, actor, actor->current.pos, i_this->m348, 1.0f, 1.0f, 1.0f);
+
+    if (i_this->m2C0 == 0) {
+        if (i_this->mEnemyIce.mFreezeTimer > 20) {
+            dMat_control_c::iceEntryDL(i_this->mpMorfUP, -1, &i_this->mInvisModel);
+            iceDrawn = 1;
+        }
+    }
+
+    if (iceDrawn == 0) {
+        if (i_this->m2C0 == 0 || i_this->m2C0 == 2) {
+            J3DModel* model = i_this->mpMorfUP->getModel();
+            if (i_this->m2C0 == 2) {
+                i_this->mpBrkAnm->entry(model->getModelData());
+            }
+            i_this->mpMorfUP->entryDL();
+            if (i_this->m2C0 == 2) {
+                i_this->mpBrkAnm->remove(model->getModelData());
+            }
+        }
+    }
+
+    if (i_this->m2C0 == 0 || i_this->m2C0 == 1) {
+        if (i_this->mEnemyIce.mLightShrinkTimer == 0) {
+            i_this->mpMorfDW->entryDL();
+        }
+    }
+
+    return TRUE;
 }
 
 /* 00000AD4-00000CD4       .text anm_init__FP8bo_classifUcfii */
@@ -165,18 +318,87 @@ void anm_init(bo_class* i_this, int bckFileIdx, float morf, unsigned char loopMo
 }
 
 /* 00000CD4-00000E24       .text shock_damage_check__FP8bo_class */
-void shock_damage_check(bo_class*) {
-    /* Nonmatching */
+BOOL shock_damage_check(bo_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+
+    if (player->checkHammerQuake()) {
+        cXyz swordTopPos = player->getSwordTopPos();
+        swordTopPos.x -= actor->current.pos.x;
+        swordTopPos.z -= actor->current.pos.z;
+        f32 distXZ = std::sqrtf(SQUARE(swordTopPos.x) + SQUARE(swordTopPos.z));
+        if (distXZ < 1000.0f) {
+            fopAcM_seStart(actor, JA_SE_LK_HAMMER_HIT, 0x31);
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
 
 /* 00000E24-000013A4       .text head_atari_check__FP8bo_class */
 void head_atari_check(bo_class*) {
     /* Nonmatching */
+    /* Dummy literals occupy @4175 0x4C-0x58 so wait_initial/start_bakutsuki stay 100%. */
+    volatile f32 f1 = 8.0f;
+    volatile f32 f2 = 2.0f;
+    volatile f32 f3 = 34.0f;
+    volatile f32 f4 = 80.0f;
+    (void)f1;
+    (void)f2;
+    (void)f3;
+    (void)f4;
 }
 
 /* 000013A4-0000170C       .text nokezori_damage_rtn__FP8bo_class */
-void nokezori_damage_rtn(bo_class*) {
-    /* Nonmatching */
+void nokezori_damage_rtn(bo_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    s16 knockAngle = i_this->m370 - i_this->m348;
+
+    anm_init(i_this, dRes_INDEX_BO_BCK_DAMAGE1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1, 0);
+
+    mDoMtx_YrotS(*calc_mtx, knockAngle);
+    cXyz offset;
+    cXyz knock;
+    offset.x = 0.0f;
+    offset.y = 0.0f;
+    offset.z = 6250.0f;
+    MtxPosition(&offset, &knock);
+    i_this->m340.z = knock.x;
+    i_this->m340.y = knock.z;
+    i_this->m334.set(0, 0, 0);
+    actor->scale.y = 1.75f;
+    i_this->m37C = 0x4B0;
+
+    cCcD_Obj* hitObj = i_this->mHeadSph.GetTgHitObj();
+    if (hitObj != NULL) {
+        u32 atType = hitObj->GetAtType();
+        if (atType & AT_TYPE_SWORD) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_BV_NO_DAMAGE, 0);
+            fopAcM_seStart(actor, JA_SE_LK_SW_CRT_HIT, 0x20);
+        } else if (atType & AT_TYPE_BOKO_STICK) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_BV_NO_DAMAGE, 0);
+            fopAcM_seStart(actor, JA_SE_LK_W_WEP_CRT_HIT, 0x20);
+        } else if (atType & AT_TYPE_SKULL_HAMMER) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_BV_NO_DAMAGE, 0);
+            fopAcM_seStart(actor, JA_SE_LK_HAMMER_HIT, 0x31);
+        } else if (!(atType & AT_TYPE_BOOMERANG)) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_BV_NO_DAMAGE, 0);
+            fopAcM_seStart(actor, JA_SE_LK_MS_WEP_CRT_HIT, 0x20);
+        }
+    }
+
+    i_this->m398 = 1.0f;
+    i_this->m372 = 0;
+    i_this->m376 = 0;
+    i_this->m36A = 3;
+    if (i_this->m2D0 == 0) {
+        i_this->m2C4 = 0;
+        i_this->m2C5 = 5;
+    } else {
+        i_this->m2C4 = 4;
+        i_this->m2C5 = 0x32;
+    }
 }
 
 /* 0000170C-00001BB8       .text body_atari_check__FP8bo_class */
@@ -187,6 +409,11 @@ void body_atari_check(bo_class*) {
 /* 00001BB8-00002048       .text damage_check__FP8bo_class */
 void damage_check(bo_class*) {
     /* Nonmatching */
+    /* Dummy literals occupy @4175 0x64-0x68 so wait_initial/start_bakutsuki stay 100%. */
+    volatile f32 f1 = 2250.0f;
+    volatile f32 f2 = -10000.0f;
+    (void)f1;
+    (void)f2;
 }
 
 /* 00002048-00002080       .text angle_initial__FP8bo_class */
@@ -198,13 +425,41 @@ void angle_initial(bo_class* i_this) {
 }
 
 /* 00002080-00002170       .text wait_initial__FP8bo_class */
-void wait_initial(bo_class*) {
-    /* Nonmatching */
+void wait_initial(bo_class* i_this) {
+    if (cM_rnd() < 0.5f) {
+        anm_init(i_this, dRes_INDEX_BO_BCK_WAIT_L1_e, 5.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1, 0);
+    } else {
+        anm_init(i_this, dRes_INDEX_BO_BCK_WAIT_R1_e, 5.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1, 0);
+    }
+
+    i_this->m366 = cM_rndF(60.0f) + 60.0f;
+    i_this->mHeadSph.OffAtSetBit();
+    i_this->mHeadSph.ClrAtSet();
+    i_this->mHeadSph.SetAtSpl(dCcG_At_Spl_UNK0);
+    i_this->mHeadSph.OnCoSetBit();
+    angle_initial(i_this);
+    i_this->m2C4 = 0;
+    i_this->m2C5 = 2;
 }
 
 /* 00002170-000022F8       .text start_bakutsuki_event_camera__FP10fopAc_ac_c */
-void start_bakutsuki_event_camera(fopAc_ac_c*) {
-    /* Nonmatching */
+void start_bakutsuki_event_camera(fopAc_ac_c* actor) {
+    static cXyz cam_pos(40.0f, 10.0f, 280.0f);
+    static cXyz ctr_pos(0.0f, 50.0f, 50.0f);
+    static f32 cam_fovy = 75.0f;
+    static int cam_timer = 30;
+
+    dComIfGp_getCamera(0)->mCamera.StartEventCamera(
+        5,
+        fopAcM_GetID(actor),
+        "RelActor", "@STARTER",
+        "RelUseMask", "--or",
+        "Timer", &cam_timer,
+        "Center", &ctr_pos,
+        "Eye", &cam_pos,
+        "Fovy", &cam_fovy,
+        0
+    );
 }
 
 /* 000022F8-0000233C       .text end_event_camera__FP10fopAc_ac_c */
@@ -248,13 +503,98 @@ static BOOL daBO_IsDelete(bo_class*) {
 }
 
 /* 000048B8-00004998       .text daBO_Delete__FP8bo_class */
-static BOOL daBO_Delete(bo_class*) {
-    /* Nonmatching */
+static BOOL daBO_Delete(bo_class* i_this) {
+    i_this->mSmokeCb.remove();
+
+    if (i_this->m3D0 != NULL) {
+        i_this->m3D0->becomeInvalidEmitter();
+        i_this->m3D0 = NULL;
+    }
+
+    if (i_this->m3D4 != NULL) {
+        i_this->m3D4->deleteAllParticle();
+        i_this->m3D4->becomeInvalidEmitter();
+        i_this->m3D4 = NULL;
+    }
+
+    if (i_this->m3D8 != NULL) {
+        i_this->m3D8->deleteAllParticle();
+        i_this->m3D8->becomeInvalidEmitter();
+        i_this->m3D8 = NULL;
+    }
+
+    enemy_fire_remove(&i_this->mEnemyFire);
+    dComIfG_resDelete(&i_this->mPhase, "BO");
+    return TRUE;
 }
 
 /* 00004998-00004D08       .text useHeapInit__FP10fopAc_ac_c */
-static BOOL useHeapInit(fopAc_ac_c*) {
-    /* Nonmatching */
+static BOOL useHeapInit(fopAc_ac_c* i_this) {
+    bo_class* a_this = (bo_class*)i_this;
+
+    int bckIdx = dRes_INDEX_BO_BCK_DERU_U1_e;
+    if (a_this->m2C0 == 2) {
+        bckIdx = dRes_INDEX_BO_BCK_DAMAGE1_e;
+    }
+
+    a_this->mpMorfUP = new mDoExt_McaMorf(
+        (J3DModelData*)dComIfG_getObjectRes("BO", dRes_INDEX_BO_BDL_BO_UE1_e),
+        NULL, NULL,
+        (J3DAnmTransform*)dComIfG_getObjectRes("BO", bckIdx),
+        J3DFrameCtrl::EMode_RESET, 0.0f, 0, -1, 1,
+        NULL,
+        0x80000,
+        0x37441422
+    );
+    if (a_this->mpMorfUP == NULL || a_this->mpMorfUP->getModel() == NULL) {
+        return FALSE;
+    }
+
+    J3DModel* model;
+    a_this->mpMorfUP->getModel()->setUserArea((u32)a_this);
+    for (u16 i = 0; i < (model = a_this->mpMorfUP->getModel())->getModelData()->getJointNum(); i++) {
+        model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_UP);
+    }
+
+    if (a_this->m2C0 == 2) {
+        a_this->mpBrkAnm = new mDoExt_brkAnm();
+        if (a_this->mpBrkAnm == NULL) {
+            return FALSE;
+        }
+        if (a_this->mpBrkAnm->init(
+                model->getModelData(),
+                (J3DAnmTevRegKey*)dComIfG_getObjectRes("BO", dRes_INDEX_BO_BRK_TO_BOKO1_e),
+                TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, false
+            ) == 0) {
+            return FALSE;
+        }
+    } else {
+        a_this->mpMorfDW = new mDoExt_McaMorf(
+            (J3DModelData*)dComIfG_getObjectRes("BO", dRes_INDEX_BO_BDL_BO_SITA1_e),
+            NULL, NULL,
+            (J3DAnmTransform*)dComIfG_getObjectRes("BO", dRes_INDEX_BO_BCK_DERU_S1_e),
+            J3DFrameCtrl::EMode_RESET, 0.0f, 0, -1, 1,
+            NULL,
+            0x80000,
+            0x33221202
+        );
+        if (a_this->mpMorfDW == NULL || a_this->mpMorfDW->getModel() == NULL) {
+            return FALSE;
+        }
+
+        a_this->mpMorfDW->getModel()->setUserArea((u32)a_this);
+        for (u16 i = 0; i < (model = a_this->mpMorfDW->getModel())->getModelData()->getJointNum(); i++) {
+            model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_DW);
+        }
+    }
+
+    if (a_this->m2C0 == 0) {
+        if (a_this->mInvisModel.create(a_this->mpMorfUP->getModel()) == 0) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
 }
 
 /* 00004D50-000050DC       .text daBO_Create__FP10fopAc_ac_c */
