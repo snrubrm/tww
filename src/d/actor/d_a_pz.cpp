@@ -30,7 +30,6 @@
 #include "SSystem/SComponent/c_math.h"
 #include "m_Do/m_Do_audio.h"
 #include "dolphin/types.h"
-#include <string.h>
 
 static daPz_HIO_c l_HIO;
 
@@ -614,129 +613,142 @@ bool daPz_c::demo() {
 bool daPz_c::checkTgHit() {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     mStts.Move();
-    if (cLib_calcTimer(&mInvulnTimer) != 0) {
-        return false;
-    }
-    if (!mCyl.ChkTgHit()) {
-        return false;
-    }
-
-    bool doKnockback = true;
-    cCcD_Obj* hitObj = mCyl.GetTgHitObj();
-    mInvulnTimer = l_HIO.mE0;
-    if (hitObj == NULL) {
-        return false;
-    }
-
-    switch (hitObj->GetAtType()) {
-    case AT_TYPE_SWORD:
-    case AT_TYPE_MACHETE:
-    case AT_TYPE_UNK800:
-    case AT_TYPE_DARKNUT_SWORD:
-    case AT_TYPE_MOBLIN_SPEAR: {
-        u8 cutType = player->getCutType();
-        if (cutType >= daPy_py_c::CUT_TYPE_BT_JUMPCUT && cutType <= daPy_py_c::CUT_TYPE_CUT_EXB) {
-            mHitType = 1;
-        } else {
-            mHitType = 0;
-        }
-        break;
-    }
-    case AT_TYPE_FAN_SWING:
-        doKnockback = false;
-        mHitType = 3;
-        break;
-    case AT_TYPE_BOOMERANG:
-    case AT_TYPE_BOKO_STICK:
-        mHitType = 4;
-        break;
-    case AT_TYPE_HOOKSHOT:
-        mHitType = 0xC;
-        break;
-    case AT_TYPE_SKULL_HAMMER:
-        mHitType = 7;
-        if (player->getCutType() == daPy_py_c::CUT_TYPE_HAMMER_SIDESWING) {
-            mHitType = 8;
-        }
-        break;
-    case AT_TYPE_BOMB:
-        mHitType = 6;
-        break;
-    case AT_TYPE_NORMAL_ARROW:
-    case AT_TYPE_FIRE_ARROW:
-    case AT_TYPE_ICE_ARROW:
-    case AT_TYPE_LIGHT_ARROW:
-        mHitType = 5;
-        break;
-    case AT_TYPE_GRAPPLING_HOOK:
-        mHitType = 0xE;
-        doKnockback = false;
-        break;
-    default:
-        break;
-    }
-
-    fopAc_ac_c* hitAc = mCyl.GetTgHitAc();
-    if (fopAcM_GetName(hitAc) == fpcNm_ARROW_e) {
-        daArrow_c* arrow = (daArrow_c*)hitAc;
-        if (arrow->isLinkReflect()) {
-            mHitType = 5;
-        } else if (arrow->isSetByZelda()) {
-            return false;
-        }
-    }
-
-    if (doKnockback) {
-        mHitAngleY = fopAcM_searchActorAngleY(this, hitAc);
-        def_se_set(this, mCyl.GetTgHitObj(), 0x41);
-        cXyz hitPos = *mCyl.GetTgHitPosP();
-        dKy_SordFlush_set(hitPos, 0);
-        if (mHitType == 1 || mHitType == 7 || mHitType == 8) {
-            mKnockback = 60.0f;
-        } else {
-            mKnockback = 40.0f;
-        }
-        dComIfGp_particle_set(dPa_name::ID_AK_JN_NG, mCyl.GetTgHitPosP(), &player->shape_angle, NULL);
-        modeProc(PROC_INIT_e, MODE_DEFEND);
-        if (fopAcM_GetName(hitAc) == fpcNm_GND_e) {
-            m0744 = 0;
-            mKnockback *= 1.5f;
-            m0754 = 0;
-            m075C = 0;
-            m0760++;
-            if (m0760 > l_HIO.mE2) {
-                m0760 = 0;
-                m0764 = l_HIO.mE4;
-                m0768 = 1;
+    if (cLib_calcTimer(&mInvulnTimer) == 0) {
+        if (mCyl.ChkTgHit()) {
+            bool doKnockback = true;
+            cCcD_Obj* hitObj = mCyl.GetTgHitObj();
+            mInvulnTimer = l_HIO.mE0;
+            if (hitObj == NULL) {
+                return false;
             }
-            if (cM_rndF(100.0f) < 60.0f) {
+
+            switch (hitObj->GetAtType()) {
+            case AT_TYPE_SWORD:
+            case AT_TYPE_MACHETE:
+            case AT_TYPE_UNK800:
+            case AT_TYPE_DARKNUT_SWORD:
+            case AT_TYPE_MOBLIN_SPEAR:
+                switch (player->getCutType()) {
+                case daPy_py_c::CUT_TYPE_BT_JUMPCUT:
+                case daPy_py_c::CUT_TYPE_CUT_EA:
+                case daPy_py_c::CUT_TYPE_CUT_EB:
+                case daPy_py_c::CUT_TYPE_CUT_TURN:
+                case daPy_py_c::CUT_TYPE_CUT_ROLL:
+                case daPy_py_c::CUT_TYPE_JUMPCUT_SWORD:
+                case daPy_py_c::CUT_TYPE_JUMPCUT_STICK:
+                case daPy_py_c::CUT_TYPE_JUMPCUT_MACHETE:
+                case daPy_py_c::CUT_TYPE_BT_ROLLCUT:
+                case daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT:
+                case daPy_py_c::CUT_TYPE_JUMPCUT_CLUB:
+                case daPy_py_c::CUT_TYPE_JUMPCUT_DN_SWORD:
+                case daPy_py_c::CUT_TYPE_JUMPCUT_SPEAR:
+                case daPy_py_c::CUT_TYPE_CUT_EXA:
+                case daPy_py_c::CUT_TYPE_CUT_EXB:
+                    mHitType = 1;
+                    break;
+                default:
+                    mHitType = 0;
+                    break;
+                }
+                break;
+            case AT_TYPE_WIND:
+                doKnockback = false;
+                mHitType = 3;
+                break;
+            case AT_TYPE_BOOMERANG:
+            case AT_TYPE_BOKO_STICK:
+                mHitType = 4;
+                break;
+            case AT_TYPE_HOOKSHOT:
+                mHitType = 0xC;
+                break;
+            case AT_TYPE_SKULL_HAMMER:
+            case AT_TYPE_STALFOS_MACE:
+                mHitType = 7;
+                if (player->getCutType() == daPy_py_c::CUT_TYPE_HAMMER_SIDESWING) {
+                    mHitType = 8;
+                }
+                break;
+            case AT_TYPE_BOMB:
+                mHitType = 6;
+                break;
+            case AT_TYPE_NORMAL_ARROW:
+            case AT_TYPE_FIRE_ARROW:
+            case AT_TYPE_ICE_ARROW:
+            case AT_TYPE_LIGHT_ARROW:
+                mHitType = 5;
+                break;
+            case AT_TYPE_GRAPPLING_HOOK:
+                mHitType = 0xE;
+                doKnockback = false;
+                break;
+            }
+
+            fopAc_ac_c* hitAc = mCyl.GetTgHitAc();
+            if (fopAcM_GetName(hitAc) == fpcNm_ARROW_e) {
+                daArrow_c* arrow = (daArrow_c*)hitAc;
+                if (arrow->isLinkReflect()) {
+                    mHitType = 5;
+                } else if (arrow->isSetByZelda()) {
+                    return false;
+                }
+            }
+
+            if (doKnockback) {
+                cXyz* hitPosP = mCyl.GetTgHitPosP();
+                mHitAngleY = fopAcM_searchActorAngleY(this, hitAc);
+                cCcD_Obj* seObj = mCyl.GetTgHitObj();
+                def_se_set(this, mCyl.GetTgHitObj(), 0x41);
+                dKy_SordFlush_set(*hitPosP, 0);
+                if (mHitType == 1 || mHitType == 7 || mHitType == 8) {
+                    mKnockback = 60.0f;
+                } else {
+                    mKnockback = 40.0f;
+                }
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_NG, hitPosP, &player->shape_angle, NULL);
+                modeProc(PROC_INIT_e, MODE_DEFEND);
+                if (fopAcM_GetName(hitAc) == fpcNm_GND_e) {
+                    m0744 = 0;
+                    mKnockback *= 1.5;
+                    m0754 = 0;
+                    m075C = 0;
+                    m0760++;
+                    if (m0760 > l_HIO.mE2) {
+                        m0760 = 0;
+                        m0764 = l_HIO.mE4;
+                        m0768 = 1;
+                    }
+                    if (cM_rndF(100.0f) < 60.0f) {
+                        fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
+                    }
+                } else {
+                    m0744 = 1;
+                    m0760 = 0;
+                    m0768 = 0;
+                    m0754++;
+                    if (m0754 > l_HIO.mE6) {
+                        m0754 = 0;
+                        m0758 = l_HIO.mE8;
+                        m075C = 1;
+                    }
+                    if (cM_rndF(100.0f) < 30.0f) {
+                        fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
+                    }
+                }
+                mHitPos = *hitPosP;
+            } else if (mHitType == 0xE) {
                 fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
+                int itemNo = dItemNo_HEART_e;
+                if (dComIfGs_getLife() <= 12) {
+                    itemNo = dItemNo_TRIPLE_HEART_e;
+                }
+                fopAcM_fastCreateItem(&current.pos, itemNo, fopAcM_GetRoomNo(this), &shape_angle, NULL, 0.0f, 0.0f, -6.0f, -1, stealItem_CB);
+                modeProc(PROC_INIT_e, MODE_DEFEND);
             }
-        } else {
-            m0744 = 1;
-            m0760 = 0;
-            m0768 = 0;
-            m0754++;
-            if (m0754 > l_HIO.mE6) {
-                m0754 = 0;
-                m0758 = l_HIO.mE8;
-                m075C = 1;
-            }
-            if (cM_rndF(100.0f) < 30.0f) {
-                fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
-            }
+            return true;
         }
-        mHitPos = *mCyl.GetTgHitPosP();
-    } else if (mHitType == 0xE) {
-        fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
-        int itemNo = dItemNo_HEART_e;
-        if (dComIfGs_getLife() <= 12) {
-            itemNo = dItemNo_TRIPLE_HEART_e;
-        }
-        fopAcM_fastCreateItem(&current.pos, itemNo, fopAcM_GetRoomNo(this), &shape_angle, NULL, 0.0f, 0.0f, -6.0f, -1, stealItem_CB);
-        modeProc(PROC_INIT_e, MODE_DEFEND);
     }
-    return true;
+    return false;
 }
 
 /* 00001EEC-00001F10       .text getArg__6daPz_cFv */
@@ -842,10 +854,13 @@ void daPz_c::setAnm(s8 idx, bool param_2, int eyeIdx) {
         mAnmPrmIdx = idx;
     }
 
-    dLib_anm_prm_c prm[15];
-    memcpy(prm, a_anm_prm_tbl, sizeof(prm));
-    prm[7].mMorf = l_HIO.mF0;
-    prm[8].mMorf = l_HIO.mF4;
+    struct daPz_anm_prm_copy {
+        dLib_anm_prm_c m[15];
+    };
+    daPz_anm_prm_copy prm;
+    prm = *(daPz_anm_prm_copy*)a_anm_prm_tbl;
+    prm.m[7].mMorf = l_HIO.mF0;
+    prm.m[8].mMorf = l_HIO.mF4;
 
     if (mOldAnmPrmIdx != mAnmPrmIdx) {
         if (mAnmPrmIdx == 4) {
@@ -891,7 +906,7 @@ void daPz_c::setAnm(s8 idx, bool param_2, int eyeIdx) {
         }
     }
 
-    dLib_bcks_setAnm(m_arc_name, mpMorf, &mBckIdx, &mAnmPrmIdx, &mOldAnmPrmIdx, a_anm_bcks_tbl, prm, param_2);
+    dLib_bcks_setAnm(m_arc_name, mpMorf, &mBckIdx, &mAnmPrmIdx, &mOldAnmPrmIdx, a_anm_bcks_tbl, prm.m, param_2);
 }
 
 /* 0000246C-00002684       .text setAnmRunSpeed__6daPz_cFv */
@@ -905,10 +920,15 @@ void daPz_c::setAnmRunSpeed() {
             speed = 1.0f;
         }
         speed *= l_HIO.m44;
-        if (speed < l_HIO.m4C) {
-            speed = l_HIO.m4C;
-        } else if (speed > l_HIO.m48) {
-            speed = l_HIO.m48;
+        f32 tmp = l_HIO.m4C;
+        if (speed >= tmp) {
+            tmp = speed;
+        }
+        f32 maxs = l_HIO.m48;
+        if (tmp > maxs) {
+            speed = maxs;
+        } else {
+            speed = tmp;
         }
         mpMorf->setPlaySpeed(speed);
         int frame = (int)mpMorf->getFrame();
@@ -1877,7 +1897,7 @@ void daPz_c::modeProc(daPz_c::Proc_e proc, int newMode) {
 bool daPz_c::_execute() {
     if (l_HIO.m33 != 0) {
         modeProc(PROC_INIT_e, MODE_WAIT);
-        fopAc_ac_c* player = dComIfGp_getPlayer(0);
+        fopAc_ac_c* player = dComIfGp_getLinkPlayer();
         current.pos = player->current.pos;
         current.pos.y += 50.0f;
         current.pos.x -= 200.0f * cM_ssin(player->shape_angle.y);
@@ -1913,7 +1933,8 @@ bool daPz_c::_execute() {
     mpMorf->calc();
     enemy_fire(&mEnemyFire);
     if (enemy_ice(&mEventIce)) {
-        cMtx_copy(mpMorf->getModel()->getBaseTRMtx(), mDoMtx_stack_c::now);
+        J3DModel* model = mpMorf->getModel();
+        cMtx_copy(mDoMtx_stack_c::now, model->getBaseTRMtx());
         return true;
     }
 
@@ -1927,9 +1948,10 @@ bool daPz_c::_execute() {
         if (cLib_calcTimer(&m0F7C) == 0) {
             fopAc_ac_c* gnd;
             if (fopAcM_SearchByName(fpcNm_GND_e, &gnd)) {
+                fopAc_ac_c* ganondorf = gnd;
                 f32 dist = fopAcM_searchActorDistanceXZ(this, dComIfGp_getPlayer(0));
                 if (dist < (&l_HIO.m100)[mTalkState]) {
-                    if (*(s16*)((u8*)gnd + 0x2CE) == 0) {
+                    if (*(s16*)((u8*)ganondorf + 0x2CE) == 0) {
                         mEventOrder = 1;
                         modeProc(PROC_INIT_e, MODE_TALK);
                     }
@@ -1945,9 +1967,11 @@ bool daPz_c::_execute() {
     cLib_addCalc2(&speedF, m0924, 0.3f, 4.0f);
 
     s8 reverbRoom = current.roomNo;
-    u32 mtrlSndId = 0;
+    u32 mtrlSndId;
     if (mObjAcch.ChkGroundHit()) {
         mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(mObjAcch.m_gnd);
+    } else {
+        mtrlSndId = 0;
     }
     mpMorf->play(&eyePos, mtrlSndId, dComIfGp_getReverb(reverbRoom));
     mpBowMcaMorf->play(NULL, 0, 0);
@@ -1958,7 +1982,7 @@ bool daPz_c::_execute() {
     }
     fopAcM_posMoveF(this, NULL);
     mObjAcch.CrrPos(*dComIfG_Bgsp());
-    if (!dComIfG_Bgsp()->ChkMoveBG(mObjAcch.m_gnd)) {
+    if (!dComIfGp_event_runCheck()) {
         setCollision(30.0f, 130.0f);
     }
     setAnmRunSpeed();
