@@ -547,19 +547,19 @@ void daObj_Search::Act_c::modeFind2nd() {
     int pitch = cM_atan2s(offset.y, std::sqrtf(offset.x * offset.x + offset.z * offset.z));
     bool hit = false;
 
+    BOOL below;
+    BOOL above;
     s16 maxP = REG12_S(0) + 0x6590;
     s16 minP = REG12_S(1) - 0x2710;
-    BOOL above = (int)pitch < (int)maxP;
-    BOOL below = (int)minP < (int)pitch;
+    below = pitch <= minP;
+    above = pitch >= maxP;
+    s16 tmp;
     if (above) {
-        s16 tmp = pitch;
-        if (pitch < maxP) {
-            tmp = maxP;
-        }
+        tmp = (pitch < maxP) ? maxP : (s16)pitch;
         pitch = tmp;
     }
     if (below) {
-        s16 tmp = pitch;
+        tmp = (s16)pitch;
         if (tmp > minP) {
             tmp = minP;
         }
@@ -943,9 +943,7 @@ void daObj_Search::Act_c::smoke_set(float rate, int timer) {
     mSmokePos = m600;
     mSmokeRot.set(0, 0, 0);
     if (mSmokeCb.getEmitter() == NULL) {
-        s8 roomNo = current.roomNo;
-        dPa_control_c* pc = g_dComIfG_gameInfo.play.getParticle();
-        pc->setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &mSmokePos, &mSmokeRot, NULL, 0xB9, &mSmokeCb, roomNo, NULL, NULL, NULL);
+        dComIfGp_particle_setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &mSmokePos, &mSmokeRot, NULL, 0xB9, &mSmokeCb, fopAcM_GetRoomNo(this));
     }
     if (mSmokeCb.getEmitter() != NULL) {
         mSmokeCb.getEmitter()->setRate(rate);
