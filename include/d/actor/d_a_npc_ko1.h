@@ -8,6 +8,7 @@
 
 class J3DNode;
 class J3DModel;
+class J3DModelData;
 
 class daNpc_Ko1_c : public fopNpc_npc_c {
 public:
@@ -77,10 +78,10 @@ public:
     fopAc_ac_c* searchByID(fpc_ProcID);
     fpc_ProcID partner_srch_sub(void* (*)(void*, void*));
     void partner_srch();
-    void check_landOn();
+    bool check_landOn();
     void ko_setPthPos();
     cXyz set_tgtPos(cXyz);
-    void ko_movPass();
+    int ko_movPass();
     void ko_clcMovSpd();
     void ko_clcSwmSpd();
     void ko_nMove();
@@ -136,15 +137,15 @@ public:
     int wait_action2(void*);
     int wait_action3(void*);
     int wait_action4(void*);
-    void demo();
+    u8 demo();
     void shadowDraw();
     BOOL _draw();
     BOOL _execute();
     BOOL _delete();
     cPhs_State _create();
-    void create_Anm();
-    void create_hed_Anm();
-    void create_bln_Anm();
+    J3DModelData* create_Anm();
+    J3DModelData* create_hed_Anm();
+    J3DModelData* create_bln_Anm();
     BOOL create_itm_Mdl();
     BOOL CreateHeap();
 
@@ -199,7 +200,7 @@ public:
     /* 0x848 */ u32 mPairedMsgNo;
     /* 0x84C */ u8 m84C[0x84E - 0x84C];
     /* 0x84E */ s16 m84E;
-    /* 0x850 */ u8 m850[0x852 - 0x850];
+    /* 0x850 */ s16 m850;
     /* 0x852 */ s16 mNeruTimer;
     /* 0x854 */ s16 mWaitTimer;
     /* 0x856 */ s16 mTurnSpeed;
@@ -214,11 +215,16 @@ public:
     /* 0x863 */ u8 mPresentItem;
     /* 0x864 */ u8 m864;
     /* 0x865 */ u8 m865;
-    /* 0x866 */ u8 m866[0x86B - 0x866];
+    /* 0x866 */ u8 m866;
+    /* 0x867 */ u8 mHidden;
+    /* 0x868 */ u8 mFreezeAngle;
+    /* 0x869 */ u8 mStopMove;
+    /* 0x86A */ u8 mNoDraw;
     /* 0x86B */ u8 mArrived;
     /* 0x86C */ u8 m86C;
     /* 0x86D */ u8 m86D;
-    /* 0x86E */ u8 m86E[0x870 - 0x86E];
+    /* 0x86E */ u8 mInitialized;
+    /* 0x86F */ u8 m86F;
     /* 0x870 */ int mUpdateEye;
     /* 0x874 */ u8 m874;
     /* 0x875 */ u8 mTalking;
