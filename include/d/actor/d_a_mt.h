@@ -10,6 +10,8 @@
 #include "SSystem/SComponent/c_phase.h"
 #include "JSystem/J3DGraphAnimator/J3DMaterialAnm.h"
 
+struct dPath;
+
 class daMt_HIO_c : public mDoHIO_entry_c {
 public:
     daMt_HIO_c();
@@ -63,14 +65,18 @@ public:
     /* 0x02B9 */ u8 m2B9;
     /* 0x02BA */ u8 m2BA;
     /* 0x02BB */ u8 m2BB;
-    /* 0x02BC */ u8 m2BC[0x02C4 - 0x02BC];
+    /* 0x02BC */ u8 m2BC;
+    /* 0x02BD */ u8 m2BD;
+    /* 0x02BE */ u8 m2BE;
+    /* 0x02BF */ u8 m2BF;
+    /* 0x02C0 */ dPath* mpPath;
     /* 0x02C4 */ mDoExt_McaMorf* mpMorf[8];
     /* 0x02E4 */ u8 m2E4;
     /* 0x02E5 */ u8 m2E5[0x02E8 - 0x02E5];
     /* 0x02E8 */ int m2E8;
     /* 0x02EC */ int m2EC;
-    /* 0x02F0 */ mDoExt_btkAnm* mpBtk[8];
-    /* 0x0310 */ mDoExt_brkAnm* mpBrk[8];
+    /* 0x02F0 */ mDoExt_btkAnm* btk[8];
+    /* 0x0310 */ mDoExt_brkAnm* brk[8];
     /* 0x0330 */ u8 m330[0x033C - 0x0330];
     /* 0x033C */ J3DAnmTexPattern* mpBtp;
     /* 0x0340 */ J3DTexNoAnm* mpTexNoAnm;
@@ -85,20 +91,41 @@ public:
     /* 0x0450 */ fopAc_ac_c* mp450;
     /* 0x0454 */ u8 m454;
     /* 0x0455 */ u8 m455;
-    /* 0x0456 */ u8 m456[0x0460 - 0x0456];
+    /* 0x0456 */ s16 m456;
+    /* 0x0458 */ u8 m458[0x045A - 0x0458];
+    /* 0x045A */ s16 m45A;
+    /* 0x045C */ u8 m45C[0x0460 - 0x045C];
     /* 0x0460 */ s16 m460;
     /* 0x0462 */ u8 m462[0x0464 - 0x0462];
     /* 0x0464 */ s16 m464;
-    /* 0x0466 */ u8 m466[0x04A0 - 0x0466];
+    /* 0x0466 */ u8 m466[0x0468 - 0x0466];
+    /* 0x0468 */ s16 m468;
+    /* 0x046A */ s16 m46A;
+    /* 0x046C */ u8 m46C[0x0470 - 0x046C];
+    /* 0x0470 */ f32 m470;
+    /* 0x0474 */ f32 m474;
+    /* 0x0478 */ u8 m478[0x047C - 0x0478];
+    /* 0x047C */ cXyz m47C;
+    /* 0x0488 */ s16 m488;
+    /* 0x048A */ u8 m48A[0x048E - 0x048A];
+    /* 0x048E */ s16 m48E;
+    /* 0x0490 */ u8 m490[0x04A0 - 0x0490];
     /* 0x04A0 */ cXyz m4A0[8];
     /* 0x0500 */ cXyz m500[8];
     /* 0x0560 */ csXyz m560[8];
     /* 0x0590 */ cXyz m590[8];
-    /* 0x05F0 */ u8 m5F0[0x0640 - 0x05F0];
+    /* 0x05F0 */ s16 m5F0[8];
+    /* 0x0600 */ f32 m600[8];
+    /* 0x0620 */ f32 m620[8];
     /* 0x0640 */ csXyz mJntRot[0x1E];
     /* 0x06F4 */ cXyz m6F4[0x40];
     /* 0x09F4 */ csXyz m9F4[0x40];
-    /* 0x0B74 */ u8 mB74[0x0C08 - 0x0B74];
+    /* 0x0B74 */ s16 mB74[0x40];
+    /* 0x0BF4 */ int mBF4;
+    /* 0x0BF8 */ u8 mBF8[0x0C00 - 0x0BF8];
+    /* 0x0C00 */ u8 mC00;
+    /* 0x0C01 */ u8 mC01;
+    /* 0x0C02 */ u8 mC02[0x0C08 - 0x0C02];
     /* 0x0C08 */ dBgS_AcchCir mAcchCir;
     /* 0x0C48 */ dBgS_ObjAcch mAcch;
     /* 0x0E0C */ dCcD_Stts mStts;
@@ -106,17 +133,25 @@ public:
     /* 0x17A8 */ dCcD_Sph mEyeSph;
     /* 0x18D4 */ u8 m18D4;
     /* 0x18D5 */ u8 m18D5[0x18D8 - 0x18D5];
-    /* 0x18D8 */ J3DModel* mpBrModel[3];
-    /* 0x18E4 */ J3DModel* mpBrModel2[3];
+    /* 0x18D8 */ J3DModel* br_modelL[3];
+    /* 0x18E4 */ J3DModel* br_modelR[3];
     /* 0x18F0 */ f32 m18F0;
-    /* 0x18F4 */ u8 m18F4[0x1906 - 0x18F4];
+    /* 0x18F4 */ u8 m18F4[0x18F8 - 0x18F4];
+    /* 0x18F8 */ s8 m18F8;
+    /* 0x18F9 */ u8 m18F9[0x18FB - 0x18F9];
+    /* 0x18FB */ u8 m18FB;
+    /* 0x18FC */ u8 m18FC[0x1900 - 0x18FC];
+    /* 0x1900 */ fopAc_ac_c* mp1900;
+    /* 0x1904 */ u8 m1904[0x1906 - 0x1904];
     /* 0x1906 */ s8 m1906;
     /* 0x1907 */ u8 m1907[0x1930 - 0x1907];
     /* 0x1930 */ dCcD_Stts mStts2;
     /* 0x196C */ dCcD_Cyl mCyl;
     /* 0x1A9C */ u8 m1A9C[0x1AA4 - 0x1A9C];
     /* 0x1AA4 */ f32 m1AA4;
-    /* 0x1AA8 */ u8 m1AA8[0x1AB4 - 0x1AA8];
+    /* 0x1AA8 */ u8 m1AA8[0x1AB1 - 0x1AA8];
+    /* 0x1AB1 */ u8 m1AB1;
+    /* 0x1AB2 */ u8 m1AB2[0x1AB4 - 0x1AB2];
     /* 0x1AB4 */ dBgS_AcchCir mAcchCir2;
     /* 0x1AF4 */ dBgS_ObjAcch mAcch2;
     /* 0x1CB8 */ u32 mShadowId;
