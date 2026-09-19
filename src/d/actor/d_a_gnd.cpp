@@ -390,7 +390,9 @@ static BOOL daGnd_Draw(gnd_class* i_this) {
     g_env_light.setLightTevColorType(model, &actor->tevStr);
     J3DModelData* modelData = model->getModelData();
     i_this->mpBrkAnm->entry(modelData, i_this->mpBrkAnm->getFrame());
+    modelData = model->getModelData();
     i_this->mpBtkAnm->entry(modelData, i_this->mpBtkAnm->getFrame());
+    modelData = model->getModelData();
     i_this->mpBtpAnm->entry(modelData, i_this->mpBtpAnm->getFrame());
     i_this->mpMorf->entryDL();
 
@@ -550,8 +552,146 @@ static void wait_set(gnd_class* i_this) {
 }
 
 /* 00001334-00001974       .text move0__FP9gnd_class */
-static void move0(gnd_class*) {
-    /* Nonmatching */
+static void move0(gnd_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    f32 dist = fopAcM_searchActorDistance(actor, player);
+    int frame = (int)i_this->mpMorf->getFrame();
+    s8 track = 0;
+
+    switch (i_this->m2D0) {
+    case 0:
+        anm_init(i_this, dRes_INDEX_GND_BCK_WALK_e, 10.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, dRes_INDEX_GND_BAS_WALK_e);
+        i_this->m2D0++;
+        break;
+    case 1:
+        i_this->m2F8 = l_HIO.m14;
+        track = 1;
+        if (dist < l_HIO.m18) {
+            anm_init(i_this, dRes_INDEX_GND_BCK_WAIT2_e, 10.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
+            i_this->m2D0 = 2;
+        } else if (dist > l_HIO.m1C) {
+            anm_init(i_this, dRes_INDEX_GND_BCK_HI_JUMP_START_e, 10.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_HI_JUMP_START_e);
+            i_this->m2D0 = 3;
+            actor->speedF = 0.0f;
+            i_this->m2F8 = 0.0f;
+        }
+        break;
+    case 2:
+        track = 1;
+        i_this->m2F8 = 0.0f;
+        if (player_view_check(i_this, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)))) {
+            if (dist > l_HIO.m3C && i_this->m304 == 0) {
+                i_this->m2D0 = 0;
+            } else if (dist < l_HIO.m2C) {
+                i_this->m2D0 = 20;
+            } else if (i_this->m304 == 0) {
+                if (cM_rndF(100.0f) < l_HIO.m48) {
+                    i_this->m2CE = 2;
+                    if (cM_rndF(1.0f) < 0.5f) {
+                        i_this->m2D0 = 0;
+                    } else {
+                        i_this->m2D0 = 1;
+                    }
+                } else {
+                    i_this->m2CE = 1;
+                    if (i_this->m3D8 == 0 || l_HIO.m11 == 1) {
+                        i_this->m2D0 = 0;
+                    } else if (i_this->m3D8 == 1 || l_HIO.m11 == 2) {
+                        i_this->m2D0 = 5;
+                    } else if (cM_rndF(1.0f) < 0.5f) {
+                        i_this->m2D0 = 0;
+                    } else {
+                        i_this->m2D0 = 5;
+                    }
+                }
+            }
+        }
+        break;
+    case 3:
+        actor->gravity = l_HIO.m28;
+        if (frame == 12) {
+            actor->speed.y = l_HIO.m24;
+            f32 jump_speed = l_HIO.m20;
+            actor->speedF = jump_speed;
+            i_this->m2F8 = jump_speed;
+            splash_set(i_this);
+        }
+        if (i_this->mpMorf->isStop()) {
+            anm_init(i_this, dRes_INDEX_GND_BCK_HI_JUMP_LOOP_e, 5.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
+            i_this->m2D0++;
+        }
+        break;
+    case 4:
+        mDoAud_seStart(JA_SE_CM_GN_ROBE, &actor->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
+        actor->gravity = l_HIO.m28;
+        if (actor->speed.y < 0.0f) {
+            anm_init(i_this, dRes_INDEX_GND_BCK_HI_JUMP_END1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+            i_this->m2D0++;
+        }
+        break;
+    case 5:
+        mDoAud_seStart(JA_SE_CM_GN_ROBE, &actor->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
+        actor->gravity = l_HIO.m28;
+        i_this->m2F0 = 0.0f;
+        if (checkGround(i_this, 0.0f)) {
+            anm_init(i_this, dRes_INDEX_GND_BCK_HI_JUMP_END2_e, 2.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+            i_this->m2D0 = 6;
+            splash_set(i_this);
+        }
+        break;
+    case 6:
+        i_this->m2F8 = 0.0f;
+        i_this->m2F0 = 0.0f;
+        if (i_this->mpMorf->isStop()) {
+            i_this->m2D0 = 2;
+            anm_init(i_this, dRes_INDEX_GND_BCK_WAIT2_e, 10.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
+        }
+        break;
+    case 20:
+        anm_init(i_this, dRes_INDEX_GND_BCK_JUMP1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_JUMP1_e);
+        i_this->m2D0 = 21;
+        break;
+    case 21:
+        track = 1;
+        i_this->m2F8 = 0.0f;
+        actor->speedF = 0.0f;
+        if (i_this->mpMorf->isStop()) {
+            actor->speed.y = l_HIO.m34;
+            f32 jump_speed = l_HIO.m30;
+            actor->speedF = jump_speed;
+            i_this->m2F8 = jump_speed;
+            anm_init(i_this, dRes_INDEX_GND_BCK_JUMP2_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+            i_this->m2D0 = 22;
+        }
+        break;
+    case 22:
+        actor->gravity = l_HIO.m38;
+        track = 1;
+        if (checkGround(i_this, 0.0f)) {
+            anm_init(i_this, dRes_INDEX_GND_BCK_JUMP3_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_JUMP3_e);
+            i_this->m2D0 = 23;
+        }
+        break;
+    case 23:
+        i_this->m2F8 = 0.0f;
+        if (i_this->mpMorf->isStop()) {
+            i_this->m2D0 = 2;
+            wait_set(i_this);
+            i_this->m304 = 20;
+        }
+        break;
+    }
+
+    if (track == 1) {
+        i_this->m2D4.x = player->current.pos.x;
+        i_this->m2D4.y = player->current.pos.y;
+        i_this->m2D4.z = player->current.pos.z;
+    }
+    pos_move(i_this, 0);
+    i_this->m2F0 = 2000.0f;
+    s16 target = actor->current.angle.y;
+    cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, 0x1000);
 }
 
 /* 00001974-000028D0       .text attack0__FP9gnd_class */
@@ -620,8 +760,51 @@ static void attack1(gnd_class* i_this) {
 }
 
 /* 00002B68-00002D7C       .text attack2__FP9gnd_class */
-static void attack2(gnd_class*) {
-    /* Nonmatching */
+static void attack2(gnd_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    int frame = (int)i_this->mpMorf->getFrame();
+    s8 done = 0;
+
+    f32 rad = 110.0f + REG0_F(13);
+    i_this->m13C8 = rad;
+    i_this->m13C4 = rad;
+    i_this->m13CE = 0;
+
+    switch (i_this->m2D0) {
+    case 0:
+        anm_init(i_this, dRes_INDEX_GND_BCK_COUNTERL_e, 2.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_COUNTERL_e);
+        fopAcM_monsSeStart(actor, JA_SE_CV_GN_ATTACK_4, 0);
+        i_this->m2D0 = 2;
+        break;
+    case 1:
+        anm_init(i_this, dRes_INDEX_GND_BCK_COUNTERR_e, 2.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_COUNTERR_e);
+        fopAcM_monsSeStart(actor, JA_SE_CV_GN_ATTACK_1, 0);
+        i_this->m2D0 = 3;
+        break;
+    case 2:
+        if (frame >= 4) {
+            i_this->m13B8 = 1;
+        }
+        if (i_this->mpMorf->isStop()) {
+            done = 1;
+        }
+        break;
+    case 3:
+        if (frame >= 6) {
+            i_this->m13B9 = 1;
+        }
+        if (i_this->mpMorf->isStop()) {
+            done = 1;
+        }
+        break;
+    }
+
+    if (done) {
+        i_this->m2CE = 0;
+        i_this->m2D0 = 0;
+        actor->current.angle.y = actor->shape_angle.y;
+        i_this->m304 = 0;
+    }
 }
 
 /* 00002D7C-00003688       .text attackPZ__FP9gnd_class */
@@ -630,8 +813,51 @@ static void attackPZ(gnd_class*) {
 }
 
 /* 00003688-000038B0       .text attack_last__FP9gnd_class */
-static void attack_last(gnd_class*) {
-    /* Nonmatching */
+static void attack_last(gnd_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    int frame = (int)i_this->mpMorf->getFrame();
+
+    i_this->m13C8 = 110.0f + REG0_F(13);
+    i_this->m13CE = 0;
+
+    switch (i_this->m2D0) {
+    case 0:
+        anm_init(i_this, dRes_INDEX_GND_BCK_LAST_ATTACK_TAME_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+        fopAcM_monsSeStart(actor, JA_SE_CV_GN_ATTACK_7, 0);
+        i_this->m2D0 = 1;
+        break;
+    case 1:
+        if (i_this->mpMorf->isStop()) {
+            anm_init(i_this, dRes_INDEX_GND_BCK_LAST_ATTACK_ATTACK_e, 2.0f, J3DFrameCtrl::EMode_NONE, 1.0f, dRes_INDEX_GND_BAS_LAST_ATTACK_ATTACK_e);
+            i_this->m2D0 = 2;
+        }
+        if (frame > l_HIO.m7C) {
+            i_this->mNextParryOpeningType = 4;
+        }
+        break;
+    case 2:
+        if (frame >= l_HIO.m7E && frame <= l_HIO.m80) {
+            i_this->mNextParryOpeningType = 4;
+        }
+        if (frame >= 6 && frame <= 9) {
+            i_this->m13B9 = 1;
+        }
+        if (i_this->mpMorf->isStop()) {
+            i_this->m2CE = 0;
+            i_this->m2D0 = 0;
+            actor->current.angle.y = actor->shape_angle.y;
+            i_this->m304 = 0;
+        }
+        break;
+    }
+
+    if (player->checkLastComboWait()) {
+        i_this->m2CE = 30;
+        i_this->m2D0 = 0;
+        i_this->mAction = 5;
+        i_this->m13CE = 0;
+    }
 }
 
 /* 000038B0-000042D0       .text defence0__FP9gnd_class */
@@ -780,7 +1006,7 @@ static void gnd_move(gnd_class* i_this) {
             }
         }
 
-        f32 player_dist = fopAcM_searchActorDistance(actor, player);
+        f32 player_dist = fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0));
         if (found_near || (player->getCutType() != 0 && player_dist < l_HIO.m40)) {
             if (i_this->m2CE != 10) {
                 i_this->m2CE = 10;
@@ -872,10 +1098,9 @@ static void body_flash(gnd_class* i_this) {
             if (i_this->mpFlashEff[i] == NULL) {
                 i_this->mpFlashEff[i] = dComIfGp_particle_set(dPa_name::ID_AK_JN_CCTHUNDER00, &pos);
             } else {
-                JPABaseEmitter* emitter = i_this->mpFlashEff[i];
-                emitter->setGlobalTranslation(pos.x, pos.y, pos.z);
+                i_this->mpFlashEff[i]->setGlobalTranslation(pos.x, pos.y, pos.z);
                 JGeometry::TVec3<f32> gscale(scale, scale, scale);
-                emitter->setGlobalScale(gscale);
+                i_this->mpFlashEff[i]->setGlobalScale(gscale);
             }
         } else if (i_this->mpFlashEff[i] != NULL) {
             i_this->mpFlashEff[i]->becomeInvalidEmitter();
