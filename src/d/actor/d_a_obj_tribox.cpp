@@ -5,6 +5,7 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_obj_tribox.h"
+#include "d/actor/d_a_player.h"
 #include "d/d_bg_s_gnd_chk.h"
 #include "d/d_bg_s_movebg_actor.h"
 #include "d/d_com_inf_game.h"
@@ -48,13 +49,21 @@ namespace {
 
     inline const Attr_c& attr() { return L_attr; }
 
-    f32 L_r_in;
-    f32 L_r_out;
+    f32 L_r_in = (125.0f / 3.0f) * (f32)sqrt(3.0);
+    f32 L_r_out = 2.0f * L_r_in;
 }
 }
 
 const char daObjTribox::Act_c::M_arcname[] = "MtryB";
-cXyz daObjTribox::Act_c::M_post[3];
+
+namespace daObjTribox {
+cXyz Act_c::M_post[3] = {
+    cXyz(0.0f, 0.0f, -L_r_out),
+    cXyz(-125.0f, 0.0f, L_r_in),
+    cXyz(125.0f, 0.0f, L_r_in),
+};
+}
+
 dBgS_ObjLinChk daObjTribox::Act_c::M_lin;
 
 /* 000000EC-000001A4       .text set_state__Q211daObjTribox5Act_cFv */
@@ -211,13 +220,9 @@ void daObjTribox::Act_c::controll_set() {
 /* 00000840-00000904       .text controll_clear__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::controll_clear() {
     if (prm_get_type() == 1) {
-        if (--M_c_cont_cnt < 0) {
-            JUT_ASSERT(0x214, M_c_cont_cnt >= 0);
-        }
+        JUT_ASSERT(0x214, --M_c_cont_cnt >= 0);
     } else {
-        if (--M_b_cont_cnt < 0) {
-            JUT_ASSERT(0x217, M_b_cont_cnt >= 0);
-        }
+        JUT_ASSERT(0x217, --M_b_cont_cnt >= 0);
     }
 }
 
@@ -296,9 +301,9 @@ bool daObjTribox::Act_c::_delete() {
 void daObjTribox::Act_c::set_mtx() {
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::ZXYrotM(shape_angle);
-    mDoMtx_copy(mDoMtx_stack_c::now, mpModel->getBaseTRMtx());
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::now);
     mDoMtx_stack_c::now[1][3] += 251.0f;
-    mDoMtx_copy(mDoMtx_stack_c::now, mpYtfbl->getBaseTRMtx());
+    mpYtfbl->setBaseTRMtx(mDoMtx_stack_c::now);
 }
 
 /* 00000DFC-00000E54       .text init_mtx__Q211daObjTribox5Act_cFv */
@@ -393,7 +398,13 @@ bool daObjTribox::Act_c::chk_wall(int num) const {
 
 /* 000012A0-000012E8       .text chk_space__Q211daObjTribox5Act_cCFv */
 bool daObjTribox::Act_c::chk_space() const {
-    return !chk_wall((mPushPullWalk == 1) + 1);
+    int num = mPushPullWalk;
+    int n = num == 1;
+    if (chk_wall(n + 1)) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 /* 000012E8-00001378       .text eff_flash__Q211daObjTribox5Act_cFv */
@@ -437,10 +448,13 @@ void daObjTribox::Act_c::eff_smoke_pos() {
     mDoMtx_stack_c::multVecSR(&M_post[i0], &v0);
     cXyz v1;
     mDoMtx_stack_c::multVecSR(&M_post[i1], &v1);
-
-    mSmokePos = current.pos;
-    mSmokePos.y += 10.0f;
-    mSmokeAngle = shape_angle;
+    cXyz dir = v1 - v0;
+    dir.normalizeZP();
+    dir *= 10.0f;
+    mSmokePos = v0 + dir + current.pos;
+    mSmokeAngle.x = 0;
+    mSmokeAngle.y = cLib_targetAngleY(&v0, &v1);
+    mSmokeAngle.z = 0;
 }
 
 /* 000015C8-000015F4       .text eff_smoke_end__Q211daObjTribox5Act_cFv */
@@ -463,6 +477,7 @@ void daObjTribox::Act_c::eff_sink_smoke_start() {
     if (mSinkSmokeState == 0) {
         mSinkSmokeState = 1;
         dPa_levelEcallBack* cbs[3] = { &mSinkSmoke0, &mSinkSmoke1, &mSinkSmoke2 };
+        csXyz dummy = shape_angle;
         s16 add = 0;
         for (int i = 0; i < 3; i++) {
             csXyz ang = shape_angle;
@@ -499,9 +514,10 @@ void daObjTribox::Act_c::vib_sink_init() {
 void daObjTribox::Act_c::vib_sink_start() {
     if (mVibState == 0) {
         mVibState = 1;
-        dComIfGp_getVibration().StartShock(2, 1, cXyz(0.0f, 1.0f, 0.0f));
-        dComIfGp_getVibration().StartShock(1, 6, cXyz(0.0f, 1.0f, 0.0f));
-        dComIfGp_getVibration().StartQuake(3, 0xF, cXyz(0.0f, 1.0f, 0.0f));
+        dVibration_c& vibration = dComIfGp_getVibration();
+        vibration.StartShock(2, 1, cXyz(0.0f, 1.0f, 0.0f));
+        vibration.StartShock(1, 6, cXyz(0.0f, 1.0f, 0.0f));
+        vibration.StartQuake(3, 0xF, cXyz(0.0f, 1.0f, 0.0f));
     }
 }
 
@@ -632,50 +648,42 @@ void daObjTribox::Act_c::mode_block_walk_init() {
     mTimer = 0x14;
     mWalkPos = current.pos;
     eff_smoke_start();
-    dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
+    daPy_getPlayerActorClass()->onPushPullKeep();
 }
 
 /* 0000262C-00002B34       .text mode_block_walk__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::mode_block_walk() {
-    mTimer--;
-    bool done = mTimer == 0;
+    bool done = --mTimer == 0;
 
-    f32 t = mTimer;
-    f32 c = cM_fcos(0.15707964f * t);
-    f32 ang = 0.0000958738f * home.angle.y + 1.0471976f * mWalkRot;
-    if (mSign < 0) {
-        ang = -ang;
-    }
+    f32 c = (f32)cos(0.157079637f * mTimer);
+    f32 home_rad = 9.58738019e-5f * home.angle.y;
+    f32 rot0 = 1.04719758f * mWalkRot + home_rad;
+    f32 rot1 = 1.04719758f * ((f32)mSign * (0.5f * (1.0f + c)));
 
-    int idx = mDir;
-    mDoMtx_YrotS(mDoMtx_stack_c::now, shape_angle.y);
-    cXyz off;
-    mDoMtx_stack_c::multVecSR(&M_post[idx], &off);
-    current.pos = mWalkPos;
-    current.pos.x += off.x * (1.0f - c) * 0.5f;
-    current.pos.z += off.z * (1.0f - c) * 0.5f;
-
-    s16 add = (s16)(0x5555 * (1.0f - c) * 0.5f);
-    if (mSign < 0) {
-        add = -add;
-    }
-    shape_angle.y = home.angle.y + add;
+    MTXRotRad(mDoMtx_stack_c::now, 'Y', rot0);
+    cXyz v0;
+    mDoMtx_stack_c::multVecSR(&M_post[mDir], &v0);
+    mDoMtx_stack_c::rYrotM(rot1);
+    cXyz v1;
+    mDoMtx_stack_c::multVecSR(&M_post[mDir], &v1);
+    current.pos = mWalkPos + v0 - v1;
+    shape_angle.y = 0.5f + 10430.378f * (rot0 + rot1);
 
     if (done) {
         eff_smoke_end();
-        mWalkRot++;
-        current.pos = mWalkPos;
-        mDoMtx_YrotS(mDoMtx_stack_c::now, home.angle.y);
-        cXyz step;
-        mDoMtx_stack_c::multVecSR(&M_post[mDir], &step);
-        current.pos += step;
-        s16 turn = mSign >= 0 ? 0x5555 : (s16)-0x5555;
-        shape_angle.y = home.angle.y + turn;
-        home.angle.y = shape_angle.y;
-        mWalkPos = current.pos;
-        mode_block_wait_init();
     } else {
         eff_smoke_pos();
+    }
+
+    if (done) {
+        daPy_getPlayerActorClass()->offPushPullKeep();
+        mWalkRot = (mWalkRot + mSign) % 6;
+        if (chk_wall(1)) {
+            u32 mapinfo = dComIfG_Bgsp()->GetMtrlSndId(M_lin);
+            mDoAud_seStart(JA_SE_LK_MOVE_ROCK_LIMIT, &eyePos, mapinfo, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+        }
+        mode_block_wait_init();
+    } else {
         dBgS_ObjGndChk gndChk;
         cXyz p(current.pos.x, current.pos.y + 50.0f, current.pos.z);
         gndChk.SetPos(&p);
@@ -1009,18 +1017,3 @@ actor_process_profile_definition g_profile_Obj_Tribox = {
     /* Group        */ fopAc_ACTOR_e,
     /* Cull Type    */ fopAc_CULLSPHERE_CUSTOM_e,
 };
-
-namespace daObjTribox {
-namespace {
-struct L_r_init {
-    L_r_init() {
-        L_r_in = (125.0f / 3.0f) * sqrt(3.0);
-        L_r_out = 2.0f * L_r_in;
-        Act_c::M_post[0] = cXyz(0.0f, 0.0f, -L_r_out);
-        Act_c::M_post[1] = cXyz(-125.0f, 0.0f, L_r_in);
-        Act_c::M_post[2] = cXyz(125.0f, 0.0f, L_r_in);
-    }
-};
-static L_r_init l_r_init;
-}
-}
