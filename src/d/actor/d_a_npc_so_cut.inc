@@ -265,17 +265,14 @@ void daNpc_So_c::cutEatesaFirstProc() {
     daShip_c* ship = dComIfGp_getShipActor();
     cXyz pos = actor->current.pos;
     if (ship != NULL) {
-        s16 y = ship->shape_angle.y;
-        int ang = y + REG12_S(6);
+        int ang = ship->shape_angle.y + REG12_S(6);
         ang -= 0x4000;
         pos = ship->current.pos;
         pos.x += 260.0f * cM_ssin(ang);
         pos.z += 260.0f * cM_scos(ang);
     }
 
-    cXyz delta = current.pos - pos;
-    delta.y = 0.0f;
-    f32 dist = delta.abs();
+    f32 dist = (current.pos - pos).absXZ();
     if (dist < 700.0f + REG8_F(11)) {
         cLib_addCalc2(&mCirclePath.mRadius, 30.0f, 0.05f, 8.0f + REG8_F(10));
     }
@@ -287,13 +284,8 @@ void daNpc_So_c::cutEatesaFirstProc() {
     cXyz path = mCirclePath.mPos;
     path.y -= 100.0f;
 
-    cXyz pathDelta = current.pos - path;
-    pathDelta.y = 0.0f;
-    f32 step = pathDelta.abs();
-
-    cXyz delta2 = current.pos - pos;
-    delta2.y = 0.0f;
-    f32 dist2 = delta2.abs();
+    f32 step = (current.pos - path).absXZ();
+    f32 dist2 = (current.pos - pos).absXZ();
 
     mEventCut.setAttnFlag(false);
     mEventCut.setAttnPos(path);
@@ -318,7 +310,7 @@ void daNpc_So_c::cutEatesaFirstProc() {
         step = 20.0f + REG12_F(10);
     }
 
-    if (0.0f != step) {
+    if (step != 0.0f) {
         s16 target = cLib_targetAngleY(&mSoEyePos, &path);
         cLib_addCalcAngleS2(&shape_angle.y, target, 3, 0x1200);
         cLib_addCalcPos2(&current.pos, path, 0.1f, step);
@@ -437,20 +429,20 @@ void daNpc_So_c::cutMiniGameProc() {
 
     if (player->checkArrowShoot()) {
         mB78++;
-        if (mB78 >= 10) {
-            finished = true;
-            if (mB74 <= 6) {
-                player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
-                player->changeDemoParam0(1);
-                initCam();
-                moveCam();
-                JAIZelBasic::getInterface()->seStart(JA_SE_END_WHISTLE);
-                dComIfGp_endMiniGame(8);
-                speedF = 0.0f;
-                mSpeed = 0.0f;
-                dComIfGp_evmng_cutEnd(mStaffIdx);
-                return;
-            }
+    }
+    if (mB78 >= 10) {
+        finished = true;
+        if (mB74 <= 6) {
+            player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
+            player->changeDemoParam0(1);
+            initCam();
+            moveCam();
+            JAIZelBasic::getInterface()->seStart(JA_SE_END_WHISTLE);
+            dComIfGp_endMiniGame(8);
+            speedF = 0.0f;
+            mSpeed = 0.0f;
+            dComIfGp_evmng_cutEnd(mStaffIdx);
+            return;
         }
     }
 
@@ -471,10 +463,12 @@ void daNpc_So_c::cutMiniGameProc() {
         break;
     case 2: {
         setAnm(2, false);
-        mB8C = cM_rndF(400.0f) + 1000.0f;
-        f32 rnd = cM_rndF(1000.0f);
         f32 mag = 1000.0f;
-        mB88 = -mag * 0.5f + rnd;
+        mB8C = cM_rndF(400.0f) + mag;
+        f32 rnd = cM_rndF(mag);
+        f32 half = 0.5f;
+        f32 mul = -mag * half;
+        mB88 = mul + rnd;
         cXyz offset(mB88, 0.0f, mB8C);
         cXyz out(0.0f, 0.0f, 0.0f);
         mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
@@ -488,9 +482,7 @@ void daNpc_So_c::cutMiniGameProc() {
     case 3: {
         cXyz attn = mEventCut.getAttnPos();
         mSpeed = 12.0f + REG12_F(10);
-        cXyz delta = current.pos - attn;
-        delta.y = 0.0f;
-        f32 dist = delta.abs();
+        f32 dist = (current.pos - attn).absXZ();
         s16 target = cLib_targetAngleY(&current.pos, &attn);
         cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
         if (dist < 150.0f + REG12_F(7)) {
@@ -500,9 +492,12 @@ void daNpc_So_c::cutMiniGameProc() {
         break;
     }
     case 4: {
-        f32 rnd = cM_rndF(300.0f);
         f32 mag = 300.0f;
-        mB88 += -mag * 0.5f + rnd;
+        f32 rnd = cM_rndF(mag);
+        f32 half = 0.5f;
+        f32 mul = -mag * half;
+        rnd = mul + rnd;
+        mB88 = mB88 + rnd;
         cXyz offset(mB88, 0.0f, mB8C);
         cXyz out(0.0f, 0.0f, 0.0f);
         mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
@@ -519,9 +514,7 @@ void daNpc_So_c::cutMiniGameProc() {
     case 5: {
         cXyz attn = mEventCut.getAttnPos();
         mSpeed = 0.0f;
-        cXyz delta = current.pos - attn;
-        delta.y = 0.0f;
-        delta.abs();
+        f32 dist = (current.pos - attn).absXZ();
         s16 target = cLib_targetAngleY(&current.pos, &attn);
         cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
         if (cLib_calcTimer(&mTimer) == 0) {
@@ -572,20 +565,18 @@ void daNpc_So_c::cutMiniGameProc() {
             mSpeed = 0.0f;
             speedF = mSpeed;
             mB80++;
-            if (mB80 >= 10) {
-                mB74 = 0;
+            if (mB80 >= 10 || finished) {
+                player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
+                player->changeDemoParam0(1);
+                initCam();
+                moveCam();
+                JAIZelBasic::getInterface()->seStart(JA_SE_END_WHISTLE);
+                dComIfGp_endMiniGame(8);
+                speedF = 0.0f;
+                mSpeed = 0.0f;
+                dComIfGp_evmng_cutEnd(mStaffIdx);
             } else {
-                if (finished) {
-                    player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
-                    player->changeDemoParam0(1);
-                    initCam();
-                    moveCam();
-                    JAIZelBasic::getInterface()->seStart(JA_SE_END_WHISTLE);
-                    dComIfGp_endMiniGame(8);
-                    speedF = 0.0f;
-                    mSpeed = 0.0f;
-                    dComIfGp_evmng_cutEnd(mStaffIdx);
-                }
+                mB74 = 0;
             }
         }
         break;

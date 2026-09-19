@@ -821,9 +821,7 @@ void daNpc_So_c::modeEventFirstWait() {
     daShip_c* ship = dComIfGp_getShipActor();
     if (ship != NULL) {
         current.pos = ship->current.pos;
-        cXyz delta = ship->current.pos - mAAC;
-        delta.y = 0.0f;
-        f32 dist = delta.abs();
+        f32 dist = (ship->current.pos - mAAC).absXZ();
         if (dist >= l_HIO.m54) {
             if (dComIfGs_checkGetItem(dItemNo_SAIL_e) && dComIfGs_isStageBossEnemy(3) &&
                 dComIfGp_checkPlayerStatus0(0, daPyStts0_SHIP_RIDE_e))
