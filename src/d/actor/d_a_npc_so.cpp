@@ -28,6 +28,7 @@
 #include "JSystem/JUtility/JUTAssert.h"
 #include "SSystem/SComponent/c_math.h"
 #include "SSystem/SComponent/c_lib.h"
+#include "res/Object/So.h"
 #include <string.h>
 
 static daNpc_So_HIO_c l_HIO;
@@ -244,10 +245,73 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 
 /* 0000070C-00000A20       .text _createHeap__10daNpc_So_cFv */
 BOOL daNpc_So_c::_createHeap() {
-    /* Nonmatching */
+    J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SO_BDL_SO_e));
+    JUT_ASSERT(0x1FD, modelData != 0);
+
+    mpMorf2 = new mDoExt_McaMorf(
+        modelData,
+        NULL, NULL, NULL,
+        -1, 1.0f, 0, -1, 1,
+        NULL,
+        0x80000,
+        0x11020022
+    );
+    if (mpMorf2 == NULL || mpMorf2->getModel() == NULL) {
+        return FALSE;
+    }
+    mpMorf2->getModel()->setUserArea((u32)this);
+
+    J3DAnmTexPattern* btp = static_cast<J3DAnmTexPattern*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SO_BTP_SO_e));
+    JUT_ASSERT(0x210, btp != 0);
+
+    if (!mBtpAnm.init(modelData, btp, TRUE, 0, 1.0f, 0, -1, false, 0)) {
+        return FALSE;
+    }
+
+    m_jnt.setHeadJntNum(SO_JNT_HEAD_e);
+    JUT_ASSERT(0x215, m_jnt.getHeadJntNum() >= 0);
+
+    m_jnt.setBackboneJntNum(SO_JNT_BACKBONE_e);
+    JUT_ASSERT(0x217, m_jnt.getBackboneJntNum() >= 0);
+
+    modelData->getJointNodePointer(SO_JNT_HEAD_e)->setCallBack(nodeControl_CB);
+    modelData->getJointNodePointer(SO_JNT_BACKBONE_e)->setCallBack(nodeControl_CB);
+
+    modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SO_BDL_SO_FUDE_e));
+    JUT_ASSERT(0x221, modelData != 0);
+
+    mpHudeModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
+    if (mpHudeModel == NULL) {
+        return FALSE;
+    }
+
+    return (u8)jntHitCreateHeap() ? TRUE : FALSE;
+}
+
+/* 00000A20-00000A84       .text jntHitCreateHeap__10daNpc_So_cFv */
+BOOL daNpc_So_c::jntHitCreateHeap() {
+    static Vec cyl_offset_B[] = {
+        {15.0f, 0.0f, 0.0f},
+        {-15.0f, 0.0f, 0.0f},
+    };
+    static __jnt_hit_data_c search_data[] = {
+        {JntHitType_SPH_THROW_e, 0, 2.0f, cyl_offset_B},
+        {JntHitType_SPH_DELETE_e, 0, 2.0f, cyl_offset_B},
+    };
+
+    mpJntHit = JntHit_create(mpMorf2->getModel(), search_data, 2);
+    if (mpJntHit) {
+        fopAcM_SetJntHit(this, mpJntHit);
+    } else {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/* 00000A84-00000C8C       .text checkTgHit__10daNpc_So_cFv */
+BOOL daNpc_So_c::checkTgHit() {
     volatile f32 dummy_f32;
     volatile f64 dummy_f64;
-    dummy_f32 = 1.0f;
     dummy_f32 = 7.0f;
     dummy_f64 = 0.5;
     dummy_f64 = 3.0;
@@ -284,31 +348,7 @@ BOOL daNpc_So_c::_createHeap() {
     dummy_f32 = 0.4f;
     dummy_f32 = 22.0f;
     dummy_f32 = 110.0f;
-    return FALSE;
-}
 
-/* 00000A20-00000A84       .text jntHitCreateHeap__10daNpc_So_cFv */
-BOOL daNpc_So_c::jntHitCreateHeap() {
-    static Vec cyl_offset_B[] = {
-        {15.0f, 0.0f, 0.0f},
-        {-15.0f, 0.0f, 0.0f},
-    };
-    static __jnt_hit_data_c search_data[] = {
-        {JntHitType_SPH_THROW_e, 0, 2.0f, cyl_offset_B},
-        {JntHitType_SPH_DELETE_e, 0, 2.0f, cyl_offset_B},
-    };
-
-    mpJntHit = JntHit_create(mpMorf2->getModel(), search_data, 2);
-    if (mpJntHit) {
-        fopAcM_SetJntHit(this, mpJntHit);
-    } else {
-        return FALSE;
-    }
-    return TRUE;
-}
-
-/* 00000A84-00000C8C       .text checkTgHit__10daNpc_So_cFv */
-BOOL daNpc_So_c::checkTgHit() {
     fopAc_ac_c* actor = dComIfGp_getPlayer(0);
     mStts2.Move();
     if (cLib_calcTimer(&mHitTimer) != 0) {
@@ -1378,8 +1418,7 @@ void daNpc_So_c::createInit() {
 void daNpc_So_c::getArg() {
     mPrmAngleX = home.angle.x;
     s16 tmp = mPrmAngleX;
-    u32 utmp = tmp;
-    if (utmp == 0xFFFF || tmp == 0) {
+    if ((u16)tmp == 0xFFFF || tmp == 0) {
         mPrmAngleX = 1;
     }
 }
