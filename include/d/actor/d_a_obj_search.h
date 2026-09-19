@@ -185,7 +185,8 @@ namespace daObj_Search {
         /* 0x828 */ int mSmokeTimer;
         /* 0x82C */ u8 m82C;
         /* 0x82D */ u8 m82D;
-        /* 0x82E */ u8 m82E[0x834 - 0x82E];
+        /* 0x82E */ u8 m82E[0x830 - 0x82E];
+        /* 0x830 */ int m830;
         /* 0x834 */ u8 m834;
         /* 0x835 */ u8 m835;
         /* 0x836 */ u8 mScaleType;

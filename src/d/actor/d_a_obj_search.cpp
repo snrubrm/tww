@@ -6,6 +6,7 @@
 #include "d/dolzel.h" // IWYU pragma: keep
 #include "d/actor/d_a_obj_search.h"
 #include "d/actor/d_a_bk.h"
+#include "d/actor/d_a_player.h"
 #include "d/d_bg_s_movebg_actor.h"
 #include "d/d_bg_w.h"
 #include "d/d_cc_d.h"
@@ -25,6 +26,7 @@
 #include "SSystem/SComponent/c_math.h"
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #line 1 "d_a_obj_search.cpp"
 
@@ -285,7 +287,61 @@ void daObj_Search::Act_c::modeToStopInit() {
 
 /* 800FEBB4-800FEECC       .text modeToStop__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::modeToStop() {
-    /* Nonmatching */
+    bool ang0 = false;
+    bool ang1 = false;
+
+    if (!(dComIfGs_isEventBit(dSv_event_flag_c::UNK_0201) && attr()->m42 == 0) && mSwSave == 0xFF) {
+        if (eventInfo.checkCommandDemoAccrpt()) {
+            m77E = 0xFF;
+            dEvent_manager_c* evtMgr = dComIfGp_getPEvtManager();
+            int staffId = evtMgr->getMyStaffId("Search", NULL, 0);
+            if (evtMgr->endCheckOld("Search_Light_Up")) {
+                dComIfGp_event_reset();
+                dComIfGs_onEventBit(dSv_event_flag_c::UNK_0201);
+                modeProcInit(MODE_STOP_e);
+            } else {
+                bk_class* bk = (bk_class*)fopAcM_SearchByID(mChildId);
+                if (bk != NULL) {
+                    if (bk->m0300[1] < 5) {
+                        bk->m0300[1] = 5;
+                    }
+                }
+                char* cutName = evtMgr->getMyNowCutName(staffId);
+                if (strcmp(cutName, "BK_FIND") == 0) {
+                    evtMgr->cutEnd(staffId);
+                }
+                if (strcmp(cutName, "LIGHT_UP_SOUND") == 0) {
+                    mDoAud_seStart(JA_SE_OBJ_SEARCH_LIGHT_UP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+                    evtMgr->cutEnd(staffId);
+                }
+                if (strcmp(cutName, "LIGHT_UP") == 0) {
+                    if (abs(cLib_addCalcAngleS(&mLightAng[0].x, 0x2300, 0x1E, 0x300, 0x10)) < 0x100) {
+                        ang0 = true;
+                    }
+                    if (abs(cLib_addCalcAngleS(&mLightAng[1].x, -0x2300, 0x1E, 0x300, 0x10)) < 0x100) {
+                        ang1 = true;
+                    }
+                    if (ang0 && ang1) {
+                        smoke_set(5.0f, 10);
+                        evtMgr->cutEnd(staffId);
+                    }
+                }
+            }
+        } else {
+            fopAcM_orderOtherEvent2(this, "Search_Light_Up", dEvtFlag_NOPARTNER_e, -1);
+        }
+    } else {
+        if (abs(cLib_addCalcAngleS(&mLightAng[0].x, 0x2300, 0x14, 0x200, 0x10)) < 0x100) {
+            ang0 = true;
+        }
+        if (abs(cLib_addCalcAngleS(&mLightAng[1].x, -0x2300, 0x14, 0x200, 0x10)) < 0x100) {
+            ang1 = true;
+        }
+        if (ang0 && ang1) {
+            smoke_set(5.0f, 10);
+            modeProcInit(MODE_STOP_e);
+        }
+    }
 }
 
 /* 800FEECC-800FEF80       .text modeFindInit__Q212daObj_Search5Act_cFv */
@@ -320,7 +376,60 @@ void daObj_Search::Act_c::modeFind2ndInit() {
 
 /* 800FF49C-800FF7A4       .text modeFind2nd__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::modeFind2nd() {
-    /* Nonmatching */
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    player_check();
+
+    static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
+    cXyz offset = pos;
+    cXyz dir = (offset + player->current.pos) - mBeamStart[m830];
+    m7B0 = mLightAng[0].y;
+    s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+    s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+    bool hit = false;
+
+    s16 maxP = REG12_S(0) + 0x6590;
+    s16 minP = REG12_S(1) - 0x2710;
+    bool above = maxP < pitch;
+    bool below = pitch < minP;
+    if (above) {
+        s16 tmp = pitch;
+        if (pitch < maxP) {
+            tmp = maxP;
+        }
+        pitch = tmp;
+    }
+    if (below) {
+        s16 tmp = pitch;
+        if (tmp > minP) {
+            tmp = minP;
+        }
+        pitch = tmp;
+    }
+    if (above || below) {
+        hit = true;
+    }
+
+    cXyz head = player->getHeadTopPos();
+    mLinChk.Set(&mBeamStart[m830], &head, this);
+    if (dComIfG_Bgsp()->LineCross(&mLinChk)) {
+        hit = true;
+    }
+    if (hit) {
+        modeProcInit(MODE_SEARCH_PATH_e);
+    }
+
+    if (m830 == 0) {
+        mLightAng[1].y = yaw;
+    } else {
+        yaw += 0x8000;
+        pitch = -pitch;
+        mLightAng[0].y = yaw;
+    }
+
+    s16 tgtY = yaw;
+    s16 tgtX = pitch;
+    cLib_addCalcAngleS2(&mLightAng[m830].y, tgtY, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].x, tgtX, 10, 0x400);
 }
 
 /* 800FF7A4-800FF7A8       .text modeSearchBdkInit__Q212daObj_Search5Act_cFv */
@@ -541,9 +650,10 @@ cPhs_State daObj_Search::Act_c::_create() {
 void daObj_Search::Act_c::smoke_set(float rate, int timer) {
     mSmokePos = m600;
     mSmokeRot.set(0, 0, 0);
-    s8 roomNo = current.roomNo;
     if (mSmokeCb.getEmitter() == NULL) {
-        g_dComIfG_gameInfo.play.getParticle()->setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &mSmokePos, &mSmokeRot, NULL, 0xB9, &mSmokeCb, roomNo, NULL, NULL, NULL);
+        s8 roomNo = current.roomNo;
+        dPa_control_c* pc = g_dComIfG_gameInfo.play.getParticle();
+        pc->setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &mSmokePos, &mSmokeRot, NULL, 0xB9, &mSmokeCb, roomNo, NULL, NULL, NULL);
     }
     if (mSmokeCb.getEmitter() != NULL) {
         mSmokeCb.getEmitter()->setRate(rate);
@@ -664,15 +774,17 @@ void daObj_Search::Act_c::set_mtx_light_A() {
                     adj = -(1.02f + dot) * (500.0f + m_attr.m10 - REG12_F(0));
                 }
                 dist += adj;
-                mBeamEnd[0] = mBeamEnd[0] + (mBeamEnd[0] - mBeamStart[0]).normZP() * adj;
+                cXyz n = (mBeamEnd[0] - mBeamStart[0]).normZP();
+                mBeamEnd[0] = mBeamEnd[0] + n * adj;
             }
         } else if (mWallHit[0]) {
             f32 adj = (1.02f + dot) * m_attr.m10;
             if (m8D0 == 6) {
-                adj = -(1.02f + dot) * (REG12_F(0) + 6500.0f + m_attr.m10);
+                adj = -(1.02f + dot) * (REG12_F(0) + (6500.0f + m_attr.m10));
             }
             dist += adj;
-            mBeamEnd[0] = mBeamEnd[0] + (mBeamEnd[0] - mBeamStart[0]).normZP() * adj;
+            cXyz n = (mBeamEnd[0] - mBeamStart[0]).normZP();
+            mBeamEnd[0] = mBeamEnd[0] + n * adj;
         }
         m65C = dist;
         m654 = m65C;
@@ -703,10 +815,11 @@ void daObj_Search::Act_c::set_mtx_light_B() {
         if (mWallHit[1]) {
             f32 adj = (1.02f + dot) * m_attr.m10;
             if (m8D0 == 6) {
-                adj = -(1.02f + dot) * (REG12_F(0) + 6500.0f + m_attr.m10);
+                adj = -(1.02f + dot) * (REG12_F(0) + (6500.0f + m_attr.m10));
             }
             dist += adj;
-            mBeamEnd[1] = mBeamEnd[1] + (mBeamEnd[1] - mBeamStart[1]).normZP() * adj;
+            cXyz n = (mBeamEnd[1] - mBeamStart[1]).normZP();
+            mBeamEnd[1] = mBeamEnd[1] + n * adj;
         }
         m660 = dist;
         m658 = m660;
@@ -747,12 +860,13 @@ void daObj_Search::Act_c::set_moveBG_mtx_light_B() {
 /* 80101D30-80101D94       .text bg_check__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::bg_check() {
     if (fopAcM_searchActorDistance(this, dComIfGp_getPlayer(0)) > 2000.0f) {
-        return;
-    }
-    if (mCullBase != 0) {
     } else {
-        set_moveBG_mtx_light_A();
-        set_moveBG_mtx_light_B();
+        switch ((u32)mCullBase) {
+        case 0:
+            set_moveBG_mtx_light_A();
+            set_moveBG_mtx_light_B();
+            break;
+        }
     }
 }
 
