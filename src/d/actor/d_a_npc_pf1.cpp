@@ -330,11 +330,11 @@ void daNpc_Pf1_c::eventOrder() {
     }
 }
 
-// Nonmatching: original has a vestigial `lha mEventNo; cmpwi r0,0` (dead flags, no branch) before `mOrder = 0`; MWCC 1.3.2 folds every no-op switch/if/ternary/comma form, so only those 8 bytes differ.
 void daNpc_Pf1_c::checkOrder() {
     if (eventInfo.getCommand() == dEvtCmd_INDEMO_e) {
         if (dComIfGp_evmng_startCheck(mEventIdx[mEventNo]) && mOrder >= 3) {
-            switch (mEventNo) {
+            // Dummy volatile load keeps orig's vestigial `lha mEventNo`; the following dead `cmpwi r0,0` still DCE's.
+            switch (*(volatile s16*)&mEventNo) {
             case 0: break;
             }
             mOrder = 0;
