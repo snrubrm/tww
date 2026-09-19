@@ -5,12 +5,17 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_mozo.h"
+#include "d/actor/d_a_beam.h"
+#include "d/actor/d_a_player.h"
+#include "d/d_a_obj.h"
 #include "res/Object/Mozo.h"
 #include "f_op/f_op_actor_mng.h"
+#include "JSystem/J3DGraphAnimator/J3DJoint.h"
 #include "JSystem/JUtility/JUTAssert.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_kankyo.h"
 #include "d/d_lib.h"
+#include "d/d_particle.h"
 #include "m_Do/m_Do_mtx.h"
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_hostIO.h"
@@ -46,15 +51,14 @@ static dCcD_SrcCps cps_src = {
     }},
 };
 
-
 static daMozo_HIO_c l_HIO;
+u8 daMozo_c::m_event_flag;
 
 /* 000000EC-000001D0       .text __ct__12daMozo_HIO_cFv */
 daMozo_HIO_c::daMozo_HIO_c() {
-    /* Nonmatching */
-    m3C = 0.0f;
-    m40 = -300.0f;
-    m44 = 600.0f;
+    mTargetOffset.x = 0.0f;
+    mTargetOffset.y = -300.0f;
+    mTargetOffset.z = 600.0f;
     mNo = -1;
     m08 = -1;
     mpBeamChild = &mBeamChild;
@@ -72,26 +76,81 @@ daMozo_HIO_c::daMozo_HIO_c() {
 }
 
 /* 000002D0-00000568       .text daMozo_nodeCallBackBeam__FP8daMozo_cP8J3DModelP7J3DNodei */
-static BOOL daMozo_nodeCallBackBeam(daMozo_c*, J3DModel*, J3DNode*, int) {
-    /* Nonmatching */
+static BOOL daMozo_nodeCallBackBeam(daMozo_c* i_this, J3DModel* model, J3DNode* node, int calcTiming) {
+    J3DJoint* joint = (J3DJoint*)node;
+    int jntNo = joint->getJntNo();
+    if (calcTiming == J3DNodeCBCalcTiming_In) {
+        static cXyz a_beam_start(60.0f, -20.0f, 0.0f);
+        static cXyz a_beam_end(1250.0f, -250.0f, 0.0f);
+        static cXyz a_beamL_start(60.0f, -20.0f, 12.5f);
+        static cXyz a_beamR_start(60.0f, -20.0f, -12.5f);
+
+        mDoMtx_stack_c::copy(model->getAnmMtx(jntNo));
+        mDoMtx_stack_c::multVec(&a_beam_start, &i_this->mHeadPos);
+        mDoMtx_stack_c::multVec(&a_beam_end, &i_this->mHeadEndPos);
+
+        Mtx mtx;
+        mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+        cXyz trans(mtx[0][3], mtx[1][3], mtx[2][3]);
+        mtx[2][3] = 0.0f;
+        mtx[1][3] = 0.0f;
+        mtx[0][3] = 0.0f;
+        mDoMtx_stack_c::transS(trans.x, trans.y, trans.z);
+        mDoMtx_stack_c::quatM(&i_this->mQuatRotation);
+        mDoMtx_stack_c::concat(mtx);
+
+        mDoMtx_stack_c::multVec(&a_beam_start, &i_this->mBeamStart);
+        mDoMtx_stack_c::multVec(&a_beam_end, &i_this->mBeamEnd);
+        mDoMtx_stack_c::multVec(&a_beamL_start, &i_this->mBeamLStart);
+        mDoMtx_stack_c::multVec(&a_beamR_start, &i_this->mBeamRStart);
+
+        model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
+        mDoMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
+    }
+    return TRUE;
 }
 
 /* 00000568-00000728       .text daMozo_nodeCallBackFire__FP8daMozo_cP8J3DModelP7J3DNodei */
-static BOOL daMozo_nodeCallBackFire(daMozo_c*, J3DModel*, J3DNode*, int) {
-    /* Nonmatching */
+static BOOL daMozo_nodeCallBackFire(daMozo_c* i_this, J3DModel* model, J3DNode* node, int calcTiming) {
+    J3DJoint* joint = (J3DJoint*)node;
+    int jntNo = joint->getJntNo();
+    if (calcTiming == J3DNodeCBCalcTiming_In) {
+        static cXyz a_fire_start(0.0f, 0.0f, 0.0f);
+        static cXyz a_fire_end(5000.0f, 0.0f, 0.0f);
+
+        mDoMtx_stack_c::copy(model->getAnmMtx(jntNo));
+        mDoMtx_stack_c::multVec(&a_fire_start, &i_this->mHeadPos);
+        mDoMtx_stack_c::multVec(&a_fire_end, &i_this->mHeadEndPos);
+
+        Mtx mtx;
+        mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+        cXyz trans(mtx[0][3], mtx[1][3], mtx[2][3]);
+        mtx[2][3] = 0.0f;
+        mtx[1][3] = 0.0f;
+        mtx[0][3] = 0.0f;
+        mDoMtx_stack_c::transS(trans.x, trans.y, trans.z);
+        mDoMtx_stack_c::quatM(&i_this->mQuatRotation);
+        mDoMtx_stack_c::concat(mtx);
+
+        mDoMtx_stack_c::multVec(&a_fire_start, &i_this->mFireStart);
+        mDoMtx_stack_c::multVec(&a_fire_end, &i_this->mFireEnd);
+
+        model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
+        mDoMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
+    }
+    return TRUE;
 }
 
 /* 00000728-0000078C       .text daMozo_nodeCallBack__FP7J3DNodei */
 static BOOL daMozo_nodeCallBack(J3DNode* node, int calcTiming) {
-    /* Nonmatching */
-    J3DJoint* joint = (J3DJoint*)node;
-    s32 jntNo = joint->getJntNo();
     J3DModel* model = j3dSys.getModel();
     daMozo_c* i_this = (daMozo_c*)model->getUserArea();
 
-    switch (i_this->field_0x376) {
-    case 0: return daMozo_nodeCallBackBeam(i_this, model, node, calcTiming);
-    case 1: return daMozo_nodeCallBackFire(i_this, model, node, calcTiming);
+    switch (i_this->mType) {
+    case 0:
+        return daMozo_nodeCallBackBeam(i_this, model, node, calcTiming);
+    case 1:
+        return daMozo_nodeCallBackFire(i_this, model, node, calcTiming);
     }
 
     return TRUE;
@@ -148,69 +207,388 @@ void daMozo_c::set_mtx() {
 
 /* 00000AAC-00000C38       .text anime_proc__8daMozo_cFv */
 void daMozo_c::anime_proc() {
-    /* Nonmatching */
+    mAnimMorf->play(NULL, 0, 0);
+    mBrkAnm.play();
+    mBtkAnm.play();
+
+    if (mAnimMorf->getFrame() < 24.0f) {
+        fopAcM_seStart(this, JA_SE_OBJ_MO_STATUE_MOVE, 0);
+    }
+
+    if (mAnimMorf->checkFrame(35.0f)) {
+        if (mAnimMorf->getPlaySpeed() > 0.0f) {
+            fopAcM_seStart(this, JA_SE_OBJ_MO_STATUE_OPEN, 0);
+        } else {
+            mDoAud_seStopActor(&eyePos, JA_SE_OBJ_MO_STATUE_OPEN);
+            fopAcM_seStart(this, JA_SE_OBJ_MO_STATUE_CLOSE, 0);
+        }
+    }
 }
 
 /* 00000C38-00000C90       .text wait_proc_init__8daMozo_cFv */
 void daMozo_c::wait_proc_init() {
-    /* Nonmatching */
+    setAnm(0, 0.0f);
+    setProcess(&daMozo_c::wait_proc);
 }
 
 /* 00000C90-00000D58       .text wait_proc__8daMozo_cFv */
 void daMozo_c::wait_proc() {
-    /* Nonmatching */
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    if (checkRange(0) && !player->checkPlayerFly()) {
+        switch (mType) {
+        case 0:
+            search_beam_proc_init();
+            break;
+        case 1:
+            search_fire_proc_init();
+            break;
+        case 2:
+            search_beam_proc_init();
+            break;
+        }
+
+        if (m_event_flag == 0) {
+            m377 = 1;
+        }
+    }
 }
 
 /* 00000D58-00000DE0       .text search_beam_proc_init__8daMozo_cFv */
 void daMozo_c::search_beam_proc_init() {
-    /* Nonmatching */
+    setAnm(1, 0.0f);
+    setProcess(&daMozo_c::search_beam_proc);
+    mBrkAnm.setFrame(0.0f);
+    mBtkAnm.setFrame(0.0f);
+    mBrkAnm.setPlaySpeed(1.0f);
+    mBtkAnm.setPlaySpeed(1.0f);
 }
 
 /* 00000DE0-00001230       .text search_beam_proc__8daMozo_cFv */
 void daMozo_c::search_beam_proc() {
-    /* Nonmatching */
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    if (mAnimMorf->getFrame() > 30.0f) {
+        cXyz toPlayer = player->current.pos - mHeadPos;
+        cXyz headDir = mHeadEndPos - mHeadPos;
+        Quaternion quat;
+        daObj::quat_rotVec(&quat, headDir, toPlayer);
+        C_QUATSlerp(&mQuatRotation, &quat, &mQuatRotation, 0.2f);
+    }
+
+    anime_proc();
+
+    if (mAnimMorf->getFrame() > mAnimMorf->getEndFrame() - 1.0f) {
+        daBeam_c* beam1 = (daBeam_c*)getBeamActor(mBeamID1);
+        daBeam_c* beam2 = (daBeam_c*)getBeamActor(mBeamID2);
+        if (beam1 != NULL && beam2 != NULL) {
+            cXyz dir = mBeamEnd - mBeamStart;
+            csXyz angle = csXyz::Zero;
+            angle.y = cM_atan2s(dir.x, dir.z);
+            cXyz xz(dir.x, 0.0f, dir.z);
+            angle.x = cM_atan2s(-dir.y, xz.abs());
+
+            if (!beam1->beamCheck()) {
+                beam1->beamOn();
+            }
+            if (beam1->m5F4 == 0) {
+                beam1->m5A8 = 0.0f;
+                if (beam1->m588 < 5.0f) {
+                    beam1->m588 += 1.0f;
+                } else {
+                    beam1->m5A8 = 0.0f;
+                    beam1->m588 = 5.0f;
+                    beam1->m5F4 = 1;
+                }
+            } else {
+                beam1->m5A8 = 0.0f;
+                beam1->m588 = 5.0f;
+            }
+            beam1->setPosAngle(mBeamLStart, angle);
+            beam1->m694 = 15.0f;
+
+            if (!beam2->beamCheck()) {
+                beam2->beamOn();
+            }
+            if (beam2->m5F4 == 0) {
+                beam2->m5A8 = 0.0f;
+                if (beam2->m588 < 5.0f) {
+                    beam2->m588 += 1.0f;
+                } else {
+                    beam2->m5A8 = 0.0f;
+                    beam2->m588 = 5.0f;
+                    beam2->m5F4 = 1;
+                }
+            } else {
+                beam2->m5A8 = 0.0f;
+                beam2->m588 = 5.0f;
+            }
+            beam2->setPosAngle(mBeamRStart, angle);
+            beam2->m694 = 15.0f;
+        }
+    }
+
+    if (!checkRange(1)) {
+        towait_proc_init();
+    }
 }
 
 /* 00001230-000012C0       .text search_fire_proc_init__8daMozo_cFv */
 void daMozo_c::search_fire_proc_init() {
-    /* Nonmatching */
+    setAnm(1, 0.0f);
+    setProcess(&daMozo_c::search_fire_proc);
+    mBrkAnm.setFrame(0.0f);
+    mBtkAnm.setFrame(0.0f);
+    mBrkAnm.setPlaySpeed(1.0f);
+    mBtkAnm.setPlaySpeed(1.0f);
+    mFireTimer = 0;
 }
 
 /* 000012C0-000017F4       .text search_fire_proc__8daMozo_cFv */
 void daMozo_c::search_fire_proc() {
-    /* Nonmatching */
+    if (mAnimMorf->getFrame() > 30.0f || mAnm == 4 || mAnm == 3) {
+        mDoMtx_stack_c::YrotS(current.angle.y);
+        cXyz target;
+        mDoMtx_stack_c::multVec(&l_HIO.mTargetOffset, &target);
+        target += current.pos;
+        target -= mHeadPos;
+        cXyz headDir = mHeadEndPos - mHeadPos;
+        Quaternion quat;
+        daObj::quat_rotVec(&quat, headDir, target);
+        C_QUATSlerp(&mQuatRotation, &quat, &mQuatRotation, 0.2f);
+    }
+
+    anime_proc();
+
+    if (mAnm == 1 || mAnm == 3) {
+        if (mAnimMorf->getFrame() > mAnimMorf->getEndFrame() - 50.0f) {
+            if (mFireEmitter0 == NULL) {
+                mFireEmitter0 = dComIfGp_particle_set(dPa_name::ID_AK_SN_MOZFIRE00, &current.pos);
+            }
+            if (mFireEmitter1 == NULL) {
+                mFireEmitter1 = dComIfGp_particle_setToon(dPa_name::ID_AK_SN_MOZFIRE01, &current.pos);
+            }
+
+            mDoMtx_stack_c::copy(mAnimMorf->getModel()->getAnmMtx(MOZ_JNT_ATAMA_J_e));
+            mDoMtx_stack_c::XYZrotM(0x640, 0x4000, 0);
+            mDoMtx_stack_c::transM(0.0f, 50.0f, 52.0f);
+            if (mFireEmitter0 != NULL) {
+                mFireEmitter0->setGlobalRTMatrix(mDoMtx_stack_c::get());
+            }
+            if (mFireEmitter1 != NULL) {
+                mFireEmitter1->setGlobalRTMatrix(mDoMtx_stack_c::get());
+            }
+
+            cXyz dir = mFireEnd - mFireStart;
+            if (!dir.normalizeRS()) {
+                dir = cXyz::Zero;
+            }
+            cXyz scaled = dir;
+            f32 length = 45.0f * mFireTimer;
+            f32 radius = 3.0f * mFireTimer;
+            if (length > 600.0f) {
+                length = 600.0f;
+            }
+            if (radius > 80.0f) {
+                radius = 80.0f;
+            }
+            scaled *= length;
+            scaled += mFireStart;
+            mCps.cM3dGCps::Set(mFireStart, scaled, radius);
+            mCps.SetAtVec(dir);
+            dComIfG_Ccsp()->Set(&mCps);
+            mSePos = scaled;
+            mDoAud_seStart(JA_SE_OBJ_MO_STATUE_FIRE, &mSePos, 0, 0);
+
+            if (mFireTimer++ > 0x3C) {
+                setAnm(4, 0.0f);
+                if (mFireEmitter0 != NULL) {
+                    mFireEmitter0->setRate(0.0f);
+                    mFireEmitter0->becomeInvalidEmitter();
+                    mFireEmitter0 = NULL;
+                }
+                if (mFireEmitter1 != NULL) {
+                    mFireEmitter1->setRate(0.0f);
+                    mFireEmitter1->becomeInvalidEmitter();
+                    mFireEmitter1 = NULL;
+                }
+                towait_proc_init();
+            }
+        }
+    } else if (mAnm == 4) {
+        if (mAnimMorf->getFrame() < 30.0f) {
+            setAnm(3, 8.0f);
+            mFireTimer = 0;
+        }
+    }
 }
 
 /* 000017F4-00001874       .text towait_proc_init__8daMozo_cFv */
 void daMozo_c::towait_proc_init() {
-    /* Nonmatching */
+    setAnm(2, 0.0f);
+    mAnimMorf->setPlaySpeed(-0.5f);
+    setProcess(&daMozo_c::towait_proc);
+    mBrkAnm.setPlaySpeed(-1.0f);
+    mBtkAnm.setPlaySpeed(-1.0f);
 }
 
 /* 00001874-00001B3C       .text towait_proc__8daMozo_cFv */
 void daMozo_c::towait_proc() {
-    /* Nonmatching */
+    daBeam_c* beam1 = (daBeam_c*)getBeamActor(mBeamID1);
+    daBeam_c* beam2 = (daBeam_c*)getBeamActor(mBeamID2);
+    C_QUATSlerp(&mQuatRotation, &ZeroQuat, &mQuatRotation, 0.05f);
+    anime_proc();
+
+    if (mType == 0) {
+        if (beam1 == NULL || beam2 == NULL) {
+            return;
+        }
+
+        if (beam1->beamCheck()) {
+            beam1->beamOff();
+        }
+        BOOL done1;
+        if (beam1->m5F4 == 1) {
+            if (beam1->m588 < 5.0f) {
+                beam1->m588 += 1.0f;
+            }
+            if (beam1->m5A8 < 4.0f) {
+                beam1->m5A8 += 1.0f;
+                done1 = FALSE;
+            } else {
+                beam1->m5A8 = 0.0f;
+                beam1->m588 = 0.0f;
+                beam1->m5F4 = 0;
+                done1 = TRUE;
+            }
+        } else {
+            beam1->m588 = 0.0f;
+            beam1->m5A8 = 0.0f;
+            done1 = TRUE;
+        }
+
+        if (beam2->beamCheck()) {
+            beam2->beamOff();
+        }
+        BOOL done2;
+        if (beam2->m5F4 == 1) {
+            if (beam2->m588 < 5.0f) {
+                beam2->m588 += 1.0f;
+            }
+            if (beam2->m5A8 < 4.0f) {
+                beam2->m5A8 += 1.0f;
+                done2 = FALSE;
+            } else {
+                beam2->m5A8 = 0.0f;
+                beam2->m588 = 0.0f;
+                beam2->m5F4 = 0;
+                done2 = TRUE;
+            }
+        } else {
+            beam2->m588 = 0.0f;
+            beam2->m5A8 = 0.0f;
+            done2 = TRUE;
+        }
+
+        if (done1 && done2 && mQuatRotation.w > 0.99f && mAnimMorf->getFrame() < 25.0f &&
+            mBrkAnm.getFrame() < 1.0f && mBtkAnm.getFrame() < 1.0f)
+        {
+            wait_proc_init();
+        }
+    } else if (mType == 1) {
+        if (mQuatRotation.w > 0.99f && mAnimMorf->getFrame() < 25.0f && mBrkAnm.getFrame() < 1.0f &&
+            mBtkAnm.getFrame() < 1.0f)
+        {
+            wait_proc_init();
+        }
+    }
 }
 
 /* 00001B3C-00001D8C       .text checkRange__8daMozo_cFi */
-void daMozo_c::checkRange(int) {
-    /* Nonmatching */
+BOOL daMozo_c::checkRange(int param) {
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    if (param == 0 && ((daPy_py_c*)player)->checkGrabWear()) {
+        return FALSE;
+    }
+
+    cXyz delta = player->current.pos - current.pos;
+    f32 dist = delta.absXZ();
+    if (delta.y > -280.0f) {
+        return FALSE;
+    }
+
+    daMozo_childHIO_c* child = (&l_HIO.mpBeamChild)[mType];
+    f32 range;
+    s16 maxAngle;
+    if (param == 0) {
+        range = child->m04;
+        maxAngle = child->m0C;
+    } else {
+        range = child->m08;
+        maxAngle = child->m0E;
+    }
+
+    cXyz dir(cM_ssin(current.angle.y), 0.0f, cM_scos(current.angle.y));
+    f32 inprod = delta.inprod(dir);
+    if (cLib_distanceAngleS(fopAcM_searchActorAngleY(this, player), current.angle.y) < maxAngle &&
+        dist < range && inprod > 200.0f)
+    {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /* 00001D8C-00001F70       .text setAnm__8daMozo_cFif */
-void daMozo_c::setAnm(int, float) {
-    /* Nonmatching */
+void daMozo_c::setAnm(int i_anm, float i_morf) {
+    mAnm = i_anm;
+    J3DAnmTransform* bck;
+    f32 speed;
+    f32 start;
+    f32 end;
+    switch (i_anm) {
+    case 0:
+        bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        start = 0.0f;
+        end = -1.0f;
+        speed = 0.0f;
+        break;
+    case 1:
+        bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        start = 0.0f;
+        end = -1.0f;
+        speed = 1.0f;
+        break;
+    case 2:
+        bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        start = 24.0f;
+        end = 36.0f;
+        speed = -0.25f;
+        break;
+    case 3:
+        bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        start = 25.0f;
+        end = -1.0f;
+        speed = 1.0f;
+        break;
+    case 4:
+        bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        start = 32.0f;
+        end = 36.0f;
+        speed = -0.25f;
+        break;
+    default:
+        return;
+    }
+    mAnimMorf->setAnm(bck, J3DFrameCtrl::EMode_NONE, i_morf, speed, start, end, NULL);
 }
 
 /* 00001F70-00002228       .text CreateInit__8daMozo_cFv */
 cPhs_State daMozo_c::CreateInit() {
-    /* Nonmatching */
     J3DModelData* mdlData = mAnimMorf->getModel()->getModelData();
 
     u8 temp = fopAcM_GetParam(this) & 0xFF;
     if (temp == 0xFF) {
         temp = 0;
     }
-    field_0x376 = cLib_minMaxLimit<u8>(temp, 0, 2);
+    mType = cLib_minMaxLimit<u8>(temp, 0, 2);
 
     mAnimMorf->getModel()->setUserArea((u32)this);
     for (u16 i = 0; i < mdlData->getJointNum(); i++) {
@@ -221,10 +599,27 @@ cPhs_State daMozo_c::CreateInit() {
 
     mQuatRotation = ZeroQuat;
 
-    fopAcM_setCullSizeBox(this, -1000.0f, -1000.0f, -1000.0f, 1000.0f, 1000.0f, 1000.0f);
+    fopAcM_SetMin(this, -1000.0f, -1000.0f, -1000.0f);
+    fopAcM_SetMax(this, 1000.0f, 1000.0f, 1000.0f);
     fopAcM_SetMtx(this, mAnimMorf->getModel()->getBaseTRMtx());
 
-    // TODO: Insert missing code here
+    mBeamLStart = current.pos;
+    mBeamRStart = current.pos;
+
+    if (mType == 0) {
+        cXyz beamScale(1.5f, 1.5f, 20.0f);
+        mBeamID1 = fopAcM_createChild(
+            fpcNm_Beam_e, fopAcM_GetID(this), 0, &mBeamLStart, fopAcM_GetRoomNo(this), NULL, &beamScale, -1, NULL
+        );
+        mBeamID2 = fopAcM_createChild(
+            fpcNm_Beam_e, fopAcM_GetID(this), 0x30000000, &mBeamRStart, fopAcM_GetRoomNo(this), NULL, &beamScale, -1, NULL
+        );
+    } else {
+        mStts.Init(0xFF, 0xFF, this);
+        mCps.Set(cps_src);
+        mCps.SetStts(&mStts);
+        mCps.cM3dGCps::Set(current.pos, current.pos, 25.0f);
+    }
 
     set_mtx();
     mAnimMorf->calc();
@@ -257,7 +652,13 @@ cPhs_State daMozo_c::_create() {
 
 /* 000023B0-0000242C       .text _delete__8daMozo_cFv */
 bool daMozo_c::_delete() {
-    /* Nonmatching */
+    dComIfG_resDelete(&mPhs, "Mozo");
+    mDoAud_seDeleteObject(&mSePos);
+    if (l_HIO.mNo >= 0) {
+        mDoHIO_deleteChild(l_HIO.mNo);
+        l_HIO.mNo = -1;
+    }
+    return true;
 }
 
 /* 0000242C-00002498       .text getBeamActor__8daMozo_cFUi */
@@ -272,7 +673,26 @@ fopAc_ac_c* daMozo_c::getBeamActor(fpc_ProcID apid) {
 
 /* 00002498-00002588       .text event_move__8daMozo_cFv */
 void daMozo_c::event_move() {
-    /* Nonmatching */
+    if (m_event_flag == 2) {
+        return;
+    }
+
+    if (eventInfo.checkCommandDemoAccrpt()) {
+        m377 = 0;
+        m_event_flag = 1;
+    }
+
+    if (m_event_flag == 1) {
+        if (dComIfGp_evmng_endCheck("MOZO_CAM")) {
+            dComIfGp_event_reset();
+            m_event_flag = 2;
+        }
+    }
+
+    if (m_event_flag == 0 && m377 == 1) {
+        fopAcM_orderOtherEvent2(this, "MOZO_CAM", dEvtFlag_NOPARTNER_e, 0xFFFF);
+        eventInfo.onCondition(dEvtCnd_UNK2_e);
+    }
 }
 
 /* 00002588-000025DC       .text _execute__8daMozo_cFv */
@@ -288,13 +708,12 @@ bool daMozo_c::_execute() {
 
 /* 000025DC-0000267C       .text _draw__8daMozo_cFv */
 bool daMozo_c::_draw() {
-    /* Nonmatching */
     J3DModelData* mdlData = mAnimMorf->getModel()->getModelData();
     g_env_light.settingTevStruct(TEV_TYPE_BG0, &current.pos, &tevStr);
     g_env_light.setLightTevColorType(mAnimMorf->getModel(), &tevStr);
 
-    mBrkAnm.entry(mdlData);
-    mBtkAnm.entry(mdlData);
+    mBrkAnm.entry(mdlData, mBrkAnm.getFrame());
+    mBtkAnm.entry(mdlData, mBtkAnm.getFrame());
     mAnimMorf->entryDL();
 
     return true;
