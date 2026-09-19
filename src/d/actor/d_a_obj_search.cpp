@@ -110,13 +110,13 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 
 /* 800FDB1C-800FDB8C       .text _createHeap__Q212daObj_Search5Act_cFv */
 BOOL daObj_Search::Act_c::_createHeap() {
-    if (!searchCreateHeap()) {
+    if ((u8)searchCreateHeap() == 0) {
         return FALSE;
     }
-    if (!beamCreateHeap(0)) {
+    if ((u8)beamCreateHeap(0) == 0) {
         return FALSE;
     }
-    return beamCreateHeap(1) ? TRUE : FALSE;
+    return (u8)beamCreateHeap(1) ? TRUE : FALSE;
 }
 
 /* 800FDB8C-800FDCAC       .text searchCreateHeap__Q212daObj_Search5Act_cFv */
@@ -541,16 +541,16 @@ void daObj_Search::Act_c::modeFind2nd() {
 
     static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
     cXyz offset = pos;
-    cXyz dir = (offset + player->current.pos) - mBeamStart[m830];
+    offset = (offset + player->current.pos) - mBeamStart[m830];
     m7B0 = mLightAng[0].y;
-    s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
-    s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+    s16 yaw = cM_atan2s(offset.x, offset.z) - current.angle.y;
+    int pitch = cM_atan2s(offset.y, std::sqrtf(offset.x * offset.x + offset.z * offset.z));
     bool hit = false;
 
     s16 maxP = REG12_S(0) + 0x6590;
     s16 minP = REG12_S(1) - 0x2710;
-    bool above = maxP < pitch;
-    bool below = pitch < minP;
+    BOOL above = (int)pitch < (int)maxP;
+    BOOL below = (int)minP < (int)pitch;
     if (above) {
         s16 tmp = pitch;
         if (pitch < maxP) {
@@ -582,14 +582,13 @@ void daObj_Search::Act_c::modeFind2nd() {
         mLightAng[1].y = yaw;
     } else {
         yaw += 0x8000;
-        pitch = -pitch;
+        pitch = (s16)-pitch;
         mLightAng[0].y = yaw;
     }
 
-    s16 tgtY = yaw;
-    s16 tgtX = pitch;
-    cLib_addCalcAngleS2(&mLightAng[m830].y, tgtY, 10, 0x400);
-    cLib_addCalcAngleS2(&mLightAng[m830].x, tgtX, 10, 0x400);
+    s16 pitchS = pitch;
+    cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].x, pitchS, 10, 0x400);
 }
 
 /* 800FF7A4-800FF7A8       .text modeSearchBdkInit__Q212daObj_Search5Act_cFv */
