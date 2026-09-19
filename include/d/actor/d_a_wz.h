@@ -60,7 +60,7 @@ public:
     /* 0x358 */ int mPathPointIdx;
     /* 0x35C */ fpc_ProcID mChildIds[20];
     /* 0x3AC */ u8 mChildAlive[20];
-    /* 0x3C0 */ u8 m3C0[0x3D4 - 0x3C0];
+    /* 0x3C0 */ u8 mChildHidden[20];
     /* 0x3D4 */ s16 mTimer;
     /* 0x3D6 */ s16 mTimers[4];
     /* 0x3DE */ s16 m3DE[4];
@@ -86,7 +86,11 @@ public:
     /* 0x428 */ dPath* mpPath;
     /* 0x42C */ u8 m42C[0x439 - 0x42C];
     /* 0x439 */ u8 m439;
-    /* 0x43A */ u8 m43A[0x468 - 0x43A];
+    /* 0x43A */ u8 m43A[0x43C - 0x43A];
+    /* 0x43C */ cXyz mCamEye;
+    /* 0x448 */ cXyz mCamCenter;
+    /* 0x454 */ u8 m454[0x464 - 0x454];
+    /* 0x464 */ f32 mCamFov;
     /* 0x468 */ dBgS_AcchCir mAcchCir;
     /* 0x4A8 */ dBgS_ObjAcch mAcch;
     /* 0x66C */ dCcD_Stts mStts;
