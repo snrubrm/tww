@@ -31,7 +31,7 @@ public:
     /* 0x33A */ u8 mNoticeRangeParam;
     /* 0x33B */ u8 mColorIndex;
     /* 0x33C */ u8 mHitByWhat;
-    /* 0x33D */ u8 m33D[0x33E - 0x33D];
+    /* 0x33D */ u8 m33D;
     /* 0x33E */ u8 m33E;
     /* 0x33F */ u8 m33F;
     /* 0x340 */ u8 m340;
