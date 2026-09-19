@@ -913,7 +913,7 @@ void daPz_c::setAnmRunSpeed() {
         mpMorf->setPlaySpeed(speed);
         int frame = (int)mpMorf->getFrame();
         if (frame == 7 || frame == 0xE) {
-            static cXyz run_splash_scale(0.6f, 0.6f, 0.6f);
+            static JGeometry::TVec3<f32> run_splash_scale(0.6f, 0.6f, 0.6f);
             int dummy;
             JPABaseEmitter* emitter = dComIfGp_particle_setSimpleLand(
                 mObjAcch.m_gnd, &current.pos, &shape_angle,
@@ -1207,17 +1207,9 @@ void daPz_c::modeMove() {
     m_jnt.clrTrn();
     cLib_addCalc2(&mCirclePath.mRadius, (&l_HIO.mA0)[mTalkState], 0.1f, 10.0f);
 
-    cXyz toPath = current.pos - mCirclePath.mPos;
-    toPath.y = 0.0f;
-    f32 distToPath = toPath.abs();
-
-    cXyz toLook = current.pos - mLookPos;
-    toLook.y = 0.0f;
-    toLook.abs();
-
-    cXyz lookToPath = mLookPos - mCirclePath.mPos;
-    lookToPath.y = 0.0f;
-    f32 distLookToPath = lookToPath.abs();
+    f32 distToPath = (current.pos - mCirclePath.mPos).absXZ();
+    f32 unusedLookDist = (current.pos - mLookPos).absXZ();
+    f32 distLookToPath = (mLookPos - mCirclePath.mPos).absXZ();
 
     if (distToPath > 200.0f + REG12_F(7) || mbEyesFollowGanondorf == 0) {
         m0924 = l_HIO.m50;
@@ -1234,13 +1226,9 @@ void daPz_c::modeMove() {
 
     if (cLib_calcTimer(&m08F0) == 0) {
         f32 distGnd = 100000.0f;
-        cXyz lookDiff = current.pos - mLookPos;
-        lookDiff.y = 0.0f;
-        f32 distLook = lookDiff.abs();
+        f32 distLook = (current.pos - mLookPos).absXZ();
         if (mbHasGanondorf) {
-            cXyz gndDiff = current.pos - mGanondorfPosCurrent;
-            gndDiff.y = 0.0f;
-            distGnd = gndDiff.abs();
+            distGnd = (current.pos - mGanondorfPosCurrent).absXZ();
         }
         if (mbEyesFollowGanondorf && (distLook < l_HIO.mD0 || distGnd < l_HIO.mD0)) {
             mPrevMode = mMode;
@@ -1259,8 +1247,7 @@ void daPz_c::modeMove() {
 
     if (mTalkState == 2) {
         fopAc_ac_c* player = dComIfGp_getPlayer(0);
-        cXyz playerPos = player->current.pos;
-        m0F81 = dLib_checkActorInFan(playerPos, this, player->shape_angle.y, 0x2500, 30000.0f, 1000.0f);
+        m0F81 = dLib_checkActorInFan(player->current.pos, this, player->shape_angle.y, 0x2500, 30000.0f, 1000.0f);
     }
 
     if (l_HIO.m34[1] == 0) {
@@ -1307,14 +1294,10 @@ void daPz_c::modeAttackWait() {
     }
 
     if (cLib_calcTimer(&m08F0) == 0) {
-        cXyz lookDiff = current.pos - mLookPos;
-        lookDiff.y = 0.0f;
-        f32 distLook = lookDiff.abs();
+        f32 distLook = (current.pos - mLookPos).absXZ();
         f32 distGnd = 100000.0f;
         if (mbHasGanondorf) {
-            cXyz gndDiff = current.pos - mGanondorfPosCurrent;
-            gndDiff.y = 0.0f;
-            distGnd = gndDiff.abs();
+            distGnd = (current.pos - mGanondorfPosCurrent).absXZ();
         }
         if (mbEyesFollowGanondorf && (distLook < l_HIO.mD0 || distGnd < l_HIO.mD0)) {
             mPrevMode = mMode;
@@ -1416,14 +1399,10 @@ void daPz_c::modeAttack() {
 
     if (isAnm(4) || isAnm(5)) {
         if (cLib_calcTimer(&m08F4) == 0) {
-            cXyz lookDiff = current.pos - mLookPos;
-            lookDiff.y = 0.0f;
-            f32 distLook = lookDiff.abs();
+            f32 distLook = (current.pos - mLookPos).absXZ();
             f32 distGnd = 100000.0f;
             if (mbHasGanondorf) {
-                cXyz gndDiff = current.pos - mGanondorfPosCurrent;
-                gndDiff.y = 0.0f;
-                distGnd = gndDiff.abs();
+                distGnd = (current.pos - mGanondorfPosCurrent).absXZ();
             }
             if (mbEyesFollowGanondorf && (distLook < l_HIO.mD0 || distGnd < l_HIO.mD0)) {
                 mPrevMode = mMode;
@@ -1533,6 +1512,7 @@ void daPz_c::modeDownInit() {
 /* 0000470C-00004C20       .text modeDown__6daPz_cFv */
 void daPz_c::modeDown() {
     /* Nonmatching */
+    int dummy;
     m0924 = 0.0f;
     speedF = 0.0f;
     m_jnt.clrTrn();
@@ -1547,7 +1527,6 @@ void daPz_c::modeDown() {
         mDoMtx_stack_c::multVec(&offset, &dst);
         current.pos += dst;
         if (isAnm(8) && mpMorf->isStop()) {
-            int dummy;
             dComIfGp_particle_setSimpleLand(
                 mObjAcch.m_gnd, &current.pos, &shape_angle,
                 m_smoke_ef, m_grass_ef, 1.0f, &tevStr, &dummy, 7
@@ -1558,8 +1537,7 @@ void daPz_c::modeDown() {
     int frame = (int)mpMorf->getFrame();
     if (isAnm(8)) {
         if ((f32)frame == 1.0f + REG12_F(10)) {
-            static cXyz run_splash_scale(0.6f, 0.6f, 0.6f);
-            int dummy;
+            static JGeometry::TVec3<f32> run_splash_scale(0.6f, 0.6f, 0.6f);
             JPABaseEmitter* emitter = dComIfGp_particle_setSimpleLand(
                 mObjAcch.m_gnd, &current.pos, &shape_angle,
                 2.5f, 3.0f, 2.0f, &tevStr, &dummy, 7
@@ -1571,8 +1549,7 @@ void daPz_c::modeDown() {
             }
         }
         if ((f32)frame == 2.0f + REG12_F(10)) {
-            static cXyz run_splash_scale(0.6f, 0.6f, 0.6f);
-            int dummy;
+            static JGeometry::TVec3<f32> run_splash_scale(0.6f, 0.6f, 0.6f);
             JPABaseEmitter* emitter = dComIfGp_particle_setSimpleLand(
                 mObjAcch.m_gnd, &mWaistPos, &shape_angle,
                 2.5f, 3.0f, 2.0f, &tevStr, &dummy, 7
@@ -1584,8 +1561,7 @@ void daPz_c::modeDown() {
             }
         }
         if ((f32)frame == 3.0f + REG12_F(10)) {
-            static cXyz run_splash_scale(0.6f, 0.6f, 0.6f);
-            int dummy;
+            static JGeometry::TVec3<f32> run_splash_scale(0.6f, 0.6f, 0.6f);
             JPABaseEmitter* emitter = dComIfGp_particle_setSimpleLand(
                 mObjAcch.m_gnd, &mEyePos, &shape_angle,
                 2.5f, 3.0f, 2.0f, &tevStr, &dummy, 7
@@ -1818,9 +1794,7 @@ void daPz_c::modeFollow() {
 
     m_jnt.clrTrn();
 
-    cXyz toFollow = current.pos - mFollowPos;
-    toFollow.y = 0.0f;
-    f32 distFollow = toFollow.abs();
+    f32 distFollow = (current.pos - mFollowPos).absXZ();
     if (distFollow > 200.0f && mbEyesFollowGanondorf == 0 && !blocked) {
         m0924 = l_HIO.m50;
     } else if (mbEyesFollowGanondorf) {
@@ -1836,20 +1810,15 @@ void daPz_c::modeFollow() {
     mFollowPos = mGanondorfPosCurrent;
     s16 ang = cLib_targetAngleY(&player->current.pos, &mGanondorfPosCurrent);
     cLib_distanceAngleS(ang, shape_angle.y);
-    s16 rot = ang + 0x4000 + REG12_S(0);
-    mFollowPos.x += radius * cM_ssin(rot);
-    mFollowPos.z += radius * cM_scos(rot);
+    mFollowPos.x += radius * cM_ssin(REG12_S(0) + (ang + 0x4000));
+    mFollowPos.z += radius * cM_scos(REG12_S(0) + (ang + 0x4000));
     mFollowPos.y += 200.0f;
 
     if (cLib_calcTimer(&m08F0) == 0) {
         f32 distGnd = 100000.0f;
-        cXyz lookDiff = current.pos - mLookPos;
-        lookDiff.y = 0.0f;
-        f32 distLook = lookDiff.abs();
+        f32 distLook = (current.pos - mLookPos).absXZ();
         if (mbHasGanondorf) {
-            cXyz gndDiff = current.pos - mGanondorfPosCurrent;
-            gndDiff.y = 0.0f;
-            distGnd = gndDiff.abs();
+            distGnd = (current.pos - mGanondorfPosCurrent).absXZ();
         }
         if (mbEyesFollowGanondorf && (distLook < l_HIO.mD0 || distGnd < l_HIO.mD0)) {
             mPrevMode = mMode;
