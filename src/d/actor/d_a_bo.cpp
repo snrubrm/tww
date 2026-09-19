@@ -6,10 +6,45 @@
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_bo.h"
 #include "d/d_cc_d.h"
+#include "d/d_com_inf_game.h"
+#include "d/d_camera.h"
+#include "f_op/f_op_camera.h"
+#include "d/d_kankyo.h"
+#include "d/d_particle.h"
+#include "f_op/f_op_actor_mng.h"
+#include "m_Do/m_Do_ext.h"
+#include "m_Do/m_Do_mtx.h"
+#include "JSystem/J3DGraphAnimator/J3DJoint.h"
+#include "JSystem/J3DGraphAnimator/J3DNode.h"
+#include "c/c_damagereaction.h"
 
 /* 000000EC-000001E8       .text smoke_set__FP8bo_class */
-void smoke_set(bo_class*) {
-    /* Nonmatching */
+void smoke_set(bo_class* i_this) {
+    GXColor color = {0xA0, 0xA0, 0x80, 0xFF};
+
+    i_this->mSmokeCb.remove();
+    dComIfGp_particle_setToon(
+        dPa_name::ID_AK_JT_ELEMENTSMOKE01,
+        &i_this->m39C,
+        &i_this->shape_angle,
+        NULL,
+        0xB9,
+        &i_this->mSmokeCb,
+        fopAcM_GetRoomNo(i_this)
+    );
+
+    JPABaseEmitter* emitter = i_this->mSmokeCb.getEmitter();
+    if (emitter != NULL) {
+        JGeometry::TVec3<f32> scale;
+        scale.x = scale.y = scale.z = 3.0f;
+        emitter->setGlobalParticleScale(scale);
+        emitter->setRate(30.0f);
+        emitter->setMaxFrame(1);
+        emitter->setAwayFromCenterSpeed(10.0f);
+        emitter->setAwayFromAxisSpeed(10.0f);
+        emitter->becomeImmortalEmitter();
+        i_this->mSmokeCb.setColor(color);
+    }
 }
 
 /* 000001E8-00000638       .text nodeCallBack_UP__FP7J3DNodei */
@@ -18,18 +53,76 @@ static BOOL nodeCallBack_UP(J3DNode*, int) {
 }
 
 /* 00000638-000006C8       .text nodeCallBack_DW__FP7J3DNodei */
-static BOOL nodeCallBack_DW(J3DNode*, int) {
-    /* Nonmatching */
+static BOOL nodeCallBack_DW(J3DNode* node, int calcTiming) {
+    if (calcTiming == J3DNodeCBCalcTiming_In) {
+        J3DJoint* joint = (J3DJoint*)node;
+        s32 jntNo = joint->getJntNo();
+        J3DModel* model = j3dSys.getModel();
+        bo_class* i_this = (bo_class*)model->getUserArea();
+        if (i_this) {
+            if (jntNo == 9) {
+                MTXCopy(model->getAnmMtx(jntNo), *calc_mtx);
+
+                cXyz offset;
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 0.0f;
+                MtxPosition(&offset, &i_this->m304);
+            }
+        }
+    }
+
+    return TRUE;
 }
 
 /* 000006C8-0000079C       .text execute__22yodare_ato_PcallBack_cFP14JPABaseEmitterP15JPABaseParticle */
-void yodare_ato_PcallBack_c::execute(JPABaseEmitter*, JPABaseParticle*) {
-    /* Nonmatching */
+void yodare_ato_PcallBack_c::execute(JPABaseEmitter*, JPABaseParticle* ptcl) {
+    JGeometry::TVec3<f32> gpos;
+    ptcl->getGlobalPosition(gpos);
+
+    f32 particleY = gpos.y;
+    cXyz pos(gpos.x, 20.0f + gpos.y, gpos.z);
+    mGndChk.SetPos(&pos);
+
+    pos.y = dComIfG_Bgsp()->GroundCross(&mGndChk);
+    if (pos.y > particleY) {
+        dComIfGp_particle_set(dPa_name::ID_IT_SN_BKBABA_YODAPOTA00, &pos);
+    }
 }
 
 /* 0000079C-00000930       .text draw_SUB__FP8bo_class */
-void draw_SUB(bo_class*) {
-    /* Nonmatching */
+void draw_SUB(bo_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    if (i_this->m2C0 == 0 || i_this->m2C0 == 2) {
+        if (i_this->m2C0 == 2) {
+            i_this->m304 = actor->current.pos;
+            i_this->mpBrkAnm->play();
+        }
+
+        mDoMtx_stack_c::transS(i_this->m304.x, i_this->m304.y + i_this->m394, i_this->m304.z);
+        mDoMtx_stack_c::YrotM(i_this->m348);
+        mDoMtx_stack_c::XrotM(actor->shape_angle.x);
+        mDoMtx_stack_c::ZrotM(actor->shape_angle.z);
+        mDoMtx_stack_c::transM(0.0f, -i_this->m394, 0.0f);
+        i_this->mpMorfUP->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+        i_this->mpMorfUP->calc();
+
+        if (i_this->m2C0 == 0) {
+            enemy_fire(&i_this->mEnemyFire);
+        }
+    }
+
+    if (i_this->m2C0 == 0 || i_this->m2C0 == 1) {
+        mDoMtx_stack_c::transS(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z);
+        mDoMtx_stack_c::YrotM(actor->current.angle.y);
+        mDoMtx_stack_c::XrotM(actor->shape_angle.x);
+        mDoMtx_stack_c::ZrotM(actor->shape_angle.z);
+        i_this->mpMorfDW->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+        i_this->mpMorfDW->calc();
+    }
+
+    g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &actor->current.pos, &actor->tevStr);
 }
 
 /* 00000930-00000AD4       .text daBO_Draw__FP8bo_class */
@@ -38,8 +131,37 @@ static BOOL daBO_Draw(bo_class*) {
 }
 
 /* 00000AD4-00000CD4       .text anm_init__FP8bo_classifUcfii */
-void anm_init(bo_class*, int, float, unsigned char, float, int, int) {
-    /* Nonmatching */
+void anm_init(bo_class* i_this, int bckFileIdx, float morf, unsigned char loopMode, float speed, int soundFileIdx, int modelType) {
+    i_this->mCurrBckIdx = bckFileIdx;
+    if (modelType == 0) {
+        if (soundFileIdx >= 0) {
+            i_this->mpMorfUP->setAnm(
+                (J3DAnmTransform*)dComIfG_getObjectRes("BO", bckFileIdx),
+                loopMode, morf, speed, 0.0f, -1.0f,
+                dComIfG_getObjectRes("BO", soundFileIdx)
+            );
+        } else {
+            i_this->mpMorfUP->setAnm(
+                (J3DAnmTransform*)dComIfG_getObjectRes("BO", bckFileIdx),
+                loopMode, morf, speed, 0.0f, -1.0f,
+                NULL
+            );
+        }
+    } else {
+        if (soundFileIdx >= 0) {
+            i_this->mpMorfDW->setAnm(
+                (J3DAnmTransform*)dComIfG_getObjectRes("BO", bckFileIdx),
+                loopMode, morf, speed, 0.0f, -1.0f,
+                dComIfG_getObjectRes("BO", soundFileIdx)
+            );
+        } else {
+            i_this->mpMorfDW->setAnm(
+                (J3DAnmTransform*)dComIfG_getObjectRes("BO", bckFileIdx),
+                loopMode, morf, speed, 0.0f, -1.0f,
+                NULL
+            );
+        }
+    }
 }
 
 /* 00000CD4-00000E24       .text shock_damage_check__FP8bo_class */
@@ -68,8 +190,11 @@ void damage_check(bo_class*) {
 }
 
 /* 00002048-00002080       .text angle_initial__FP8bo_class */
-void angle_initial(bo_class*) {
-    /* Nonmatching */
+void angle_initial(bo_class* i_this) {
+    i_this->m33A.set(0, 0, 0);
+    i_this->m352.set(0, 0, 0);
+    i_this->m334.set(0, 0, 0);
+    i_this->m340.set(0, 0, 0);
 }
 
 /* 00002080-00002170       .text wait_initial__FP8bo_class */
@@ -83,8 +208,8 @@ void start_bakutsuki_event_camera(fopAc_ac_c*) {
 }
 
 /* 000022F8-0000233C       .text end_event_camera__FP10fopAc_ac_c */
-void end_event_camera(fopAc_ac_c*) {
-    /* Nonmatching */
+void end_event_camera(fopAc_ac_c* actor) {
+    dComIfGp_getCamera(0)->mCamera.EndEventCamera(fopAcM_GetID(actor));
 }
 
 /* 0000233C-00002FC4       .text bo_move__FP8bo_class */
