@@ -23,6 +23,7 @@
 #include "d/d_snap.h"
 #include "JSystem/J3DGraphAnimator/J3DJoint.h"
 #include "JSystem/J3DGraphAnimator/J3DModel.h"
+#include "JSystem/JUtility/JUTAssert.h"
 #include "SSystem/SComponent/c_math.h"
 #include "SSystem/SComponent/c_lib.h"
 #include <string.h>
@@ -305,8 +306,31 @@ BOOL daNpc_So_c::jntHitCreateHeap() {
 }
 
 /* 00000A84-00000C8C       .text checkTgHit__10daNpc_So_cFv */
-void daNpc_So_c::checkTgHit() {
-    /* Nonmatching */
+BOOL daNpc_So_c::checkTgHit() {
+    fopAc_ac_c* actor = dComIfGp_getPlayer(0);
+    mStts2.Move();
+    if (cLib_calcTimer(&mHitTimer) != 0) {
+        return FALSE;
+    }
+    if (!mSph.ChkTgHit()) {
+        return FALSE;
+    }
+
+    cXyz* hitPos = mSph.GetTgHitPosP();
+    cCcD_Obj* hitObj = mSph.GetTgHitObj();
+    mHitTimer = l_HIO.m7C;
+    if (hitObj == NULL) {
+        return FALSE;
+    }
+    if (hitObj->GetAtType() == AT_TYPE_NORMAL_ARROW) {
+        fopAcM_seStart(this, JA_SE_LK_ARROW_HIT, 0x20);
+    }
+    fopAcM_monsSeStart(this, JA_SE_CV_SO_DAMAGE, 0);
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, hitPos);
+    cXyz scale(2.0f, 2.0f, 2.0f);
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, hitPos, &actor->shape_angle, &scale);
+    fopAcM_seStart(this, JA_SE_LK_LAST_HIT, 0);
+    return TRUE;
 }
 
 /* 00000C8C-00000CB0       .text offsetZero__10daNpc_So_cFv */
@@ -370,9 +394,120 @@ u32 daNpc_So_c::getMsg() {
 }
 
 /* 00000E40-00001214       .text next_msgStatus__10daNpc_So_cFPUl */
-u16 daNpc_So_c::next_msgStatus(u32*) {
-    /* Nonmatching */
-    return 0;
+u16 daNpc_So_c::next_msgStatus(u32* pMsgNo) {
+    u16 status = fopMsgStts_MSG_CONTINUES_e;
+    if (*pMsgNo == (u32)mPrmAngleX) {
+        if (mBD8 != 0) {
+            if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0901) &&
+                strcmp(dComIfGp_getStartStageName(), "sea") == 0 && current.roomNo == 0xD)
+            {
+                *pMsgNo = 0x32CE;
+            } else {
+                *pMsgNo = 0x32D2;
+            }
+        } else {
+            *pMsgNo = 0x32D6;
+        }
+        return fopMsgStts_MSG_CONTINUES_e;
+    }
+
+    switch (*pMsgNo) {
+    case 0x32CA:
+        *pMsgNo = 0x32CB;
+        break;
+    case 0x32CB:
+        *pMsgNo = 0x32CC;
+        break;
+    case 0x32CC:
+        *pMsgNo = 0x32CD;
+        break;
+    case 0x32CE:
+        status = fopMsgStts_MSG_ENDS_e;
+        modeProcInit(MODE_EVENT_FIRST_END_e);
+        break;
+    case 0x32D0:
+        if (dComIfGs_isSaveArriveGrid(current.roomNo - 1) || l_HIO.m2F != 0) {
+            *pMsgNo = 0x32D4;
+        } else {
+            *pMsgNo = 0x32D1;
+        }
+        break;
+    case 0x32CD:
+    case 0x32D1:
+        status = fopMsgStts_MSG_ENDS_e;
+        modeProcInit(MODE_EVENT_MAPOPEN_e);
+        break;
+    case 0x32D4:
+        *pMsgNo = mPrmAngleX;
+        break;
+    case 0x32D2:
+        *pMsgNo = 0x32D3;
+        break;
+    case 0x32D6:
+        fopAcIt_Judge(searchMinigameTagSo_CB, this);
+        if (l_HIO.m30 != 0 || mMinigameTagFound != 0) {
+            if (dComIfGs_getItem(dInvSlot_BOW_e) == 0xFF || dComIfG_getTimerPtr() != NULL) {
+                *pMsgNo = 0x32D7;
+            } else if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_3A10)) {
+                *pMsgNo = 0x32DC;
+            } else {
+                *pMsgNo = 0x32D8;
+            }
+        } else {
+            *pMsgNo = 0x32D7;
+        }
+        break;
+    case 0x32D8:
+        if (mpCurrMsg->mSelectNum == 0) {
+            *pMsgNo = 0x32DA;
+        } else {
+            *pMsgNo = 0x32D9;
+        }
+        break;
+    case 0x32DC:
+        if (mpCurrMsg->mSelectNum == 0) {
+            *pMsgNo = 0x32DB;
+        } else {
+            *pMsgNo = 0x32D9;
+        }
+        break;
+    case 0x32DA:
+        *pMsgNo = 0x32DB;
+        break;
+    case 0x32DB:
+        status = fopMsgStts_MSG_ENDS_e;
+        modeProcInit(MODE_EVENT_BOW_e);
+        break;
+    case 0x32DD:
+        *pMsgNo = 0x32DE;
+        break;
+    case 0x32DE:
+        status = fopMsgStts_MSG_ENDS_e;
+        modeProcInit(MODE_GET_RUPEE_e);
+        break;
+    case 0x32DF:
+    case 0x32E0:
+        dComIfGp_setItemRupeeCount(mB7C * 10);
+        *pMsgNo = 0x32E2;
+        break;
+    case 0x32E1:
+        *pMsgNo = 0x32E2;
+        break;
+    case 0x633:
+        if (dComIfGs_getTriforceNum() == 8) {
+            *pMsgNo = 0x635;
+        } else {
+            *pMsgNo = 0x634;
+        }
+        break;
+    case 0x32D9:
+        *pMsgNo = 0x32D7;
+        break;
+    default:
+        status = fopMsgStts_MSG_ENDS_e;
+        break;
+    }
+    return status;
 }
 
 /* 00001214-000013A0       .text lookBack__10daNpc_So_cFv */
@@ -521,7 +656,17 @@ void daNpc_So_c::modeJumpInit() {
 
 /* 00001880-000019F0       .text modeJump__10daNpc_So_cFv */
 void daNpc_So_c::modeJump() {
-    /* Nonmatching */
+    f32 waterY = dLib_getWaterY(current.pos, mAcch2);
+    if (current.pos.y < waterY) {
+        fopAcM_seStart(this, JA_SE_CM_SO_LANDING_L, 0);
+        fopKyM_createWpillar(&current.pos, 1.4f * scale.x, 1.4f, 0);
+        cXyz delta = mHidePos - current.pos;
+        delta.y = 0.0f;
+        if (delta.abs() > mTagRadius) {
+            current.pos = mHidePos;
+        }
+        modeProcInit(MODE_SWIM_e);
+    }
 }
 
 /* 000019F0-00001A6C       .text modeSwimInit__10daNpc_So_cFv */
@@ -940,7 +1085,15 @@ bool daNpc_So_c::_execute() {
 
 /* 00003844-000038E0       .text debugDraw__10daNpc_So_cFv */
 void daNpc_So_c::debugDraw() {
-    /* Nonmatching */
+    cXyz hide = mHidePos;
+    hide.y += 20.0f;
+    fopAc_ac_c* actor = dComIfGp_getPlayer(0);
+    cXyz playerPos = actor->current.pos;
+    playerPos.y += 20.0f;
+    cXyz pos = current.pos;
+    pos.y = playerPos.y;
+    cXyz aac = mAAC;
+    aac.y += 20.0f;
 }
 
 /* 000038E0-00003954       .text hudeDraw__10daNpc_So_cFv */
@@ -995,7 +1148,65 @@ bool daNpc_So_c::_draw() {
 
 /* 00003B00-00003DF8       .text createInit__10daNpc_So_cFv */
 void daNpc_So_c::createInit() {
-    /* Nonmatching */
+    mBDA = false;
+    mStts.Init(0xFF, 0xFF, this);
+    mCyl.Set(dNpc_cyl_src);
+    mCyl.SetStts(&mStts);
+    mStts2.Init(0xFF, 0xFF, this);
+    mSph.Set(m_sph_src);
+    mSph.SetStts(&mStts2);
+    current.pos.y -= 500.0f;
+    setMtx();
+    mpMorf2->calc();
+    mAAC = current.pos;
+    offsetZero();
+    setAnm(1, false);
+    mTagId = cM_rndF(4.9f);
+    if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0901) &&
+        strcmp(dComIfGp_getStartStageName(), "sea") == 0 && current.roomNo == 0xD &&
+        dComIfGs_isStageBossEnemy(3))
+    {
+        modeProcInit(MODE_EVENT_FIRST_WAIT_e);
+    } else if (strcmp(dComIfGp_getStartStageName(), "sea") == 0 && current.roomNo == 0x4 &&
+               dComIfGs_isStageBossEnemy(7) && dComIfGs_isCollect(0, 3) &&
+               !dComIfGs_isEventBit(dSv_event_flag_c::UNK_3A20))
+    {
+        modeProcInit(MODE_EVENT_TRIFORCE_e);
+    } else {
+        attention_info.flags = fopAc_Attn_TALKFLAG_NOTALK_e | fopAc_Attn_ACTION_SPEAK_e | fopAc_Attn_LOCKON_TALK_e;
+        modeProcInit(MODE_HIDE_e);
+    }
+    mBE0 = 0x1E;
+    mAcchCir2.SetWall(30.0f, 30.0f);
+    mAcch2.Set(
+        fopAcM_GetPosition_p(this),
+        fopAcM_GetOldPosition_p(this),
+        this,
+        1,
+        &mAcchCir2,
+        fopAcM_GetSpeed_p(this),
+        NULL,
+        NULL
+    );
+    mAcch2.SetWallNone();
+    mAcch2.SetRoofNone();
+    fopAcM_SetMtx(this, mpMorf2->getModel()->getBaseTRMtx());
+    fopAcM_setCullSizeBox(
+        this,
+        -100.0f * scale.x,
+        -100.0f * scale.x,
+        -100.0f * scale.x,
+        100.0f * scale.x,
+        100.0f * scale.x,
+        100.0f * scale.x
+    );
+    cullSizeFar = 10.0f;
+    gravity = -2.5f;
+    attention_info.distances[fopAc_Attn_TYPE_TALK_e] = 0x22;
+    attention_info.distances[fopAc_Attn_TYPE_SPEAK_e] = 0x22;
+    eventInfo.setXyCheckCB(daNpc_So_XyCheckCB);
+    eventInfo.setXyEventCB(daNpc_So_XyEventCB);
+    mEventCut.setActorInfo2("NpcSo", this);
 }
 
 /* 00003DF8-00003E24       .text getArg__10daNpc_So_cFv */

@@ -50,7 +50,7 @@ public:
     s16 XyEventCB(int);
     BOOL _createHeap();
     BOOL jntHitCreateHeap();
-    void checkTgHit();
+    BOOL checkTgHit();
     void offsetZero();
     void offsetDive();
     void offsetSwim();
@@ -236,7 +236,8 @@ public:
     /* 0xBDB */ u8 mBDB;
     /* 0xBDC */ s16 mEventIdx;
     /* 0xBDE */ u8 mBDE;
-    /* 0xBDF */ u8 mBDF[0xBE4 - 0xBDF];
+    /* 0xBDF */ u8 mBDF;
+    /* 0xBE0 */ int mBE0;
 };  // Size: 0xBE4
 
 STATIC_ASSERT(sizeof(daNpc_So_c) == 0xBE4);
