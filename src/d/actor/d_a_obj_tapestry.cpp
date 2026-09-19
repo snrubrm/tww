@@ -452,7 +452,7 @@ void daObjTapestryDrawData_c::ct_dl() {
     int vtx0 = 0;
     for (int y = 0; y < 7; y++) {
         memcpy(mDl + now, begin_data, 3);
-        int idx_base[2] = {0, 6};
+        int idx_base[2] = {0, 0};
         idx_base[0] = vtx0;
         idx_base[1] = (y + 1) * 6;
         now += 3;
@@ -465,10 +465,10 @@ void daObjTapestryDrawData_c::ct_dl() {
                 tmp[1] = idx;
                 memcpy(mDl + now, tmp, 2);
                 static const u8 tmp_clr = 0;
-                memcpy(mDl + now + 2, &tmp_clr, 1);
+                memcpy((u8*)this + now + 0x182, &tmp_clr, 1);
                 u8 b[1] = {0};
                 b[0] = idx8;
-                memcpy(mDl + now + 3, b, 1);
+                memcpy((u8*)this + now + 0x183, b, 1);
                 now += 4;
             }
         }
