@@ -71,7 +71,7 @@ public:
     /* 0x2D0 */ u8 m2D0[0x2D4 - 0x2D0];
     /* 0x2D4 */ mDoExt_McaMorf* mpMorf;
     /* 0x2D8 */ mDoExt_invisibleModel m2D8;
-    /* 0x2E0 */ dBgS_Acch mAcch;
+    /* 0x2E0 */ dBgS_ObjAcch mAcch;
     /* 0x4A4 */ dBgS_AcchCir mAcchCir;
     /* 0x4E4 */ f32 m4E4;
     /* 0x4E8 */ f32 m4E8;
@@ -91,7 +91,7 @@ public:
     /* 0x8A8 */ dCcD_Stts mStts;
     /* 0x8E4 */ u32 m8E4;
     /* 0x8E8 */ u8 m8E8[0x8EC - 0x8E8];
-    /* 0x8EC */ s32 m8EC;
+    /* 0x8EC */ int m8EC;
     /* 0x8F0 */ s32 m8F0;
     /* 0x8F4 */ s16 m8F4;
     /* 0x8F6 */ u8 m8F6[0x8F8 - 0x8F6];
@@ -121,7 +121,7 @@ public:
     /* 0xE08 */ csXyz mE08;
     /* 0xE0E */ u8 mE0E[0xE10 - 0xE0E];
     /* 0xE10 */ f32 mE10;
-    /* 0xE14 */ dBgS_LinChk mLinChk;
+    /* 0xE14 */ dBgS_ObjLinChk mLinChk;
     /* 0xE80 */ u8 mE80;
     /* 0xE81 */ u8 mE81[0xE84 - 0xE81];
     /* 0xE84 */ cXyz mE84;

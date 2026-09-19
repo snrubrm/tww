@@ -1019,15 +1019,15 @@ void daGy_c::modeDamage() {
 
 /* 00002754-000028B8       .text modeDeleteInit__6daGy_cFv */
 void daGy_c::modeDeleteInit() {
-    fopAc_ac_c* actor = this;
-    fopAcM_OffStatus(actor, fopAcStts_SHOWMAP_e);
-    actor->attention_info.flags &= ~fopAc_Attn_LOCKON_BATTLE_e;
+    fopAcM_OffStatus(this, fopAcStts_SHOWMAP_e);
+    attention_info.flags &= ~fopAc_Attn_LOCKON_BATTLE_e;
 
-    dSv_event_c& event = g_dComIfG_gameInfo.save.getEvent();
-    int n = event.getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
+    dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
+    int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
     n = cLib_maxLimit<int>(n, 0xFF);
     u8 val = n;
-    event.setEventReg(dSv_event_flag_c::UNK_7EFF, val);
+    u16 flag = dSv_event_flag_c::UNK_7EFF;
+    pEvent->setEventReg(flag, val);
 
     m2B0 = 8;
     mPrmIdx = 8;
@@ -1096,29 +1096,27 @@ void daGy_c::modeDeleteBomb() {
 
     if (mPrmIdx == 9) {
         f32 f2 = m4E4;
-        daGy_HIO_c* hio = &l_HIO;
-        f32 f1 = hio->m16C;
-        if (f2 >= f1 - 10.0f) {
-            if ((f32)m8EC == 0.0f) {
+        if (f2 >= l_HIO.m16C - 10.0f) {
+            daGy_HIO_c* hio = &l_HIO;
+            if ((f32)m8EC == -1.0f) {
                 m8EC = hio->m164;
             }
             m4EC = l_HIO.m178;
             m918 = l_HIO.m17C;
         }
 
-        f32 f4 = m4E4;
-        f32 f_10 = 10.0f;
-        f32 f3 = hio->m16C;
-        f32 f_170 = l_HIO.m170;
-        f32 f5 = f3 - f_170;
-        if (f4 <= f_10 + f5) {
-            m4E8 = f3 + f_170;
-        } else if (f4 >= (f3 + f_170) - f_10) {
-            m4E8 = f5;
+        {
+            f32 f4 = m4E4, f1 = 10.0f, f3 = l_HIO.m16C, f2 = l_HIO.m170;
+            f32 f5 = f3 - f2;
+            if (f4 <= f1 + f5) {
+                m4E8 = f3 + f2;
+            } else if (f4 >= (f3 + f2) - f1) {
+                m4E8 = f5;
+            }
         }
 
-        if ((f32)m8EC != 0.0f) {
-            if (cLib_calcTimer(&m8EC) == 0) {
+        if ((f32)m8EC != -1.0f) {
+            if (cLib_calcTimer<int>(&m8EC) == 0) {
                 fopAcM_createDisappear(this, &current.pos, 10, daDisItem_IBALL_e, 0xFF);
                 fopAcM_delete(this);
             }
@@ -1175,25 +1173,40 @@ void daGy_c::createWave() {
 
 /* 00003004-00003268       .text setWave__6daGy_cFv */
 void daGy_c::setWave() {
-    f32 max_speed = l_HIO.m24;
-    f32 wave_speed;
     f32 splash_target;
+    f32 wave_speed;
+    f32 max_speed = l_HIO.m24;
     s8 prm = mPrmIdx;
 
-    if (prm == 5 || prm == 8 || prm == 9 || prm == 6) {
-        wave_speed = 0.0f;
-        splash_target = 0.0f;
-    } else {
+    /* Keep orig cmpwi 5/8/9/6 chain; last compare is bne to the non-zero path. */
+    if (prm == 5) {
+        goto wave_zero;
+    }
+    if (prm == 8) {
+        goto wave_zero;
+    }
+    if (prm == 9) {
+        goto wave_zero;
+    }
+    if (prm != 6) {
+        goto wave_nz;
+    }
+wave_zero:
+    wave_speed = 0.0f;
+    splash_target = 0.0f;
+    goto wave_ready;
+wave_nz:
+    {
         f32 one = 1.0f;
         wave_speed = l_HIO.m18 * one;
         splash_target = l_HIO.m10;
     }
+wave_ready:
 
     switch (m2B0) {
     case 1: {
-        f32 reg = REG12_F(13);
-        max_speed = l_HIO.m24 * (0.6f + reg);
-        wave_speed = wave_speed * (0.7f + reg);
+        max_speed = *(volatile f32*)&l_HIO.m24 * (0.6f + REG12_F(13));
+        wave_speed = wave_speed * (0.7f + REG12_F(13));
         break;
     }
     case 0:
@@ -1206,10 +1219,12 @@ void daGy_c::setWave() {
         break;
     }
 
-    if (prm == 0xA) {
+    /* Empty then + else body keeps orig beq; b (MWCC inverts a plain == into bne). */
+    switch (prm) {
+    case 0xA:
         wave_speed = 0.0f;
         splash_target = 0.0f;
-    } else {
+        break;
     }
 
     mDFC.y = daSea_calcWave(mDFC.x, mDFC.z);
@@ -1532,51 +1547,57 @@ bool daGy_c::_execute() {
 
 /* 00004264-00004560       .text drawDebug__6daGy_cFv */
 void daGy_c::drawDebug() {
-    s16 spread = l_HIO.m180;
-    if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
-        cXyz pos = current.pos;
-        pos.y += 10.0f;
-        int angle1 = shape_angle.y + spread;
-        cXyz corner1(pos);
-        corner1.z += l_HIO.m184 * cM_scos(angle1);
-        corner1.x += l_HIO.m184 * cM_ssin(angle1);
-        int angle2 = shape_angle.y - spread;
-        cXyz corner2(pos);
-        corner2.z += l_HIO.m184 * cM_scos(angle2);
-        corner2.x += l_HIO.m184 * cM_ssin(angle2);
-    }
-
-    spread = l_HIO.m140;
-    if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
-        daShip_c* ship = dComIfGp_getShipActor();
-        if (ship != NULL) {
-            cXyz pos = ship->current.pos;
-            pos.y += 100.0f;
-            int angle1 = ship->shape_angle.y + spread;
+    {
+        s16 spread = l_HIO.m180;
+        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+            cXyz pos = current.pos;
+            pos.y += 10.0f;
+            int angle1 = shape_angle.y + spread;
             cXyz corner1(pos);
-            corner1.z += 5000.0f * cM_scos(angle1);
-            corner1.x += 5000.0f * cM_ssin(angle1);
-            int angle2 = ship->shape_angle.y - spread;
+            corner1.z += l_HIO.m184 * cM_scos(angle1);
+            corner1.x += l_HIO.m184 * cM_ssin(angle1);
+            int angle2 = shape_angle.y - spread;
             cXyz corner2(pos);
-            corner2.z += 5000.0f * cM_scos(angle2);
-            corner2.x += 5000.0f * cM_ssin(angle2);
+            corner2.z += l_HIO.m184 * cM_scos(angle2);
+            corner2.x += l_HIO.m184 * cM_ssin(angle2);
         }
     }
 
-    spread = l_HIO.m142;
-    if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
-        daShip_c* ship = dComIfGp_getShipActor();
-        if (ship != NULL) {
-            cXyz pos = ship->current.pos;
-            pos.y += 100.0f;
-            int angle1 = ship->shape_angle.y + spread;
-            cXyz corner1(pos);
-            corner1.z += 5000.0f * cM_scos(angle1);
-            corner1.x += 5000.0f * cM_ssin(angle1);
-            int angle2 = ship->shape_angle.y - spread;
-            cXyz corner2(pos);
-            corner2.z += 5000.0f * cM_scos(angle2);
-            corner2.x += 5000.0f * cM_ssin(angle2);
+    {
+        s16 spread = l_HIO.m140;
+        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+            daShip_c* ship = dComIfGp_getShipActor();
+            if (ship != NULL) {
+                cXyz pos = ship->current.pos;
+                pos.y += 100.0f;
+                int angle1 = ship->shape_angle.y + spread;
+                cXyz corner1(pos);
+                corner1.z += 3000.0f * cM_scos(angle1);
+                corner1.x += 3000.0f * cM_ssin(angle1);
+                int angle2 = ship->shape_angle.y - spread;
+                cXyz corner2(pos);
+                corner2.z += 3000.0f * cM_scos(angle2);
+                corner2.x += 3000.0f * cM_ssin(angle2);
+            }
+        }
+    }
+
+    {
+        s16 spread = l_HIO.m142;
+        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+            daShip_c* ship = dComIfGp_getShipActor();
+            if (ship != NULL) {
+                cXyz pos = ship->current.pos;
+                pos.y += 100.0f;
+                int angle1 = ship->shape_angle.y + spread;
+                cXyz corner1(pos);
+                corner1.z += 3000.0f * cM_scos(angle1);
+                corner1.x += 3000.0f * cM_ssin(angle1);
+                int angle2 = ship->shape_angle.y - spread;
+                cXyz corner2(pos);
+                corner2.z += 3000.0f * cM_scos(angle2);
+                corner2.x += 3000.0f * cM_ssin(angle2);
+            }
         }
     }
 }
