@@ -173,11 +173,11 @@ static BOOL nodeHeadControl_CB(J3DNode* node, int calcTiming) {
 
 /* 0000038C-000004FC       .text _nodeHeadControl__6daPz_cFP7J3DNodeP8J3DModel */
 void daPz_c::_nodeHeadControl(J3DNode* node, J3DModel* model) {
-    static cXyz l_offsetAttPos(0.0f, 0.0f, 0.0f);
-    static cXyz l_offsetEyePos(24.0f, -16.0f, 0.0f);
-
     int jntNo = ((J3DJoint*)node)->getJntNo();
     mDoMtx_stack_c::copy(model->getAnmMtx(jntNo));
+
+    static cXyz l_offsetAttPos(0.0f, 0.0f, 0.0f);
+    static cXyz l_offsetEyePos(24.0f, -16.0f, 0.0f);
     mDoMtx_stack_c::multVec(&l_offsetAttPos, &mAttPos);
     mDoMtx_stack_c::YrotM(-m_jnt.getHead_y());
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
@@ -361,10 +361,10 @@ BOOL daPz_c::bowCreateHeap() {
 
 /* 00000E74-00000EC0       .text _createHeap__6daPz_cFv */
 BOOL daPz_c::_createHeap() {
-    if (!bodyCreateHeap()) {
-        return FALSE;
+    if (bodyCreateHeap() == 0) {
+        return 0;
     }
-    return bowCreateHeap() != 0;
+    return bowCreateHeap() ? TRUE : FALSE;
 }
 
 /* 00000EC0-00000F20       .text __ct__13daPz_matAnm_cFv */
@@ -402,10 +402,8 @@ void daPz_c::getGndPos() {
 
 /* 00001038-0000114C       .text checkEyeArea__6daPz_cFR4cXyz */
 bool daPz_c::checkEyeArea(cXyz& pos) {
-    s16 ang = cLib_distanceAngleS(shape_angle.y, cLib_targetAngleY(&current.pos, &pos));
-    cXyz diff = current.pos - pos;
-    diff.y = 0.0f;
-    f32 dist = diff.abs();
+    int ang = cLib_distanceAngleS(shape_angle.y, cLib_targetAngleY(&current.pos, &pos));
+    f32 dist = (current.pos - pos).absXZ();
     if (ang < l_HIO.m54 && dist < l_HIO.m58) {
         return true;
     }
@@ -452,13 +450,14 @@ u16 daPz_c::next_msgStatus(u32* pMsgNo) {
 void daPz_c::anmAtr(u16 i_msgStatus) {
     static u8 anm_atr[2] = {12, 13};
     switch (i_msgStatus) {
-    case 6:
+    case fopMsgStts_MSG_TYPING_e:
         if (mAnmAtrFlag == 0) {
+            u8 attr = dComIfGp_getMesgAnimeAttrInfo();
             mAnmAtrFlag = 1;
-            setAnm(anm_atr[dComIfGp_getMesgAnimeAttrInfo()], false, 0xF);
+            setAnm(anm_atr[attr], false, 0xF);
         }
         break;
-    case 0xE:
+    case fopMsgStts_MSG_DISPLAYED_e:
         mAnmAtrFlag = 0;
         break;
     }
@@ -494,24 +493,26 @@ void daPz_c::setFallSplash() {
     if (mObjAcch.ChkGroundHit()) {
         if (dComIfG_Bgsp()->GetAttributeCode(mObjAcch.m_gnd) == dBgS_Attr_WATERFALL_e) {
             if (mFollowCb1.getEmitter() == NULL) {
-                JPABaseEmitter* emitter = dComIfGp_particle_set(
+                dComIfGp_particle_set(
                     dPa_name::ID_AK_JN_ELEMENTSHIBUKI00, &mSplashPos, &shape_angle, NULL, 0xFF, &mFollowCb1
                 );
-                if (emitter != NULL) {
-                    emitter->setRate(4.0f);
-                    emitter->setSpread(1.0f);
-                    emitter->setGlobalPrmColor(mTevstr.mColorC0.r, mTevstr.mColorC0.g, mTevstr.mColorC0.b);
+                if (mFollowCb1.getEmitter() != NULL) {
+                    mFollowCb1.getEmitter()->setRate(4.0f);
+                    mFollowCb1.getEmitter()->setSpread(1.0f);
+                    mFollowCb1.getEmitter()->setGlobalPrmColor(mTevstr.mColorC0.r, mTevstr.mColorC0.g, mTevstr.mColorC0.b);
                 }
             }
         } else {
             mFollowCb1.end();
         }
         if (cLib_calcTimer(&mSplashTimer) == 0) {
-            static cXyz fall_ripple_scale(0.75f, 0.75f, 0.75f);
+            static Vec fall_ripple_scale = {0.75f, 0.75f, 0.75f};
             cXyz pos;
             MtxP mtx = mpMorf->getModel()->getAnmMtx(PZ_JNT_WORLD_ROOT_e);
-            pos.set(mtx[0][3], mtx[1][3], mtx[2][3]);
-            dComIfGp_particle_setSingleRipple(dPa_name::ID_IT_JN_WP_HAMON03, &pos, NULL, &fall_ripple_scale);
+            pos.x = mtx[0][3];
+            pos.y = mtx[1][3];
+            pos.z = mtx[2][3];
+            dComIfGp_particle_setSingleRipple(dPa_name::ID_IT_JN_WP_HAMON03, &pos, NULL, (const cXyz*)&fall_ripple_scale);
             mSplashTimer = 0xF;
         }
     } else {
@@ -752,9 +753,7 @@ void daPz_c::setAttention() {
     attention_info.position.y += l_HIO.m40;
     eyePos = mEyePos;
 
-    cXyz diff = mEyePos - mLookPos;
-    diff.y = 0.0f;
-    diff.abs();
+    f32 dist = (mEyePos - mLookPos).absXZ();
     cLib_distanceAngleS(shape_angle.y, cLib_targetAngleY(&mEyePos, &mLookPos));
 
     s16 target;
@@ -769,8 +768,7 @@ void daPz_c::setAttention() {
     }
     cLib_addCalcAngleS2(&mLookAngleY, target, 4, 0x800);
 
-    cXyz src = mEyePos;
-    m_jnt.lookAtTarget(&shape_angle.y, &mLookPos, src, shape_angle.y, mLookAngleY, m08EA);
+    m_jnt.lookAtTarget(&shape_angle.y, &mLookPos, mEyePos, shape_angle.y, mLookAngleY, m08EA);
 }
 
 /* 000020B8-00002114       .text setBowAnm__6daPz_cFScb */
@@ -975,22 +973,27 @@ void daPz_c::ctrlEye() {
     mEyeLookPos = mLookPos;
     s16 angX = cLib_targetAngleX(&mEyePos, &mEyeLookPos);
     s16 angY = cLib_targetAngleY(&mEyePos, &mEyeLookPos);
-    s16 headY = (s16)(shape_angle.y + m_jnt.getHead_y() + m_jnt.getBackbone_y());
-    s16 headX = (s16)(m_jnt.getHead_x() + m_jnt.getBackbone_x());
-    f32 offY = (f32)(s16)(angX - headX) / 8192.0f;
-    f32 offX = (f32)(s16)(angY - headY) / 8192.0f;
+    s16 sy = shape_angle.y;
+    s16 hy = m_jnt.getHead_y();
+    s16 by = m_jnt.getBackbone_y();
+    s16 angYdiff = (s16)(angY - (s16)(sy + hy + by));
+    s16 hx = m_jnt.getHead_x();
+    s16 bx = m_jnt.getBackbone_x();
+    s16 angXdiff = (s16)(angX - (s16)(hx + bx));
+    f32 offY = (f32)angXdiff / 8192.0f;
+    f32 offX = (f32)angYdiff / 8192.0f;
     offY *= 0.1f;
     offX *= 0.1f;
 
-    BOOL inY = FALSE;
+    bool inY = false;
     if (offY >= -0.1f && offY <= 0.1f) {
-        inY = TRUE;
+        inY = true;
     }
     m06DC = inY != 0;
 
-    BOOL inX = FALSE;
+    bool inX = false;
     if (offX >= -0.1f && offX <= 0.1f) {
-        inX = TRUE;
+        inX = true;
     }
     m06DC = inX != 0;
 
@@ -1021,11 +1024,11 @@ void daPz_c::ctrlEye() {
 
 /* 00002AE0-00002D38       .text playEyeAnm__6daPz_cFv */
 void daPz_c::playEyeAnm() {
-    BOOL moveEye = TRUE;
+    bool moveEye = true;
     if (mCurEye == 0 || mCurEye == 7) {
         if (cLib_calcTimer(&mEyeTimer) == 0) {
             m0F67++;
-            if (m0F67 > mBtpAnm.getFrameCtrl()->getEnd()) {
+            if (m0F67 > mBtpAnm.getEndFrame()) {
                 mEyeTimer = (s16)(100.0f + cM_rndF(100.0f));
                 m0F67 = 0;
             }
@@ -1034,14 +1037,14 @@ void daPz_c::playEyeAnm() {
         m0F67 = 1;
     } else {
         m0F67++;
-        if (m0F67 > mBtpAnm.getFrameCtrl()->getEnd()) {
+        if (m0F67 > mBtpAnm.getEndFrame()) {
             mEyeTimer = (s16)(100.0f + cM_rndF(100.0f));
-            m0F67 = (u8)mBtpAnm.getFrameCtrl()->getEnd();
+            m0F67 = mBtpAnm.getEndFrame();
         }
     }
 
     if (mCurEye == 4) {
-        moveEye = FALSE;
+        moveEye = false;
     }
     if (moveEye) {
         for (int i = 0; i < 2; i++) {
@@ -2019,11 +2022,11 @@ void daPz_c::bodyDraw() {
     mOnCupOffAup2.entryOpa();
 
     for (u16 i = 0; i < modelData->getMaterialNum(); i++) {
-        J3DShape* shape = modelData->getMaterialNodePointer(i)->getShape();
+        J3DMaterial* mat = modelData->getMaterialNodePointer(i);
         if (i == 3 || i == 6 || i == 0xD || i == 0x10) {
-            shape->show();
+            mat->getShape()->show();
         } else {
-            shape->hide();
+            mat->getShape()->hide();
         }
     }
     mRootJoint->entryIn();
@@ -2068,10 +2071,52 @@ void daPz_c::bodyDraw() {
 
     dComIfGd_setListP1();
     for (u16 i = 0; i < modelData->getMaterialNum(); i++) {
-        if (i == 3 || i == 2 || i == 1 || i == 6 || i == 5 || i == 4 ||
-            i == 0xD || i == 0xC || i == 0xB || i == 0x10 || i == 0xF || i == 0xE ||
-            i == 0x12 || i == 0x13 || i == 8 || i == 7)
-        {
+        if (i == 3) {
+            continue;
+        }
+        if (i == 2) {
+            continue;
+        }
+        if (i == 1) {
+            continue;
+        }
+        if (i == 6) {
+            continue;
+        }
+        if (i == 5) {
+            continue;
+        }
+        if (i == 4) {
+            continue;
+        }
+        if (i == 0xD) {
+            continue;
+        }
+        if (i == 0xC) {
+            continue;
+        }
+        if (i == 0xB) {
+            continue;
+        }
+        if (i == 0x10) {
+            continue;
+        }
+        if (i == 0xF) {
+            continue;
+        }
+        if (i == 0xE) {
+            continue;
+        }
+        if (i == 0x12) {
+            continue;
+        }
+        if (i == 0x13) {
+            continue;
+        }
+        if (i == 8) {
+            continue;
+        }
+        if (i == 7) {
             continue;
         }
         modelData->getMaterialNodePointer(i)->getShape()->show();

@@ -190,7 +190,7 @@ public:
     /* 0x08D0 */ cXyz mEyeLookPos;
     /* 0x08DC */ cXyz mEyePos;
     /* 0x08E8 */ s16 mLookAngleY;
-    /* 0x08EA */ u8 m08EA;
+    /* 0x08EA */ bool m08EA;
     /* 0x08EB */ u8 m08EB;
     /* 0x08EC */ int m08EC;
     /* 0x08F0 */ int m08F0;
