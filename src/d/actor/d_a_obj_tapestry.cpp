@@ -334,11 +334,6 @@ static u32 l_Txm_curtainTEX[] ALIGN_DECL(32) = {
 };
 
 static GXColor l_color = {0x9D, 0x9D, 0x9D, 0xFF};
-
-static u8 l_dl_begin[] = {0x98, 0x00, 0x0C};
-static u16 l_dl_zero_s = 0;
-static u8 l_dl_tmp_clr = 0;
-static u8 l_dl_zero_b = 0;
 }
 
 daObjTapestryDrawData_c daObjTapestryPacket_c::m_draw_data;
@@ -415,19 +410,16 @@ void daObjTapestryFireEff_c::execute(JPABaseEmitter* emitter) {
     f32 lim = b.m50;
     daObjTapestry_Attr_c c = a;
     cXyz vel = mSpd * c.m4C;
+    f32 nlim = -lim;
     f32 x = vel.x;
-    if (x < -lim) {
-        x = -lim;
+    if (x < nlim) {
+        x = nlim;
     } else if (x > lim) {
         x = lim;
     }
     vel.x = x;
     f32 z = vel.z;
-    if (z < -lim) {
-        z = -lim;
-    } else if (z > lim) {
-        z = lim;
-    }
+    z = (z < nlim) ? nlim : (z > lim ? lim : z);
     vel.z = z;
     emitter->setDirection(JGeometry::TVec3<f32>(vel.x, 0.1f, vel.z));
     dPa_followEcallBack::execute(emitter);
@@ -455,11 +447,11 @@ void daObjTapestryDrawData_c::ct_tex() {
 
 /* 000006C8-00000878       .text ct_dl__23daObjTapestryDrawData_cFv */
 void daObjTapestryDrawData_c::ct_dl() {
+    static const u8 begin_data[] = {0x98, 0x00, 0x0C};
     int now = 0;
-    int y = 0;
     int vtx0 = 0;
-    for (int strip = 0; strip < 7; strip++) {
-        memcpy(mDl + now, l_dl_begin, 3);
+    for (int y = 0; y < 7; y++) {
+        memcpy(mDl + now, begin_data, 3);
         int idx_base[2] = {0, 6};
         idx_base[0] = vtx0;
         idx_base[1] = (y + 1) * 6;
@@ -467,18 +459,19 @@ void daObjTapestryDrawData_c::ct_dl() {
         for (int x = 0; x < 6; x++) {
             for (int k = 0; k < 2; k++) {
                 int idx = x + idx_base[k];
-                u16 tmp = l_dl_zero_s;
-                ((u8*)&tmp)[0] = idx;
-                ((u8*)&tmp)[1] = idx;
-                memcpy(mDl + now, &tmp, 2);
-                memcpy(mDl + now + 2, &l_dl_tmp_clr, 1);
-                u8 b = l_dl_zero_b;
-                b = idx;
-                memcpy(mDl + now + 3, &b, 1);
+                u8 tmp[2] = {0, 0};
+                u8 idx8 = idx;
+                tmp[0] = idx;
+                tmp[1] = idx;
+                memcpy(mDl + now, tmp, 2);
+                static const u8 tmp_clr = 0;
+                memcpy(mDl + now + 2, &tmp_clr, 1);
+                u8 b[1] = {0};
+                b[0] = idx8;
+                memcpy(mDl + now + 3, b, 1);
                 now += 4;
             }
         }
-        y += 1;
         vtx0 += 6;
     }
     for (int i = 0; i < 0x20; i++) {
@@ -549,12 +542,14 @@ void daObjTapestryPacket_c::init(daObjTapestry_c* actor) {
     cXyz back = base_z_rev;
     mDoMtx_stack_c::transS(-100.0f, -297.0f, 10.0f);
     mDoMtx_stack_c::scaleM(200.0f, 297.0f, 1.0f);
+    cXyz local;
+    local.z = 0.0f;
     for (int buf = 0; buf < 2; buf++) {
         daObjTapestryDrawVtx_c* vtx = &mDraw[buf];
         for (int row = 0; row < 8; row++) {
-            f32 y = (7 - row) * (1.0f / 7.0f);
+            local.y = (7 - row) * (1.0f / 7.0f);
             for (int col = 0; col < 6; col++) {
-                cXyz local(col * 0.2f, y, 0.0f);
+                local.x = col * 0.2f;
                 mDoMtx_stack_c::multVec(&local, &vtx->pos[row][col]);
                 vtx->nrm[row][col] = nrm;
                 vtx->backNrm[row][col] = back;
@@ -1336,7 +1331,7 @@ void daObjTapestry_c::init_cc() {
 
 /* 000048C8-00004A30       .text set_cc_pos__15daObjTapestry_cFv */
 void daObjTapestry_c::set_cc_pos() {
-    static const u8 idx_tbl[2][6] = {
+    static u8 idx_tbl[2][6] = {
         {0, 0, 0, 5, 7, 5},
         {0, 0, 7, 5, 7, 0},
     };
@@ -1354,81 +1349,78 @@ void daObjTapestry_c::set_cc_pos() {
 
 /* 00004A30-00004E30       .text checkCollision__15daObjTapestry_cFv */
 bool daObjTapestry_c::checkCollision() {
+    fopAc_ac_c* actor = this;
     f32 pow = -1.0f;
     f32 rad = 0.0f;
-    bool fire = false;
-    cXyz dir = cXyz::Zero;
     cXyz* hitPos = NULL;
+    cXyz dir = cXyz::Zero;
+    bool fire = false;
     for (int i = 0; i < 2; i++) {
         if (!mTri[i].ChkTgHit()) {
             continue;
         }
         cCcD_Obj* obj = mTri[i].GetTgHitObj();
-        if (obj == NULL) {
-            continue;
-        }
-        u32 atType = obj->GetAtType();
-        hitPos = mTri[i].GetTgHitPosP();
-        dir = *mTri[i].GetTgRVecP();
-        if (!dir.normalizeRS()) {
-            dir.x = cM_ssin(current.angle.y);
-            dir.y = 0.0f;
-            dir.z = -cM_scos(current.angle.y);
-        }
-        switch (atType) {
-        case AT_TYPE_FIRE:
-        case AT_TYPE_FIRE_ARROW:
-        case AT_TYPE_UNK20000:
-            fire = true;
-            break;
-        }
-        switch (atType) {
-        case AT_TYPE_NORMAL_ARROW:
-        case AT_TYPE_HOOKSHOT:
-        case AT_TYPE_FIRE_ARROW:
-        case AT_TYPE_ICE_ARROW:
-        case AT_TYPE_LIGHT_ARROW:
-            pow = 2.0f;
-            rad = 0.2f;
-            break;
-        case AT_TYPE_UNK20000:
-            pow = 0.0f;
-            rad = 0.2f;
-            break;
-        case AT_TYPE_BOMB:
-            pow = 2.0f;
-            rad = 0.7f;
-            break;
-        case AT_TYPE_WIND: {
-            cXyz vec = *mTri[i].GetTgRVecP();
-            f32 mag = vec.abs();
-            if (mag > 178.0f) {
-                vec *= (178.0f / mag);
+        if (obj != NULL) {
+            u32 atType = obj->GetAtType();
+            hitPos = mTri[i].GetTgHitPosP();
+            dir = *mTri[i].GetTgRVecP();
+            if (!dir.normalizeRS()) {
+                dir.x = cM_ssin(actor->shape_angle.y);
+                dir.y = 0.0f;
+                dir.z = -cM_scos(actor->shape_angle.y);
             }
-            mPacket.set_wind_fun(vec);
-            break;
-        }
-        case AT_TYPE_SWORD:
-        case AT_TYPE_UNK8:
-        case AT_TYPE_BOOMERANG:
-        case AT_TYPE_BOKO_STICK:
-        case AT_TYPE_MACHETE:
-        case AT_TYPE_UNK800:
-        case AT_TYPE_SPIKE:
-        case AT_TYPE_UNK2000:
-        case AT_TYPE_SKULL_HAMMER:
-        case AT_TYPE_UNK400000:
-        case AT_TYPE_LIGHT:
-        case AT_TYPE_FAN_SWING:
-        case AT_TYPE_DARKNUT_SWORD:
-        case AT_TYPE_GRAPPLING_HOOK:
-        case AT_TYPE_MOBLIN_SPEAR:
-        case AT_TYPE_PGANON_SWORD:
-            pow = 1.0f;
-            rad = 0.5f;
-            break;
-        default:
-            break;
+            switch (atType) {
+            case AT_TYPE_FIRE:
+            case AT_TYPE_FIRE_ARROW:
+            case AT_TYPE_UNK20000:
+                fire = true;
+                break;
+            }
+            switch (atType) {
+            case AT_TYPE_WIND: {
+                cXyz vec = *mTri[i].GetTgRVecP();
+                f32 mag2 = vec.abs2();
+                if (mag2 > 31684.0f) {
+                    vec *= (178.0f / std::sqrtf(mag2));
+                }
+                mPacket.set_wind_fun(vec);
+                break;
+            }
+            case AT_TYPE_SWORD:
+            case AT_TYPE_UNK8:
+            case AT_TYPE_BOOMERANG:
+            case AT_TYPE_BOKO_STICK:
+            case AT_TYPE_FIRE:
+            case AT_TYPE_MACHETE:
+            case AT_TYPE_UNK800:
+            case AT_TYPE_SPIKE:
+            case AT_TYPE_UNK2000:
+            case AT_TYPE_SKULL_HAMMER:
+            case AT_TYPE_STALFOS_MACE:
+            case AT_TYPE_DARKNUT_SWORD:
+            case AT_TYPE_MOBLIN_SPEAR:
+                pow = 1.0f;
+                rad = 0.5f;
+                break;
+            case AT_TYPE_NORMAL_ARROW:
+            case AT_TYPE_HOOKSHOT:
+            case AT_TYPE_FIRE_ARROW:
+            case AT_TYPE_ICE_ARROW:
+            case AT_TYPE_LIGHT_ARROW:
+                pow = 2.0f;
+                rad = 0.2f;
+                break;
+            case AT_TYPE_UNK20000:
+                pow = 0.0f;
+                rad = 0.2f;
+                break;
+            case AT_TYPE_BOMB:
+                pow = 2.0f;
+                rad = 0.7f;
+                break;
+            default:
+                break;
+            }
         }
         mTri[i].ClrTgHit();
     }
@@ -1441,13 +1433,7 @@ bool daObjTapestry_c::checkCollision() {
 /* 00004E30-00004F2C       .text set_eye_pos__15daObjTapestry_cFv */
 void daObjTapestry_c::set_eye_pos() {
     cXyz* p05 = mPacket.get_now_pos(0, 5);
-    cXyz* p00 = mPacket.get_now_pos(0, 0);
-    const cXyz& s0 = *p00 + *p05;
-    cXyz* p70 = mPacket.get_now_pos(7, 0);
-    const cXyz& s1 = s0 + *p70;
-    cXyz* p75 = mPacket.get_now_pos(7, 5);
-    const cXyz& s2 = s1 + *p75;
-    cXyz local = s2 * 0.25f;
+    cXyz local = (*mPacket.get_now_pos(0, 0) + *p05 + *mPacket.get_now_pos(7, 0) + *mPacket.get_now_pos(7, 5)) * 0.25f;
     mDoMtx_multVec(mpModel->getBaseTRMtx(), &local, &eyePos);
     attention_info.position = eyePos;
 }
