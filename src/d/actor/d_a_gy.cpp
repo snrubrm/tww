@@ -1556,8 +1556,8 @@ void daGy_c::drawDebug() {
             cXyz corner1(pos);
             corner1.z += l_HIO.m184 * cM_scos(angle1);
             corner1.x += l_HIO.m184 * cM_ssin(angle1);
-            int angle2 = shape_angle.y - spread;
             cXyz corner2(pos);
+            int angle2 = shape_angle.y - spread;
             corner2.z += l_HIO.m184 * cM_scos(angle2);
             corner2.x += l_HIO.m184 * cM_ssin(angle2);
         }
@@ -1574,8 +1574,8 @@ void daGy_c::drawDebug() {
                 cXyz corner1(pos);
                 corner1.z += 3000.0f * cM_scos(angle1);
                 corner1.x += 3000.0f * cM_ssin(angle1);
-                int angle2 = ship->shape_angle.y - spread;
                 cXyz corner2(pos);
+                int angle2 = ship->shape_angle.y - spread;
                 corner2.z += 3000.0f * cM_scos(angle2);
                 corner2.x += 3000.0f * cM_ssin(angle2);
             }
@@ -1593,8 +1593,8 @@ void daGy_c::drawDebug() {
                 cXyz corner1(pos);
                 corner1.z += 3000.0f * cM_scos(angle1);
                 corner1.x += 3000.0f * cM_ssin(angle1);
-                int angle2 = ship->shape_angle.y - spread;
                 cXyz corner2(pos);
+                int angle2 = ship->shape_angle.y - spread;
                 corner2.z += 3000.0f * cM_scos(angle2);
                 corner2.x += 3000.0f * cM_ssin(angle2);
             }
