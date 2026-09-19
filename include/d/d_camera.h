@@ -575,7 +575,7 @@ public:
     bool getEvStringData(char*, char*, char*);
     void getEvStringPntData(char*, char*);
     void getEvActor(char*);
-    void getEvActor(char*, char*);
+    fopAc_ac_c* getEvActor(char*, char*);
     bool pauseEvCamera();
     bool fixedFrameEvCamera();
     bool stokerEvCamera();

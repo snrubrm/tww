@@ -63,7 +63,7 @@ void dCamera_c::getEvActor(char*) {
 }
 
 /* 800B0904-800B0A20       .text getEvActor__9dCamera_cFPcPc */
-void dCamera_c::getEvActor(char*, char*) {
+fopAc_ac_c* dCamera_c::getEvActor(char*, char*) {
     /* Nonmatching */
 }
 

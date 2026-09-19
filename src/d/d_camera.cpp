@@ -114,6 +114,37 @@ namespace {
     inline static u32 check_owner_action1(u32 param_0, u32 param_1) {
         return dComIfGp_checkPlayerStatus1(param_0, param_1);
     }
+
+    static void hideActor(fopAc_ac_c* actor);
+    static bool lineCollisionCheck(cXyz param_1, cXyz param_2, fopAc_ac_c* param_3, fopAc_ac_c* param_4);
+
+    struct TalkWork {
+        /* 0x378 */ int m378;
+        /* 0x37C */ cXyz m37C;
+        /* 0x388 */ cXyz m388;
+        /* 0x394 */ f32 m394;
+        /* 0x398 */ f32 m398;
+        /* 0x39C */ u8 m39C[0x3A0 - 0x39C];
+        /* 0x3A0 */ cSGlobe m3A0;
+        /* 0x3A8 */ cSGlobe m3A8;
+        /* 0x3B0 */ int m3B0;
+        /* 0x3B4 */ int m3B4;
+        /* 0x3B8 */ int m3B8;
+        /* 0x3BC */ int m3BC;
+        /* 0x3C0 */ int m3C0;
+        /* 0x3C4 */ f32 m3C4;
+        /* 0x3C8 */ f32 m3C8;
+        /* 0x3CC */ u8 m3CC[0x3D0 - 0x3CC];
+        /* 0x3D0 */ f32 m3D0;
+        /* 0x3D4 */ f32 m3D4;
+        /* 0x3D8 */ f32 m3D8;
+        /* 0x3DC */ f32 m3DC;
+        /* 0x3E0 */ fopAc_ac_c* m3E0;
+        /* 0x3E4 */ fopAc_ac_c* m3E4;
+        /* 0x3E8 */ fopAc_ac_c* m3E8;
+        /* 0x3EC */ s16 m3EC;
+        /* 0x3EE */ s16 m3EE;
+    };
 }  // namespace
 
 
@@ -3702,8 +3733,506 @@ int dCamera_c::getMsgCmdCut() {
 }
 
 /* 8016D8D0-80170434       .text talktoCamera__9dCamera_cFl */
-bool dCamera_c::talktoCamera(s32) {
-    /* Nonmatching */
+bool dCamera_c::talktoCamera(s32 param_1) {
+    f32 val1 = mCamParam.Val(param_1, 1);
+    f32 val5 = mCamParam.Val(param_1, 5);
+    f32 val0 = mCamParam.Val(param_1, 0);
+    f32 val10 = mCamParam.Val(param_1, 10);
+    f32 val19 = mCamParam.Val(param_1, 19);
+    f32 val18 = mCamParam.Val(param_1, 18);
+    f32 val15 = mCamParam.Val(param_1, 15);
+    f32 val3 = mCamParam.Val(param_1, 3);
+    f32 val24 = mCamParam.Val(param_1, 24);
+    f32 val25 = mCamParam.Val(param_1, 25);
+
+    bool ret = true;
+    fopAc_ac_c* listener;
+    fopAc_ac_c* speaker;
+    int evVal;
+    TalkWork* talk = (TalkWork*)&mWork;
+
+    if (m11C == 0) {
+        talk->m378 = 'TALK';
+        talk->m3BC = 0;
+        talk->m3B0 = -1;
+        talk->m3C0 = 20;
+        talk->m3B4 = 0;
+        talk->m3B8 = -1;
+        talk->m3D8 = 999.9f;
+        talk->m3DC = val15;
+
+        if (!dComIfGp_evmng_cameraPlay()) {
+            talk->m3EC = 0;
+            talk->m3EE = 0;
+            talk->m3D0 = val10;
+            talk->m3D4 = val25;
+            talk->m3E0 = mpPlayerActor;
+            talk->m3E4 = mpLockonTarget;
+        } else {
+            getEvIntData(&evVal, "Smoothless", 0);
+            talk->m3EC = evVal;
+            getEvIntData(&evVal, "Mode", 0);
+            talk->m3EE = evVal;
+            getEvFloatData(&talk->m3D0, "Radius", val10);
+            getEvFloatData(&talk->m3D8, "Longitude", 999.9f);
+            getEvFloatData(&talk->m3D4, "Fovy", val25);
+            getEvFloatData(&talk->m3DC, "Latitude", val15);
+            talk->m3E0 = getEvActor("Listener", "@STARTER");
+            talk->m3E4 = getEvActor("Speaker", "@TALKPARTNER");
+        }
+
+        talk->m3E8 = talk->m3E4;
+    }
+
+    fopAc_ac_c* msgSpeaker = getMsgCmdSpeaker();
+    if (msgSpeaker != NULL) {
+        listener = talk->m3E0;
+        speaker = msgSpeaker;
+    } else if (dComIfGp_evmng_cameraPlay()) {
+        listener = talk->m3E0;
+        if (m11C != 0) {
+            speaker = getEvActor("Speaker", "@TALKPARTNER");
+        } else {
+            speaker = talk->m3E4;
+        }
+    } else {
+        listener = mpPlayerActor;
+        speaker = mpLockonTarget;
+    }
+
+    if (listener == speaker) {
+        speaker = NULL;
+    }
+
+    if (listener == NULL || speaker == NULL) {
+        SkipSmoother();
+        return false;
+    }
+
+    if (talk->m3E8 != speaker) {
+        m11C = 0;
+        m100 = 0;
+        talk->m3BC = 0;
+        talk->m3E8 = speaker;
+    }
+
+    talk->m3B4 = getMsgCmdCut();
+    if (talk->m3B4 != talk->m3B8) {
+        talk->m3BC = 0;
+    }
+
+    cSAngle latMax(val19);
+    cSAngle latMin(val18);
+    cSAngle longMin(180.0f - val24);
+    cSAngle longMax(val24);
+
+    if (m11C == 0 || (fopAcM_GetName(speaker) == fpcNm_SHIP_e && m11C <= 1)) {
+        cXyz offset(val1, val5, val0);
+        cXyz listenerAttn = attentionPos(listener);
+        listenerAttn.y = eyePos(listener).y;
+        cXyz speakerAttn = attentionPos(speaker);
+        speakerAttn.y = eyePos(speaker).y;
+        talk->m37C = relationalPos(listener, speaker, &offset, 0.25f);
+
+        cSAngle chosenU;
+        if (talk->m3D8 != 999.9f) {
+            chosenU.Val(talk->m3D8);
+        } else {
+            chosenU.Val(cLib_targetAngleY(&talk->m37C, &mViewCache.mEye));
+        }
+
+        talk->m3A0 = mViewCache.mDirection;
+        cSGlobe relGlobe(listenerAttn - speakerAttn);
+        talk->m3A8 = relGlobe;
+        talk->m3A0.R(talk->m3D0);
+        if (relGlobe.R() < 88.0f) {
+            relGlobe.R(88.0f);
+        }
+
+        if (fopAcM_GetName(speaker) == fpcNm_SHIP_e) {
+            cSAngle toAttn(cLib_targetAngleY(&speaker->current.pos, &speakerAttn));
+            cSAngle diff = directionOf(speaker) - toAttn;
+            cSAngle add;
+            if (diff < cSAngle::_0) {
+                add.Val(-30.0f);
+            } else {
+                add.Val(30.0f);
+            }
+            talk->m3A0.U(relGlobe.U() + add);
+            talk->m3A0.V(cSAngle(val15));
+        } else if (fopAcM_GetName(speaker) == fpcNm_KANBAN_e) {
+            relGlobe.U(directionOf(speaker));
+            cSAngle delta = chosenU - relGlobe.U();
+            talk->m3A0.U(relGlobe.U() + (delta * 0.25f));
+            talk->m3A0.V(cSAngle(talk->m3DC));
+        } else if (fopAcM_GetName(speaker) == fpcNm_AGB_e) {
+            talk->m3A0.R(195.0f);
+            talk->m3A0.U(directionOf(listener));
+            talk->m3A0.V(cSAngle(11.0f));
+        } else {
+            cSAngle delta = chosenU - relGlobe.U();
+            if (delta > longMin) {
+                delta = longMin;
+            }
+            if (delta > cSAngle::_0 && delta < longMax) {
+                delta = longMax;
+            }
+            if (delta < -longMin) {
+                delta = -longMin;
+            }
+            if (delta < cSAngle::_0 && delta > -longMax) {
+                delta = -longMax;
+            }
+            talk->m3A0.U(relGlobe.U() + delta);
+
+            cSAngle lat = relGlobe.V() * (delta.Cos() + 0.1f) * val3 + cSAngle(val15);
+            if (lat > latMax) {
+                lat = latMax;
+            }
+            if (lat < latMin) {
+                lat = latMin;
+            }
+            talk->m3A0.V(lat);
+
+            cSAngle step;
+            if (relGlobe.U() - talk->m3A0.U() > cSAngle::_0) {
+                step.Val(10.0f);
+            } else {
+                step.Val(-10.0f);
+            }
+
+            for (int i = 0; i < 36; i++) {
+                cSAngle cur = talk->m3A0.U() - relGlobe.U();
+                if (std::fabsf(cur.Degree()) < 10.0f) {
+                    talk->m3A0.U(talk->m3A0.U() + step);
+                    continue;
+                }
+
+                talk->m388 = talk->m37C + talk->m3A0.Xyz();
+                if (talk->m388.y < positionOf(mpPlayerActor).y + m368) {
+                    talk->m388.y = positionOf(mpPlayerActor).y + m368 + 10.0f;
+                    talk->m3A0.Val(talk->m388 - talk->m37C);
+                }
+
+                if (!lineBGCheck(&listenerAttn, &talk->m388, 0x8f) &&
+                    !lineBGCheck(&speakerAttn, &talk->m388, 0x8f) &&
+                    !lineBGCheck(&talk->m37C, &talk->m388, 0x8f) &&
+                    !lineCollisionCheck(listenerAttn, talk->m388, listener, speaker) &&
+                    !lineCollisionCheck(speakerAttn, talk->m388, listener, speaker))
+                {
+                    break;
+                }
+
+                talk->m3A0.U(talk->m3A0.U() + step);
+                cSAngle d2 = relGlobe.U() - talk->m3A0.U();
+                cSAngle lat2 = relGlobe.V() * (d2.Cos() + 0.1f) * val3 + cSAngle(val15);
+                if (lat2 > latMax) {
+                    lat2 = latMax;
+                }
+                if (lat2 < latMin) {
+                    lat2 = latMin;
+                }
+                talk->m3A0.V(lat2);
+            }
+        }
+
+        talk->m3C4 = (f32)(talk->m3C0 * (talk->m3C0 + 1) >> 1);
+        talk->m388 = talk->m37C + talk->m3A0.Xyz();
+        f32 insight = radiusActorInSight(listener, speaker, &talk->m37C, &talk->m388, talk->m3D4, 0);
+        if (insight > 0.0f) {
+            talk->m3A0.R(talk->m3A0.R() + insight);
+            talk->m388 = talk->m37C + talk->m3A0.Xyz();
+        }
+
+        if (talk->m3B0 == -1) {
+            if (relGlobe.U() - talk->m3A0.U() > cSAngle::_0) {
+                talk->m3B0 = 0;
+            } else {
+                talk->m3B0 = 1;
+            }
+        }
+    }
+
+    int cut = talk->m3B4;
+    switch (cut) {
+    case 0: {
+        if (fopAcM_GetName(speaker) == fpcNm_SHIP_e) {
+            cXyz offset(val1, val5, val0);
+            talk->m37C = relationalPos(listener, speaker, &offset, 0.25f);
+        }
+
+        if (m100) {
+            mViewCache.mCenter = talk->m37C;
+            mViewCache.mDirection = talk->m3A0;
+            mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+            mViewCache.mFovy = talk->m3D4;
+            break;
+        }
+
+        if (talk->m3EC != 0) {
+            SkipSmoother();
+            break;
+        }
+
+        talk->m3C8 = (f32)(talk->m3C0 - talk->m3BC);
+        f32 t = talk->m3C8 / talk->m3C4;
+        mViewCache.mCenter += (talk->m37C - mViewCache.mCenter) * t;
+        mViewCache.mDirection.R(mViewCache.mDirection.R() + t * (talk->m3A0.R() - mViewCache.mDirection.R()));
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (talk->m3A0.V() - mViewCache.mDirection.V()) * t);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (talk->m3A0.U() - mViewCache.mDirection.U()) * t);
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy += t * (talk->m3D4 - mViewCache.mFovy);
+        talk->m3C4 -= talk->m3C8;
+        if (talk->m3BC >= talk->m3C0 - 1) {
+            SkipSmoother();
+        }
+        ret = false;
+        break;
+    }
+    case 20:
+    case 21: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        if (cut == 21) {
+            actor1 = speaker;
+            actor2 = listener;
+        } else {
+            actor1 = listener;
+            actor2 = speaker;
+        }
+        hideActor(actor2);
+        mViewCache.mCenter = positionOf(actor1);
+        if (talk->m3BC == 0) {
+            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            mViewCache.mDirection.R(135.0f);
+            talk->m398 = eyePos(actor1).y - 25.0f - positionOf(actor1).y;
+            SkipSmoother();
+        }
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 60.0f;
+        break;
+    }
+    case 16:
+    case 17: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        if (cut == 17) {
+            actor1 = speaker;
+            actor2 = listener;
+        } else {
+            actor1 = listener;
+            actor2 = speaker;
+        }
+        hideActor(actor2);
+        mViewCache.mCenter = positionOf(actor1);
+        if (talk->m3BC == 0) {
+            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            mViewCache.mDirection.R(93.0f);
+            talk->m398 = eyePos(actor1).y - 5.0f - positionOf(actor1).y;
+            SkipSmoother();
+        }
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 50.0f;
+        break;
+    }
+    case 22:
+    case 23: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        if (cut == 23) {
+            actor1 = speaker;
+            actor2 = listener;
+        } else {
+            actor1 = listener;
+            actor2 = speaker;
+        }
+        hideActor(actor2);
+        mViewCache.mCenter = positionOf(actor1);
+        if (talk->m3BC == 0) {
+            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            mViewCache.mDirection.R(135.0f);
+            talk->m398 = eyePos(actor1).y - 15.0f - positionOf(actor1).y;
+            SkipSmoother();
+        }
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 45.0f;
+        break;
+    }
+    case 14:
+    case 15: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        if (cut == 14) {
+            actor1 = speaker;
+            actor2 = listener;
+        } else {
+            actor1 = listener;
+            actor2 = speaker;
+        }
+        hideActor(actor2);
+        mViewCache.mCenter = positionOf(actor1);
+        if (talk->m3BC == 0) {
+            mViewCache.mDirection.Val(eyePos(actor2) - eyePos(actor1));
+            talk->m398 = eyePos(actor1).y - 5.0f - positionOf(actor1).y;
+            SkipSmoother();
+        }
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 50.0f;
+        break;
+    }
+    case 18:
+    case 19: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        int side;
+        if (cut == 18) {
+            actor1 = listener;
+            actor2 = speaker;
+            side = talk->m3B0;
+        } else {
+            actor1 = speaker;
+            actor2 = listener;
+            side = talk->m3B0 == 0 ? 1 : 0;
+        }
+        if (talk->m3BC == 0) {
+            SkipSmoother();
+            cXyz off(0.0f, -10.0f, 20.0f);
+            if (side) {
+                off.x = -80.0f;
+            } else {
+                off.x = 75.0f;
+            }
+            mViewCache.mDirection.Val(eyePos(actor2) - attentionPos(actor1));
+            mViewCache.mDirection.R(135.0f);
+            talk->m398 = eyePos(actor1).y - 10.0f - positionOf(actor1).y;
+        }
+        mViewCache.mCenter = positionOf(actor1);
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 50.0f;
+        break;
+    }
+    case 24:
+    case 25: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        if (cut == 24) {
+            actor1 = listener;
+            actor2 = speaker;
+        } else {
+            actor1 = speaker;
+            actor2 = listener;
+        }
+        if (talk->m3BC == 0) {
+            SkipSmoother();
+            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            mViewCache.mDirection.R(120.0f);
+            talk->m398 = eyePos(actor1).y - 25.0f - positionOf(actor1).y;
+        }
+        mViewCache.mCenter = positionOf(actor1);
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 45.0f;
+        break;
+    }
+    case 26:
+    case 27: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        if (cut == 26) {
+            actor1 = listener;
+            actor2 = speaker;
+        } else {
+            actor1 = speaker;
+            actor2 = listener;
+        }
+        if (talk->m3BC == 0) {
+            SkipSmoother();
+            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            mViewCache.mDirection.R(145.0f);
+            talk->m398 = eyePos(actor1).y - 35.0f - positionOf(actor1).y;
+        }
+        mViewCache.mCenter = positionOf(actor1);
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 50.0f;
+        break;
+    }
+    case 11:
+    case 12:
+    case 30:
+    case 31: {
+        fopAc_ac_c* actor1;
+        fopAc_ac_c* actor2;
+        if (cut == 12 || cut == 31) {
+            actor1 = speaker;
+            actor2 = listener;
+        } else {
+            actor1 = listener;
+            actor2 = speaker;
+        }
+        if (talk->m3BC == 0) {
+            f32 h = (eyePos(actor1).y - positionOf(actor1).y) * 1.2f;
+            mViewCache.mCenter = positionOf(actor1);
+            mViewCache.mCenter.y += h * 0.5f;
+            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            mViewCache.mDirection.R(75.0f);
+            mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+            mViewCache.mFovy = 55.0f;
+            SkipSmoother();
+        }
+        break;
+    }
+    case 13: {
+        if (talk->m3BC == 0) {
+            mViewCache.mCenter = positionOf(listener);
+            mViewCache.mDirection.Val(positionOf(speaker) - positionOf(listener));
+            mViewCache.mDirection.R(350.0f);
+            talk->m398 = eyePos(listener).y - 20.0f - positionOf(listener).y;
+            SkipSmoother();
+        }
+        mViewCache.mCenter.y = positionOf(listener).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 60.0f;
+        break;
+    }
+    case 28: {
+        if (talk->m3BC == 0) {
+            mViewCache.mCenter = positionOf(speaker);
+            mViewCache.mDirection.Val(200.0f, cSAngle(30.0f), directionOf(speaker));
+            talk->m398 = attentionPos(speaker).y - 68.0f - positionOf(speaker).y;
+            SkipSmoother();
+        }
+        mViewCache.mCenter.y = positionOf(speaker).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 55.0f;
+        break;
+    }
+    case 29: {
+        hideActor(listener);
+        mViewCache.mCenter = positionOf(speaker);
+        if (talk->m3BC == 0) {
+            mViewCache.mDirection.Val(positionOf(listener) - positionOf(speaker));
+            mViewCache.mDirection.R(200.0f);
+            talk->m398 = attentionPos(speaker).y - 68.0f - positionOf(speaker).y;
+            SkipSmoother();
+        }
+        mViewCache.mCenter.y = positionOf(speaker).y + talk->m398;
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy = 55.0f;
+        break;
+    }
+    default:
+        break;
+    }
+
+    talk->m3B8 = talk->m3B4;
+    talk->m3BC++;
+    return ret;
 }
 
 namespace {
