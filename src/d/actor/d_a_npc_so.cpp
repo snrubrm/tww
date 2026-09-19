@@ -15,7 +15,9 @@
 #include "d/d_s_play.h"
 #include "d/d_camera.h"
 #include "d/actor/d_a_ship.h"
+#include "d/actor/d_a_player.h"
 #include "f_op/f_op_actor_mng.h"
+#include "f_pc/f_pc_name.h"
 #include "f_op/f_op_kankyo_mng.h"
 #include "f_op/f_op_camera.h"
 #include "m_Do/m_Do_mtx.h"
@@ -680,7 +682,42 @@ void daNpc_So_c::modeSwimInit() {
 
 /* 00001A6C-00001DB8       .text modeSwim__10daNpc_So_cFv */
 void daNpc_So_c::modeSwim() {
-    /* Nonmatching */
+    mBDB = 0;
+    fopAc_ac_c* actor = dComIfGp_getPlayer(0);
+    cXyz delta = actor->current.pos - mHidePos;
+    delta.y = 0.0f;
+    f32 distPlayer = delta.abs();
+    daShip_c* ship = dComIfGp_getShipActor();
+    if (ship != NULL) {
+        cLib_addCalc2(&mCirclePath.mRadius, 200.0f, 0.1f, 10.0f);
+        mCirclePath.mWobbleAmplitude = 50.0f;
+        mCirclePath.mAngleSpeed = 0x150;
+        mCirclePath.mTranslation = mHidePos;
+        mCirclePath.mTranslation.y = dLib_getWaterY(mCirclePath.mTranslation, mAcch2);
+        dLib_setCirclePath(&mCirclePath);
+        mCirclePath.mPos.y = dLib_getWaterY(mCirclePath.mPos, mAcch2);
+        mCirclePath.mPos.y += mB34;
+        cXyz delta2 = current.pos - mCirclePath.mPos;
+        delta2.y = 0.0f;
+        f32 distPath = delta2.abs();
+        if (distPath > 150.0f || ship->speedF > 10.0f) {
+            mSpeed = 12.0f;
+            s16 target = cLib_targetAngleY(&current.pos, &mCirclePath.mPos);
+            cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
+            mB04 = 0.0f;
+        } else {
+            cLib_addCalc2(&mB04, 1.0f, 0.01f, 0.05f);
+            cXyz pathDelta = mCirclePath.mPos - current.pos;
+            current.pos = current.pos + pathDelta * mB04;
+            s16 target = mCirclePath.mAngle + 0x8000;
+            cLib_addCalcAngleS2(&shape_angle.y, target, 4, 0x400);
+        }
+        if (distPlayer < mTagRadius && dComIfGp_checkPlayerStatus0(0, daPyStts0_SHIP_RIDE_e)) {
+            modeProcInit(MODE_NEAR_SWIM_e);
+        } else if (cLib_calcTimer(&mA90) == 0) {
+            modeProcInit(MODE_JUMP_e);
+        }
+    }
 }
 
 /* 00001DB8-00001DFC       .text modeNearSwimInit__10daNpc_So_cFv */
@@ -692,7 +729,43 @@ void daNpc_So_c::modeNearSwimInit() {
 
 /* 00001DFC-00002144       .text modeNearSwim__10daNpc_So_cFv */
 void daNpc_So_c::modeNearSwim() {
-    /* Nonmatching */
+    dCam_getBody()->SetTypeForce("BoatBattle", NULL);
+    mB70 = 2;
+    daShip_c* ship = dComIfGp_getShipActor();
+    if (ship != NULL) {
+        fopAc_ac_c* actor = dComIfGp_getPlayer(0);
+        cXyz delta = actor->current.pos - mHidePos;
+        delta.y = 0.0f;
+        f32 distPlayer = delta.abs();
+        cLib_addCalc2(&mCirclePath.mRadius, 400.0f, 0.1f, 10.0f);
+        mCirclePath.mWobbleAmplitude = 50.0f;
+        mCirclePath.mAngleSpeed = 0x100;
+        mCirclePath.mTranslation = actor->current.pos;
+        mCirclePath.mTranslation.y = dLib_getWaterY(mCirclePath.mTranslation, mAcch2);
+        dLib_setCirclePath(&mCirclePath);
+        mCirclePath.mPos.y = dLib_getWaterY(mCirclePath.mPos, mAcch2);
+        mCirclePath.mPos.y += mB34;
+        cXyz delta2 = current.pos - mCirclePath.mPos;
+        delta2.y = 0.0f;
+        f32 distPath = delta2.abs();
+        if (distPath > 150.0f || ship->speedF > 10.0f) {
+            mSpeed = 12.0f;
+            s16 target = cLib_targetAngleY(&current.pos, &mCirclePath.mPos);
+            cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
+            mB04 = 0.0f;
+            current.pos.y += mB34;
+        } else {
+            cLib_addCalc2(&mB04, 1.0f, 0.01f, 0.05f);
+            cXyz pathDelta = mCirclePath.mPos - current.pos;
+            current.pos = current.pos + pathDelta * mB04;
+            s16 target = mCirclePath.mAngle + 0x8000;
+            cLib_addCalcAngleS2(&shape_angle.y, target, 4, 0x400);
+            current.pos.y += mB34;
+        }
+        if (distPlayer >= mTagRadius) {
+            modeProcInit(MODE_SWIM_e);
+        }
+    }
 }
 
 /* 00002144-0000217C       .text modeEventFirstWaitInit__10daNpc_So_cFv */
@@ -1079,8 +1152,99 @@ void daNpc_So_c::setScale() {
 
 /* 000033F4-00003844       .text _execute__10daNpc_So_cFv */
 bool daNpc_So_c::_execute() {
-    /* Nonmatching */
-    return true;
+    f32 scaleX = scale.x;
+    fopAcM_setCullSizeBox(this, -100.0f * scaleX, -100.0f * scaleX, -100.0f * scaleX, 100.0f * scaleX, 100.0f * scaleX, 100.0f * scaleX);
+    if (!dComIfGp_event_runCheck() && mAcch2.ChkGroundHit()) {
+        current.pos.y = 0.0f;
+        speedF = 0.0f;
+        mSpeed = 0.0f;
+        speed.y = 0.0f;
+        mSpeed = 0.0f;
+        modeProcInit(MODE_HIDE_e);
+        return true;
+    }
+
+    m_jnt.setParam(
+        l_HIO.mNpc.mMaxBackboneX, l_HIO.mNpc.mMaxBackboneY,
+        l_HIO.mNpc.mMinBackboneX, l_HIO.mNpc.mMinBackboneY,
+        l_HIO.mNpc.mMaxHeadX, l_HIO.mNpc.mMaxHeadY,
+        l_HIO.mNpc.mMinHeadX, l_HIO.mNpc.mMinHeadY,
+        l_HIO.mNpc.mMaxTurnStep
+    );
+    current.angle.y = shape_angle.y;
+    if (mCurMode == MODE_HIDE_e) {
+        if (mTagRadius == 0.0f) {
+            fopAcIt_Judge(searchTagSo_CB, this);
+        } else {
+            modeProcInit(MODE_SWIM_e);
+        }
+    } else {
+        if (mTagRadius == 0.0f) {
+            fopAcIt_Judge(searchTagSo_CB, this);
+        }
+    }
+
+    if (cLib_calcTimer(&mBtpTimer) == 0) {
+        mBtpFrame++;
+        if (mBtpFrame > mBtpAnm.getBtpAnm()->getFrameMax()) {
+            mBtpTimer = (s16)(cM_rndF(100.0f) + 100.0f);
+            mBtpFrame = 0;
+        }
+    }
+
+    setScale();
+    setAttention();
+    cLib_addCalc2(&speedF, mSpeed, 0.3f, 4.0f);
+    cLib_addCalc2(&mB34, mOffset.x, mOffset.z, mOffset.y);
+    lookBack();
+    checkOrder();
+    modeProc(PROC_EXEC_e, 0x10);
+    eventOrder();
+
+    s16 targetX = 0;
+    f32 waterY = dLib_getWaterY(current.pos, mAcch2);
+    if (current.pos.y < waterY) {
+        current.pos.y = dLib_getWaterY(current.pos, mAcch2);
+        if (mB34 > 0.0f && mRipple.getEmitter() == NULL) {
+            static cXyz rippleScale(0.8f, 0.8f, 0.8f);
+            dComIfGp_particle_setShipTail(dPa_name::ID_AK_JN_HAMON00, &current.pos, NULL, &rippleScale, 0xFF, &mRipple);
+            if (mRipple.getEmitter() != NULL) {
+                mRipple.setRate(0.0f);
+            }
+        }
+    } else {
+        f32 thresh = mB00 * 0.25f;
+        if (speed.y < -thresh) {
+            if (speed.y < -(mB00 * 0.5f)) {
+                targetX = l_HIO.m64;
+            } else {
+                targetX = l_HIO.m66;
+            }
+        } else if (speed.y > thresh) {
+            if (speed.y > mB00 * 0.5f) {
+                targetX = l_HIO.m68;
+            } else {
+                targetX = l_HIO.m6A;
+            }
+        } else {
+            targetX = 0;
+        }
+        mRipple.end();
+    }
+    cLib_addCalcAngleS2(&shape_angle.x, targetX, 4, 0x800);
+
+    if (mCurMode != MODE_HIDE_e && mCurMode != MODE_EVENT_FIRST_WAIT_e && mBDB == 0 && cLib_calcTimer(&mBE0) == 0) {
+        fopAcM_posMoveF(this, NULL);
+        mAcch2.CrrPos(*dComIfG_Bgsp());
+    }
+
+    mpMorf2->play(NULL, 0, 0);
+    mpMorf2->calc();
+    setMtx();
+    setAnm(6, false);
+    setAnmSwimSpeed();
+    current.angle.y = shape_angle.y;
+    return false;
 }
 
 /* 00003844-000038E0       .text debugDraw__10daNpc_So_cFv */

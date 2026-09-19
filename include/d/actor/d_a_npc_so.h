@@ -5,6 +5,7 @@
 #include "d/d_particle.h"
 #include "d/d_cc_d.h"
 #include "d/d_jnt_hit.h"
+#include "d/d_lib.h"
 #include "m_Do/m_Do_hostIO.h"
 #include "m_Do/m_Do_ext.h"
 #include "SSystem/SComponent/c_phase.h"
@@ -172,7 +173,7 @@ public:
     /* 0x84C */ mDoExt_McaMorf* mpMorf2;
     /* 0x850 */ J3DModel* mpHudeModel;
     /* 0x854 */ mDoExt_btpAnm mBtpAnm;
-    /* 0x868 */ u8 m868[0x86C - 0x868];
+    /* 0x868 */ int mBtpTimer;
     /* 0x86C */ s16 mBtpFrame;
     /* 0x86E */ u8 m86E[0x870 - 0x86E];
     /* 0x870 */ dBgS_ObjAcch mAcch2;
@@ -197,11 +198,8 @@ public:
     /* 0xB04 */ f32 mB04;
     /* 0xB08 */ f32 mB08;
     /* 0xB0C */ u8 mB0C;
-    /* 0xB0D */ u8 mB0D[0xB28 - 0xB0D];
-    /* 0xB28 */ f32 mB28;
-    /* 0xB2C */ u8 mB2C[0xB30 - 0xB2C];
-    /* 0xB30 */ s16 mB30;
-    /* 0xB32 */ u8 mB32[0xB34 - 0xB32];
+    /* 0xB0D */ u8 mB0D[0xB10 - 0xB0D];
+    /* 0xB10 */ dLib_circle_path_c mCirclePath;
     /* 0xB34 */ f32 mB34;
     /* 0xB38 */ cXyz mOffset;
     /* 0xB44 */ cXyz mLookAt;
@@ -226,7 +224,8 @@ public:
     /* 0xBA0 */ cXyz mBA0;
     /* 0xBAC */ s16 mBAC;
     /* 0xBAE */ u8 mMinigameTagFound;
-    /* 0xBAF */ u8 mBAF[0xBBC - 0xBAF];
+    /* 0xBAF */ u8 mBAF;
+    /* 0xBB0 */ cXyz mBB0;
     /* 0xBBC */ int mBBC;
     /* 0xBC0 */ cXyz mBC0;
     /* 0xBCC */ cXyz mBCC;
