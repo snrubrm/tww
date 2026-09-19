@@ -1186,7 +1186,7 @@ bool daNpc_So_c::_execute() {
 
     if (cLib_calcTimer(&mBtpTimer) == 0) {
         mBtpFrame++;
-        if (mBtpFrame > mBtpAnm.getBtpAnm()->getFrameMax()) {
+        if ((f32)mBtpFrame > (f32)mBtpAnm.getFrameCtrl()->getEnd()) {
             mBtpTimer = (s16)(cM_rndF(100.0f) + 100.0f);
             mBtpFrame = 0;
         }
@@ -1213,15 +1213,16 @@ bool daNpc_So_c::_execute() {
             }
         }
     } else {
+        f32 spdY = speed.y;
         f32 thresh = mB00 * 0.25f;
-        if (speed.y < -thresh) {
-            if (speed.y < -(mB00 * 0.5f)) {
+        if (spdY < -thresh) {
+            if (spdY < -(mB00 * 0.5f)) {
                 targetX = l_HIO.m64;
             } else {
                 targetX = l_HIO.m66;
             }
-        } else if (speed.y > thresh) {
-            if (speed.y > mB00 * 0.5f) {
+        } else if (spdY > thresh) {
+            if (spdY > mB00 * 0.5f) {
                 targetX = l_HIO.m68;
             } else {
                 targetX = l_HIO.m6A;
