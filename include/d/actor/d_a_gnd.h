@@ -2,26 +2,129 @@
 #define D_A_GND_H
 
 #include "f_op/f_op_actor.h"
+#include "d/d_bg_s_acch.h"
+#include "d/d_cc_d.h"
+#include "d/d_particle.h"
+#include "m_Do/m_Do_ext.h"
+#include "m_Do/m_Do_hostIO.h"
+#include "SSystem/SComponent/c_phase.h"
 
 struct gnd_ke_s {
-    
-};
+    /* 0x000 */ cXyz mPos[20];
+    /* 0x0F0 */ cXyz mVel[20];
+};  // Size: 0x1E0
+
+STATIC_ASSERT(sizeof(gnd_ke_s) == 0x1E0);
 
 class gnd_class : public fopEn_enemy_c {
 public:
-    /* 0x02AC */ u8 m02AC[0x13CF - 0x02AC];
+    /* 0x02AC */ request_of_phase_process_class mPhase;
+    /* 0x02B4 */ u8 m2B4[0x02B8 - 0x02B4];
+    /* 0x02B8 */ mDoExt_McaMorf* mpMorf;
+    /* 0x02BC */ mDoExt_btkAnm* mpBtkAnm;
+    /* 0x02C0 */ mDoExt_brkAnm* mpBrkAnm;
+    /* 0x02C4 */ mDoExt_btpAnm* mpBtpAnm;
+    /* 0x02C8 */ u32 mShadowId;
+    /* 0x02CC */ u8 m2CC[0x02D0 - 0x02CC];
+    /* 0x02D0 */ s16 m2D0;
+    /* 0x02D2 */ u8 m2D2[0x030C - 0x02D2];
+    /* 0x030C */ s16 mAction;
+    /* 0x030E */ u8 m30E[0x03A0 - 0x030E];
+    /* 0x03A0 */ s16 mPrmColorR;
+    /* 0x03A2 */ s16 mPrmColorG;
+    /* 0x03A4 */ s16 mPrmColorB;
+    /* 0x03A6 */ u8 m3A6[0x03D8 - 0x03A6];
+    /* 0x03D8 */ s8 m3D8;
+    /* 0x03D9 */ u8 m3D9[0x03E4 - 0x03D9];
+    /* 0x03E4 */ gnd_ke_s mKe[4];
+    /* 0x0B64 */ mDoExt_3DlineMat0_c mLineMat;
+    /* 0x0B80 */ dBgS_AcchCir mAcchCir;
+    /* 0x0BC0 */ dBgS_ObjAcch mAcch;
+    /* 0x0D84 */ dCcD_Stts mStts;
+    /* 0x0DC0 */ dCcD_Cyl mBodyCyl;
+    /* 0x0EF0 */ dCcD_Sph mHeadSph;
+    /* 0x101C */ dCcD_Sph mChestSph;
+    /* 0x1148 */ dCcD_Sph mWeponSph[2];
+    /* 0x13A0 */ cXyz m13A0[2];
+    /* 0x13B8 */ u8 m13B8[0x13CE - 0x13B8];
+    /* 0x13CE */ u8 m13CE;
     /* 0x13CF */ u8 mNextParryOpeningType;
     /* 0x13D0 */ u8 m13D0;
     /* 0x13D1 */ u8 m13D1;
-    /* 0x13D2 */ u8 m13D2[0x15E4 - 0x13D2];
+    /* 0x13D2 */ u8 m13D2[0x13D4 - 0x13D2];
+    /* 0x13D4 */ JPABaseEmitter* mpAttackEff[6];
+    /* 0x13EC */ u8 m13EC[0x14A8 - 0x13EC];
+    /* 0x14A8 */ cXyz m14A8[15];
+    /* 0x155C */ s16 m155C;
+    /* 0x155E */ s16 m155E;
+    /* 0x1560 */ u8 m1560[0x15B0 - 0x1560];
+    /* 0x15B0 */ u8 m15B0;
+    /* 0x15B1 */ u8 m15B1[0x15B4 - 0x15B1];
+    /* 0x15B4 */ dPa_rippleEcallBack mRippleCb;
+    /* 0x15C8 */ cXyz m15C8[2];
+    /* 0x15E0 */ u8 mHioSet;
+    /* 0x15E1 */ u8 m15E1[0x15E4 - 0x15E1];
 };
 
-class daGnd_HIO_c {
+STATIC_ASSERT(sizeof(gnd_class) == 0x15E4);
+
+class daGnd_HIO_c : public JORReflexible {
 public:
     daGnd_HIO_c();
+    virtual ~daGnd_HIO_c() {}
 
 public:
-    /* Place member variables here */
-};
+    /* 0x04 */ s8 mNo;
+    /* 0x05 */ u8 m05;
+    /* 0x06 */ u8 m06;
+    /* 0x07 */ u8 m07;
+    /* 0x08 */ f32 m08;
+    /* 0x0C */ f32 m0C;
+    /* 0x10 */ u8 m10;
+    /* 0x11 */ u8 m11;
+    /* 0x12 */ u8 m12;
+    /* 0x14 */ f32 m14;
+    /* 0x18 */ f32 m18;
+    /* 0x1C */ f32 m1C;
+    /* 0x20 */ f32 m20;
+    /* 0x24 */ f32 m24;
+    /* 0x28 */ f32 m28;
+    /* 0x2C */ f32 m2C;
+    /* 0x30 */ f32 m30;
+    /* 0x34 */ f32 m34;
+    /* 0x38 */ f32 m38;
+    /* 0x3C */ f32 m3C;
+    /* 0x40 */ f32 m40;
+    /* 0x44 */ u8 m44;
+    /* 0x45 */ u8 m45;
+    /* 0x46 */ u8 m46;
+    /* 0x48 */ f32 m48;
+    /* 0x4C */ f32 m4C;
+    /* 0x50 */ f32 m50;
+    /* 0x54 */ f32 m54;
+    /* 0x58 */ f32 m58;
+    /* 0x5C */ f32 m5C;
+    /* 0x60 */ f32 m60;
+    /* 0x64 */ f32 m64;
+    /* 0x68 */ s16 m68;
+    /* 0x6A */ s16 m6A;
+    /* 0x6C */ s16 m6C;
+    /* 0x6E */ s16 m6E;
+    /* 0x70 */ s16 m70;
+    /* 0x72 */ s16 m72;
+    /* 0x74 */ s16 m74;
+    /* 0x76 */ s16 m76;
+    /* 0x78 */ f32 m78;
+    /* 0x7C */ s16 m7C;
+    /* 0x7E */ s16 m7E;
+    /* 0x80 */ s16 m80;
+    /* 0x82 */ s16 m82;
+    /* 0x84 */ s16 m84;
+    /* 0x86 */ s16 m86;
+    /* 0x88 */ u8 m88;
+    /* 0x89 */ u8 m89;
+};  // Size: 0x8C
+
+STATIC_ASSERT(sizeof(daGnd_HIO_c) == 0x8C);
 
 #endif /* D_A_GND_H */
