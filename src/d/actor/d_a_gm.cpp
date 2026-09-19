@@ -450,8 +450,8 @@ void fuwafuwa_set(gm_class* i_this) {
         return;
     }
 
-    i_this->mFuwafuwaAngle += 1000;
-    i_this->mFuwafuwa.y = 100.0f * cM_ssin(i_this->mFuwafuwaAngle);
+    i_this->mTimers[0] += 1000;
+    i_this->mFuwafuwa.y = 100.0f * cM_ssin(i_this->mTimers[0]);
     if (i_this->mAction == 3 || i_this->mAction == 4) {
         i_this->mFuwafuwa.x = 0.0f;
         i_this->mFuwafuwa.y = 0.0f;
@@ -508,13 +508,131 @@ void action_dousa(gm_class*) {
 }
 
 /* 00002AB8-00002C9C       .text action_hane_rakka__FP8gm_class */
-void action_hane_rakka(gm_class*) {
-    /* Nonmatching */
+void action_hane_rakka(gm_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    switch (i_this->mAction) {
+    case 10: {
+        for (int i = 0; i < 23; i++) {
+            i_this->mTimers[i] = 0;
+        }
+        actor->gravity = -1.0f;
+        actor->speed.y = 7.0f;
+        if (i_this->m2CD != 2) {
+            actor->speedF = 40.0f;
+            if (i_this->mWingBits == 1 || i_this->mWingBits == 3) {
+                actor->current.angle.y += (s16)(16384.0f + cM_rndFX(4096.0f));
+                i_this->mTimers[0] = 0x1000;
+            } else {
+                actor->current.angle.y -= (s16)(16384.0f + cM_rndFX(4096.0f));
+                i_this->mTimers[0] = -0x1000;
+            }
+            i_this->mTimers[1] = 0x300;
+        }
+        i_this->mAction++;
+        /* fallthrough */
+    }
+    case 11:
+        if (i_this->mAcch.ChkGroundHit() || i_this->mSpawnPos.y - 1000.0f > actor->current.pos.y) {
+            actor->shape_angle.x = 0;
+            i_this->mTimers[0] = 0;
+            i_this->mTimers[1] = 0;
+            i_this->mAction++;
+        }
+        break;
+    case 12:
+        if (actor->scale.x < 0.1f) {
+            fopAcM_delete(actor);
+        }
+        break;
+    }
+
+    cLib_addCalc0(&actor->scale.x, 1.0f, 0.02f);
+    f32 scale = actor->scale.x;
+    actor->scale.y = scale;
+    actor->scale.z = scale;
+    cLib_addCalc0(&actor->speedF, 1.0f, 5.0f);
+    if (actor->speed.y < 0.0f) {
+        actor->shape_angle.y += i_this->mTimers[0];
+        actor->shape_angle.x += i_this->mTimers[1];
+    }
 }
 
+static csXyz wing_trans_angle_dt[4];
+
 /* 00002C9C-000030FC       .text action_uchiwa_dousa__FP8gm_class */
-void action_uchiwa_dousa(gm_class*) {
-    /* Nonmatching */
+void action_uchiwa_dousa(gm_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    switch (i_this->mAction) {
+    case 20: {
+        anm_init(i_this, dRes_INDEX_GM_BCK_PAUSE_e, 1.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+        for (int i = 0; i < 23; i++) {
+            i_this->mTimers[i] = 0;
+        }
+        actor->current.angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
+        fopAcM_seStart(actor, JA_SE_CM_GM_HIT_WIND, 0);
+        fopAcM_monsSeStart(actor, JA_SE_CV_GM_HIT_WIND, 0);
+        i_this->mWallR = 250.0f;
+        i_this->mWeaponSph.OffAtSetBit();
+        i_this->mWeaponSph.OffAtSetBit();
+        i_this->mWingCyl.OffAtSetBit();
+        i_this->mWingCyl.OffAtSetBit();
+        actor->speedF = 60.0f;
+        actor->speed.y = 24.0f;
+        if (i_this->m2D1 == 3) {
+            actor->speedF = 20.0f;
+            actor->speed.y = 22.0f;
+        }
+        i_this->mTimers[3] = 5000;
+        i_this->mpMorf->setPlaySpeed(0.0f);
+        i_this->mAction++;
+        /* fallthrough */
+    }
+    case 21: {
+        cLib_addCalc0(&actor->speedF, 1.0f, 3.0f);
+        cLib_addCalc0(&actor->speed.y, 1.0f, 2.0f);
+        for (int i = 0; i < 4; i++) {
+            i_this->mWingAngle[i].y = wing_trans_angle_dt[i].y;
+            i_this->mWingAngle[i].x = wing_trans_angle_dt[i].x;
+            i_this->mWingAngle[i].z = wing_trans_angle_dt[i].z;
+        }
+        i_this->mTimers[0] += 400;
+        i_this->mTimers[1] += 400;
+        i_this->mTimers[2] += 400;
+        i_this->mExtraJointRot.y = 4000.0f * cM_ssin(i_this->mTimers[0]);
+        i_this->mExtraJointRot.x = 4000.0f * cM_scos(i_this->mTimers[1]);
+        i_this->mExtraJointRot.z = 4000.0f * cM_scos(i_this->mTimers[2]);
+        if (i_this->m2D1 != 3) {
+            actor->shape_angle.z += i_this->mTimers[3];
+            s16 target = 0;
+            cLib_addCalcAngleS2(&i_this->mTimers[3], target, 1, 0x100);
+        }
+        if (actor->speed.y < 0.1f && actor->speedF < 0.1f) {
+            actor->speedF = 0.0f;
+            i_this->mAction++;
+        }
+        break;
+    }
+    case 22:
+        actor->gravity = -0.08f;
+        i_this->mTimers[0] += 400;
+        i_this->mTimers[1] += 400;
+        i_this->mTimers[2] += 400;
+        i_this->mExtraJointRot.y = 4000.0f * cM_ssin(i_this->mTimers[0]);
+        i_this->mExtraJointRot.x = 4000.0f * cM_scos(i_this->mTimers[1]);
+        i_this->mExtraJointRot.z = 4000.0f * cM_scos(i_this->mTimers[2]);
+        if (actor->current.pos.y < 150.0f + i_this->mAcch.GetGroundH()) {
+            actor->speed.y = 0.0f;
+            actor->gravity = 0.0f;
+            i_this->m2D0 = 0;
+            i_this->mAction = 0;
+        }
+        break;
+    }
+
+    s16 muneTarget = 0x2000;
+    cLib_addCalcAngleS2(&i_this->mMuneRot.y, muneTarget, 1, 0x1000);
 }
 
 /* 000030FC-00003E54       .text action_totugeki__FP8gm_class */
@@ -523,13 +641,181 @@ void action_totugeki(gm_class*) {
 }
 
 /* 00003E54-00004204       .text action_kabehari__FP8gm_class */
-void action_kabehari(gm_class*) {
-    /* Nonmatching */
+void action_kabehari(gm_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    cXyz offset;
+    cXyz pos;
+    pos.x = 0.0f;
+    pos.y = 0.0f;
+    pos.z = 0.0f;
+
+    switch (i_this->mAction) {
+    case 40:
+        i_this->mWallR = 70.0f;
+        for (int i = 0; i < 23; i++) {
+            i_this->mTimers[i] = 0;
+        }
+        i_this->mWingCyl.OffAtSetBit();
+        i_this->mWingCyl.OffAtSetBit();
+        i_this->m348 = player->current.pos;
+        i_this->m348.y = 450.0f + player->current.pos.y;
+        i_this->m320 = 0;
+        i_this->m2E4 = 50;
+        i_this->mAction++;
+        /* fallthrough */
+    case 41: {
+        s16 pitchTarget = -0x4000;
+        cLib_addCalcAngleS2(&actor->shape_angle.x, pitchTarget, 1, 0x200);
+        f32 dx = actor->current.pos.x - pos.x;
+        f32 dy = actor->current.pos.y - i_this->m348.y;
+        f32 dz = actor->current.pos.z - pos.z;
+        f32 dist = std::sqrtf(dx * dx + dy * dy + dz * dz);
+        if (dist < 4.0f || i_this->mAcch.ChkWallHit() || i_this->m2E4 == 0) {
+            if (i_this->mBckIdx != dRes_INDEX_GM_BCK_TOMARU_e) {
+                anm_init(i_this, dRes_INDEX_GM_BCK_TOMARU_e, 10.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
+            }
+            i_this->mWallR = 10.0f;
+            actor->shape_angle.x = -0x4000;
+            i_this->mAction = 42;
+        }
+        break;
+    }
+    case 42: {
+        s16 spinTarget = -0x8000;
+        cLib_addCalcAngleS2(&i_this->m320, spinTarget, 1, 0x500);
+        s16 dang = cLib_distanceAngleS(i_this->m320, spinTarget);
+        if (dang < 0x100) {
+            i_this->m2E2 = 10;
+            i_this->mAction = 43;
+        }
+        break;
+    }
+    case 43: {
+        s16 spinTarget = -0x8000;
+        cLib_addCalcAngleS2(&i_this->m320, spinTarget, 1, 0x500);
+        if (i_this->m2E2 == 0) {
+            if (i_this->m322 <= 1 && (i_this->mWingBits & 7) != 7) {
+                actor->shape_angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+                actor->current.angle.y = actor->shape_angle.y;
+                i_this->m2D0 = 3;
+                i_this->mAction = 33;
+            } else {
+                i_this->m2D0 = 0;
+                i_this->mAction = 0;
+            }
+        }
+        break;
+    }
+    }
+
+    if (i_this->m2D0 == 4) {
+        s16 rot = actor->current.angle.y + 0x8000;
+        cMtx_YrotS(*calc_mtx, rot);
+        offset.x = 0.0f;
+        offset.y = 0.0f;
+        offset.z = 60.0f;
+        MtxPosition(&offset, &pos);
+        pos += i_this->m384[2];
+        cLib_addCalc2(&actor->current.pos.x, pos.x, 1.0f, 10.0f);
+        cLib_addCalc2(&actor->current.pos.y, i_this->m348.y, 1.0f, 10.0f);
+        cLib_addCalc2(&actor->current.pos.z, pos.z, 1.0f, 10.0f);
+        offset = i_this->m384[0] - i_this->m384[1];
+        actor->current.angle.y = cM_atan2s(offset.x, offset.z) + 0x4000;
+        s16 shapeTarget = actor->current.angle.y;
+        cLib_addCalcAngleS2(&actor->shape_angle.y, shapeTarget, 1, 0x1000);
+    }
 }
 
 /* 00004204-000046F0       .text action_fly_damage__FP8gm_class */
-void action_fly_damage(gm_class*) {
-    /* Nonmatching */
+void action_fly_damage(gm_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    switch (i_this->mAction) {
+    case 50:
+        i_this->mBodyCyl.SetCoVsGrp(cCcD_CoSPrm_VsGrpAll_e);
+        if (i_this->m2D1 != 4) {
+            i_this->mpBrkDamage->setFrame(0.0f);
+            i_this->mBrkMode = 1;
+        } else {
+            i_this->mpBrkGm->setFrame(0.0f);
+            i_this->mBrkMode = 0;
+        }
+        anm_init(i_this, dRes_INDEX_GM_BCK_PAUSE_e, 1.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+        actor->speedF = 30.0f;
+        i_this->m320 = 0;
+        /* fallthrough */
+    case 52: {
+        i_this->mWeaponSph.OffAtSetBit();
+        i_this->mWeaponSph.OffAtSetBit();
+        i_this->mWingCyl.OffAtSetBit();
+        i_this->mWingCyl.OffAtSetBit();
+        for (int i = 0; i < 23; i++) {
+            i_this->mTimers[i] = 0;
+        }
+        actor->current.angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
+        f32 sign = 1.0f;
+        if (cM_rnd() < 0.5f) {
+            sign = -1.0f;
+        }
+        i_this->mTimers[16] += (s16)(10000.0f * sign);
+        sign = 1.0f;
+        if (cM_rnd() < 0.5f) {
+            sign = -1.0f;
+        }
+        i_this->mTimers[17] += (s16)(10000.0f * sign);
+        sign = 1.0f;
+        if (cM_rnd() < 0.5f) {
+            sign = -1.0f;
+        }
+        i_this->mTimers[18] += (s16)(2000.0f * sign);
+        i_this->mTimers[19] = 5000;
+        i_this->mTimers[20] = 5000;
+        i_this->mTimers[21] = 7000;
+        actor->speed.setall(0.0f);
+        actor->gravity = 0.0f;
+        i_this->mAction = 51;
+        /* fallthrough */
+    }
+    case 51: {
+        for (int i = 0; i < 4; i++) {
+            i_this->mTimers[4 + i * 3] += i_this->mTimers[16];
+            i_this->mTimers[5 + i * 3] += i_this->mTimers[17];
+            i_this->mTimers[6 + i * 3] += i_this->mTimers[18];
+            i_this->mWingAngle[i].y = 5000.0f * cM_ssin(i_this->mTimers[4 + i * 3]);
+            i_this->mWingAngle[i].x = 5000.0f * cM_scos(i_this->mTimers[5 + i * 3]);
+            i_this->mWingAngle[i].z = 3000.0f * cM_scos(i_this->mTimers[6 + i * 3]);
+        }
+        i_this->mTimers[0] += i_this->mTimers[19];
+        i_this->mTimers[1] += i_this->mTimers[20];
+        i_this->mTimers[2] += i_this->mTimers[21];
+        i_this->mExtraJointRot.y = -3500.0f * cM_ssin(i_this->mTimers[0]);
+        i_this->mExtraJointRot.x = -3500.0f * cM_scos(i_this->mTimers[1]);
+        i_this->mExtraJointRot.z = -2000.0f * cM_scos(i_this->mTimers[2]);
+        for (int i = 0; i < 6; i++) {
+            s16 target = 0;
+            cLib_addCalcAngleS2(&i_this->mTimers[16 + i], target, 1, 80);
+        }
+        cLib_addCalc0(&actor->speedF, 1.0f, 2.0f);
+        if (actor->speedF < 0.2f) {
+            actor->speedF = 0.0f;
+            i_this->mpBrkGm->setFrame(0.0f);
+            i_this->mBrkMode = 0;
+            if (i_this->mBckIdx == dRes_INDEX_GM_BCK_PAUSE_e && (i_this->mWingBits & 7) != 7) {
+                i_this->m2D0 = 3;
+                i_this->mAction = 37;
+            } else {
+                i_this->m2D0 = 0;
+                i_this->mAction = 0;
+            }
+        }
+        break;
+    }
+    }
+
+    if (actor->current.pos.y < 100.0f + i_this->mAcch.GetGroundH()) {
+        cLib_addCalc2(&actor->current.pos.y, 100.0f + i_this->mAcch.GetGroundH(), 1.0f, 3.0f);
+    }
 }
 
 /* 000046F0-00005C78       .text action_ground_attack__FP8gm_class */
@@ -585,13 +871,119 @@ static BOOL daGM_Delete(gm_class* i_this) {
 }
 
 /* 000078C4-00007E74       .text useHeapInit__FP10fopAc_ac_c */
-static BOOL useHeapInit(fopAc_ac_c*) {
-    /* Nonmatching */
+static BOOL useHeapInit(fopAc_ac_c* a_this) {
+    gm_class* i_this = (gm_class*)a_this;
+
+    if (i_this->m2CD == 0) {
+        i_this->mpMorf = new mDoExt_McaMorf(
+            (J3DModelData*)dComIfG_getObjectRes("GM", dRes_INDEX_GM_BDL_GM_e),
+            NULL, NULL, NULL,
+            J3DFrameCtrl::EMode_RESET, 1.0f, 0, -1, 1,
+            NULL, 0x80000, 0x37441422
+        );
+    } else {
+        switch (i_this->mWingBits) {
+        case 1:
+        case 2:
+            i_this->mpMorf = new mDoExt_McaMorf(
+                (J3DModelData*)dComIfG_getObjectRes("GM", dRes_INDEX_GM_BDL_HANESL_e),
+                NULL, NULL, NULL,
+                J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, 0,
+                NULL, 0, 0x11020203
+            );
+            break;
+        case 3:
+        case 4:
+            i_this->mpMorf = new mDoExt_McaMorf(
+                (J3DModelData*)dComIfG_getObjectRes("GM", dRes_INDEX_GM_BDL_HANEUL_e),
+                NULL, NULL, NULL,
+                J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, 0,
+                NULL, 0, 0x11020203
+            );
+            break;
+        }
+    }
+
+    if (i_this->mpMorf == NULL || i_this->mpMorf->getModel() == NULL) {
+        return FALSE;
+    }
+
+    if (i_this->m2CD == 0) {
+        i_this->mpMorf->getModel()->setUserArea((u32)i_this);
+        for (u16 i = 0; i < i_this->mpMorf->getModel()->getModelData()->getJointNum(); i++) {
+            i_this->mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
+        }
+    }
+
+    J3DModel* model = i_this->mpMorf->getModel();
+    J3DModelData* modelData = model->getModelData();
+    if (i_this->m2CD == 0) {
+        i_this->mpBrkGm = new mDoExt_brkAnm();
+        if (i_this->mpBrkGm == NULL) {
+            return FALSE;
+        }
+        if (i_this->mpBrkGm->init(
+                model->getModelData(),
+                (J3DAnmTevRegKey*)dComIfG_getObjectRes("GM", dRes_INDEX_GM_BRK_GM_e),
+                TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, FALSE
+            ) == 0)
+        {
+            return FALSE;
+        }
+
+        i_this->mpBrkAtack = new mDoExt_brkAnm();
+        if (i_this->mpBrkAtack == NULL) {
+            return FALSE;
+        }
+        if (i_this->mpBrkAtack->init(
+                model->getModelData(),
+                (J3DAnmTevRegKey*)dComIfG_getObjectRes("GM", dRes_INDEX_GM_BRK_ATACK_e),
+                TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, FALSE
+            ) == 0)
+        {
+            return FALSE;
+        }
+
+        i_this->mpBrkDamage = new mDoExt_brkAnm();
+        if (i_this->mpBrkDamage == NULL) {
+            return FALSE;
+        }
+        if (i_this->mpBrkDamage->init(
+                model->getModelData(),
+                (J3DAnmTevRegKey*)dComIfG_getObjectRes("GM", dRes_INDEX_GM_BRK_DAMAGE_e),
+                TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, FALSE
+            ) == 0)
+        {
+            return FALSE;
+        }
+
+        i_this->mpBrkDead = new mDoExt_brkAnm();
+        if (i_this->mpBrkDead == NULL) {
+            return FALSE;
+        }
+        if (i_this->mpBrkDead->init(
+                model->getModelData(),
+                (J3DAnmTevRegKey*)dComIfG_getObjectRes("GM", dRes_INDEX_GM_BRK_DEAD_e),
+                TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, FALSE
+            ) == 0)
+        {
+            return FALSE;
+        }
+
+        if (!i_this->mInvisibleModel.create(i_this->mpMorf->getModel())) {
+            return FALSE;
+        }
+    }
+
+    i_this->mpShadowModel = mDoExt_J3DModel__create(modelData, 0x20000, 0x11020203);
+    if (i_this->mpShadowModel == NULL) {
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /* 00007EBC-0000842C       .text daGM_Create__FP10fopAc_ac_c */
-static cPhs_State daGM_Create(fopAc_ac_c*) {
-    /* Nonmatching */
+static cPhs_State daGM_Create(fopAc_ac_c* a_this) {
     static dCcD_SrcSph weapon_co_sph_src = {
         // dCcD_SrcGObjInf
         {
@@ -707,6 +1099,150 @@ static cPhs_State daGM_Create(fopAc_ac_c*) {
             /* Height */ 0.0f,
         }},
     };
+    static u8 fire_j[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    };
+    static f32 fire_sc[] = {
+        2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f, 2.0f,
+    };
+
+    gm_class* i_this = (gm_class*)a_this;
+    fopAcM_ct(a_this, gm_class);
+
+    cPhs_State phase_state = dComIfG_resLoad(&i_this->mPhs, "GM");
+    if (phase_state == cPhs_COMPLEATE_e) {
+        i_this->mWingBits = fopAcM_GetParam(a_this);
+        i_this->m2CD = fopAcM_GetParam(a_this) >> 8;
+        i_this->m2CE = fopAcM_GetParam(a_this) >> 16;
+        i_this->mSwitchNo = fopAcM_GetParam(a_this) >> 24;
+        if (i_this->mWingBits == 0xFF) {
+            i_this->mWingBits = 0;
+        }
+        if (i_this->m2CD == 0xFF) {
+            i_this->m2CD = 0;
+        }
+        if (i_this->m2CE == 0xFF) {
+            i_this->m2CE = 0;
+        }
+
+        if (i_this->m2CD == 0) {
+            i_this->mSwitchEnable = a_this->current.angle.z;
+            a_this->current.angle.z = 0;
+            a_this->shape_angle.z = 0;
+            a_this->current.angle.x = 0;
+            a_this->shape_angle.x = 0;
+        }
+
+        if (i_this->mSwitchNo != 0xFF) {
+            if (dComIfGs_isSwitch(i_this->mSwitchNo, dComIfGp_roomControl_getStayNo())) {
+                return cPhs_ERROR_e;
+            }
+        }
+
+        s16 reg8s9 = REG8_S(9);
+        if (reg8s9 != 0) {
+            i_this->m2CE = reg8s9 - 1;
+        }
+
+        if (!fopAcM_entrySolidHeap(a_this, useHeapInit, 0x7400)) {
+            return cPhs_ERROR_e;
+        }
+
+        a_this->max_health = 12;
+        a_this->health = 12;
+        fopAcM_SetMtx(a_this, i_this->mpMorf->getModel()->getBaseTRMtx());
+        fopAcM_setCullSizeBox(a_this, -200.0f, -150.0f, -200.0f, 200.0f, 250.0f, 150.0f);
+
+        i_this->mAcch.Set(
+            fopAcM_GetPosition_p(a_this), fopAcM_GetOldPosition_p(a_this),
+            a_this, 1, &i_this->mAcchCir,
+            fopAcM_GetSpeed_p(a_this), NULL, NULL
+        );
+        i_this->mStts.Init(0x64, 1, a_this);
+        i_this->mCorrectionY = 0.0f;
+        i_this->m434 = a_this->current.angle.y;
+        i_this->mSpawnPos = a_this->current.pos;
+
+        a_this->itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("gmos", 0);
+        if (i_this->m2CD == 0) {
+            i_this->mBodyCyl.Set(body_co_cyl_src);
+            i_this->mBodyCyl.SetStts(&i_this->mStts);
+            i_this->mWeaponSph.Set(weapon_co_sph_src);
+            i_this->mWeaponSph.SetStts(&i_this->mStts);
+            i_this->mWingCyl.Set(wing_co_cyl_src);
+            i_this->mWingCyl.SetStts(&i_this->mStts);
+            i_this->mWindCyl.Set(wind_co_cyl_src);
+            i_this->mWindCyl.SetStts(&i_this->mStts);
+            i_this->mWeaponSph.OffAtSetBit();
+            i_this->mWeaponSph.OffAtSetBit();
+            i_this->mWingCyl.OffAtSetBit();
+            i_this->mWingCyl.OffAtSetBit();
+
+            a_this->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+            a_this->attention_info.distances[fopAc_Attn_TYPE_BATTLE_e] = 4;
+
+            if (i_this->m2CE == 1) {
+                i_this->initBt(120.0f + REG8_F(4), 100.0f + REG8_F(5));
+                i_this->setBtAttackData(0.0f, 10.0f, 800.0f + REG8_F(6), 1);
+                a_this->attention_info.distances[fopAc_Attn_TYPE_BATTLE_e] = 3;
+                a_this->stealItemLeft = 1;
+            } else {
+                i_this->initBt(200.0f + REG8_F(4), 100.0f + REG8_F(5));
+                i_this->setBtAttackData(0.0f, 10.0f, 880.0f + REG8_F(6), 1);
+                a_this->stealItemLeft = 3;
+                i_this->mWeaponSph.SetAtSpl(dCcG_At_Spl_UNK5);
+            }
+
+            i_this->setBtNowFrame(1000.0f);
+            a_this->scale.setall(0.0f);
+            i_this->m2D0 = 20;
+            i_this->mAction = 200;
+
+            i_this->mEnemyIce.mpActor = a_this;
+            i_this->mEnemyIce.mWallRadius = 40.0f;
+            i_this->mEnemyIce.mCylHeight = 40.0f;
+            i_this->mEnemyIce.m1B0 = 1;
+            i_this->mEnemyFire.mpMcaMorf = i_this->mpMorf;
+            i_this->mEnemyFire.mpActor = a_this;
+            for (int i = 0; i < 10; i++) {
+                i_this->mEnemyFire.mFlameJntIdxs[i] = fire_j[i];
+                i_this->mEnemyFire.mParticleScale[i] = fire_sc[i];
+            }
+
+            draw_SUB(i_this);
+
+            if (i_this->m2CE == 0) {
+                a_this->actor_status |= fopAcStts_UNK4000_e;
+                a_this->actor_status |= fopAcStts_BOSS_e;
+                a_this->actor_status &= ~fopAcStts_SHOWMAP_e;
+            } else if (i_this->m2CE == 2) {
+                a_this->itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("gmos_f", 0);
+                a_this->scale.setall(1.0f);
+                i_this->m2D0 = 0;
+                i_this->mAction = 0;
+            } else if (i_this->m2CE == 1) {
+                a_this->itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("gmos_g", 0);
+                i_this->mWallH = 60.0f;
+                i_this->mWallR = 70.0f;
+                a_this->scale.setall(1.0f);
+                i_this->mWingBits = 15;
+                a_this->max_health = 2;
+                a_this->health = 2;
+                i_this->m2D0 = 10;
+                i_this->mAction = 60;
+            }
+        } else {
+            a_this->attention_info.flags = 0;
+            i_this->mWallR = 100.0f;
+            if (i_this->mWingBits == 2 || i_this->mWingBits == 4) {
+                a_this->shape_angle.y += (s16)0x8000;
+            }
+            i_this->m2D0 = 1;
+            i_this->mAction = 10;
+        }
+    }
+
+    return phase_state;
 }
 
 static actor_method_class l_daGM_Method = {
