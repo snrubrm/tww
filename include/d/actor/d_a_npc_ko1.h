@@ -2,10 +2,12 @@
 #define D_A_NPC_KO1_H
 
 #include "d/d_npc.h"
+#include "d/d_particle.h"
 #include "m_Do/m_Do_hostIO.h"
 #include "SSystem/SComponent/c_phase.h"
 
 class J3DNode;
+class J3DModel;
 
 class daNpc_Ko1_c : public fopNpc_npc_c {
 public:
@@ -23,16 +25,16 @@ public:
     void nodeHedControl(J3DNode*, J3DModel*);
     void nodeBlnControl(J3DNode*, J3DModel*);
     void nodeKo1Control(J3DNode*, J3DModel*);
-    void init_HNA_0();
-    void init_HNA_1();
-    void init_HNA_2();
-    void init_HNA_3();
-    void init_HNA_4();
-    void init_BOU_0();
-    void init_BOU_1();
-    void init_BOU_2();
-    void init_BOU_3();
-    void createInit();
+    bool init_HNA_0();
+    bool init_HNA_1();
+    bool init_HNA_2();
+    bool init_HNA_3();
+    bool init_HNA_4();
+    bool init_BOU_0();
+    bool init_BOU_1();
+    bool init_BOU_2();
+    bool init_BOU_3();
+    bool createInit();
     void setMtx(bool);
     int anmNum_toResID(int);
     int headAnmNum_toResID(int);
@@ -73,7 +75,7 @@ public:
     bool chkAttention();
     void setAttention(bool);
     fopAc_ac_c* searchByID(fpc_ProcID);
-    void partner_srch_sub(void* (*)(void*, void*));
+    fpc_ProcID partner_srch_sub(void* (*)(void*, void*));
     void partner_srch();
     void check_landOn();
     void ko_setPthPos();
@@ -87,12 +89,12 @@ public:
     void chk_ForwardGroundY(short);
     void chk_wallJump(short);
     void routeCheck(float, short*);
-    void chk_start_swim();
-    void get_crsActorID();
+    BOOL chk_start_swim();
+    fpc_ProcID get_crsActorID();
     void chk_areaIn(float, cXyz);
     void setPrtcl_Hamon(float, float);
     void setPrtcl_HanaPachi();
-    void charDecide(int);
+    bool charDecide(int);
     void event_actionInit(int);
     BOOL event_action();
     void privateCut(int);
@@ -143,7 +145,7 @@ public:
     void create_Anm();
     void create_hed_Anm();
     void create_bln_Anm();
-    void create_itm_Mdl();
+    BOOL create_itm_Mdl();
     BOOL CreateHeap();
 
 public:
@@ -157,7 +159,8 @@ public:
     /* 0x6D2 */ u8 m6D2[0x6D4 - 0x6D2];
     /* 0x6D4 */ Mtx mHeadMtx;
     /* 0x704 */ mDoExt_McaMorf* mpBalloonMorf;
-    /* 0x708 */ u8 m708[0x710 - 0x708];
+    /* 0x708 */ J3DModel* mpItemModel;
+    /* 0x70C */ u32 mShadowId;
     /* 0x710 */ mDoExt_McaMorf* mpHeadMorf;
     /* 0x714 */ J3DAnmTexPattern* m_hed_tex_pttrn;
     /* 0x718 */ mDoExt_btpAnm mBtp;
@@ -165,12 +168,21 @@ public:
     /* 0x72D */ u8 m72D;
     /* 0x72E */ s16 mBlinkTimer;
     /* 0x730 */ ActionFunc mAction;
-    /* 0x73C */ u8 m73C[0x748 - 0x73C];
+    /* 0x73C */ dNpc_PathRun_c mPath;
+    /* 0x744 */ u8 m744[0x748 - 0x744];
     /* 0x748 */ dNpc_EventCut_c mCut;
     /* 0x7B4 */ fpc_ProcID mPartnerId;
-    /* 0x7B8 */ u8 m7B8[0x7DC - 0x7B8];
+    /* 0x7B8 */ fpc_ProcID mObId;
+    /* 0x7BC */ u8 mPartnerNum;
+    /* 0x7BD */ u8 m7BD[0x7C4 - 0x7BD];
+    /* 0x7C4 */ cXyz mHomePos;
+    /* 0x7D0 */ csXyz mHomeAngle;
+    /* 0x7D6 */ csXyz mModelAngle;
     /* 0x7DC */ cXyz mEyePos;
-    /* 0x7E8 */ u8 m7E8[0x824 - 0x7E8];
+    /* 0x7E8 */ cXyz mLookPos;
+    /* 0x7F4 */ u8 m7F4[0x80C - 0x7F4];
+    /* 0x80C */ cXyz mTargetPos;
+    /* 0x818 */ u8 m818[0x824 - 0x818];
     /* 0x824 */ f32 mLastFrame;
     /* 0x828 */ f32 mBalloonLastFrame;
     /* 0x82C */ f32 mTargetSpeed;
@@ -185,14 +197,18 @@ public:
     /* 0x848 */ u32 mPairedMsgNo;
     /* 0x84C */ u8 m84C[0x854 - 0x84C];
     /* 0x854 */ s16 mWaitTimer;
-    /* 0x856 */ u8 m856[0x85E - 0x856];
+    /* 0x856 */ s16 mTurnSpeed;
+    /* 0x858 */ s16 mLookAngle;
+    /* 0x85A */ u8 m85A[0x85E - 0x85A];
     /* 0x85E */ s8 mBalloonAnmEnded;
     /* 0x85F */ s8 mBalloonAnmRepeat;
     /* 0x860 */ s8 mAnmEnded;
     /* 0x861 */ s8 mAnmRepeat;
     /* 0x862 */ u8 m862;
     /* 0x863 */ u8 mPresentItem;
-    /* 0x864 */ u8 m864[0x86B - 0x864];
+    /* 0x864 */ u8 m864;
+    /* 0x865 */ u8 m865;
+    /* 0x866 */ u8 m866[0x86B - 0x866];
     /* 0x86B */ u8 m86B;
     /* 0x86C */ u8 m86C;
     /* 0x86D */ u8 m86D;
@@ -200,8 +216,11 @@ public:
     /* 0x870 */ int mUpdateEye;
     /* 0x874 */ u8 m874;
     /* 0x875 */ u8 mTalking;
-    /* 0x876 */ u8 mNoTurn;
-    /* 0x877 */ u8 m877[0x89A - 0x877];
+    /* 0x876 */ bool mNoTurn;
+    /* 0x877 */ u8 mDemo;
+    /* 0x878 */ dPa_rippleEcallBack mRippleCallback;
+    /* 0x88C */ JPABaseEmitter* mpHamonEmitter;
+    /* 0x890 */ u8 m890[0x89A - 0x890];
     /* 0x89A */ s8 mCutIndex;
     /* 0x89B */ u8 mEventAction;
     /* 0x89C */ u8 mAnmAttr;
