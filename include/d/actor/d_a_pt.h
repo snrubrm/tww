@@ -43,12 +43,14 @@ public:
     /* 0x2D4 */ s16 mMode;
     /* 0x2D6 */ s16 m2D6;
     /* 0x2D8 */ s16 mInitialSpawnDelay;
-    /* 0x2DA */ u8 m2DA[0x2F4 - 0x2DA];
+    /* 0x2DA */ u8 m2DA[0x2E8 - 0x2DA];
+    /* 0x2E8 */ cXyz mNextPos;
     /* 0x2F4 */ u32 mShadowId;
     /* 0x2F8 */ cXyz* mpEsaPos;
-    /* 0x2FC */ u8 m2FC[0x300 - 0x2FC];
+    /* 0x2FC */ s16 m2FC;
+    /* 0x2FE */ u8 m2FE[0x300 - 0x2FE];
     /* 0x300 */ f32 m300;
-    /* 0x304 */ u8 m304[0x308 - 0x304];
+    /* 0x304 */ f32 m304;
     /* 0x308 */ s16 m308;
     /* 0x30A */ s16 m30A;
     /* 0x30C */ s16 m30C;
@@ -56,7 +58,7 @@ public:
     /* 0x310 */ s16 m310;
     /* 0x314 */ f32 m314;
     /* 0x318 */ f32 m318;
-    /* 0x31C */ u8 m31C[0x320 - 0x31C];
+    /* 0x31C */ f32 m31C;
     /* 0x320 */ f32 m320;
     /* 0x324 */ s16 m324;
     /* 0x326 */ s8 m326;
