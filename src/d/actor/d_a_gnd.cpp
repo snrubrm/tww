@@ -7,6 +7,9 @@
 #include "d/actor/d_a_gnd.h"
 #include "d/d_cc_d.h"
 #include "d/d_com_inf_game.h"
+#include "d/d_s_play.h"
+#include "d/d_snap.h"
+#include "m_Do/m_Do_graphic.h"
 #include "d/d_demo.h"
 #include "d/d_particle_name.h"
 #include "f_op/f_op_actor_mng.h"
@@ -118,6 +121,9 @@ static u32 attack_eff_id[] = {
     dPa_name::ID_AK_SP_GNDCOUNTERRBLURR00,
     0, 0, 0, dPa_name::ID_AK_SN_GNDKICKSPLASH00, 0, 0,
 };
+
+static u32 ke_set_index[] = {0x1B, 0x1B, 0x2D, 0x2D};
+static f32 ke_set_offsetxz[] = {-4.0f, 4.0f, -4.0f, 4.0f};
 
 /* 000000EC-0000023C       .text __ct__11daGnd_HIO_cFv */
 daGnd_HIO_c::daGnd_HIO_c() {
@@ -330,8 +336,84 @@ static void* z_s_sub(void* param_1, void*) {
 }
 
 /* 0000094C-00000C38       .text daGnd_Draw__FP9gnd_class */
-static BOOL daGnd_Draw(gnd_class*) {
-    /* Nonmatching */
+static BOOL daGnd_Draw(gnd_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+
+    s16 blure = i_this->m155C;
+    if (blure > 1) {
+        mDoGph_gInf_c::setBlureRate(blure);
+        mDoGph_gInf_c::onBlure();
+    } else if (blure == 1) {
+        i_this->m155C = 0;
+        mDoGph_gInf_c::offBlure();
+    }
+
+    J3DModel* model = i_this->mpMorf->getModel();
+    g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &actor->current.pos, &actor->tevStr);
+
+    s16 add = i_this->m142C;
+    if (add != 0) {
+        s16 fog_r = actor->tevStr.mFogColor.r + i_this->m1426;
+        if (fog_r > 0xFF) {
+            fog_r = 0xFF;
+        }
+        s16 fog_g = actor->tevStr.mFogColor.g + i_this->m1426;
+        if (fog_g > 0xFF) {
+            fog_g = 0xFF;
+        }
+        s16 fog_b = actor->tevStr.mFogColor.g + (i_this->m1426 / 2);
+        if (fog_b > 0xFF) {
+            fog_b = 0xFF;
+        }
+
+        s16 limit = REG8_S(5) + 0x14;
+        if (add > limit) {
+            cLib_addCalcAngleS2(&i_this->m1426, 0x118, 1, 0x1E);
+            cLib_addCalc2(&i_this->m1428, -50000.0f, 1.0f, 5000.0f);
+        } else {
+            cLib_addCalcAngleS2(&i_this->m1426, 0, 1, 0xE);
+            cLib_addCalc0(&i_this->m1428, 1.0f, 2500.0f);
+        }
+
+        actor->tevStr.mFogColor.r = (u8)fog_r;
+        actor->tevStr.mFogColor.g = (u8)fog_g;
+        actor->tevStr.mFogColor.b = (u8)fog_b;
+        actor->tevStr.mFogStartZ += i_this->m1428;
+    }
+
+    g_env_light.setLightTevColorType(model, &actor->tevStr);
+    J3DModelData* modelData = model->getModelData();
+    i_this->mpBrkAnm->entry(modelData, i_this->mpBrkAnm->getFrame());
+    i_this->mpBtkAnm->entry(modelData, i_this->mpBtkAnm->getFrame());
+    i_this->mpBtpAnm->entry(modelData, i_this->mpBtpAnm->getFrame());
+    i_this->mpMorf->entryDL();
+
+    f32 z = actor->current.pos.z;
+    cXyz shadow_pos(actor->current.pos.x, 400.0f + actor->current.pos.y + REG0_F(18), z);
+    i_this->mShadowId = dComIfGd_setShadow(
+        i_this->mShadowId,
+        1,
+        model,
+        &shadow_pos,
+        1300.0f + REG0_F(19),
+        200.0f,
+        actor->current.pos.y,
+        i_this->mAcch.GetGroundH(),
+        i_this->mAcch.m_gnd,
+        &actor->tevStr,
+        0,
+        1.0f,
+        dDlst_shadowControl_c::getSimpleTex()
+    );
+
+    dSnap_RegistFig(DSNAP_TYPE_UNKCE, actor, 1.0f, 1.0f, 1.0f);
+
+    if (l_HIO.m07 != 0) {
+        GXColor color = {0xFF, 0x64, 0x00, 0xFF};
+        i_this->mLineMat.update(20, 2.25f + REG0_F(3), color, 2, &actor->tevStr);
+        dComIfGd_set3DlineMat(&i_this->mLineMat);
+    }
+
     return TRUE;
 }
 
@@ -348,8 +430,43 @@ static BOOL player_view_check(gnd_class* i_this, s16 param_2) {
 }
 
 /* 00000C6C-00000F24       .text ke_control__FP9gnd_classP8gnd_ke_sf */
-static void ke_control(gnd_class*, gnd_ke_s*, f32) {
-    /* Nonmatching */
+static void ke_control(gnd_class* i_this, gnd_ke_s* param_2, f32 param_3) {
+    cXyz local_118;
+    cXyz local_124;
+    f32 ground_y = 3.0f + i_this->mAcch.GetGroundH();
+    cXyz* pos = &param_2->mPos[1];
+    cXyz* vel = &param_2->mVel[1];
+
+    local_118.x = 0.0f;
+    local_118.y = 0.0f;
+    local_118.z = l_HIO.m08 * param_3 * 0.5f;
+    if (param_3 <= 0.05f) {
+        local_118.z = 0.0f;
+    }
+
+    f32 gravity = -5.0f + REG0_F(1);
+    f32 damp = 0.73f + REG0_F(2);
+    for (s32 i = 1; i < 20; i++, pos++, vel++) {
+        f32 x = vel->x + (pos->x - pos[-1].x);
+        f32 y = pos->y + vel->y + gravity;
+        if (y < ground_y) {
+            y = ground_y;
+        }
+        f32 y_diff = y - pos[-1].y;
+        f32 z = vel->z + (pos->z - pos[-1].z);
+        s16 angX = -cM_atan2s(y_diff, z);
+        s32 angY = cM_atan2s(x, std::sqrtf(SQUARE(y_diff) + SQUARE(z)));
+        cMtx_XrotS(*calc_mtx, angX);
+        cMtx_YrotM(*calc_mtx, angY);
+        MtxPosition(&local_118, &local_124);
+        *vel = *pos;
+        pos->x = pos[-1].x + local_124.x;
+        pos->y = pos[-1].y + local_124.y;
+        pos->z = pos[-1].z + local_124.z;
+        vel->x = damp * (pos->x - vel->x);
+        vel->y = damp * (pos->y - vel->y);
+        vel->z = damp * (pos->z - vel->z);
+    }
 }
 
 /* 00000F24-00000F68       .text ke_pos_set__FP9gnd_classP8gnd_ke_si */
@@ -361,13 +478,57 @@ static void ke_pos_set(gnd_class* i_this, gnd_ke_s* param_2, int param_3) {
 }
 
 /* 00000F68-00001140       .text ke_move__FP9gnd_class */
-static void ke_move(gnd_class*) {
-    /* Nonmatching */
+static void ke_move(gnd_class* i_this) {
+    cXyz offset;
+    cXyz axis;
+    gnd_ke_s* ke = i_this->mKe;
+    J3DModel* model = i_this->mpMorf->getModel();
+    for (s32 i = 0; i < 4; i++, ke++) {
+        MTXCopy(model->getAnmMtx(ke_set_index[i]), *calc_mtx);
+        f32 z = (*calc_mtx)[2][0];
+        f32 y = (*calc_mtx)[1][0];
+        f32 x = (*calc_mtx)[0][0];
+        axis.x = x;
+        axis.y = y;
+        axis.z = z;
+        f32 len = axis.abs();
+        if (dComIfGp_evmng_startCheck("endhr") && dComIfGp_demo_get()->getFrameNoMsg() >= 0x12C) {
+            len = 0.0f;
+        }
+        offset.x = -20.0f + REG0_F(4);
+        offset.y = ke_set_offsetxz[i];
+        offset.z = ke_set_offsetxz[i];
+        MtxPosition(&offset, &ke->mPos[0]);
+        ke_control(i_this, ke, len);
+        ke_pos_set(i_this, ke, i);
+    }
 }
 
 /* 00001140-00001278       .text pos_move__FP9gnd_classSc */
-static void pos_move(gnd_class*, s8) {
-    /* Nonmatching */
+static void pos_move(gnd_class* i_this, s8 param_2) {
+    fopAc_ac_c* actor = i_this;
+    cXyz vec;
+
+    if (param_2 == 0) {
+        vec = *(cXyz*)&i_this->m2D4 - actor->current.pos;
+        s16 angY = cM_atan2s(vec.x, vec.z);
+        cLib_addCalcAngleS2(&actor->current.angle.y, angY, 5, i_this->m2F0 * i_this->m2F4);
+        cLib_addCalc2(&i_this->m2F4, 1.0f, 1.0f, 0.05f);
+    }
+
+    cLib_addCalc2(&actor->speedF, i_this->m2F8, 1.0f, 6.0f);
+    vec.x = 0.0f;
+    vec.y = 0.0f;
+    vec.z = actor->speedF;
+    cMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    cXyz sp;
+    MtxPosition(&vec, &sp);
+    actor->speed.x = sp.x;
+    actor->speed.z = sp.z;
+    actor->current.pos += actor->speed;
+    actor->current.pos.y += actor->speed.y;
+    actor->speed.y += actor->gravity;
+    actor->gravity = -5.0f;
 }
 
 /* 00001278-00001334       .text wait_set__FP9gnd_class */
@@ -447,22 +608,14 @@ static void damage_check(gnd_class*) {
 
 /* 0000501C-0000509C       .text shot_s_sub__FPvPv */
 static void* shot_s_sub(void* param_1, void*) {
-    if (fopAcM_IsActor(param_1) && fopAcM_GetName(param_1) == fpcNm_HIMO2_e) {
-        goto check_speed;
-    }
-    s16 name = fopAcM_GetName(param_1);
-    if (name == fpcNm_BOOMERANG_e) {
-        goto check_speed;
-    }
-    if (name == fpcNm_HOOKSHOT_e) {
-        goto check_speed;
-    }
-    if (name != fpcNm_ARROW_e) {
-        return NULL;
-    }
-check_speed:
-    if (((fopAc_ac_c*)param_1)->speedF >= 10.0f) {
-        return param_1;
+    if ((fopAcM_IsActor(param_1) && fopAcM_GetName(param_1) == fpcNm_HIMO2_e) ||
+        fopAcM_GetName(param_1) == fpcNm_BOOMERANG_e ||
+        fopAcM_GetName(param_1) == fpcNm_HOOKSHOT_e ||
+        fopAcM_GetName(param_1) == fpcNm_ARROW_e)
+    {
+        if (((fopAc_ac_c*)param_1)->speedF >= 10.0f) {
+            return param_1;
+        }
     }
     return NULL;
 }

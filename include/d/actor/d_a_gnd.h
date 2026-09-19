@@ -27,7 +27,13 @@ public:
     /* 0x02C8 */ u32 mShadowId;
     /* 0x02CC */ u8 m2CC[0x02D0 - 0x02CC];
     /* 0x02D0 */ s16 m2D0;
-    /* 0x02D2 */ u8 m2D2[0x030C - 0x02D2];
+    /* 0x02D2 */ u8 m2D2[0x02D4 - 0x02D2];
+    /* 0x02D4 */ Vec m2D4;
+    /* 0x02E0 */ u8 m2E0[0x02F0 - 0x02E0];
+    /* 0x02F0 */ f32 m2F0;
+    /* 0x02F4 */ f32 m2F4;
+    /* 0x02F8 */ f32 m2F8;
+    /* 0x02FC */ u8 m2FC[0x030C - 0x02FC];
     /* 0x030C */ s16 mAction;
     /* 0x030E */ u8 m30E[0x03A0 - 0x030E];
     /* 0x03A0 */ s16 mPrmColorR;
@@ -53,7 +59,12 @@ public:
     /* 0x13D1 */ u8 m13D1;
     /* 0x13D2 */ u8 m13D2[0x13D4 - 0x13D2];
     /* 0x13D4 */ JPABaseEmitter* mpAttackEff[6];
-    /* 0x13EC */ u8 m13EC[0x14A8 - 0x13EC];
+    /* 0x13EC */ u8 m13EC[0x1426 - 0x13EC];
+    /* 0x1426 */ s16 m1426;
+    /* 0x1428 */ f32 m1428;
+    /* 0x142C */ s16 m142C;
+    /* 0x142E */ s16 m142E;
+    /* 0x1430 */ u8 m1430[0x14A8 - 0x1430];
     /* 0x14A8 */ cXyz m14A8[15];
     /* 0x155C */ s16 m155C;
     /* 0x155E */ s16 m155E;
