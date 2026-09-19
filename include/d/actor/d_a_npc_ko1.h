@@ -91,7 +91,7 @@ public:
     void routeCheck(float, short*);
     BOOL chk_start_swim();
     fpc_ProcID get_crsActorID();
-    void chk_areaIn(float, cXyz);
+    bool chk_areaIn(float, cXyz);
     void setPrtcl_Hamon(float, float);
     void setPrtcl_HanaPachi();
     bool charDecide(int);
@@ -195,7 +195,8 @@ public:
     /* 0x844 */ s16 mOldActorY;
     /* 0x846 */ u8 m846[0x848 - 0x846];
     /* 0x848 */ u32 mPairedMsgNo;
-    /* 0x84C */ u8 m84C[0x854 - 0x84C];
+    /* 0x84C */ u8 m84C[0x852 - 0x84C];
+    /* 0x852 */ s16 mNeruTimer;
     /* 0x854 */ s16 mWaitTimer;
     /* 0x856 */ s16 mTurnSpeed;
     /* 0x858 */ s16 mLookAngle;
@@ -220,7 +221,9 @@ public:
     /* 0x877 */ u8 mDemo;
     /* 0x878 */ dPa_rippleEcallBack mRippleCallback;
     /* 0x88C */ JPABaseEmitter* mpHamonEmitter;
-    /* 0x890 */ u8 m890[0x89A - 0x890];
+    /* 0x890 */ u8 m890[0x898 - 0x890];
+    /* 0x898 */ u8 m898;
+    /* 0x899 */ u8 m899;
     /* 0x89A */ s8 mCutIndex;
     /* 0x89B */ u8 mEventAction;
     /* 0x89C */ u8 mAnmAttr;
