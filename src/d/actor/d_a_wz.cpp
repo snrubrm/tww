@@ -5,8 +5,10 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_wz.h"
+#include "d/actor/d_a_player.h"
 #include "d/actor/d_a_sea.h"
 #include "d/d_bg_s_lin_chk.h"
+#include "d/d_cc_uty.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_material.h"
 #include "d/d_particle_name.h"
@@ -280,30 +282,194 @@ void rod_size_set(wz_class* i_this, unsigned char param) {
 }
 
 /* 00000A58-00001258       .text body_atari_check__FP8wz_class */
-void body_atari_check(wz_class*) {
-    /* Nonmatching */
-    volatile f32 unused[] = {
-        80.0f, 2.0f, 20.0f, 100.0f, 15.0f, 5.0f, 50.0f,
-    };
-    volatile f64 unused_d[] = {0.5, 3.0};
-    volatile f32 unused2[] = {
-        300.0f, 7500.0f, 38.0f, 35.0f, 200.0f,
-    };
-    volatile f64 unused_d2[] = {4503599627370496.0};
-    volatile f32 unused3[] = {
-        48.0f, 32.0f, 28.0f, 160.0f, 1250.0f, -250.0f, 45.0f, 850.0f,
-        125.0f, -29.0f, 1470.0f, 917.0f, -222.0f, 60.0f, 40000.0f, 150.0f, 0.01f,
-        158.0f, 114.0f, -108.0f, 174.0f, 231.0f, 199.0f, 1092.0f, 0.025f,
-        135.0f, -60.0f, 110.0f, 330.0f, 159.0f, 10.0f, 0.3f, 4.0f,
-        215.0f, 180.0f, 70.0f, 65.0f, 2.5f, 90.0f, 440.0f, 570.0f,
-        274.0f, 400.0f, 2.99f, 3.19f, 25.0f, 8.0f, 1800.0f, -200.0f, 2100.0f, 550.0f,
-        -100.0f, 190.0f, 120.0f, 170.0f, -50.0f, 3.99f,
-    };
-    (void)unused;
-    (void)unused_d;
-    (void)unused2;
-    (void)unused_d2;
-    (void)unused3;
+BOOL body_atari_check(wz_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    i_this->mStts.Move();
+    i_this->m34E = 0;
+    if (i_this->mBodyCyl.ChkTgHit()) {
+        cCcD_Obj* hitObj = i_this->mBodyCyl.GetTgHitObj();
+        if (hitObj == NULL) {
+            return FALSE;
+        }
+        if (i_this->m34F != 0) {
+            return FALSE;
+        }
+
+        i_this->m34F = 1;
+        CcAtInfo atInfo;
+        atInfo.pParticlePos = NULL;
+        u8 skipAtCheck = 0;
+        switch (hitObj->GetAtType()) {
+        case AT_TYPE_GRAPPLING_HOOK:
+            if (i_this->stealItemLeft > 0) {
+                s8 oldHealth = i_this->health;
+                i_this->health = 10;
+                atInfo.mpObj = i_this->mBodyCyl.GetTgHitObj();
+                cc_at_check(i_this, &atInfo);
+                i_this->m353++;
+                i_this->health = oldHealth;
+            }
+            dComIfGp_particle_set(dPa_name::ID_IT_JN_PIYOHIT00, &i_this->attention_info.position);
+            skipAtCheck = 1;
+            i_this->m34E = 9;
+            fopAcM_seStart(actor, JA_SE_LK_W_WEP_HIT, 0x44);
+            fopAcM_monsSeStart(actor, JA_SE_CV_WZ_NO_DAMAGE, 0);
+            break;
+        case AT_TYPE_SWORD: {
+            fopAcM_seStart(actor, JA_SE_LK_SW_HIT_S, 0x20);
+            i_this->m34E = 0;
+            u8 cutType = player->getCutType();
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_EA) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_EB) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_TURN) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_ROLL) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SWORD) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_STICK) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_MACHETE) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_BT_JUMPCUT) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_BT_ROLLCUT) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_CLUB) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_DN_SWORD) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SPEAR) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_EXA) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_EXB) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_EXMJ) {
+                goto sword_smash;
+            }
+            if (cutType == daPy_py_c::CUT_TYPE_CUT_KESA) {
+                goto sword_smash;
+            }
+            break;
+        sword_smash:
+            i_this->m34E = 1;
+            break;
+        }
+        case AT_TYPE_WIND:
+            skipAtCheck = 1;
+            i_this->m34E = 3;
+            fopAcM_seStart(actor, JA_SE_LK_W_WEP_HIT, 0x44);
+            fopAcM_monsSeStart(actor, JA_SE_CV_WZ_NO_DAMAGE, 0);
+            break;
+        case AT_TYPE_BOOMERANG:
+            skipAtCheck = 1;
+            i_this->m34E = 4;
+            dComIfGp_particle_set(dPa_name::ID_IT_JN_PIYOHIT00, &i_this->attention_info.position);
+            fopAcM_seStart(actor, JA_SE_LK_W_WEP_HIT, 0x44);
+            fopAcM_monsSeStart(actor, JA_SE_CV_WZ_NO_DAMAGE, 0);
+            break;
+        case AT_TYPE_BOKO_STICK:
+            fopAcM_seStart(actor, JA_SE_LK_W_WEP_HIT, 0x20);
+            break;
+        case AT_TYPE_SKULL_HAMMER:
+            fopAcM_seStart(actor, JA_SE_LK_HAMMER_HIT, 0x20);
+            i_this->m34E = 7;
+            if (player->getCutType() == daPy_py_c::CUT_TYPE_HAMMER_SIDESWING) {
+                i_this->m34E = 8;
+            }
+            break;
+        case AT_TYPE_BOMB:
+            i_this->m34E = 6;
+            break;
+        case AT_TYPE_FIRE:
+        case AT_TYPE_FIRE_ARROW:
+            i_this->mEnemyFire.mFireDuration = 100;
+            break;
+        case AT_TYPE_ICE_ARROW:
+            i_this->mParticleCb2.remove();
+            i_this->mParticleCb3.remove();
+            i_this->mParticleCb4.remove();
+            i_this->mRodScale.setall(0.0f);
+            i_this->mEnemyIce.m00C = 2;
+            i_this->mEnemyIce.mFreezeDuration = 200;
+            i_this->attention_info.flags = 0;
+            skipAtCheck = 1;
+            break;
+        case AT_TYPE_LIGHT_ARROW:
+            i_this->mEnemyIce.mLightShrinkTimer = 1;
+            i_this->mEnemyIce.mParticleScale = 1.0f;
+            i_this->mEnemyIce.mYOffset = 80.0f;
+            i_this->attention_info.flags = 0;
+            i_this->mBodyCyl.OffTgSetBit();
+            i_this->mBodyCyl.ClrTgHit();
+            rod_size_set(i_this, 1);
+            i_this->mParticleCb2.remove();
+            i_this->mParticleCb3.remove();
+            i_this->mParticleCb4.remove();
+            break;
+        case AT_TYPE_NORMAL_ARROW:
+            i_this->m34E = 5;
+        default:
+            i_this->m34E = 0;
+            fopAcM_seStart(actor, JA_SE_LK_MS_WEP_HIT, 0x20);
+            break;
+        }
+
+        if (skipAtCheck == 0) {
+            cXyz hitPos = *i_this->mBodyCyl.GetTgHitPosP();
+            cXyz scale;
+            atInfo.mpObj = i_this->mBodyCyl.GetTgHitObj();
+            cc_at_check(i_this, &atInfo);
+            if (i_this->m34E == 1) {
+                goto critical_hit;
+            }
+            if (i_this->m34E == 7) {
+                goto critical_hit;
+            }
+            if (i_this->m34E == 8) {
+                goto critical_hit;
+            }
+            if (i_this->health > 0) {
+                goto ok_hit;
+            }
+        critical_hit:
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos);
+            scale.setall(2.0f);
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
+            goto after_hit;
+        ok_hit:
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle);
+        after_hit:;
+        }
+
+        i_this->mAction = 1;
+        i_this->mMode = 0xA;
+        return TRUE;
+    }
+
+    i_this->m34F = 0;
+    return FALSE;
 }
 
 /* 00001258-000012F0       .text BG_check__FP8wz_class */
@@ -325,10 +491,14 @@ void fuwafuwa_calc(wz_class* i_this) {
 
 /* 00001780-00001B38       .text weapon_shoot__FP8wz_classUc */
 void weapon_shoot(wz_class* i_this, unsigned char type) {
+    fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
     csXyz angle = i_this->shape_angle;
+    angle.x = i_this->shape_angle.x;
+    angle.y = i_this->shape_angle.y;
+    angle.z = i_this->shape_angle.z;
 
-    fopAcM_monsSeStart(i_this, JA_SE_CV_WZ_ATTACK, 0);
+    fopAcM_monsSeStart(actor, JA_SE_CV_WZ_ATTACK, 0);
 
     switch (type) {
     case 0: {
@@ -344,7 +514,7 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
                 fpcNm_WZ_e,
                 0xFFFFFF0A,
                 &i_this->mRodTipPos,
-                fopAcM_GetRoomNo(i_this),
+                fopAcM_GetRoomNo(actor),
                 &angle,
                 NULL,
                 -1,
@@ -352,7 +522,7 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
             );
             yawOff += 0xBB8;
         }
-        fopAcM_seStart(i_this, JA_SE_CM_WZ_ST_FIREBALL, 0);
+        fopAcM_seStart(actor, JA_SE_CM_WZ_ST_FIREBALL, 0);
         break;
     }
     case 1:
@@ -364,16 +534,14 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
                 f32 dz = i_this->mPathTarget.z - i_this->mRodTipPos.z;
                 angle.x = -cM_atan2s(dy, std::sqrtf(dx * dx + dz * dz));
                 angle.y = cM_atan2s(dx, dz);
-                scale.x = 1.0f;
-                scale.y = 1.0f;
-                scale.z = 1.0f;
-                fopAcM_seStart(i_this, JA_SE_CM_WZ_ST_SUMMONBALL, 0);
+                scale.setall(1.0f);
+                fopAcM_seStart(actor, JA_SE_CM_WZ_ST_SUMMONBALL, 0);
                 fpc_ProcID id = fopAcM_createChild(
                     fpcNm_WZ_e,
-                    fopAcM_GetID(i_this),
+                    fopAcM_GetID(actor),
                     0xFFFFFF0B,
                     &i_this->mRodTipPos,
-                    fopAcM_GetRoomNo(i_this),
+                    fopAcM_GetRoomNo(actor),
                     &angle,
                     &scale,
                     0
@@ -498,7 +666,8 @@ void summon_call_sub(wz_class* i_this) {
     }
 
     int spawned = 0;
-    for (int i = 0; i < 20 && spawned < birthNum; i++) {
+    int i;
+    for (i = spawned; i < 20 && spawned < birthNum; i++) {
         if (i_this->mChildIds[i] == fpcM_ERROR_PROCESS_ID_e) {
             u32 arg = enemy_arg_dt[tableIndex];
             if (enemy_name_dt[tableIndex] == fpcNm_CC_e) {
@@ -549,15 +718,16 @@ void summon_call_sub(wz_class* i_this) {
     pos = actor->current.pos;
 
     int spawned2 = 0;
-    for (int i = 0; i < 20 && spawned2 < nextBirth; i++) {
-        if (i_this->mChildIds[i] == fpcM_ERROR_PROCESS_ID_e) {
+    int i2 = 0;
+    for (; i2 < 20 && spawned2 < nextBirth; i2++) {
+        if (i_this->mChildIds[i2] == fpcM_ERROR_PROCESS_ID_e) {
             u32 arg = enemy_arg_dt[nextIndex];
-            if (nextIndex == fpcNm_CC_e) {
+            if (tableIndex + 1 == fpcNm_CC_e) {
                 arg |= 0xA00;
                 int rnd = (int)cM_rndF(3.19f);
                 arg |= cc_birth_dt[rnd] << 8;
             }
-            i_this->mChildIds[i] = fopAcM_create(
+            i_this->mChildIds[i2] = fopAcM_create(
                 enemy_name_dt[nextIndex],
                 arg,
                 &pos,
@@ -567,8 +737,8 @@ void summon_call_sub(wz_class* i_this) {
                 -1,
                 NULL
             );
-            if (i_this->mChildIds[i] != fpcM_ERROR_PROCESS_ID_e) {
-                i_this->mChildAlive[i] = 1;
+            if (i_this->mChildIds[i2] != fpcM_ERROR_PROCESS_ID_e) {
+                i_this->mChildAlive[i2] = 1;
                 pos = actor->current.pos;
                 spawned2++;
                 pos.x += cM_rndFX(100.0f);
@@ -1044,15 +1214,14 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             /* Radius */ 15.0f,
         }},
     };
-    fopAcM_ct(i_actor, wz_class);
-    wz_class* i_this = (wz_class*)i_actor;
-
     static u8 fire_j[] = {
         0x01, 0x02, 0x06, 0x07, 0x08, 0x0C, 0x0D, 0x11, 0x13, 0x15,
     };
     static f32 fire_sc[] = {
         1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
     };
+    wz_class* i_this = (wz_class*)i_actor;
+    fopAcM_ct(i_this, wz_class);
 
     i_this->mBehaviorType = fopAcM_GetParam(i_this);
     i_this->mDisableSpawnOnDeathSwitch = fopAcM_GetParam(i_this) >> 8;
@@ -1075,10 +1244,10 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
     }
 
     cPhs_State phase_state;
-    if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR || i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR_2) {
-        phase_state = dComIfG_resLoad(&i_this->mPhase, "WZB");
-    } else {
+    if (i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR && i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR_2) {
         phase_state = dComIfG_resLoad(&i_this->mPhase, "WZ");
+    } else {
+        phase_state = dComIfG_resLoad(&i_this->mPhase, "WZB");
     }
 
     if (i_this->mBehaviorType > WZ_TYPE_DAMAGE_BALL_FIRE) {
@@ -1104,8 +1273,17 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         i_this->mSummonTableType = parent->mSummonTableType;
     }
 
-    if (phase_state == cPhs_COMPLEATE_e) {
-        if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
+    if (phase_state != cPhs_COMPLEATE_e) {
+        if (phase_state == cPhs_ERROR_e) {
+            if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR) {
+                wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
+                parent->mHasChildActor = 0;
+            }
+        }
+        return phase_state;
+    }
+
+    if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
             if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
                 if (dComIfGs_isSwitch(i_this->mDisableSpawnOnDeathSwitch, dComIfGp_roomControl_getStayNo())) {
                     return cPhs_ERROR_e;
@@ -1113,7 +1291,15 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             }
         }
 
-        if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR || i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR_2) {
+        if (i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR && i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR_2) {
+            u32 heapSize = 0x3440;
+            if (i_this->mBehaviorType >= WZ_TYPE_DAMAGE_BALL_FIRE) {
+                heapSize = 0x3640;
+            }
+            if (!fopAcM_entrySolidHeap(i_this, useHeapInit, heapSize)) {
+                return cPhs_ERROR_e;
+            }
+        } else {
             if (!fopAcM_entrySolidHeap(i_this, useHeapInit2, 0xCC0)) {
                 wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
                 parent->mHasChildActor = 0;
@@ -1141,14 +1327,6 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
                 }
             }
             mDoExt_modelTexturePatch(modelData);
-        } else {
-            u32 heapSize = 0x3440;
-            if (i_this->mBehaviorType >= WZ_TYPE_DAMAGE_BALL_FIRE) {
-                heapSize = 0x3640;
-            }
-            if (!fopAcM_entrySolidHeap(i_this, useHeapInit, heapSize)) {
-                return cPhs_ERROR_e;
-            }
         }
 
         i_this->current.angle.z = 0;
@@ -1178,7 +1356,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
                     i_this->max_health = 12;
                     i_this->health = 12;
                 } else {
-                    i_this->mSummonWave = cM_rndF(3.99f);
+                    i_this->mSummonWave = (s16)cM_rndF(3.99f);
                     i_this->mSummonWave &= 3;
                 }
                 break;
@@ -1194,8 +1372,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
                     if (rnd == i_this->mpRoomPath->m_num) {
                         rnd--;
                     }
-                    dPnt* pnt = dPath_GetPnt(i_this->mpRoomPath, rnd);
-                    i_this->current.pos = pnt->m_position;
+                    i_this->current.pos = i_this->mpRoomPath->m_points[rnd].m_position;
                     i_this->mpPath = dPath_GetNextRoomPath(i_this->mpRoomPath, fopAcM_GetRoomNo(i_this));
                 }
             }
@@ -1235,10 +1412,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
                 i_this->mAction = 0;
                 i_this->mMode = 0;
             }
-        } else if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR || i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR_2) {
-            i_this->mAction = 0xC8;
-            i_this->mMode = 0xC8;
-        } else {
+        } else if (i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR && i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR_2) {
             i_this->mWallHeight = 0.0f;
             i_this->mWallRadius = 40.0f;
             i_this->mBallSph.Set(ball_co_sph_src);
@@ -1246,6 +1420,9 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             i_this->mTimers[1] = 0x12C;
             i_this->mAction = 0x64;
             i_this->mMode = 0x64;
+        } else {
+            i_this->mAction = 0xC8;
+            i_this->mMode = 0xC8;
         }
 
         if (i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR && i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR_2) {
@@ -1264,18 +1441,10 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         if (i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_FIRE || i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_ICE) {
             dKy_plight_set(&i_this->mPLight);
         }
-    } else if (phase_state == cPhs_ERROR_e) {
-        if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR) {
-            wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
-            parent->mHasChildActor = 0;
-        }
-        return phase_state;
-    } else {
-        return phase_state;
-    }
 
     return phase_state;
 }
+
 
 static actor_method_class l_daWZ_Method = {
     (process_method_func)daWZ_Create,
