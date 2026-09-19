@@ -31,7 +31,8 @@ public:
     /* 0x02D0 */ s16 m2D0;
     /* 0x02D2 */ u8 m2D2[0x02D4 - 0x02D2];
     /* 0x02D4 */ Vec m2D4;
-    /* 0x02E0 */ u8 m2E0[0x02F0 - 0x02E0];
+    /* 0x02E0 */ cXyz m2E0;
+    /* 0x02EC */ u8 m2EC[0x02F0 - 0x02EC];
     /* 0x02F0 */ f32 m2F0;
     /* 0x02F4 */ f32 m2F4;
     /* 0x02F8 */ f32 m2F8;
@@ -49,12 +50,13 @@ public:
     /* 0x03A0 */ s16 mPrmColorR;
     /* 0x03A2 */ s16 mPrmColorG;
     /* 0x03A4 */ s16 mPrmColorB;
-    /* 0x03A6 */ u8 m3A6[0x03D5 - 0x03A6];
+    /* 0x03A6 */ u8 m3A6[0x03D4 - 0x03A6];
+    /* 0x03D4 */ s8 m3D4;
     /* 0x03D5 */ u8 m3D5;
     /* 0x03D6 */ u8 m3D6;
     /* 0x03D7 */ u8 m3D7;
     /* 0x03D8 */ s8 m3D8;
-    /* 0x03D9 */ u8 m3D9;
+    /* 0x03D9 */ s8 m3D9;
     /* 0x03DA */ u8 m3DA;
     /* 0x03DB */ u8 m3DB;
     /* 0x03DC */ u8 m3DC;
