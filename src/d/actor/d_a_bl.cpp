@@ -861,7 +861,7 @@ s16 way_check(bl_class* i_this, s16 param_1) {
 /* 00003054-000039F0       .text action_dousa__FP8bl_class */
 void action_dousa(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    s16 target_angle;
+    int target_angle;
 
     switch (i_this->m306) {
     case 0:
@@ -942,14 +942,14 @@ void action_dousa(bl_class* i_this) {
             actor->speedF = i_this->m324;
         } else {
             i_this->m2EC = (s16)(100.0f + cM_rndFX(50.0f));
-            target_angle = (s16)cM_rndFX(32767.0f);
+            target_angle = cM_rndFX(32767.0f);
             if (actor->speedF == 0.0f) {
                 actor->speedF = 4.0f + cM_rndF(2.0f);
             }
         }
         i_this->m300 = way_check(i_this, target_angle);
         i_this->m306++;
-        break;
+        // fallthrough
     case 6:
         if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
             dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
@@ -986,8 +986,10 @@ void action_dousa(bl_class* i_this) {
         }
         // fallthrough
     case 7: {
-        f32 dx = i_this->m2C4.x - actor->current.pos.x;
-        f32 dz = i_this->m2C4.z - actor->current.pos.z;
+        f32 dz;
+        f32 dx;
+        dx = i_this->m2C4.x - actor->current.pos.x;
+        dz = i_this->m2C4.z - actor->current.pos.z;
         i_this->m300 = cM_atan2s(dx, dz);
         f32 thresh = 10.0f;
         if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
@@ -1044,9 +1046,8 @@ void action_dousa(bl_class* i_this) {
                 i_this->m306 = 0xA;
             }
         } else if (i_this->mBtkMode != 0) {
-            fopAc_ac_c* player = dComIfGp_getPlayer(0);
-            if (fopAcM_searchActorDistance(actor, player) < 600.0f) {
-                if (Line_check(i_this, player->current.pos)) {
+            if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 600.0f) {
+                if (Line_check(i_this, dComIfGp_getPlayer(0)->current.pos)) {
                     if (i_this->m2E9 == 0xFF || i_this->mpPath == NULL || i_this->m306 != 7) {
                         i_this->m2D2 = 1;
                         i_this->m306 = 0xA;
@@ -1101,7 +1102,7 @@ void action_kougeki(bl_class* i_this) {
                 i_this->m306 = 7;
                 return;
             }
-        } else if (fopAcM_searchActorDistance(actor, player) > 700.0f) {
+        } else if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > 700.0f) {
             actor->speedF = 4.0f + cM_rndF(2.0f);
             i_this->m2D2 = 0;
             i_this->m306 = 5;
@@ -1126,7 +1127,7 @@ void action_kougeki(bl_class* i_this) {
 
     i_this->mpMorf->setPlaySpeed(1.0f);
     if (i_this->m306 == 0xD) {
-        if (fopAcM_searchActorDistance(actor, player) < 230.0f) {
+        if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 230.0f) {
             i_this->mpMorf->setPlaySpeed(2.0f);
         }
     }
@@ -1137,20 +1138,26 @@ void action_kougeki(bl_class* i_this) {
             i_this->m2D2 = 1;
             i_this->m306 = 0xE;
         }
-    } else if (i_this->mSph.ChkAtHit() && i_this->mSph.GetAtHitAc() != NULL && i_this->mSph.GetAtHitAc() == player) {
-        if (i_this->m306 != 0xF) {
-            anm_init(i_this, dRes_INDEX_BL_BCK_OOWARAI_e, 1.0f, 0, 1.0f, -1);
-            fopAcM_monsSeStart(actor, JA_SE_CV_BL_SUCCESS, 0);
-            actor->speedF = 0.0f;
-            i_this->m2F8[0] = 0;
-            i_this->m306 = 0xF;
+    } else if (i_this->mSph.ChkAtHit()) {
+        fopAc_ac_c* atHitAc = i_this->mSph.GetAtHitAc();
+        if (atHitAc != NULL && atHitAc == player) {
+            if (i_this->m306 != 0xF) {
+                anm_init(i_this, dRes_INDEX_BL_BCK_OOWARAI_e, 1.0f, 0, 1.0f, -1);
+                fopAcM_monsSeStart(actor, JA_SE_CV_BL_SUCCESS, 0);
+                actor->speedF = 0.0f;
+                i_this->m2F8[0] = 0;
+                i_this->m306 = 0xF;
+            }
         }
     }
 
     fire_kaiten_keisan(i_this);
-    i_this->m300 = fopAcM_searchActorAngleY(actor, player) + i_this->m302;
-    cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m300, 1, 0x1000);
-    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x400);
+    s16 targetY = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + i_this->m302;
+    i_this->m300 = targetY;
+    s16 maxStep = 0x1000;
+    s16 shapeStep = 0x400;
+    cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m300, 1, maxStep);
+    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, shapeStep);
 
     if (i_this->m306 >= 0xC) {
         fuwafuwa_keisan(i_this);
@@ -1402,8 +1409,8 @@ void action_itaiyo_ne_san(bl_class* i_this) {
             offset.z = 5000.0f;
             bound_sound_set(i_this);
         }
-        s16 yrot = fopAcM_searchActorAngleY(actor, player) + 0x8000;
-        cMtx_YrotS(*calc_mtx, yrot);
+        s16 yrot = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+        cMtx_YrotS(*calc_mtx, yrot + 0x8000);
         cXyz dest;
         MtxPosition(&offset, &dest);
         i_this->m2F8[0] = (s16)-dest.x;
