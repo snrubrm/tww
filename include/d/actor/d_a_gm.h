@@ -30,7 +30,8 @@ public:
     /* 0x02D5 */ u8 m2D5;
     /* 0x02D6 */ u8 mSwitchEnable;
     /* 0x02D7 */ u8 m2D7;
-    /* 0x02D8 */ u8 m2D8[0x02DC - 0x02D8];
+    /* 0x02D8 */ u8 m2D8[0x02DA - 0x02D8];
+    /* 0x02DA */ s16 m2DA;
     /* 0x02DC */ s16 mAction;
     /* 0x02DE */ s16 m2DE;
     /* 0x02E0 */ s16 m2E0;
@@ -46,7 +47,7 @@ public:
     /* 0x0320 */ s16 m320;
     /* 0x0322 */ s16 m322;
     /* 0x0324 */ s16 mBrkMode;
-    /* 0x0326 */ u8 m326[0x0328 - 0x0326];
+    /* 0x0326 */ s16 m326;
     /* 0x0328 */ f32 mCorrectionY;
     /* 0x032C */ f32 mWallH;
     /* 0x0330 */ f32 mWallR;
@@ -77,12 +78,16 @@ public:
     /* 0x0436 */ s16 m436;
     /* 0x0438 */ csXyz mMuneRot;
     /* 0x043E */ s16 m43E;
-    /* 0x0440 */ u8 m440[0x0442 - 0x0440];
+    /* 0x0440 */ s16 m440;
     /* 0x0442 */ s16 m442;
     /* 0x0444 */ J3DModel* mpShadowModel;
     /* 0x0448 */ u32 mShadowId;
     /* 0x044C */ s16 m44C;
-    /* 0x044E */ u8 m44E[0x047C - 0x044E];
+    /* 0x044E */ u8 m44E[0x0450 - 0x044E];
+    /* 0x0450 */ cXyz m450;
+    /* 0x045C */ cXyz m45C;
+    /* 0x0468 */ u8 m468[0x0478 - 0x0468];
+    /* 0x0478 */ f32 m478;
     /* 0x047C */ dBgS_AcchCir mAcchCir;
     /* 0x04BC */ dBgS_ObjAcch mAcch;
     /* 0x0680 */ dCcD_Stts mStts;
