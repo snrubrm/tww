@@ -2,18 +2,24 @@
 #define D_MENU_ITEM_H
 
 #include "dolphin/types.h"
+#include "JSystem/J2DGraph/J2DScreen.h"
+#include "JSystem/J2DGraph/J2DWindow.h"
+#include "d/d_2dnumber.h"
+#include "d/d_lib.h"
 #include "d/d_menu_base.h"
+#include "f_op/f_op_msg_mng.h"
 #include "m_Do/m_Do_hostIO.h"
 
 struct fopMsgM_pane_class;
 class JKRArchive;
 class JUTFont;
 class J2DPane;
+class dMenu_save_c;
 
 class dMenu_Item_c : public dMenu_base_c {
 public:
     void alphaChange(fopMsgM_pane_class*, f32) {}
-    virtual void draw() {}
+    virtual void draw() { _draw(); }
     u8 getItemMode() { return mItemMode; }
     u8 getNowItem() { return mNowItem; }
     void setNowItem(u8 val) { mNowItem = val; }
@@ -41,7 +47,7 @@ public:
     void cursorMainMove();
     void cursorSubMove();
     void checkMove();
-    void itemplaceCheck(int);
+    u8 itemplaceCheck(int);
     void itemDecide();
     void itemMove();
     void itemScale();
@@ -87,16 +93,58 @@ public:
     bool _close2();
 
 private:
-    /* 0x0004 */ u8 field_0x0004[0x2310 - 0x4];
+    /* 0x0004 */ J2DScreen* scrn;
+    /* 0x0008 */ fopMsgM_pane_class m008;
+    /* 0x0040 */ fopMsgM_pane_class m040;
+    /* 0x0078 */ fopMsgM_pane_class m078;
+    /* 0x00B0 */ fopMsgM_pane_class m0B0[15];
+    /* 0x03F8 */ fopMsgM_pane_class m3F8[15];
+    /* 0x0740 */ fopMsgM_pane_class m740;
+    /* 0x0778 */ fopMsgM_pane_class m778;
+    /* 0x07B0 */ fopMsgM_pane_class m7B0;
+    /* 0x07E8 */ fopMsgM_pane_class m7E8;
+    /* 0x0820 */ fopMsgM_pane_class m820;
+    /* 0x0858 */ fopMsgM_pane_class m858;
+    /* 0x0890 */ fopMsgM_pane_class m890[2];
+    /* 0x0900 */ fopMsgM_pane_class m900;
+    /* 0x0938 */ fopMsgM_pane_class m938;
+    /* 0x0970 */ fopMsgM_pane_class m970;
+    /* 0x09A8 */ fopMsgM_pane_class m9A8;
+    /* 0x09E0 */ fopMsgM_pane_class m9E0;
+    /* 0x0A18 */ fopMsgM_pane_class mA18[4];
+    /* 0x0AF8 */ fopMsgM_pane_class mAF8[8];
+    /* 0x0CB8 */ fopMsgM_pane_class mCB8[8];
+    /* 0x0E78 */ fopMsgM_pane_class mE78[8];
+    /* 0x1038 */ fopMsgM_pane_class m1038;
+    /* 0x1070 */ fopMsgM_pane_class m1070[8];
+    /* 0x1230 */ fopMsgM_pane_class m1230;
+    /* 0x1268 */ fopMsgM_pane_class m1268[9];
+    /* 0x1460 */ fopMsgM_pane_class m1460;
+    /* 0x1498 */ fopMsgM_pane_class m1498;
+    /* 0x14D0 */ fopMsgM_pane_class m14D0;
+    /* 0x1508 */ fopMsgM_pane_class m1508;
+    /* 0x1540 */ fopMsgM_pane_class m1540;
+    /* 0x1578 */ fopMsgM_pane_class m1578;
+    /* 0x15B0 */ fopMsgM_pane_class m15B0;
+    /* 0x15E8 */ fopMsgM_pane_class m15E8;
+    /* 0x1620 */ fopMsgM_pane_class m1620;
+    /* 0x1658 */ fopMsgM_pane_class m1658[21];
+    /* 0x1AF0 */ fopMsgM_pane_class m1AF0[21];
+    /* 0x1F88 */ fopMsgM_pane_class m1F88[3];
+    /* 0x2030 */ fopMsgM_pane_class m2030[3];
+    /* 0x20D8 */ fopMsgM_pane_class m20D8[6];
+    /* 0x2228 */ fopMsgM_pane_class m2228;
+    /* 0x2260 */ fopMsgM_pane_class m2260;
+    /* 0x2298 */ fopMsgM_pane_class m2298;
+    /* 0x22D0 */ fopMsgM_pane_class m22D0;
+    /* 0x2308 */ STControl* stick;
+    /* 0x230C */ dDlst_2DOutFont_c* outFont;
     /* 0x2310 */ JKRArchive* mpArc;
     /* 0x2314 */ JUTFont* mFont;
     /* 0x2318 */ JUTFont* mRFont;
-    /* 0x231C */ u8 padding_0x231C[0x2320 - 0x231C];
-    /* 0x2320 */ JUtility::TColor color_0x2320;
-    /* 0x2324 */ JUtility::TColor color_0x2324;
-    /* 0x2328 */ JUtility::TColor color_0x2328;
-    /* 0x232C */ JUtility::TColor color_0x232C;
-    /* 0x2330 */ u8 field_0x2330[0x2334 - 0x2330];
+    /* 0x231C */ J2DPane* m231C;
+    /* 0x2320 */ J2DWindow::TContentsColor m2320;
+    /* 0x2330 */ dMenu_save_c* dMs_c;
     /* 0x2334 */ void* mItemTexBuffer[21];
     /* 0x2388 */ u8 padding_0x2388[0x2394 - 0x2388];
     /* 0x2394 */ void* mSubItemTexBuffer[9];
@@ -104,13 +152,19 @@ private:
     /* 0x23E0 */ char* name[2];
     /* 0x23E8 */ char* note[2];
     /* 0x23F0 */ char* dummy[2];
-    /* 0x23F8 */ u16 mTimer;
-    /* 0x23FA */ u8 field_0x23FA[0x23FE - 0x23FA];
+    /* 0x23F8 */ s16 mTimer;
+    /* 0x23FA */ s16 m23FA;
+    /* 0x23FC */ s16 m23FC;
     /* 0x23FE */ u8 mItemMode;
     /* 0x23FF */ u8 mNowItem;
-    /* 0x2400 */ u8 padding_0x2400[0x2421 - 0x2400];
+    /* 0x2400 */ u8 padding_0x2400[0x2406 - 0x2400];
+    /* 0x2406 */ u8 mItemSlot[21];
+    /* 0x241B */ u8 padding_0x241B[0x241E - 0x241B];
+    /* 0x241E */ u8 m241E;
+    /* 0x241F */ u8 m241F;
+    /* 0x2420 */ u8 m2420;
     /* 0x2421 */ u8 mTriggerInfo;
-    /* 0x2422 */ u8 field_0x2422;
+    /* 0x2422 */ u8 m2422;
     /* 0x2423 */ u8 field_0x2423;
 }; // Size: 0x2424
 
