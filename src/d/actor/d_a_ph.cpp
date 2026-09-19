@@ -1445,39 +1445,543 @@ void dead_item(ph_class* i_this) {
 }
 
 /* 0000405C-00004988       .text ph_damage_dead_move__FP8ph_class */
-void ph_damage_dead_move(ph_class*) {
-    /* Nonmatching */
-    /* Dummy literals occupy @5852-@5857 so later 100% funcs keep their pool slots. */
-    volatile f32 f1 = 25.0f;
-    volatile f32 f2 = 15.0f;
-    volatile f32 f3 = 23.0f;
-    volatile f32 f4 = 1.2f;
-    volatile f32 f5 = 1.7f;
-    volatile f32 f6 = 0.7f;
-    (void)f1;
-    (void)f2;
-    (void)f3;
-    (void)f4;
-    (void)f5;
-    (void)f6;
+void ph_damage_dead_move(ph_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+
+    switch (i_this->m0346) {
+    case 0x28:
+        actor->current.angle.y = fopAcM_searchActorAngleY(actor, player) + 0x8000;
+        if (actor->health <= 0 || i_this->m0340 == 3) {
+            actor->speedF = 25.0f;
+            i_this->m034E = 0x2000;
+        } else {
+            actor->speedF = 15.0f;
+            i_this->m034E = 0x1000;
+        }
+        if (i_this->m0341 != 0) {
+            i_this->m034E = -0x8000;
+        }
+        if (actor->health > 0) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_PH_DAMAGE, 0);
+        } else if (i_this->mType == 0) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_PH_DIE, 0);
+        } else {
+            fopAcM_monsSeStart(actor, JA_SE_CV_SH_DIE, 0);
+        }
+        i_this->m0364 = 0;
+        {
+            f32 propellerScaleX = i_this->m02FC.x;
+            if (propellerScaleX != 0.0f) {
+                anm_init(i_this, dRes_INDEX_PH_BCK_PUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 0);
+            }
+        }
+        anm_init(i_this, dRes_INDEX_PH_BCK_BDAMAGE_e, 1.0f, 0, 1.0f, -1, 1);
+        i_this->m0346++;
+        // fallthrough
+    case 0x29:
+        cLib_addCalc0(&actor->speedF, 0.5f, 1.0f);
+        if (actor->health <= 0) {
+            if (actor->speedF < 5.0f) {
+                cLib_addCalc0(&i_this->m02FC.x, 0.3f, 1.0f + i_this->m03A0);
+                {
+                    f32 tmp = i_this->m02FC.x;
+                    i_this->m02FC.z = tmp;
+                    i_this->m02FC.y = tmp;
+                }
+                cLib_addCalc0(&actor->scale.x, 0.3f, 1.0f + i_this->m039C);
+                {
+                    f32 tmp = actor->scale.x;
+                    actor->scale.z = tmp;
+                    actor->scale.y = tmp;
+                }
+            }
+        }
+        actor->shape_angle.y += i_this->m034E;
+        cLib_addCalcAngleS2(&i_this->m034E, 0, 1, 0x200);
+        if (i_this->mpBodyMorf->isStop()) {
+            if (actor->health > 0) {
+                actor->speedF = 0.0f;
+                i_this->m033F = 2;
+                i_this->m0346 = 0x18;
+            } else {
+                dead_item(i_this);
+            }
+        }
+        break;
+    case 0x2A:
+        if (i_this->m0364 == 0) {
+            i_this->m033F = 2;
+            i_this->m0346 = 0x18;
+        }
+        break;
+    case 0x2B: {
+        f32 dx = (actor->current.pos.x + i_this->m02E4.x) - player->current.pos.x;
+        f32 dz = (actor->current.pos.z + i_this->m02E4.z) - player->current.pos.z;
+        actor->current.angle.y = cM_atan2s(dx, dz);
+        actor->speedF = 25.0f;
+        i_this->mAtCyl.OffAtSetBit();
+        i_this->mAtCyl.ClrAtSet();
+        actor->health = 0;
+        i_this->m035E = 0;
+        if (i_this->mType == 0) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_PH_DIE, 0);
+        } else {
+            fopAcM_monsSeStart(actor, JA_SE_CV_SH_DIE, 0);
+        }
+        anm_init(i_this, dRes_INDEX_PH_BCK_BDAMAGE_e, 1.0f, 0, 1.0f, -1, 1);
+        f32 scl = 1.0f + i_this->m039C;
+        i_this->m0320.x = scl;
+        i_this->m0320.y = scl;
+        i_this->m0320.z = scl;
+        if (i_this->m0342 != 0) {
+            actor->speed.setall(0.0f);
+            actor->speedF = 0.0f;
+            i_this->m0364 = 0;
+            i_this->m0346 = 0x2E;
+            break;
+        }
+        if (!i_this->mAcch.ChkGroundHit()) {
+            actor->speed.y = 0.0f;
+            actor->gravity = 0.0f;
+            i_this->m0346 = 0x2C;
+            i_this->m0364 = 0x3C;
+            if (i_this->m0340 == 7) {
+                i_this->m0364 = 0;
+            }
+            anm_init(i_this, dRes_INDEX_PH_BCK_PUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 0);
+            if (i_this->m0340 == 6) {
+                i_this->m0364 = 0;
+                actor->speedF = 15.0f;
+                actor->speed.y = 20.0f;
+                actor->gravity = -5.0f;
+                i_this->m0346 = 0x2D;
+            }
+        } else {
+            i_this->m0346 = 0x2E;
+        }
+        break;
+    }
+    case 0x2C:
+        cLib_addCalc0(&actor->speedF, 0.5f, 0.5f);
+        actor->shape_angle.y += 0x500;
+        fly_angle_set(i_this, 4);
+        if (i_this->m0364 != 0) {
+            if (!i_this->mpPropellerMorf->isStop()) {
+                break;
+            }
+        }
+        dead_item(i_this);
+        break;
+    case 0x2D:
+        if (i_this->m0364 == 1) {
+            actor->gravity = -5.0f;
+            actor->speed.y = 23.0f;
+            if (i_this->m035E > 1) {
+                actor->speed.y = 15.0f;
+            }
+            actor->speedF = 5.0f;
+            i_this->m0320.x = 0.8f + i_this->m039C;
+            i_this->m0320.y = 1.2f + i_this->m039C;
+        }
+        if (i_this->m0364 == 0) {
+            if (i_this->mAcch.ChkGroundHit()) {
+                actor->speedF = 0.0f;
+                i_this->m0320.x = 1.2f + i_this->m039C;
+                i_this->m0320.y = 0.8f + i_this->m039C;
+                i_this->m0364 = 3;
+                i_this->m035E++;
+                if (i_this->m035E > 2) {
+                    dead_item(i_this);
+                }
+            }
+        }
+        cLib_addCalc2(&actor->scale.x, i_this->m0320.x, 0.5f, 0.5f);
+        cLib_addCalc2(&actor->scale.y, i_this->m0320.y, 0.5f, 0.5f);
+        break;
+    case 0x2E:
+        cLib_addCalc0(&actor->speedF, 0.5f, 0.5f);
+        actor->shape_angle.y += 0x500;
+        if (i_this->m0364 == 0) {
+            dead_item(i_this);
+        }
+        break;
+    case 0x2F: {
+        s16 zero = 0;
+        actor->shape_angle.x = zero;
+        actor->shape_angle.z = zero;
+        actor->current.angle.x = zero;
+        actor->current.angle.z = zero;
+        i_this->mAtCyl.OffAtSetBit();
+        i_this->mAtCyl.ClrAtSet();
+        i_this->mBodySph.OffCoSetBit();
+        i_this->mBodySph.OffTgSetBit();
+        actor->speedF = 0.0f;
+        actor->gravity = -3.0f;
+        actor->attention_info.flags = 0;
+        actor->health = zero;
+        i_this->m035E = zero;
+        if (i_this->m02FC.x != 0.0f) {
+            anm_init(i_this, dRes_INDEX_PH_BCK_PUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 0);
+        }
+        anm_init(i_this, dRes_INDEX_PH_BCK_BDAMAGE_e, 1.0f, 0, 1.0f, -1, 1);
+        i_this->m0380 = 10.0f;
+        if (i_this->mType == 0) {
+            fopAcM_monsSeStart(actor, JA_SE_CV_PH_DIE, 0);
+        } else {
+            fopAcM_monsSeStart(actor, JA_SE_CV_SH_DIE, 0);
+        }
+        i_this->m0346++;
+        // fallthrough
+    }
+    case 0x30:
+        cLib_addCalc2(&actor->scale.y, 0.1f, 1.0f, 0.5f);
+        cLib_addCalc2(&actor->scale.x, 1.7f, 1.0f, 0.7f);
+        {
+            f32 propellerScaleX = i_this->m02FC.x;
+            if (propellerScaleX != 0.0f) {
+                i_this->m02FC.x = actor->scale.x;
+                i_this->m02FC.y = actor->scale.y;
+                i_this->m02FC.z = actor->scale.z;
+            }
+        }
+        if (actor->scale.y < 0.1f) {
+            actor->scale.y = 0.1f;
+            actor->scale.x = 1.7f;
+            i_this->m0364 = 0x14;
+            i_this->m0346++;
+        }
+        break;
+    case 0x31:
+        if (i_this->m0364 == 0) {
+            dead_item(i_this);
+        }
+        break;
+    }
+
+    actor->current.angle.x = 0;
+    actor->current.angle.z = 0;
+    {
+        s16 shapeX = actor->current.angle.x;
+        cLib_addCalcAngleS2(&actor->shape_angle.x, shapeX, 1, 0x500);
+        s16 shapeZ = actor->current.angle.z;
+        cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x500);
+    }
+    if (actor->health > 0) {
+        u8 prevWater = i_this->m0341;
+        body_atari_check(i_this);
+        BOOL water = sea_water_check(i_this, 0);
+        if (water != 0) {
+            if (prevWater == 0) {
+                if (i_this->m0341 != 0) {
+                    i_this->m033F = 6;
+                    if (water == 2) {
+                        i_this->m0346 = 0x3C;
+                    } else {
+                        i_this->m0346 = 0x46;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* 00004988-00005134       .text ph_wind_move__FP8ph_class */
-void ph_wind_move(ph_class*) {
-    /* Nonmatching */
-    /* Dummy literals occupy @5997-@5998 so later 100% funcs keep their pool slots. */
-    volatile f32 f1 = 20000.0f;
-    volatile f32 f2 = -0.3f;
-    (void)f1;
-    (void)f2;
+void ph_wind_move(ph_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    BOOL water = sea_water_check(i_this, 1);
+
+    switch (i_this->m0346) {
+    case 0x32:
+        fopAcM_seStart(actor, JA_SE_CM_PH_HIT_WIND, 0);
+        fopAcM_monsSeStart(actor, JA_SE_CV_PH_CUT_PROPELLER, 0);
+        i_this->mAtCyl.OffAtSetBit();
+        i_this->mAtCyl.ClrAtSet();
+        i_this->mTgCyl.OffTgSetBit();
+        i_this->mBodySph.OnCoSetBit();
+        i_this->mBodySph.SetTgType(0xFF3DFEFF);
+        actor->current.angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
+        {
+            f32 dy = (actor->current.pos.y + i_this->m02E4.y) - player->current.pos.y;
+            f32 distY = std::sqrtf(dy * dy);
+            actor->speed.y = 10.0f - 0.1f * distY;
+        }
+        if (actor->speed.y < 0.0f) {
+            actor->speed.y = 3.0f;
+        }
+        actor->speedF = 30.0f;
+        actor->gravity = 0.0f;
+        i_this->m0350 = 0;
+        {
+            s32 i = 0;
+            for (int n = 7; n != 0; n--) {
+                *(s16*)((char*)i_this + 0x356 + i) = 0;
+                i += 2;
+            }
+        }
+        actor->current.angle.x = 0;
+        actor->current.angle.z = 0;
+        i_this->m02F0.setall(0.0f);
+        i_this->m0362 = -0x1000;
+        i_this->m0360 = -0x2710;
+        if (cM_rnd() < 0.5f) {
+            i_this->m0360 = 0x2710;
+            i_this->m0362 = 0x1000;
+        }
+        anm_init(i_this, dRes_INDEX_PH_BCK_PUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 0);
+        anm_init(i_this, dRes_INDEX_PH_BCK_BUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 1);
+        i_this->m0346++;
+        // fallthrough
+    case 0x33:
+        i_this->m035E += i_this->m0360;
+        {
+            s16 targetZ = 20000.0f * cM_ssin(i_this->m035E);
+            cLib_addCalcAngleS2(&actor->shape_angle.z, targetZ, 1, 0x500);
+        }
+        {
+            s16 targetX = 20000.0f * cM_ssin(i_this->m035E);
+            cLib_addCalcAngleS2(&actor->shape_angle.x, targetX, 1, 0x500);
+        }
+        actor->shape_angle.y += i_this->m0362;
+        cLib_addCalc0(&actor->speedF, 0.3f, 1.0f);
+        cLib_addCalc0(&actor->speed.y, 0.3f, 1.0f);
+        if (actor->speedF > 0.2f) {
+            break;
+        }
+        i_this->m0360 = 0;
+        actor->speedF = 0.0f;
+        i_this->m0346++;
+        // fallthrough
+    case 0x34:
+        if (water) {
+            i_this->m033F = 6;
+            if (water == 2) {
+                i_this->m0346 = 0x3C;
+            } else {
+                i_this->m0346 = 0x46;
+            }
+            return;
+        }
+        actor->gravity = -0.3f;
+        actor->shape_angle.y += i_this->m0362;
+        cLib_addCalcAngleS2(&i_this->m0362, 0, 1, 0x100);
+        fly_angle_set(i_this, 0);
+        if (i_this->mAcch.ChkGroundHit()) {
+            fopAcM_seStart(actor, JA_SE_CM_PH_FALL, dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd));
+            actor->gravity = -3.0f;
+            anm_init(i_this, dRes_INDEX_PH_BCK_PUCHIWA_e, 1.0f, 0, 1.0f, -1, 0);
+            anm_init(i_this, dRes_INDEX_PH_BCK_BUCHIWA_e, 1.0f, 0, 1.0f, -1, 1);
+            i_this->m0346++;
+        }
+        break;
+    case 0x35:
+        if (water) {
+            i_this->m033F = 6;
+            if (water == 2) {
+                i_this->m0346 = 0x3C;
+            } else {
+                i_this->m0346 = 0x46;
+            }
+            return;
+        }
+        {
+            s16 shapeZ = actor->current.angle.z;
+            cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x500);
+            s16 shapeX = actor->current.angle.x;
+            cLib_addCalcAngleS2(&actor->shape_angle.x, shapeX, 1, 0x500);
+        }
+        actor->shape_angle.y += i_this->m0360;
+        if (i_this->mpBodyMorf->isStop()) {
+            if (i_this->m02FC.x == 0.0f) {
+                actor->speedF = 0.0f;
+                i_this->m033F = 2;
+                i_this->m0346 = 0x18;
+                return;
+            }
+            i_this->m0366 = (s16)(50.0f + cM_rndF(50.0f));
+            actor->shape_angle.x = 0;
+            actor->shape_angle.z = 0;
+            i_this->m0346++;
+        }
+        break;
+    case 0x36:
+        if (water) {
+            i_this->m033F = 6;
+            if (water == 2) {
+                i_this->m0346 = 0x3C;
+            } else {
+                i_this->m0346 = 0x46;
+            }
+            return;
+        }
+        cLib_addCalc0(&actor->speedF, 0.3f, 1.0f);
+        if (actor->speedF > 0.1f) {
+            actor->shape_angle.y += i_this->m0360;
+        }
+        if (i_this->m0366 == 0) {
+            actor->speedF = 0.0f;
+            if (i_this->m02FC.x == 0.0f) {
+                i_this->m033F = 2;
+                i_this->m0346 = 0x18;
+            } else {
+                i_this->m033F = 3;
+                i_this->m0346 = 0x1E;
+            }
+        }
+        break;
+    }
+
+    if (body_atari_check(i_this)) {
+        actor->shape_angle.x = 0;
+        actor->shape_angle.z = 0;
+        if (i_this->m0340 == 2) {
+            if (i_this->mAcch.ChkGroundHit()) {
+                i_this->m0360 = -0x3E8;
+                if (cM_rnd() < 0.5f) {
+                    i_this->m0360 = 0x3E8;
+                }
+                actor->speedF = 20.0f;
+                if (i_this->m0374 != dRes_INDEX_PH_BCK_PUCHI_CHAKU_e) {
+                    anm_init(i_this, dRes_INDEX_PH_BCK_PUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 0);
+                }
+                fopAcM_seStart(actor, JA_SE_CM_PH_HIT_WIND, 0);
+                fopAcM_monsSeStart(actor, JA_SE_CV_PH_CUT_PROPELLER, 0);
+                i_this->m0346 = 0x36;
+            } else {
+                i_this->m033F = 5;
+                i_this->m0346 = 0x32;
+            }
+        }
+    }
 }
 
 /* 00005134-00005628       .text ph_water_move__FP8ph_class */
-void ph_water_move(ph_class*) {
-    /* Nonmatching */
-    /* Dummy literals occupy @6091 so later 100% funcs keep their pool slots. */
-    volatile f32 f1 = 3.4f;
-    (void)f1;
+void ph_water_move(ph_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+
+    switch (i_this->m0346) {
+    case 0x3C:
+        i_this->mBodySph.OnCoSetBit();
+        i_this->mBodySph.SetTgType(0xFF3DFEFF);
+        {
+            s16 zero = 0;
+            actor->shape_angle.x = zero;
+            actor->shape_angle.z = zero;
+            actor->current.angle.x = zero;
+            actor->current.angle.z = zero;
+            s32 i = zero;
+            for (int n = 7; n != 0; n--) {
+                *(s16*)((char*)i_this + 0x356 + i) = zero;
+                i += 2;
+            }
+        }
+        i_this->mAtCyl.OffAtSetBit();
+        i_this->mAtCyl.ClrAtSet();
+        if (i_this->mType != 1) {
+            f32 propellerScaleX = i_this->m02FC.x;
+            if (propellerScaleX == 0.0f) {
+                i_this->m0366 = (s16)(200.0f + cM_rndF(200.0f));
+            } else {
+                i_this->m0366 = (s16)(100.0f + cM_rndF(100.0f));
+            }
+            anm_init(i_this, dRes_INDEX_PH_BCK_PUCHIWA_e, 1.0f, 0, 1.0f, -1, 0);
+            anm_init(i_this, dRes_INDEX_PH_BCK_BUCHIWA_e, 1.0f, 0, 1.0f, -1, 1);
+        } else {
+            i_this->m0366 = 0x96;
+            i_this->mAtCyl.OnAtSetBit();
+            i_this->mAtCyl.OnAtHitBit();
+            anm_init(i_this, dRes_INDEX_PH_BCK_BJAWS_e, 1.0f, 2, 1.0f, -1, 1);
+        }
+        i_this->m0368 = 0x14;
+        {
+            f32 dx = (actor->current.pos.x + i_this->m02E4.x) - player->current.pos.x;
+            f32 dz = (actor->current.pos.z + i_this->m02E4.z) - player->current.pos.z;
+            actor->current.angle.y = cM_atan2s(dx, dz) + 0x8000;
+        }
+        i_this->m0346++;
+        // fallthrough
+    case 0x3D:
+        if (i_this->m0364 == 0) {
+            i_this->m0364 = 0xF;
+            i_this->m0341 = 0;
+        }
+        {
+            s16 targetY = actor->current.angle.y;
+            cLib_addCalcAngleS2(&actor->shape_angle.y, targetY, 1, 0x700);
+        }
+        cLib_addCalc2(&actor->speedF, 30.0f, 1.0f, 10.0f);
+        {
+            u32 vol = (u32)(3.4f * actor->speedF);
+            if (vol > 100) {
+                vol = 100;
+            }
+            fopAcM_seStart(actor, JA_SE_CM_SH_CRUISING, vol);
+        }
+        if (!ph_hani_check(i_this, i_this->m038C, 25344.0f, 1)) {
+            i_this->m033F = 3;
+            i_this->m0346 = 0x21;
+            break;
+        }
+        if (i_this->m0368 == 0) {
+            f32 dx = i_this->m032C.x - actor->current.pos.x;
+            f32 dz = i_this->m032C.z - actor->current.pos.z;
+            f32 dist = std::sqrtf(dx * dx + dz * dz);
+            if (dist > i_this->m038C) {
+                i_this->m033F = 3;
+                i_this->m0346 = 0x21;
+                break;
+            }
+        }
+        if (i_this->m0366 == 0) {
+            i_this->m033F = 3;
+            i_this->m0346 = 0x21;
+        }
+        break;
+    case 0x46:
+        i_this->mBodySph.OnCoSetBit();
+        i_this->mBodySph.SetTgType(0xFF3DFEFF);
+        {
+            s16 zero = 0;
+            actor->shape_angle.x = zero;
+            actor->shape_angle.z = zero;
+            actor->current.angle.x = zero;
+            actor->current.angle.z = zero;
+            s32 i = 0;
+            for (int n = 7; n != 0; n--) {
+                *(s16*)((char*)i_this + 0x356 + i) = zero;
+                i += 2;
+            }
+        }
+        i_this->mAtCyl.OffAtSetBit();
+        i_this->mAtCyl.ClrAtSet();
+        {
+            f32 propellerScaleX = i_this->m02FC.x;
+            if (propellerScaleX == 0.0f) {
+                i_this->m0366 = (s16)(200.0f + cM_rndF(200.0f));
+            } else {
+                i_this->m0366 = (s16)(100.0f + cM_rndF(100.0f));
+            }
+        }
+        anm_init(i_this, dRes_INDEX_PH_BCK_PUCHIWA_e, 1.0f, 0, 1.0f, -1, 0);
+        anm_init(i_this, dRes_INDEX_PH_BCK_BUCHIWA_e, 1.0f, 0, 1.0f, -1, 1);
+        i_this->m0346++;
+        // fallthrough
+    case 0x47:
+        if (i_this->m0366 == 0) {
+            i_this->m033F = 3;
+            if (i_this->mType == 1) {
+                i_this->m0346 = 0x21;
+            } else {
+                i_this->m0346 = 0x1E;
+            }
+        }
+        break;
+    }
+
+    body_atari_check(i_this);
+    sea_water_check(i_this, 2);
 }
 
 /* 00005628-0000573C       .text BG_check__FP8ph_class */
