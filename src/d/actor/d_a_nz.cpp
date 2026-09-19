@@ -7,6 +7,7 @@
 #include "d/actor/d_a_nz.h"
 #include "d/actor/d_a_bomb.h"
 #include "d/actor/d_a_item.h"
+#include "d/actor/d_a_player.h"
 #include "d/d_cc_d.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_kankyo.h"
@@ -14,6 +15,13 @@
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_mtx.h"
 #include "JSystem/J3DGraphAnimator/J3DModel.h"
+#include "res/Object/Nz.h"
+
+enum Action { ACTION_NZ_MOVE = 0, ACTION_NZ2_MOVE = 1, ACTION_NZ3_MOVE = 2, ACTION_NZ4_MOVE = 3, ACTION_NZ5_MOVE = 4, ACTION_NZ6_MOVE = 5 };
+
+enum Mode {
+    MODE_NZ5_MOVE_60 = 60,
+};
 
 static daNZ_HIO_c l_HIO;
 static fopAc_ac_c* check_info[100];
@@ -151,12 +159,14 @@ static BOOL daNZ_Draw(nz_class*) {
 }
 
 /* 0000178C-00001888       .text item_poi__FP8nz_class */
-void item_poi(nz_class* i_this) {
+static void item_poi(nz_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    fopAc_ac_c* held = fopAcM_SearchByID(i_this->mHeldID);
-    if (held != NULL) {
-        if (fopAcM_GetName(held) == fpcNm_BOMB_e) {
-            daBomb_c* bomb = (daBomb_c*)held;
+    daBomb_c* bomb;
+    daItem_c* item;
+
+    bomb = (daBomb_c*)fopAcM_SearchByID(i_this->mHeldID);
+    if (bomb != NULL) {
+        if (fopAcM_GetName(bomb) == fpcNm_BOMB_e) {
             bomb->current.angle.y = i_this->m580;
             bomb->speedF = 20.0f;
             bomb->speed.y = 45.0f;
@@ -168,13 +178,14 @@ void item_poi(nz_class* i_this) {
                 bomb->setBombFire_ON();
             }
         } else {
-            held->speedF = 20.0f;
-            held->speed.y = 20.0f;
-            held->gravity = -3.0f;
-            held->current.angle.y = actor->current.angle.y;
-            if (!((daItem_c*)held)->checkLock()) {
-                ((daItem_c*)held)->endControl();
-                ((daItem_c*)held)->releaseLock();
+            item = (daItem_c*)bomb;
+            item->speedF = 20.0f;
+            item->speed.y = 20.0f;
+            item->gravity = -3.0f;
+            item->current.angle.y = actor->current.angle.y;
+            if (!item->checkLock()) {
+                item->endControl();
+                item->releaseLock();
             }
         }
     }
@@ -255,8 +266,26 @@ void BG_check(nz_class* i_this) {
 }
 
 /* 00002F3C-00003090       .text shock_damage_check__FP8nz_class */
-void shock_damage_check(nz_class*) {
-    /* Nonmatching */
+static BOOL shock_damage_check(nz_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    cXyz swordTopPos;
+
+    if ((abs(actor->current.angle.x)) || (abs(actor->current.angle.z))) {
+        return FALSE;
+    }
+    if (player->checkHammerQuake()) {
+        swordTopPos = player->getSwordTopPos();
+        swordTopPos.x -= actor->current.pos.x;
+        swordTopPos.z -= actor->current.pos.z;
+        if (std::sqrtf(SQUARE(swordTopPos.x) + SQUARE(swordTopPos.z)) < 1000.0f) {
+            item_poi(i_this);
+            i_this->m2BC = ACTION_NZ5_MOVE;
+            i_this->m2BD = MODE_NZ5_MOVE_60;
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* 00003090-00003240       .text body_atari_check__FP8nz_class */
@@ -270,8 +299,51 @@ void nz_move(nz_class*) {
 }
 
 /* 000042D8-000044B8       .text money_drop__FP8nz_class */
-void money_drop(nz_class*) {
-    /* Nonmatching */
+static void money_drop(nz_class*) {
+    static s32 rate_dt[] = {0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 0, 2, 2, 1, 2, 1, 2, 2, 1};
+
+    static s32 ruppy_rate_dt[] = {1, 5, 20};
+
+    cXyz local_78;
+    cXyz local_60;
+    cXyz cStack_6c;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    int iVar3;
+    int iVar4;
+    s32 dVar6;
+    int i;
+    int rupeenum = dComIfGs_getRupee();
+    int iVar2 = 4;
+    if (rupeenum < 50) {
+        iVar2 = 0;
+    } else if (rupeenum < 100) {
+        iVar2 = 1;
+    } else if (rupeenum < 300) {
+        iVar2 = 2;
+    } else if (rupeenum < 500) {
+        iVar2 = 3;
+    }
+#if VERSION == VERSION_DEMO
+    iVar2 *= 8 & 0xF8;
+#endif
+    dVar6 = (s32)(cM_rnd() * 3.0f) + 5;
+    iVar4 = 0;
+    i = 0;
+    for (; iVar4 < dVar6; iVar4++) {
+        iVar3 = rate_dt[(DEMO_SELECT(iVar2, (iVar2 * 8) & 0xF8) + (s32)(7.0f * cM_rnd()))];
+        if (dComIfGs_getRupee() > ruppy_rate_dt[iVar3]) {
+            cMtx_YrotS(*calc_mtx, cM_rndFX(32000.0f));
+            local_60.x = 0.0f;
+            local_60.y = 0.0f;
+            local_60.z = 40.0f;
+            MtxPosition(&local_60, &cStack_6c);
+            local_78 = player->current.pos + cStack_6c;
+            local_78.y += cM_rndF(60.0f) + 40.0f;
+            fopAcM_createItem(&local_78, iVar3 + dItemNo_GREEN_RUPEE_e, -1, -1, fpcM_ERROR_PROCESS_ID_e, NULL, daItemAct_4_e, NULL);
+            i += ruppy_rate_dt[iVar3];
+        }
+    }
+    dComIfGp_setItemRupeeCount(-i);
 }
 
 /* 000044B8-0000482C       .text nz2_move__FP8nz_class */
@@ -354,55 +426,51 @@ static BOOL useHeapInit(fopAc_ac_c* a_this) {
     nz_class* i_this = (nz_class*)a_this;
 
     i_this->mpMorf = new mDoExt_McaMorf(
-        (J3DModelData*)dComIfG_getObjectRes("NZ", 0x23),
+        (J3DModelData*)dComIfG_getObjectRes("NZ", dRes_INDEX_NZ_BDL_NZ_e),
         NULL,
         NULL,
-        (J3DAnmTransform*)dComIfG_getObjectRes("NZ", 0x26),
+        (J3DAnmTransformKey*)dComIfG_getObjectRes("NZ", dRes_INDEX_NZ_BCK_NZ_WAIT_e),
         J3DFrameCtrl::EMode_LOOP,
         1.0f,
         0,
         -1,
         1,
         NULL,
-        0x80000,
+        0x00080000,
         0x37441422
     );
-    if (i_this->mpMorf == NULL || i_this->mpMorf->getModel() == NULL) {
+    if ((i_this->mpMorf == NULL) || (i_this->mpMorf->getModel() == NULL)) {
         return FALSE;
     }
-
-    J3DModel* model = i_this->mpMorf->getModel();
-    model->setUserArea((u32)i_this);
-    for (u16 i = 0; i < model->getModelData()->getJointNum(); i++) {
-        if (i == 1 || i == 9) {
-            model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_tail);
+    i_this->mpMorf->getModel()->setUserArea((u32)i_this);
+    for (u16 i = 0; i < i_this->mpMorf->getModel()->getModelData()->getJointNum(); i++) {
+        if ((i == NZ_NZ_JNT_HIP_e) || (i == NZ_NZ_JNT_SHIPPO_e)) {
+            i_this->mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_tail);
         }
-        if (i == 0xB) {
+        if (i == NZ_NZ_JNT_HEAD_e) {
             i_this->mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_head);
         }
-        if (i == 0x12 || i == 0x15) {
+        if ((i == NZ_NZ_JNT_UDEL3_e) || (i == NZ_NZ_JNT_UDER3_e)) {
             i_this->mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_hand);
         }
     }
-
     if (i_this->m2B5 == 0) {
-        ResTIMG* img = (ResTIMG*)dComIfG_getObjectRes("NZ", 0x2E);
-        if (!i_this->mLineMat.init(1, 10, img, FALSE)) {
+        if (!i_this->mLineMat.init(1, 10, (ResTIMG*)dComIfG_getObjectRes("NZ", dRes_INDEX_NZ_BTI_SIPPO_e), 0)) {
             return FALSE;
         }
     } else {
-        ResTIMG* img = (ResTIMG*)dComIfG_getObjectRes("NZ", 0x2D);
-        if (!i_this->mLineMat.init(1, 10, img, FALSE)) {
+        if (!i_this->mLineMat.init(1, 10, (ResTIMG*)dComIfG_getObjectRes("NZ", dRes_INDEX_NZ_BTI_BOM_SIPPO_e), 0)) {
             return FALSE;
         }
     }
-
     i_this->mpBmt = (J3DMaterialTable*)dComIfG_getObjectRes("NZ", nz_bmt_idx[i_this->m2B5 & 1]);
     if (i_this->mpBmt == NULL) {
         return FALSE;
     }
-
-    return i_this->mInvModel.create(i_this->mpMorf->getModel()) != FALSE;
+    if (i_this->mInvModel.create(i_this->mpMorf->getModel())) {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 /* 00007EB0-000081AC       .text daNZ_CreateInit__FP8nz_class */
