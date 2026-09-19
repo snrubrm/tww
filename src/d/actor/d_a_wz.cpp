@@ -1010,17 +1010,23 @@ void action_itai(wz_class* i_this) {
 /* 00002E3C-000047C8       .text action_demo__FP8wz_class */
 void action_demo(wz_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    fopAc_ac_c* player_ac = dComIfGp_getPlayer(0);
+    daPy_py_c* player = (daPy_py_c*)player_ac;
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
-    cXyz pos = actor->current.pos;
+    cXyz pos = i_this->current.pos;
+    cXyz offset;
+    cXyz dst;
+    cXyz scale;
+    cXyz mtx_off;
+    f32 mag;
     pos.y += 160.0f + REG12_F(17);
 
     switch (i_this->mMode) {
     case 0x32:
-        if (fopAcM_searchActorDistance(actor, player) > 1250.0f + REG11_F(1)) {
+        if (fopAcM_searchActorDistance(i_this, player_ac) > 1250.0f + REG11_F(1)) {
             break;
         }
-        actor->eyePos = player->current.pos;
+        actor->eyePos = player_ac->current.pos;
         fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
         i_this->mTargetAngleY = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         actor->current.angle.y = i_this->mTargetAngleY;
@@ -1077,7 +1083,7 @@ void action_demo(wz_class* i_this) {
         camera->mCamera.Stop();
         camera->mCamera.SetTrimSize(2);
         i_this->mCamFov = 50.0f;
-        if (actor->health > 0) {
+        if (actor->health <= 0) {
             actor->current.angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
             actor->shape_angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
             for (int i = 0; i < 20; i++) {
@@ -1089,8 +1095,11 @@ void action_demo(wz_class* i_this) {
                     }
                 }
             }
-            s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
-            player->setPlayerPosAndAngle(&player->current.pos, ang);
+            s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+            player->setPlayerPosAndAngle(
+                &player_ac->current.pos,
+                DEMO_SELECT(ang + 0x8000, (s16)(ang + 0x8000))
+            );
             if (i_this->mBckIdx != dRes_INDEX_WZ_BCK_PRESS1_e) {
                 anm_init(i_this, dRes_INDEX_WZ_BCK_AIRDOWN1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
                 actor->speedF = 40.0f;
@@ -1110,13 +1119,15 @@ void action_demo(wz_class* i_this) {
             break;
         }
         cLib_addCalc2(&i_this->mCamFov, 50.0f + REG11_F(3), 1.0f, 0.5f + REG12_F(14));
+        offset.x = 50.0f;
+        offset.y = 0.0f;
+        offset.z = 850.0f;
         {
-            cXyz offset;
-            offset.x = 50.0f;
-            offset.y = 0.0f;
-            offset.z = 850.0f;
-            s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
-            player->setPlayerPosAndAngle(&player->current.pos, ang);
+            s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+            player->setPlayerPosAndAngle(
+                &player_ac->current.pos,
+                DEMO_SELECT(ang + 0x8000, (s16)(ang + 0x8000))
+            );
         }
         i_this->mCamEye.x = REG11_F(4);
         i_this->mCamEye.y = 125.0f + REG11_F(5);
@@ -1144,57 +1155,134 @@ void action_demo(wz_class* i_this) {
             case 0:
                 player->changeDemoMode(daPy_demo_c::DEMO_L_AROUND2_e);
                 i_this->mTimer = (s16)(60.0f + REG11_F(11));
-                {
-                    cXyz offset;
-                    offset.set(0.0f, 0.0f, 40000.0f + REG11_F(12));
-                    mDoMtx_YrotS(*calc_mtx, player->shape_angle.y);
-                    cXyz dst;
-                    MtxPosition(&offset, &dst);
-                    actor->eyePos = dst + player->current.pos;
-                    fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
-                }
+                mDoMtx_YrotS(*calc_mtx, player_ac->shape_angle.y);
+                mtx_off.set(0.0f, 0.0f, 40000.0f + REG11_F(12));
+                MtxPosition(&mtx_off, &dst);
+                actor->eyePos = dst + player_ac->current.pos;
+                fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
+                i_this->m3DE[0]++;
                 break;
             case 1:
-                {
-                    cXyz offset;
-                    offset.set(0.0f, 0.0f, 40000.0f + REG11_F(12));
-                    mDoMtx_YrotS(*calc_mtx, player->shape_angle.y);
-                    cXyz dst;
-                    MtxPosition(&offset, &dst);
-                    actor->eyePos = dst + player->current.pos;
-                    fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
-                }
+                player->changeDemoMode(daPy_demo_c::DEMO_TBACK_e);
+                i_this->mTimer = (s16)(45.0f + REG11_F(13));
+                mDoMtx_YrotS(
+                    *calc_mtx,
+                    DEMO_SELECT(
+                        player_ac->shape_angle.y + 0x8000,
+                        (s16)(player_ac->shape_angle.y + 0x8000)
+                    )
+                );
+                mtx_off.set(0.0f, 0.0f, 40000.0f + REG11_F(14));
+                MtxPosition(&mtx_off, &dst);
+                actor->eyePos = dst + player_ac->current.pos;
+                fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
+                i_this->m3DE[0]++;
                 break;
             }
         }
-        cLib_addCalc2(&i_this->mCamEye.x, REG11_F(4), 1.0f, 1.0f);
-        cLib_addCalc2(&i_this->mCamEye.y, 125.0f + REG11_F(5), 1.0f, 1.0f);
-        cLib_addCalc2(&i_this->mCamEye.z, -29.0f + REG11_F(6), 1.0f, 1.0f);
-        cLib_addCalc2(&i_this->mCamCenter.x, 1470.0f + REG11_F(7), 1.0f, 1.0f);
-        cLib_addCalc2(&i_this->mCamCenter.y, 917.0f + REG11_F(8), 1.0f, 1.0f);
-        cLib_addCalc2(&i_this->mCamCenter.z, -222.0f + REG11_F(9), 1.0f, 1.0f);
+        cLib_addCalc2(&i_this->mCamFov, 50.0f + REG11_F(15), 1.0f, 0.5f + REG12_F(14));
+        mag = std::fabsf(i_this->mCamEye.x - (150.0f + REG11_F(16)));
+        cLib_addCalc2(&i_this->mCamEye.x, 150.0f + REG11_F(16), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = std::fabsf(i_this->mCamEye.y - (158.0f + REG11_F(17)));
+        cLib_addCalc2(&i_this->mCamEye.y, 158.0f + REG11_F(17), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = std::fabsf(i_this->mCamEye.z - (114.0f + REG11_F(18)));
+        cLib_addCalc2(&i_this->mCamEye.z, 114.0f + REG11_F(18), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = std::fabsf(i_this->mCamCenter.x - (f32)(REG11_S(0) + 0x492));
+        cLib_addCalc2(&i_this->mCamCenter.x, (f32)(REG11_S(0) + 0x492), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = std::fabsf(i_this->mCamCenter.y - (f32)(REG11_S(1) + 0x2CD));
+        cLib_addCalc2(&i_this->mCamCenter.y, (f32)(REG11_S(1) + 0x2CD), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = std::fabsf(i_this->mCamCenter.z - (f32)(REG11_S(2) - 0x336));
+        cLib_addCalc2(&i_this->mCamCenter.z, (f32)(REG11_S(2) - 0x336), 1.0f, mag * (0.01f + REG11_F(19)));
+        if (i_this->m3DE[0] >= 2) {
+            if (i_this->mTimer <= DEMO_SELECT(REG11_S(3) + 0x14, (s16)(REG11_S(3) + 0x14))) {
+                if (i_this->m3DE[0] == 2) {
+                    fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
+                    i_this->m3DE[0] = 3;
+                }
+                i_this->mAlpha += DEMO_SELECT(REG11_S(4) + 0xA, (s16)(REG11_S(4) + 0xA));
+                if (i_this->mAlpha > 0xFF) {
+                    i_this->mAlpha = 0xFF;
+                }
+            }
+            if (REG0_S(9) == 0 && i_this->mTimer == 0) {
+                player->changeDemoMode(daPy_demo_c::DEMO_SURPRISED_e);
+                i_this->mTimer = REG11_S(5) + 0x1E;
+                i_this->mMode++;
+            }
+        }
         break;
     case 0x52:
+        i_this->mAlpha += DEMO_SELECT(REG11_S(6) + 5, (s16)(REG11_S(6) + 5));
+        if (i_this->mAlpha > 0xFF) {
+            i_this->mAlpha = 0xFF;
+        }
+        if (i_this->mTimer == 0) {
+            i_this->mMode++;
+        }
         break;
     case 0x53:
-        anm_init(i_this, dRes_INDEX_WZ_BCK_S_DEMO1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+        i_this->mHomePos.x = pos.x;
+        i_this->mHomePos.y = actor->current.pos.y;
+        i_this->mHomePos.z = actor->current.pos.z;
+        i_this->mHomePos.y += 15.0f;
+        anm_init(i_this, dRes_INDEX_WZ_BCK_S_DEMO1_e, 0.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
         i_this->mMode++;
         // Fall-through
     case 0x54: {
-        s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
-        player->setPlayerPosAndAngle(&player->current.pos, ang);
-        cLib_addCalc2(&i_this->mCamFov, 50.0f, 1.0f, 1.0f);
-        break;
+        i_this->mTargetAngleY = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+        actor->current.angle.y = i_this->mTargetAngleY;
+        actor->shape_angle.y = i_this->mTargetAngleY;
+        dst.x = 50.0f;
+        dst.y = 0.0f;
+        dst.z = 850.0f;
+        player->setPlayerPosAndAngle(&dst, fopAcM_searchActorAngleY(player_ac, actor));
+        cLib_addCalc2(&i_this->mCamFov, 50.0f + REG8_F(1), 1.0f, 0.5f + REG12_F(14));
+        i_this->mCamEye.x = -108.0f + REG8_F(2);
+        i_this->mCamEye.y = 174.0f + REG8_F(3);
+        i_this->mCamEye.z = 231.0f + REG8_F(4);
+        i_this->mCamCenter.x = 199.0f + REG8_F(5);
+        i_this->mCamCenter.y = 50.0f + REG8_F(6);
+        i_this->mCamCenter.z = 1092.0f + REG8_F(7);
+        i_this->mAlpha += (s16)(5.0f + REG8_F(8));
+        if (i_this->mAlpha < 0xFF) {
+            break;
+        }
+        i_this->mAlpha = 0xFF;
+        if (REG0_S(9) != 0) {
+            i_this->mpMorf->setPlaySpeed(0.0f);
+            break;
+        }
+        i_this->mTimer = (s16)REG12_F(12);
+        i_this->mpMorf->setPlaySpeed(1.0f);
+        i_this->mMode++;
+        // Fall-through
     }
     case 0x55:
-        break;
+        if (i_this->mTimer != 0) {
+            break;
+        }
+        i_this->mpMorf->setPlaySpeed(1.0f);
+        i_this->mMode++;
+        // Fall-through
     case 0x56:
-        cLib_addCalc2(&i_this->mCamEye.x, REG8_F(15), 1.0f, 1.0f);
+        cLib_addCalc2(&i_this->mCamFov, 45.0f + REG8_F(10), 1.0f, 0.2f + REG12_F(15));
+        mag = std::fabsf(i_this->mCamEye.x - REG8_F(11));
+        cLib_addCalc2(&i_this->mCamEye.x, REG8_F(11), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = std::fabsf(i_this->mCamEye.y - (135.0f + REG8_F(12)));
+        cLib_addCalc2(&i_this->mCamEye.y, 135.0f + REG8_F(12), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = std::fabsf(i_this->mCamEye.z - (-60.0f + REG8_F(13)));
+        cLib_addCalc2(&i_this->mCamEye.z, -60.0f + REG8_F(13), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = std::fabsf(i_this->mCamCenter.x - (50.0f + REG8_F(14)));
+        cLib_addCalc2(&i_this->mCamCenter.x, 50.0f + REG8_F(14), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = std::fabsf(i_this->mCamCenter.y - (110.0f + REG8_F(15)));
+        cLib_addCalc2(&i_this->mCamCenter.y, 110.0f + REG8_F(15), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = std::fabsf(i_this->mCamCenter.z - (330.0f + REG8_F(16)));
+        cLib_addCalc2(&i_this->mCamCenter.z, 330.0f + REG8_F(16), 1.0f, mag * (0.025f + REG8_F(17)));
         if (i_this->mpMorf->checkFrame(159.0f)) {
             if (REG0_S(9) != 0) {
                 i_this->mpMorf->setPlaySpeed(0.0f);
             } else {
-                actor->speedF = -(10.0f + REG12_F(13));
+                actor->speedF = -(10.0f + REG12_F(10));
                 i_this->m3DE[0] = 0;
                 i_this->m3DE[1] = 0;
                 i_this->mTimer = 2;
@@ -1203,27 +1291,140 @@ void action_demo(wz_class* i_this) {
         }
         break;
     case 0x57:
-        cLib_addCalc0(&actor->speedF, 1.0f, 0.3f + REG12_F(14));
+        cLib_addCalc0(&actor->speedF, 1.0f, 0.3f + REG12_F(11));
         if (REG8_S(4) != 0) {
             i_this->mTimer = 1;
             REG8_S(4) = 0;
         }
-        if (i_this->m3DE[0] == 0) {
+        if (i_this->m3DE[0] == 0 && i_this->mTimer == 0) {
+            scale = actor->scale;
+            scale.setall(4.0f);
+            offset.x = 215.0f;
+            offset.y = 180.0f;
+            offset.z = 100.0f;
+            fpc_ProcID id = fopAcM_createChild(
+                fpcNm_WZ_e,
+                fopAcM_GetID(actor),
+                0xFFFFFF0D,
+                &offset,
+                fopAcM_GetRoomNo(actor),
+                &actor->current.angle,
+                &scale,
+                0
+            );
+            if (id == fpcM_ERROR_PROCESS_ID_e) {
+                break;
+            }
+            offset.x = -250.0f;
+            offset.y = 180.0f;
+            offset.z = 100.0f;
+            id = fopAcM_createChild(
+                fpcNm_WZ_e,
+                fopAcM_GetID(actor),
+                0xFFFFFF0D,
+                &offset,
+                fopAcM_GetRoomNo(actor),
+                &actor->current.angle,
+                &scale,
+                0
+            );
+            if (id == fpcM_ERROR_PROCESS_ID_e) {
+                break;
+            }
+            i_this->m3DE[0] = 1;
+            i_this->mTimers[0] = 0x28;
+            i_this->mTimers[1] = (s16)(70.0f + REG12_F(9));
+        }
+        if (i_this->mTimers[1] == 1) {
+            mDoAud_subBgmStart(JA_BGM_MBOSS);
+        }
+        if (i_this->m3DE[0] != 0 && i_this->m3DE[1] == 0 && i_this->mTimers[0] == 0) {
+            offset.x = 215.0f;
+            offset.y = 0.0f;
+            offset.z = 100.0f;
+            i_this->mRelatedId = fopAcM_create(
+                fpcNm_TN_e,
+                0xFFFFFF2C,
+                &offset,
+                fopAcM_GetRoomNo(actor),
+                &actor->current.angle,
+                NULL,
+                -1,
+                NULL
+            );
+            if (i_this->mRelatedId != fpcM_ERROR_PROCESS_ID_e) {
+                i_this->m3DE[1] = 1;
+                come_flag = 1;
+            }
+        }
+        if (i_this->mRelatedId != fpcM_ERROR_PROCESS_ID_e) {
+            fopAc_ac_c* related = fopAcM_SearchByID(i_this->mRelatedId);
+            if (related != NULL) {
+                related->speedF = 0.0f;
+                fopAcM_OnStatus(related, fopAcStts_UNK4000_e);
+            }
+        }
+        cLib_addCalc2(&i_this->mCamFov, 65.0f + REG12_F(0), 1.0f, 2.5f + REG12_F(16));
+        mag = std::fabsf(i_this->mCamEye.x - REG12_F(1));
+        cLib_addCalc2(&i_this->mCamEye.x, REG12_F(1), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = std::fabsf(i_this->mCamEye.y - (90.0f + REG12_F(2)));
+        cLib_addCalc2(&i_this->mCamEye.y, 90.0f + REG12_F(2), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = std::fabsf(i_this->mCamEye.z - (440.0f + REG12_F(3)));
+        cLib_addCalc2(&i_this->mCamEye.z, 440.0f + REG12_F(3), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = std::fabsf(i_this->mCamCenter.x - REG12_F(4));
+        cLib_addCalc2(&i_this->mCamCenter.x, REG12_F(4), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = std::fabsf(i_this->mCamCenter.y - (50.0f + REG12_F(5)));
+        cLib_addCalc2(&i_this->mCamCenter.y, 50.0f + REG12_F(5), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = std::fabsf(i_this->mCamCenter.z - (570.0f + REG12_F(6)));
+        cLib_addCalc2(&i_this->mCamCenter.z, 570.0f + REG12_F(6), 1.0f, mag * (0.3f + REG12_F(7)));
+        if (!i_this->mpMorf->isStop()) {
+            if (!i_this->mpMorf->checkFrame(274.0f + REG12_F(8))) {
+                break;
+            }
+        }
+        if (REG0_S(9) != 0) {
             break;
         }
+        dComIfGp_getVibration().StopQuake(0x20);
+        camera->mCamera.Reset(i_this->mCamEye, i_this->mCamCenter);
+        camera->mCamera.Start();
+        camera->mCamera.SetTrimSize(0);
+        player->cancelOriginalDemo();
+        dComIfGp_event_reset();
+        fopAcM_monsSeStart(actor, JA_SE_CV_WZ_LAUGH, 0);
+        {
+            fopAc_ac_c* related = fopAcM_SearchByID(i_this->mRelatedId);
+            if (related != NULL) {
+                fopAcM_OffStatus(related, fopAcStts_UNK4000_e);
+            }
+        }
+        if (REG12_S(9) == 0) {
+            i_this->mHasChildActor = 1;
+            i_this->m352 = 1;
+        } else {
+            i_this->mRelatedId = fpcM_ERROR_PROCESS_ID_e;
+        }
+        come_flag = 1;
+        fopAcM_OffStatus(actor, fopAcStts_UNK4000_e);
+        i_this->mAction = 0;
+        i_this->mMode = 6;
         break;
     case 0x5A:
         rod_size_set(i_this, 1);
         {
-            s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
-            player->setPlayerPosAndAngle(&player->current.pos, ang);
+            s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+            player->setPlayerPosAndAngle(
+                &player_ac->current.pos,
+                DEMO_SELECT(ang + 0x8000, (s16)(ang + 0x8000))
+            );
         }
         cLib_addCalc0(&actor->speedF, 1.0f, 2.0f);
-        if (i_this->mpMorf->isStop()) {
-            actor->speedF = 0.0f;
-            i_this->mMode++;
+        if (!i_this->mpMorf->isStop()) {
+            break;
         }
-        break;
+        actor->speedF = 0.0f;
+        i_this->mMode++;
+        // Fall-through
     case 0x5B:
         if (REG12_S(4) != 0) {
             break;
@@ -1257,8 +1458,12 @@ void action_demo(wz_class* i_this) {
         camera->mCamera.Reset(i_this->mCamEye, i_this->mCamCenter);
         camera->mCamera.Start();
         camera->mCamera.SetTrimSize(0);
-        if (strcmp(dComIfGp_getStartStageName(), "kazeMB") != 0) {
-            mDoAud_subBgmStop();
+        player->cancelOriginalDemo();
+        dComIfGp_event_reset();
+        if (strcmp(dComIfGp_getStartStageName(), "kazeMB") == 0) {
+            if (i_this->mIsMiniBoss != 0) {
+                mDoAud_subBgmStop();
+            }
         }
         if (i_this->mHasChildActor == 0) {
             fopAcM_delete(actor);
@@ -1279,10 +1484,8 @@ void action_demo(wz_class* i_this) {
         i_this->mCamEye = actor->current.pos;
         i_this->mCamEye.y += 50.0f;
         mDoMtx_YrotS(*calc_mtx, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)));
-        cXyz offset;
-        offset.set(0.0f, 0.0f, 400.0f);
-        cXyz dst;
-        MtxPosition(&offset, &dst);
+        mtx_off.set(0.0f, 0.0f, 400.0f);
+        MtxPosition(&mtx_off, &dst);
         VECAdd(&dst, &actor->current.pos, &dst);
         i_this->mCamCenter.x = dst.x - 100.0f;
         i_this->mCamCenter.y = 400.0f + dst.y;
@@ -1293,14 +1496,9 @@ void action_demo(wz_class* i_this) {
             fopAcM_monsSeStart(actor, JA_SE_CV_WZ_LAUGH, 0);
         }
     }
-    if (actor->health <= 0) {
-        if (i_this->mMode < 0x51) {
-            camera->mCamera.Set(i_this->mCamEye, i_this->mCamCenter, i_this->mCamFov, 0);
-        }
-    } else if (actor->health > 0) {
-        if (i_this->mMode >= 0x5A) {
-            camera->mCamera.Set(i_this->mCamEye, i_this->mCamCenter, i_this->mCamFov, 0);
-        }
+    s8 health = actor->health;
+    if ((health > 0 && i_this->mMode >= 0x51) || (health <= 0 && i_this->mMode >= 0x5A)) {
+        camera->mCamera.Set(i_this->mCamEye, i_this->mCamCenter, i_this->mCamFov, 0);
     }
 }
 
