@@ -62,7 +62,9 @@ public:
     /* 0x38C */ s16 m38C;
     /* 0x38E */ s16 m38E;
     /* 0x390 */ s16 m390;
-    /* 0x392 */ u8 m392[0x398 - 0x392];
+    /* 0x392 */ s16 m392;
+    /* 0x394 */ s16 m394;
+    /* 0x396 */ s16 m396;
     /* 0x398 */ s16 m398;
     /* 0x39A */ s16 m39A;
     /* 0x39C */ s16 m39C;
@@ -72,7 +74,8 @@ public:
     /* 0x3A8 */ f32 mNoticeRange;
     /* 0x3AC */ f32 m3AC;
     /* 0x3B0 */ f32 m3B0;
-    /* 0x3B4 */ u8 m3B4[0x3BC - 0x3B4];
+    /* 0x3B4 */ u8 m3B4[0x3B8 - 0x3B4];
+    /* 0x3B8 */ f32 m3B8;
     /* 0x3BC */ dBgS_AcchCir mAcchCir;
     /* 0x3FC */ dBgS_ObjAcch mAcch;
     /* 0x5C0 */ u8 m5C0[0x5C4 - 0x5C0];
@@ -85,5 +88,7 @@ public:
     /* 0xC3C */ enemyfire mEnemyFire;
     /* 0xE64 */ mDoExt_invisibleModel mInvisibleModel;
 };  // Size: 0xE6C
+
+STATIC_ASSERT(sizeof(pw_class) == 0xE6C);
 
 #endif /* D_A_PW_H */

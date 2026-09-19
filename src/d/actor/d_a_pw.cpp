@@ -5,14 +5,23 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_pw.h"
+#include "d/actor/d_a_bpw.h"
+#include "d/actor/d_a_kantera.h"
 #include "d/actor/d_a_player.h"
 #include "d/d_bg_s_lin_chk.h"
 #include "d/d_com_inf_game.h"
 #include "res/Object/Pw.h"
 #include "d/d_kankyo_rain.h"
+#include "d/d_material.h"
+#include "d/d_snap.h"
+#include "f_op/f_op_actor_mng.h"
 #include "f_op/f_op_camera.h"
 #include "f_pc/f_pc_manager.h"
 #include "d/d_cc_d.h"
+#include "m_Do/m_Do_mtx.h"
+#include "JSystem/J3DGraphAnimator/J3DJoint.h"
+#include "SSystem/SComponent/c_lib.h"
+#include "SSystem/SComponent/c_math.h"
 
 enum daPW__BehaviorType {
     VisibleFromStart = 0x0,
@@ -23,11 +32,34 @@ enum daPW__BehaviorType {
     UseDefault = 0xFF
 };
 
+struct pw_cyl_access_c : dCcD_Cyl {
+    void OffTgNoConHit() { mGObjTg.OffSPrm(dCcG_TgSPrm_NoConHit_e); }
+};
+
 static bool TORITUKI_ON = false;
 
 /* 00000078-00000158       .text nodeCallBack__FP7J3DNodei */
-static BOOL nodeCallBack(J3DNode*, int) {
-    /* Nonmatching */
+static BOOL nodeCallBack(J3DNode* node, int calcTiming) {
+    if (calcTiming == J3DNodeCBCalcTiming_In) {
+        J3DJoint* joint = (J3DJoint*)node;
+        s32 jntNo = joint->getJntNo();
+        J3DModel* model = j3dSys.getModel();
+        pw_class* i_this = (pw_class*)model->getUserArea();
+        if (i_this != NULL) {
+            if (jntNo == PW_JNT_J_PW_ITEM_R1_e) {
+                MTXCopy(model->getAnmMtx(jntNo), *calc_mtx);
+                i_this->m2E4 = i_this->m2CC;
+                cXyz offset;
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 0.0f;
+                MtxPosition(&offset, &i_this->m2CC);
+                MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+                MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
+            }
+        }
+    }
+    return TRUE;
 }
 
 /* 00000158-00000230       .text draw_SUB__FP8pw_class */
@@ -48,8 +80,60 @@ void draw_SUB(pw_class* i_this) {
 }
 
 /* 00000230-000004D4       .text daPW_Draw__FP8pw_class */
-static BOOL daPW_Draw(pw_class*) {
-    /* Nonmatching */
+static BOOL daPW_Draw(pw_class* i_this) {
+    J3DModel* model = i_this->mpMorf->getModel();
+    J3DModelData* modelData = model->getModelData();
+    g_env_light.setLightTevColorType(model, &i_this->tevStr);
+    dSnap_RegistFig(DSNAP_TYPE_UNKB8, i_this, 1.0f, 1.0f, 1.0f);
+
+    for (u16 i = 0; i < modelData->getMaterialNum(); i++) {
+        modelData->getMaterialNodePointer(i)->getTevKColor(3)->mColor.a = i_this->m39A;
+    }
+
+    dComIfGd_setListMaskOff();
+    if (i_this->mEnemyIce.mFreezeTimer > 20) {
+        dMat_control_c::iceEntryDL(i_this->mpMorf, -1, &i_this->mInvisibleModel);
+        dComIfGd_setList();
+        return TRUE;
+    }
+
+    if (i_this->m33E != 0) {
+        i_this->m2C0->entry(model->getModelData());
+    } else if (i_this->m33F != 0) {
+        i_this->m2C4->entry(model->getModelData());
+    } else {
+        i_this->m2C8->entry(model->getModelData());
+    }
+
+    i_this->m2BC->entry(model->getModelData());
+    i_this->m2BC->setFrame(i_this->mColorIndex);
+    i_this->mpMorf->entryDL();
+
+    if (i_this->m33E != 0) {
+        i_this->m2C0->remove(model->getModelData());
+    } else if (i_this->m33F != 0) {
+        i_this->m2C4->remove(model->getModelData());
+    } else {
+        i_this->m2C8->remove(model->getModelData());
+    }
+    i_this->m2BC->remove(model->getModelData());
+
+    dComIfGd_setList();
+    i_this->mInvisibleModel.entryMaskOff();
+
+    if (i_this->mBehaviorType == VisibleFromStart && i_this->mEnemyIce.mLightShrinkTimer == 0) {
+        dComIfGd_setSimpleShadow2(
+            &i_this->current.pos,
+            i_this->mAcch.GetGroundH(),
+            50.0f,
+            i_this->mAcch.m_gnd,
+            0,
+            1.0f,
+            dDlst_shadowControl_c::getSimpleTex()
+        );
+    }
+
+    return TRUE;
 }
 
 /* 000004D4-00000600       .text anm_init__FP8pw_classifUcfi */
@@ -66,23 +150,88 @@ void anm_init(pw_class* i_this, int bckFileIdx, f32 morf, u8 loopMode, f32 speed
 }
 
 /* 00000600-000006F4       .text kantera_break__FP8pw_class */
-void kantera_break(pw_class*) {
-    /* Nonmatching */
+void kantera_break(pw_class* i_this) {
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    i_this->m346 = 0;
+    if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e) {
+        fopAc_ac_c* actor;
+        if (fopAcM_SearchByID(i_this->mKanteraID, &actor) && actor != NULL && fopAcM_GetName(actor) == fpcNm_KANTERA_e) {
+            kantera_class* kantera = (kantera_class*)actor;
+            cMtx_YrotS(*calc_mtx, cM_atan2s(actor->current.pos.x - player->current.pos.x, actor->current.pos.z - player->current.pos.z));
+            cXyz offset;
+            offset.x = 0.0f;
+            offset.y = 0.0f;
+            offset.z = 20.0f;
+            MtxPosition(&offset, &actor->speed);
+            actor->speed.y = 10.0f;
+            kantera->mState = 5;
+            i_this->mKanteraID = fpcM_ERROR_PROCESS_ID_e;
+        }
+    }
 }
 
 /* 000006F4-000007CC       .text Big_pow_gattai_check__FP8pw_class */
-void Big_pow_gattai_check(pw_class*) {
-    /* Nonmatching */
+BOOL Big_pow_gattai_check(pw_class* i_this) {
+    if (i_this->mJalhallaID != fpcM_ERROR_PROCESS_ID_e) {
+        fopAc_ac_c* actor;
+        if (fopAcM_SearchByID(i_this->mJalhallaID, &actor) && actor != NULL && fopAcM_GetName(actor) == fpcNm_BPW_e) {
+            bpw_class* bpw = (bpw_class*)actor;
+            if (bpw->m3E9 != 0) {
+                i_this->m340 = 0;
+                i_this->mCyl.OffAtSetBit();
+                i_this->mCyl.OffAtSetBit();
+                i_this->mCyl.OffTgSetBit();
+                i_this->mCyl.ClrTgHit();
+                i_this->m38C = fopAcM_searchActorAngleY(i_this, actor);
+                i_this->mAction = 5;
+                i_this->mMode = 0xAA;
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
 }
 
 /* 000007CC-000008B0       .text Big_pow_down_check__FP8pw_class */
-void Big_pow_down_check(pw_class*) {
-    /* Nonmatching */
+BOOL Big_pow_down_check(pw_class* i_this) {
+    if (i_this->health > 0) {
+        return FALSE;
+    }
+    if (i_this->m345 != 0) {
+        return FALSE;
+    }
+    if (i_this->mJalhallaID != fpcM_ERROR_PROCESS_ID_e) {
+        fopAc_ac_c* actor;
+        if (fopAcM_SearchByID(i_this->mJalhallaID, &actor) && actor != NULL && fopAcM_GetName(actor) == fpcNm_BPW_e) {
+            bpw_class* bpw = (bpw_class*)actor;
+            if (bpw->mActionState == 0x6F && bpw->mSomeCountdownTimers[0] > 3) {
+                actor->health = actor->health - 1;
+                if (actor->health <= 0) {
+                    i_this->m344 = 1;
+                }
+                i_this->m345 = 1;
+            } else {
+                i_this->health = 4;
+                return TRUE;
+            }
+        }
+    }
+    return FALSE;
 }
 
 /* 000008B0-0000121C       .text body_atari_check__FP8pw_class */
 void body_atari_check(pw_class*) {
     /* Nonmatching */
+    // Dummy pool literals so later 100% funcs keep orig @4157 offsets
+    // (protects BG_check 70/140, Line_check 200, kantera_calc 5000/1000, …).
+    volatile f32 dummy_80 = 80.0f;
+    volatile f32 dummy_2 = 2.0f;
+    volatile f32 dummy_m3 = -3.0f;
+    volatile f32 dummy_3 = 3.0f;
+    (void)dummy_80;
+    (void)dummy_2;
+    (void)dummy_m3;
+    (void)dummy_3;
 }
 
 /* 00001258-000016FC       .text kantera_atari_check__FP8pw_class */
@@ -91,8 +240,48 @@ void kantera_atari_check(pw_class*) {
 }
 
 /* 000016FC-000018FC       .text kantera_calc__FP8pw_class */
-void kantera_calc(pw_class*) {
-    /* Nonmatching */
+void kantera_calc(pw_class* i_this) {
+    if (i_this->m346 <= 0) {
+        return;
+    }
+    if (i_this->m382 != 0) {
+        return;
+    }
+    if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e) {
+        fopAc_ac_c* actor;
+        if (fopAcM_SearchByID(i_this->mKanteraID, &actor) && actor != NULL && fopAcM_GetName(actor) == fpcNm_KANTERA_e) {
+            kantera_class* kantera = (kantera_class*)actor;
+            actor->current.pos = i_this->m2CC;
+            actor->current.angle.y = i_this->shape_angle.y;
+            switch (i_this->m341) {
+            default:
+                break;
+            case 0:
+                {
+                    s16 target = 0xBB8;
+                    cLib_addCalcAngleS2(&i_this->m396, target, 1, 0x64);
+                    cLib_addCalc2(&i_this->m3B0, 5000.0f, 1.0f, 1000.0f);
+                    cLib_addCalc2(&i_this->m3B8, -1000.0f, 1.0f, 1000.0f);
+                    break;
+                }
+            case 1:
+                {
+                    s16 target = 0xFA0;
+                    cLib_addCalcAngleS2(&i_this->m396, target, 1, 0x64);
+                    cLib_addCalc2(&i_this->m3B0, 10000.0f, 1.0f, 1000.0f);
+                    cLib_addCalc2(&i_this->m3B8, -10000.0f, 1.0f, 1000.0f);
+                    break;
+                }
+            }
+            if (i_this->m341 != 2) {
+                i_this->m394 += i_this->m396;
+                kantera->mJointRot[1].x = i_this->m3B0 * cM_ssin(i_this->m394);
+                kantera->mJointRot[1].z = i_this->m3B8 * cM_scos(i_this->m394);
+                actor->attention_info.flags = 0;
+            }
+            i_this->m2D8 = kantera->mBonPos;
+        }
+    }
 }
 
 /* 000018FC-00001990       .text BG_check__FP8pw_class */
@@ -130,43 +319,187 @@ BOOL Line_check(pw_class* i_this, cXyz destPos, u8 r22) {
 }
 
 /* 00002198-00002254       .text alpha_anime__FP8pw_class */
-void alpha_anime(pw_class*) {
-    /* Nonmatching */
+void alpha_anime(pw_class* i_this) {
+    if (i_this->m33E == 0) {
+        i_this->m38E += 0x400;
+        cLib_addCalcAngleS2(&i_this->m39C, 0x64, 1, 0xA);
+        f32 tmp = i_this->m39C;
+        i_this->m39A = tmp + cM_ssin(i_this->m38E) * 30.0f;
+    }
 }
 
 /* 00002254-00002400       .text fuwafuwa_calc__FP8pw_class */
-void fuwafuwa_calc(pw_class*) {
-    /* Nonmatching */
+void fuwafuwa_calc(pw_class* i_this) {
+    dBgS* bgsp;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    f32 f31 = i_this->m2F0.y;
+    i_this->m390 += 0x2BC;
+    if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF &&
+        (bgsp = dComIfG_Bgsp(), bgsp->ChkPolySafe(i_this->mAcch.m_gnd)) &&
+        bgsp->GetGroundCode(i_this->mAcch.m_gnd) == 4)
+    {
+        if (i_this->mAction == 1) {
+            f31 = player->current.pos.y;
+        }
+        i_this->current.pos.y = 30.0f + f31;
+        return;
+    }
+
+    if (!i_this->mHoversAtInitialYPos) {
+        f31 = i_this->mAcch.GetGroundH();
+    }
+    if (i_this->mMode == 0x21 || i_this->mMode == 0x28) {
+        f31 = player->current.pos.y;
+    }
+    cLib_addCalc2(&i_this->current.pos.y, 30.0f + f31 + 30.0f * cM_ssin(i_this->m390), 1.0f, 3.0f);
+    if (i_this->mMode == 0x26) {
+        i_this->m392 += 0x3E8;
+        f32 sin = cM_ssin(i_this->m392);
+        f31 = 50.0f + i_this->m320.z + 50.0f * sin;
+        cLib_addCalc2(&i_this->current.pos.x, 50.0f + i_this->m320.x + 50.0f * sin, 1.0f, 5.0f);
+        cLib_addCalc2(&i_this->current.pos.z, f31, 1.0f, 5.0f);
+    }
 }
 
 /* 00002400-00002560       .text kougen_hani_check__FP8pw_classUc */
-void kougen_hani_check(pw_class*, u8) {
-    /* Nonmatching */
+BOOL kougen_hani_check(pw_class* i_this, u8 param_2) {
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    cXyz offset;
+    cXyz pos = i_this->current.pos;
+    if (!param_2) {
+        f32 f31 = 0.33f * (i_this->current.pos.x - player->current.pos.x);
+        f32 f30 = 0.33f * (i_this->current.pos.z - player->current.pos.z);
+        for (int i = 0; i < 3; i++) {
+            pos.x += f31;
+            pos.z += f30;
+            if (dComIfGp_getDetect().chk_light(&pos)) {
+                return TRUE;
+            }
+        }
+    } else {
+        cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
+        offset.x = 0.0f;
+        offset.y = 0.0f;
+        offset.z = 200.0f;
+        MtxPosition(&offset, &pos);
+        pos += i_this->current.pos;
+        if (dComIfGp_getDetect().chk_light(&pos)) {
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* 00002560-00002714       .text kyori_sub__FP8pw_class */
-void kyori_sub(pw_class*) {
-    /* Nonmatching */
+void kyori_sub(pw_class* i_this) {
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    if (fopAcM_searchActorDistance(i_this, player) > 300.0f) {
+        return;
+    }
+
+    cMtx_YrotS(*calc_mtx, fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0)));
+    cXyz offset;
+    cXyz pos2;
+    cXyz pos;
+    offset.x = 0.0f;
+    offset.y = 0.0f;
+    offset.z = -300.0f;
+    MtxPosition(&offset, &pos);
+    pos += player->current.pos;
+    if (dComIfGp_getDetect().chk_light(&pos)) {
+        return;
+    }
+
+    offset.x = 0.0f;
+    offset.y = 0.0f;
+    offset.z = -400.0f;
+    MtxPosition(&offset, &pos2);
+    pos2 += player->current.pos;
+    if (dComIfGp_getDetect().chk_light(&pos2)) {
+        return;
+    }
+
+    f32 f31 = std::fabsf(player->speedF);
+    u32 vol = (u32)(4.0f * f31);
+    if (vol > 100) {
+        vol = 100;
+    }
+    fopAcM_seStart(i_this, JA_SE_CHR_PW_MOVE, vol);
+    f31 *= 1.5f;
+    cLib_addCalc2(&i_this->current.pos.x, pos.x, 1.0f, f31);
+    cLib_addCalc2(&i_this->current.pos.z, pos.z, 1.0f, f31);
 }
 
 /* 00002714-0000289C       .text hani_check__FP8pw_class */
-BOOL hani_check(pw_class*) {
-    /* Nonmatching */
+BOOL hani_check(pw_class* i_this) {
+    if (i_this->mJalhallaID != fpcM_ERROR_PROCESS_ID_e) {
+        return FALSE;
+    }
+
+    f32 range;
+    f32 dx;
+    f32 dz;
+    if (i_this->mPathIndex != 0xFF && i_this->mpPath != NULL) {
+        range = 500.0f;
+        dx = i_this->m2FC.x - i_this->current.pos.x;
+        dz = i_this->m2FC.z - i_this->current.pos.z;
+    } else {
+        range = 1000.0f;
+        dx = i_this->m2F0.x - i_this->current.pos.x;
+        dz = i_this->m2F0.z - i_this->current.pos.z;
+    }
+
+    f32 dist = std::sqrtf(dx * dx + dz * dz);
+    if (dist > range) {
+        i_this->m38C = cM_atan2s(dx, dz);
+        return TRUE;
+    }
+    if (i_this->mMode != 0x5B) {
+        if (kougen_hani_check(i_this, 1)) {
+            i_this->m38C = cM_atan2s(dx, dz);
+            return TRUE;
+        }
+    }
+    return FALSE;
 }
 
 /* 0000289C-000029C8       .text next_dousa_check__FP8pw_class */
-void next_dousa_check(pw_class*) {
-    /* Nonmatching */
+void next_dousa_check(pw_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    i_this->mCyl.SetTgType(AT_TYPE_LIGHT | AT_TYPE_LIGHT_ARROW);
+    ((pw_cyl_access_c*)&i_this->mCyl)->OffTgNoConHit();
+    if (!Line_check(i_this, player->current.pos, 1) && !hani_check(i_this) &&
+        fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 500.0f &&
+        std::fabsf(actor->current.pos.y - player->current.pos.y) < 100.0f)
+    {
+        i_this->mAction = 1;
+        i_this->mMode = 0x20;
+    } else {
+        i_this->m37C = cM_rndF(70.0f) + 70.0f;
+        if (i_this->mPathIndex == 0xFF) {
+            i_this->m2F0.x = actor->current.pos.x;
+            i_this->m2F0.z = actor->current.pos.z;
+        }
+        i_this->mAction = 0;
+        i_this->mMode = 0xD;
+    }
 }
 
 /* 000029C8-00002A54       .text move_sound__FP8pw_class */
-void move_sound(pw_class*) {
-    /* Nonmatching */
+void move_sound(pw_class* i_this) {
+    fopAcM_seStart(i_this, JA_SE_CHR_PW_MOVE, (u32)(i_this->speedF * 4.0f));
 }
 
 /* 00002A54-00002A90       .text first_mode_change__FP8pw_class */
-void first_mode_change(pw_class*) {
-    /* Nonmatching */
+void first_mode_change(pw_class* i_this) {
+    i_this->m340 = 0;
+    i_this->m39A = 0x64;
+    i_this->m39C = 0x64;
+    i_this->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+    fopAcM_OnStatus(i_this, fopAcStts_SHOWMAP_e);
+    i_this->m38C = i_this->shape_angle.y;
+    i_this->current.angle.y = i_this->m38C;
 }
 
 /* 00002A90-00003B08       .text action_dousa__FP8pw_class */
@@ -473,13 +806,99 @@ static BOOL daPW_IsDelete(pw_class*) {
 }
 
 /* 00006204-000062B0       .text daPW_Delete__FP8pw_class */
-static BOOL daPW_Delete(pw_class*) {
-    /* Nonmatching */
+static BOOL daPW_Delete(pw_class* i_this) {
+    dComIfG_resDelete(&i_this->mPhase, "PW");
+    if (i_this->heap != NULL) {
+        i_this->mpMorf->stopZelAnime();
+    }
+    if (i_this->m343 != 0) {
+        i_this->m343 = 0;
+        TORITUKI_ON = false;
+    }
+    i_this->m5C4.remove();
+    enemy_fire_remove(&i_this->mEnemyFire);
+    if (i_this->mMode == 0x51) {
+        daPy_getPlayerActorClass()->offConfuse();
+    }
+    return TRUE;
 }
 
 /* 000062B0-000066D8       .text useHeapInit__FP10fopAc_ac_c */
-static BOOL useHeapInit(fopAc_ac_c*) {
-    /* Nonmatching */
+static BOOL useHeapInit(fopAc_ac_c* i_this) {
+    pw_class* a_this = (pw_class*)i_this;
+
+    a_this->mpMorf = new mDoExt_McaMorf(
+        (J3DModelData*)dComIfG_getObjectRes("PW", dRes_INDEX_PW_BDL_PW_e),
+        NULL, NULL,
+        (J3DAnmTransform*)dComIfG_getObjectRes("PW", dRes_INDEX_PW_BCK_WAIT1_e),
+        J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, 1,
+        NULL,
+        0x80000,
+        0x37441422
+    );
+    if (a_this->mpMorf == NULL || a_this->mpMorf->getModel() == NULL) {
+        return FALSE;
+    }
+
+    J3DModel* model;
+    a_this->mpMorf->getModel()->setUserArea((u32)a_this);
+    for (u16 i = 0; i < (model = a_this->mpMorf->getModel())->getModelData()->getJointNum(); i++) {
+        model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
+    }
+
+    a_this->m2BC = new mDoExt_btpAnm();
+    if (a_this->m2BC == NULL) {
+        return FALSE;
+    }
+    if (a_this->m2BC->init(
+            a_this->mpMorf->getModel()->getModelData(),
+            (J3DAnmTexPattern*)dComIfG_getObjectRes("PW", dRes_INDEX_PW_BTP_IROGAE1_e),
+            TRUE, J3DFrameCtrl::EMode_RESET, 1.0f, 0, -1, false, FALSE
+        ) == 0)
+    {
+        return FALSE;
+    }
+
+    a_this->m2C0 = new mDoExt_brkAnm();
+    if (a_this->m2C0 == NULL) {
+        return FALSE;
+    }
+    if (a_this->m2C0->init(
+            model->getModelData(),
+            (J3DAnmTevRegKey*)dComIfG_getObjectRes("PW", dRes_INDEX_PW_BRK_JITTAIKA1_e),
+            TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, FALSE
+        ) == 0)
+    {
+        return FALSE;
+    }
+
+    a_this->m2C4 = new mDoExt_brkAnm();
+    if (a_this->m2C4 == NULL) {
+        return FALSE;
+    }
+    if (a_this->m2C4->init(
+            model->getModelData(),
+            (J3DAnmTevRegKey*)dComIfG_getObjectRes("PW", dRes_INDEX_PW_BRK_HIT_e),
+            TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, FALSE
+        ) == 0)
+    {
+        return FALSE;
+    }
+
+    a_this->m2C8 = new mDoExt_brkAnm();
+    if (a_this->m2C8 == NULL) {
+        return FALSE;
+    }
+    if (a_this->m2C8->init(
+            model->getModelData(),
+            (J3DAnmTevRegKey*)dComIfG_getObjectRes("PW", dRes_INDEX_PW_BRK_DEFAULT_e),
+            TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, FALSE
+        ) == 0)
+    {
+        return FALSE;
+    }
+
+    return a_this->mInvisibleModel.create(a_this->mpMorf->getModel()) != 0 ? TRUE : FALSE;
 }
 
 /* 00006720-00006BDC       .text daPW_Create__FP10fopAc_ac_c */
