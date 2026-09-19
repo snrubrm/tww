@@ -183,7 +183,9 @@ public:
     /* 0x844 */ s16 mOldActorY;
     /* 0x846 */ u8 m846[0x848 - 0x846];
     /* 0x848 */ u32 mPairedMsgNo;
-    /* 0x84C */ u8 m84C[0x85E - 0x84C];
+    /* 0x84C */ u8 m84C[0x854 - 0x84C];
+    /* 0x854 */ s16 mWaitTimer;
+    /* 0x856 */ u8 m856[0x85E - 0x856];
     /* 0x85E */ s8 mBalloonAnmEnded;
     /* 0x85F */ s8 mBalloonAnmRepeat;
     /* 0x860 */ s8 mAnmEnded;

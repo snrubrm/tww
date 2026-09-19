@@ -119,9 +119,7 @@ void daNpc_Ko1_c::nodeBlnControl(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::copy(model->getAnmMtx(joint));
     if (joint == m_bln_loc_jnt_num) {
         cMtx_copy(mHeadMtx, J3DSys::mCurrentMtx);
-        MtxP src = mHeadMtx;
-        MtxP dst = model->getAnmMtx(joint);
-        cMtx_copy(src, dst);
+        model->setAnmMtx(joint, mHeadMtx);
     }
 }
 
@@ -271,26 +269,25 @@ int daNpc_Ko1_c::btpNum_toResID(int idx) {
         dRes_ID_KO_BTP_KOHEAD01_SLEEP_e,
         dRes_ID_KO_BTP_KOHEAD01_SLEEP04_e,
     };
-    int res = a_btp_resID_tbl[idx];
-    switch (res) {
+    switch (a_btp_resID_tbl[idx]) {
     case dRes_ID_KO_BTP_KOHEAD01_e:
         switch (mType) {
-        case 1:
-            return dRes_ID_KO_BTP_KOHEAD02_e;
         case 0:
             return dRes_ID_KO_BTP_KOHEAD01_e;
+        case 1:
+            return dRes_ID_KO_BTP_KOHEAD02_e;
         }
         break;
     case dRes_ID_KO_BTP_KOHEAD01_SLEEP_e:
         switch (mType) {
-        case 1:
-            return dRes_ID_KO_BTP_KOHEAD02_SLEEP_e;
         case 0:
             return dRes_ID_KO_BTP_KOHEAD01_SLEEP_e;
+        case 1:
+            return dRes_ID_KO_BTP_KOHEAD02_SLEEP_e;
         }
         break;
     }
-    return res;
+    return a_btp_resID_tbl[idx];
 }
 
 /* 0000129C-000013AC       .text setBtp__11daNpc_Ko1_cFbi */
@@ -493,6 +490,8 @@ void daNpc_Ko1_c::chg_anmAtr(u8 attr) {
 /* 000018D8-0000192C       .text control_anmAtr__11daNpc_Ko1_cFv */
 void daNpc_Ko1_c::control_anmAtr() {
     switch (mAnmAttr) {
+    default:
+        break;
     case 0xB:
         if (mAnmEnded) {
             mAnmAttr = 0;
@@ -697,6 +696,8 @@ u32 daNpc_Ko1_c::getMsg() {
     case 3:
         msg = getMsg_HNA_3();
         break;
+    case 4:
+        break;
     case 5:
         msg = getMsg_BOU_0();
         break;
@@ -705,6 +706,8 @@ u32 daNpc_Ko1_c::getMsg() {
         break;
     case 7:
         msg = getMsg_BOU_2();
+        break;
+    case 8:
         break;
     }
     return msg;
@@ -870,13 +873,13 @@ void daNpc_Ko1_c::privateCut(int staff) {
                     break;
                 }
             }
-            bool done;
+            BOOL done;
             switch (mCutIndex) {
             case 0:
                 done = event_action();
                 break;
             default:
-                done = true;
+                done = TRUE;
                 break;
             }
             if (done) {
@@ -942,7 +945,12 @@ BOOL daNpc_Ko1_c::wait_1() {
 
 /* 00004C70-00004CE8       .text wait_2__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::wait_2() {
-    /* Nonmatching */
+    if (mAnmEnded) {
+        cLib_calcTimer(&mWaitTimer);
+        if (mWaitTimer == 0 || m874 != 0 || mTalking != 0) {
+            setStt(1);
+        }
+    }
     return TRUE;
 }
 
