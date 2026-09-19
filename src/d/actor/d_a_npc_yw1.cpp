@@ -542,6 +542,7 @@ void daNpc_Yw1_c::partner_search() {
 }
 
 void daNpc_Yw1_c::lookBack() {
+    struct { f32 x; } unused = {182.0388946533203f};
     mOldHead = m_jnt.getHead_y();
     mOldBackbone = m_jnt.getBackbone_y();
     mOldAngle = current.angle.y;
@@ -782,17 +783,20 @@ void daNpc_Yw1_c::setHairAngle() {
     if (std::fabsf(delta.z) < 0.01f) delta.z = 0.0f;
     s16 oldX = mHairX, oldY = mHairY;
     f32 projected = delta.z * cos + delta.x * sin;
-    s16 target = cM_atan2s(-projected, -delta.y);
-    if (mHairX < 0) target = 0;
-    else if (target < 0 && target > -0x7800) target = 0;
-    else if (target > 0x7800 || target <= -0x7800) target = 0x7800;
-    cLib_addCalcAngleS2(&mHairX, target, 5, 0x400);
-    mHairX = (neckDX + mHairX) + mHairVelX;
-    target = cM_atan2s(-(delta.x * cos - delta.z * sin), std::sqrtf(projected * projected + delta.y * delta.y));
-    if (target > 0x3800) target = 0x3800;
-    else if (target < -0x3800) target = -0x3800;
-    cLib_addCalcAngleS2(&mHairY, target, 5, 0x400);
-    mHairY += mHairVelY - neckDY;
+    s16 targetX = cM_atan2s(-projected, -delta.y);
+    if (mHairX < 0) targetX = 0;
+    else if (targetX < 0 && targetX > -0x7800) targetX = 0;
+    else if (targetX > 0x7800 || targetX <= -0x7800) targetX = 0x7800;
+    s16 nDX = neckDX;
+    s16 nDY = neckDY;
+    cLib_addCalcAngleS2(&mHairX, targetX, 5, 0x400);
+    s16 hairX = mHairX;
+    mHairX = hairX + nDX + mHairVelX;
+    s16 targetY = cM_atan2s(-(delta.x * cos - delta.z * sin), std::sqrtf(projected * projected + delta.y * delta.y));
+    if (targetY > 0x3800) targetY = 0x3800;
+    else if (targetY < -0x3800) targetY = -0x3800;
+    cLib_addCalcAngleS2(&mHairY, targetY, 5, 0x400);
+    mHairY += mHairVelY - nDY;
     mHairVelX = 0.2f * (s16)(mHairX - oldX);
     mHairVelY = 0.2f * (s16)(mHairY - oldY);
     s16 dx = mHairX - oldX, dy = mHairY - oldY;
@@ -801,8 +805,8 @@ void daNpc_Yw1_c::setHairAngle() {
     s16 old2X = mHair2X, old2Y = mHair2Y;
     cLib_addCalcAngleS2(&mHair2X, 0, 5, 0x400);
     cLib_addCalcAngleS2(&mHair2Y, 0, 5, 0x400);
-    mHair2X = (neckDX + mHair2X) + mHair2VelX;
-    mHair2Y += mHair2VelY - neckDY;
+    mHair2X = mHair2X + nDX + mHair2VelX;
+    mHair2Y += mHair2VelY - nDY;
     mHair2VelX = 0.2f * (s16)(mHair2X - old2X);
     mHair2VelY = 0.2f * (s16)(mHair2Y - old2Y);
     dx = mHair2X - old2X;
@@ -812,8 +816,8 @@ void daNpc_Yw1_c::setHairAngle() {
     s16 old3X = mHair3X, old3Y = mHair3Y;
     cLib_addCalcAngleS2(&mHair3X, 0, 5, 0x400);
     cLib_addCalcAngleS2(&mHair3Y, 0, 5, 0x400);
-    mHair3X = (neckDX + mHair3X) + mHair3VelX;
-    mHair3Y += mHair3VelY - neckDY;
+    mHair3X = mHair3X + nDX + mHair3VelX;
+    mHair3Y += mHair3VelY - nDY;
     mHair3VelX = 0.2f * (s16)(mHair3X - old3X);
     mHair3VelY = 0.2f * (s16)(mHair3Y - old3Y);
     f32 distance = mOldHeadPos.abs(pos);
@@ -1187,13 +1191,12 @@ BOOL daNpc_Yw1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        dBgS& bg = * dComIfG_Bgsp();
         if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) staff = isEventEntry();
         if (staff >= 0) event_proc(staff);
-        else(this->*mAction)(NULL);
+        else (this->*mAction)(NULL);
         fopAcM_posMoveF(this, mStts.GetCCMoveP());
         play_animation();
-        mObjAcch.CrrPos(bg);
+        mObjAcch.CrrPos(*dComIfG_Bgsp());
     }
     eventOrder();
     mModelAngle = current.angle;
