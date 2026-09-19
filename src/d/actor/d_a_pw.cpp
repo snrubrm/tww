@@ -279,11 +279,11 @@ BOOL body_atari_check(pw_class* i_this) {
                     atInfo.mpObj = i_this->mCyl.GetTgHitObj();
                     cc_at_check(i_this, &atInfo);
                     i_this->health = oldHealth;
-                    dComIfGp_particle_set(dPa_name::ID_IT_JN_PIYOHIT00, &i_this->attention_info.position);
-                    skipAtCheck = 1;
-                    i_this->mHitByWhat = 12;
-                    fopAcM_seStart(i_this, JA_SE_LK_MS_WEP_HIT, 0x20);
                 }
+                dComIfGp_particle_set(dPa_name::ID_IT_JN_PIYOHIT00, &i_this->attention_info.position);
+                skipAtCheck = 1;
+                i_this->mHitByWhat = 12;
+                fopAcM_seStart(i_this, JA_SE_LK_MS_WEP_HIT, 0x20);
                 break;
             case AT_TYPE_SWORD:
             case AT_TYPE_MACHETE:
@@ -292,18 +292,60 @@ BOOL body_atari_check(pw_class* i_this) {
             case AT_TYPE_MOBLIN_SPEAR: {
                 fopAcM_seStart(i_this, JA_SE_LK_SW_HIT_S, 0x20);
                 u8 cutType = player->getCutType();
-                if (cutType == daPy_py_c::CUT_TYPE_CUT_EA || cutType == daPy_py_c::CUT_TYPE_CUT_EB ||
-                    cutType == daPy_py_c::CUT_TYPE_CUT_TURN || cutType == daPy_py_c::CUT_TYPE_CUT_ROLL ||
-                    cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SWORD || cutType == daPy_py_c::CUT_TYPE_JUMPCUT_STICK ||
-                    cutType == daPy_py_c::CUT_TYPE_JUMPCUT_MACHETE || cutType == daPy_py_c::CUT_TYPE_BT_JUMPCUT ||
-                    cutType == daPy_py_c::CUT_TYPE_BT_ROLLCUT || cutType == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT ||
-                    cutType == daPy_py_c::CUT_TYPE_JUMPCUT_CLUB || cutType == daPy_py_c::CUT_TYPE_JUMPCUT_DN_SWORD ||
-                    cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SPEAR || cutType == daPy_py_c::CUT_TYPE_CUT_EXA ||
-                    cutType == daPy_py_c::CUT_TYPE_CUT_EXB || cutType == daPy_py_c::CUT_TYPE_CUT_EXMJ ||
-                    cutType == daPy_py_c::CUT_TYPE_CUT_KESA)
-                {
-                    i_this->mHitByWhat = 1;
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_EA) {
+                    goto sword_smash;
                 }
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_EB) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_TURN) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_ROLL) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SWORD) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_STICK) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_MACHETE) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_BT_JUMPCUT) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_BT_ROLLCUT) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_CLUB) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_DN_SWORD) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SPEAR) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_EXA) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_EXB) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_EXMJ) {
+                    goto sword_smash;
+                }
+                if (cutType == daPy_py_c::CUT_TYPE_CUT_KESA) {
+                    goto sword_smash;
+                }
+                break;
+            sword_smash:
+                i_this->mHitByWhat = 1;
                 break;
             }
             case AT_TYPE_HOOKSHOT:
@@ -320,14 +362,14 @@ BOOL body_atari_check(pw_class* i_this) {
             case AT_TYPE_LIGHT:
                 skipAtCheck = 1;
                 break;
+            case AT_TYPE_BOKO_STICK:
+            case AT_TYPE_STALFOS_MACE:
+                goto wep_hit_se;
             case AT_TYPE_BOOMERANG:
                 skipAtCheck = 1;
                 i_this->mHitByWhat = 4;
                 dComIfGp_particle_set(dPa_name::ID_IT_JN_PIYOHIT00, &i_this->attention_info.position);
-                fopAcM_seStart(i_this, JA_SE_LK_W_WEP_HIT, 0x20);
-                break;
-            case AT_TYPE_BOKO_STICK:
-            case AT_TYPE_STALFOS_MACE:
+            wep_hit_se:
                 fopAcM_seStart(i_this, JA_SE_LK_W_WEP_HIT, 0x20);
                 break;
             case AT_TYPE_SKULL_HAMMER:
@@ -367,7 +409,6 @@ BOOL body_atari_check(pw_class* i_this) {
             case AT_TYPE_FIRE:
             case AT_TYPE_FIRE_ARROW:
                 i_this->mEnemyFire.mFireDuration = 100;
-                i_this->mHitByWhat = 5;
                 // Fall-through
             case AT_TYPE_NORMAL_ARROW:
                 i_this->mHitByWhat = 5;
@@ -388,25 +429,32 @@ BOOL body_atari_check(pw_class* i_this) {
                 return TRUE;
             }
             cc_at_check(i_this, &atInfo);
-            if (i_this->mHitByWhat != 1 && i_this->mHitByWhat != 7 && i_this->mHitByWhat != 8 && i_this->health > 0) {
-                dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle);
-            } else {
-                if (Big_pow_down_check(i_this)) {
-                    return FALSE;
-                }
-                dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos);
-                cXyz scale;
-                scale.setall(2.0f);
-                dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
-                if (i_this->mHitByWhat == 7) {
-                    i_this->mAction = 2;
-                    i_this->mMode = 0x3E;
-                    i_this->speedF = 0.0f;
-                    i_this->gravity = -3.0f;
-                    anm_init(i_this, dRes_INDEX_PW_BCK_PRESS1_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
-                    return TRUE;
-                }
+            cXyz scale;
+            if (i_this->mHitByWhat == 1 || i_this->mHitByWhat == 7 || i_this->mHitByWhat == 8) {
+                goto critical_hit;
             }
+            if (i_this->health > 0) {
+                goto ok_hit;
+            }
+        critical_hit:
+            if (Big_pow_down_check(i_this)) {
+                return FALSE;
+            }
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos);
+            scale.setall(2.0f);
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
+            if (i_this->mHitByWhat == 7) {
+                i_this->mAction = 2;
+                i_this->mMode = 0x3E;
+                i_this->speedF = 0.0f;
+                i_this->gravity = -3.0f;
+                anm_init(i_this, dRes_INDEX_PW_BCK_PRESS1_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+                return TRUE;
+            }
+            goto after_hit;
+        ok_hit:
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle);
+        after_hit:
             if (i_this->mMode != 0x37) {
                 i_this->mAction = 2;
                 i_this->mMode = 0x36;
@@ -1065,15 +1113,84 @@ void action_itai(pw_class*) {
 }
 
 /* 00004C50-00004FFC       .text action_demo__FP8pw_class */
-void action_demo(pw_class*) {
-    /* Nonmatching */
+void action_demo(pw_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    camera_process_class* camera = (camera_process_class*)dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
+    cXyz pos = player->current.pos;
+    switch (i_this->mMode) {
+    case 0x46:
+        fopAcM_OnStatus(actor, fopAcStts_UNK4000_e);
+        i_this->mMode += 1;
+        // Fall-through
+    case 0x47:
+        if (!actor->eventInfo.checkCommandDemoAccrpt()) {
+            dComIfGp_event_onEventFlag(dEvtFlag_NOPARTNER_e);
+            fopAcM_orderPotentialEvent(actor, dEvtFlag_STAFF_ALL_e, 0xFFFF, 0);
+            actor->eventInfo.onCondition(dEvtCnd_UNK2_e);
+            break;
+        }
+        player->changeOriginalDemo();
+        player->changeDemoMode(daPy_demo_c::DEMO_N_WAIT_e);
+        camera->mCamera.Stop();
+        camera->mCamera.SetTrimSize(2);
+        i_this->m38C = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+        fopAcM_monsSeStart(actor, JA_SE_CV_PW_CURSE_IN, 0);
+        fopAcM_seStart(actor, JA_SE_CM_PW_CURSE_START, 0);
+        anm_init(i_this, dRes_INDEX_PW_BCK_TORITUKI3_e, 4.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+        i_this->mMode += 1;
+        break;
+    case 0x48:
+        cLib_addCalc2(&i_this->current.pos.x, player->current.pos.x, 1.0f, 5.0f);
+        cLib_addCalc2(&i_this->current.pos.z, player->current.pos.z, 1.0f, 5.0f);
+        if (i_this->mpMorf->isStop()) {
+            anm_init(i_this, dRes_INDEX_PW_BCK_TORITUKI_WAIT1_e, 4.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
+            pos.y += 100.0f;
+            i_this->m340 = 1;
+            i_this->current.pos = pos;
+            i_this->attention_info.flags = 0;
+            i_this->shape_angle.x = 0;
+            i_this->shape_angle.y = 0;
+            i_this->shape_angle.z = 0;
+            i_this->shape_angle.y = player->shape_angle.y;
+            i_this->m378 = 30;
+            i_this->mMode += 1;
+        }
+        break;
+    case 0x49:
+        if (i_this->m378 == 0) {
+            daPy_py_c* player2 = (daPy_py_c*)dComIfGp_getLinkPlayer();
+            dComIfGp_getVibration().StopQuake(0x20);
+            camera->mCamera.Start();
+            camera->mCamera.SetTrimSize(0);
+            player->cancelOriginalDemo();
+            dComIfGp_event_onEventFlag(dEvtFlag_UNK8_e);
+            fopAcM_OffStatus(actor, fopAcStts_UNK4000_e);
+            i_this->mAction = 4;
+            i_this->mMode = 0x50;
+            if (player != player2) {
+                if (i_this->m343 != 0) {
+                    i_this->m343 = 0;
+                    TORITUKI_ON = false;
+                    fopAcM_seStart(actor, JA_SE_CM_PW_CURSE_END, 0);
+                }
+                i_this->m384[3] = 1;
+                i_this->m38E = 0;
+                i_this->m39A = 0xFF;
+                i_this->mAction = 2;
+                i_this->mMode = 0x3C;
+            }
+        }
+        break;
+    }
 }
 
 /* 00004FFC-000052B8       .text action_torituku__FP8pw_class */
 void action_torituku(pw_class* i_this) {
     /* Nonmatching */
+    fopAc_ac_c* actor = i_this;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
-    daPy_py_c* player2 = daPy_getPlayerActorClass();
+    daPy_py_c* player2 = (daPy_py_c*)dComIfGp_getLinkPlayer();
     cXyz pos = player->current.pos;
     u8 cancel = 0;
     switch (i_this->mMode) {
@@ -1083,18 +1200,19 @@ void action_torituku(pw_class* i_this) {
         }
         i_this->m378 = 300;
         i_this->m33E = 1;
-        fopAcM_OnStatus(i_this, fopAcStts_UNK4000_e);
+        fopAcM_OnStatus(actor, fopAcStts_UNK4000_e);
         player->onConfuse();
         i_this->mMode += 1;
         // Fall-through
     case 0x51:
-        fopAcM_seStart(i_this, JA_SE_LK_NOW_CURSE_PW, 0);
+        fopAcM_seStart(actor, JA_SE_LK_NOW_CURSE_PW, 0);
         i_this->m384[0] += 700;
         pos.y = 100.0f + player->current.pos.y + 10.0f * cM_ssin(i_this->m384[0]);
         i_this->current.pos = pos;
         i_this->shape_angle.y += 1000;
         if (i_this->m378 == 0 || dComIfGp_getDetect().chk_light(&i_this->current.pos) ||
-            player->mDamageWaitTimer != 0 || player != player2 || player->checkFairyUse())
+            dComIfGp_checkPlayerStatus1(0, daPyStts1_UNK2000_e) || player->getDamageWaitTimer() ||
+            player != player2 || player->checkFairyUse())
         {
             cancel = 1;
         }
@@ -1108,7 +1226,7 @@ void action_torituku(pw_class* i_this) {
             if (i_this->m343 != 0) {
                 i_this->m343 = 0;
                 TORITUKI_ON = false;
-                fopAcM_seStart(i_this, JA_SE_CM_PW_CURSE_END, 0);
+                fopAcM_seStart(actor, JA_SE_CM_PW_CURSE_END, 0);
             }
             i_this->m384[3] = 1;
             i_this->m38E = 0;
@@ -1129,8 +1247,153 @@ void action_big_demo(pw_class*) {
 }
 
 /* 00005CA4-000061FC       .text daPW_Execute__FP8pw_class */
-static BOOL daPW_Execute(pw_class*) {
-    /* Nonmatching */
+static BOOL daPW_Execute(pw_class* i_this) {
+    fopAcM_setGbaName(i_this, 0x3C, 0xD, 0x2D);
+    if (enemy_ice(&i_this->mEnemyIce)) {
+        i_this->mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+        i_this->mpMorf->calc();
+        return TRUE;
+    }
+
+    for (int i = 0; i < 6; i++) {
+        if ((&i_this->m378)[i] != 0) {
+            (&i_this->m378)[i]--;
+        }
+    }
+
+    switch (i_this->mAction) {
+    case 0:
+        action_dousa(i_this);
+        break;
+    case 1:
+        action_kougeki(i_this);
+        break;
+    case 2:
+        action_itai(i_this);
+        break;
+    case 3:
+        action_demo(i_this);
+        break;
+    case 4:
+        action_torituku(i_this);
+        break;
+    case 5:
+        action_big_demo(i_this);
+        break;
+    }
+
+    if (i_this->m340 == 0) {
+        s16 maxStep = 0x1000;
+        if (i_this->mMode == 0xF || i_this->mMode == 0x10 || i_this->mMode == 0x14) {
+            maxStep = 500;
+        }
+        if (i_this->mAction == 5) {
+            maxStep = i_this->m39E;
+        }
+        cLib_addCalcAngleS2(&i_this->current.angle.y, i_this->m38C, 1, maxStep);
+        cLib_addCalcAngleS2(&i_this->shape_angle.y, i_this->current.angle.y, 1, maxStep);
+    }
+
+    if (i_this->m33E != 0) {
+        i_this->m2C0->play();
+    } else if (i_this->m33F != 0) {
+        i_this->m2C4->play();
+    } else {
+        i_this->m2C8->play();
+    }
+
+    cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
+    cMtx_XrotM(*calc_mtx, i_this->current.angle.x);
+    cXyz offset;
+    offset.x = 0.0f;
+    offset.y = 0.0f;
+    offset.z = i_this->speedF;
+    cXyz moved;
+    MtxPosition(&offset, &moved);
+    i_this->speed.x = moved.x;
+    i_this->speed.z = moved.z;
+    i_this->speed.y += i_this->gravity;
+    if (i_this->speed.y < -100.0f) {
+        i_this->speed.y = -100.0f;
+    }
+
+    if (i_this->m346 == 1) {
+        fopAc_ac_c* actor;
+        if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e && fopAcM_SearchByID(i_this->mKanteraID, &actor) &&
+            actor != NULL && fopAcM_GetName(actor) == fpcNm_KANTERA_e)
+        {
+            i_this->attention_info.position = i_this->m2D8;
+            i_this->attention_info.position.y += 40.0f;
+            i_this->eyePos = i_this->m2D8;
+        }
+    } else {
+        i_this->attention_info.position = i_this->current.pos;
+        i_this->attention_info.position.y += 200.0f;
+        i_this->eyePos = i_this->current.pos;
+        i_this->eyePos.y += 100.0f;
+    }
+
+    cXyz cylPos = i_this->current.pos;
+    i_this->mCyl.SetC(cylPos);
+    if (i_this->mAction == 4) {
+        i_this->mCyl.SetH(100.0f);
+        i_this->mCyl.SetR(40.0f + REG8_F(14));
+    } else {
+        i_this->mCyl.SetH(200.0f);
+        i_this->mCyl.SetR(80.0f);
+    }
+    dComIfG_Ccsp()->Set(&i_this->mCyl);
+
+    if (i_this->mAction != 3 && i_this->mAction != 5 && i_this->mAction != 4 && i_this->mMode != 0x3D &&
+        i_this->mMode != 0x6E && i_this->mMode != 0x6F)
+    {
+        body_atari_check(i_this);
+    }
+
+    if (i_this->m346 == 1) {
+        fopAcM_posMove(i_this, i_this->mStts.GetCCMoveP());
+    } else {
+        fopAcM_posMove(i_this, NULL);
+    }
+
+    if (i_this->mMode != 0x51 && i_this->mMode != 0x3D && i_this->mMode != 8) {
+        BG_check(i_this);
+    }
+
+    if (i_this->mMode >= 2 && i_this->m380 == 0) {
+        if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF) {
+            s8 roomNo = fopAcM_GetRoomNo(i_this);
+            u32 mtrlSndId;
+            if (i_this->mAcch.ChkGroundHit()) {
+                mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd);
+            } else {
+                mtrlSndId = 0;
+            }
+            i_this->mpMorf->play(&i_this->eyePos, mtrlSndId, dComIfGp_getReverb(roomNo));
+        } else {
+            i_this->mpMorf->play(NULL, 0, 0);
+        }
+    }
+
+    draw_SUB(i_this);
+
+    if (i_this->m346 == 1) {
+        kantera_calc(i_this);
+        if (i_this->m382 != 0) {
+            return TRUE;
+        }
+        kantera_atari_check(i_this);
+        fopAc_ac_c* actor;
+        if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e && fopAcM_SearchByID(i_this->mKanteraID, &actor) &&
+            actor != NULL && fopAcM_GetName(actor) == fpcNm_KANTERA_e)
+        {
+            i_this->mSph.SetC(i_this->m2D8);
+            i_this->mSph.SetR(40.0f);
+            dComIfG_Ccsp()->Set(&i_this->mSph);
+        }
+    }
+
+    return TRUE;
 }
 
 /* 000061FC-00006204       .text daPW_IsDelete__FP8pw_class */
