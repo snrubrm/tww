@@ -6,6 +6,8 @@
 #include "m_Do/m_Do_hostIO.h"
 #include "SSystem/SComponent/c_phase.h"
 
+class himo3_class;
+
 class daNpc_P2_c : public fopAc_ac_c {
 public:
     typedef int (daNpc_P2_c::*ActionFunc)(void*);
@@ -86,10 +88,10 @@ public:
     void cutRideSwitchProc(int);
     void cutRunWaitStart(int);
     void cutRunWaitProc(int);
-    void searchNearLift(void*, void*);
+    static void* searchNearLift(void*, void*);
     void cutJumpToLiftStart(int);
     void cutJumpToLiftProc(int);
-    void searchNearRope(void*, void*);
+    static void* searchNearRope(void*, void*);
     void cutLiftToRopeStart(int);
     void cutLiftToRopeProc(int);
     void cutRopeTalkStart(int);
@@ -132,7 +134,9 @@ public:
     /* 0x2C8 */ u32 mShadowId;
     /* 0x2CC */ dNpc_JntCtrl_c mJnt;
     /* 0x300 */ dNpc_EventCut_c mEventCut;
-    /* 0x36C */ u8 m36C[0x374 - 0x36C];
+    /* 0x36C */ u8 m36C[0x370 - 0x36C];
+    /* 0x370 */ u8 mbAnimFinished;
+    /* 0x371 */ u8 m371[0x374 - 0x371];
     /* 0x374 */ f32 m374;
     /* 0x378 */ u8 mBtpFrame;
     /* 0x379 */ u8 m379;
@@ -141,20 +145,27 @@ public:
     /* 0x540 */ dBgS_AcchCir mAcchCir;
     /* 0x580 */ dCcD_Stts mStts;
     /* 0x5BC */ dCcD_Cyl mCyl;
-    /* 0x6EC */ u8 m6EC[0x6F8 - 0x6EC];
+    /* 0x6EC */ csXyz m6EC;
+    /* 0x6F2 */ s16 mMaxHeadVel;
+    /* 0x6F4 */ u8 m6F4[0x6F8 - 0x6F4];
     /* 0x6F8 */ cXyz mEyePos;
     /* 0x704 */ cXyz mAttnPos;
     /* 0x710 */ u8 mAttnSetCount;
-    /* 0x711 */ u8 m711[0x724 - 0x711];
+    /* 0x711 */ u8 m711;
+    /* 0x712 */ u16 m712;
+    /* 0x714 */ cXyz mClosestPos;
+    /* 0x720 */ fopAc_ac_c* mActor;
     /* 0x724 */ u8 m724;
     /* 0x725 */ u8 mHasAttention;
     /* 0x726 */ u8 m726[0x728 - 0x726];
     /* 0x728 */ u32 mMsgNo;
     /* 0x72C */ u8 m72C;
-    /* 0x72D */ u8 m72D[0x73C - 0x72D];
+    /* 0x72D */ u8 m72D[0x730 - 0x72D];
+    /* 0x730 */ cXyz m730;
     /* 0x73C */ cXyz m73C;
     /* 0x748 */ s16 m748;
-    /* 0x74A */ u8 m74A[0x74C - 0x74A];
+    /* 0x74A */ u8 m74A;
+    /* 0x74B */ u8 m74B;
     /* 0x74C */ int m74C;
     /* 0x750 */ u8 mEyeStopFlag;
     /* 0x751 */ u8 m751;
@@ -162,11 +173,24 @@ public:
     /* 0x754 */ dPa_smokeEcallBack mSmoke;
     /* 0x774 */ cXyz mSavedPos;
     /* 0x780 */ csXyz mSavedAngle;
-    /* 0x786 */ u8 m786[0x7B0 - 0x786];
+    /* 0x786 */ u8 m786;
+    /* 0x787 */ u8 m787;
+    /* 0x788 */ u32 m788;
+    /* 0x78C */ cXyz m78C;
+    /* 0x798 */ f32 m798;
+    /* 0x79C */ f32 m79C;
+    /* 0x7A0 */ f32 m7A0;
+    /* 0x7A4 */ f32 m7A4;
+    /* 0x7A8 */ s16 m7A8;
+    /* 0x7AA */ s16 m7AA;
+    /* 0x7AC */ f32 m7AC;
     /* 0x7B0 */ cXyz mSoundPos;
-    /* 0x7BC */ u8 m7BC[0x7C1 - 0x7BC];
+    /* 0x7BC */ himo3_class* mpHimo3;
+    /* 0x7C0 */ u8 m7C0;
     /* 0x7C1 */ u8 m7C1;
-    /* 0x7C2 */ u8 m7C2[0x7D0 - 0x7C2];
+    /* 0x7C2 */ u8 m7C2;
+    /* 0x7C3 */ u8 m7C3;
+    /* 0x7C4 */ ActionFunc mActionFunc;
     /* 0x7D0 */ s8 m7D0;
     /* 0x7D1 */ s8 m7D1;
     /* 0x7D2 */ u8 m7D2;
@@ -200,12 +224,8 @@ public:
     /* 0x04 */ dNpc_HIO_c mNpc;
     /* 0x2C */ u8 m2C;
     /* 0x30 */ cXyz m30;
-    /* 0x3C */ f32 m3C;
-    /* 0x40 */ f32 m40;
-    /* 0x44 */ f32 m44;
-    /* 0x48 */ f32 m48;
-    /* 0x4C */ f32 m4C;
-    /* 0x50 */ f32 m50;
+    /* 0x3C */ cXyz m3C;
+    /* 0x48 */ cXyz m48;
     /* 0x54 */ f32 m54;
     /* 0x58 */ f32 m58;
     /* 0x5C */ f32 m5C;
