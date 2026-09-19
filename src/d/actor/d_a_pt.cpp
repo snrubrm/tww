@@ -6,10 +6,12 @@
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_pt.h"
 #include "c/c_damagereaction.h"
+#include "d/actor/d_a_player.h"
 #include "d/actor/d_a_sea.h"
 #include "d/d_bg_s_gnd_chk.h"
 #include "d/d_bg_s_lin_chk.h"
 #include "d/d_cc_d.h"
+#include "d/d_cc_uty.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_kankyo.h"
 #include "d/d_s_play.h"
@@ -28,8 +30,22 @@
 
 static bool hio_set;
 static daPt_HIO_c l_HIO;
-static cXyz p_check_d[6];
-static cXyz p_off_d[6];
+static cXyz p_check_d[] = {
+    cXyz(100.0f, 0.0f, 0.0f),
+    cXyz(-100.0f, 0.0f, 0.0f),
+    cXyz(0.0f, 100.0f, 0.0f),
+    cXyz(0.0f, -100.0f, 0.0f),
+    cXyz(0.0f, 0.0f, 100.0f),
+    cXyz(0.0f, 0.0f, -100.0f),
+};
+static cXyz p_off_d[] = {
+    cXyz(-3.0f, 0.0f, 0.0f),
+    cXyz(3.0f, 0.0f, 0.0f),
+    cXyz(0.0f, -3.0f, 0.0f),
+    cXyz(0.0f, 3.0f, 0.0f),
+    cXyz(0.0f, 0.0f, -3.0f),
+    cXyz(0.0f, 0.0f, 3.0f),
+};
 
 /* 000000EC-00000110       .text __ct__10daPt_HIO_cFv */
 daPt_HIO_c::daPt_HIO_c() {
@@ -113,58 +129,103 @@ void smoke_set(pt_class* i_this, signed char param_2) {
 }
 
 /* 00000484-0000093C       .text damage_check__FP8pt_class */
-void damage_check(pt_class*) {
-    /* Nonmatching - dummy pool host for later 100% funcs */
-    volatile f32 dummy;
-    volatile f64 dummy_d;
-    dummy = 40.0f;
-    dummy_d = 0.5;
-    dummy_d = 3.0;
-    dummy = 350.0f;
-    dummy = 20.0f;
-    dummy = 30.0f;
-    dummy = 90.0f;
-    dummy = 2000.0f;
-    dummy = 60.0f;
-    dummy = 80.0f;
-    dummy = 110.0f;
-    dummy = 10.0f;
-    dummy = 2.0f;
-    dummy = -5.0f;
-    dummy = -10.0f;
-    dummy = 4000.0f;
-    dummy = 200.0f;
-    dummy = -2.0f;
-    dummy = -400.0f;
-    dummy = -50.0f;
-    dummy = 0.1f;
-    dummy = 0.02f;
-    dummy = 5.0f;
-    dummy = 500.0f;
-    dummy = -100.0f;
-    dummy = 4.0f;
-    dummy = 300.0f;
-    dummy = 0.8f;
-    dummy = 11.0f;
-    dummy = 14.0f;
-    dummy = 7.0f;
-    dummy = -120.0f;
-    dummy = 700.0f;
-    dummy_d = 4503599627370496.0;
-    dummy = 0.05f;
-    dummy = 1.3f;
-    dummy = 6000.0f;
-    dummy = 32768.0f;
-    dummy = -1000000000.0f;
-    dummy = 0.01f;
-    dummy = -3000.0f;
-    dummy = 0.9f;
-    dummy = 20000.0f;
-    dummy = 50000.0f;
-    dummy_d = 4503601774854144.0;
-    dummy = 3.999f;
-    dummy = 0.6f;
-    dummy = -3.0f;
+void damage_check(pt_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    CcAtInfo atInfo;
+
+    if (i_this->m30E == 0) {
+        i_this->mStts.Move();
+
+        if (i_this->mAtSph.ChkAtHit()) {
+            fopAc_ac_c* hit_actor = i_this->mAtSph.GetAtHitObj()->GetAc();
+            if (hit_actor != NULL) {
+                if (fopAcM_GetName(hit_actor) == fpcNm_PLAYER_e) {
+                    if (player->checkPlayerGuard()) {
+                        i_this->m324 = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+                        i_this->m320 = 40.0f;
+                    } else {
+                        i_this->m2D2 = 3;
+                        i_this->mMode = 2;
+                        i_this->m30E = 6;
+                        return;
+                    }
+                }
+            }
+        }
+
+        if (player->checkHammerQuake()) {
+            cXyz delta = player->current.pos - actor->current.pos;
+            if (delta.abs() < 350.0f) {
+                i_this->m2D2 = 3;
+                i_this->mMode = 0;
+                i_this->m30A = (s16)(20.0f + cM_rndF(30.0f));
+                smoke_set(i_this, 3);
+                i_this->m30E = 10;
+                actor->speed.y = 350.0f;
+                return;
+            }
+        }
+
+        if (i_this->mSph.ChkTgHit()) {
+            i_this->m30E = 6;
+            atInfo.mpObj = i_this->mSph.GetTgHitObj();
+            atInfo.pParticlePos = i_this->mSph.GetTgHitPosP();
+
+            if (atInfo.mpObj->ChkAtType(AT_TYPE_LIGHT_ARROW)) {
+                i_this->mEnemyIce.mLightShrinkTimer = 1;
+                enemy_fire_remove(&i_this->mEnemyFire);
+                i_this->mSmokeFlag = 0;
+                i_this->mSmokeCb.remove();
+                return;
+            }
+
+            if (atInfo.mpObj->GetAtType() & (AT_TYPE_FIRE | AT_TYPE_FIRE_ARROW)) {
+                i_this->mEnemyFire.mFireDuration = 100;
+                i_this->m30E = 50;
+            }
+
+            if (atInfo.mpObj->ChkAtType(AT_TYPE_WIND)) {
+                i_this->m324 = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+                smoke_set(i_this, 5);
+                i_this->m320 = 90.0f + cM_rndF(30.0f);
+                i_this->m310 = (s16)cM_rndFX(2000.0f);
+                i_this->m2D2 = 3;
+                i_this->mMode = 10;
+                smoke_set(i_this, 10);
+                fopAcM_monsSeStart(actor, JA_SE_CV_PT_DAMAGE, 0);
+                return;
+            }
+
+            cc_at_check(actor, &atInfo);
+            if (atInfo.mResultingAttackType == 9) {
+                if (player->getCutType() == daPy_py_c::CUT_TYPE_HAMMER_SIDESWING) {
+                    i_this->m2D2 = 5;
+                    smoke_set(i_this, 30);
+                } else {
+                    i_this->m2D2 = 4;
+                }
+                i_this->mMode = 0;
+                fopAcM_monsSeStart(actor, JA_SE_CV_PT_DIE, 0);
+                i_this->m30E = 50;
+                return;
+            }
+
+            i_this->m324 = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+            smoke_set(i_this, 10);
+            if (actor->health <= 0) {
+                i_this->m30E = 50;
+                fopAcM_monsSeStart(actor, JA_SE_CV_PT_DAMAGE, 0);
+                i_this->m30A = (s16)(60.0f + cM_rndF(60.0f));
+                i_this->m320 = 80.0f;
+            } else {
+                fopAcM_monsSeStart(actor, JA_SE_CV_PT_DIE, 0);
+                i_this->m320 = 110.0f;
+            }
+            i_this->m2D2 = 2;
+            i_this->mMode = 1;
+        }
+    }
 }
 
 /* 0000093C-00000D74       .text get_z_ang__FP8pt_class */
@@ -500,13 +561,22 @@ void pt_wait(pt_class* i_this) {
         }
     }
 
-    if (i_this->mEnableSpawnSwitch != 0xFF && !dComIfGs_isSwitch(i_this->mEnableSpawnSwitch, dStage_roomControl_c::getStayNo())) {
-        return;
+    if (i_this->mEnableSpawnSwitch != 0xFF) {
+        if (!dComIfGs_isSwitch(i_this->mEnableSpawnSwitch, dStage_roomControl_c::getStayNo())) {
+            goto switch_fail;
+        }
     }
-    if (i_this->mDisableRespawnSwitch != 0xFF && dComIfGs_isSwitch(i_this->mDisableRespawnSwitch, dStage_roomControl_c::getStayNo())) {
-        return;
+    if (i_this->mDisableRespawnSwitch == 0xFF) {
+        goto do_wait;
+    }
+    if (!dComIfGs_isSwitch(i_this->mDisableRespawnSwitch, dStage_roomControl_c::getStayNo())) {
+        goto do_wait;
     }
 
+switch_fail:
+    return;
+
+do_wait:
     if (fopAcM_searchActorDistance(i_this, dComIfGp_getPlayer(0)) < 100.0f * (f32)(u32)i_this->mNoticeRange) {
         pos = i_this->current.pos;
         pos.y += 100.0f;
