@@ -29,56 +29,59 @@ void GXSetTevIndirect(GXTevStageID tevStage, GXIndTexStageID texStage, GXIndTexF
 }
 
 void GXSetIndTexMtx(GXIndTexMtxID mtxID, f32 offset[6], s8 scale_exp) {
-    u32 val;
+    s32 mtx[6];
     u32 field;
-    f32 mtx2[6];
-    u32 stack_padding[6];
-
-    scale_exp += 17;
+    u32 id;
 
     switch (mtxID) {
     case GX_ITM_0:
     case GX_ITM_1:
     case GX_ITM_2:
-        val = mtxID - 1;
+        id = mtxID - 1;
         break;
     case GX_ITM_S0:
     case GX_ITM_S1:
     case GX_ITM_S2:
-        val = mtxID - 5;
+        id = mtxID - 5;
         break;
     case GX_ITM_T0:
     case GX_ITM_T1:
     case GX_ITM_T2:
-        val = mtxID - 9;
+        id = mtxID - 9;
         break;
-    case GX_ITM_3:
-    case GX_ITM_S3:
     default:
-        val = 0;
+        id = 0;
+        break;
     }
 
+    mtx[0] = (int)(1024.0f * offset[0]) & 0x7FF;
+    mtx[1] = (int)(1024.0f * offset[3]) & 0x7FF;
+    scale_exp += 0x11;
     field = 0;
-    GX_BITFIELD_SET(field, 21, 11, 1024.0f * offset[0]);
-    GX_BITFIELD_SET(field, 10, 11, 1024.0f * offset[3]);
-    GX_BITFIELD_SET(field, 8, 2, (scale_exp >> 0) & 3);
-    GX_BITFIELD_SET(field, 0, 8, val * 3 + 6);
+    SET_REG_FIELD(field, 11, 0, mtx[0]);
+    SET_REG_FIELD(field, 11, 11, mtx[1]);
+    SET_REG_FIELD(field, 2, 22, scale_exp & 3);
+    SET_REG_FIELD(field, 8, 24, id * 3 + 6);
     GXFIFO.u8 = 0x61;
     GXFIFO.s32 = field;
 
+    mtx[2] = (int)(1024.0f * offset[1]) & 0x7FF;
+    mtx[3] = (int)(1024.0f * offset[4]) & 0x7FF;
     field = 0;
-    GX_BITFIELD_SET(field, 21, 11, 1024.0f * offset[1]);
-    GX_BITFIELD_SET(field, 10, 11, 1024.0f * offset[4]);
-    GX_BITFIELD_SET(field, 8, 2, (scale_exp >> 2) & 3);
-    GX_BITFIELD_SET(field, 0, 8, val * 3 + 7);
+    SET_REG_FIELD(field, 11, 0, mtx[2]);
+    SET_REG_FIELD(field, 11, 11, mtx[3]);
+    SET_REG_FIELD(field, 2, 22, (scale_exp >> 2) & 3);
+    SET_REG_FIELD(field, 8, 24, id * 3 + 7);
     GXFIFO.u8 = 0x61;
     GXFIFO.s32 = field;
 
+    mtx[4] = (int)(1024.0f * offset[2]) & 0x7FF;
+    mtx[5] = (int)(1024.0f * offset[5]) & 0x7FF;
     field = 0;
-    GX_BITFIELD_SET(field, 21, 11, 1024.0f * offset[2]);
-    GX_BITFIELD_SET(field, 10, 11, 1024.0f * offset[5]);
-    GX_BITFIELD_SET(field, 8, 2, (scale_exp >> 4) & 3);
-    GX_BITFIELD_SET(field, 0, 8, val * 3 + 8);
+    SET_REG_FIELD(field, 11, 0, mtx[4]);
+    SET_REG_FIELD(field, 11, 11, mtx[5]);
+    SET_REG_FIELD(field, 2, 22, (scale_exp >> 4) & 3);
+    SET_REG_FIELD(field, 8, 24, id * 3 + 8);
     GXFIFO.u8 = 0x61;
     GXFIFO.s32 = field;
 
@@ -157,12 +160,59 @@ void GXSetNumIndStages(u8 num) {
     data->dirtyState |= GX_DIRTY_BP_MASK | GX_DIRTY_GEN_MODE;
 }
 
-void GXSetTevDirect(GXTevStageID stage) {
-    GXSetTevIndirect(stage, GX_INDTEXSTAGE0, GX_ITF_8, GX_ITB_NONE, GX_ITM_OFF, GX_ITW_OFF,
-                     GX_ITW_OFF, FALSE, FALSE, GX_ITBA_OFF);
+#pragma inline_depth(0)
+#pragma dont_inline on
+void GXSetTevDirect(GXTevStageID tev_stage) {
+    GXSetTevIndirect(tev_stage, GX_INDTEXSTAGE0, GX_ITF_8, GX_ITB_NONE, GX_ITM_OFF, GX_ITW_OFF,
+                     GX_ITW_OFF, 0U, 0, 0);
 }
 
-void __GXUpdateBPMask(void) {}
+void GXSetTevIndWarp(GXTevStageID tev_stage, GXIndTexStageID ind_stage, u8 signed_offset,
+                     u8 replace_mode, GXIndTexMtxID matrix_sel) {
+    GXIndTexWrap wrap = (replace_mode != 0) ? GX_ITW_0 : GX_ITW_OFF;
+
+    GXSetTevIndirect(tev_stage, ind_stage, GX_ITF_8,
+                     (signed_offset != 0) ? GX_ITB_STU : GX_ITB_NONE, matrix_sel, wrap, wrap, 0U, 0,
+                     0);
+}
+#pragma dont_inline reset
+
+void __GXUpdateBPMask(void) {
+    u32 nIndStages;
+    u32 i;
+    u32 tmap;
+    u32 new_imask;
+    u32 nStages;
+    u32 new_dmask;
+
+    new_imask = 0;
+    new_dmask = 0;
+    nIndStages = GET_REG_FIELD(gx->genMode, 3, 16);
+    for (i = 0; i < nIndStages; i++) {
+        switch (i) {
+        case 0:
+            tmap = GET_REG_FIELD(gx->iref, 3, 0);
+            break;
+        case 1:
+            tmap = GET_REG_FIELD(gx->iref, 3, 6);
+            break;
+        case 2:
+            tmap = GET_REG_FIELD(gx->iref, 3, 12);
+            break;
+        case 3:
+            tmap = GET_REG_FIELD(gx->iref, 3, 18);
+            break;
+        }
+        new_imask |= 1 << tmap;
+    }
+
+    if ((u8)gx->bpMask != new_imask) {
+        SET_REG_FIELD(gx->bpMask, 8, 0, new_imask);
+        GXFIFO.u8 = 0x61;
+        GXFIFO.s32 = gx->bpMask;
+        gx->bpSentNot = 0;
+    }
+}
 
 void __GXSetIndirectMask(u32 mask) {
     GXData* data = gx;
