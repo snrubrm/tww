@@ -1273,8 +1273,7 @@ void dMsg_arrowMove(sub_msg_class* i_Msg) {
         }
     } else {
         if (i_Msg->m1100 <= temp_r9) {
-            fVar1 = 1.0f;
-            fVar2 = fVar1;
+            fVar1 = fVar2 = 1.0f;
         } else if (i_Msg->m1100 <= temp_r10) {
             fVar1 = (f32)(i_Msg->m1100) - temp_r9;
             fVar2 = (fVar1 * fVar1) / ((f32)temp_r8 * (f32)temp_r8);
@@ -1309,7 +1308,6 @@ void dMsg_arrowMove(sub_msg_class* i_Msg) {
 
 /* 8020FC10-8021010C       .text dMsg_dotMove__FP13sub_msg_class */
 void dMsg_dotMove(sub_msg_class* i_Msg) {
-    /* Nonmatching */
     int iVar4;
     f32 dVar5;
 
@@ -1347,8 +1345,8 @@ void dMsg_dotMove(sub_msg_class* i_Msg) {
             i_Msg->m10C8.b = (u8)(int)((f32)(i_Msg->m10C4.b) + (f32)((220.0f - (f32)(i_Msg->m10C4.b)) * dVar5));
             i_Msg->m050C.mNowAlpha = (u8)(int)((f32)(i_Msg->m050C.mInitAlpha) + (f32)((255.0f - (f32)(i_Msg->m050C.mInitAlpha)) * dVar5));
         }
-        ((J2DPicture*)i_Msg->m050C.pane)->setBlack(JUtility::TColor(i_Msg->m10C0));
-        ((J2DPicture*)i_Msg->m050C.pane)->setWhite(JUtility::TColor(i_Msg->m10C8));
+        ((J2DPicture*)i_Msg->m050C.pane)->setBlack(i_Msg->m10C0);
+        ((J2DPicture*)i_Msg->m050C.pane)->setWhite(i_Msg->m10C8);
     }
 }
 
@@ -1606,7 +1604,7 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
         fVar1 = (fVar1 + i_Msg->m049C.mSize.y / 2.0f) - ((int)g_msgHIO.field_0x7c);
     }
     local_68 = (int)g_msgHIO.field_0x78;
-    fVar3 = (local_68) + ((g_msgHIO.field_0x7e) * 2.0f + (i_Msg->mMsgDataProc.getSelectLength()) - i_Msg->m011C[0].mSizeOrig.x);
+    fVar3 = local_68 + ((2.0f * g_msgHIO.field_0x7e + i_Msg->mMsgDataProc.getSelectLength()) - i_Msg->m011C[0].mSizeOrig.x);
     for (s32 i = 0; i < 4; i++) {
         i_Msg->m011C[i].mSize.x = i_Msg->m011C[i].mSizeOrig.x + fVar3;
     }
@@ -1630,7 +1628,7 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
     i_Msg->m026C[7].mPosCenter.x = i_Msg->m026C[7].mPosCenterOrig.x - fVar3;
     fVar3 = (i_Msg->m011C[0].mSizeOrig.x - i_Msg->m011C[0].mSize.x) / 2.0f;
     for (s32 i = 0; i < 4; i++) {
-        i_Msg->m011C[i].mPosCenter.x = ((g_msgHIO.field_0x7e) + i_Msg->m011C[i].mPosCenterOrig.x) + fVar3;
+        i_Msg->m011C[i].mPosCenter.x = (i_Msg->m011C[i].mPosCenterOrig.x + fVar3) + g_msgHIO.field_0x7e;
     }
     fVar5 = (i_Msg->m026C[9].mSizeOrig.y - i_Msg->m026C[9].mSize.y) / 2.0f;
     fVar2 = fVar1 - i_Msg->m026C[0].mPosCenterOrig.y;
