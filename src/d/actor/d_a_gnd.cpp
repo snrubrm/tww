@@ -2236,7 +2236,7 @@ static void demo_camera(gnd_class* i_this) {
             actor->current.angle.y = actor->shape_angle.y;
             i_this->mAction = l_HIO.m68;
             i_this->m155E = 0x96;
-            zelda->m0740[0] = 1;
+            zelda->m0740 = 1;
             i_this->m3D8 = 2;
         }
         break;
