@@ -518,17 +518,22 @@ void dMsg2_aimAlphaSqrt(sub_msg2_class* i_Msg, int param_0, int param_1) {
 }
 
 /* 801E8B90-801E8C2C       .text dMsg2_kankyoBrightness__Fv */
-u8 dMsg2_kankyoBrightness() {
+int dMsg2_kankyoBrightness() {
     GXColorS10* difcol = dKy_Get_DifCol();
     return (difcol->r * 0.299f) + (difcol->g * 0.587f) + (difcol->b * 0.114f);
 }
 
 /* 801E8C2C-801E8C78       .text dMsg2_aimBrightness__Fv */
-// NONMATCHING
 u8 dMsg2_aimBrightness() {
     int brightness = dMsg2_kankyoBrightness();
-    u8 field = g_messageHIO.field_0x29;
-    return ((u8)brightness <= field) ? 0xFF : (u8)(0xFF - (brightness - field));
+    u8 b = brightness;
+    u8 result;
+    if (b <= g_messageHIO.field_0x29) {
+        result = 0xFF;
+    } else {
+        result = 0xFF - (brightness - g_messageHIO.field_0x29);
+    }
+    return result;
 }
 
 /* 801E8C78-801E9054       .text dMsg2_setCharAlpha__FP14sub_msg2_classUc */
