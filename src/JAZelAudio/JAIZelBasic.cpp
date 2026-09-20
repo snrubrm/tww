@@ -1949,7 +1949,7 @@ void JAIZelBasic::initSe() {
 }
 
 /* 802A6720-802A8550       .text seStart__11JAIZelBasicFUlP3VecUlScffffUc */
-JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i_reverb, f32 i_pitch, f32 i_volume, f32 i_pan, f32 i_dolby, u8) {
+JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i_reverb, f32 i_pitch, f32 i_volume, f32 i_pan, f32 i_dolby, u8 i_levPlay) {
     if (field_0x0201 == 1) {
         return NULL;
     }
@@ -1994,7 +1994,8 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
             }
         }
     }
-    if (field_0x0207 != 0 && (i_seNum & ~0xFFF) != 0) {
+    int taktMute = field_0x0207;
+    if (taktMute != 0 && (i_seNum & ~0xFFF) != 0) {
         switch (i_seNum) {
         case 0x2066:
         case 0x2868:
@@ -2076,10 +2077,593 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
     }
     if ((i_seNum & ~0xFF) == 0x1800 && (i_seNum & 0xFF) < 0x5A) {
         startSoundVec(i_seNum, (JAISound**)&field_0x2064, i_sePos, 0, 0, 4);
-        if (field_0x2064) {
-            ((JAISound*)field_0x2064)->setPortData(9, (u8)i_reverb);
+        if ((JAISound*)field_0x2064) {
+            ((JAISound*)field_0x2064)->setPortData(9, i_reverb);
         }
         return NULL;
+    }
+
+    MtxP matrix = mAudioCamera->field_0x8;
+    Vec position = {0.0f, 0.0f, -50.0f};
+    if (!i_sePos) {
+        if (mAudioCamera->field_0x0) {
+            position.x = mAudioCamera->field_0x0->x;
+            position.y = mAudioCamera->field_0x0->y;
+            position.z = mAudioCamera->field_0x0->z;
+        }
+    } else {
+        position.x = i_sePos->x;
+        position.y = i_sePos->y;
+        position.z = i_sePos->z;
+    }
+
+    switch (i_seNum) {
+    case JA_SE_CAMERA_C_MOVE:
+    case JA_SE_LK_SHIP_CANNON_FLY:
+    case JA_SE_CM_BKM_VINE_SET:
+        return NULL;
+    case JA_SE_CM_BST_GOKOU:
+        field_0x00be = 1;
+        break;
+    case JA_SE_ATM_RAIN_1:
+        if (field_0x0224 == 0x5C && field_0x0239 < 8) {
+            i_seNum = JA_SE_ATM_VS_GANON_RAIN;
+        }
+        break;
+    case JA_SE_FORCE_BACK:
+        field_0x0205 = 1;
+        stopBattleBgm();
+        field_0x008c = 1.0f;
+        if (mpMainBgmSound) {
+            mpMainBgmSound->setVolume(calcMainBgmVol(), 45, SOUNDPARAM_Unk0);
+        }
+        stopBattleBgm();
+        field_0x00c1 = 0;
+        field_0x00c4 = 0;
+        field_0x00c0 = 0;
+        subBgmStop();
+        break;
+    case JA_SE_OBJ_BS_MELODY_1:
+    case JA_SE_OBJ_BS_MELODY_2:
+        return NULL;
+    case JA_SE_ME_ITEM_GET_S:
+        field_0x0206 = 0;
+        field_0x00bb = 0;
+        if (mLastMinibossSubBGMType == 0) {
+            if ((mSubBgmNum + 0x80000000) != 0x36 && (mSubBgmNum + 0x80000000) != 0x37) {
+                field_0x00b0 = -2;
+                subBgmStopInner();
+            }
+        }
+        break;
+    case JA_SE_WTAKT_AMBIENT:
+        field_0x0207 = 2;
+        break;
+    case JA_SE_QUIT_GAME:
+        menuOut();
+        break;
+    case JA_SE_CHUYA_SWITCH:
+        subBgmStart(JA_BGM_TAKT_CHUYA);
+        field_0x0033 = 1;
+        return NULL;
+    case JA_SE_TAKT_WIND_DEMO:
+        subBgmStart(JA_BGM_TAKT_KAZE);
+        break;
+    case JA_SE_OBJ_TORNADE_WARP:
+        subBgmStart(JA_BGM_TAKT_SHIPPU);
+        break;
+    case JA_SE_CM_DK_BREAK_MASK:
+        field_0x00cc = 1;
+        break;
+    case JA_SE_OBJ_HL_WAPR_EFF:
+        if (field_0x0224 == 0x55 && (field_0x0239 == 9 || field_0x0239 == 10)) {
+            return NULL;
+        }
+        break;
+    case JA_SE_OBJ_SPRING:
+        if (field_0x0224 == 0x35 && checkEventBit(0x2D04) == 0) {
+            return NULL;
+        }
+        break;
+    case JA_SE_LK_DAMAGE_NORMAL:
+    case JA_SE_LK_DAMAGE_LARGE:
+        onEnemyDamage();
+        break;
+    case JA_SE_OBJ_PIRATE_SAIL:
+        if (field_0x0224 == 0x12 && mIslandRoomNo == 0x2C && field_0x0239 == 10) {
+            if (checkStreamPlaying(0xC000001C) == 0 && field_0x0208 == 0) {
+                return NULL;
+            }
+            field_0x0208 = 1;
+        }
+        break;
+    case JA_SE_PRE_TAKT:
+    case JA_SE_LK_WAPR_EFF_WARP:
+    case JA_SE_CM_BWD_LAST_EXPLODE:
+    case JA_SE_OBJ_LUPY_IN_POT:
+        i_sePos = NULL;
+        break;
+    case JA_SE_OBJ_OTOSHIANA_OPEN:
+        field_0x00ca = 1;
+        stopBattleBgm();
+        field_0x008c = 1.0f;
+        if (mpMainBgmSound) {
+            mpMainBgmSound->setVolume(calcMainBgmVol(), 45, SOUNDPARAM_Unk0);
+        }
+        stopBattleBgm();
+        field_0x00c1 = 0;
+        field_0x00c4 = 0;
+        field_0x00c0 = 0;
+        i_sePos = NULL;
+        break;
+    case JA_SE_CM_BKM_ATKVINE_ENTER:
+        seStart(JA_SE_CM_BKM_ATKVINE_BOOM, NULL, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+        break;
+    case JA_SE_PLAYSPOT_END_S:
+        seStop(JA_SE_PLAYSPOT_DESTROY, 0);
+        break;
+    case JA_SE_FT_LADDER_CLIMB:
+    case JA_SE_FT_LADDER_CLIMB_D:
+        if (field_0x0046 == 1) {
+            i_seNum = JA_SE_LK_WALK_HEAVY;
+            if (i_variation != 0xD) {
+                i_variation = 9;
+            }
+        }
+        if (field_0x0045 == 1) {
+            seStart(JA_SE_LK_FT_SW_SHIELD, i_sePos, 0, i_reverb, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+        }
+        break;
+    case JA_SE_LK_SLIP_SUS:
+        switch (i_variation) {
+        case 10:
+            i_seNum = JA_SE_LK_SLIP_SUS_ICE;
+            break;
+        case 7:
+        case 9:
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 17:
+        case 18:
+            i_seNum = JA_SE_LK_SLIP_SUS_STONE;
+            break;
+        case 8:
+        case 15:
+        case 16:
+            break;
+        }
+        break;
+    case JA_SE_OBJ_BTD_FIRE_DROP: {
+        if (matrix) {
+            PSMTXMultVec(matrix, &position, &position);
+        }
+        f32 dist2 = position.x * position.x + position.y * position.y + position.z * position.z;
+        f32 dist = std::sqrtf(dist2);
+        if (dist > JAIGlobalParameter::getParamDistanceMax() * 0.5f) {
+            return NULL;
+        }
+        break;
+    }
+    case JA_SE_ATM_MJ_WATER_UP: {
+        if (matrix) {
+            PSMTXMultVec(matrix, &position, &position);
+        }
+        i_volume = 1.0f - std::fabsf(position.y) / (2.0f * JAIGlobalParameter::getParamDistanceMax());
+        if (i_volume < 0.0f) {
+            i_volume = 0.0f;
+        }
+        if (i_volume > 1.0f) {
+            i_volume = 1.0f;
+        }
+        i_sePos = NULL;
+        break;
+    }
+    case JA_SE_TELESCOPE_ZOOM: {
+        if (i_variation < 0xCCC) {
+            i_variation = 0xCCC;
+        } else if (i_variation > 0x8000) {
+            i_variation = 0x8000;
+        }
+        startSoundVec(i_seNum, (JAISound**)&field_0x0214, NULL, 0, 0, 4);
+        f32 pitch = 0.8f + 0.4f * ((f32)i_variation / 32768.0f);
+        ((JAISound*)field_0x0214)->setPitch(pitch, 0, SOUNDPARAM_Unk0);
+        return NULL;
+    }
+    case JA_SE_SHIP_SAIL_OUT:
+        if (mpMainBgmSound) {
+            if ((mMainBgmNum + 0x80000000) == 0xB) {
+                field_0x0090 = JAIZelParam::VOL_BGM_DEFAULT;
+                if (!mpSubBgmSound) {
+                    mpMainBgmSound->setVolume(calcMainBgmVol(), 2, SOUNDPARAM_Unk0);
+                }
+            }
+        }
+        break;
+    case JA_SE_TALK_END:
+    case JA_SE_TALK_WIN_OPEN:
+    case JA_SE_TALK_START:
+        if (checkStreamPlaying(0xC0000005) == TRUE) {
+            return NULL;
+        }
+        if (isDemo() == TRUE) {
+            return NULL;
+        }
+        if ((int)field_0x0207 != 0) {
+            return NULL;
+        }
+        if (field_0x00be != 0) {
+            return NULL;
+        }
+        break;
+    case JA_SE_TALK_NEXT:
+        if (checkStreamPlaying(0xC0000005) == TRUE) {
+            return NULL;
+        }
+        if (isDemo() == TRUE || (int)field_0x0207 != 0) {
+            i_seNum = JA_SE_DEMO_MSG_NEXT;
+        }
+        if (field_0x00be != 0) {
+            return NULL;
+        }
+        break;
+    case JA_SE_TALK_WIN_CLOSE:
+        if (checkStreamPlaying(0xC0000005) == TRUE) {
+            return NULL;
+        }
+        if (isDemo() == TRUE) {
+            i_seNum = JA_SE_DEMO_MSG_END;
+        }
+        if (checkSePlaying(JA_SE_TAKT_MATCHED) == TRUE) {
+            return NULL;
+        }
+        if (field_0x00be != 0) {
+            return NULL;
+        }
+        break;
+    case JA_SE_LK_INTO_WATER:
+        if (checkStreamPlaying(0xC0000005) == TRUE) {
+            return NULL;
+        }
+        if ((JAISound*)field_0x2064) {
+            ((JAISound*)field_0x2064)->stop(1);
+        }
+        break;
+    case JA_SE_ITM_OMAMORI_TETLA:
+        switch (field_0x0224) {
+        case 8:
+        case 0xC:
+        case 0x13:
+            break;
+        default:
+            i_seNum = JA_SE_ITM_OMAMORI_SHIP;
+            break;
+        }
+        break;
+    case JA_SE_ATM_MAGMA_CHILL:
+        field_0x0204 = 1;
+        break;
+    case JA_SE_ITM_MENU_IN:
+        menuIn();
+        break;
+    case JA_SE_ITM_MENU_OUT:
+        menuOut();
+        break;
+    case JA_SE_L_FOCUS_SET:
+    case JA_SE_CAMERA_L_MOVE:
+        seStop(JA_SE_L_FOCUS_RESET, 0);
+        seStop(JA_SE_CAMERA_L_CANCEL, 0);
+        break;
+    case JA_SE_L_FOCUS_RESET:
+    case JA_SE_CAMERA_L_CANCEL:
+        seStop(JA_SE_L_FOCUS_SET, 0);
+        seStop(JA_SE_CAMERA_L_MOVE, 0);
+        break;
+    case JA_SE_OBJ_STN_DOOR_STL_BAR:
+        seStop(JA_SE_OBJ_STN_DOOR_STL_BAR, 0);
+        break;
+    case JA_SE_OBJ_STN_DOOR_STOP_U:
+        seStop(JA_SE_OBJ_STN_DOOR_MOVE_U, 0);
+        seStop(JA_SE_OBJ_STN_DOOR_MOVE_D, 0);
+        break;
+    case JA_SE_OBJ_STN_DOOR_STOP_D:
+        seStop(JA_SE_OBJ_STN_DOOR_MOVE_U, 0);
+        seStop(JA_SE_OBJ_STN_DOOR_MOVE_D, 0);
+        break;
+    case JA_SE_OBJ_STN_DOOR_MOVE_U:
+    case JA_SE_OBJ_STN_DOOR_MOVE_D:
+        seStop(JA_SE_OBJ_STN_DOOR_MOVE_U, 0);
+        seStop(JA_SE_OBJ_STN_DOOR_MOVE_D, 0);
+        break;
+    case JA_SE_OBJ_L_BRIDGE_ON:
+        seStop(JA_SE_OBJ_L_BRIDGE_OFF, 0);
+        break;
+    case JA_SE_OBJ_L_BRIDGE_OFF:
+        seStop(JA_SE_OBJ_L_BRIDGE_ON, 0);
+        break;
+    case JA_SE_ATM_SWIRL:
+    case JA_SE_OBJ_KASSHA_LIFT_MOVE:
+    case JA_SE_CM_LANCE_BOUND:
+    case JA_SE_CM_BL_BOUND:
+    case JA_SE_CM_BGN_D_KAZEKIRI:
+    case JA_SE_CM_BST_HEART_BOUND:
+    case JA_SE_OBJ_BOKKURI_BOUND:
+    case JA_SE_CM_BOKOBOU_BOUND:
+    case 0x5814:
+    case 0x5815:
+    case 0x6955:
+    case 0x6988:
+    case 0x6989:
+    case 0x6998:
+    case 0x6999:
+    case 0x69E7:
+    case 0x69E8:
+    case 0x6A06:
+    case 0x6A07:
+    case 0x6A08:
+    case 0x6A09:
+    case 0x6A0A:
+    case 0x6A0B:
+    case 0x6A0C:
+    case 0x6A0D:
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        i_variation = i_variation * i_variation;
+        i_volume = (f32)i_variation / 10000.0f;
+        break;
+    case JA_SE_CM_GY_CRUISING:
+    case JA_SE_CM_SH_CRUISING:
+    case JA_SE_OBJ_BS_BOAT_CRUISE:
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        i_volume = (f32)i_variation / 100.0f;
+        break;
+    case JA_SE_OBJ_WIND_TAG:
+    case JA_SE_OBJ_WIND_TAG_L: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        f32 volVar = i_variation;
+        f32 pitchVar = i_variation;
+        i_volume = (volVar * volVar) / 10000.0f;
+        i_pitch = 0.75f + (pitchVar * pitchVar) / 40000.0f;
+        break;
+    }
+    case JA_SE_CM_BGN_MECHA_ROTATE: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        f32 volVar = i_variation;
+        f32 pitchVar = i_variation;
+        i_volume = (volVar * volVar) / 10000.0f;
+        i_pitch = 0.75f + (pitchVar * pitchVar) / 40000.0f;
+        break;
+    }
+    case 0x705B: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        f32 volVar = i_variation;
+        f32 pitchVar = i_variation;
+        i_volume = (volVar * volVar) / 10000.0f;
+        i_pitch = 0.75f + (pitchVar * pitchVar) / 40000.0f;
+        break;
+    }
+    case JA_SE_CM_BGN_T_ROUND: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        f32 volVar = i_variation;
+        f32 pitchVar = i_variation;
+        i_volume = (volVar * volVar) / 10000.0f;
+        i_pitch = 0.2f + pitchVar / 80.0f;
+        if (i_pitch <= 0.5f) {
+            i_pitch = 0.5f;
+        }
+        break;
+    }
+    case JA_SE_CM_SH_PROPELLER: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        f32 volVar = i_variation;
+        f32 pitchVar = i_variation;
+        i_volume = (volVar * volVar) / 10000.0f;
+        i_pitch = 0.5f + (pitchVar * pitchVar) / 20000.0f;
+        break;
+    }
+    case JA_SE_ATM_WIND_VAR: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            i_variation = 0;
+        }
+        f32 pitchVar = i_variation;
+        f32 volVar = i_variation;
+        i_pitch = 0.75f + (pitchVar * pitchVar) / 40000.0f;
+        i_volume = (volVar / 100.0f) * 0.85f + 0.15f;
+        break;
+    }
+    case JA_SE_CM_PG_FLYING:
+    case JA_SE_CHR_PW_MOVE: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            i_variation = 0;
+        }
+        f32 pitchVar = i_variation;
+        f32 volVar = i_variation;
+        i_pitch = 0.75f + (pitchVar * pitchVar) / 20000.0f;
+        i_volume = (volVar / 100.0f) * 0.7f + 0.3f;
+        break;
+    }
+    case JA_SE_ATM_ICEBERG_WIND: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            i_variation = 0;
+        }
+        i_pitch = 0.75f + ((f32)i_variation * (f32)i_variation) / 20000.0f;
+        i_volume = ((f32)i_variation / 100.0f) * 0.6f + 0.4f;
+        if (matrix) {
+            PSMTXMultVec(matrix, &position, &position);
+        }
+        f32 dist2 = position.x * position.x + position.y * position.y + position.z * position.z;
+        f32 dist = std::sqrtf(dist2);
+        if (dist >= 4500.0f) {
+            break;
+        }
+        i_sePos = NULL;
+        i_pan = 0.5f;
+        i_dolby = 0.5f;
+        i_volume *= 0.7f * (dist / 4500.0f);
+        break;
+    }
+    case JA_SE_CM_BST_HAND_WORKING:
+    case JA_SE_CM_BST_HAND_SLEEPING:
+    case JA_SE_CM_BST_HEAD_WORKING:
+    case JA_SE_CM_BST_HEAD_SLEEPING: {
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        f32 volVar = i_variation;
+        f32 pitchVar = i_variation;
+        i_volume = (volVar * volVar) / 10000.0f;
+        i_pitch = 0.95f + (pitchVar * pitchVar) / 80000.0f;
+        break;
+    }
+    case JA_SE_CM_PRAPELLO_ROLLING:
+    case JA_SE_CM_ST_CLUB_SWING_L:
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            i_variation = 0;
+        }
+        i_volume = (f32)i_variation / 100.0f;
+        i_pitch = 1.0f + (f32)i_variation / 300.0f;
+        break;
+    case JA_SE_OBJ_FER_WHEEL_ROUND:
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            i_variation = 0;
+        }
+        i_volume = (f32)i_variation / 100.0f;
+        if (0.0f != i_volume) {
+            i_volume = 0.4f + 0.6f * i_volume;
+        }
+        i_pitch = 0.5f + (f32)i_variation / 200.0f;
+        break;
+    case JA_SE_OBJ_KM_WINDMILL:
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation == 0) {
+            return NULL;
+        }
+        i_pitch = 1.0f + (f32)i_variation / 100.0f;
+        if (i_variation >= 30) {
+            i_variation = 30;
+        }
+        i_volume = (f32)i_variation / 30.0f;
+        break;
+    case JA_SE_MP_GAUGE_INC:
+        if (i_variation >= 1) {
+            i_variation -= 1;
+        }
+        i_pitch = 1.0f + 0.0666667f * (f32)i_variation;
+        break;
+    case JA_SE_AUC_BID_GAUGE:
+        if (i_variation >= 100) {
+            i_variation = 100;
+        }
+        if (i_variation >= 1) {
+            i_variation -= 1;
+        }
+        i_pitch = 1.0f + 0.01f * (f32)i_variation;
+        break;
+    case JA_SE_OP_ENTER_GAME:
+        seStop(JA_SE_TITLE_WIND, 60);
+        break;
+    case JA_SE_CM_BTD_ENT_BUBBLE:
+        mSomeSpecialBGMFlag = 1;
+        break;
+    case JA_SE_CM_INOCHIDAMA_BLINK:
+    case JA_SE_CM_MAGTAIL_MOVE:
+        if (matrix) {
+            PSMTXMultVec(matrix, &position, &position);
+        }
+        f32 dist2 = position.x * position.x + position.y * position.y + position.z * position.z;
+        if (std::sqrtf(dist2) > JAIGlobalParameter::getParamDistanceMax()) {
+            return NULL;
+        }
+        break;
+    case JA_SE_FIREBLAST_BLOW:
+        if (i_sePos) {
+            Vec* stored = ((Vec*)field_0x1ED4) + field_0x1f34;
+            stored->x = i_sePos->x;
+            stored->y = i_sePos->y;
+            stored->z = i_sePos->z;
+            if (stored->y > mAudioCamera->field_0x0->y) {
+                stored->y = mAudioCamera->field_0x0->y;
+            }
+            i_sePos = stored;
+            field_0x1f34++;
+        }
+        break;
+    }
+
+    if (i_levPlay != 1) {
+        switch (i_seNum) {
+        case JA_SE_ATM_RAKUBAN:
+        case JA_SE_OBJ_OTOSHIANA_SUS:
+        case JA_SE_ATM_RIVER_M:
+        case JA_SE_ATM_RIVER_S:
+        case JA_SE_ATM_RIVER_S_ISLE:
+        case JA_SE_CM_BTD_HIFUKI_BEF:
+        case JA_SE_CM_BTD_HIFUKI:
+        case JA_SE_CM_BKM_ATKVINE_DIG:
+        case JA_SE_CM_BKM_ATKVINE_L_ATK:
+        case JA_SE_OBJ_TORCH_BURNING:
+        case JA_SE_OBJ_STEAM:
+        case JA_SE_OBJ_SEARCH_LIGHT:
+        case JA_SE_OBJ_BAR_FRAME_BURN:
+        case JA_SE_CM_BST_HORI:
+            setLevObjSE(i_seNum, i_sePos, i_reverb);
+            return NULL;
+        }
     }
 
     if (!(i_seNum & 0x800)) {
@@ -2087,7 +2671,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
             if (mSeNum[i] == i_seNum && mpSeSound[i] && field_0x0194[i] == (u32)i_sePos) {
                 startSoundVec(i_seNum, &mpSeSound[i], i_sePos, 0, i_variation, 4);
                 if (mpSeSound[i]) {
-                    mpSeSound[i]->setPortData(9, (u8)i_reverb);
+                    mpSeSound[i]->setPortData(9, i_reverb);
                     if (1.0f != i_pitch) {
                         mpSeSound[i]->setPitch(i_pitch, 0, SOUNDPARAM_Unk0);
                     }
@@ -2108,14 +2692,14 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
 
     if (mpSeSound[field_0x01f4]) {
         int slot = field_0x01f4;
-        do {
+        while (mpSeSound[slot]) {
             slot++;
             slot = slot % MAX_CONCURRENT_SE_NUM;
             if (slot == field_0x01f4) {
                 OSReport("[JAIZelBasic::seStart] overflow JAISound pointer\n");
                 return NULL;
             }
-        } while (mpSeSound[slot]);
+        }
         field_0x01f4 = slot;
     }
 
@@ -2128,7 +2712,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         i_sePos = NULL;
     }
     if (mpSeSound[field_0x01f4]) {
-        mpSeSound[field_0x01f4]->setPortData(9, (u8)i_reverb);
+        mpSeSound[field_0x01f4]->setPortData(9, i_reverb);
         if (1.0f != i_pitch) {
             mpSeSound[field_0x01f4]->setPitch(i_pitch, 0, SOUNDPARAM_Unk0);
         }
@@ -2141,8 +2725,13 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (-1.0f != i_dolby) {
             mpSeSound[field_0x01f4]->setDolby(i_dolby, 0, SOUNDPARAM_Unk0);
         }
-        if (i_seNum == JA_SE_WTAKT_METRONOME || (i_seNum >= JA_SE_WTAKT_PULSE_3 && i_seNum < 0x896)) {
+        switch (i_seNum) {
+        case JA_SE_WTAKT_METRONOME:
+        case JA_SE_WTAKT_PULSE_3:
+        case JA_SE_WTAKT_PULSE_4:
+        case JA_SE_WTAKT_PULSE_6:
             mpSeSound[field_0x01f4]->setPortData(8, (u16)i_variation);
+            break;
         }
         if (i_seNum == JA_SE_WTAKT_ARM_SWING) {
             mpSeSound[field_0x01f4]->setPortData(7, i_variation >> 16);
