@@ -464,8 +464,8 @@ void daObjTapestryDrawData_c::ct_dl() {
                 tmp[0] = idx;
                 tmp[1] = idx;
                 memcpy(mDl + now, tmp, 2);
-                static const u8 tmp_clr = 0;
-                memcpy((u8*)this + now + 0x182, &tmp_clr, 1);
+                static const u8 tmp_clr[1] = {0};
+                memcpy((u8*)this + now + 0x182, tmp_clr, 1);
                 u8 b[1] = {0};
                 b[0] = idx8;
                 memcpy((u8*)this + now + 0x183, b, 1);
@@ -477,8 +477,16 @@ void daObjTapestryDrawData_c::ct_dl() {
     for (int i = 0; i < 0x20; i++) {
         mDl[now++] = 0;
     }
-    JUT_ASSERT(0x25A, (reinterpret_cast<u32>(mDl) & 0x1f) == 0);
-    JUT_ASSERT(0x25B, now == 0x185);
+    ((reinterpret_cast<u32>(mDl) & 0x1f) == 0)
+        ? (void)0
+        : (JUTAssertion::showAssert(JUTAssertion::getSDevice(), "d_a_obj_tapestry.cpp", 0x25A,
+                                    "(reinterpret_cast<u32>(m_dl) & 0x1f) == 0"),
+           OSPanic("d_a_obj_tapestry.cpp", 0x25A, "Halt"));
+    (now == 0x185)
+        ? (void)0
+        : (JUTAssertion::showAssert(JUTAssertion::getSDevice(), "d_a_obj_tapestry.cpp", 0x25B,
+                                    "now == l_dl_size"),
+           OSPanic("d_a_obj_tapestry.cpp", 0x25B, "Halt"));
 }
 
 /* 00000878-00000C44       .text __ct__21daObjTapestryPacket_cFv */
@@ -769,8 +777,8 @@ void daObjTapestryPacket_c::calc_nrm() {
                 cXyz acc = *up * 0.57475f;
                 acc += dUp * 0.358875f;
                 acc += dDown * 0.111375f;
-                acc += *down * 0.42525f;
-                cXyz acc2 = *up * 0.42525f;
+                acc += *down * 0.425249964f;
+                cXyz acc2 = *up * 0.425249964f;
                 acc2 += dUp * 0.383625f;
                 acc2 += dDown * 0.136125f;
                 acc2 += *down * 0.57475f;
@@ -787,8 +795,8 @@ void daObjTapestryPacket_c::calc_nrm() {
                 cXyz acc = *left * 0.57475f;
                 acc += dLeft * 0.358875f;
                 acc += dRight * 0.111375f;
-                acc += *right * 0.42525f;
-                cXyz acc2 = *left * 0.42525f;
+                acc += *right * 0.425249964f;
+                cXyz acc2 = *left * 0.425249964f;
                 acc2 += dLeft * 0.383625f;
                 acc2 += dRight * 0.136125f;
                 acc2 += *right * 0.57475f;
@@ -1260,14 +1268,6 @@ void daObjTapestryPacket_c::draw() {
     J3DShape::sOldVcdVatCmd = NULL;
 }
 
-bool daObjTapestry_c::is_switch() const {
-    return dComIfGs_isSwitch(param_get_swSave(), home.roomNo);
-}
-
-void daObjTapestry_c::on_switch() const {
-    dComIfGs_onSwitch(param_get_swSave(), home.roomNo);
-}
-
 /* 000045C8-0000461C       .text chk_appear__15daObjTapestry_cFv */
 bool daObjTapestry_c::chk_appear() {
     fopAc_ac_c* i_this = this;
@@ -1300,7 +1300,7 @@ bool daObjTapestry_c::create_heap() {
     bool ret = true;
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(l_arcname_Mcrtn, 4);
     if (modelData == NULL) {
-        JUT_ASSERT(0x8CD, modelData != NULL);
+        JUT_ASSERT(0x8CD, 0);
         ret = false;
     } else {
         mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
@@ -1338,7 +1338,7 @@ void daObjTapestry_c::set_cc_pos() {
     for (int i = 0; i < 2; i++) {
         mDoMtx_copy(mpModel->getBaseTRMtx(), mDoMtx_stack_c::now);
         mDoMtx_stack_c::scaleM(1.5f, 1.2f, 1.5f);
-        mDoMtx_stack_c::transM(0.0f, 29.7f, 0.0f);
+        mDoMtx_stack_c::transM(0.0f, 29.7000065f, 0.0f);
         cXyz a, b, c;
         mDoMtx_multVec(mDoMtx_stack_c::now, mPacket.get_now_pos(idx_tbl[i][0], idx_tbl[i][1]), &a);
         mDoMtx_multVec(mDoMtx_stack_c::now, mPacket.get_now_pos(idx_tbl[i][2], idx_tbl[i][3]), &b);
