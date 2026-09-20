@@ -9,9 +9,8 @@
 #undef DBAT3U
 #undef LR
 
-extern u32 _db_stack_addr;
-
 #define EXCEPTIONMASK_ADDR 0x80000044
+#define DB_STACK_ADDR 0x8040efa8
 
 static u32 lc_base;
 
@@ -120,8 +119,8 @@ asm void InitMetroTRK() {
 	mtspr  0x3f2, r0
 	mtspr  0x3f5, r0
 	//Restore stack pointer
-	lis r1, _db_stack_addr@h
-	ori r1, r1, _db_stack_addr@l
+	lis r1, DB_STACK_ADDR@h
+	ori r1, r1, DB_STACK_ADDR@l
 	mr r3, r5
 	bl InitMetroTRKCommTable //Initialize comm table
 	/*
