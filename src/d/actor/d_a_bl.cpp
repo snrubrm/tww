@@ -87,10 +87,9 @@ void smoke_set(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
 
     if (i_this->mSmokeCb.getEmitter() == NULL) {
-        s8 roomNo = actor->current.roomNo;
         dComIfGp_particle_setToon(
             dPa_name::ID_AK_JT_ELEMENTSMOKE01, (cXyz*)&i_this->m6BC, &actor->shape_angle, NULL, 0xB9,
-            &i_this->mSmokeCb, roomNo
+            &i_this->mSmokeCb, fopAcM_GetRoomNo(actor)
         );
     }
 
@@ -119,9 +118,8 @@ void fire_move_set(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
 
     if (i_this->mFireCb.getEmitter() == NULL) {
-        s8 roomNo = actor->current.roomNo;
         dComIfGp_particle_set(
-            particleID, &actor->current.pos, NULL, NULL, 0xFF, &i_this->mFireCb, roomNo
+            particleID, &actor->current.pos, NULL, NULL, 0xFF, &i_this->mFireCb, fopAcM_GetRoomNo(actor)
         );
         if (i_this->mType == 1) {
             i_this->mSph.SetTgSe(dCcG_SE_METAL);
