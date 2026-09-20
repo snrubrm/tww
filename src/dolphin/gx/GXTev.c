@@ -69,11 +69,10 @@ void GXSetTevColorIn(GXTevStageID stage, GXTevColorArg a, GXTevColorArg b, GXTev
     u32 tevReg;
 
     tevReg = gx->tevc[stage];
-
-    SET_REG_FIELD(tevReg, 4, 12, 2);
-    SET_REG_FIELD(tevReg, 4, 8, 2);
-    SET_REG_FIELD(tevReg, 4, 4, 2);
-    SET_REG_FIELD(tevReg, 4, 0, 2);
+    tevReg = __rlwimi(tevReg, a, 12, 16, 19);
+    tevReg = __rlwimi(tevReg, b, 8, 20, 23);
+    tevReg = __rlwimi(tevReg, c, 4, 24, 27);
+    tevReg = __rlwimi(tevReg, d, 0, 28, 31);
 
     GX_WRITE_RAS_REG(tevReg);
 
@@ -86,11 +85,10 @@ void GXSetTevAlphaIn(GXTevStageID stage, GXTevAlphaArg a, GXTevAlphaArg b, GXTev
     u32 tevReg;
 
     tevReg = gx->teva[stage];
-
-    SET_REG_FIELD(tevReg, 3, 13, 2);
-    SET_REG_FIELD(tevReg, 3, 10, 2);
-    SET_REG_FIELD(tevReg, 3, 7, 2);
-    SET_REG_FIELD(tevReg, 3, 4, 2);
+    tevReg = __rlwimi(tevReg, a, 13, 16, 18);
+    tevReg = __rlwimi(tevReg, b, 10, 19, 21);
+    tevReg = __rlwimi(tevReg, c, 7, 22, 24);
+    tevReg = __rlwimi(tevReg, d, 4, 25, 27);
 
     GX_WRITE_RAS_REG(tevReg);
 
@@ -103,18 +101,18 @@ void GXSetTevColorOp(GXTevStageID stage, GXTevOp op, GXTevBias bias, GXTevScale 
     u32 tevReg;
 
     tevReg = gx->tevc[stage];
-    SET_REG_FIELD(tevReg, 1, 18, 2);
+    tevReg = __rlwimi(tevReg, op, 18, 13, 13);
 
     if (op <= GX_TEV_SUB) {
-        SET_REG_FIELD(tevReg, 2, 20, 2);
-        SET_REG_FIELD(tevReg, 2, 16, 2);
+        tevReg = __rlwimi(tevReg, scale, 20, 10, 11);
+        tevReg = __rlwimi(tevReg, bias, 16, 14, 15);
     } else {
-        SET_REG_FIELD(tevReg, 2, 20, 2);
-        SET_REG_FIELD(tevReg, 2, 16, 2);
+        tevReg = __rlwimi(tevReg, op, 19, 10, 11);
+        tevReg = __rlwimi(tevReg, 3, 16, 14, 15);
     }
 
-    SET_REG_FIELD(tevReg, 1, 19, 2);
-    SET_REG_FIELD(tevReg, 2, 22, 2);
+    tevReg = __rlwimi(tevReg, doClamp, 19, 12, 12);
+    tevReg = __rlwimi(tevReg, outReg, 22, 8, 9);
 
     GX_WRITE_RAS_REG(tevReg);
     gx->tevc[stage] = tevReg;
@@ -126,78 +124,86 @@ void GXSetTevAlphaOp(GXTevStageID stage, GXTevOp op, GXTevBias bias, GXTevScale 
     u32 tevReg;
 
     tevReg = gx->teva[stage];
-    SET_REG_FIELD(tevReg, 1, 18, 2);
+    tevReg = __rlwimi(tevReg, op, 18, 13, 13);
 
     if (op <= GX_TEV_SUB) {
-        SET_REG_FIELD(tevReg, 2, 20, 2);
-        SET_REG_FIELD(tevReg, 2, 16, 2);
+        tevReg = __rlwimi(tevReg, scale, 20, 10, 11);
+        tevReg = __rlwimi(tevReg, bias, 16, 14, 15);
     } else {
-        SET_REG_FIELD(tevReg, 2, 20, 2);
-        SET_REG_FIELD(tevReg, 2, 16, 2);
+        tevReg = __rlwimi(tevReg, op, 19, 10, 11);
+        tevReg = __rlwimi(tevReg, 3, 16, 14, 15);
     }
 
-    SET_REG_FIELD(tevReg, 1, 19, 2);
-    SET_REG_FIELD(tevReg, 2, 22, 2);
+    tevReg = __rlwimi(tevReg, doClamp, 19, 12, 12);
+    tevReg = __rlwimi(tevReg, outReg, 22, 8, 9);
 
     GX_WRITE_RAS_REG(tevReg);
     gx->teva[stage] = tevReg;
     gx->bpSentNot = GX_FALSE;
 }
 
-void GXSetTevColor(GXTevRegID reg, GXColor color) {
-    u32 col = *(u32*)&color;
-    u32 ra = (0xE0 + reg * 2) << 24;
-    u32 bg = (0xE1 + reg * 2) << 24;
+void GXSetTevColor(GXTevRegID id, GXColor color) {
+    u32 ra;
+    u32 bg;
 
-    GX_SET_REG(ra, col >> 24, 24, 31);
-    GX_SET_REG(bg, col >> 8, 24, 31);
-    GX_SET_REG(bg, col >> 16, 12, 19);
-    GX_SET_REG(ra, col & 0xFF, 12, 19);
+    ra = 0;
+    SET_REG_FIELD(ra, 11, 0, color.r);
+    SET_REG_FIELD(ra, 11, 12, color.a);
+    SET_REG_FIELD(ra, 8, 24, 0xE0 + id * 2);
 
-    GX_BP_LOAD_REG(ra);
-    GX_BP_LOAD_REG(bg);
-    GX_BP_LOAD_REG(bg);
-    GX_BP_LOAD_REG(bg);
+    bg = 0;
+    SET_REG_FIELD(bg, 11, 0, color.b);
+    SET_REG_FIELD(bg, 11, 12, color.g);
+    SET_REG_FIELD(bg, 8, 24, 0xE1 + id * 2);
+
+    GX_WRITE_RAS_REG(ra);
+    GX_WRITE_RAS_REG(bg);
+    GX_WRITE_RAS_REG(bg);
+    GX_WRITE_RAS_REG(bg);
 
     gx->bpSentNot = GX_FALSE;
 }
 
-void GXSetTevColorS10(GXTevRegID reg, GXColorS10 color) {
-    u32 col = *(u32*)&color;
-    u32 col1 = ((u32*)&color)[1];
-    u32 ra = (0xE0 + reg * 2) << 24;
-    u32 bg = (0xE1 + reg * 2) << 24;
+void GXSetTevColorS10(GXTevRegID id, GXColorS10 color) {
+    u32 ra;
+    u32 bg;
 
-    GX_SET_REG(ra, col >> 16, 21, 31);
-    GX_SET_REG(bg, col1 >> 16, 21, 31);
-    GX_SET_REG(bg, col & 0x7FF, 9, 19);
-    GX_SET_REG(ra, col1 & 0x7FF, 9, 19);
+    ra = 0;
+    SET_REG_FIELD(ra, 11, 0, color.r & 0x7FF);
+    SET_REG_FIELD(ra, 11, 12, color.a & 0x7FF);
+    SET_REG_FIELD(ra, 8, 24, 0xE0 + id * 2);
 
-    GX_BP_LOAD_REG(ra);
-    GX_BP_LOAD_REG(bg);
-    GX_BP_LOAD_REG(bg);
-    GX_BP_LOAD_REG(bg);
+    bg = 0;
+    SET_REG_FIELD(bg, 11, 0, color.b & 0x7FF);
+    SET_REG_FIELD(bg, 11, 12, color.g & 0x7FF);
+    SET_REG_FIELD(bg, 8, 24, 0xE1 + id * 2);
+
+    GX_WRITE_RAS_REG(ra);
+    GX_WRITE_RAS_REG(bg);
+    GX_WRITE_RAS_REG(bg);
+    GX_WRITE_RAS_REG(bg);
 
     gx->bpSentNot = GX_FALSE;
 }
 
 void GXSetTevKColor(GXTevKColorID id, GXColor color) {
-    u32 col = *(u32*)&color;
     u32 ra;
     u32 bg;
 
-    ra = (0xE0 + id * 2) << 24;
-    GX_SET_REG(ra, col >> 24, 24, 31);
-    GX_SET_REG(ra, col & 0xFF, 12, 19);
-    GX_SET_REG(ra, 8, 8, 11);
+    ra = 0;
+    SET_REG_FIELD(ra, 8, 0, color.r);
+    SET_REG_FIELD(ra, 8, 12, color.a);
+    SET_REG_FIELD(ra, 4, 20, 8);
+    SET_REG_FIELD(ra, 8, 24, 0xE0 + id * 2);
 
-    bg = (0xE1 + id * 2) << 24;
-    GX_SET_REG(bg, col >> 8, 24, 31);
-    GX_SET_REG(bg, col >> 16, 12, 19);
-    GX_SET_REG(bg, 8, 8, 11);
+    bg = 0;
+    SET_REG_FIELD(bg, 8, 0, color.b);
+    SET_REG_FIELD(bg, 8, 12, color.g);
+    SET_REG_FIELD(bg, 4, 20, 8);
+    SET_REG_FIELD(bg, 8, 24, 0xE1 + id * 2);
 
-    GX_BP_LOAD_REG(ra);
-    GX_BP_LOAD_REG(bg);
+    GX_WRITE_RAS_REG(ra);
+    GX_WRITE_RAS_REG(bg);
 
     gx->bpSentNot = GX_FALSE;
 }
