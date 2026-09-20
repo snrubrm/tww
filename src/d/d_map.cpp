@@ -20,6 +20,7 @@
 #include "m_Do/m_Do_mtx.h"
 #include "JSystem/J2DGraph/J2DGrafContext.h"
 #include "stdio.h"
+#include "string.h"
 
 
 enum {
@@ -1945,7 +1946,7 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
     switch (type) {
     case 1: {
         u8* buf = mAgbSendBuf;
-        *(u16*)(buf + 2) = mDoLib_cnvind16((buf, (u16)sx));
+        *(u16*)(buf + 2) = mDoLib_cnvind16((u16)sx);
         *(u16*)(buf + 4) = mDoLib_cnvind16((u16)sz);
         buf[6] = (s16)angle >> 8;
         buf[7] = type;
@@ -1958,7 +1959,7 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
     }
     case 3: {
         u8* buf = mAgbSendBuf;
-        *(u16*)(buf + 0xA) = mDoLib_cnvind16((buf, (u16)sx));
+        *(u16*)(buf + 0xA) = mDoLib_cnvind16((u16)sx);
         *(u16*)(buf + 0xC) = mDoLib_cnvind16((u16)sz);
         buf[0xE] = (s16)angle >> 8;
         buf[0xF] = type;
@@ -2019,7 +2020,7 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
 BOOL dMap_c::isPointStayInDspNowRoomAgbScr(s16 param_1, s16 param_2) {
     /* Nonmatching */
     BOOL ret = true;
-    if (param_1 < -8 || param_1 > mNowRoomInfoP->field_0x28 + 8.0f || param_2 < -8 || param_2 > mNowRoomInfoP->field_0x2c + 8.0f) {
+    if (param_1 < -8 || param_1 > 8.0f + mNowRoomInfoP->field_0x28 || param_2 < -8 || param_2 > 8.0f + mNowRoomInfoP->field_0x2c) {
         ret = false;
     }
     return ret;
@@ -2086,7 +2087,7 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
     int kind = type;
     if (kind == 1) {
         u8* buf = mAgbSendBuf;
-        *(u16*)(buf + 2) = mDoLib_cnvind16((buf, (u16)sx));
+        *(u16*)(buf + 2) = mDoLib_cnvind16((u16)sx);
         *(u16*)(buf + 4) = mDoLib_cnvind16((u16)sz);
         buf[6] = (s16)angle >> 8;
         buf[7] = type;
@@ -2097,7 +2098,7 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
         mSetCursorFlg |= 1;
     } else if (kind == 3) {
         u8* buf = mAgbSendBuf;
-        *(u16*)(buf + 0xA) = mDoLib_cnvind16((buf, (u16)sx));
+        *(u16*)(buf + 0xA) = mDoLib_cnvind16((u16)sx);
         *(u16*)(buf + 0xC) = mDoLib_cnvind16((u16)sz);
         buf[0xE] = (s16)angle >> 8;
         buf[0xF] = type;
@@ -2143,17 +2144,19 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
 /* 8004B814-8004B8A0       .text getPosAgbMapType__6dMap_cFffb */
 u8 dMap_c::getPosAgbMapType(f32 param_1, f32 param_2, bool param_3) {
     /* Nonmatching */
+    u8 ret;
     if (getKindMapType() == 1) {
-        if (isInDspArea(param_1, param_2, param_3)) {
-            return 3;
+        if ((u8)isInDspArea(param_1, param_2, param_3)) {
+            ret = 3;
         } else {
-            return 2;
+            ret = 2;
         }
     } else if (getKindMapType() == 2) {
-        return 1;
+        ret = 1;
     } else {
-        return 0;
+        ret = 0;
     }
+    return ret;
 }
 
 /* 8004B8A0-8004B8DC       .text setGbaPoint__6dMap_cFUcffsUcUcUcUc */
@@ -2679,9 +2682,9 @@ void dMap_c::mapBufferSendAGB_ocean() {
         for (int y = -3; y < 4; y++) {
             for (int x = -3; x < 4; x++) {
                 int gridNo = gridPos2GridNo(x, y);
-                int byteIdx;
-                int bitIdx;
-                BOOL arrived = ((byteIdx = gridNo / 8), (bitIdx = gridNo % 8), isSaveArriveGridForAgbUseGridPos(x, y));
+                int byteIdx = gridNo / 8;
+                int bitIdx = gridNo % 8;
+                BOOL arrived = isSaveArriveGridForAgbUseGridPos(x, y);
                 mGbaSendMapOceanDt__6dMap_c[byteIdx] |= (arrived != 0) << bitIdx;
             }
         }
@@ -3026,6 +3029,161 @@ void dMap_2DAGBScrDsp_c::calc_standard_prm(u16 param_1, u16 param_2, f32 param_3
 /* 8004E698-8004EE30       .text draw__18dMap_2DAGBScrDsp_cFv */
 void dMap_2DAGBScrDsp_c::draw() {
     /* Nonmatching */
+    static GXColor masterTevColor = {255, 255, 255, 255};
+
+    if (field_0x4 == NULL) {
+        return;
+    }
+    if (mImg != NULL) {
+        if (mScaleX == 0.0f) {
+            return;
+        }
+        if (mScaleY != 0.0f) {
+            goto body;
+        } else {
+            return;
+        }
+    } else {
+        return;
+    }
+body: {
+    GXColor color;
+    memcpy(&color, &masterTevColor, 4);
+    GXVtxAttrFmtList fmtList[GX_VA_MAX_ATTR + 1];
+    GXGetVtxAttrFmtv(GX_VTXFMT0, fmtList);
+    GXLoadTlut(&field_0x2c, 0);
+    GXLoadTexObj(&field_0xc, GX_TEXMAP0);
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_TEX_ST, GX_F32, 0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+    GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
+    GXSetNumChans(0);
+    GXSetNumTexGens(1);
+    GXSetTexCoordGen(GX_TEXCOORD0, GX_TG_MTX2x4, GX_TG_TEX0, GX_IDENTITY);
+    GXSetNumTevStages(1);
+    color.a = mAlpha;
+    GXSetTevColor(GX_TEVREG0, color);
+    GXSetZMode(GX_DISABLE, GX_LEQUAL, GX_DISABLE);
+    GXSetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR_NULL);
+    GXSetTevColorIn(GX_TEVSTAGE0, GX_CC_ZERO, GX_CC_ZERO, GX_CC_ZERO, GX_CC_TEXC);
+    GXSetTevColorOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+    GXSetTevAlphaIn(GX_TEVSTAGE0, GX_CA_ZERO, GX_CA_A0, GX_CA_TEXA, GX_CA_ZERO);
+    GXSetTevAlphaOp(GX_TEVSTAGE0, GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+    GXSetBlendMode(GX_BM_BLEND, GX_BL_SRC_ALPHA, GX_BL_INV_SRC_ALPHA, GX_LO_SET);
+    GXSetCullMode(GX_CULL_NONE);
+    GXSetAlphaCompare(GX_GEQUAL, mAlpha, GX_AOP_AND, GX_ALWAYS, 0);
+    GXSetColorUpdate(GX_ENABLE);
+    GXSetAlphaUpdate(GX_ENABLE);
+    GXSetDstAlpha(GX_ENABLE, 0);
+
+    f32 invW = 8.0f / (int)mImg->width;
+    f32 invH = 8.0f / (int)mImg->height;
+    u8 mapW = ((u8*)field_0x4)[0x30];
+    u8 mapH = ((u8*)field_0x4)[0x31];
+    f32 centerX = 0.5f * (field_0x40 + field_0x3c);
+    f32 centerY = 0.5f * (field_0x42 + field_0x3e);
+    u32 mapOff = mDoLib_cnvind32(*(u32*)((u8*)field_0x4 + 0x34));
+    u16* mapBase = (u16*)((u8*)field_0x4 + mapOff);
+
+    int tileNumX;
+    int tileNumY;
+    int startTileX;
+    int startTileY;
+    f32 offX;
+    f32 offY;
+    f32 texS0Start;
+    f32 texS1End;
+    f32 texT0Start;
+    f32 texT1End;
+    calc_standard_prm(
+        8, 8, field_0x44, field_0x48, field_0x3c, field_0x3e, field_0x40, field_0x42, mScaleX, mScaleY,
+        &tileNumX, &tileNumY, &startTileX, &startTileY, &offX, &offY, &texS0Start, &texS1End, &texT0Start, &texT1End
+    );
+
+    int iy = 0;
+    int yPix = 0;
+    for (; iy < tileNumY; iy++, yPix += 8) {
+        f32 y0 = centerY + (offY + mScaleY * yPix);
+        f32 y1 = y0 + 8.0f * mScaleY;
+        int tileY = iy + startTileY;
+        if (tileY < 0 || tileY >= mapH) {
+            continue;
+        }
+
+        f32 texT0 = 0.00625f;
+        f32 texT1 = 0.99375f;
+        if (iy == 0) {
+            texT0 = texT0Start;
+            y0 = field_0x3e;
+        } else if (iy == tileNumY - 1) {
+            texT1 = texT1End;
+            y1 = field_0x42;
+        }
+
+        int ix = 0;
+        int xPix = 0;
+        u16* row = mapBase + tileY * mapW;
+        f32 texT0Flip = 1.0f - texT0;
+        f32 texT1Flip = 1.0f - texT1;
+        for (; ix < tileNumX; ix++, xPix += 8) {
+            f32 x0 = centerX + (offX + mScaleX * xPix);
+            f32 x1 = x0 + 8.0f * mScaleX;
+            int tileX = ix + startTileX;
+            if (tileX < 0 || tileX >= mapW) {
+                continue;
+            }
+
+            f32 texS0 = 0.00625f;
+            f32 texS1 = 0.99375f;
+            if (ix == 0) {
+                texS0 = texS0Start;
+                x0 = field_0x3c;
+            } else if (ix == tileNumX - 1) {
+                texS1 = texS1End;
+                x1 = field_0x40;
+            }
+
+            u16 info = mDoLib_cnvind16(row[tileX]);
+            f32 t0;
+            f32 t1;
+            if (info & 0x800) {
+                t0 = texT0Flip;
+                t1 = texT1Flip;
+            } else {
+                t0 = texT0;
+                t1 = texT1;
+            }
+            if (info & 0x400) {
+                texS0 = 1.0f - texS0;
+                texS1 = 1.0f - texS1;
+            }
+
+            int idxS = info & 0xF;
+            int idxT = (info >> 4) & 0x3F;
+            f32 s0 = invW * (idxS + texS0);
+            f32 s1 = invW * (idxS + texS1);
+            f32 t0n = invH * (idxT + t0);
+            f32 t1n = invH * (idxT + t1);
+
+            GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+            GXPosition3f32(x0, y0, 0.0f);
+            GXTexCoord2f32(s0, t0n);
+            GXPosition3f32(x1, y0, 0.0f);
+            GXTexCoord2f32(s1, t0n);
+            GXPosition3f32(x1, y1, 0.0f);
+            GXTexCoord2f32(s1, t1n);
+            GXPosition3f32(x0, y1, 0.0f);
+            GXTexCoord2f32(s0, t1n);
+        }
+    }
+
+    GXSetColorUpdate(GX_ENABLE);
+    GXSetAlphaUpdate(GX_DISABLE);
+    GXSetDstAlpha(GX_DISABLE, 0);
+    GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
+    GXSetVtxAttrFmtv(GX_VTXFMT0, fmtList);
+}
 }
 
 /* 8004EE30-8004EE44       .text setPos__18dMap_2DAGBScrDsp_cFssss */
