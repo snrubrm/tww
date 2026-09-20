@@ -435,7 +435,8 @@ void daObjBuoyflag::Packet_c::calc_wind_base(Act_c* actor) {
             mDoMtx_stack_c::multVecSR(&cXyz::BaseZ, &mWind);
             mWind *= L_attr.minWind;
         } else {
-            mWind *= L_attr.minWind / std::sqrtf(mag2);
+            f32 scale = L_attr.minWind / std::sqrtf(mag2);
+            mWind *= scale;
         }
     }
 }
