@@ -772,21 +772,22 @@ BOOL dMap_RoomInfo_c::deleteRoom() {
 /* 80046FE0-800470CC       .text enlagementSizeTextureCordCalc__15dMap_RoomInfo_cFPfPfPfPfffffff */
 bool dMap_RoomInfo_c::enlagementSizeTextureCordCalc(f32* param_1, f32* param_2, f32* param_3, f32* param_4, f32 param_5, f32 param_6, f32 param_7, f32 param_8, f32 param_9, f32 param_10) {
     /* Nonmatching */
-    f32 f10 = param_5 - param_6 * 0.5f;
-    f32 f9 = param_5 + param_6 * 0.5f;
+    f32 f10 = param_5 - 0.5f * param_6;
+    f32 f9 = param_5 + 0.5f * param_6;
+    f32 inv = 1.0f / param_9;
     f32 f7 = *param_3;
-    f32 f12 = (1.0f / param_9) * f7;
+    f32 f12 = inv * f7;
     f32 f8 = *param_4;
-    f32 f11 = (1.0f / param_9) * f8;
+    f32 f11 = inv * f8;
     f32 f31 = param_8 + f12;
     f32 f13 = param_8 + f11;
     bool ret = false;
-    if (param_9 != 0.0f || f31 <= f9 || f13 >= f10) {
+    if (0.0f != param_9 || f31 <= f9 || f13 >= f10) {
         f32 tmp = ((param_8 - param_5) * param_7) / param_10;
         param_7 = f7;
         param_10 = f8;
-        *param_1 = tmp + 0.5f + f12 / param_6;
-        *param_2 = tmp + 0.5f + f11 / param_6;
+        *param_1 = 0.5f + tmp + f12 / param_6;
+        *param_2 = 0.5f + tmp + f11 / param_6;
         if (f31 < f10) {
             *param_1 = 0.0f;
             param_7 = (f10 - param_8) * param_9;
@@ -2020,8 +2021,17 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
 BOOL dMap_c::isPointStayInDspNowRoomAgbScr(s16 param_1, s16 param_2) {
     /* Nonmatching */
     BOOL ret = true;
-    if (param_1 < -8 || param_1 > 8.0f + mNowRoomInfoP->field_0x28 || param_2 < -8 || param_2 > 8.0f + mNowRoomInfoP->field_0x2c) {
+    if (param_1 < -8) {
         ret = false;
+    } else {
+        dMap_RoomInfo_c* room = mNowRoomInfoP;
+        if ((f32)param_1 > room->field_0x28 + 8.0f) {
+            ret = false;
+        } else if (param_2 < -8) {
+            ret = false;
+        } else if ((f32)param_2 > room->field_0x2c + 8.0f) {
+            ret = false;
+        }
     }
     return ret;
 }
@@ -2685,7 +2695,7 @@ void dMap_c::mapBufferSendAGB_ocean() {
                 int byteIdx = gridNo / 8;
                 int bitIdx = gridNo % 8;
                 BOOL arrived = isSaveArriveGridForAgbUseGridPos(x, y);
-                mGbaSendMapOceanDt__6dMap_c[byteIdx] |= (arrived != 0) << bitIdx;
+                mGbaSendMapOceanDt__6dMap_c[byteIdx] |= arrived << bitIdx;
             }
         }
         mDoGac_SendDataSet((u32*)mGbaSendMapOceanDt__6dMap_c, 8, 0xB, 0);
