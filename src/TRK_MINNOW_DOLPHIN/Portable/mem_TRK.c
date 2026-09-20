@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #pragma dont_inline on
+#pragma opt_propagation off
 void TRK_fill_mem(void* dst, int val, u32 n) {
     u32 v, i, j;
     v = (u8)val;
@@ -49,7 +50,8 @@ void TRK_fill_mem(void* dst, int val, u32 n) {
 
         ((u8*)dst) = ((u8*)(((u32*)dst) + 1)) - 1;
 
-        n %= 4;
+        i = 3;
+        n &= i;
     }
 
     if (n)
@@ -57,6 +59,7 @@ void TRK_fill_mem(void* dst, int val, u32 n) {
             *++((u8*)dst) = v;
         } while (--n);
 }
+#pragma opt_propagation reset
 #pragma dont_inline reset
 
 __declspec(section ".init") void* TRK_memcpy(void* dst, const void* src, size_t n) {
