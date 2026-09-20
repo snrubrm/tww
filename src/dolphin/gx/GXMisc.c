@@ -176,9 +176,9 @@ void GXPokeZMode(GXBool enable_compare, GXCompare comp, GXBool update_enable) {
 
 void GXPeekARGB(u16 x, u16 y, u32* color) {
     u32 addr = 0xc8000000;
-    GX_BITFIELD_SET(addr, 0x14, 10, x);
-    GX_BITFIELD_SET(addr, 0xa, 10, y);
-    GX_BITFIELD_SET(addr, 8, 2, 0);
+    SET_REG_FIELD(addr, 10, 2, x);
+    SET_REG_FIELD(addr, 10, 12, y);
+    SET_REG_FIELD(addr, 2, 22, 0);
     *color = *(u32*)addr;
 }
 
