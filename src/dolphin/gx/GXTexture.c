@@ -251,6 +251,10 @@ void GXInitTexObjLOD(GXTexObj* obj, GXTexFilter minFilter, GXTexFilter maxFilter
     GX_SET_REG(internal->texture_lod, reg2, 16, 23);
 }
 
+void* GXGetTexObjData(GXTexObj* obj) {
+    return (void*)((obj->texture_address & 0x1FFFFF) << 5);
+}
+
 u16 GXGetTexObjWidth(const GXTexObj* obj) {
     return (obj->texture_size & 0x3ff) + 1;
 }
@@ -323,10 +327,10 @@ void GXInitTlutObj(GXTlutObj* obj, void* table, GXTlutFmt format, u16 numEntries
     internal->format = 0;
 
     GX_SET_REG(internal->format, format, 20, 21);
-    GX_SET_REG(internal->address, (u32)table >> 5, 11, 31);
+    GX_SET_REG(internal->address, ((u32)table & 0x3FFFFFFF) >> 5, 11, 31);
     GX_SET_REG(internal->address, 100, 0, 7);
 
-    internal->numEntries = numEntries;
+    *(u16*)&internal->numEntries = numEntries;
 }
 
 void GXLoadTlut(GXTlutObj* obj, u32 tlut_name) {
@@ -426,29 +430,45 @@ GXTlutRegionCallback GXSetTlutRegionCallback(GXTlutRegionCallback callback) {
 }
 
 void GXSetTexCoordScaleManually(GXTexCoordID coord, GXBool enable, u16 s_scale, u16 t_scale) {
-    /* Nonmatching */
+    gx->tcsManEnab = (gx->tcsManEnab & ~(1 << coord)) | (enable << coord);
+
+    if (enable != 0) {
+        GX_SET_REG(gx->suTs0[coord], (u16)(s_scale - 1), 16, 31);
+        GX_SET_REG(gx->suTs1[coord], (u16)(t_scale - 1), 16, 31);
+        GX_BP_LOAD_REG(gx->suTs0[coord]);
+        GX_BP_LOAD_REG(gx->suTs1[coord]);
+        gx->bpSentNot = GX_FALSE;
+    }
+}
+
+void GXSetTexCoordBias(GXTexCoordID coord, GXBool s_enable, GXBool t_enable) {
+    GX_SET_REG(gx->suTs0[coord], s_enable, 15, 15);
+    GX_SET_REG(gx->suTs1[coord], t_enable, 15, 15);
+
+    if (gx->tcsManEnab & (1 << coord)) {
+        GX_BP_LOAD_REG(gx->suTs0[coord]);
+        GX_BP_LOAD_REG(gx->suTs1[coord]);
+        gx->bpSentNot = GX_FALSE;
+    }
 }
 
 void __SetSURegs(u32 texImgIndex, u32 setUpRegIndex) {
-    u16 a1, a2;
-    GXBool b, c;
+    u32 w;
+    u32 h;
+    u8 s_bias;
+    u8 t_bias;
 
-    a1 = GX_GET_REG(gx->tImage0[texImgIndex], 22, 31);
-    a2 = (gx->tImage0[texImgIndex] & (0x3ff << 10)) >> 10;
-
-    GX_SET_REG(gx->suTs0[setUpRegIndex], a1, 16, 31);
-    GX_SET_REG(gx->suTs1[setUpRegIndex], a2, 16, 31);
-
-    b = GX_GET_REG(gx->tMode0[texImgIndex], 30, 31) == 1;
-    c = GX_GET_REG(gx->tMode0[texImgIndex], 28, 29) == 1;
-
-    GX_SET_REG(gx->suTs0[setUpRegIndex], b, 15, 15);
-    GX_SET_REG(gx->suTs1[setUpRegIndex], c, 15, 15);
-
+    w = GET_REG_FIELD(gx->tImage0[texImgIndex], 10, 0);
+    h = GET_REG_FIELD(gx->tImage0[texImgIndex], 10, 10);
+    SET_REG_FIELD(gx->suTs0[setUpRegIndex], 16, 0, w);
+    SET_REG_FIELD(gx->suTs1[setUpRegIndex], 16, 0, h);
+    s_bias = GET_REG_FIELD(gx->tMode0[texImgIndex], 2, 0) == 1;
+    t_bias = GET_REG_FIELD(gx->tMode0[texImgIndex], 2, 2) == 1;
+    SET_REG_FIELD(gx->suTs0[setUpRegIndex], 1, 16, s_bias);
+    SET_REG_FIELD(gx->suTs1[setUpRegIndex], 1, 16, t_bias);
     GX_BP_LOAD_REG(gx->suTs0[setUpRegIndex]);
     GX_BP_LOAD_REG(gx->suTs1[setUpRegIndex]);
-
-    gx->bpSentNot = GX_FALSE;
+    gx->bpSentNot = 0;
 }
 
 #pragma dont_inline on
