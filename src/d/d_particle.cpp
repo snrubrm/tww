@@ -473,74 +473,109 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     f32 width = 2.0f * params->mScaleX * JPADraw::cb.mGlobalScaleX;
     f32 height = 2.0f * params->mScaleY * JPADraw::cb.mGlobalScaleY;
     f32 pivotX = emtr->getPivotX();
-    f32 x0 = -((width * pivotX) * 0.5f);
+    f32 x0 = width * pivotX;
+    x0 = -(0.5f * x0);
     f32 x1 = width + x0;
     f32 pivotY = emtr->getPivotY();
-    f32 y1 = -((height * pivotY) * 0.5f);
+    f32 y1 = height * pivotY;
+    y1 = -(0.5f * y1);
     f32 y0 = height + y1;
     u8 alpha = emtr->getGlobalAlpha();
     MtxP drawMtx = JPADraw::cb.mDrawMtxPtr;
     MTXMultVec(drawMtx, pos, pos);
 
-    f32 c0x = (cos * x0 - sin * y0) + pos.x;
-    f32 c0y = (cos * y0 + sin * x0) + pos.y;
+    f32 c0x = cos * x0 - sin * y0;
+    c0x += pos.x;
+    f32 c0y = cos * y0 + sin * x0;
+    c0y += pos.y;
+    f32 pz = pos.z;
     f32 c1x = (cos * x1 - sin * y0) + pos.x;
     f32 c1y = (cos * y0 + sin * x1) + pos.y;
     f32 c2x = (cos * x1 - sin * y1) + pos.x;
     f32 c2y = (cos * y1 + sin * x1) + pos.y;
     f32 c3x = (cos * x0 - sin * y1) + pos.x;
     f32 c3y = (cos * y1 + sin * x0) + pos.y;
-    f32 nz = pos.z - pos.z;
 
-    JGeometry::TVec3<f32> nCenter;
-    nCenter.x = drawMtx[0][3] - pos.x;
-    nCenter.y = drawMtx[1][3] - pos.y;
-    nCenter.z = drawMtx[2][3] - pos.z;
-    nCenter.normalize();
-    JGeometry::TVec3<f32> n0;
-    n0.x = c0x - pos.x;
-    n0.y = c0y - pos.y;
-    n0.z = nz;
-    n0.normalize();
-    JGeometry::TVec3<f32> n1;
-    n1.x = c1x - pos.x;
-    n1.y = c1y - pos.y;
-    n1.z = nz;
-    n1.normalize();
-    JGeometry::TVec3<f32> n2;
-    n2.x = c2x - pos.x;
-    n2.y = c2y - pos.y;
-    n2.z = nz;
-    n2.normalize();
-    JGeometry::TVec3<f32> n3;
-    n3.x = c3x - pos.x;
-    n3.y = c3y - pos.y;
-    n3.z = nz;
-    n3.normalize();
+    f32 ncx = drawMtx[0][3] - pos.x;
+    f32 ncy = drawMtx[1][3] - pos.y;
+    f32 ncz = drawMtx[2][3] - pz;
+    f32 n0x = c0x - pos.x;
+    f32 n0y = c0y - pos.y;
+    f32 n0z = pz - pz;
+    f32 n1x = c1x - pos.x;
+    f32 n1y = c1y - pos.y;
+    f32 n1z = n0z;
+    f32 n2x = c2x - pos.x;
+    f32 n2y = c2y - pos.y;
+    f32 n2z = n0z;
+    f32 n3x = c3x - pos.x;
+    f32 n3y = c3y - pos.y;
+    f32 n3z = n0z;
+
+    f32 sq = ncz * ncz + (ncx * ncx + ncy * ncy);
+    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
+    } else {
+        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
+        ncx *= n;
+        ncy *= n;
+        ncz *= n;
+    }
+    sq = n0z * n0z + (n0x * n0x + n0y * n0y);
+    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
+    } else {
+        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
+        n0x *= n;
+        n0y *= n;
+        n0z *= n;
+    }
+    sq = n1z * n1z + (n1x * n1x + n1y * n1y);
+    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
+    } else {
+        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
+        n1x *= n;
+        n1y *= n;
+        n1z *= n;
+    }
+    sq = n2z * n2z + (n2x * n2x + n2y * n2y);
+    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
+    } else {
+        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
+        n2x *= n;
+        n2y *= n;
+        n2z *= n;
+    }
+    sq = n3z * n3z + (n3x * n3x + n3y * n3y);
+    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
+    } else {
+        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
+        n3x *= n;
+        n3y *= n;
+        n3z *= n;
+    }
 
     GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, 6);
-    GXPosition3f32(pos.x, pos.y, pos.z);
-    GXNormal3f32(nCenter.x, nCenter.y, nCenter.z);
+    GXPosition3f32(pos.x, pos.y, pz);
+    GXNormal3f32(ncx, ncy, ncz);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.5f, 0.5f);
-    GXPosition3f32(c0x, c0y, pos.z);
-    GXNormal3f32(n0.x, n0.y, n0.z);
+    GXPosition3f32(c0x, c0y, pz);
+    GXNormal3f32(n0x, n0y, n0z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 0.0f);
-    GXPosition3f32(c1x, c1y, pos.z);
-    GXNormal3f32(n1.x, n1.y, n1.z);
+    GXPosition3f32(c1x, c1y, pz);
+    GXNormal3f32(n1x, n1y, n1z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(1.0f, 0.0f);
-    GXPosition3f32(c2x, c2y, pos.z);
-    GXNormal3f32(n2.x, n2.y, n2.z);
+    GXPosition3f32(c2x, c2y, pz);
+    GXNormal3f32(n2x, n2y, n2z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(1.0f, 1.0f);
-    GXPosition3f32(c3x, c3y, pos.z);
-    GXNormal3f32(n3.x, n3.y, n3.z);
+    GXPosition3f32(c3x, c3y, pz);
+    GXNormal3f32(n3x, n3y, n3z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 1.0f);
-    GXPosition3f32(c0x, c0y, pos.z);
-    GXNormal3f32(n0.x, n0.y, n0.z);
+    GXPosition3f32(c0x, c0y, pz);
+    GXNormal3f32(n0x, n0y, n0z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 0.0f);
     ptcl->setInvisibleParticleFlag();
@@ -1261,6 +1296,7 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
     u32 n = emitter->getParticleList()->getNumLinks();
     JGeometry::TVec3<f32> trans;
     emitter->getGlobalTranslation(trans);
+    f32 u;
     f32 step = 1.0f / (n - 1);
     if (n < 2) {
         return;
@@ -1279,7 +1315,7 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
 
     Vec* collapse = mCollapsePos;
     for (int i = 0; i < 2; i++, collapse++) {
-        f32 u = 0.0f;
+        u = 0.0f;
         f32 z = collapse->z;
         Vec vz = mRotMtx[2];
         vz.x *= z;
@@ -1298,12 +1334,12 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
         vx.y *= x;
         vx.z *= x;
         Vec unusedX = vx;
-        Vec xy = vx;
+        Vec xy = unusedX;
         xy.x += scaledY.x;
         xy.y += scaledY.y;
         xy.z += scaledY.z;
         Vec unusedXY = xy;
-        Vec out = xy;
+        Vec out = unusedXY;
         out.x += scaledZ.x;
         out.y += scaledZ.y;
         out.z += scaledZ.z;
