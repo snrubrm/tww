@@ -1371,7 +1371,7 @@ config.libs = [
             Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/notify.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/ppc/Generic/flush_cache.c"),
             Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Portable/mem_TRK.c"),
-            Object(NonMatching, "TRK_MINNOW_DOLPHIN/ppc/Generic/targimpl.c"),
+            Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/ppc/Generic/targimpl.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/ppc/Export/targsupp.s"),
             Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/ppc/Generic/exception.s"),
             Object(NonMatching, "TRK_MINNOW_DOLPHIN/Os/dolphin/dolphin_trk.c"),

@@ -81,6 +81,7 @@ void TRK_ppc_memcpy(__REGISTER void* dest, __REGISTER const void* src, __REGISTE
 
 void TRKRestoreExtended1Block();
 void TRKUARTInterruptHandler();
+u8 TRKTargetCPUMinorType(void);
 
 #pragma dont_inline on
 DSError TRKValidMemory32(const void* addr, size_t length, ValidMemoryOptions readWriteable) {
@@ -431,7 +432,6 @@ typedef struct TRKCPUType {
     u8 extended2Size;
 } TRKCPUType;
 
-// Nonmatching: constant-load scheduling differs in the CPU capability record.
 DSError TRKTargetCPUType(TRKCPUType* cpuType) {
     cpuType->major = 0;
     cpuType->minor = TRKTargetCPUMinorType();
