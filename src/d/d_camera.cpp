@@ -4058,8 +4058,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             }
             talk->m3A0.U(relGlobe.U() + delta);
 
-            cSAngle lat;
-            lat = relGlobe.V() * (delta.Cos() + 0.1f) * val3 + cSAngle(val15);
+            cSAngle lat = relGlobe.V() * (cSAngle(relGlobe.U() - chosenU).Cos() + 0.1f) * val3 + cSAngle(val15);
             if (lat > latMax) {
                 lat = latMax;
             }
@@ -4099,14 +4098,14 @@ bool dCamera_c::talktoCamera(s32 param_1) {
 
                 talk->m3A0.U(talk->m3A0.U() + step);
                 cSAngle d2 = relGlobe.U() - talk->m3A0.U();
-                cSAngle lat2 = relGlobe.V() * (d2.Cos() + 0.1f) * val3 + cSAngle(val15);
-                if (lat2 > latMax) {
-                    lat2 = latMax;
+                lat = relGlobe.V() * (d2.Cos() + 0.1f) * val3 + cSAngle(val15);
+                if (lat > latMax) {
+                    lat = latMax;
                 }
-                if (lat2 < latMin) {
-                    lat2 = latMin;
+                if (lat < latMin) {
+                    lat = latMin;
                 }
-                talk->m3A0.V(lat2);
+                talk->m3A0.V(lat);
             }
         }
 
@@ -4589,7 +4588,7 @@ bool dCamera_c::CalcSubjectAngle(s16* param_1, s16* param_2) {
     f32 f1;
     if (fVar6 > 0.7f) {
         f1 = 1.0f;
-    } 
+    }
     else if (fVar6 < -0.7f) {
         f1 = -1.0f;
     }
@@ -4600,7 +4599,7 @@ bool dCamera_c::CalcSubjectAngle(s16* param_1, s16* param_2) {
     f32 f3;
     if (fVar5 > 0.7f) {
         f3 = 1.0f;
-    } 
+    }
     else if (fVar5 < -0.7f) {
         f3 = -1.0f;
     }
@@ -6919,7 +6918,6 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
     cXyz spF0;
     cXyz spE4;
     cXyz spD8;
-    cXyz sp6C;
     cSGlobe g;
     f32 sp30;
 
@@ -6931,23 +6929,23 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
     
     if (m11C == 0) {
         p->m378 = cXyz(mCurRoomArrowEntry.position.x, mCurRoomArrowEntry.position.y, mCurRoomArrowEntry.position.z);
-                
+
         p->m3A8 = p->m378 + cSGlobe(3000.0f, -mCurRoomArrowEntry.angle.x, mCurRoomArrowEntry.angle.y).Xyz();
         p->m39C = p->m3A8;
 
         cM3dGLin line;
-        line.SetStartEnd(p->m3A8, p->m378);
+        line.SetStartEnd(p->m39C, p->m378);
         spF0 = attentionPos(mpPlayerActor);
 
         if (cM3d_Len3dSqPntAndSegLine(&line, &spF0, &spE4, &sp30)) {
-            p->m3A8 = spE4;
+            p->m39C = spE4;
         }
 
-        p->m384.Val(p->m378 - p->m3A8);
+        p->m384.Val(p->m378 - p->m39C);
 
         if (m530 && p->m384.R() < 350.0f) {
             g.R(350.0f);
-            p->m3A8 = p->m378 + g.Xyz();
+            p->m39C = p->m378 + g.Xyz();
             p->m384.R(350.0f);
         }
  
@@ -6955,8 +6953,7 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
     
         int uVar3 = mCurRoomCamEntry.field_0x13 == 0xFF ? -1 : mCurRoomCamEntry.field_0x13;
         if (uVar3 == -1) {
-            sp6C = p->m378 - mEye;
-            cam25 = sp6C.abs();
+            cam25 = cXyz(p->m378 - mEye).abs();
             f32 temp;
             if (is_player(mpPlayerActor)) {
                 temp = ((daPy_py_c *)mpPlayerActor)->getHeight();
@@ -6981,8 +6978,8 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
         mViewCache.mCenter += (p->m39C - mViewCache.mCenter) * cam25;
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p->m384.R() - mViewCache.mDirection.R()) * cam25);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (p->m384.U() - mViewCache.mDirection.U()) * cam25);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (p->m384.V() - mViewCache.mDirection.V()) * cam25);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (p->m384.V() - mViewCache.mDirection.V()) * cam25);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (p->m384.U() - mViewCache.mDirection.U()) * cam25);
 
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
