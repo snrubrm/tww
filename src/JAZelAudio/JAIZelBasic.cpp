@@ -1550,38 +1550,41 @@ void JAIZelBasic::bgmHitSound(s32 param_1) {
     case JA_BGM_BATTLE_NORM:
     case JA_BGM_MBOSS:
     case JA_BGM_MBOSS_S:
-        if (field_0x00c9 != 0) {
-            u16 port;
-            switch (param_1) {
-            case 1:
-                port = getRandomU32(2);
-                port += 4;
-                break;
-            case 4:
-                port = getRandomU32(2);
-                port += 6;
-                break;
-            case 2:
-                port = 8;
-                break;
-            case 3:
-                port = getRandomU32(2);
-                port += 9;
-                break;
-            case 0:
-            default:
-                port = getRandomU32(4);
-                break;
-            }
-            if (mpSubBgmSound) {
-                JASystem::TTrack* track = mpSubBgmSound->getSeqParameter()->getRootTrackPointer();
-                u16 tmp = 0;
-                track->readPortApp(0x100A0001, &tmp);
-                track->writePortApp(0x00090000, port + 1);
-                track->writePortApp(0x000A0000, tmp);
-            }
-        }
         break;
+    default:
+        return;
+    }
+    if (field_0x00c9 != 0) {
+        u16 port;
+        switch (param_1) {
+        case 1:
+            port = getRandomU32(2);
+            port += 4;
+            break;
+        case 4:
+            port = getRandomU32(2);
+            port += 6;
+            break;
+        case 2:
+            port = 8;
+            break;
+        case 3:
+            port = getRandomU32(2);
+            port += 9;
+            break;
+        case 0:
+        default:
+            port = getRandomU32(4);
+            break;
+        }
+        if (mpSubBgmSound) {
+            JASystem::TTrack* track = mpSubBgmSound->getSeqParameter()->getRootTrackPointer();
+            u16 tmp = 0;
+            track->readPortApp(0x100A0001, &tmp);
+            port += 1;
+            track->writePortApp(0x00090000, port);
+            track->writePortApp(0x000A0000, tmp);
+        }
     }
 }
 
