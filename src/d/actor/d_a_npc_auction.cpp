@@ -291,8 +291,7 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
     }
 
     u8 prmNo = i_this->getPrmNpcNo();
-    u8* aucP = (u8*)auction + prmNo;
-    u8 mdlNo = aucP[0x80C];
+    u8 mdlNo = ((u8*)auction + prmNo)[0x80C];
     i_this->setMdlNo(mdlNo);
 
     fpc_ProcID id = fopAcM_GetID(i_this);
@@ -312,13 +311,12 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
     int maxKind = l_kind_max[mdlNo][1];
     u8 kind;
     if (mdlNo == 2 || mdlNo == 3) {
-        u8* pUsed = &((u8*)auction)[0x81C];
-        if (*pUsed == 0xFF) {
+        if (((u8*)auction)[0x81C] == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            *pUsed = kind;
+            ((u8*)auction)[0x81C] = kind;
         } else {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            if (kind == *pUsed) {
+            if (kind == ((u8*)auction)[0x81C]) {
                 if (kind == (u8)maxKind) {
                     kind--;
                 } else {
@@ -327,13 +325,12 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
             }
         }
     } else if (mdlNo == 4 || mdlNo == 5) {
-        u8* pUsed = &((u8*)auction)[0x81D];
-        if (*pUsed == 0xFF) {
+        if (((u8*)auction)[0x81D] == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            *pUsed = kind;
+            ((u8*)auction)[0x81D] = kind;
         } else {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            if (kind == *pUsed) {
+            if (kind == ((u8*)auction)[0x81D]) {
                 if (kind == (u8)maxKind) {
                     kind--;
                 } else {
@@ -677,7 +674,7 @@ void daNpcAuction_c::eventMesSetInit(int staff) {
 
 /* 000018FC-00001930       .text eventMesSet__14daNpcAuction_cFv */
 BOOL daNpcAuction_c::eventMesSet() {
-    return talk(0) == fopMsgStts_BOX_CLOSED_e;
+    return talk(0) == fopMsgStts_BOX_CLOSED_e ? TRUE : FALSE;
 }
 
 /* 00001930-00001938       .text XyCheckCB__14daNpcAuction_cFi */
