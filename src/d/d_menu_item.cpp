@@ -793,7 +793,7 @@ void dMenu_Item_c::subWindowInit() {
                 mAF8[i].pane->hide();
             }
 
-            u8 num = dComIfGs_getBeastNum(equipBeastItem(i));
+            int num = dComIfGs_getBeastNum(equipBeastItem(i));
             if (num == 0) {
                 numberColor(mCB8[i].pane, 2);
                 numberColor(mAF8[i].pane, 2);
@@ -841,7 +841,7 @@ void dMenu_Item_c::subWindowInit() {
                 mAF8[i].pane->hide();
             }
 
-            u8 num = dComIfGs_getBaitNum(i);
+            int num = dComIfGs_getBaitNum(i);
             if (num == 0) {
                 numberColor(mCB8[i].pane, 2);
                 numberColor(mAF8[i].pane, 2);
@@ -1043,12 +1043,14 @@ void dMenu_Item_c::itemnameSet() {
     int r30 = 0;
     int i = 0;
 
+    J2DTextBox::TFontSize copiedFontSize;
+    J2DTextBox::TFontSize fontSize;
+
     J2DTextBox::TFontSize initialFontSize;
     initialFontSize.mSizeY = 29.0f;
     initialFontSize.mSizeX = 29.0f;
     ((J2DTextBox*)m858.pane)->setFontSize(initialFontSize);
 
-    J2DTextBox::TFontSize copiedFontSize;
     ((J2DTextBox*)m890[0].pane)->getFontSize(copiedFontSize);
     ((J2DTextBox*)m890[1].pane)->setFontSize(copiedFontSize);
     ((J2DTextBox*)m890[1].pane)->setCharSpace(((J2DTextBox*)m890[0].pane)->getCharSpace());
@@ -1075,7 +1077,6 @@ void dMenu_Item_c::itemnameSet() {
     mesg_header* head_p = msgGet.getMesgHeader(msgNo);
     JUT_ASSERT(0x565, head_p);
 
-    J2DTextBox::TFontSize fontSize;
     ((J2DTextBox*)m890[0].pane)->getFontSize(fontSize);
     fontSize.mSizeX = fontSize.mSizeY;
 
@@ -1356,7 +1357,8 @@ void dMenu_Item_c::noteOpen() {
     if (m7B0.mUserArea < g_miHIO.field_0x38) {
         scale = (g_miHIO.field_0x08 * m7B0.mUserArea) / g_miHIO.field_0x38;
     } else {
-        scale = (1.0f - fopMsgM_valueIncrease(g_miHIO.field_0x3A, threshold - m7B0.mUserArea, 0)) * (1.0f - g_miHIO.field_0x08) + g_miHIO.field_0x08;
+        f32 invRatio = 1.0f - g_miHIO.field_0x08;
+        scale = invRatio * (1.0f - fopMsgM_valueIncrease(g_miHIO.field_0x3A, threshold - m7B0.mUserArea, 0)) + g_miHIO.field_0x08;
     }
 
     fopMsgM_paneTrans(&m820, dx * scale, dy * scale);
@@ -1521,11 +1523,11 @@ void dMenu_Item_c::mainOpenProc(short i_step, short i_max, short i_offset) {
 
 /* 801CCD74-801CCE5C       .text titleOpenProc__12dMenu_Item_cFss */
 void dMenu_Item_c::titleOpenProc(short i_step, short i_max) {
-    int trans = g_miHIO.field_0x28;
+    s16 trans = g_miHIO.field_0x28;
 
     if (i_max >= i_step) {
         fopMsgM_valueIncrease(i_max, i_step, 0);
-        titleTrans(0.0f, fopMsgM_valueIncrease(i_max, i_max - i_step, 0) * (s16)trans);
+        titleTrans(0.0f, fopMsgM_valueIncrease(i_max, i_max - i_step, 0) * trans);
 
         fopMsgM_setInitAlpha(&m9A8);
         fopMsgM_setInitAlpha(&m9E0);
@@ -1557,11 +1559,11 @@ void dMenu_Item_c::noteOpenProc(short i_step, short i_max) {
 
 /* 801CCF50-801CD004       .text nameOpenProc__12dMenu_Item_cFss */
 void dMenu_Item_c::nameOpenProc(short i_step, short i_max) {
-    int trans = g_miHIO.field_0x2C;
+    s16 trans = g_miHIO.field_0x2C;
 
     if (i_max >= i_step) {
         fopMsgM_valueIncrease(i_max, i_step, 0);
-        nameTrans(0.0f, fopMsgM_valueIncrease(i_max, i_max - i_step, 0) * (s16)trans);
+        nameTrans(0.0f, fopMsgM_valueIncrease(i_max, i_max - i_step, 0) * trans);
 
         fopMsgM_setInitAlpha(&m890[0]);
         fopMsgM_setInitAlpha(&m900);
@@ -1696,8 +1698,8 @@ void dMenu_Item_c::itemCheck(int i_slot) {
                 ((u8)(itemNo - dItemNo_FIREFLY_BOTTLE_e) <= 1))))
             {
                 cXyz pos;
-                pos.x = m1658[i_slot].mPosCenter.x - 320.0f;
                 pos.y = m1658[i_slot].mPosCenter.y - 240.0f;
+                pos.x = m1658[i_slot].mPosCenter.x - 320.0f;
                 pos.z = 0.0f;
 
                 if (m23B8[0] == NULL) {
@@ -2063,8 +2065,8 @@ void dMenu_Item_c::_move() {
                             fopMsgM_setInitAlpha(&m7B0);
                             fopMsgM_setInitAlpha(&m7E8);
                             fopMsgM_setInitAlpha(&m820);
-                            m820.mUserArea = 1;
                             m7E8.mUserArea = 1;
+                            m7B0.mUserArea = 1;
                             itemnoteSet();
                             mDoAud_seStart(JA_SE_ITEM_EXP_OPEN);
                         }
@@ -2572,12 +2574,11 @@ bool dMenu_Item_c::_close2() {
 
     mTimer--;
 
-    s16 frames = g_menuHIO.field_0x92;
-    f32 main = g_miHIO.field_0x26 * fopMsgM_valueIncrease(frames, frames - mTimer, 0);
-    f32 title = g_miHIO.field_0x28 * fopMsgM_valueIncrease(frames, frames - mTimer, 0);
-    f32 name = g_miHIO.field_0x2C * fopMsgM_valueIncrease(frames, frames - mTimer, 0);
-    f32 note_t = fopMsgM_valueIncrease(frames, frames - mTimer, 0);
-    u8 alpha = 255.0f * fopMsgM_valueIncrease(frames, mTimer, 0);
+    f32 main = g_miHIO.field_0x26 * fopMsgM_valueIncrease(g_menuHIO.field_0x92, g_menuHIO.field_0x92 - mTimer, 0);
+    f32 title = g_miHIO.field_0x28 * fopMsgM_valueIncrease(g_menuHIO.field_0x92, g_menuHIO.field_0x92 - mTimer, 0);
+    f32 name = g_miHIO.field_0x2C * fopMsgM_valueIncrease(g_menuHIO.field_0x92, g_menuHIO.field_0x92 - mTimer, 0);
+    f32 note_t = fopMsgM_valueIncrease(g_menuHIO.field_0x92, g_menuHIO.field_0x92 - mTimer, 0);
+    u8 alpha = 255.0f * fopMsgM_valueIncrease(g_menuHIO.field_0x92, mTimer, 0);
 
     for (int i = 0; i < 2; i++) {
         if (m23B8[i] != NULL) {
