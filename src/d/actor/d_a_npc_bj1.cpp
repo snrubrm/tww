@@ -1279,8 +1279,8 @@ void daNpc_Bj1_c::bj_clcFlySpd() {
 
 /* 00002988-00002B80       .text bj_movPass__11daNpc_Bj1_cFb */
 s32 daNpc_Bj1_c::bj_movPass(bool i_param) {
-    cXyz idxCoords;
     cXyz cmpCoords;
+    cXyz idxCoords;
     u8 point_idx;
     s32 o_retval = 0;
     if (mPathRun.isPath() && (point_idx = mPathRun.getIdx(), dPath_ChkClose(mPathRun.getPath()))) {
@@ -2732,11 +2732,12 @@ BOOL daNpc_Bj1_c::_draw() {
         break;
     }
     if (l_HIO.mChild[mType].mPrm.m18 != 0) {
+        cXyz pos;
         if (mSubType == 6) {
-            cXyz pos = current.pos;
+            pos = current.pos;
             pos.y = mObjAcch.GetGroundH();
         }
-        cXyz pos = current.pos;
+        pos = current.pos;
         pos.y = eyePos.y;
     }
     return TRUE;
