@@ -161,7 +161,7 @@ public:
     int getNowCut() { return mCurActIdx; }
     bool getAttnFlag() { return mbAttention; }
     void setAttnFlag(bool flag) { mbAttention = flag; }
-    bool getAttnNoTurnFlag() { return mbNoTurn; }
+    u8 getAttnNoTurnFlag() { return mbNoTurn; }
     void setAttnNoTurnFlag(bool flag) { mbNoTurn = flag; }
     f32 getMoveSpeed() { return mSpeed; }
     cXyz getAttnPos() { return mPos; }
