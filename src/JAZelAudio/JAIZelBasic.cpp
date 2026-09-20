@@ -1491,9 +1491,9 @@ void JAIZelBasic::bgmBattleGFrame() {
             field_0x00c4 = 0;
         } else {
             if (mSubBgmNum == JA_BGM_BATTLE_NORM) {
-                if (field_0x00c4 > 1) {
+                if (field_0x00c4 > 1U) {
                     field_0x00c4--;
-                } else if (field_0x00c4 == 1) {
+                } else if (field_0x00c4 == 1U) {
                     if (mpSubBgmSound) {
                         if (mSubBgmNum == JA_BGM_BATTLE_NORM) {
                             mpSubBgmSound->setTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
@@ -1612,9 +1612,9 @@ void JAIZelBasic::onEnemyDamage() {
 /* 802A5818-802A591C       .text mbossBgmMuteProcess__11JAIZelBasicFv */
 void JAIZelBasic::mbossBgmMuteProcess() {
     if (mSubBgmNum == JA_BGM_MBOSS || mSubBgmNum == JA_BGM_MBOSS_S) {
-        if (field_0x00c4 > 1) {
+        if (field_0x00c4 > 1U) {
             field_0x00c4--;
-        } else if (field_0x00c4 == 1) {
+        } else if (field_0x00c4 == 1U) {
             if (mpSubBgmSound) {
                 if (mSubBgmNum == JA_BGM_MBOSS || mSubBgmNum == JA_BGM_MBOSS_S) {
                     mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_ENEMY_NEARBY_TRACK, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
@@ -2985,7 +2985,7 @@ void JAIZelBasic::kuroboVoicePlay(u32 id, Vec* pos, s8 reverb) {
 /* 802A8CB4-802A8F58       .text setLevObjSE__11JAIZelBasicFUlP3VecSc */
 void JAIZelBasic::setLevObjSE(u32 id, Vec* pos, s8 reverb) {
     MtxP matrix = mAudioCamera->field_0x8;
-    Vec position = {0.0f, 0.0f, 0.0f};
+    Vec position = {0.0f, 0.0f, -50.0f};
     if (!pos) {
         if (mAudioCamera->field_0x0) {
             position.x = mAudioCamera->field_0x0->x;
