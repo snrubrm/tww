@@ -124,9 +124,7 @@ namespace {
         /* 0x378 */ int m378;
         /* 0x37C */ cXyz m37C;
         /* 0x388 */ cXyz m388;
-        /* 0x394 */ f32 m394;
-        /* 0x398 */ f32 m398;
-        /* 0x39C */ u8 m39C[0x3A0 - 0x39C];
+        /* 0x394 */ cXyz m394;
         /* 0x3A0 */ cSGlobe m3A0;
         /* 0x3A8 */ cSGlobe m3A8;
         /* 0x3B0 */ int m3B0;
@@ -3195,9 +3193,9 @@ bool dCamera_c::followCamera(s32 param_1) {
     }
 
     cXyz cStack_3c8 = cStack_260 - mViewCache.mCenter;
-    mViewCache.mCenter += cStack_3c8 * cStack_3c8;
+    mViewCache.mCenter += cStack_3c8 * cStack_284;
     
-    if (m780) {
+    if (!m780) {
         cXyz attn_pos = attentionPos(mpPlayerActor);
         if (check_owner_action(mPadId, daPyStts0_CRAWL_e | daPyStts0_SWIM_e | daPyStts0_HANG_e)) {
             attn_pos.y = eyePos(mpPlayerActor).y + 30.0f;
@@ -3694,13 +3692,13 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     if (mpLockonTarget) {
         f32 dVar18 = local_25c.Cos();
         dVar19 = cSAngle(local_230.U() * 1.3f).Cos();
-        if (std::fabsf(dVar18) < std::fabsf(dVar19)) {
+        if (fabs(dVar18) < fabs(dVar19)) {
           dVar19 = dVar18;
         }
-        dVar19 = (local_230.R() - dVar17 * (0.05 * 2.0)) * std::fabsf(dVar19 * -0.5 + 0.5);
+        dVar19 = (local_230.R() - 2.0 * (0.05 * dVar17)) * fabs(dVar19 * -0.5 + 0.5);
     }
     else {
-        dVar19 = local_230.R() * std::fabsf(local_25c.Cos() * -0.5 + 0.5);
+        dVar19 = local_230.R() * fabs(local_25c.Cos() * -0.5 + 0.5);
     }
 
     cSAngle acStack_260 = local_230.U();
@@ -4065,7 +4063,8 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             }
             talk->m3A0.U(relGlobe.U() + delta);
 
-            cSAngle lat = relGlobe.V() * (delta.Cos() + 0.1f) * val3 + cSAngle(val15);
+            cSAngle lat;
+            lat = relGlobe.V() * (delta.Cos() + 0.1f) * val3 + cSAngle(val15);
             if (lat > latMax) {
                 lat = latMax;
             }
@@ -4187,14 +4186,16 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         hideActor(actor2);
         mViewCache.mCenter = positionOf(actor1);
         if (talk->m3BC == 0) {
-            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            cXyz from = positionOf(actor2);
+            cXyz to = positionOf(actor1);
+            mViewCache.mDirection.Val(from - to);
             mViewCache.mDirection.R(135.0f);
-            talk->m398 = eyePos(actor1).y - 25.0f - positionOf(actor1).y;
+            talk->m394.y = eyePos(actor1).y - 25.0f - positionOf(actor1).y;
             m102 = 1;
             m101 = 1;
             m100 = 1;
         }
-        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m394.y;
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 60.0f;
         break;
@@ -4213,14 +4214,16 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         hideActor(actor2);
         mViewCache.mCenter = positionOf(actor1);
         if (talk->m3BC == 0) {
-            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            cXyz pos2 = positionOf(actor2);
+            cXyz pos1 = positionOf(actor1);
+            mViewCache.mDirection.Val(pos2 - pos1);
             mViewCache.mDirection.R(93.0f);
-            talk->m398 = eyePos(actor1).y - 5.0f - positionOf(actor1).y;
+            talk->m394.y = eyePos(actor1).y - 5.0f - positionOf(actor1).y;
             m102 = 1;
             m101 = 1;
             m100 = 1;
         }
-        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m394.y;
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 50.0f;
         break;
@@ -4239,14 +4242,16 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         hideActor(actor2);
         mViewCache.mCenter = positionOf(actor1);
         if (talk->m3BC == 0) {
-            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
+            cXyz pos2 = positionOf(actor2);
+            cXyz pos1 = positionOf(actor1);
+            mViewCache.mDirection.Val(pos2 - pos1);
             mViewCache.mDirection.R(135.0f);
-            talk->m398 = eyePos(actor1).y - 15.0f - positionOf(actor1).y;
+            talk->m394.y = eyePos(actor1).y - 15.0f - positionOf(actor1).y;
             m102 = 1;
             m101 = 1;
             m100 = 1;
         }
-        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m394.y;
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 45.0f;
         break;
@@ -4266,12 +4271,12 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         mViewCache.mCenter = positionOf(actor1);
         if (talk->m3BC == 0) {
             mViewCache.mDirection.Val(eyePos(actor2) - eyePos(actor1));
-            talk->m398 = eyePos(actor1).y - 5.0f - positionOf(actor1).y;
+            mViewCache.mDirection.R(mViewCache.mDirection.R() - 5.0f);
             m102 = 1;
             m101 = 1;
             m100 = 1;
         }
-        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mCenter.y = eyePos(actor1).y;
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 50.0f;
         break;
@@ -4295,17 +4300,20 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             m101 = 1;
             m100 = 1;
             cXyz off(0.0f, -10.0f, 20.0f);
-            if (side) {
-                off.x = -80.0f;
-            } else {
-                off.x = 75.0f;
-            }
-            mViewCache.mDirection.Val(eyePos(actor2) - attentionPos(actor1));
-            mViewCache.mDirection.R(135.0f);
-            talk->m398 = eyePos(actor1).y - 10.0f - positionOf(actor1).y;
+            cSGlobe toActor(eyePos(actor2) - attentionPos(actor1));
+            cSGlobe offsetGlobe(off);
+            offsetGlobe.U(offsetGlobe.U() + toActor.U());
+            talk->m394 = eyePos(actor1) + offsetGlobe.Xyz();
         }
-        mViewCache.mCenter = positionOf(actor1);
-        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mCenter = talk->m394;
+        f32 yawDeg;
+        if (side) {
+            yawDeg = -80.0f;
+        } else {
+            yawDeg = 75.0f;
+        }
+        cSAngle yaw(yawDeg);
+        mViewCache.mDirection.Val(135.0f, cSAngle::_0, yaw + directionOf(actor1));
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 50.0f;
         break;
@@ -4314,23 +4322,35 @@ bool dCamera_c::talktoCamera(s32 param_1) {
     case 25: {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
+        int side;
         if (cut == 24) {
             actor1 = listener;
             actor2 = speaker;
+            side = talk->m3B0;
         } else {
             actor1 = speaker;
             actor2 = listener;
+            side = talk->m3B0 == 0 ? 1 : 0;
         }
         if (talk->m3BC == 0) {
             m102 = 1;
             m101 = 1;
             m100 = 1;
-            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
-            mViewCache.mDirection.R(120.0f);
-            talk->m398 = eyePos(actor1).y - 25.0f - positionOf(actor1).y;
+            cXyz off(0.0f, -20.0f, 20.0f);
+            cSGlobe toActor(eyePos(actor2) - attentionPos(actor1));
+            cSGlobe offsetGlobe(off);
+            offsetGlobe.U(offsetGlobe.U() + toActor.U());
+            talk->m394 = eyePos(actor1) + offsetGlobe.Xyz();
         }
-        mViewCache.mCenter = positionOf(actor1);
-        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mCenter = talk->m394;
+        f32 yawDeg;
+        if (side) {
+            yawDeg = -45.0f;
+        } else {
+            yawDeg = 45.0f;
+        }
+        cSAngle yaw(yawDeg);
+        mViewCache.mDirection.Val(120.0f, cSAngle(25.0f), yaw + directionOf(actor1));
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 45.0f;
         break;
@@ -4339,23 +4359,35 @@ bool dCamera_c::talktoCamera(s32 param_1) {
     case 27: {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
+        int side;
         if (cut == 26) {
             actor1 = listener;
             actor2 = speaker;
+            side = talk->m3B0;
         } else {
             actor1 = speaker;
             actor2 = listener;
+            side = talk->m3B0 == 0 ? 1 : 0;
         }
         if (talk->m3BC == 0) {
             m102 = 1;
             m101 = 1;
             m100 = 1;
-            mViewCache.mDirection.Val(positionOf(actor2) - positionOf(actor1));
-            mViewCache.mDirection.R(145.0f);
-            talk->m398 = eyePos(actor1).y - 35.0f - positionOf(actor1).y;
+            cXyz off(0.0f, -20.0f, 20.0f);
+            cSGlobe toActor(attentionPos(actor2) - attentionPos(actor1));
+            cSGlobe offsetGlobe(off);
+            offsetGlobe.U(offsetGlobe.U() + toActor.U());
+            talk->m394 = eyePos(actor1) + offsetGlobe.Xyz();
         }
-        mViewCache.mCenter = positionOf(actor1);
-        mViewCache.mCenter.y = positionOf(actor1).y + talk->m398;
+        mViewCache.mCenter = talk->m394;
+        f32 yawDeg;
+        if (side) {
+            yawDeg = -30.0f;
+        } else {
+            yawDeg = 35.0f;
+        }
+        cSAngle yaw(yawDeg);
+        mViewCache.mDirection.Val(145.0f, cSAngle(-35.0f), yaw + directionOf(actor1));
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 50.0f;
         break;
@@ -4476,12 +4508,12 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         if (talk->m3BC == 0) {
             mViewCache.mDirection.Val(positionOf(listener) - positionOf(speaker));
             mViewCache.mDirection.R(200.0f);
-            talk->m398 = attentionPos(speaker).y - 68.0f - positionOf(speaker).y;
+            talk->m394.y = attentionPos(speaker).y - 68.0f - positionOf(speaker).y;
             m102 = 1;
             m101 = 1;
             m100 = 1;
         }
-        mViewCache.mCenter.y = positionOf(speaker).y + talk->m398;
+        mViewCache.mCenter.y = positionOf(speaker).y + talk->m394.y;
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 55.0f;
         break;
@@ -4775,7 +4807,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
                     f32 s = (640.0f - x) / 320.0f;
 
-                    if (dComIfGp_demo_getCamera() || check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
+                    if (check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e) || dComIfGp_getScopeType()) {
                         setView(s * 160.0f, s * 35.0f, x, (s * -160.0f) + 480.0f);
                     }
 
@@ -4821,7 +4853,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         setComStat(dCamAttnStts_00000080_e);
     }
 
-    if (dComIfGp_demo_getCamera() || check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
+    if (dComIfGp_getScopeType() || check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
         setView(160.0f, 35.0f, 320.0f, 320.0f);
         mWork.subject.m3BC = 1;
     } else if (mWork.subject.m3BC) {
@@ -4836,7 +4868,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     } else {
         // actor-angle path
         if (is_player(mpPlayerActor)) {
-            angX = (cSAngle)mpPlayerActor->shape_angle.x;
+            angX = ((daPy_py_c*)mpPlayerActor)->getBodyAngleX();
         } else {
             angX = mpPlayerActor->shape_angle.x;
         }
@@ -4870,7 +4902,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     }
 
     // lock-on / attention smoothing blocks
-    if ((((mEventFlags >> 0x19) & 1) == 0 && (mLockOnActorId == -1)) || mpLockonTarget == NULL) {
+    if ((chkFlag(0x2000000) || mLockOnActorId != -1) && mpLockonTarget != NULL) {
         cXyz at = attentionPos(mpLockonTarget);
         at.y -= 25.0f;
 
@@ -4928,9 +4960,13 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     if (mCamParam.CheckFlag(dCamPrmFlg_UNK010)) {
         // zoom control block
         f32 a = 0.0f;
+        f32 b = 0.0f;
         f32 stick = mStickCPosYLast;
-
-        f32 b = dCamMath::rationalBezierRatio(-stick, mCamSetup.mCurveWeight);
+        if (stick > 0.0f) {
+            a = dCamMath::rationalBezierRatio(stick, mCamSetup.mCurveWeight);
+        } else {
+            b = dCamMath::rationalBezierRatio(-stick, mCamSetup.mCurveWeight);
+        }
 
         f32 next = mWork.subject.m38C + p26 * (a - b) * 0.1f;
         if (next < 0.0f) {
@@ -5730,7 +5766,8 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     cSAngle uDelta = directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U();
     cSAngle blendedU = mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * val20;
 
-    cSGlobe curGlobe(mViewCache.mEye - mViewCache.mCenter);
+    cSGlobe curGlobe;
+    curGlobe.Val(mViewCache.mEye - mViewCache.mCenter);
     f32 latMix = 1.0f;
     if (mCamParam.Flag(param_1, dCamPrmFlg_UNK004)) {
         if (camRatio <= 0.5f) {
@@ -5841,10 +5878,11 @@ bool dCamera_c::rideCamera(s32 param_1) {
             cSGlobe globe(cannonOff[m07C & 3]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
             if ((target - work->m3B0) > cSAngle::_0) {
-                globe.V(work->m3B0 + globe.U());
+                globe.U(work->m3B0 + globe.U());
             } else {
-                globe.V(work->m3B0 - globe.U());
+                globe.U(work->m3B0 - globe.U());
             }
+            mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
             if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
                 work->m388 = 1;
@@ -5861,10 +5899,11 @@ bool dCamera_c::rideCamera(s32 param_1) {
             cSGlobe globe(craneOff[m07C & 3]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
             if ((target - work->m3B0) > cSAngle::_0) {
-                globe.V(work->m3B0 + globe.U());
+                globe.U(work->m3B0 + globe.U());
             } else {
-                globe.V(work->m3B0 - globe.U());
+                globe.U(work->m3B0 - globe.U());
             }
+            mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
             if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
                 work->m388 = 1;
@@ -5935,7 +5974,8 @@ bool dCamera_c::rideCamera(s32 param_1) {
             shipAng.Val(ship->getCraneAngle());
             work->m3C4 += 0.05f * (1.0f - work->m3C4);
         } else if (check_owner_action1(mPadId, daPyStts1_UNK4_e)) {
-            shipAng = directionOf(ship) - cSAngle(ship->getCannonAngleY()) + cSAngle::_90;
+            s16 cannonY = ship->getCannonAngleY();
+            shipAng.Val(directionOf(ship) - cannonY + cSAngle::_90);
             f32 side = work->m384 ? -1.0f : 1.0f;
             work->m3C4 += 0.05f * (side - work->m3C4);
         } else {
@@ -5979,8 +6019,8 @@ bool dCamera_c::rideCamera(s32 param_1) {
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * ratio;
             mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (targetDir.R() - mViewCache.mDirection.R()));
-            mViewCache.mDirection.U(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
-            mViewCache.mDirection.V(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
+            mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
+            mViewCache.mDirection.U(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         }
         mViewCache.mFovy += ratio * (targetFovy - mViewCache.mFovy);
@@ -5996,9 +6036,14 @@ bool dCamera_c::rideCamera(s32 param_1) {
     mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * cushion;
 
     f32 r = mViewCache.mDirection.R() + val21 * (targetDir.R() - mViewCache.mDirection.R());
+    cSAngle uDelta = directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U();
+    if (!chkFlag(0x100000)) {
+        uDelta.Sin();
+    }
     cSAngle blendedU = mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * val20;
 
-    cSGlobe curGlobe(mViewCache.mEye - mViewCache.mCenter);
+    cSGlobe curGlobe;
+    curGlobe.Val(mViewCache.mEye - mViewCache.mCenter);
     f32 latMix = 1.0f;
     if (m314 && m318 == m354 && mCamParam.Flag(param_1, dCamPrmFlg_UNK004)) {
         if (speedRatio <= 0.5f) {
@@ -6007,12 +6052,13 @@ bool dCamera_c::rideCamera(s32 param_1) {
             latMix = 0.0f;
         }
     }
-    targetDir.U(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
+    targetDir.V(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
 
     cSAngle targetV = curGlobe.V();
     if (check_owner_action1(mPadId, daPyStts1_UNK4_e) && work->m37C != NULL) {
         daShip_c* ship = (daShip_c*)work->m37C;
-        targetV = curGlobe.V() + cSAngle(ship->getCannonAngleX());
+        s16 cannonX = ship->getCannonAngleX();
+        targetV.Val(curGlobe.V() + cannonX);
         targetV *= 0.3f;
     }
     targetV = mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * val21;
