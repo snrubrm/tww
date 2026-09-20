@@ -1029,8 +1029,8 @@ bool daNpc_Kk1_c::cut_move_BYE() {
     if (m79A > 0 && cLib_calcTimer(&m79A) == 0) {
         daPy_getPlayerLinkActorClass()->setPlayerPosAndAngle(&daPy_getPlayerLinkActorClass()->current.pos, -0x3217);
         daPy_getPlayerLinkActorClass()->changeOriginalDemo();
-        daPy_getPlayerLinkActorClass()->changeDemoMode(daPy_demo_c::DEMO_LDAM_e);
-        daPy_getPlayerLinkActorClass()->changeDemoParam0(0x3217);
+        daPy_getPlayerLinkActorClass()->mDemo.setDemoMode(daPy_demo_c::DEMO_LDAM_e);
+        daPy_getPlayerLinkActorClass()->mDemo.setParam0(0x3217);
     }
     if (cLib_calcTimer(&m798) == 0) {
         if (m7B0 == 0) {
@@ -1063,7 +1063,7 @@ bool daNpc_Kk1_c::cut_move_BYE_CONTINUE() {
 /* 00002620-000026BC       .text cut_init_BYE_END__11daNpc_Kk1_cFi */
 void daNpc_Kk1_c::cut_init_BYE_END(int) {
     daPy_getPlayerLinkActorClass()->changeOriginalDemo();
-    daPy_getPlayerLinkActorClass()->changeDemoMode(daPy_demo_c::DEMO_INIT_WAIT_e);
+    daPy_getPlayerLinkActorClass()->mDemo.setDemoMode(daPy_demo_c::DEMO_INIT_WAIT_e);
     s16 angle = cLib_targetAngleY(&daPy_getPlayerLinkActorClass()->current.pos, &current.pos);
     daPy_getPlayerLinkActorClass()->setPlayerPosAndAngle(&daPy_getPlayerLinkActorClass()->current.pos, angle);
     daPy_getPlayerLinkActorClass()->offPlayerNoDraw();
@@ -1086,7 +1086,7 @@ bool daNpc_Kk1_c::cut_move_PLYER_TRN() {
 /* 000026D0-00002744       .text cut_init_OTOBOKE__11daNpc_Kk1_cFi */
 void daNpc_Kk1_c::cut_init_OTOBOKE(int) {
     daPy_getPlayerLinkActorClass()->changeOriginalDemo();
-    daPy_getPlayerLinkActorClass()->changeDemoMode(daPy_demo_c::DEMO_INIT_WAIT_e);
+    daPy_getPlayerLinkActorClass()->mDemo.setDemoMode(daPy_demo_c::DEMO_INIT_WAIT_e);
     daPy_getPlayerLinkActorClass()->setPlayerPosAndAngle(&daPy_getPlayerLinkActorClass()->current.pos, current.angle.y);
     m798 = 2;
 }
@@ -1108,7 +1108,7 @@ void daNpc_Kk1_c::cut_init_PLYER_MOV(int) {
     } else {
         cXyz dst;
         cXyz offset(0.0f, 0.0f, 0.0f);
-        s16 rot = diff > 0 ? 0x2800 : (s16)-0x2800;
+        int rot = diff > 0 ? 0x2800 : -0x2800;
         mDoMtx_stack_c::transS(current.pos);
         mDoMtx_stack_c::YrotM(current.angle.y + rot);
         offset.z = 150.0f;
@@ -1126,11 +1126,12 @@ bool daNpc_Kk1_c::cut_move_PLYER_MOV() {
 void daNpc_Kk1_c::cut_init_RUNAWAY_START(int staff) {
     int* timer = dComIfGp_evmng_getMyIntegerP(staff, "Timer");
     daPy_getPlayerLinkActorClass()->changeOriginalDemo();
-    daPy_getPlayerLinkActorClass()->changeDemoMode(daPy_demo_c::DEMO_INIT_WAIT_e);
+    daPy_getPlayerLinkActorClass()->mDemo.setDemoMode(daPy_demo_c::DEMO_INIT_WAIT_e);
     s16 angle = cLib_targetAngleY(&daPy_getPlayerLinkActorClass()->current.pos, &current.pos);
     daPy_getPlayerLinkActorClass()->setPlayerPosAndAngle(&daPy_getPlayerLinkActorClass()->current.pos, angle);
-    s16 playerAngle = cLib_targetAngleY(&current.pos, &daPy_getPlayerLinkActorClass()->current.pos);
-    shape_angle.y = playerAngle + 0x8000;
+    int playerAngle = cLib_targetAngleY(&current.pos, &daPy_getPlayerLinkActorClass()->current.pos);
+    int shapeY = (s16)playerAngle + 0x8000;
+    shape_angle.y = shapeY;
     m7BF = 1;
     speedF = 0.0f;
     m_jnt.setHead_y(0);
@@ -1138,8 +1139,9 @@ void daNpc_Kk1_c::cut_init_RUNAWAY_START(int staff) {
     m_jnt.setBackBone_y(0);
     m_jnt.setBackBone_x(0);
     m81E = 0;
-    if (abs(playerAngle - current.angle.y) > 0x3800) {
-        current.angle.y = shape_angle.y;
+    s16 angDiff = (s16)playerAngle - current.angle.y;
+    if (abs(angDiff) > 0x3800) {
+        current.angle.y = shapeY;
         setAnm_NUM(8, 1);
     } else {
         cXyz bikon(0.0f, -50.0f, 0.0f);
