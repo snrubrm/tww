@@ -220,9 +220,11 @@ void daObjTribox::Act_c::controll_set() {
 /* 00000840-00000904       .text controll_clear__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::controll_clear() {
     if (prm_get_type() == 1) {
-        JUT_ASSERT(0x214, --M_c_cont_cnt >= 0);
+        --M_c_cont_cnt;
+        JUT_ASSERT(0x214, M_c_cont_cnt >= 0);
     } else {
-        JUT_ASSERT(0x217, --M_b_cont_cnt >= 0);
+        --M_b_cont_cnt;
+        JUT_ASSERT(0x217, M_b_cont_cnt >= 0);
     }
 }
 
