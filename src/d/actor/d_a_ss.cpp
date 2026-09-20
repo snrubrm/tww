@@ -304,13 +304,11 @@ static cXyz non_pos;
 static void hand_move(ss_class* i_this) {
     // Nonmatching: Register allocation differs.
     ss_s* hand;
-    int i, j;
-    int angle;
+    int j, i;
     cXyz offset, world;
     dBgS_LinChk line;
     non_pos.set(0.0f, -10000.0f, 0.0f);
-    angle = 0;
-    for (i = 0; i < 10; i++, angle += 0x1999) {
+    for (i = 0; i < 10; i++) {
         for (j = 0; j < 4; j++) {
             i_this->mHands[i].sph[j].SetC(non_pos);
             dComIfG_Ccsp()->Set(&i_this->mHands[i].sph[j]);
@@ -334,7 +332,7 @@ static void hand_move(ss_class* i_this) {
                     MtxPosition(&offset, &world);
                     i_this->mHands[i].pos += world;
                 }
-                i_this->mHands[i].angle.z = angle;
+                i_this->mHands[i].angle.z = i * 0x1999;
                 hand_1_set_2(i_this, &i_this->mHands[i]);
             } else {
                 i_this->mHands[i].pos = i_this->current.pos;
@@ -346,7 +344,7 @@ static void hand_move(ss_class* i_this) {
                     i_this->home.pos = i_this->mHands[i].pos;
                     i_this->mHands[i].pos.y += 50.0f;
                 }
-                i_this->mHands[i].angle.y = angle;
+                i_this->mHands[i].angle.y = i * 0x1999;
                 hand_1_set(i_this, &i_this->mHands[i]);
             }
             i_this->mHands[i].mode++;
