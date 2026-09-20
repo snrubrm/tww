@@ -101,7 +101,7 @@ void GXSetTevColorOp(GXTevStageID stage, GXTevOp op, GXTevBias bias, GXTevScale 
     u32 tevReg;
 
     tevReg = gx->tevc[stage];
-    tevReg = __rlwimi(tevReg, op, 18, 13, 13);
+    tevReg = __rlwimi(tevReg, op & 1, 18, 13, 13);
 
     if (op <= GX_TEV_SUB) {
         tevReg = __rlwimi(tevReg, scale, 20, 10, 11);
@@ -124,7 +124,7 @@ void GXSetTevAlphaOp(GXTevStageID stage, GXTevOp op, GXTevBias bias, GXTevScale 
     u32 tevReg;
 
     tevReg = gx->teva[stage];
-    tevReg = __rlwimi(tevReg, op, 18, 13, 13);
+    tevReg = __rlwimi(tevReg, op & 1, 18, 13, 13);
 
     if (op <= GX_TEV_SUB) {
         tevReg = __rlwimi(tevReg, scale, 20, 10, 11);
