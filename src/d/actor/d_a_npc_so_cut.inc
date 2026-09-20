@@ -828,11 +828,12 @@ void daNpc_So_c::moveCam() {
     }
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
     fopAc_ac_c* actor = dComIfGp_getLinkPlayer();
+    cXyz eye;
     cXyz center = actor->current.pos;
     center.x += 150.0f * cM_ssin(actor->shape_angle.y);
     center.z += 150.0f * cM_scos(actor->shape_angle.y);
     center.y += 100.0f;
-    cXyz eye = actor->current.pos;
+    eye = actor->current.pos;
     eye.x += -400.0f * cM_ssin(actor->shape_angle.y);
     eye.z += -400.0f * cM_scos(actor->shape_angle.y);
     eye.y += 300.0f;
