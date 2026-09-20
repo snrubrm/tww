@@ -2765,11 +2765,10 @@ bool dCamera_c::loadEvCamera() {
 bool dCamera_c::useItem0EvCamera() {
     UseItemWork* work = (UseItemWork*)&mWork;
 
-    cXyz ctr0(0.0f, -40.0f, 25.0f);
-    cXyz eyes0[3] = {
-        cXyz(-120.0f, 60.0f, 135.0f),
-        cXyz(130.0f, -25.0f, 115.0f),
-        cXyz(5.0f, 130.0f, 110.0f),
+    cXyz ctr4(19.885f, 11.056f, -2.464f);
+    cXyz eyes4[2] = {
+        cXyz(45.319f, 57.196f, 22.627f),
+        cXyz(18.97f, 64.078f, 21.898f),
     };
 
     cXyz ctr1(0.0f, -32.0f, 15.0f);
@@ -2780,19 +2779,19 @@ bool dCamera_c::useItem0EvCamera() {
         cXyz(105.0f, -55.0f, 70.0f),
     };
 
+    cXyz ctr0(0.0f, -40.0f, 25.0f);
+    cXyz eyes0[3] = {
+        cXyz(-120.0f, 60.0f, 135.0f),
+        cXyz(130.0f, -25.0f, 115.0f),
+        cXyz(5.0f, 130.0f, 110.0f),
+    };
+
     cXyz ctr3(0.0f, -27.0f, 25.0f);
     cXyz eyes3[4] = {
         cXyz(-90.0f, -70.0f, 150.0f),
         cXyz(130.0f, -68.0f, 114.0f),
         cXyz(5.0f, 130.0f, 110.0f),
         cXyz(-45.0f, -50.0f, -110.0f),
-    };
-
-    cXyz ctr4(19.885f, 11.056f, -2.464f);
-    cXyz eyes4[3] = {
-        cXyz(45.319f, 57.196f, 22.627f),
-        cXyz(18.97f, 64.078f, 21.898f),
-        cXyz(139.0f, 118.0f, 340.0f),
     };
 
     cXyz ctr5(30.241f, 12.653f, 13.95f);
@@ -2816,7 +2815,7 @@ bool dCamera_c::useItem0EvCamera() {
     int timers[7] = {45, 40, 40, 40, 10, 45, 55};
     int intervals[7] = {0, 0, 0, 0, 0, 0x49, 0};
 
-    cSAngle angV, angU;
+    cSAngle angU, angV;
     cXyz eye;
     int idx;
     bool ret = false;
@@ -2825,99 +2824,119 @@ bool dCamera_c::useItem0EvCamera() {
         work->mState = 0;
     }
 
-    switch (work->mState) {
-    case 1:
-        goto state_1;
-    case 2:
-        goto state_2;
-    case 99:
-        goto state_99;
-    case 10:
+    if (work->mState == 10) {
         goto state_10;
-    default: {
-        getEvIntData(&work->mType, "Type", 0);
-        work->mStay = 0;
-        work->mCounter = 0;
     }
-        // fallthrough
-    state_10:
-        work->mState = 10;
-        if (++work->mCounter < intervals[work->mType]) {
-            break;
+    if (work->mState >= 10) {
+        goto state_high;
+    }
+    if (work->mState == 1) {
+        goto state_1;
+    } else {
+        if (work->mState >= 1) {
+            goto state_mid;
+        } else {
+            goto state_default;
         }
-        work->mCounter = 0;
-        if ((m07C & 7) == 0 && work->mType >= 2 && work->mType < 4) {
+    }
+
+state_mid:
+    if (work->mState >= 3) {
+        goto state_default;
+    } else {
+        goto state_2;
+    }
+
+state_high:
+    if (work->mState == 99) {
+        goto state_99;
+    }
+
+state_default:
+    getEvIntData(&work->mType, "Type", 0);
+    work->mStay = 0;
+    work->mCounter = 0;
+state_10:
+    work->mState = 10;
+    if (++work->mCounter < intervals[work->mType]) {
+        goto done;
+    }
+    work->mCounter = 0;
+    if ((m07C & 7) == 0) {
+        switch (work->mType) {
+        case 2:
+        case 3: {
             cXyz tmp = eyes[work->mType][0];
             eyes[work->mType][0] = eyes[work->mType][1];
             eyes[work->mType][1] = tmp;
-        }
-
-        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        for (idx = 0; idx < counts[work->mType]; idx++) {
-            eye = relationalPos(mpPlayerActor, &eyes[work->mType][idx]);
-            if (eye.y < m368 + positionOf(mpPlayerActor).y) {
-                eye.y = m368 + positionOf(mpPlayerActor).y;
-            }
-
-            fopAc_ac_c* ship = NULL;
-            if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_SHIP_RIDE_e)) {
-                ship = fopAcM_SearchByName(fpcNm_SHIP_e);
-            }
-
-            if (!lineBGCheck(&work->mCenter, &eye, 0x8f) &&
-                !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, ship))
-            {
-                break;
-            }
-        }
-
-        work->mGlobe.Val(eye - work->mCenter);
-        work->mFovy = fovys[work->mType];
-        work->mTimer = timers[work->mType];
-        work->mState = 1;
-        break;
-
-    state_1: {
-        f32 t = (f32)work->mCounter / (f32)work->mTimer;
-        mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
-        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
-
-        f32 rad = mViewCache.mDirection.R();
-        angV = mViewCache.mDirection.V();
-        angU = mViewCache.mDirection.U();
-        rad = rad + (t * (work->mGlobe.R() - rad));
-        angV += (work->mGlobe.V() - angV) * t;
-        angU += (work->mGlobe.U() - angU) * t;
-        mViewCache.mDirection.Val(rad, angV, angU);
-        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-
-        if (work->mCounter < work->mTimer) {
             break;
         }
-
-        work->mState = 2;
+        }
     }
-        // fallthrough
-    state_2:
-        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-        work->mStay++;
-        if (work->mType == 0 && work->mStay == 1) {
-            work->mState = 10;
-            work->mType = 4;
+
+    work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    for (idx = 0; idx < counts[work->mType]; idx++) {
+        eye = relationalPos(mpPlayerActor, &eyes[work->mType][idx]);
+        if (eye.y < m368 + positionOf(mpPlayerActor).y) {
+            eye.y = m368 + positionOf(mpPlayerActor).y;
+        }
+
+        fopAc_ac_c* ship = NULL;
+        if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_SHIP_RIDE_e)) {
+            ship = fopAcM_SearchByName(fpcNm_SHIP_e);
+        }
+
+        if (!lineBGCheck(&work->mCenter, &eye, 0x8f) &&
+            !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, ship))
+        {
             break;
         }
-        work->mState = 99;
-        // fallthrough
-    state_99:
-        SkipSmoother();
-        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-        ret = true;
-        break;
     }
 
+    work->mGlobe.Val(eye - work->mCenter);
+    work->mFovy = fovys[work->mType];
+    work->mTimer = timers[work->mType];
+    work->mState = 1;
+    goto done;
+
+state_1: {
+    f32 t = (f32)work->mCounter / (f32)work->mTimer;
+    mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
+    work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
+
+    f32 rad = mViewCache.mDirection.R();
+    angV = mViewCache.mDirection.V();
+    angU = mViewCache.mDirection.U();
+    rad = rad + (t * (work->mGlobe.R() - rad));
+    angV += (work->mGlobe.V() - angV) * t;
+    angU += (work->mGlobe.U() - angU) * t;
+    mViewCache.mDirection.Val(rad, angV, angU);
+    mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+
+    if (work->mCounter < work->mTimer) {
+        goto done;
+    }
+
+    work->mState = 2;
+}
+state_2:
+    mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+    work->mStay++;
+    if (work->mType == 0 && work->mStay == 1) {
+        work->mState = 10;
+        work->mType = 4;
+        goto done;
+    }
+    work->mState = 99;
+state_99:
+    SkipSmoother();
+    mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+    ret = true;
+
+done:
     work->mCounter++;
     return ret;
 }
@@ -2926,11 +2945,11 @@ bool dCamera_c::useItem0EvCamera() {
 bool dCamera_c::useItem1EvCamera() {
     UseItemWork* work = (UseItemWork*)&mWork;
 
-    cXyz ctr0(0.0f, -40.0f, 25.0f);
-    cXyz eyes0[3] = {
-        cXyz(-120.0f, 60.0f, 135.0f),
-        cXyz(130.0f, -25.0f, 115.0f),
-        cXyz(5.0f, 130.0f, 110.0f),
+    cXyz ctr4(0.0f, -16.0f, -17.0f);
+    cXyz eyes4[3] = {
+        cXyz(36.0f, 55.0f, 17.0f),
+        cXyz(36.0f, 67.0f, -30.0f),
+        cXyz(-10.0f, 75.0f, -5.0f),
     };
 
     cXyz ctr1(0.0f, -32.0f, 15.0f);
@@ -2941,18 +2960,18 @@ bool dCamera_c::useItem1EvCamera() {
         cXyz(105.0f, -55.0f, 70.0f),
     };
 
+    cXyz ctr0(0.0f, -40.0f, 25.0f);
+    cXyz eyes0[3] = {
+        cXyz(-120.0f, 60.0f, 135.0f),
+        cXyz(130.0f, -25.0f, 115.0f),
+        cXyz(5.0f, 130.0f, 110.0f),
+    };
+
     cXyz ctr3(0.0f, -27.0f, 25.0f);
     cXyz eyes3[3] = {
         cXyz(-90.0f, -70.0f, 150.0f),
         cXyz(130.0f, -68.0f, 114.0f),
         cXyz(5.0f, 130.0f, 110.0f),
-    };
-
-    cXyz ctr4(0.0f, -16.0f, -17.0f);
-    cXyz eyes4[3] = {
-        cXyz(36.0f, 55.0f, 17.0f),
-        cXyz(36.0f, 67.0f, -30.0f),
-        cXyz(-10.0f, 75.0f, -5.0f),
     };
 
     cXyz ctr5(10.0f, -2.0f, -2.0f);
@@ -2984,81 +3003,109 @@ bool dCamera_c::useItem1EvCamera() {
         work->mState = 0;
     }
 
-    switch (work->mState) {
-    default: {
-        getEvIntData(&work->mType, "Type", 0);
-        work->mStay = 0;
+    if (work->mState == 10) {
+        goto state_10;
     }
-        // fallthrough
-    case 10:
-        work->mCounter = 0;
-        if ((m07C & 7) == 0 && work->mType >= 2 && work->mType < 4) {
+    if (work->mState >= 10) {
+        goto state_high;
+    }
+    if (work->mState == 1) {
+        goto state_1;
+    } else {
+        if (work->mState >= 1) {
+            goto state_mid;
+        } else {
+            goto state_default;
+        }
+    }
+
+state_mid:
+    if (work->mState >= 3) {
+        goto state_default;
+    } else {
+        goto state_2;
+    }
+
+state_high:
+    if (work->mState == 99) {
+        goto state_99;
+    }
+
+state_default:
+    getEvIntData(&work->mType, "Type", 0);
+    work->mStay = 0;
+state_10:
+    work->mCounter = 0;
+    if ((m07C & 7) == 0) {
+        switch (work->mType) {
+        case 2:
+        case 3: {
             cXyz tmp = eyes[work->mType][0];
             eyes[work->mType][0] = eyes[work->mType][1];
             eyes[work->mType][1] = tmp;
-        }
-
-        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        for (idx = 0; idx < counts[work->mType]; idx++) {
-            eye = relationalPos(mpPlayerActor, &eyes[work->mType][idx]);
-            if (eye.y < m368 + positionOf(mpPlayerActor).y) {
-                eye.y = m368 + positionOf(mpPlayerActor).y;
-            }
-
-            if (!lineBGCheck(&work->mCenter, &eye, 0x8f) &&
-                !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, NULL))
-            {
-                break;
-            }
-        }
-
-        work->mGlobe.Val(eye - work->mCenter);
-        work->mFovy = fovys[work->mType];
-        work->mTimer = timers[work->mType];
-        work->mState = 1;
-        break;
-
-    case 1: {
-        f32 t = (f32)work->mCounter / (f32)work->mTimer;
-        mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
-        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
-
-        f32 rad = mViewCache.mDirection.R();
-        angV = mViewCache.mDirection.V();
-        angU = mViewCache.mDirection.U();
-        rad = rad + (t * (work->mGlobe.R() - rad));
-        angV += (work->mGlobe.V() - angV) * t;
-        angU += (work->mGlobe.U() - angU) * t;
-        mViewCache.mDirection.Val(rad, angV, angU);
-        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-
-        if (work->mCounter < work->mTimer) {
             break;
         }
-
-        work->mState = 2;
+        }
     }
-        // fallthrough
-    case 2:
-        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-        work->mStay++;
-        if (work->mType == 0 && work->mStay == 1) {
-            work->mState = 10;
-            work->mType = 4;
+
+    work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    for (idx = 0; idx < counts[work->mType]; idx++) {
+        eye = relationalPos(mpPlayerActor, &eyes[work->mType][idx]);
+        if (eye.y < m368 + positionOf(mpPlayerActor).y) {
+            eye.y = m368 + positionOf(mpPlayerActor).y;
+        }
+
+        if (!lineBGCheck(&work->mCenter, &eye, 0x8f) &&
+            !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, NULL))
+        {
             break;
         }
-        work->mState = 99;
-        // fallthrough
-    case 99:
-        SkipSmoother();
-        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
-        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-        ret = true;
-        break;
     }
 
+    work->mGlobe.Val(eye - work->mCenter);
+    work->mFovy = fovys[work->mType];
+    work->mTimer = timers[work->mType];
+    work->mState = 1;
+    goto done;
+
+state_1: {
+    f32 t = (f32)work->mCounter / (f32)work->mTimer;
+    mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
+    work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
+
+    f32 rad = mViewCache.mDirection.R();
+    angV = mViewCache.mDirection.V();
+    angU = mViewCache.mDirection.U();
+    rad = rad + (t * (work->mGlobe.R() - rad));
+    angV += (work->mGlobe.V() - angV) * t;
+    angU += (work->mGlobe.U() - angU) * t;
+    mViewCache.mDirection.Val(rad, angV, angU);
+    mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+
+    if (work->mCounter < work->mTimer) {
+        goto done;
+    }
+
+    work->mState = 2;
+}
+state_2:
+    mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+    work->mStay++;
+    if (work->mType == 0 && work->mStay == 1) {
+        work->mState = 10;
+        work->mType = 4;
+        goto done;
+    }
+    work->mState = 99;
+state_99:
+    SkipSmoother();
+    mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+    mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+    ret = true;
+
+done:
     work->mCounter++;
     return ret;
 }
