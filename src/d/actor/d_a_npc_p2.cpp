@@ -1977,7 +1977,7 @@ int daNpc_P2_c::intro_action(void*) {
             }
         }
         m808++;
-    } else if ((s8)m808 != -1) {
+    } else if (m808 != -1) {
         m724 = chkAttention();
         m7D5 = 0;
         switch ((s8)m7D6) {
@@ -2059,7 +2059,7 @@ int daNpc_P2_c::wait_action(void*) {
             m7D6 = 1;
         }
         m808++;
-    } else if ((s8)m808 != -1) {
+    } else if (m808 != -1) {
         m724 = chkAttention();
         m7D5 = 0;
         switch ((s8)m7D6) {

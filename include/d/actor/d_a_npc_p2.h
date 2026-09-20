@@ -207,7 +207,7 @@ public:
     /* 0x7FC */ f32 m7FC;
     /* 0x800 */ f32 m800;
     /* 0x804 */ int m804;
-    /* 0x808 */ u8 m808;
+    /* 0x808 */ s8 m808;
     /* 0x809 */ s8 mTalkState;
     /* 0x80A */ s8 m80A;
     /* 0x80B */ u8 m80B;

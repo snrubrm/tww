@@ -126,7 +126,7 @@ public:
 
 public:
     /* 0x000 */ f32 mTex[8][6][2];
-    /* 0x180 */ u8 mDl[0x1A0];
+    /* 0x180 */ u8 mDl[0x1A0] __attribute__((aligned(32)));
 };  // Size: 0x320
 
 STATIC_ASSERT(sizeof(daObjTapestryDrawData_c) == 0x320);
