@@ -7,29 +7,27 @@
 #include "dolphin/gx/GX.h"
 
 void __GXSetDirtyState(void) {
-    u32 dirtyFlags = gx->dirtyState;
-
-    if (dirtyFlags & GX_DIRTY_SU_TEX) {
+    if (gx->dirtyState & GX_DIRTY_SU_TEX) {
         __GXSetSUTexRegs();
     }
 
-    if (dirtyFlags & GX_DIRTY_BP_MASK) {
+    if (gx->dirtyState & GX_DIRTY_BP_MASK) {
         __GXUpdateBPMask();
     }
 
-    if (dirtyFlags & GX_DIRTY_GEN_MODE) {
+    if (gx->dirtyState & GX_DIRTY_GEN_MODE) {
         __GXSetGenMode();
     }
 
-    if (dirtyFlags & GX_DIRTY_VCD) {
+    if (gx->dirtyState & GX_DIRTY_VCD) {
         __GXSetVCD();
     }
 
-    if (dirtyFlags & GX_DIRTY_VAT) {
+    if (gx->dirtyState & GX_DIRTY_VAT) {
         __GXSetVAT();
     }
 
-    if (dirtyFlags & GX_DIRTY_VLIM) {
+    if (gx->dirtyState & GX_DIRTY_VLIM) {
         __GXCalculateVLim();
     }
 
@@ -37,31 +35,28 @@ void __GXSetDirtyState(void) {
 }
 
 void GXBegin(GXPrimitive type, GXVtxFmt fmt, u16 vert_num) {
-    GXData* data = gx;
-    u32 dirtyFlags = data->dirtyState;
-
-    if (data->dirtyState != 0) {
-        if (dirtyFlags & GX_DIRTY_SU_TEX) {
+    if (gx->dirtyState != 0) {
+        if (gx->dirtyState & GX_DIRTY_SU_TEX) {
             __GXSetSUTexRegs();
         }
 
-        if (dirtyFlags & GX_DIRTY_BP_MASK) {
+        if (gx->dirtyState & GX_DIRTY_BP_MASK) {
             __GXUpdateBPMask();
         }
 
-        if (dirtyFlags & GX_DIRTY_GEN_MODE) {
+        if (gx->dirtyState & GX_DIRTY_GEN_MODE) {
             __GXSetGenMode();
         }
 
-        if (dirtyFlags & GX_DIRTY_VCD) {
+        if (gx->dirtyState & GX_DIRTY_VCD) {
             __GXSetVCD();
         }
 
-        if (dirtyFlags & GX_DIRTY_VAT) {
+        if (gx->dirtyState & GX_DIRTY_VAT) {
             __GXSetVAT();
         }
 
-        if (dirtyFlags & GX_DIRTY_VLIM) {
+        if (gx->dirtyState & GX_DIRTY_VLIM) {
             __GXCalculateVLim();
         }
 
@@ -111,25 +106,25 @@ void GXSetPointSize(u8 size, GXTexOffset offsets) {
 }
 
 void GXEnableTexOffsets(GXTexCoordID coord, GXBool line, GXBool point) {
-    GXData* data = gx;
-
-    GX_BITFIELD_SET(data->suTs0[coord], 13, 1, line);
-    GX_BITFIELD_SET(data->suTs0[coord], 12, 1, point);
+    SET_REG_FIELD(gx->suTs0[coord], 1, 18, line);
+    SET_REG_FIELD(gx->suTs0[coord], 1, 19, point);
     GXFIFO.u8 = 0x61;
-    GXFIFO.u32 = data->suTs0[coord];
-    data->bpSentNot = 0;
+    GXFIFO.u32 = gx->suTs0[coord];
+    gx->bpSentNot = 0;
 }
 
 void GXSetCullMode(GXCullMode mode) {
-    GXData* data;
-    GXCullMode mode2;
-    data = gx;
+    switch (mode) {
+    case GX_CULL_FRONT:
+        mode = GX_CULL_BACK;
+        break;
+    case GX_CULL_BACK:
+        mode = GX_CULL_FRONT;
+        break;
+    }
 
-    mode2 = (mode >> 1) & 1;
-    GX_BITFIELD_SET(mode2, 30, 1, mode);
-
-    GX_BITFIELD_SET(data->genMode, 16, 2, mode2);
-    data->dirtyState |= GX_DIRTY_GEN_MODE;
+    SET_REG_FIELD(gx->genMode, 2, 14, mode);
+    gx->dirtyState |= GX_DIRTY_GEN_MODE;
 }
 
 void GXSetCoPlanar(GXBool enable) {
