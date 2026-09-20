@@ -3029,27 +3029,24 @@ bool dCamera_c::followCamera(s32 param_1) {
             cXyz cStack_2fc = cStack_248 + cStack_46c.Xyz();
             cXyz cStack_2e0 = mEye - cStack_2fc;
             dVar20 = cStack_2e0.abs();
-            cXyz cStack_314 = mCenter - cStack_2e0;
+            cXyz cStack_314 = mCenter - cStack_248;
             dVar19 = cStack_314.abs() * 4.0f;
 
+            f32 tmp;
             if (dVar20 > dVar19) {
-                dVar20 = dVar19;
+                tmp = dVar20;
+            } else {
+                tmp = dVar19;
             }
-            else {
-                dVar20 = 4.0f;
-            }
-
-            fVar37 = std::fabsf(dVar20);
+            fVar37 = std::fabsf(tmp);
             f32 playerHeight = heightOf(mpPlayerActor);
 
-            if (fVar37 > 10.0f) {
-                dVar20 = fVar37;
-            } 
-            else {
-                dVar20 = 10.0f;
+            if (playerHeight > 10.0f) {
+            } else {
+                playerHeight = 10.0f;
             }
 
-            mWork.follow.m37C = (std::sqrtf(playerHeight / dVar20) * f14) + 1;
+            mWork.follow.m37C = (int)(std::sqrtf(fVar37 / playerHeight) * f14) + 1;
         }
 
         mWork.follow.m398 = mWork.follow.m39C = mDirection.R();
@@ -3639,7 +3636,8 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         cXyz local_114 = attentionPos(mpPlayerActor);
         if (!pointInSight(&local_114)) {
             if (work->m388 == 0) {
-                work->m3A4 = (1 - work->m3A0) != 0;
+                int inv = 1 - work->m3A0;
+                work->m3A4 = inv != 0;
             }
             bVar6 = true;
             work->m388 = r28;
@@ -3711,7 +3709,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         acStack_268.Val(work->m3A8.V() + (local_230.U() - work->m3A8.V()) * f30);
     }
     else {
-        fVar2 = work->m3A8.R() + work->m3B0 * (work->m384 * (dVar19 + padR) - work->m3A8.R());
+        fVar2 = work->m3A8.R() + work->m3B0 * (work->m384 * ((f32)(dVar19 + padR)) - work->m3A8.R());
         acStack_268.Val(work->m3A8.V() + (local_230.U() - work->m3A8.V()) * work->m3B4);
     }
 
@@ -5874,7 +5872,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
         work->m3C8 = 0.2f;
         work->m37C = NULL;
 
-        if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e)) {
+        if (check_owner_action(mPadId, daPyStts0_UNK1000000_e)) {
             work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
             work->m3A4 = mViewCache.mCenter;
             static cXyz cannonOff[4] = {
@@ -5884,15 +5882,18 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(200.0f, 160.0f, -80.0f),
             };
             cSGlobe globe(cannonOff[m07C & 3]);
-            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - work->m3B0) > cSAngle::_0) {
+            cXyz* shipPos = &work->m37C->current.pos;
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
+            bool plus = (target - work->m3B0) > cSAngle::_0;
+            if (plus) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
@@ -5905,15 +5906,18 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(115.0f, 215.0f, 315.0f),
             };
             cSGlobe globe(craneOff[m07C & 3]);
-            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - work->m3B0) > cSAngle::_0) {
+            cXyz* shipPos = &work->m37C->current.pos;
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
+            bool plus = (target - work->m3B0) > cSAngle::_0;
+            if (plus) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e | daPyStts0_UNK1000000_e) ||
