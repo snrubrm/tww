@@ -110,7 +110,12 @@ void smoke_set(bl_class* i_this) {
 
 /* 000003F8-000004AC       .text fire_move_set__FP8bl_class */
 void fire_move_set(bl_class* i_this) {
-    u16 particleID = dPa_name::ID_AK_SN_BUBBLEBLUE00 + (i_this->mType == 0);
+    u16 particleID;
+    if (i_this->mType == 0) {
+        particleID = dPa_name::ID_AK_SN_BUBBLERED00;
+    } else {
+        particleID = dPa_name::ID_AK_SN_BUBBLEBLUE00;
+    }
     fopAc_ac_c* actor = i_this;
 
     if (i_this->mFireCb.getEmitter() == NULL) {
