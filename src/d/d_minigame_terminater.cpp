@@ -590,21 +590,26 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF3(int i_no) {
     if (mRemainK[i_no].mUserArea < animeFrame[1]) {
         mRemainK[i_no].mUserArea++;
         s16 timer = mRemainK[i_no].mUserArea;
-        f32 y;
-        f32 r;
-        f32 t2 = SQUARE((f32)timer) / SQUARE((f32)animeFrame[1]);
-        r = (f32)mFailed[i_no].mUserArea + (f32)mRemain[i_no].mUserArea * t2;
 
         if (timer <= animeFrame[0]) {
             f32 t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
-            y = transY[1] + (1.0f - t) * (f32)(transY[0] - transY[1]);
+            f32 y = (f32)transY[1];
+            y += (1.0f - t) * (f32)(transY[0] - transY[1]);
+            f32 t2 = SQUARE((f32)timer) / SQUARE((f32)animeFrame[1]);
+            f32 r = (f32)mFailed[i_no].mUserArea;
+            r += (f32)mRemain[i_no].mUserArea * t2;
             fopMsgM_paneTrans(&mFailed[i_no], 0.0f, y);
             setRotate(&mFailed[i_no], r);
         } else {
             f32 t = acc(animeFrame[1], timer, animeFrame[0]);
-            y = transY[2] + (1.0f - t) * (f32)(transY[1] - transY[2]);
+            f32 y = (f32)transY[2];
+            f32 inv = 1.0f - t;
+            y += inv * (f32)(transY[1] - transY[2]);
+            f32 t2 = SQUARE((f32)timer) / SQUARE((f32)animeFrame[1]);
+            f32 r = (f32)mFailed[i_no].mUserArea;
+            r += (f32)mRemain[i_no].mUserArea * t2;
             fopMsgM_paneTrans(&mFailed[i_no], 0.0f, y);
-            fopMsgM_setNowAlpha(&mFailed[i_no], 1.0f - t);
+            fopMsgM_setNowAlpha(&mFailed[i_no], inv);
             setRotate(&mFailed[i_no], r);
         }
     } else {
@@ -638,13 +643,11 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS1() {
     if (timer <= animeFrame[0]) {
         alpha = 0.0f;
         t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
-        scale = 0.3f;
-        scale += 0.9f * t;
+        scale = 0.3f + 0.9f * t;
     } else {
         t = acc(animeFrame[1], timer, animeFrame[0]);
         alpha = t;
-        scale = 1.2f;
-        scale += -0.19999999f * t;
+        scale = 1.2f + (1.0f - 1.2f) * t;
     }
 
     for (int i = 0; i < dMgtem_yougot_tex; i++) {
@@ -684,54 +687,62 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS3() {
     static const s16 transY[] = {-110, 0, -30, 10, 15, 0};
     static const s16 rot[] = {0, 0, 5, -5, 0, 0};
 
+    BOOL rt = FALSE;
     s16 timer = mDummy.mUserArea;
     if (timer < animeFrame[4]) {
         mDummy.mUserArea++;
         timer = mDummy.mUserArea;
-    }
 
-    f32 t;
-    f32 y;
-    f32 r;
-    if (timer <= animeFrame[0]) {
-        t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
-        y = transY[1] + (1.0f - t) * (f32)(transY[0] - transY[1]);
-        r = rot[1] + (1.0f - t) * (f32)(rot[0] - rot[1]);
-        fopMsgM_paneTrans(&mDummy, 0.0f, y);
-        fopMsgM_setNowAlpha(&mDummy, t);
-        fopMsgM_setNowAlpha(&mRpx, t);
-        fopMsgM_setNowAlpha(&mRpxk, t);
-        fopMsgM_setNowAlpha(&mNt00, t);
-        fopMsgM_setNowAlpha(&mNk00, t);
-        if (timer == animeFrame[0]) {
-            mDoAud_seStart(JA_SE_SGAME_DISP_LUPY);
+        f32 t;
+        f32 y;
+        f32 r;
+        if (timer <= animeFrame[0]) {
+            t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
+            y = (f32)transY[1];
+            y += (1.0f - t) * (f32)(transY[0] - transY[1]);
+            fopMsgM_paneTrans(&mDummy, 0.0f, y);
+            fopMsgM_setNowAlpha(&mRpx, t);
+            fopMsgM_setNowAlpha(&mRpxk, t);
+            fopMsgM_setNowAlpha(&mNt00, t);
+            fopMsgM_setNowAlpha(&mNk00, t);
+            if (mDummy.mUserArea == animeFrame[0]) {
+                mDoAud_seStart(JA_SE_SGAME_DISP_LUPY);
+            }
+        } else if (timer <= animeFrame[1]) {
+            t = acc(animeFrame[1], timer, animeFrame[0]);
+            y = (f32)transY[2];
+            y += (1.0f - t) * (f32)(transY[1] - transY[2]);
+            r = (f32)rot[2];
+            r += (1.0f - t) * (f32)(rot[1] - rot[2]);
+            fopMsgM_paneTrans(&mDummy, 0.0f, y);
+            mDummy.pane->rotate(0.0f, 0.0f, ROTATE_Z, r);
+        } else if (timer <= animeFrame[2]) {
+            t = acc(animeFrame[2], timer, animeFrame[1]);
+            y = (f32)transY[3];
+            y += (1.0f - t) * (f32)(transY[2] - transY[3]);
+            r = (f32)rot[3];
+            r += (1.0f - t) * (f32)(rot[2] - rot[3]);
+            fopMsgM_paneTrans(&mDummy, 0.0f, y);
+            mDummy.pane->rotate(0.0f, 0.0f, ROTATE_Z, r);
+        } else if (timer <= animeFrame[3]) {
+            t = acc(animeFrame[3], timer, animeFrame[2]);
+            y = (f32)transY[4];
+            y += (1.0f - t) * (f32)(transY[3] - transY[4]);
+            r = (f32)rot[4];
+            r += (1.0f - t) * (f32)(rot[3] - rot[4]);
+            fopMsgM_paneTrans(&mDummy, 0.0f, y);
+            mDummy.pane->rotate(0.0f, 0.0f, ROTATE_Z, r);
+        } else {
+            t = acc(animeFrame[4], timer, animeFrame[3]);
+            y = (f32)transY[5];
+            y += (1.0f - t) * (f32)(transY[4] - transY[5]);
+            fopMsgM_paneTrans(&mDummy, 0.0f, y);
         }
-    } else if (timer <= animeFrame[1]) {
-        t = acc(animeFrame[1], timer, animeFrame[0]);
-        y = transY[2] + (1.0f - t) * (f32)(transY[1] - transY[2]);
-        fopMsgM_paneTrans(&mDummy, 0.0f, y);
-        fopMsgM_paneTrans(&mRpx, 0.0f, 0.0f);
-    } else if (timer <= animeFrame[2]) {
-        t = acc(animeFrame[2], timer, animeFrame[1]);
-        y = transY[3] + (1.0f - t) * (f32)(transY[2] - transY[3]);
-        r = rot[3] + (1.0f - t) * (f32)(rot[2] - rot[3]);
-        fopMsgM_paneTrans(&mDummy, 0.0f, y);
-        fopMsgM_paneTrans(&mRpx, 0.0f, 0.0f);
-    } else if (timer <= animeFrame[3]) {
-        t = acc(animeFrame[3], timer, animeFrame[2]);
-        y = transY[4] + (1.0f - t) * (f32)(transY[3] - transY[4]);
-        fopMsgM_paneTrans(&mDummy, 0.0f, y);
-        fopMsgM_paneTrans(&mRpx, 0.0f, 0.0f);
     } else {
-        t = acc(animeFrame[4], timer, animeFrame[3]);
-        y = transY[5] + (1.0f - t) * (f32)(transY[4] - transY[5]);
-        fopMsgM_paneTrans(&mDummy, 0.0f, y);
-        fopMsgM_paneTrans(&mRpx, 0.0f, 0.0f);
+        rt = TRUE;
     }
 
-    (void)r;
-    (void)rot;
-    return FALSE;
+    return rt;
 }
 
 /* 80209AAC-80209B64       .text animeFailed1__26dDlst_TerminaterScrnDraw_cFv */
@@ -806,20 +817,24 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
     static const s16 rot[] = {0, 7, 0, 5, 2, 7};
 
     s32 flags[8];
-    int i;
-    for (i = 0; i < 8; i++) {
-        flags[i] = -1;
-    }
+    flags[0] = -1;
+    flags[1] = -1;
+    flags[2] = -1;
+    flags[3] = -1;
+    flags[4] = -1;
+    flags[5] = -1;
+    flags[6] = -1;
+    flags[7] = -1;
 
+    s16 wait = g_menuHIO.field_0xae;
     s16 f0 = g_menuHIO.field_0xa4;
     s16 f1 = f0 + g_menuHIO.field_0xa6;
     s16 f2 = f1 + g_menuHIO.field_0xa8;
     s16 f3 = f2 + g_menuHIO.field_0xaa;
     s16 f4 = f3 + g_menuHIO.field_0xac;
-    s16 wait = g_menuHIO.field_0xae;
     s16 f5 = f4 + wait * 2;
 
-    if (mAnimTimer2 > g_menuHIO.field_0xb0 + 0x20) {
+    if (mAnimTimer2 <= g_menuHIO.field_0xb0 + 0x20) {
         return FALSE;
     }
 
@@ -828,40 +843,75 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
     }
     mAnimTimer3++;
 
-    f32 scale = g_menuHIO.field_0x14;
     s16 timer = mAnimTimer3;
     if (timer <= f0) {
-        f32 t = SQUARE((f32)timer) / SQUARE((f32)f0);
+        f32 sq0 = SQUARE((f32)f0);
+        f32 t = SQUARE((f32)timer) / sq0;
+        f32 r = (f32)rot[0] + t * (f32)(rot[1] - rot[0]);
+        f32 t2 = SQUARE((f32)(s16)(f0 - timer)) / sq0;
+        f32 scale = (f32)g_menuHIO.field_0x8e / 100.0f;
+        scale = 1.0f + (scale - 1.0f) * t2;
+
+        fopMsgM_setNowAlpha(&mPerfect[0], t);
+        fopMsgM_setNowAlpha(&mPerfectNt[0], t);
+        fopMsgM_setNowAlpha(&mPerfectNk[0], t);
+        setRotate(&mDmpe, r);
+
+        int i;
         for (i = 0; i < dMgtem_perfect_tex; i++) {
-            fopMsgM_setNowAlpha(&mPerfect[i], t);
-            setRotate(&mPerfect[i], (f32)rot[0]);
             setScale(&mPerfect[i], scale);
         }
-        setScale(&mDmpe, scale);
-        setScale(&mPerfectNt[0], scale);
+        for (i = 0; i < 10; i++) {
+            setScale(&mPerfectNt[i], scale);
+            setScale(&mPerfectNk[i], scale);
+        }
+    } else if (timer <= f1) {
+        f32 t = acc(f1, timer, f0);
+        f32 r = (f32)rot[1] + t * (f32)(rot[2] - rot[1]);
+        setRotate(&mDmpe, r);
+    } else if (timer <= f2) {
+        f32 t = acc(f2, timer, f1);
+        f32 r = (f32)rot[2] + t * (f32)(rot[3] - rot[2]);
+        setRotate(&mDmpe, r);
+    } else if (timer <= f3) {
+        f32 t = acc(f3, timer, f2);
+        f32 r = (f32)rot[3] + t * (f32)(rot[4] - rot[3]);
+        setRotate(&mDmpe, r);
+    } else if (timer <= f4) {
+        f32 t = acc(f4, timer, f3);
+        f32 r = (f32)rot[4] + t * (f32)(rot[5] - rot[4]);
+        setRotate(&mDmpe, r);
     } else {
-        for (i = 0; i < dMgtem_perfect_tex; i++) {
-            setRotate(&mPerfect[i], (f32)rot[i % 6]);
-            setScale(&mPerfect[i], scale);
+        if (timer >= f5) {
+            mAnimTimer3 = f4;
         }
-        f32 t2 = acc(f5, timer, f4);
-        (void)t2;
-        (void)f1;
-        (void)f2;
-        (void)f3;
-        (void)flags;
-        volatile f32 lit0 = 100.0f;
-        volatile f32 lit1 = 240.0f;
-        volatile f32 lit2 = -140.0f;
-        volatile f32 lit3 = 20.0f;
-        volatile f32 lit4 = 200.0f;
-        volatile f32 lit5 = 480.0f;
-        (void)lit0;
-        (void)lit1;
-        (void)lit2;
-        (void)lit3;
-        (void)lit4;
-        (void)lit5;
+
+        u8 wrap = 0;
+        f32 hue = 240.0f + -140.0f * ((f32)(mAnimTimer3 - f4) / (f32)wait);
+        if (hue > 240.0f) {
+            hue = 480.0f - hue;
+            wrap = 1;
+        }
+
+        int i;
+        for (i = 0; i < dMgtem_perfect_tex; i++) {
+            f32 val;
+            if (wrap != 0) {
+                val = hue - 20.0f * (f32)i;
+            } else {
+                val = hue + 20.0f * (f32)i;
+            }
+            if (val > 240.0f) {
+                val = 480.0f - val;
+            }
+            if (val < 100.0f) {
+                val = 200.0f - val;
+            }
+
+            JUtility::TColor col(0xFF, (u8)(s32)val, 0, 0xFF);
+            flags[i] = col.toUInt32();
+            ((J2DPicture*)mPerfect[i].pane)->setWhite(*(JUtility::TColor*)&flags[i]);
+        }
     }
 
     return FALSE;
