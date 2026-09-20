@@ -34,7 +34,7 @@
 static daPz_HIO_c l_HIO;
 
 const u32 daPz_c::m_heapsize = 0xA740;
-const char daPz_c::m_arc_name[] = "Pz";
+const char daPz_c::m_arc_name[] = "PZ";
 const f32 daPz_c::m_smoke_ef = 1.25f;
 const f32 daPz_c::m_grass_ef = 1.5f;
 const f32 daPz_c::m_splash_ef = 1.0f;
