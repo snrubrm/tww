@@ -74,6 +74,21 @@ static GXDrawDoneCallback DrawDoneCB;
 
 static GXBool DrawDone;
 
+void GXSetDrawSync(u16 token) {
+    BOOL restore;
+    u32 reg;
+
+    restore = OSDisableInterrupts();
+    reg = token | 0x48000000;
+    GX_WRITE_RAS_REG(reg);
+    GX_SET_REG(reg, token, 16, 31);
+    GX_SET_REG(reg, 0x47, 0, 7);
+    GX_WRITE_RAS_REG(reg);
+    GXFlush();
+    OSRestoreInterrupts(restore);
+    gx->bpSentNot = GX_FALSE;
+}
+
 void GXSetDrawDone(void) {
     u8 padding[8];
     BOOL restore = OSDisableInterrupts();
@@ -157,6 +172,14 @@ void GXPokeZMode(GXBool enable_compare, GXCompare comp, GXBool update_enable) {
     GX_BITFIELD_SET(val, 0x1c, 3, comp);
     GX_BITFIELD_SET(val, 0x1b, 1, update_enable);
     __peReg[0] = val;
+}
+
+void GXPeekARGB(u16 x, u16 y, u32* color) {
+    u32 addr = 0xc8000000;
+    GX_BITFIELD_SET(addr, 0x14, 10, x);
+    GX_BITFIELD_SET(addr, 0xa, 10, y);
+    GX_BITFIELD_SET(addr, 8, 2, 0);
+    *color = *(u32*)addr;
 }
 
 void GXPeekZ(u16 x, u16 y, u32* z) {
