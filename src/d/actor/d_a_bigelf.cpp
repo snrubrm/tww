@@ -151,8 +151,7 @@ void daBigelf_c::lightEnd() {
 
 /* 00000470-0000047C       .text lightProc__10daBigelf_cFv */
 void daBigelf_c::lightProc() {
-    if (*(volatile bool*)&mIsLightShining) {
-    }
+    if (*(volatile bool*)&mIsLightShining) { return; }
 }
 
 /* 0000047C-00000488       .text darkInit__10daBigelf_cFv */
