@@ -5881,15 +5881,18 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(200.0f, 160.0f, -80.0f),
             };
             cSGlobe globe(cannonOff[m07C & 3]);
-            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - work->m3B0) > cSAngle::_0) {
+            cXyz* shipPos = &work->m37C->current.pos;
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
+            bool plus = (target - work->m3B0) > cSAngle::_0;
+            if (plus) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
@@ -5902,15 +5905,18 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(115.0f, 215.0f, 315.0f),
             };
             cSGlobe globe(craneOff[m07C & 3]);
-            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - work->m3B0) > cSAngle::_0) {
+            cXyz* shipPos = &work->m37C->current.pos;
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
+            bool plus = (target - work->m3B0) > cSAngle::_0;
+            if (plus) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e | daPyStts0_UNK1000000_e) ||
