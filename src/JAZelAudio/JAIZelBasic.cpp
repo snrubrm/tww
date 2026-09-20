@@ -491,28 +491,26 @@ void JAIZelBasic::bgmHitSound(s32 param_1) {
     case JA_BGM_MBOSS:
     case JA_BGM_MBOSS_S:
         if (field_0x00c9 != 0) {
-            u32 port;
+            u16 port;
             switch (param_1) {
-            case 0:
-                port = (u16)getRandomU32(4);
-                break;
             case 1:
-                port = (u16)getRandomU32(2);
+                port = getRandomU32(2);
                 port += 4;
+                break;
+            case 4:
+                port = getRandomU32(2);
+                port += 6;
                 break;
             case 2:
                 port = 8;
                 break;
             case 3:
-                port = (u16)getRandomU32(2);
+                port = getRandomU32(2);
                 port += 9;
                 break;
-            case 4:
-                port = (u16)getRandomU32(2);
-                port += 6;
-                break;
+            case 0:
             default:
-                port = (u16)getRandomU32(4);
+                port = getRandomU32(4);
                 break;
             }
             if (mpSubBgmSound) {
@@ -742,13 +740,102 @@ void JAIZelBasic::taktModeMuteOff() {
 }
 
 /* 802A5F24-802A61AC       .text cbPracticePlay__11JAIZelBasicFP3Vec */
-void JAIZelBasic::cbPracticePlay(Vec*) {
-    /* Nonmatching */
+void JAIZelBasic::cbPracticePlay(Vec* pos) {
+    field_0x00d0 = (int)pos;
+    MtxP matrix = mAudioCamera->field_0x8;
+    Vec position = {0.0f, 0.0f, -50.0f};
+    if (!pos) {
+        if (mAudioCamera->field_0x0) {
+            position.x = mAudioCamera->field_0x0->x;
+            position.y = mAudioCamera->field_0x0->y;
+            position.z = mAudioCamera->field_0x0->z;
+        }
+    } else {
+        position.x = pos->x;
+        position.y = pos->y;
+        position.z = pos->z;
+    }
+    if (matrix) {
+        PSMTXMultVec(matrix, &position, &position);
+    }
+    if (field_0x0224 == 0x39) {
+        startSoundVec(JA_BGM_CB_NEXTYEAR_W, &mpSubBgmSound, NULL, 0, 0, 4);
+        mSubBgmNum = JA_BGM_CB_NEXTYEAR_W;
+    } else {
+        startSoundVec(JA_BGM_CB_NEXTYEAR, &mpSubBgmSound, NULL, 0, 0, 4);
+        mSubBgmNum = JA_BGM_CB_NEXTYEAR;
+    }
+    if (mpSubBgmSound) {
+        mpSubBgmSound->setSeqInterVolume(0, field_0x00a0, 0);
+    }
+    f32 volume = calcPosVolume(&position, 2.0f);
+    f32 pan = calcPosPanLR(&position);
+    f32 dolby = calcPosPanSR(&position, 1.0f);
+    field_0x00a8 = volume;
+    if (mpSubBgmSound) {
+        mpSubBgmSound->setVolume(calcSubBgmVol(), 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setPan(pan, 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setDolby(dolby, 0, SOUNDPARAM_Unk0);
+    }
+    if (field_0x0224 == 0x27) {
+        field_0x009c = 1.0f - 0.4f * volume;
+    } else {
+        field_0x009c = 1.0f - volume;
+    }
+    if (mpMainBgmSound) {
+        mpMainBgmSound->setVolume(calcMainBgmVol(), 30, SOUNDPARAM_Unk0);
+    }
 }
 
 /* 802A61AC-802A6434       .text cbPracticeProcess__11JAIZelBasicFv */
 void JAIZelBasic::cbPracticeProcess() {
-    /* Nonmatching */
+    if ((u32)field_0x00d0 == 0) {
+        return;
+    }
+    if (checkCbPracticePlay() == 0) {
+        if (1.0f == field_0x009c) {
+            return;
+        }
+        field_0x009c = 1.0f;
+        if (mpMainBgmSound) {
+            mpMainBgmSound->setVolume(calcMainBgmVol(), 0, SOUNDPARAM_Unk0);
+        }
+        return;
+    }
+    MtxP matrix = mAudioCamera->field_0x8;
+    Vec position = {0.0f, 0.0f, -50.0f};
+    Vec* pos = (Vec*)field_0x00d0;
+    if (!pos) {
+        if (mAudioCamera->field_0x0) {
+            position.x = mAudioCamera->field_0x0->x;
+            position.y = mAudioCamera->field_0x0->y;
+            position.z = mAudioCamera->field_0x0->z;
+        }
+    } else {
+        position.x = pos->x;
+        position.y = pos->y;
+        position.z = pos->z;
+    }
+    if (matrix) {
+        PSMTXMultVec(matrix, &position, &position);
+    }
+    f32 volume = calcPosVolume(&position, 2.0f);
+    f32 pan = calcPosPanLR(&position);
+    f32 dolby = calcPosPanSR(&position, 1.0f);
+    field_0x00a8 = volume;
+    if (mpSubBgmSound) {
+        mpSubBgmSound->setVolume(calcSubBgmVol(), 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setPan(pan, 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setDolby(dolby, 0, SOUNDPARAM_Unk0);
+    }
+    if (field_0x0224 == 0x27) {
+        field_0x009c = 1.0f - 0.4f * volume;
+    } else {
+        field_0x009c = 1.0f - volume;
+    }
+    if (mpMainBgmSound) {
+        mpMainBgmSound->setVolume(calcMainBgmVol(), 0, SOUNDPARAM_Unk0);
+    }
 }
 
 /* 802A6434-802A6508       .text cbPracticeStop__11JAIZelBasicFv */
@@ -1169,8 +1256,74 @@ void JAIZelBasic::messageSePlay(u16 id, Vec* pos, s8 reverb) {
 }
 
 /* 802A92CC-802A965C       .text shipCruiseSePlay__11JAIZelBasicFP3Vecf */
-void JAIZelBasic::shipCruiseSePlay(Vec*, f32) {
-    /* Nonmatching */
+void JAIZelBasic::shipCruiseSePlay(Vec* pos, f32 speed) {
+    field_0x1f40 = speed;
+    if (mpMainBgmSound && mMainBgmNum == JA_BGM_SEA) {
+        if (mIsSailing == 0 && speed < 0.2f) {
+            bgmMute(&mpMainBgmSound, JA_BGM_SEA, 1, 30);
+        } else {
+            bgmMute(&mpMainBgmSound, JA_BGM_SEA, 0, 30);
+        }
+    } else if (mpMainBgmSound && mMainBgmNum == JA_BGM_SEA_STORM) {
+        if (mIsSailing == 0 && speed < 0.2f) {
+            bgmMute(&mpMainBgmSound, JA_BGM_SEA_STORM, 1, 30);
+        } else {
+            bgmMute(&mpMainBgmSound, JA_BGM_SEA_STORM, 0, 30);
+        }
+    }
+    if (field_0x0201 == 1) {
+        return;
+    }
+    MtxP matrix = mAudioCamera->field_0x8;
+    Vec position = {0.0f, 0.0f, -50.0f};
+    if (!pos) {
+        if (mAudioCamera->field_0x0) {
+            position.x = mAudioCamera->field_0x0->x;
+            position.y = mAudioCamera->field_0x0->y;
+            position.z = mAudioCamera->field_0x0->z;
+        }
+    } else {
+        position.x = pos->x;
+        position.y = pos->y;
+        position.z = pos->z;
+    }
+    if (matrix) {
+        PSMTXMultVec(matrix, &position, &position);
+    }
+    f32 dist = std::sqrtf(position.x * position.x + position.y * position.y + position.z * position.z);
+    if (dist >= JAIGlobalParameter::getParamDistanceMax()) {
+        return;
+    }
+    f32 goVol = 0.0f;
+    u32 waveSe;
+    if (speed <= 0.1f) {
+        waveSe = JA_SE_SHIP_WAVE_S;
+        speed = 1.0f;
+    } else if (speed <= 0.5f) {
+        goVol = (speed - 0.1f) / 0.4f;
+        waveSe = JA_SE_SHIP_WAVE_S;
+        speed = 1.0f - goVol;
+    } else if (speed <= 0.8f) {
+        goVol = 1.0f;
+        waveSe = JA_SE_SHIP_WAVE_L;
+        speed = (speed - 0.5f) / 0.4f;
+    } else if (speed <= 0.9f) {
+        goVol = 1.0f;
+        waveSe = JA_SE_SHIP_WAVE_L;
+        speed = (speed - 0.5f) / 0.4f;
+    } else {
+        goVol = 1.0f;
+        waveSe = JA_SE_SHIP_WAVE_L;
+        speed = goVol;
+    }
+    if (0.0f != goVol) {
+        startSoundVec(JA_SE_SHIP_GO_NORMAL, (JAISound**)&field_0x1f44, pos, 0, 0, 4);
+        ((JAISound*)field_0x1f44)->setVolume(goVol, 0, SOUNDPARAM_Unk0);
+    }
+    if (0.0f != speed) {
+        startSoundVec(waveSe, (JAISound**)&field_0x1f48, pos, 0, 0, 4);
+        ((JAISound*)field_0x1f48)->setVolume(speed, 0, SOUNDPARAM_Unk0);
+    }
 }
 
 /* 802A965C-802A9664       .text setShipSailState__11JAIZelBasicFl */
