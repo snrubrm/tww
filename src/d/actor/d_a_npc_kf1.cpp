@@ -315,18 +315,26 @@ void daNpc_Kf1_c::chngAnmAtr(u8 attr) {
 
 /* 00000DEC-00000E60       .text ctrlAnmAtr__11daNpc_Kf1_cFv */
 void daNpc_Kf1_c::ctrlAnmAtr() {
-    switch (mAnmAttr) {
-    case 7:
-    case 9:
-        if (mAnmEnded) {
-            setAnm_NUM(0, 1);
-            mAnmAttr = 0;
-        }
-        break;
-    case 8:
-    case 10:
-    default:
-        break;
+    int attr = mAnmAttr;
+    if (attr == 8) {
+        return;
+    } else if (attr >= 8) {
+        goto ge8;
+    } else if (attr >= 7) {
+        goto body;
+    } else {
+        return;
+    }
+ge8:
+    if (attr == 10) {
+        return;
+    } else if (attr >= 10) {
+        return;
+    }
+body:
+    if (mAnmEnded) {
+        setAnm_NUM(0, 1);
+        mAnmAttr = 0;
     }
 }
 
