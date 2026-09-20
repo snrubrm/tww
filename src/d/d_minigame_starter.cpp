@@ -27,7 +27,6 @@ static s16 dMinigame_Starter_tex_number = 3;
 #endif
 
 /* 80205FE8-80206124       .text _create__19dMinigame_Starter_cFv */
-// NONMATCHING - missing b
 cPhs_State dMinigame_Starter_c::_create() {
     cPhs_State phase_state = dComIfG_resLoad(&mPhase, "Mgst");
     if (phase_state == cPhs_COMPLEATE_e) {
@@ -50,15 +49,14 @@ cPhs_State dMinigame_Starter_c::_create() {
         } else {
             return cPhs_ERROR_e;
         }
-
-        mStatus = 0;
-        mTimer = 0;
-        field_0x10e = 3;
-
-        return cPhs_COMPLEATE_e;
+    } else {
+        return phase_state;
     }
 
-    return phase_state;
+    mStatus = 0;
+    mTimer = 0;
+    field_0x10e = 3;
+    return cPhs_COMPLEATE_e;
 }
 
 /* 80206124-8020629C       .text _execute__19dMinigame_Starter_cFv */
@@ -277,10 +275,10 @@ BOOL dDlst_StarterScrnDraw_c::anime2() {
 
     field_0x008[0].mUserArea++;
 
+    f32 angle;
+    f32 scaleAdj;
     f32 alpha;
     f32 var_f31;
-    f32 scaleAdj;
-    f32 angle;
 
     s16 temp_r0 = field_0x008[0].mUserArea;
     if (temp_r0 <= var_r30) {
