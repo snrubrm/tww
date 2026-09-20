@@ -2823,7 +2823,7 @@ bool dCamera_c::followCamera2(s32 param_0) {
 /* 8016A110-8016C4F8       .text followCamera__9dCamera_cFl */
 bool dCamera_c::followCamera(s32 param_1) {
     /* Nonmatching */
-    bool bVar2;
+    bool bVar2 = false;
     bool bVar3;
     bool bVar4;
     f32 fVar37;
@@ -2861,8 +2861,6 @@ bool dCamera_c::followCamera(s32 param_1) {
     
     f32 f14 = 3.8f;
     dAttention_c& attention = dComIfGp_getAttention();
-
-    bVar2 = false;
 
 #if VERSION > VERSION_DEMO
     if (m108 == 0) {
@@ -3617,7 +3615,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     if (m11C < iVar15 && !chkFlag(0x100)) {
         local_258 *= (f32)m108 / (f32)iVar15;
     }
-    else if (iVar15 <= m11C) {
+    else if (m11C >= iVar15) {
         setFlag(0x100);
     }
 
@@ -3917,9 +3915,9 @@ bool dCamera_c::talktoCamera(s32 param_1) {
     f32 val24 = mCamParam.Val(param_1, 24);
     f32 val25 = mCamParam.Val(param_1, 25);
 
-    bool ret = true;
     fopAc_ac_c* listener;
     fopAc_ac_c* speaker;
+    bool ret = true;
     int evVal;
     TalkWork* talk = (TalkWork*)&mWork;
 
@@ -3956,17 +3954,13 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         talk->m3E8 = talk->m3E4;
     }
 
-    fopAc_ac_c* msgSpeaker = getMsgCmdSpeaker();
-    if (msgSpeaker != NULL) {
+    fopAc_ac_c* cmdSpeaker = getMsgCmdSpeaker();
+    if (cmdSpeaker != NULL) {
         listener = talk->m3E0;
-        speaker = msgSpeaker;
+        speaker = cmdSpeaker;
     } else if (dComIfGp_evmng_cameraPlay()) {
         listener = talk->m3E0;
-        if (m11C != 0) {
-            speaker = getEvActor("Speaker", "@TALKPARTNER");
-        } else {
-            speaker = talk->m3E4;
-        }
+        speaker = m11C != 0 ? getEvActor("Speaker", "@TALKPARTNER") : talk->m3E4;
     } else {
         listener = mpPlayerActor;
         speaker = mpLockonTarget;
@@ -4036,8 +4030,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             talk->m3A0.V(cSAngle(val15));
         } else if (fopAcM_GetName(speaker) == fpcNm_KANBAN_e) {
             relGlobe.U(directionOf(speaker));
-            cSAngle delta = chosenU - relGlobe.U();
-            talk->m3A0.U(relGlobe.U() + (delta * 0.25f));
+            talk->m3A0.U(relGlobe.U() + (chosenU - relGlobe.U()) * 0.25f);
             talk->m3A0.V(cSAngle(talk->m3DC));
         } else if (fopAcM_GetName(speaker) == fpcNm_AGB_e) {
             talk->m3A0.R(195.0f);
@@ -4132,8 +4125,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         }
     }
 
-    int cut = talk->m3B4;
-    switch (cut) {
+    switch (talk->m3B4) {
     case 0: {
         if (fopAcM_GetName(speaker) == fpcNm_SHIP_e) {
             cXyz offset(val1, val5, val0);
@@ -4157,11 +4149,12 @@ bool dCamera_c::talktoCamera(s32 param_1) {
 
         talk->m3C8 = (f32)(talk->m3C0 - talk->m3BC);
         f32 t = talk->m3C8 / talk->m3C4;
+        cSGlobe* dir = &mViewCache.mDirection;
         mViewCache.mCenter += (talk->m37C - mViewCache.mCenter) * t;
-        mViewCache.mDirection.R(mViewCache.mDirection.R() + t * (talk->m3A0.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (talk->m3A0.V() - mViewCache.mDirection.V()) * t);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (talk->m3A0.U() - mViewCache.mDirection.U()) * t);
-        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        dir->R(dir->R() + t * (talk->m3A0.R() - dir->R()));
+        dir->V(dir->V() + (talk->m3A0.V() - dir->V()) * t);
+        dir->U(dir->U() + (talk->m3A0.U() - dir->U()) * t);
+        mViewCache.mEye = mViewCache.mCenter + dir->Xyz();
         mViewCache.mFovy += t * (talk->m3D4 - mViewCache.mFovy);
         talk->m3C4 -= talk->m3C8;
         if (talk->m3BC >= talk->m3C0 - 1) {
@@ -4176,7 +4169,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
     case 21: {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
-        if (cut == 21) {
+        if (talk->m3B4 == 21) {
             actor1 = speaker;
             actor2 = listener;
         } else {
@@ -4204,7 +4197,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
     case 17: {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
-        if (cut == 17) {
+        if (talk->m3B4 == 17) {
             actor1 = speaker;
             actor2 = listener;
         } else {
@@ -4232,7 +4225,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
     case 23: {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
-        if (cut == 23) {
+        if (talk->m3B4 == 23) {
             actor1 = speaker;
             actor2 = listener;
         } else {
@@ -4260,7 +4253,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
     case 15: {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
-        if (cut == 14) {
+        if (talk->m3B4 == 14) {
             actor1 = speaker;
             actor2 = listener;
         } else {
@@ -4286,7 +4279,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
         int side;
-        if (cut == 18) {
+        if (talk->m3B4 == 18) {
             actor1 = listener;
             actor2 = speaker;
             side = talk->m3B0;
@@ -4323,7 +4316,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
         int side;
-        if (cut == 24) {
+        if (talk->m3B4 == 24) {
             actor1 = listener;
             actor2 = speaker;
             side = talk->m3B0;
@@ -4360,7 +4353,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
         int side;
-        if (cut == 26) {
+        if (talk->m3B4 == 26) {
             actor1 = listener;
             actor2 = speaker;
             side = talk->m3B0;
@@ -4399,7 +4392,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         fopAc_ac_c* actor1;
         fopAc_ac_c* actor2;
         int side;
-        if (cut == 12 || cut == 31) {
+        if (talk->m3B4 == 12 || talk->m3B4 == 31) {
             actor1 = speaker;
             actor2 = listener;
             side = talk->m3B0;
@@ -4430,7 +4423,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             m102 = 1;
             m101 = 1;
             m100 = 1;
-            if (cut == 11 || cut == 12) {
+            if (talk->m3B4 == 11 || talk->m3B4 == 12) {
                 mViewCache.mFovy = 55.0f;
             } else {
                 mViewCache.mFovy = 65.0f;
@@ -4688,14 +4681,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     f32 p26 = mCamParam.Val(param_1, 26);
 
     cSAngle baseYaw = directionOf(mpPlayerActor).Inv();
-    cSAngle angX, angY;
-    s16 tmpX, tmpY;
-
     cXyz camRel;
-
-    cSGlobe desired;
-
-    int end;
 
     if (m108 == 0) {
         mWork.subject.m378 = 'SUBJ';
@@ -4745,6 +4731,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     }
 
     if (!m100) {
+        int end;
         if (check_owner_action(mPadId, daPyStts0_SUBJECT_e)) {
             end = 7;
         }
@@ -4779,6 +4766,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         cXyz delta = targetPos - mViewCache.mCenter;
         mViewCache.mCenter += delta * t;
 
+        cSGlobe desired;
         desired.Val(p10, cSAngle::_0, baseYaw);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (desired.R() - mViewCache.mDirection.R()) * t);
@@ -4859,6 +4847,10 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     } else if (mWork.subject.m3BC) {
         setView(0.0f, 0.0f, 640.0f, 480.0f);
     }
+
+    cSAngle angX, angY;
+    s16 tmpX, tmpY;
+    cSGlobe desired;
 
     if (mWork.subject.m37D) {
         mWork.subject.m37C = 1;
@@ -5597,7 +5589,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     cSAngle val29(mCamParam.Val(param_1, 29));
 
     cXyz posOffset(0.0f, val5, val0);
-    f32 speedRatio = limitf(mMonitor.field_0x0C.y / val14, 0.0f, 1.0f);
+    f32 camRatio = limitf(mMonitor.field_0x0C.y / val14, 0.0f, 1.0f);
     TornadoWork* work = (TornadoWork*)&mWork;
 
     work->m380 = fopAcM_SearchByName(fpcNm_TORNADO_e);
@@ -5607,7 +5599,6 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
 
     f32 tornadoMix = 0.0f;
-    f32 camRatio = speedRatio;
     cSAngle yaw;
     if (work->m380 != NULL) {
         cSGlobe toShip(positionOf(work->m380) - positionOf(work->m37C));
@@ -5728,27 +5719,32 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     if (m100 == 0) {
         int timer;
         f32 ratio;
-        if (work->m388 == 1) {
+        switch (work->m388) {
+        case 1:
             timer = 0x28;
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * ratio;
             mViewCache.mEye = work->m38C;
             mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
-        } else if (work->m388 == 2) {
+            break;
+        case 2: {
             timer = 8;
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             cXyz cush(val3, val4, val3);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * cush;
             mViewCache.mDirection.V(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-        } else {
+            break;
+        }
+        default:
             timer = 0x14;
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * ratio;
             mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (targetDir.R() - mViewCache.mDirection.R()));
-            mViewCache.mDirection.U(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
-            mViewCache.mDirection.V(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
+            mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
+            mViewCache.mDirection.U(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+            break;
         }
         mViewCache.mFovy += ratio * (targetFovy - mViewCache.mFovy);
         if (m11C >= (u32)(timer - 1)) {
@@ -5776,7 +5772,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             latMix = 0.0f;
         }
     }
-    targetDir.U(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
+    targetDir.V(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
 
     cSAngle targetV = mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * val21;
     if (targetV < val16) {
@@ -5827,15 +5823,14 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
     if (check_owner_action1(mPadId, daPyStts1_UNK4_e)) {
         work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
-        daShip_c* ship = (daShip_c*)work->m37C;
-        cSAngle cannonY(ship->getCannonAngleY());
+        cSAngle cannonY(((daShip_c*)work->m37C)->getCannonAngleY());
         cSAngle delta;
         if (m11C == 0) {
             delta = cSAngle::_0;
         } else {
             delta.Val(work->m3B0 - cannonY);
         }
-        if (cSAngle(-1.0f) > delta) {
+        if (delta < cSAngle(-1.0f)) {
             work->m384 = 1;
         }
         if (delta > cSAngle(1.0f)) {
@@ -6005,16 +6000,19 @@ bool dCamera_c::rideCamera(s32 param_1) {
     if (m100 == 0) {
         int timer;
         f32 ratio;
-        if (work->m388 == 1) {
+        switch (work->m388) {
+        case 1:
             timer = 0x28;
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * ratio;
             mViewCache.mEye = work->m38C;
             mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
-        } else if (work->m388 == 2) {
+            break;
+        case 2:
             timer = 1;
             ratio = 1.0f;
-        } else {
+            break;
+        default:
             timer = 0x14;
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * ratio;
@@ -6022,6 +6020,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
             mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
             mViewCache.mDirection.U(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+            break;
         }
         mViewCache.mFovy += ratio * (targetFovy - mViewCache.mFovy);
         if (m11C >= (u32)(timer - 1)) {
