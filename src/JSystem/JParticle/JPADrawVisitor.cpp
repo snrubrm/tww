@@ -318,16 +318,12 @@ void JPADrawExecBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* ptcl
 
 /* 80260D24-80260F2C       .text exec__23JPADrawExecRotBillBoardFPC14JPADrawContextP15JPABaseParticle */
 void JPADrawExecRotBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* ptcl) {
-    /* Nonmatching */
     if (ptcl->isInvisibleParticle())
         return;
 
     JPADrawParams* params = ptcl->getDrawParamPPtr();
     f32 sin = JMASSin(params->mRotateAngle);
     f32 cos = JMASCos(params->mRotateAngle);
-
-    f32 scaleX = params->mScaleX;
-    f32 scaleY = params->mScaleY;
 
     f32 x0 = -params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX + JPADrawContext::pcb->mPivotX);
     f32 y0 = +params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY);
@@ -339,13 +335,37 @@ void JPADrawExecRotBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* p
     MTXMultVec(JPADrawContext::pcb->mDrawMtxPtr, &pt, &pt);
 
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-    GXPosition3f32((x0 * cos - y0 * sin) + pt.x, (x0 * sin + y0 * cos) + pt.y, pt.z);
+    f32 x = x0 * cos - y0 * sin;
+    x += pt.x;
+    GXFIFO.f32 = x;
+    f32 y = y0 * cos + x0 * sin;
+    y += pt.y;
+    GXFIFO.f32 = y;
+    GXFIFO.f32 = pt.z;
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[0].x, JPADrawContext::pcb->mTexCoordPt[0].y);
-    GXPosition3f32((x1 * cos - y0 * sin) + pt.x, (x1 * sin + y0 * cos) + pt.y, pt.z);
+    x = x1 * cos - y0 * sin;
+    x += pt.x;
+    GXFIFO.f32 = x;
+    y = y0 * cos + x1 * sin;
+    y += pt.y;
+    GXFIFO.f32 = y;
+    GXFIFO.f32 = pt.z;
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[1].x, JPADrawContext::pcb->mTexCoordPt[1].y);
-    GXPosition3f32((x1 * cos - y1 * sin) + pt.x, (x1 * sin + y1 * cos) + pt.y, pt.z);
+    x = x1 * cos - y1 * sin;
+    x += pt.x;
+    GXFIFO.f32 = x;
+    y = y1 * cos + x1 * sin;
+    y += pt.y;
+    GXFIFO.f32 = y;
+    GXFIFO.f32 = pt.z;
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[2].x, JPADrawContext::pcb->mTexCoordPt[2].y);
-    GXPosition3f32((x0 * cos - y1 * sin) + pt.x, (x0 * sin + y1 * cos) + pt.y, pt.z);
+    x = x0 * cos - y1 * sin;
+    x += pt.x;
+    GXFIFO.f32 = x;
+    y = y1 * cos + x0 * sin;
+    y += pt.y;
+    GXFIFO.f32 = y;
+    GXFIFO.f32 = pt.z;
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[3].x, JPADrawContext::pcb->mTexCoordPt[3].y);
     GXEnd();
 }
