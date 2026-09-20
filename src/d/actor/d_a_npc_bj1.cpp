@@ -25,11 +25,6 @@
 static daNpc_Bj1_HIO_c l_HIO;
 static fopAc_ac_c* l_check_inf[20];
 static int l_check_wrk;
-static char* l_evn_tbl[] = {
-    "Mak_Drg",
-    "Get_Blu_Btl",
-    "Calling",
-};
 
 /* 000000EC-00000108       .text __ct__20daNpc_Bj1_childHIO_cFv */
 daNpc_Bj1_childHIO_c::daNpc_Bj1_childHIO_c() {
@@ -85,6 +80,12 @@ daNpc_Bj1_HIO_c::daNpc_Bj1_HIO_c() {
 
 inline daNpc_Bj1_childHIO_c::~daNpc_Bj1_childHIO_c() {
 }
+
+static char* l_evn_tbl[] = {
+    "Mak_Drg",
+    "Get_Blu_Btl",
+    "Calling",
+};
 
 /* 00000268-000002EC       .text searchActor_Jb__FPvPv */
 static void* searchActor_Jb(void* actor, void*) {
@@ -221,17 +222,6 @@ bool daNpc_Bj1_c::init_BJX_1() {
 
 /* 00000998-00000C90       .text createInit__11daNpc_Bj1_cFv */
 bool daNpc_Bj1_c::createInit() {
-    static char* a_staff_tbl[] = {
-        "Bj1", "Bj1",
-        "Bj2", "Bj2",
-        "Bj3", "Bj3",
-        "Bj4", "Bj4",
-        "Bj5", "Bj5",
-        "Bj6", "Bj7",
-        "Bj7",
-        "Bj8", "Bj8",
-        "Bj9", "Bj9",
-    };
     struct prm_xyz {
         f32 x, y, z;
     };
@@ -245,6 +235,17 @@ bool daNpc_Bj1_c::createInit() {
         {{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {40.0f, 10.0f, 0.0f}},
         {{1.0f, 1.0f, 1.0f}, {1.1f, 1.2f, 1.05f}, {40.0f, 10.0f, 0.0f}},
         {{1.1f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {40.0f, 10.0f, 0.0f}},
+    };
+    static char* a_staff_tbl[] = {
+        "Bj1", "Bj1",
+        "Bj2", "Bj2",
+        "Bj3", "Bj3",
+        "Bj4", "Bj4",
+        "Bj5", "Bj5",
+        "Bj6", "Bj7",
+        "Bj7",
+        "Bj8", "Bj8",
+        "Bj9", "Bj9",
     };
 
     for (int i = 0; i < 3; i++) {
@@ -292,9 +293,10 @@ bool daNpc_Bj1_c::createInit() {
     m7E4.z = p2->z;
     gravity = -4.5f;
     mHomePos = current.pos;
-    mPathIdx = (fopAcM_GetParam(this) >> 16) & 0xFF;
-    if (mPathIdx != 0xFF) {
-        mPathRun.setInf(mPathIdx, fopAcM_GetRoomNo(this), 1);
+    u8 pathIdx = (fopAcM_GetParam(this) >> 16) & 0xFF;
+    mPathIdx = pathIdx;
+    if (pathIdx != 0xFF) {
+        mPathRun.setInf(pathIdx, fopAcM_GetRoomNo(this), 1);
         if (mPathRun.isPath()) {
             fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
         } else {
@@ -358,7 +360,7 @@ void daNpc_Bj1_c::setMtx_anmProc() {
         if (m8A9 != 0) {
             if (speed.y < 0.0f) {
                 if (mpMorf->getFrame() < 7.0f) {
-                    mpMorf->setFrame((s16)mpMorf->getEndFrame());
+                    mpMorf->setFrame(mpMorf->getEndFrame());
                 }
             } else if (mpMorf->getFrame() >= 7.0f) {
                 mpMorf->setFrame(7.0f);
@@ -757,7 +759,8 @@ bool daNpc_Bj1_c::chkReg(unsigned short reg) {
     u8 mask;
     bool result = getMaskInf(&mask);
     if (result) {
-        result = (dComIfGs_getEventReg(reg) & mask) != 0;
+        u8 regval = dComIfGs_getEventReg(reg);
+        result = regval & mask;
     }
     return result;
 }
@@ -766,7 +769,9 @@ bool daNpc_Bj1_c::chkReg(unsigned short reg) {
 void daNpc_Bj1_c::setReg(unsigned short reg) {
     u8 mask;
     if (getMaskInf(&mask)) {
-        dComIfGs_setEventReg(reg, dComIfGs_getEventReg(reg) | mask);
+        u8 regval = dComIfGs_getEventReg(reg);
+        regval |= mask;
+        dComIfGs_setEventReg(reg, regval);
     }
 }
 
@@ -852,6 +857,15 @@ u16 daNpc_Bj1_c::next_msgStatus(unsigned long* msg) {
     case 0x141F:
         *msg = 0x1420;
         break;
+    case 0x142C:
+        *msg = 0x142D;
+        break;
+    case 0x1431:
+        *msg = 0x1432;
+        break;
+    case 0x1433:
+        *msg = 0x1417;
+        break;
     case 0x1422:
         *msg = 0x1423;
         break;
@@ -879,26 +893,17 @@ u16 daNpc_Bj1_c::next_msgStatus(unsigned long* msg) {
     case 0x1428:
         *msg = 0x1429;
         break;
-    case 0x142C:
-        *msg = 0x142D;
-        break;
     case 0x142E:
         *msg = 0x142F;
-        break;
-    case 0x1431:
-        *msg = 0x1432;
-        break;
-    case 0x1433:
-        *msg = 0x1417;
-        break;
-    case 0x1482:
-        *msg = 0x1483;
         break;
     case 0x1487:
         *msg = 0x1488;
         break;
     case 0x1488:
         *msg = 0x1489;
+        break;
+    case 0x1482:
+        *msg = 0x1483;
         break;
     case 0x148A:
         *msg = 0x148B;
@@ -927,12 +932,6 @@ u16 daNpc_Bj1_c::next_msgStatus(unsigned long* msg) {
     case 0x1492:
         *msg = 0x1493;
         break;
-    case 0x1494:
-        *msg = 0x1495;
-        break;
-    case 0x1495:
-        *msg = 0x1496;
-        break;
     case 0x1497:
         *msg = 0x1498;
         break;
@@ -950,6 +949,12 @@ u16 daNpc_Bj1_c::next_msgStatus(unsigned long* msg) {
         break;
     case 0x149C:
         *msg = 0x149D;
+        break;
+    case 0x1494:
+        *msg = 0x1495;
+        break;
+    case 0x1495:
+        *msg = 0x1496;
         break;
     default:
         result = 16;
@@ -969,7 +974,7 @@ u32 daNpc_Bj1_c::getMsg_BJ1_0() {
         }
         return 0x1414;
     }
-    return (dComIfGs_isEventBit(0x904) != 0) + 0x1410;
+    return (dComIfGs_isEventBit(0x904) ? 1 : 0) + 0x1410;
 }
 
 /* 00001F14-00001F54       .text getMsg_BJ2_0__11daNpc_Bj1_cFv */
@@ -1035,7 +1040,7 @@ u32 daNpc_Bj1_c::getMsg_BJ7_0() {
         return 0x1421;
     }
     if (dComIfGs_isSymbol(dSymbol_FARORE_e)) {
-        if (!dComIfGs_isEventBit(0xD08)) {
+        if (dComIfGs_isEventBit(0xD08) == 0) {
             return 0x1433;
         }
         if (dComIfGs_isEventBit(0x1C80)) {
@@ -1043,7 +1048,7 @@ u32 daNpc_Bj1_c::getMsg_BJ7_0() {
         }
         return 0x1431;
     }
-    if (!dComIfGs_isEventBit(0xD08)) {
+    if (dComIfGs_isEventBit(0xD08) == 0) {
         return 0x1416;
     }
     return dComIfGs_isEventBit(0x1B80) ? 0x141E : 0x141F;
@@ -1060,7 +1065,7 @@ u32 daNpc_Bj1_c::getMsg_BJ8_0() {
         }
         return 0x140D;
     }
-    return (dComIfGs_isEventBit(0xD20) != 0) + 0x1409;
+    return (dComIfGs_isEventBit(0xD20) ? 1 : 0) + 0x1409;
 }
 
 /* 00002254-00002294       .text getMsg_BJ9_0__11daNpc_Bj1_cFv */
@@ -1075,7 +1080,7 @@ u32 daNpc_Bj1_c::getMsg_BJ9_0() {
 u32 daNpc_Bj1_c::getMsg_Corog() {
     if (chkReg(0x9AFF)) {
         if (dComIfGs_isEventBit(0x102)) {
-            return (chkReg(0x99FF) != 0) + 0x1485;
+            return (chkReg(0x99FF) ? 1 : 0) + 0x1485;
         }
         if (!chkReg(0x9EFF)) {
             if (!chkReg(0x98FF)) {
@@ -1824,7 +1829,7 @@ void daNpc_Bj1_c::eInit_ATTENTION_(int* prm0, int* prm1, int* prm2, cXyz* offset
         break;
     case 1:
         mLookMode = 1;
-        target = cLib_targetAngleY(&current.pos, &dComIfGp_getLinkPlayer()->current.pos);
+        target = cLib_targetAngleY(&current.pos, &dComIfGp_getPlayer(0)->current.pos);
         break;
     case 2:
         if (offset == NULL) {
@@ -1884,13 +1889,13 @@ void daNpc_Bj1_c::eInit_ATTENTION_(int* prm0, int* prm1, int* prm2, cXyz* offset
 
 /* 00003D3C-00003E24       .text eInit_PLYER_MOV_1___11daNpc_Bj1_cFv */
 void daNpc_Bj1_c::eInit_PLYER_MOV_1_() {
-    fopAc_ac_c* player = dComIfGp_getLinkPlayer();
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
     s16 ang = cLib_targetAngleY(&m7AC, &player->current.pos);
+    cXyz src;
     cXyz dst;
     if (abs((s16)(ang - m7B8.y)) > 0x1000) {
         mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
         mDoMtx_stack_c::YrotM(m7B8.y);
-        cXyz src;
         src.set(0.0f, 0.0f, 120.0f);
         mDoMtx_stack_c::multVec(&src, &dst);
     } else {
@@ -2109,6 +2114,7 @@ bool daNpc_Bj1_c::event_action() {
     case 8:
         ret = eMove_PTH_MOV_();
         break;
+    case 9:
     default:
         ret = true;
         break;
@@ -2243,6 +2249,11 @@ void daNpc_Bj1_c::setStt(signed char state) {
         m81C = l_HIO.mChild[mType].mPrm.m60;
         m8AA = 1;
         break;
+    case 0:
+    case 1:
+    case 7:
+    case 8:
+        break;
     }
     setAnm();
 }
@@ -2369,10 +2380,8 @@ int daNpc_Bj1_c::flyMov() {
         if (cLib_calcTimer(&m82E) != 0) {
             return 1;
         }
-        fopAc_ac_c* player = dComIfGp_getPlayer(0);
-        cXyz delta = current.pos - player->current.pos;
-        f32 dist = delta.absXZ();
-        s16 targetY = cLib_targetAngleY(&current.pos, &player->current.pos);
+        f32 dist = (current.pos - dComIfGp_getPlayer(0)->current.pos).absXZ();
+        s16 targetY = cLib_targetAngleY(&current.pos, &dComIfGp_getPlayer(0)->current.pos);
         s16 diff = abs((s16)(targetY - current.angle.y));
         if (dist < l_HIO.mChild[mType].mPrm.m48 && diff < l_HIO.mChild[mType].mPrm.m4C) {
             setStt(4);
@@ -2732,6 +2741,14 @@ BOOL daNpc_Bj1_c::_draw() {
         break;
     }
     if (l_HIO.mChild[mType].mPrm.m18 != 0) {
+        GXColor unused[] = {
+            {0xFF, 0x00, 0x00, 0x80},
+            {0x00, 0x00, 0xFF, 0x80},
+            {0x00, 0xFF, 0x00, 0x80},
+            {0x00, 0xFF, 0x00, 0x80},
+            {0xFF, 0xFF, 0x00, 0x80},
+        }; // Unused colors, needed for the .rodata section to match.
+
         cXyz pos;
         if (mSubType == 6) {
             pos = current.pos;
@@ -2936,29 +2953,30 @@ bool daNpc_Bj1_c::create_itm_Mdl() {
     mpPlantRModel = NULL;
     mpFaceModel = NULL;
 
-    int armL = l_arm_L_bmd_tbl[mType];
-    if (armL >= 0) {
-        J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", armL);
+    bool result;
+    if (l_arm_L_bmd_tbl[mType] >= 0) {
+        J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", l_arm_L_bmd_tbl[mType]);
         JUT_ASSERT(0x1145, a_mdl_dat != 0);
         mpPlantLModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
-        if (mpPlantLModel == NULL) {
-            return false;
+        result = mpPlantLModel != NULL;
+        if (!result) {
+            return result;
         }
-        if (armL == dRes_ID_BJ_BDL_PL_AL_e) {
+        if (l_arm_L_bmd_tbl[mType] == dRes_ID_BJ_BDL_PL_AL_e) {
             m_plant_l_jnt_num = a_mdl_dat->getJointName()->getIndex("plant_al");
             JUT_ASSERT(0x114F, m_plant_l_jnt_num >= 0);
         }
     }
 
-    int armR = l_arm_R_bmd_tbl[mType];
-    if (armR >= 0) {
-        J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", armR);
+    if (l_arm_R_bmd_tbl[mType] >= 0) {
+        J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", l_arm_R_bmd_tbl[mType]);
         JUT_ASSERT(0x1156, a_mdl_dat != 0);
         mpPlantRModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
-        if (mpPlantRModel == NULL) {
-            return false;
+        result = mpPlantRModel != NULL;
+        if (!result) {
+            return result;
         }
-        if (armR == dRes_ID_BJ_BDL_PL_AR_e) {
+        if (l_arm_R_bmd_tbl[mType] == dRes_ID_BJ_BDL_PL_AR_e) {
             m_plant_r_jnt_num = a_mdl_dat->getJointName()->getIndex("plant_ar");
             JUT_ASSERT(0x1160, m_plant_r_jnt_num >= 0);
         }

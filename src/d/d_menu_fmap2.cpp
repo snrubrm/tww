@@ -1164,8 +1164,8 @@ void dMenu_Fmap2_c::gsMoonAnime() {
         field_0x2818--;
     }
     int moonType = dKy_moon_type_chk();
-    ((J2DPicture*)mGsTk0xPaneAlpha[moonType].pane)->setWhite(c2);
-    ((J2DPicture*)mGsTk0xPaneAlpha[moonType].pane)->setBlack(c1);
+    ((J2DPicture*)mGsTk0xPaneAlpha[moonType].pane)->setBlack(c2);
+    ((J2DPicture*)mGsTk0xPaneAlpha[moonType].pane)->setWhite(c1);
 }
 
 /* 801C002C-801C0378       .text gsShipAnime__13dMenu_Fmap2_cFv */
@@ -1194,8 +1194,9 @@ void dMenu_Fmap2_c::gsShipAnime() {
     c2.g = g_mf2HIO.field_0x8b + tmp * (color_0x2828.g - g_mf2HIO.field_0x8b);
     c2.b = g_mf2HIO.field_0x8c + tmp * (color_0x2828.b - g_mf2HIO.field_0x8c);
     c2.a = g_mf2HIO.field_0x8d + tmp * (color_0x2828.a - g_mf2HIO.field_0x8d);
-    ((J2DPicture*)mGsKz01PaneAlpha.pane)->setWhite(c2);
-    ((J2DPicture*)mGsKz01PaneAlpha.pane)->setBlack(c1);
+    J2DPicture* picture = (J2DPicture*)mGsKz01PaneAlpha.pane;
+    picture->setBlack(c2);
+    picture->setWhite(c1);
     if (field_0x281c == 0) {
         field_0x281c = 0xff;
     } else {
@@ -1923,11 +1924,12 @@ bool dMenu_Fmap2_c::_close() {
 /* 801C3858-801C38E0       .text _draw__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::_draw() {
     dComIfGd_set2DOpa(&fmap2Dl);
-    s32 v = field_0x27fb;
-    if (v == 2) {
-    } else if (v > 2) {
-    } else if (v >= 1) {
+    switch (field_0x27fb) {
+    case 1:
         dComIfGd_set2DOpa(&fmap2GsDl);
+        break;
+    case 2:
+        break;
     }
 }
 
@@ -2117,8 +2119,8 @@ void dMenu_Fmap2_c::playerPointGridAnime(fopMsgM_pane_class* pane) {
     black.g = g_mf2HIO.field_0x6 + tmp * (g_mf2HIO.field_0xe - g_mf2HIO.field_0x6);
     black.b = g_mf2HIO.field_0x7 + tmp * (g_mf2HIO.field_0xf - g_mf2HIO.field_0x7);
     black.a = field_0x27f9;
-    ((J2DPicture*)pane->pane)->setBlack(black);
     ((J2DPicture*)pane->pane)->setWhite(white);
+    ((J2DPicture*)pane->pane)->setBlack(black);
     if ((s8)field_0x27be == 0) {
         field_0x27be = g_mf2HIO.field_0x16;
         field_0x27bf ^= 1;
@@ -2159,8 +2161,8 @@ void dMenu_Fmap2_c::fmapPlayerPosDisp() {
     f32 x;
     f32 y;
     if (fmapPlayerPosDispCheck(&x, &y) == TRUE) {
-        f32 cy = mR01gPane.mPosTopLeftOrig.y + mR01gPane.mSizeOrig.y * 0.5f;
-        f32 cx = mR01gPane.mPosTopLeftOrig.x + mR01gPane.mSizeOrig.x * 0.5f;
+        f32 cy = mR01gPane.mPosTopLeftOrig.y + mR01gPane.mSizeOrig.y / 2.0f;
+        f32 cx = mR01gPane.mPosTopLeftOrig.x + mR01gPane.mSizeOrig.x / 2.0f;
         mLnk3Pane.mPosCenterOrig.x = cx + x * (mR01gPane.mSizeOrig.x / 20000.0f);
         mLnk3Pane.mPosCenterOrig.y = cy + y * (mR01gPane.mSizeOrig.y / 20000.0f);
         mLnk3Pane.mPosCenter.x = mLnk3Pane.mPosCenterOrig.x;
@@ -2252,12 +2254,13 @@ void dMenu_Fmap2_c::cmapPlayerPosDisp() {
     f32 x;
     f32 y;
     if (cmapPlayerPosDispCheck(&x, &y) == TRUE) {
-        f32 cy = field_0x1aa4[field_0x2815 ^ 1][3].mPosTopLeftOrig.y + field_0x1aa4[field_0x2815 ^ 1][3].mSizeOrig.y * 0.5f;
-        f32 cx = field_0x1aa4[field_0x2815 ^ 1][3].mPosTopLeftOrig.x + field_0x1aa4[field_0x2815 ^ 1][3].mSizeOrig.x * 0.5f;
+        f32 cy = field_0x1aa4[field_0x2815 ^ 1][3].mPosTopLeftOrig.y + field_0x1aa4[field_0x2815 ^ 1][3].mSizeOrig.y / 2.0f;
+        f32 cx = field_0x1aa4[field_0x2815 ^ 1][3].mPosTopLeftOrig.x + field_0x1aa4[field_0x2815 ^ 1][3].mSizeOrig.x / 2.0f;
         field_0x1aa4[field_0x2815 ^ 1][4].mPosCenterOrig.x = cx + x * (field_0x1aa4[field_0x2815 ^ 1][3].mSizeOrig.x / 10000.0f);
         field_0x1aa4[field_0x2815 ^ 1][4].mPosCenterOrig.y = cy + y * (field_0x1aa4[field_0x2815 ^ 1][3].mSizeOrig.y / 10000.0f);
-        field_0x1aa4[field_0x2815 ^ 1][4].mPosCenter.x = field_0x1aa4[field_0x2815 ^ 1][4].mPosCenterOrig.x;
-        field_0x1aa4[field_0x2815 ^ 1][4].mPosCenter.y = field_0x1aa4[field_0x2815 ^ 1][4].mPosCenterOrig.y;
+        fopMsgM_pane_class* pane = &field_0x1aa4[field_0x2815 ^ 1][4];
+        pane->mPosCenter.x = pane->mPosCenterOrig.x;
+        pane->mPosCenter.y = pane->mPosCenterOrig.y;
         fopMsgM_cposMove(&field_0x1aa4[field_0x2815 ^ 1][4]);
         field_0x1aa4[field_0x2815 ^ 1][4].pane->rotate(
             (f32)(s32)(0.5f * field_0x1aa4[field_0x2815 ^ 1][4].mSizeOrig.x),
@@ -2277,15 +2280,12 @@ void dMenu_Fmap2_c::cmapSalvagePosDisp() {
     aramCmapDatPnt_t* pnt = getCmapDatPnt4(field_0x27a9);
     f32 dx = (f32)pnt->salvagePnt[idx].x - (f32)pnt->salvagePnt[idx].field_0x0;
     f32 dy = (f32)pnt->salvagePnt[idx].y - (f32)pnt->salvagePnt[idx].field_0x2;
-    f32 two = 2.0f;
-    f32 hundred = 100.0f;
-    f32 offX = two * (dx / hundred);
-    f32 offY = two * (dy / hundred);
     for (int i = 5; i < 9; i++) {
-        field_0x1aa4[field_0x2815 ^ 1][i].mPosCenterOrig.x = field_0x1aa4[field_0x2815 ^ 1][3].mPosCenterOrig.x + offX;
-        field_0x1aa4[field_0x2815 ^ 1][i].mPosCenterOrig.y = field_0x1aa4[field_0x2815 ^ 1][3].mPosCenterOrig.y + offY;
-        field_0x1aa4[field_0x2815 ^ 1][i].mPosCenter.x = field_0x1aa4[field_0x2815 ^ 1][i].mPosCenterOrig.x;
-        field_0x1aa4[field_0x2815 ^ 1][i].mPosCenter.y = field_0x1aa4[field_0x2815 ^ 1][i].mPosCenterOrig.y;
+        field_0x1aa4[field_0x2815 ^ 1][i].mPosCenterOrig.x = field_0x1aa4[field_0x2815 ^ 1][3].mPosCenterOrig.x + 2.0f * (dx / 100.0f);
+        field_0x1aa4[field_0x2815 ^ 1][i].mPosCenterOrig.y = field_0x1aa4[field_0x2815 ^ 1][3].mPosCenterOrig.y + 2.0f * (dy / 100.0f);
+        fopMsgM_pane_class* pane = &field_0x1aa4[field_0x2815 ^ 1][i];
+        pane->mPosCenter.x = pane->mPosCenterOrig.x;
+        pane->mPosCenter.y = pane->mPosCenterOrig.y;
         fopMsgM_cposMove(&field_0x1aa4[field_0x2815 ^ 1][i]);
     }
     if (isCompleteCollectMap(field_0x27a9)) {
@@ -3048,9 +3048,9 @@ void dMenu_Fmap2_c::finCollectMapTexChange() {
 
 /* 801C70A0-801C7164       .text calcGetCollectMap__13dMenu_Fmap2_cFv */
 int dMenu_Fmap2_c::calcGetCollectMap() {
-    /* Nonmatching */
+    int i;
     int result = 0;
-    for (int i = 0; i < 61; i++) {
+    for (i = 0; i < 61; i++) {
         int r28 = getCmapDatPnt4(i)->collectMapNo;
         if (isGetCollectMap(r28)) {
             result++;
@@ -3070,7 +3070,6 @@ int dMenu_Fmap2_c::calcGetCollectMap() {
 
 /* 801C7164-801C71D4       .text calcGetCollectMap2__13dMenu_Fmap2_cFv */
 int dMenu_Fmap2_c::calcGetCollectMap2() {
-    /* Nonmatching */
     int i;
     int result = 0;
     for (i = 0; i < 49; i++) {

@@ -72,7 +72,7 @@ static const dCcD_SrcCyl M_cyl_src = {
         /* SrcObjAt  Type    */ 0,
         /* SrcObjAt  Atp     */ 0,
         /* SrcObjAt  SPrm    */ 0,
-        /* SrcObjTg  Type    */ ~(AT_TYPE_WATER | AT_TYPE_UNK20000 | AT_TYPE_UNK400000 | AT_TYPE_LIGHT),
+        /* SrcObjTg  Type    */ ~(AT_TYPE_WATER | AT_TYPE_UNK20000 | AT_TYPE_WIND | AT_TYPE_UNK400000 | AT_TYPE_LIGHT),
         /* SrcObjTg  SPrm    */ cCcD_TgSPrm_Set_e | cCcD_TgSPrm_GrpAll_e,
         /* SrcObjCo  SPrm    */ cCcD_CoSPrm_Set_e | cCcD_CoSPrm_IsOther_e | cCcD_CoSPrm_VsGrpAll_e,
         /* SrcGObjAt Se      */ 0,
@@ -114,13 +114,7 @@ static const dCcD_SrcCyl M_cyl_srcW = {
     {{{0.0f, 0.0f, 0.0f}, 100.0f, 200.0f}},
 };
 
-const u8 ret_tree_no[10] = {0xF, 0, 1, 2, 3, 4, 5, 0xF, 6, 7};
-u32 message_table[] = {
-    0, 0x149F, 0x14A0, 0x14A1, 0, 0, 0, 0, 0, 0, 0x149F, 0x14A0, 0x14A1,
-};
 } // namespace daObjFtree
-
-const char daObjFtree::Act_c::M_arcname[] = "Vmr";
 
 /* 00000078-000000DC       .text search_heart_part__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::search_heart_part() {
@@ -163,7 +157,9 @@ BOOL daObjFtree::Act_c::place_heart_part() {
         mDoMtx_stack_c::transS(current.pos);
         mDoMtx_stack_c::YrotM(ang);
         cXyz dest;
-        mDoMtx_stack_c::multVec(&offset, &dest);
+        Mtx mtx;
+        mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+        mDoMtx_multVec(mtx, &offset, &dest);
         cXyz scale(1.0f, 1.0f, 1.0f);
         csXyz angle(0, 0, 0);
         fopAc_ac_c* item = (fopAc_ac_c*)fopAcM_fastCreateItem(
@@ -184,7 +180,9 @@ void daObjFtree::Ftree_get_water_pos(cXyz* out, cXyz* src) {
     s16 angle = cM_atan2s(src->x - player->current.pos.x, src->z - player->current.pos.z);
     mDoMtx_stack_c::transS(player->current.pos);
     mDoMtx_stack_c::YrotM(angle);
-    mDoMtx_stack_c::multVec(&offset, out);
+    Mtx mtx;
+    mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+    mDoMtx_multVec(mtx, &offset, out);
 }
 
 /* 00000454-000004B8       .text estimate_water__Q210daObjFtree5Act_cFv */
@@ -198,7 +196,7 @@ BOOL daObjFtree::Act_c::estimate_water() {
 
 /* 000004B8-000004DC       .text Ftree_checkXyEventCallBack__10daObjFtreeFPvi */
 s16 daObjFtree::Ftree_checkXyEventCallBack(void*, int i_itemBtn) {
-    return dComIfGp_getSelectItem(i_itemBtn) == dItemNo_FOREST_WATER_e;
+    return dComIfGp_getSelectItem(i_itemBtn) == dItemNo_FOREST_WATER_e ? TRUE : FALSE;
 }
 
 /* 000004DC-000004FC       .text Ftree_XyEventCallBack__10daObjFtreeFPvi */
@@ -256,7 +254,9 @@ void daObjFtree::Act_c::XyEvent_exe() {
             mDoMtx_stack_c::transS(current.pos);
             mDoMtx_stack_c::YrotM(ang);
             cXyz dest;
-            mDoMtx_stack_c::multVec(&offset, &dest);
+            Mtx mtx;
+            mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+            mDoMtx_multVec(mtx, &offset, &dest);
             player->setPlayerPosAndAngle(&dest, (s16)(ang + 0x8000));
         }
         break;
@@ -270,10 +270,17 @@ void daObjFtree::Act_c::XyEvent_exe() {
 }
 
 /* 00000764-000007A8       .text param_get_tree_idx__Q210daObjFtree5Act_cCFv */
+namespace daObjFtree {
+const u8 ret_tree_no[10] = {0xF, 0, 1, 2, 3, 4, 5, 0xF, 6, 7};
+u32 message_table[] = {
+    0, 0x149F, 0x14A0, 0x14A1, 0, 0, 0, 0, 0, 0, 0x149F, 0x14A0, 0x14A1,
+};
+} // namespace daObjFtree
+
 int daObjFtree::Act_c::param_get_tree_idx() const {
     static const u8 ret_num = 10;
     int idx = daObj::PrmAbstract(this, 4, 0);
-    if (idx < 10) {
+    if (idx < ret_num) {
         return ret_tree_no[idx];
     }
     return 0xF;
@@ -282,12 +289,12 @@ int daObjFtree::Act_c::param_get_tree_idx() const {
 /* 000007A8-000008D8       .text SetJointAnimation__Q210daObjFtree5Act_cFiffi */
 BOOL daObjFtree::Act_c::SetJointAnimation(int resIdx, float speed, float morf, int param) {
     J3DAnmTransform* anm = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, resIdx);
-    int frameParam = param < 0 ? 0 : param;
+    int frameParam = param > 0 ? 0 : param;
     if (anm != NULL) {
         if (frameParam == 0) {
             mpMorf->setAnm(anm, 0, morf, speed, 0.0f, -1.0f, NULL);
         } else {
-            mpMorf->setAnm(anm, 0, morf, speed, 0.0f, frameParam + anm->getFrameMax(), NULL);
+            mpMorf->setAnm(anm, 0, morf, speed, 0.0f, frameParam + (f32)anm->getFrameMax(), NULL);
         }
         return TRUE;
     }
@@ -337,19 +344,19 @@ void daObjFtree::Act_c::set_collision() {
         } else if (mModelS == 1) {
             cXyz pos = current.pos;
             pos.y -= 50.0f;
-            mCylW.SetR(L_attr.m00);
-            mCylW.SetH(L_attr.m04);
+            mCylW.SetR(61.0f);
+            mCylW.SetH(96.0f);
             mCylW.SetC(pos);
             dComIfG_Ccsp()->Set(&mCylW);
-            mCrashRadius = L_attr.m00;
-            mCyl.SetR(L_attr.m00);
-            mCyl.SetH(L_attr.m04);
+            mCrashRadius = 61.0f;
+            mCyl.SetR(61.0f);
+            mCyl.SetH(96.0f);
             mCyl.SetC(current.pos);
             dComIfG_Ccsp()->Set(&mCyl);
         } else if (mModelL == 1) {
-            mCrashRadius = L_attr.m10 * mScaleMul;
+            mCrashRadius = 132.0f * mScaleMul;
             mCyl.SetR(mCrashRadius);
-            mCyl.SetH(L_attr.m14 * mScaleMul);
+            mCyl.SetH(950.0f * mScaleMul);
             mCyl.SetC(current.pos);
             dComIfG_Ccsp()->Set(&mCyl);
         }
@@ -416,10 +423,8 @@ void daObjFtree::Act_c::talk_main() {
                 cXyz diff = current.pos - player->current.pos;
                 s16 ang = cM_atan2s(diff.x, diff.z);
                 s16 d = ang - player->shape_angle.y;
-                if (d <= 0) {
-                    d = -d;
-                }
-                if (d <= 0x4000) {
+                int abs_d = d <= 0 ? -d : d;
+                if (abs_d <= 0x4000) {
                     eventInfo.onCondition(dEvtCnd_CANTALK_e);
                 }
             }
@@ -451,7 +456,7 @@ void daObjFtree::Act_c::set_tev_color(J3DModelData* mdl, unsigned long idx, s16 
 
 /* 00001070-000010F0       .text is_broughtID__10daObjFtreeFi */
 BOOL daObjFtree::is_broughtID(int id) {
-    BOOL ret = TRUE;
+    u8 ret = TRUE;
     if (((dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) >> (id & 7)) & 1) == 0 &&
         !dComIfGs_isEventBit(dSv_event_flag_c::UNK_0102))
     {
@@ -463,14 +468,13 @@ BOOL daObjFtree::is_broughtID(int id) {
 /* 000010F0-00001138       .text is_brought__Q210daObjFtree5Act_cFv */
 BOOL daObjFtree::Act_c::is_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    return is_broughtID(idx >= 10 ? 0xF : ret_tree_no[idx]);
+    return is_broughtID(idx < 10 ? ret_tree_no[idx] : 0xF);
 }
 
 /* 00001138-000011FC       .text set_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::set_broughtID(int id) {
-    u8 bit = 1 << (id & 7);
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) | bit);
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9AFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF) | bit);
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) | (1 << (id & 7)));
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9AFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF) | (1 << (id & 7)));
     _ftree_seach_info_ info;
     get_ftree_info(&info);
     if (info.mBrought == info.mTotal) {
@@ -481,20 +485,19 @@ void daObjFtree::Act_c::set_broughtID(int id) {
 /* 000011FC-00001260       .text set_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::set_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    set_broughtID(idx >= 10 ? 0xF : ret_tree_no[idx]);
+    set_broughtID(idx < 10 ? ret_tree_no[idx] : 0xF);
     mBroughtSession = 1;
 }
 
 /* 00001260-000012D0       .text unset_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::unset_broughtID(int id) {
-    u8 bit = 1 << (id & 7);
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) & ~bit);
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) & ~(1 << (id & 7)));
 }
 
 /* 000012D0-00001334       .text unset_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::unset_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    unset_broughtID(idx >= 10 ? 0xF : ret_tree_no[idx]);
+    unset_broughtID(idx < 10 ? ret_tree_no[idx] : 0xF);
     mBroughtSession = 0;
 }
 
@@ -502,7 +505,7 @@ void daObjFtree::Act_c::unset_brought() {
 void daObjFtree::Act_c::get_ftree_info(_ftree_seach_info_* info) {
     info->mTotal = 8;
     info->mBrought = 0;
-    for (int i = 0; i < 8; i++) {
+    for (unsigned i = 0; i < 8; i++) {
         if (is_broughtID(i)) {
             info->mBrought++;
         }
@@ -637,15 +640,12 @@ void daObjFtree::Act_c::action_waitL_main() {
 
 /* 000019BC-00001A4C       .text action_pikupikuS_init__Q210daObjFtree5Act_cFs */
 BOOL daObjFtree::Act_c::action_pikupikuS_init(s16 param) {
-    int duration = 1;
-    if (param > 0) {
-        duration = param;
-    }
+    int duration = param > 0 ? param : 1;
     mModelS = 1;
     mModelL = 0;
     mPikuSMax = duration;
     mPikuSCount = 0;
-    f32 speed = 0.7f + cM_rndF(1.0f) * 0.5f;
+    f32 speed = 0.7f + cM_rndF(1.0f) * 0.50000005f;
     return SetJointAnimation(dRes_INDEX_VMR_BCK_VMRTY_e, speed, 10.0f, 0);
 }
 
@@ -1064,7 +1064,7 @@ cPhs_State daObjFtree::Act_c::_create() {
     if (phase == cPhs_COMPLEATE_e) {
         if (fopAcM_entrySolidHeap(this, solidHeapCB, 0)) {
             int idx = daObj::PrmAbstract(this, 4, 0);
-            mTreeIdx = idx >= 10 ? 0xF : ret_tree_no[idx];
+            mTreeIdx = idx < 10 ? ret_tree_no[idx] : 0xF;
             mHeartPlaced = 0;
             mSpawnedHeartPieceProcessId = fpcM_ERROR_PROCESS_ID_e;
             set_first_stat();
@@ -1111,11 +1111,10 @@ bool daObjFtree::Act_c::_delete() {
 
 /* 00004004-00004144       .text set_mtx__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::set_mtx() {
-    J3DModel* modelS = mpMorf->getModel();
-    modelS->setBaseScale(scale);
+    mpMorf->getModel()->setBaseScale(scale);
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::ZXYrotM(shape_angle);
-    modelS->setBaseTRMtx(mDoMtx_stack_c::get());
+    mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
     cMtx_copy(mDoMtx_stack_c::get(), mMtx);
 
     cXyz lscale(scale.x * mScaleMul, scale.y * mScaleMul, scale.z * mScaleMul);
@@ -1202,6 +1201,8 @@ bool daObjFtree::Act_c::_draw() {
     }
     return true;
 }
+
+const char daObjFtree::Act_c::M_arcname[] = "Vmr";
 
 namespace daObjFtree {
 namespace {
