@@ -129,8 +129,8 @@ dmsg3_3d_c::~dmsg3_3d_c() {
 /* 801EB79C-801EB808       .text set_mtx__10dmsg3_3d_cFv */
 void dmsg3_3d_c::set_mtx() {
     mDoMtx_stack_c::transS(0.0f, 0.0f, 0.0f);
-    mDoMtx_stack_c::ZXYrotM(mRot.x, mRot.y, mRot.z);
-    MTXCopy(mDoMtx_stack_c::now, mpModel->getBaseTRMtx());
+    mDoMtx_ZXYrotM(mDoMtx_stack_c::now, mRot.x, mRot.y, mRot.z);
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::now);
 }
 
 /* 801EB808-801EB840       .text exec__10dmsg3_3d_cFv */
@@ -163,32 +163,32 @@ void dMsg3_value_init(sub_msg3_class* i_Msg, u8 i_index) {
     };
 
     char text_buf[32];
-    char ruby_buf[32];
     char textSdw_buf[32];
+    char ruby_buf[32];
     char rubySdw_buf[32];
 
     const u32 color = colorTable[i_Msg->colorNo];
     int i = i_index;
+    u32 a, b, c, d, ca, cb, cc, cd;
 
-    int temp_r5 = i_Msg->msgDataProc[i].getCharAlpha();
-    int temp_r6 = i_Msg->msgDataProc[i].getGradAlpha();
-    int var_r30 = i_Msg->msgDataProc[i].getRCharAlpha();
-    int var_r29 = i_Msg->msgDataProc[i].getRGradAlpha();
+    a = i_Msg->msgDataProc[i].getCharAlpha();
+    b = i_Msg->msgDataProc[i].getGradAlpha();
+    c = i_Msg->msgDataProc[i].getRCharAlpha();
+    d = i_Msg->msgDataProc[i].getRGradAlpha();
+    ca = color | a;
+    cb = color | b;
+    cc = color | c;
+    cd = color | d;
 
-    u32 temp_a = color | temp_r5;
-    u32 temp_b = color | temp_r6;
-    u32 temp_c = color | var_r30;
-    u32 temp_d = color | var_r29;
+    sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", ca, cb);
+    sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", cc, cd);
+    sprintf(textSdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", a, b);
+    sprintf(rubySdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", c, d);
 
-    sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", temp_a, temp_b);
-    sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", temp_c, temp_d);
-    sprintf(textSdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", temp_r5, temp_r6);
-    sprintf(rubySdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", var_r30, var_r29);
-
-    strcpy(i_Msg->output_text[i_index], text_buf);
-    strcpy(i_Msg->output_ruby[i_index], ruby_buf);
-    strcpy(i_Msg->output_textSdw[i_index], textSdw_buf);
-    strcpy(i_Msg->output_rubySdw[i_index], rubySdw_buf);
+    strcpy(i_Msg->output_text[i], text_buf);
+    strcpy(i_Msg->output_ruby[i], ruby_buf);
+    strcpy(i_Msg->output_textSdw[i], textSdw_buf);
+    strcpy(i_Msg->output_rubySdw[i], rubySdw_buf);
 }
 
 /* 801EBA18-801EBAB4       .text dMsg3_setString__FP14sub_msg3_classUc */
@@ -468,10 +468,10 @@ void dMsg3_arrowMove(sub_msg3_class* i_Msg) {
         i_Msg->field_0xeb8 -= 12;
     }
 
-    i_Msg->field_0xc1c.pane->move(i_Msg->field_0xc1c.mPosTopLeftOrig.x, i_Msg->field_0xc1c.mPosTopLeftOrig.y - abs(6 - i_Msg->field_0xeb8));
-    i_Msg->field_0xc54.pane->move(i_Msg->field_0xc1c.mPosTopLeftOrig.x, i_Msg->field_0xc1c.mPosTopLeftOrig.y - abs(6 - i_Msg->field_0xeb8));
-    i_Msg->field_0xbac.pane->move(i_Msg->field_0xbac.mPosTopLeftOrig.x, i_Msg->field_0xbac.mPosTopLeftOrig.y + abs(6 - i_Msg->field_0xeb8));
-    i_Msg->field_0xbe4.pane->move(i_Msg->field_0xbac.mPosTopLeftOrig.x, i_Msg->field_0xbac.mPosTopLeftOrig.y + abs(6 - i_Msg->field_0xeb8));
+    i_Msg->field_0xc1c.pane->move((int)i_Msg->field_0xc1c.mPosTopLeftOrig.x, (int)i_Msg->field_0xc1c.mPosTopLeftOrig.y - abs(6 - i_Msg->field_0xeb8));
+    i_Msg->field_0xc54.pane->move((int)i_Msg->field_0xc1c.mPosTopLeftOrig.x, (int)i_Msg->field_0xc1c.mPosTopLeftOrig.y - abs(6 - i_Msg->field_0xeb8));
+    i_Msg->field_0xbac.pane->move((int)i_Msg->field_0xbac.mPosTopLeftOrig.x, (int)i_Msg->field_0xbac.mPosTopLeftOrig.y + abs(6 - i_Msg->field_0xeb8));
+    i_Msg->field_0xbe4.pane->move((int)i_Msg->field_0xbac.mPosTopLeftOrig.x, (int)i_Msg->field_0xbac.mPosTopLeftOrig.y + abs(6 - i_Msg->field_0xeb8));
 }
 
 /* 801ECC08-801ECCE4       .text dMsg3_aimAlphaSqare__FP14sub_msg3_classii */
@@ -674,8 +674,6 @@ int dMsg3_stopProc(sub_msg3_class* i_Msg) {
             i_Msg->field_0xec0 += i_Msg->mesgEntry.field_0x16;
             i_Msg->mStatus = fopMsgStts_MSG_UNK5_e;
             mDoAud_seStart(JA_SE_SCROLL_1, NULL);
-        } else {
-            dMeter_Info.field_0x0 = 1;
         }
     } else {
         dMsg3_stickInfoCheck(i_Msg);
@@ -701,8 +699,6 @@ int dMsg3_closewaitProc(sub_msg3_class* i_Msg) {
             i_Msg->field_0xed9 = 2;
             mDoAud_seStart(JA_SE_TALK_WIN_CLOSE, NULL);
             i_Msg->mStatus = fopMsgStts_MSG_ENDS_e;
-        } else {
-            dMeter_Info.field_0x0 = 4;
         }
     } else {
         dMsg3_stickInfoCheck(i_Msg);
@@ -927,7 +923,7 @@ void dDlst_2DMSG3_c::draw() {
 
 /* 801EDF18-801EE104       .text outFontDraw__14dDlst_2DMSG3_cFv */
 void dDlst_2DMSG3_c::outFontDraw() {
-    J2DPane* ppane = ((sub_msg3_class*)actorP)->field_0xcfc[0].pane;
+    J2DPane* ppane = actorP->field_0xcfc[0].pane;
     f32 var_f31 = ppane->getGlbBounds().i.y;
     f32 var_f30 = ppane->getGlbBounds().f.y;
 
@@ -939,32 +935,14 @@ void dDlst_2DMSG3_c::outFontDraw() {
             int scale = actorP->msgDataProc[i].getIconScale(j);
 
             if (iconNum != fopMsgM_Icon_NONE_e) {
-                u8 r14;
-                J2DTextBox* scrn = (J2DTextBox*)actorP->text_pane[i].pane;
-                int r18 = (f32)posX + scrn->getGlbBounds().i.x;
-
-                int r17;
-                if (scale > actorP->field_0xeb0) {
-                    if (actorP->field_0xec8[i] > 1) {
-                        f32 temp = (actorP->field_0xeac * (2 - posY));
-                        r17 = temp + scrn->getGlbBounds().i.y - (f32)(int)(scale / 2);
-                    } else {
-                        f32 temp = actorP->field_0xeac * 3;
-                        r17 = (temp + scrn->getGlbBounds().i.y - (f32)(int)(scale / 2));
-                    }
-                } else {
-                    f32 temp = (actorP->field_0xeac * (2 - actorP->field_0xec8[i] + (posY * 2)));
-                    r17 = (temp + scrn->getGlbBounds().i.y);
-                }
-
-                r14 = actorP->field_0xea8;
-                JKRHeap* heap = mDoExt_setCurrentHeap(actorP->Heap);
+                J2DPane* scrn = actorP->text_pane[i].pane;
+                int r18 = (int)((f32)posX + scrn->getGlbBounds().i.x);
+                int r17 = (int)((f32)(actorP->field_0xeac * (2 - actorP->field_0xec8[i] + (posY * 2))) + scrn->getGlbBounds().i.y);
+                u8 r14 = (int)actorP->field_0xea8;
 
                 if ((f32)r17 > var_f31 && (f32)r17 < var_f30 - (f32)scale) {
                     fopMsgM_outFontDraw(bbutton_icon3[j][i], bbutton_kage3[j][i], r18, r17, scale, &bbuttonTimer3[j][i], r14, iconNum);
                 }
-
-                mDoExt_setCurrentHeap(heap);
             }
         }
     }
@@ -1064,9 +1042,7 @@ static BOOL dMsg3_Delete(sub_msg3_class* i_Msg) {
     JKRHeap* heap = mDoExt_setCurrentHeap(i_Msg->Heap);
 
     for (int i = 0; i < 3; i++) {
-        if (sScreen3[i] != NULL) {
-            delete sScreen3[i];
-        }
+        delete sScreen3[i];
     }
 
     i_Msg->Heap->free(i_Msg->Tex[0]);
@@ -1076,12 +1052,8 @@ static BOOL dMsg3_Delete(sub_msg3_class* i_Msg) {
 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 8; j++) {
-            if (bbutton_icon3[j][i] != NULL) {
-                delete bbutton_icon3[j][i];
-            }
-            if (bbutton_kage3[j][i] != NULL) {
-                delete bbutton_kage3[j][i];
-            }
+            delete bbutton_icon3[j][i];
+            delete bbutton_kage3[j][i];
         }
 
         i_Msg->Heap->free(i_Msg->output_text[i]);
@@ -1090,9 +1062,7 @@ static BOOL dMsg3_Delete(sub_msg3_class* i_Msg) {
         i_Msg->Heap->free(i_Msg->output_rubySdw[i]);
     }
 
-    if (msg3d != NULL) {
-        delete msg3d;
-    }
+    delete msg3d;
     msg3d = NULL;
 
     mDoExt_setCurrentHeap(heap);
