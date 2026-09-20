@@ -340,7 +340,7 @@ void daObjFtree::Act_c::set_collision() {
                 daObj::HitEff_kikuzu(this, &mCyl);
             }
             dKy_Sound_set(current.pos, 4, fopAcM_GetID(this), 100);
-            mCyl.GetTgHitObj();
+            mCyl.ClrTgHit();
         } else if (mModelS == 1) {
             cXyz pos = current.pos;
             pos.y -= 50.0f;
@@ -473,8 +473,12 @@ BOOL daObjFtree::Act_c::is_brought() {
 
 /* 00001138-000011FC       .text set_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::set_broughtID(int id) {
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) | (1 << (id & 7)));
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9AFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF) | (1 << (id & 7)));
+    u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
+    val |= (1 << (id & 7));
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
+    val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF);
+    val |= (1 << (id & 7));
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9AFF, val);
     _ftree_seach_info_ info;
     get_ftree_info(&info);
     if (info.mBrought == info.mTotal) {
@@ -491,7 +495,9 @@ void daObjFtree::Act_c::set_brought() {
 
 /* 00001260-000012D0       .text unset_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::unset_broughtID(int id) {
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) & ~(1 << (id & 7)));
+    u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
+    val &= ~(1 << (id & 7));
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
 }
 
 /* 000012D0-00001334       .text unset_brought__Q210daObjFtree5Act_cFv */
@@ -1069,8 +1075,7 @@ cPhs_State daObjFtree::Act_c::_create() {
             mSpawnedHeartPieceProcessId = fpcM_ERROR_PROCESS_ID_e;
             set_first_stat();
             talk_ct();
-            cXyz pos = current.pos;
-            pos.y += 100.0f;
+            cXyz pos(current.pos.x, current.pos.y + 100.0f, current.pos.z);
             mGndChk.SetPos(&pos);
             mGndChk.SetActorPid(fopAcM_GetID(this));
             mGroundY = dComIfG_Bgsp()->GroundCross(&mGndChk);
@@ -1178,7 +1183,7 @@ bool daObjFtree::Act_c::_draw() {
         }
         mpMorf->updateDL();
         dComIfGd_setList();
-        cXyz pos = current.pos;
+        cXyz pos(current.pos.x, current.pos.y, current.pos.z);
         dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f, mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
     if (mModelL == 1) {
@@ -1196,7 +1201,7 @@ bool daObjFtree::Act_c::_draw() {
         } else {
             ratio = (mScaleMul - 0.2f) / 0.8f;
         }
-        cXyz pos = current.pos;
+        cXyz pos(current.pos.x, current.pos.y, current.pos.z);
         dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f * (1.0f + 2.5f * ratio), mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
     return true;
