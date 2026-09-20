@@ -232,7 +232,7 @@ static void damage_ball_draw(wz_class* i_this) {
 /* 00000814-000008C0       .text daWZ_Draw__FP8wz_class */
 static BOOL daWZ_Draw(wz_class* i_this) {
     if (i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_FIRE || i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_ICE) {
-        if (i_this->scale.x != 0.0f) {
+        if (i_this->scale.x) {
             dComIfGd_setSimpleShadow2(
                 &i_this->current.pos,
                 i_this->mAcch.GetGroundH(),
@@ -2325,6 +2325,13 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             /* Height */ 0.0f,
         }},
     };
+    static u8 fire_j[] = {
+        0x01, 0x02, 0x06, 0x07, 0x08, 0x0C, 0x0D, 0x11, 0x13, 0x15,
+    };
+    static f32 fire_sc[] = {
+        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+    };
+
     static dCcD_SrcSph ball_co_sph_src = {
         // dCcD_SrcGObjInf
         {
@@ -2352,12 +2359,6 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             /* Center */ {0.0f, 0.0f, 0.0f},
             /* Radius */ 15.0f,
         }},
-    };
-    static u8 fire_j[] = {
-        0x01, 0x02, 0x06, 0x07, 0x08, 0x0C, 0x0D, 0x11, 0x13, 0x15,
-    };
-    static f32 fire_sc[] = {
-        1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
     };
     wz_class* i_this = (wz_class*)i_actor;
     fopAcM_ct(i_this, wz_class);
@@ -2519,16 +2520,16 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             draw_SUB(i_this);
             i_this->mBodyCyl.Set(body_co_cyl_src);
             i_this->mBodyCyl.SetStts(&i_this->mStts);
-            i_this->mBodyCyl.OffCoSetBit();
-            i_this->mBodyCyl.ClrCoHit();
+            i_this->mBodyCyl.OffTgSetBit();
+            i_this->mBodyCyl.ClrTgHit();
             i_this->mTargetAngleY = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0));
             i_this->current.angle.y = i_this->mTargetAngleY;
             i_this->shape_angle.y = i_this->mTargetAngleY;
             i_this->mWallHeight = 100.0f;
             i_this->mWallRadius = 110.0f;
             i_this->mEnemyIce.mpActor = i_this;
-            i_this->mEnemyIce.mCylHeight = 50.0f;
             i_this->mEnemyIce.mWallRadius = 80.0f;
+            i_this->mEnemyIce.mCylHeight = 50.0f;
             i_this->mEnemyFire.mpMcaMorf = i_this->mpMorf;
             i_this->mEnemyFire.mpActor = i_this;
             for (int i = 0; i < (int)ARRAY_SIZE(i_this->mEnemyFire.mFlameJntIdxs); i++) {
