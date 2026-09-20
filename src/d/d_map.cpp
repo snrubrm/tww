@@ -2226,12 +2226,14 @@ void dMap_c::drawPointEnemy(f32 param_1, f32 param_2) {
 void dMap_c::drawPointAgbCursor(f32 param_1, f32 param_2) {
     /* Nonmatching */
     GXColor color;
-    if (agbFlashCheck()) {
+    BOOL flash = agbFlashCheck();
+    if (flash) {
         mMapAGBCursorFlashFrmCnt++;
         mMapAGBCursorFlashFrmCnt = mMapAGBCursorFlashFrmCnt % 45;
-        f32 tmp = JMASSin(mMapAGBCursorFlashFrmCnt / 45.0f * 0x8000) * JMASSin(mMapAGBCursorFlashFrmCnt / 45.0f * 0x8000);
+        f32 sinSq = JMASSin(mMapAGBCursorFlashFrmCnt / 45.0f * 0x8000);
+        sinSq *= sinSq;
         color.r = 0;
-        color.g = tmp * 175.0f + 80.0f;
+        color.g = 175.0f * sinSq + 80.0f;
         color.b = 0;
     } else {
         color.r = 0;
@@ -2241,7 +2243,7 @@ void dMap_c::drawPointAgbCursor(f32 param_1, f32 param_2) {
     }
     color.a = mAlpha;
     f32 tmp = 105.600006f;
-    mAgbCursor.init(param_1, param_2, color, tmp);
+    mAgbCursor.init(param_1, param_2, color, (u8)(int)tmp);
     mAgbCursor.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mDrawPointCntAgbCursor++;
 }
