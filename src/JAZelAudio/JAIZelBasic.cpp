@@ -2850,15 +2850,14 @@ void JAIZelBasic::seDeleteObject(Vec* param_1) {
 /* 802A86A8-802A8748       .text getLinkVoiceVowel__11JAIZelBasicFUl */
 u8 JAIZelBasic::getLinkVoiceVowel(u32 id) {
     u8 (*table)[2] = linkVoiceTable[id];
-    int tries = 0;
+    int tries;
     u32 choice;
-    do {
+    for (tries = 0; tries < 400; tries++) {
         choice = 4.0f * field_0x2068.get();
         if (table[choice][0] != 0xFF) {
             break;
         }
-        tries++;
-    } while (tries < 400);
+    }
     if (tries == 400) {
         return 0xFF;
     }
