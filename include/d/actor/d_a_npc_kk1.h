@@ -192,7 +192,7 @@ public:
     /* 0x7C1 */ u8 m7C1;
     /* 0x7C2 */ u8 m7C2;
     /* 0x7C3 */ u8 m7C3;
-    /* 0x7C4 */ u8 m7C4;
+    /* 0x7C4 */ bool m7C4;
     /* 0x7C5 */ u8 m7C5;
     /* 0x7C6 */ u8 m7C6;
     /* 0x7C7 */ u8 m7C7;

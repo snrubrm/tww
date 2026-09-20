@@ -213,15 +213,18 @@ void daNpc_Kk1_c::play_animation() {
         mAnmEnd = 1;
     }
     mFrame = mpMorf->getFrame();
+    cXyz offset;
     switch (mAnmNo) {
     case 8:
         if (mpMorf->checkFrame(4.0f)) {
-            setBikon(cXyz(0.0f, -50.0f, -15.0f));
+            offset.set(0.0f, -50.0f, -15.0f);
+            setBikon(offset);
         }
         break;
     case 9:
         if (mpMorf->checkFrame(4.0f)) {
-            setBikon(cXyz(0.0f, -50.0f, 0.0f));
+            offset.set(0.0f, -50.0f, 0.0f);
+            setBikon(offset);
         }
         break;
     }
@@ -888,8 +891,10 @@ void daNpc_Kk1_c::cut_init_RUN(int staff) {
 
 /* 00001E58-00001EAC       .text cut_move_RUN__11daNpc_Kk1_cFv */
 bool daNpc_Kk1_c::cut_move_RUN() {
-    event_move(false);
-    if (m798 >= 0) {
+    bool result = event_move(false);
+    if (m798 < 0) {
+        return result;
+    } else {
         return cLib_calcTimer(&m798) == 0;
     }
 }
@@ -1101,12 +1106,12 @@ void daNpc_Kk1_c::cut_init_PLYER_MOV(int) {
     if (abs(diff) > 0x2000) {
         dComIfGp_evmng_setGoal(&dComIfGp_getLinkPlayer()->current.pos);
     } else {
+        cXyz dst;
         cXyz offset(0.0f, 0.0f, 0.0f);
         s16 rot = diff > 0 ? 0x2800 : (s16)-0x2800;
         mDoMtx_stack_c::transS(current.pos);
         mDoMtx_stack_c::YrotM(current.angle.y + rot);
         offset.z = 150.0f;
-        cXyz dst;
         mDoMtx_stack_c::multVec(&offset, &dst);
         dComIfGp_evmng_setGoal(&dst);
     }
@@ -1492,7 +1497,10 @@ void daNpc_Kk1_c::set_pthPoint(unsigned char point) {
 
 /* 000036A8-00003940       .text event_move__11daNpc_Kk1_cFb */
 bool daNpc_Kk1_c::event_move(bool useArg) {
-    if (mPath.getPath() == NULL || !dPath_ChkClose(mPath.getPath())) {
+    if (mPath.getPath() == NULL) {
+        return true;
+    }
+    if (!dPath_ChkClose(mPath.getPath())) {
         return true;
     }
     if (m7B6) {
@@ -1503,29 +1511,38 @@ bool daNpc_Kk1_c::event_move(bool useArg) {
                 if (arg >= 0) {
                     arg++;
                 }
-                if (arg == 2 || arg == 3) {
+                if (arg != 2 && arg != 3) {
+                    m7B6 = 0;
+                } else {
                     m815 = arg;
                     m816 = 0;
                     m7B6 = 1;
-                } else {
-                    m7B6 = 0;
                 }
             }
         }
     }
     cXyz pos = mPath.getPoint(mPath.getIdx());
-    s16 prevAngle = current.angle.y;
     s16 target = cLib_targetAngleY(&current.pos, &pos);
+    s16 prevAngle = current.angle.y;
     cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
     f32 targetSpeed;
     f32 playMul;
     f32 chase;
-    if (m815 == 2) {
-        targetSpeed = m7B6 ? l_HIO.mPrm.m38 : 0.0f;
+    int mode = m815;
+    if (mode == 2) {
+        if (m7B6 == 0) {
+            targetSpeed = 0.0f;
+        } else {
+            targetSpeed = l_HIO.mPrm.m38;
+        }
         playMul = speedF * l_HIO.mPrm.m40;
         chase = l_HIO.mPrm.m3C;
     } else {
-        targetSpeed = m7B6 ? l_HIO.mPrm.m44 : 0.0f;
+        if (m7B6 == 0) {
+            targetSpeed = 0.0f;
+        } else {
+            targetSpeed = l_HIO.mPrm.m44;
+        }
         playMul = speedF * l_HIO.mPrm.m4C;
         chase = l_HIO.mPrm.m48;
     }
@@ -1801,9 +1818,10 @@ void daNpc_Kk1_c::init_CMT_WAI() {
 BOOL daNpc_Kk1_c::move_CMT_WAI() {
     if (cLib_calcTimer(&m7A4) == 0) {
         if (mOrder != 1 && mOrder < 3) {
-            if (chk_areaIN(l_HIO.mPrm.m50, current.pos)) {
+            BOOL inArea = chk_areaIN(l_HIO.mPrm.m50, current.pos);
+            if (inArea) {
                 mOrder = 8;
-                return TRUE;
+                return inArea;
             }
         }
         m816 = 0;
@@ -1897,9 +1915,10 @@ BOOL daNpc_Kk1_c::move_CMT_PCK() {
         s16 target = cLib_targetAngleY(&current.pos, &pos);
         cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
         if (mOrder != 1 && mOrder < 3) {
-            if (startEvent_check()) {
+            BOOL started = startEvent_check();
+            if (started) {
                 mOrder = 9;
-                return TRUE;
+                return started;
             }
         }
         if (current.angle.y == target) {
@@ -1909,9 +1928,10 @@ BOOL daNpc_Kk1_c::move_CMT_PCK() {
         }
     } else if (!m7C3) {
         if (mOrder != 1 && mOrder < 3) {
-            if (chkHitPlayer()) {
+            BOOL hit = chkHitPlayer();
+            if (hit) {
                 mOrder = 1;
-                return TRUE;
+                return hit;
             }
         }
         if (cLib_calcTimer(&m7A4) == 0) {
