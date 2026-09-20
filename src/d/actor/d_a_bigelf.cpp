@@ -563,15 +563,16 @@ BOOL daBigelf_c::demoProcWait() {
 /* 00001998-00001A74       .text demoInitCom__10daBigelf_cFv */
 void daBigelf_c::demoInitCom() {
     setFlag(0x1);
-    int* a_intP = dComIfGp_evmng_getMyIntegerP(mStaffId, "Ship");
-    if (a_intP != NULL) {
+    if (dComIfGp_evmng_getMyIntegerP(mStaffId, "Ship") != NULL) {
         daShip_c* ship = dComIfGp_getShipActor();
+        cXyz pos, offset;
         if (ship != NULL) {
-            cXyz offset(0.0f, 0.0f, 800.0f);
-            cXyz pos;
+            offset.set(0, 0, 800);
             fpoAcM_absolutePos(this, &offset, &pos);
             pos.y = ship->current.pos.y;
-            ship->initStartPos(&pos, cLib_targetAngleY(&current.pos, &pos) + 0x4000);
+            s16 angle = cLib_targetAngleY(&current.pos, &pos);
+            angle += 0x4000;
+            ship->initStartPos(&pos, angle);
         }
         setFlag(0x20);
     }
@@ -697,29 +698,30 @@ void daBigelf_c::makeFa1() {
 /* 00001EB4-0000200C       .text setAnm__10daBigelf_cFSc */
 void daBigelf_c::setAnm(signed char idx) {
     f32 morf = 8.0f;
-    s32 loopMode = -1;
-    f32 speed = 1.0f;
-    f32 start = 0.0f;
+    int loopMode = -1;
+    f32 speed = 1.0f, start = 0.0f;
     f32 end = -1.0f;
     switch (idx) {
     case 1:
     case 2:
-        morf = start;
+        morf = 0.0f;
         break;
     case 3:
         loopMode = 3;
+        start = 0.0f;
         speed = end;
         end = 100.0f;
         break;
     }
-    if (mAnm == 1) {
+    switch (mAnm) {
+    case 1:
         morf = 0.0f;
     }
     if (idx != mAnm && idx != -1) {
         mAnm = idx;
-        mOldAnmFrame = start;
+        mOldAnmFrame = 0;
         mAnmEnd = 0;
-        J3DAnmTransform* bck = (J3DAnmTransform*)dComIfG_getObjectRes("bigelf", l_bck_ix_tbl[mAnm]);
+        J3DAnmTransform* bck = static_cast<J3DAnmTransform*>(dComIfG_getObjectRes("bigelf", l_bck_ix_tbl[mAnm]));
         mpMorf->setAnm(bck, loopMode, morf, speed, start, end, NULL);
     }
 }
