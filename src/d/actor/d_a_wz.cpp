@@ -484,6 +484,11 @@ void BG_check(wz_class* i_this) {
     i_this->old.pos.y += i_this->mCorrectionOffsetY;
 }
 
+static void unused_wz_lit_100() {
+    volatile f32 v = 100.0f;
+    (void)v;
+}
+
 /* 00001728-00001780       .text fuwafuwa_calc__FP8wz_class */
 void fuwafuwa_calc(wz_class* i_this) {
     i_this->mFuwafuwaAngle += 0x7D0;
@@ -1011,13 +1016,13 @@ void action_itai(wz_class* i_this) {
 void action_demo(wz_class* i_this) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player_ac = dComIfGp_getPlayer(0);
-    daPy_py_c* player = (daPy_py_c*)player_ac;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
-    cXyz pos = i_this->current.pos;
-    cXyz offset;
-    cXyz dst;
-    cXyz scale;
     cXyz mtx_off;
+    cXyz dst;
+    cXyz offset;
+    cXyz pos = i_this->current.pos;
+    cXyz scale;
     f32 mag;
     pos.y += 160.0f + REG12_F(17);
 
@@ -1182,17 +1187,23 @@ void action_demo(wz_class* i_this) {
         }
         cLib_addCalc2(&i_this->mCamFov, 50.0f + REG11_F(15), 1.0f, 0.5f + REG12_F(14));
         mag = std::fabsf(i_this->mCamEye.x - (150.0f + REG11_F(16)));
-        cLib_addCalc2(&i_this->mCamEye.x, 150.0f + REG11_F(16), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = mag * (0.01f + REG11_F(19));
+        cLib_addCalc2(&i_this->mCamEye.x, 150.0f + REG11_F(16), 1.0f, mag);
         mag = std::fabsf(i_this->mCamEye.y - (158.0f + REG11_F(17)));
-        cLib_addCalc2(&i_this->mCamEye.y, 158.0f + REG11_F(17), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = mag * (0.01f + REG11_F(19));
+        cLib_addCalc2(&i_this->mCamEye.y, 158.0f + REG11_F(17), 1.0f, mag);
         mag = std::fabsf(i_this->mCamEye.z - (114.0f + REG11_F(18)));
-        cLib_addCalc2(&i_this->mCamEye.z, 114.0f + REG11_F(18), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = mag * (0.01f + REG11_F(19));
+        cLib_addCalc2(&i_this->mCamEye.z, 114.0f + REG11_F(18), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.x - (f32)(REG11_S(0) + 0x492));
-        cLib_addCalc2(&i_this->mCamCenter.x, (f32)(REG11_S(0) + 0x492), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = mag * (0.01f + REG11_F(19));
+        cLib_addCalc2(&i_this->mCamCenter.x, (f32)(REG11_S(0) + 0x492), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.y - (f32)(REG11_S(1) + 0x2CD));
-        cLib_addCalc2(&i_this->mCamCenter.y, (f32)(REG11_S(1) + 0x2CD), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = mag * (0.01f + REG11_F(19));
+        cLib_addCalc2(&i_this->mCamCenter.y, (f32)(REG11_S(1) + 0x2CD), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.z - (f32)(REG11_S(2) - 0x336));
-        cLib_addCalc2(&i_this->mCamCenter.z, (f32)(REG11_S(2) - 0x336), 1.0f, mag * (0.01f + REG11_F(19)));
+        mag = mag * (0.01f + REG11_F(19));
+        cLib_addCalc2(&i_this->mCamCenter.z, (f32)(REG11_S(2) - 0x336), 1.0f, mag);
         if (i_this->m3DE[0] >= 2) {
             if (i_this->mTimer <= DEMO_SELECT(REG11_S(3) + 0x14, (s16)(REG11_S(3) + 0x14))) {
                 if (i_this->m3DE[0] == 2) {
@@ -1267,17 +1278,23 @@ void action_demo(wz_class* i_this) {
     case 0x56:
         cLib_addCalc2(&i_this->mCamFov, 45.0f + REG8_F(10), 1.0f, 0.2f + REG12_F(15));
         mag = std::fabsf(i_this->mCamEye.x - REG8_F(11));
-        cLib_addCalc2(&i_this->mCamEye.x, REG8_F(11), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = mag * (0.025f + REG8_F(17));
+        cLib_addCalc2(&i_this->mCamEye.x, REG8_F(11), 1.0f, mag);
         mag = std::fabsf(i_this->mCamEye.y - (135.0f + REG8_F(12)));
-        cLib_addCalc2(&i_this->mCamEye.y, 135.0f + REG8_F(12), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = mag * (0.025f + REG8_F(17));
+        cLib_addCalc2(&i_this->mCamEye.y, 135.0f + REG8_F(12), 1.0f, mag);
         mag = std::fabsf(i_this->mCamEye.z - (-60.0f + REG8_F(13)));
-        cLib_addCalc2(&i_this->mCamEye.z, -60.0f + REG8_F(13), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = mag * (0.025f + REG8_F(17));
+        cLib_addCalc2(&i_this->mCamEye.z, -60.0f + REG8_F(13), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.x - (50.0f + REG8_F(14)));
-        cLib_addCalc2(&i_this->mCamCenter.x, 50.0f + REG8_F(14), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = mag * (0.025f + REG8_F(17));
+        cLib_addCalc2(&i_this->mCamCenter.x, 50.0f + REG8_F(14), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.y - (110.0f + REG8_F(15)));
-        cLib_addCalc2(&i_this->mCamCenter.y, 110.0f + REG8_F(15), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = mag * (0.025f + REG8_F(17));
+        cLib_addCalc2(&i_this->mCamCenter.y, 110.0f + REG8_F(15), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.z - (330.0f + REG8_F(16)));
-        cLib_addCalc2(&i_this->mCamCenter.z, 330.0f + REG8_F(16), 1.0f, mag * (0.025f + REG8_F(17)));
+        mag = mag * (0.025f + REG8_F(17));
+        cLib_addCalc2(&i_this->mCamCenter.z, 330.0f + REG8_F(16), 1.0f, mag);
         if (i_this->mpMorf->checkFrame(159.0f)) {
             if (REG0_S(9) != 0) {
                 i_this->mpMorf->setPlaySpeed(0.0f);
@@ -1366,17 +1383,23 @@ void action_demo(wz_class* i_this) {
         }
         cLib_addCalc2(&i_this->mCamFov, 65.0f + REG12_F(0), 1.0f, 2.5f + REG12_F(16));
         mag = std::fabsf(i_this->mCamEye.x - REG12_F(1));
-        cLib_addCalc2(&i_this->mCamEye.x, REG12_F(1), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = mag * (0.3f + REG12_F(7));
+        cLib_addCalc2(&i_this->mCamEye.x, REG12_F(1), 1.0f, mag);
         mag = std::fabsf(i_this->mCamEye.y - (90.0f + REG12_F(2)));
-        cLib_addCalc2(&i_this->mCamEye.y, 90.0f + REG12_F(2), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = mag * (0.3f + REG12_F(7));
+        cLib_addCalc2(&i_this->mCamEye.y, 90.0f + REG12_F(2), 1.0f, mag);
         mag = std::fabsf(i_this->mCamEye.z - (440.0f + REG12_F(3)));
-        cLib_addCalc2(&i_this->mCamEye.z, 440.0f + REG12_F(3), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = mag * (0.3f + REG12_F(7));
+        cLib_addCalc2(&i_this->mCamEye.z, 440.0f + REG12_F(3), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.x - REG12_F(4));
-        cLib_addCalc2(&i_this->mCamCenter.x, REG12_F(4), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = mag * (0.3f + REG12_F(7));
+        cLib_addCalc2(&i_this->mCamCenter.x, REG12_F(4), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.y - (50.0f + REG12_F(5)));
-        cLib_addCalc2(&i_this->mCamCenter.y, 50.0f + REG12_F(5), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = mag * (0.3f + REG12_F(7));
+        cLib_addCalc2(&i_this->mCamCenter.y, 50.0f + REG12_F(5), 1.0f, mag);
         mag = std::fabsf(i_this->mCamCenter.z - (570.0f + REG12_F(6)));
-        cLib_addCalc2(&i_this->mCamCenter.z, 570.0f + REG12_F(6), 1.0f, mag * (0.3f + REG12_F(7)));
+        mag = mag * (0.3f + REG12_F(7));
+        cLib_addCalc2(&i_this->mCamCenter.z, 570.0f + REG12_F(6), 1.0f, mag);
         if (!i_this->mpMorf->isStop()) {
             if (!i_this->mpMorf->checkFrame(274.0f + REG12_F(8))) {
                 break;
