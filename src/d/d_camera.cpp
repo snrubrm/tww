@@ -3111,7 +3111,7 @@ bool dCamera_c::followCamera(s32 param_1) {
 
         mWork.follow.m3CC = mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
-        if (mWork.follow.m37C <= m108) {
+        if (m108 >= (u32)(mWork.follow.m37C - 1)) {
             m102 = 1;
             m101 = 1;
             m100 = 1;
@@ -3635,8 +3635,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         cXyz local_114 = attentionPos(mpPlayerActor);
         if (!pointInSight(&local_114)) {
             if (work->m388 == 0) {
-                int inv = 1 - work->m3A0;
-                work->m3A4 = inv != 0;
+                work->m3A4 = (1 - work->m3A0) != 0;
             }
             bVar6 = true;
             work->m388 = r28;
@@ -3705,11 +3704,11 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     cSAngle acStack_268;
     if (bVar6) {
         fVar2 = work->m3A8.R() * 0.75f;
-        acStack_268.Val(work->m3A8.V() + (local_230.U() - work->m3A8.V()) * f30);
+        acStack_268.Val(work->m3A8.V() + (local_230.V() - work->m3A8.V()) * f30);
     }
     else {
         fVar2 = work->m3A8.R() + work->m3B0 * (work->m384 * ((f32)(dVar19 + padR)) - work->m3A8.R());
-        acStack_268.Val(work->m3A8.V() + (local_230.U() - work->m3A8.V()) * work->m3B4);
+        acStack_268.Val(work->m3A8.V() + (local_230.V() - work->m3A8.V()) * work->m3B4);
     }
 
     work->m3A8.Val(fVar2, acStack_268, acStack_264);
@@ -3764,14 +3763,13 @@ bool dCamera_c::lockonCamera(s32 param_1) {
                 dVar17 = fVar22 * fVar21;
             }
             else {
-                f32 f1 = (f32)local_274.Val() / (f32)iVar15;
                 cSAngle local_27c(45.0f);
                 cSAngle local_2d8(135.0f);
-                bool lt = local_258 < local_2d8;
-                if (lt) {
+                if (local_258 < local_2d8) {
                     local_27c = cSAngle::_180 - local_258;
                 }
 
+                f32 f1 = (f32)local_274.Val() / (f32)iVar15;
                 dVar17 = mCamParam.Val(param_1, dCamStyleParam_UNK20) * dCamMath::rationalBezierRatio(f1, fVar21);
                 
                 if (dVar20 < 100.0f) {
@@ -3811,7 +3809,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
             else {
                 fopAc_ac_c* playerActor;
                 if (is_player(mpPlayerActor)) {
-                    playerActor = fopAcM_SearchByID(fopAcM_GetID(mpPlayerActor));
+                    playerActor = fopAcM_SearchByID(((daPy_py_c*)mpPlayerActor)->getThrowBoomerangID());
                 }
                 else {
                     playerActor = NULL;
@@ -3866,7 +3864,8 @@ bool dCamera_c::lockonCamera(s32 param_1) {
 
     mViewCache.mDirection.Val(fVar22, local_270, acStack_26c);
     mViewCache.mCenter = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-    mViewCache.mFovy += (mCamParam.LockonFovy(fVar4) - mViewCache.mFovy) * mCamSetup.m028;
+    f32 fovyCush = mCamSetup.m028;
+    mViewCache.mFovy += (mCamParam.LockonFovy(fVar4) - mViewCache.mFovy) * fovyCush;
     setFlag(0x2000);
     return true;
 }
