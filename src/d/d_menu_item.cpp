@@ -539,8 +539,59 @@ void dMenu_Item_c::checkMove() {
 }
 
 /* 801C9124-801C95FC       .text itemplaceCheck__12dMenu_Item_cFi */
-u8 dMenu_Item_c::itemplaceCheck(int) {
-    /* Nonmatching */
+u8 dMenu_Item_c::itemplaceCheck(int i_place) {
+    static const int event[] = {0, 1, 2, 3};
+    static const int attack[] = {7, 8, 9, 10};
+    static const int bottle[] = {14, 15, 16, 17};
+    static const int bag[] = {4, 11, 18};
+    static const int wepon1[] = {5, 12, 19};
+    static const int wepon2[] = {6, 13, 20};
+
+    switch (i_place) {
+    case 0:
+        for (int i = 0; i < 4; i++) {
+            if (dComIfGs_getItem(event[i]) != dItemNo_NONE_e) {
+                return 1;
+            }
+        }
+        break;
+    case 1:
+        for (int i = 0; i < 4; i++) {
+            if (dComIfGs_getItem(attack[i]) != dItemNo_NONE_e) {
+                return 1;
+            }
+        }
+        break;
+    case 2:
+        for (int i = 0; i < 4; i++) {
+            if (dComIfGs_getItem(bottle[i]) != dItemNo_NONE_e) {
+                return 1;
+            }
+        }
+        break;
+    case 3:
+        for (int i = 0; i < 3; i++) {
+            if (dComIfGs_getItem(bag[i]) != dItemNo_NONE_e) {
+                return 1;
+            }
+        }
+        break;
+    case 4:
+        for (int i = 0; i < 3; i++) {
+            if (dComIfGs_getItem(wepon1[i]) != dItemNo_NONE_e) {
+                return 1;
+            }
+        }
+        break;
+    case 5:
+        for (int i = 0; i < 3; i++) {
+            if (dComIfGs_getItem(wepon2[i]) != dItemNo_NONE_e) {
+                return 1;
+            }
+        }
+        break;
+    }
+
     return 0;
 }
 
