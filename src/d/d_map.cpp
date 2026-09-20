@@ -772,30 +772,41 @@ BOOL dMap_RoomInfo_c::deleteRoom() {
 /* 80046FE0-800470CC       .text enlagementSizeTextureCordCalc__15dMap_RoomInfo_cFPfPfPfPfffffff */
 bool dMap_RoomInfo_c::enlagementSizeTextureCordCalc(f32* param_1, f32* param_2, f32* param_3, f32* param_4, f32 param_5, f32 param_6, f32 param_7, f32 param_8, f32 param_9, f32 param_10) {
     /* Nonmatching */
-    f32 f10 = param_5 - 0.5f * param_6;
-    f32 f9 = param_5 + 0.5f * param_6;
+    f32 f7;
+    f32 f8;
+    f32 f12;
+    f32 f11;
+    f32 f10;
+    f32 f9;
+    f32 f13;
+    f32 f31;
+    f10 = param_5 - 0.5f * param_6;
+    f9 = param_5 + 0.5f * param_6;
     f32 inv = 1.0f / param_9;
-    f32 f7 = *param_3;
-    f32 f12 = inv * f7;
-    f32 f8 = *param_4;
-    f32 f11 = inv * f8;
-    f32 f31 = param_8 + f12;
-    f32 f13 = param_8 + f11;
+    f7 = *param_3;
+    f12 = inv * f7;
+    f8 = *param_4;
+    f11 = inv * f8;
+    f31 = param_8 + f12;
+    f13 = param_8 + f11;
     bool ret = false;
     if (0.0f != param_9 || f31 <= f9 || f13 >= f10) {
-        f32 tmp = ((param_8 - param_5) * param_7) / param_10;
+        f32 diff = param_8 - param_5;
+        f32 tmp = (diff * param_7) / param_10;
         param_7 = f7;
         param_10 = f8;
         *param_1 = 0.5f + tmp + f12 / param_6;
         *param_2 = 0.5f + tmp + f11 / param_6;
         if (f31 < f10) {
             *param_1 = 0.0f;
-            param_7 = (f10 - param_8) * param_9;
+            diff = f10 - param_8;
+            param_7 = diff * param_9;
             *param_1 = 0.0f;
         }
         if (f13 > f9) {
             *param_2 = 1.0f;
-            param_10 = (f9 - param_8) * param_9;
+            diff = f9 - param_8;
+            param_10 = diff * param_9;
             *param_2 = 1.0f;
         }
         *param_3 = param_7;
@@ -3448,30 +3459,31 @@ void dMap_Dmap_c::setTlut(dmap_dmap_tlut_s* param_1, u8 param_2, u8 param_3, u8 
         stage_stag_info_class* stageInfo = dComIfGp_getStage().getStagInfo();
         if ((stageInfo->mStageTypeAndSchbit >> 16 & 7) != 3 && *r29 == param_3) {
             *r30 =
-                ((u16(flash_color.r + param_5 * (color_on.r - flash_color.r)) << 7) & 0x7C0) |
+                ((u16(flash_color.r + param_5 * (color_on.r - flash_color.r)) << 7) & 0x7C00) |
                 ((u16(flash_color.g + param_5 * (color_on.g - flash_color.g)) << 2) & 0x3E0) |
-                ((u16(flash_color.b + param_5 * (color_on.b - flash_color.b)) >> 3) & 0x1F);
+                ((u16(flash_color.b + param_5 * (color_on.b - flash_color.b)) >> 3) & 0x1F) |
+                0x8000;
             continue;
         }
         if (!dComIfGs_isDungeonItemMap()) {
             if (dComIfGs_isVisitedRoom(*r29)) {
                 *r30 = color_on.a >= 0xe0
-                    ? u16(color_on.r & 0xf8) << 7 | u16(color_on.g & 0xf8) << 2 | u16(color_on.b) >> 3
+                    ? u16((u16(color_on.r & 0xf8) << 7) | (u16(color_on.g & 0xf8) << 2) | (u16(color_on.b) >> 3) | 0x8000)
                     : u16(color_on.r & 0xf0) << 4 | u16(color_on.g & 0xf0) | u16(color_on.b) >> 4 | u16(color_on.a & 0xe0) << 7;
             } else {
                 *r30 = color_off_map_none.a >= 0xe0
-                    ? u16(color_off_map_none.r & 0xf8) << 7 | u16(color_off_map_none.g & 0xf8) << 2 | u16(color_off_map_none.b) >> 3
+                    ? u16((u16(color_off_map_none.r & 0xf8) << 7) | (u16(color_off_map_none.g & 0xf8) << 2) | (u16(color_off_map_none.b) >> 3) | 0x8000)
                     : u16(color_off_map_none.r & 0xf0) << 4 | u16(color_off_map_none.g & 0xf0) | u16(color_off_map_none.b) >> 4 | u16(color_off_map_none.a & 0xe0) << 7;
             }
             continue;
         } else {
             if (dComIfGs_isVisitedRoom(*r29)) {
                 *r30 = color_on.a >= 0xe0
-                    ? u16(color_on.r & 0xf8) << 7 | u16(color_on.g & 0xf8) << 2 | u16(color_on.b) >> 3
+                    ? u16((u16(color_on.r & 0xf8) << 7) | (u16(color_on.g & 0xf8) << 2) | (u16(color_on.b) >> 3) | 0x8000)
                     : u16(color_on.r & 0xf0) << 4 | u16(color_on.g & 0xf0) | u16(color_on.b) >> 4 | u16(color_on.a & 0xe0) << 7;
             } else {
                 *r30 = color_off_map_possession.a >= 0xe0
-                    ? u16(color_off_map_possession.r & 0xf8) << 7 | u16(color_off_map_possession.g & 0xf8) << 2 | u16(color_off_map_possession.b) >> 3
+                    ? u16((u16(color_off_map_possession.r & 0xf8) << 7) | (u16(color_off_map_possession.g & 0xf8) << 2) | (u16(color_off_map_possession.b) >> 3) | 0x8000)
                     : u16(color_off_map_possession.r & 0xf0) << 4 | u16(color_off_map_possession.g & 0xf0) | u16(color_off_map_possession.b) >> 4 | u16(color_off_map_possession.a & 0xe0) << 7;
             }
         }
@@ -3499,7 +3511,7 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
     if (!imageP) {
         return;
     }
-    field_0x36e |= 1 << (r29 & 0x3F);
+    field_0x36e |= 1 << r29;
     for (int i = 0; i < 16; i++) {
         field_0x2bb[r29][i] = -1;
     }
