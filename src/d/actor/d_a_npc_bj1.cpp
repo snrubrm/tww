@@ -553,20 +553,30 @@ void daNpc_Bj1_c::chg_anmAtr(unsigned char attr) {
 
 /* 000013C0-0000143C       .text control_anmAtr__11daNpc_Bj1_cFv */
 void daNpc_Bj1_c::control_anmAtr() {
-    switch (mAnmAttr) {
-    case 6:
-    case 7:
-        if (mAnmEnd != 0) {
-            mAnmAttr = 0;
-            setAnm_NUM(0);
-        }
-        break;
-    case 10:
-        if (mAnmEnd != 0) {
-            mAnmAttr = 2;
-            setAnm_NUM(3);
-        }
-        break;
+    int attr = mAnmAttr;
+    if (attr >= 8) {
+        goto ge8;
+    } else if (attr >= 6) {
+        goto case67;
+    } else {
+        return;
+    }
+ge8:
+    if (attr == 10) {
+        goto case10;
+    } else {
+        return;
+    }
+case67:
+    if (mAnmEnd != 0) {
+        mAnmAttr = 0;
+        setAnm_NUM(0);
+    }
+    return;
+case10:
+    if (mAnmEnd != 0) {
+        mAnmAttr = 2;
+        setAnm_NUM(3);
     }
 }
 
@@ -1048,10 +1058,10 @@ u32 daNpc_Bj1_c::getMsg_BJ7_0() {
         }
         return 0x1431;
     }
-    if (dComIfGs_isEventBit(0xD08) == 0) {
-        return 0x1416;
+    if (dComIfGs_isEventBit(0xD08) != 0) {
+        return dComIfGs_isEventBit(0x1B80) ? 0x141E : 0x141F;
     }
-    return dComIfGs_isEventBit(0x1B80) ? 0x141E : 0x141F;
+    return 0x1416;
 }
 
 /* 000021C4-00002254       .text getMsg_BJ8_0__11daNpc_Bj1_cFv */
@@ -1091,8 +1101,8 @@ u32 daNpc_Bj1_c::getMsg_Corog() {
         if (chkReg(0x96FF)) {
             return 0x1484;
         }
-        s16 num = 0;
         u8 bits = dComIfGs_getEventReg(0x9EFF);
+        s16 num = 0;
         for (int i = 0; i < 8; i++) {
             if (bits & 1) {
                 num++;
@@ -1244,8 +1254,8 @@ void daNpc_Bj1_c::setCollision_SP_() {
 /* 000027B0-00002840       .text set_pthPoint__11daNpc_Bj1_cFUc */
 void daNpc_Bj1_c::set_pthPoint(unsigned char i_idx) {
     if (mPathRun.isPath()) {
-        u8 idx = i_idx;
         u8 max = mPathRun.maxPoint();
+        unsigned int idx = i_idx;
         if (idx > max) {
             idx = max;
         }
