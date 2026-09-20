@@ -1261,7 +1261,7 @@ config.libs = [
             Object(DEBUG_ONLY,  "dolphin/gx/GXDraw.c"),
             Object(Matching,    "dolphin/gx/GXStubs.c"),
             Object(Matching,    "dolphin/gx/GXDisplayList.c"),
-            Object(NonMatching, "dolphin/gx/GXTransform.c", extra_cflags=["-fp_contract off"]),
+            Object(MatchingFor("GZLE01"), "dolphin/gx/GXTransform.c", extra_cflags=["-fp_contract off"]),
             Object(Matching,    "dolphin/gx/GXPerf.c"),
         ],
     ),

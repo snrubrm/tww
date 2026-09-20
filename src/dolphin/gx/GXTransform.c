@@ -2,6 +2,8 @@
 #include "dolphin/gx/GX.h"
 #include "dolphin/gx/GXInit.h"
 
+void __GXSetRange(f32 nearz, f32 fgSideX);
+
 static void Copy6Floats(register f32 src[6], register f32 dst[6]) {
     register f32 ps_0, ps_1, ps_2;
 
@@ -239,43 +241,61 @@ void GXLoadTexMtxImm(const Mtx mtx, u32 id, GXTexMtxType type) {
     }
 }
 
-void __GXSetViewport(void) {
-    f32 a, b, c, d, e, f;
-    f32 near, far;
+void GXSetViewportJitter(f32 left, f32 top, f32 wd, f32 ht, f32 nearz, f32 farz, u32 field) {
+    f32 sx;
+    f32 sy;
+    f32 sz;
+    f32 ox;
+    f32 oy;
+    f32 oz;
+    f32 zmin;
+    f32 zmax;
+    u32 reg;
 
-    a = gx->vpWd / 2;
-    b = -gx->vpHt / 2;
-    d = gx->vpLeft + (gx->vpWd / 2) + 342.0f;
-    e = gx->vpTop + (gx->vpHt / 2) + 342.0f;
+    if (field == 0) {
+        top -= 0.5f;
+    }
 
-    near = gx->vpNearz * gx->zScale;
-    far = gx->vpFarz * gx->zScale;
-
-    c = far - near;
-    f = far + gx->zOffset;
-
-    GX_XF_LOAD_REGS(5, GX_XF_REG_SCALEX);
-    GXFIFO.f32 = a;
-    GXFIFO.f32 = b;
-    GXFIFO.f32 = c;
-    GXFIFO.f32 = d;
-    GXFIFO.f32 = e;
-    GXFIFO.f32 = f;
-}
-
-void GXSetViewport(f32 left, f32 top, f32 width, f32 height, f32 nearZ, f32 farZ) {
+    sx = wd / 2.0f;
+    sy = -ht / 2.0f;
+    ox = 342.0f + (left + (wd / 2.0f));
+    oy = 342.0f + (top + (ht / 2.0f));
+    zmin = 16777215.0f * nearz;
+    zmax = 16777215.0f * farz;
+    sz = zmax - zmin;
+    oz = zmax;
     gx->vpLeft = left;
     gx->vpTop = top;
-    gx->vpWd = width;
-    gx->vpHt = height;
-    gx->vpNearz = nearZ;
-    gx->vpFarz = farZ;
-    __GXSetViewport();
+    gx->vpWd = wd;
+    gx->vpHt = ht;
+    gx->vpNearz = nearz;
+    gx->vpFarz = farz;
+    if (*(u8*)&gx->zOffset != 0) {
+        __GXSetRange(nearz, gx->zScale);
+    }
+    reg = 0x5101A;
+    GX_WRITE_U8(0x10);
+    GX_WRITE_U32(reg);
+    GX_WRITE_XF_REG_F(26, sx);
+    GX_WRITE_XF_REG_F(27, sy);
+    GX_WRITE_XF_REG_F(28, sz);
+    GX_WRITE_XF_REG_F(29, ox);
+    GX_WRITE_XF_REG_F(30, oy);
+    GX_WRITE_XF_REG_F(31, oz);
     gx->bpSentNot = GX_TRUE;
 }
 
-void GXGetViewportv(f32* p) {
-    Copy6Floats(&gx->vpLeft, p);
+void GXSetViewport(f32 left, f32 top, f32 wd, f32 ht, f32 nearz, f32 farz) {
+    GXSetViewportJitter(left, top, wd, ht, nearz, farz, 1U);
+}
+
+void GXGetViewportv(f32* vp) {
+    vp[0] = gx->vpLeft;
+    vp[1] = gx->vpTop;
+    vp[2] = gx->vpWd;
+    vp[3] = gx->vpHt;
+    vp[4] = gx->vpNearz;
+    vp[5] = gx->vpFarz;
 }
 
 void GXSetScissor(u32 left, u32 top, u32 width, u32 height) {
