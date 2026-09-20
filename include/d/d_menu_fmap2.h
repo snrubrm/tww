@@ -106,11 +106,11 @@ public:
     void changeFmapTexture();
     void changeIslandName();
     void fmapPlayerPosDisp();
-    void fmapPlayerPosDispCheck(f32*, f32*);
+    BOOL fmapPlayerPosDispCheck(f32*, f32*);
     void changeCmapName();
     void cmapPlayerPosDisp();
     void cmapSalvagePosDisp();
-    void cmapPlayerPosDispCheck(f32*, f32*);
+    BOOL cmapPlayerPosDispCheck(f32*, f32*);
     BOOL paneTransBase(s16, u8, f32, f32, u8, u8, int);
     BOOL paneAlphaFmapBase(s16, u8, u8, int);
     BOOL paneAlphaCmapBase(s16, u8, u8, int);
@@ -387,7 +387,10 @@ private:
     /* 0x279C */ fopMsgM_pane_class* field_0x279c;
     /* 0x27A0 */ u8 field_0x27a0;
     /* 0x27A1 */ u8 field_0x27a1;
-    /* 0x27A2 */ u8 padding_0x27a2[0x27A8 - 0x27A2];
+    /* 0x27A2 */ u8 padding_0x27a2[3];
+    /* 0x27A5 */ u8 field_0x27a5;
+    /* 0x27A6 */ u8 field_0x27a6;
+    /* 0x27A7 */ u8 field_0x27a7;
     /* 0x27A8 */ u8 field_0x27a8;
     /* 0x27A9 */ s8 field_0x27a9;
     /* 0x27AA */ s8 field_0x27aa;
@@ -399,6 +402,8 @@ private:
     /* 0x27B8 */ f32 field_0x27b8;
     /* 0x27BC */ s8 field_0x27bc;
     /* 0x27BD */ s8 field_0x27bd;
+    /* 0x27BE */ u8 field_0x27be;
+    /* 0x27BF */ s8 field_0x27bf;
     /* 0x27C0 */ char* field_0x27c0[2];
     /* 0x27C8 */ char* field_0x27c8[4];
     /* 0x27D8 */ char* field_0x27d8;
@@ -479,7 +484,7 @@ public:
     /* 0x12 */ u8 field_0x12;
     /* 0x13 */ u8 field_0x13;
     /* 0x14 */ u8 field_0x14;
-    /* 0x16 */ u16 field_0x16;
+    /* 0x16 */ s16 field_0x16;
     /* 0x18 */ u8 field_0x18[0x1E - 0x18];
     /* 0x1E */ u8 field_0x1e;
     /* 0x1F */ u8 field_0x1f;
@@ -494,7 +499,7 @@ public:
     /* 0x34 */ f32 field_0x34;
     /* 0x38 */ u8 field_0x38;
     /* 0x3A */ s16 field_0x3a;
-    /* 0x3C */ u16 field_0x3c;
+    /* 0x3C */ s16 field_0x3c;
     /* 0x3E */ u8 field_0x3e;
     /* 0x3F */ u8 field_0x3f;
     /* 0x40 */ u8 field_0x40;
