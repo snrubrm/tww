@@ -671,9 +671,8 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS1() {
 BOOL dDlst_TerminaterScrnDraw_c::animeS2(fopMsgM_pane_class* i_pane) {
     BOOL rt = FALSE;
     i_pane->mUserArea++;
-    s16 tmp = i_pane->mUserArea;
-    if (tmp <= 7) {
-        f32 t = SQUARE((f32)tmp) / 49.0f;
+    if (i_pane->mUserArea <= 7) {
+        f32 t = SQUARE((f32)i_pane->mUserArea) / 49.0f;
         fopMsgM_setNowAlpha(i_pane, t);
     } else {
         rt = TRUE;
@@ -826,13 +825,20 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
     flags[6] = -1;
     flags[7] = -1;
 
-    s16 wait = g_menuHIO.field_0xae;
-    s16 f0 = g_menuHIO.field_0xa4;
-    s16 f1 = f0 + g_menuHIO.field_0xa6;
-    s16 f2 = f1 + g_menuHIO.field_0xa8;
-    s16 f3 = f2 + g_menuHIO.field_0xaa;
-    s16 f4 = f3 + g_menuHIO.field_0xac;
-    s16 f5 = f4 + wait * 2;
+    s16 f0;
+    s16 f1;
+    s16 f2;
+    s16 f3;
+    s16 f4;
+    s16 wait;
+    s16 f5;
+    wait = g_menuHIO.field_0xae;
+    f0 = g_menuHIO.field_0xa4;
+    f1 = f0 + g_menuHIO.field_0xa6;
+    f2 = f1 + g_menuHIO.field_0xa8;
+    f3 = f2 + g_menuHIO.field_0xaa;
+    f4 = f3 + g_menuHIO.field_0xac;
+    f5 = f4 + wait * 2;
 
     if (mAnimTimer2 <= g_menuHIO.field_0xb0 + 0x20) {
         return FALSE;
@@ -845,12 +851,13 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
 
     s16 timer = mAnimTimer3;
     if (timer <= f0) {
-        f32 sq0 = SQUARE((f32)f0);
-        f32 t = SQUARE((f32)timer) / sq0;
-        f32 r = (f32)rot[0] + t * (f32)(rot[1] - rot[0]);
-        f32 t2 = SQUARE((f32)(s16)(f0 - timer)) / sq0;
+        f32 t = SQUARE((f32)timer) / SQUARE((f32)f0);
+        f32 r = (f32)rot[0];
+        r += t * (f32)(rot[1] - rot[0]);
+        f32 t2 = SQUARE((f32)(s16)(f0 - timer)) / SQUARE((f32)f0);
+        f32 one = 1.0f;
         f32 scale = (f32)g_menuHIO.field_0x8e / 100.0f;
-        scale = 1.0f + (scale - 1.0f) * t2;
+        scale = one + (scale - one) * t2;
 
         fopMsgM_setNowAlpha(&mPerfect[0], t);
         fopMsgM_setNowAlpha(&mPerfectNt[0], t);
@@ -867,19 +874,23 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
         }
     } else if (timer <= f1) {
         f32 t = acc(f1, timer, f0);
-        f32 r = (f32)rot[1] + t * (f32)(rot[2] - rot[1]);
+        f32 r = (f32)rot[1];
+        r += t * (f32)(rot[2] - rot[1]);
         setRotate(&mDmpe, r);
     } else if (timer <= f2) {
         f32 t = acc(f2, timer, f1);
-        f32 r = (f32)rot[2] + t * (f32)(rot[3] - rot[2]);
+        f32 r = (f32)rot[2];
+        r += t * (f32)(rot[3] - rot[2]);
         setRotate(&mDmpe, r);
     } else if (timer <= f3) {
         f32 t = acc(f3, timer, f2);
-        f32 r = (f32)rot[3] + t * (f32)(rot[4] - rot[3]);
+        f32 r = (f32)rot[3];
+        r += t * (f32)(rot[4] - rot[3]);
         setRotate(&mDmpe, r);
     } else if (timer <= f4) {
         f32 t = acc(f4, timer, f3);
-        f32 r = (f32)rot[4] + t * (f32)(rot[5] - rot[4]);
+        f32 r = (f32)rot[4];
+        r += t * (f32)(rot[5] - rot[4]);
         setRotate(&mDmpe, r);
     } else {
         if (timer >= f5) {
@@ -908,8 +919,11 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
                 val = 200.0f - val;
             }
 
-            JUtility::TColor col(0xFF, (u8)(s32)val, 0, 0xFF);
-            flags[i] = col.toUInt32();
+            u8* col = (u8*)&flags[i];
+            col[0] = 0xFF;
+            col[1] = (u8)(s32)val;
+            col[2] = 0;
+            col[3] = 0xFF;
             ((J2DPicture*)mPerfect[i].pane)->setWhite(*(JUtility::TColor*)&flags[i]);
         }
     }
