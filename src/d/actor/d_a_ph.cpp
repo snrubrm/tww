@@ -1485,15 +1485,14 @@ void dead_item(ph_class* i_this) {
     pos += i_this->m02E4;
     pos.y += 40.0f;
 
-    int scale = (int)(5.0f + 2.0f * i_this->m039C);
+    u8 scale = (u8)(5.0f + 2.0f * i_this->m039C);
     if (i_this->mType == 0) {
         fopAcM_createDisappear(i_this, &pos, scale, daDisItem_IBALL_e, i_this->stealItemBitNo);
     } else {
         fopAcM_createDisappear(i_this, &pos, scale, daDisItem_IBALL_e, 0xFF);
         dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
         int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
-        n = cLib_maxLimit<int>(n, 0xFF);
-        u8 val = n;
+        u8 val = cLib_maxLimit<int>(n, 0xFF);
         u16 flag = dSv_event_flag_c::UNK_7EFF;
         pEvent->setEventReg(flag, val);
     }
