@@ -1538,17 +1538,20 @@ static cPhs_State daOQ_Create(fopAc_ac_c* i_actor) {
             fopAc_ac_c* player = dComIfGp_getPlayer(0);
             hazure_shoot_timer = 0x64;
             cXyz offset;
+            cXyz pos;
+            mDoMtx_YrotS(*calc_mtx, 0);
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = 1000.0f;
-            mDoMtx_YrotS(*calc_mtx, 0);
-            cXyz pos;
             MtxPosition(&offset, &pos);
             pos += player->current.pos;
             pos.y -= 40.0f;
             pos.x += cM_rndFX(200.0f);
             pos.z += cM_rndFX(200.0f);
-            csXyz angle = i_this->current.angle;
+            csXyz angle;
+            angle.x = i_this->current.angle.x;
+            angle.y = i_this->current.angle.y;
+            angle.z = i_this->current.angle.z;
             angle.y = cM_atan2s(pos.x - player->current.pos.x, pos.z - player->current.pos.z);
             fopAcM_create(fpcNm_OQ_e, 0x104, &pos, fopAcM_GetRoomNo(i_this), &angle, &i_this->scale, 0, NULL);
             return cPhs_ERROR_e;
@@ -1611,12 +1614,11 @@ static cPhs_State daOQ_Create(fopAc_ac_c* i_actor) {
             i_this->mBodyAtCyl.SetStts(&i_this->mStts);
             i_this->mBodyCoCyl.OffTgSetBit();
             i_this->mBodyCoCyl.OffCoSetBit();
-            i_this->mBodyCoCyl.ClrAtHit();
+            i_this->mBodyCoCyl.ClrTgHit();
             i_this->mBodyAtCyl.OffAtSetBit();
             i_this->mBodyAtCyl.ClrAtSet();
             if (i_this->mType == 0) {
-                i_this->mBodyCoCyl.OffTgSPrmBit(cCcD_TgSPrm_IsOther_e);
-                i_this->mBodyCoCyl.OnTgSPrmBit(cCcD_TgSPrm_IsEnemy_e);
+                i_this->mBodyCoCyl.SetTgGrp(cCcD_TgSPrm_IsEnemy_e);
                 i_this->stealItemLeft = 1;
                 i_this->mAcch.ClrRoofNone();
                 i_this->itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("Oq", 0);
