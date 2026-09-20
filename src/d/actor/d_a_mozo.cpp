@@ -438,14 +438,17 @@ void daMozo_c::towait_proc() {
     anime_proc();
 
     if (mType == 0) {
-        if (beam1 == NULL || beam2 == NULL) {
+        if (beam1 == NULL) {
+            return;
+        }
+        if (beam2 == NULL) {
             return;
         }
 
         if (beam1->beamCheck()) {
             beam1->beamOff();
         }
-        BOOL done1;
+        int done1;
         if (beam1->m5F4 == 1) {
             if (beam1->m588 < 5.0f) {
                 beam1->m588 += 1.0f;
@@ -468,7 +471,7 @@ void daMozo_c::towait_proc() {
         if (beam2->beamCheck()) {
             beam2->beamOff();
         }
-        BOOL done2;
+        int done2;
         if (beam2->m5F4 == 1) {
             if (beam2->m588 < 5.0f) {
                 beam2->m588 += 1.0f;
@@ -515,15 +518,14 @@ BOOL daMozo_c::checkRange(int param) {
         return FALSE;
     }
 
-    daMozo_childHIO_c* child = (&l_HIO.mpBeamChild)[mType];
     f32 range;
     s16 maxAngle;
     if (param == 0) {
-        range = child->m04;
-        maxAngle = child->m0C;
+        range = (&l_HIO.mpBeamChild)[mType]->m04;
+        maxAngle = (&l_HIO.mpBeamChild)[mType]->m0C;
     } else {
-        range = child->m08;
-        maxAngle = child->m0E;
+        range = (&l_HIO.mpBeamChild)[mType]->m08;
+        maxAngle = (&l_HIO.mpBeamChild)[mType]->m0E;
     }
 
     cXyz dir(cM_ssin(current.angle.y), 0.0f, cM_scos(current.angle.y));
@@ -540,36 +542,42 @@ BOOL daMozo_c::checkRange(int param) {
 void daMozo_c::setAnm(int i_anm, float i_morf) {
     mAnm = i_anm;
     J3DAnmTransform* bck;
-    f32 speed;
     f32 start;
     f32 end;
+    f32 speed;
+    int mode;
     switch (i_anm) {
     case 0:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 0.0f;
         end = -1.0f;
-        speed = 0.0f;
+        speed = start;
         break;
     case 1:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 0.0f;
         end = -1.0f;
         speed = 1.0f;
         break;
     case 2:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 24.0f;
         end = 36.0f;
         speed = -0.25f;
         break;
     case 3:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 25.0f;
         end = -1.0f;
         speed = 1.0f;
         break;
     case 4:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 32.0f;
         end = 36.0f;
         speed = -0.25f;
@@ -577,7 +585,7 @@ void daMozo_c::setAnm(int i_anm, float i_morf) {
     default:
         return;
     }
-    mAnimMorf->setAnm(bck, J3DFrameCtrl::EMode_NONE, i_morf, speed, start, end, NULL);
+    mAnimMorf->setAnm(bck, mode, i_morf, speed, start, end, NULL);
 }
 
 /* 00001F70-00002228       .text CreateInit__8daMozo_cFv */
