@@ -14,7 +14,9 @@
 #include "f_pc/f_pc_name.h"
 #include "d/d_spline_path.h"
 #include "f_op/f_op_actor_mng.h"
+#include "f_op/f_op_camera_mng.h"
 #include "m_Do/m_Do_audio.h"
+#include "m_Do/m_Do_lib.h"
 #include "stdarg.h"
 #include "string.h"
 #include "dolphin/types.h"
@@ -351,6 +353,14 @@ struct GetItemWork {
 };
 
 static bool lineCollisionCheck(cXyz i_start, cXyz i_end, fopAc_ac_c* i_actor1, fopAc_ac_c* i_actor2);
+
+inline static int get_camera_id(camera_class* i_camera) {
+    return fopCamM_GetParam(i_camera);
+}
+
+inline static dDlst_window_c* get_window(camera_class* i_camera) {
+    return dComIfGp_getWindow(dComIfGp_getCameraWinID(get_camera_id(i_camera)));
+}
 }  // namespace
 
 /* 800B004C-800B0174       .text StartEventCamera__9dCamera_cFiie */
@@ -779,7 +789,7 @@ bool dCamera_c::stokerEvCamera() {
     mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
     mViewCache.mFovy = work->mFovy;
     if (work->mHasBank != 0) {
-        mViewCache.mBank = cSAngle(work->mBank);
+        mViewCache.mBank = cSAngle(cAngle::d2s(work->mBank));
         setFlag(0x400);
     }
 
@@ -2065,10 +2075,10 @@ bool dCamera_c::maptoolIdEvCamera() {
             eventDt = g_dComIfG_gameInfo.play.getEvent()->getStageEventDt();
         } else {
             dStage_EventInfo_c* eventInfo = dComIfGp_getStage().getEventInfo();
-            if (id < 0 || id >= eventInfo->num) {
-                eventDt = NULL;
-            } else {
+            if (id >= 0 && id < eventInfo->num) {
                 eventDt = &eventInfo->events[id];
+            } else {
+                eventDt = NULL;
             }
         }
         mEventData.field_0xec = eventDt;
@@ -2078,8 +2088,8 @@ bool dCamera_c::maptoolIdEvCamera() {
         return true;
     }
 
-    s32 roomNo = (s8)mEventData.field_0xec->field_0x14;
-    s32 mapToolId = mEventData.field_0xec->field_0x10;
+    int roomNo = (s8)mEventData.field_0xec->field_0x14;
+    int mapToolId = mEventData.field_0xec->field_0x10;
     u32 seTimer = -1;
     if (mEventData.field_0xec->field_0x12 != 0xFF) {
         if (mEventData.field_0xec->field_0x12 & 1) {
@@ -2088,10 +2098,11 @@ bool dCamera_c::maptoolIdEvCamera() {
         if (mEventData.field_0xec->field_0x12 & 2) {
             m068 = 0;
         }
-        if (mEventData.field_0xec->field_0x12 & 0x80) {
+        u8 flags = mEventData.field_0xec->field_0x12;
+        if (flags & 0x80) {
             seTimer = 0;
         }
-        if (mEventData.field_0xec->field_0x12 & 0x40) {
+        if (flags & 0x40) {
             seTimer = 0x1e;
         }
     }
@@ -2829,6 +2840,7 @@ bool dCamera_c::getItemEvCamera() {
 
 bool dCamera_c::possessedEvCamera() {
     PossessedWork* work = (PossessedWork*)&mWork;
+    cXyz eye;
     bool ret = false;
 
     if (m11C == 0) {
@@ -2838,8 +2850,7 @@ bool dCamera_c::possessedEvCamera() {
     switch (work->mState) {
     case 0:
     default: {
-        work->mTarget = getEvActor("Target", "@PLAYER");
-        if (work->mTarget == NULL) {
+        if (!(work->mTarget = getEvActor("Target", "@PLAYER"))) {
             return true;
         }
 
@@ -2847,12 +2858,11 @@ bool dCamera_c::possessedEvCamera() {
         getEvIntData(&work->mTimer, "Timer", 10);
         getEvFloatData(&work->mRadius, "Radius", 60.0f);
         getEvFloatData(&work->mCushion, "Cushion", 1.0f);
-        f32 latitude;
-        getEvFloatData(&latitude, "Latitude", -5.0f);
-        work->mLatitude.Val(latitude);
-        f32 longitude;
-        getEvFloatData(&longitude, "Longitude", 0.0f);
-        work->mLongitude.Val(longitude);
+        f32 angle;
+        getEvFloatData(&angle, "Latitude", -5.0f);
+        work->mLatitude.Val(angle);
+        getEvFloatData(&angle, "Longitude", 0.0f);
+        work->mLongitude.Val(angle);
         getEvFloatData(&work->mFovy, "Fovy", 45.0f);
         getEvIntData(&work->mBlure, "Blure", 0);
 
@@ -2873,31 +2883,38 @@ bool dCamera_c::possessedEvCamera() {
 
         work->mState = 1;
         work->mCounter = work->mTimer;
-        if (work->mBlure == 1) {
+        switch (work->mBlure) {
+        case 1:
             ResetBlure(0);
             SetBlurePositionType(1);
             SetBlureTimer(work->mTimer);
             SetBlureAlpha(0.5f);
-        } else if (work->mBlure == 2) {
+            break;
+        case 2:
             ResetBlure(0);
             SetBlurePositionType(1);
             SetBlureTimer(work->mTimer);
             SetBlureAlpha(0.63f);
             SetBlureScale(1.1f);
+            break;
         }
         break;
     }
     case 1: {
         f32 t = 1.0f / (f32)work->mCounter;
         mViewCache.mCenter += (eyePos(work->mTarget) - mViewCache.mCenter) * t;
-        mViewCache.mDirection.Val(
-            mViewCache.mDirection.R() + t * (work->mGlobe.R() - mViewCache.mDirection.R()),
-            mViewCache.mDirection.V() + (work->mGlobe.V() - mViewCache.mDirection.V()) * t,
-            mViewCache.mDirection.U() + (work->mGlobe.U() - mViewCache.mDirection.U()) * t);
-        cXyz eye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mDirection.R(mViewCache.mDirection.R() + t * (work->mGlobe.R() - mViewCache.mDirection.R()));
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->mGlobe.V() - mViewCache.mDirection.V()) * t);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->mGlobe.U() - mViewCache.mDirection.U()) * t);
+        eye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mEye += (eye - mViewCache.mEye) * work->mCushion;
         mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
         if (work->mBlure == 1) {
+            scissor_class* scissor = get_window(mpCamera)->getScissor();
+            cXyz targetEye = eyePos(work->mTarget);
+            cXyz projected;
+            mDoLib_project(&targetEye, &projected);
+            SetBlurePosition(projected.x / scissor->mWidth, projected.y / scissor->mHeight, 0.0f);
             SetBlureAlpha(t * 0.7f + 0.5f);
             SetBlureScale(t * 0.09f + 1.1f, 0.98f - t * 0.18f, 0.0f);
         }
@@ -2922,10 +2939,11 @@ bool dCamera_c::fixedFramesEvCamera() {
 
     if (m11C == 0) {
         work->mKeyNum = 9999;
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        int num = evmng->getMySubstanceNum(mEventData.mStaffIdx, "Centers");
-        if (num != 0) {
-            work->mCenters = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, "Centers", dEvDtData_c::TYPE_VEC);
+        char* key = "Centers";
+        dEvent_manager_c* evmng = &g_dComIfG_gameInfo.play.getEvtManager();
+        int num;
+        if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+            work->mCenters = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
             if (work->mKeyNum > num) {
                 work->mKeyNum = num;
             }
@@ -2933,9 +2951,9 @@ bool dCamera_c::fixedFramesEvCamera() {
             return true;
         }
 
-        num = evmng->getMySubstanceNum(mEventData.mStaffIdx, "Eyes");
-        if (num != 0) {
-            work->mEyes = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, "Eyes", dEvDtData_c::TYPE_VEC);
+        key = "Eyes";
+        if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+            work->mEyes = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
             if (work->mKeyNum > num) {
                 work->mKeyNum = num;
             }
@@ -2943,9 +2961,9 @@ bool dCamera_c::fixedFramesEvCamera() {
             return true;
         }
 
-        num = evmng->getMySubstanceNum(mEventData.mStaffIdx, "Fovys");
-        if (num != 0) {
-            work->mFovys = (f32*)evmng->getMySubstanceP(mEventData.mStaffIdx, "Fovys", dEvDtData_c::TYPE_FLOAT);
+        key = "Fovys";
+        if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+            work->mFovys = (f32*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_FLOAT);
             if (work->mKeyNum > num) {
                 work->mKeyNum = num;
             }
@@ -2998,10 +3016,11 @@ bool dCamera_c::bSplineEvCamera() {
 
     if (m11C == 0) {
         work->mKeyNum = 9999;
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        int num = evmng->getMySubstanceNum(mEventData.mStaffIdx, "Centers");
-        if (num != 0) {
-            work->mCenters = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, "Centers", dEvDtData_c::TYPE_VEC);
+        char* key = "Centers";
+        dEvent_manager_c* evmng = &g_dComIfG_gameInfo.play.getEvtManager();
+        int num;
+        if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+            work->mCenters = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
             if (work->mKeyNum > num) {
                 work->mKeyNum = num;
             }
@@ -3009,9 +3028,9 @@ bool dCamera_c::bSplineEvCamera() {
             return true;
         }
 
-        num = evmng->getMySubstanceNum(mEventData.mStaffIdx, "Eyes");
-        if (num != 0) {
-            work->mEyes = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, "Eyes", dEvDtData_c::TYPE_VEC);
+        key = "Eyes";
+        if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+            work->mEyes = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
             if (work->mKeyNum > num) {
                 work->mKeyNum = num;
             }
@@ -3019,9 +3038,9 @@ bool dCamera_c::bSplineEvCamera() {
             return true;
         }
 
-        num = evmng->getMySubstanceNum(mEventData.mStaffIdx, "Fovys");
-        if (num != 0) {
-            work->mFovys = (f32*)evmng->getMySubstanceP(mEventData.mStaffIdx, "Fovys", dEvDtData_c::TYPE_FLOAT);
+        key = "Fovys";
+        if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+            work->mFovys = (f32*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_FLOAT);
             if (work->mKeyNum > num) {
                 work->mKeyNum = num;
             }
