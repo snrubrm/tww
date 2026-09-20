@@ -5,7 +5,7 @@
 BOOL gTRKBigEndian;
 
 DSError TRKInitializeNub(void) {
-    DSError ret;
+    BOOL ret;
     DSError uartErr;
 
     ret = TRKInitializeEndian();
