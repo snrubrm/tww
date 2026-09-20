@@ -5,21 +5,12 @@
 void TRKInterruptHandler();
 int Hu_IsStub(void);
 
-typedef struct TRKUARTState {
-    int writePos;
-    int readPos;
-    int readCount;
-    BOOL framing;
-    char readBuf[0x110A];
-} TRKUARTState;
-
 u8 gWriteBuf[0x110A];
-
-// The read path addresses every field off one base register, so they have to
-// share an object instead of being separate globals.
-TRKUARTState gTRKUARTState;
-
-#define gWritePos gTRKUARTState.writePos
+char gReadBuf[0x110A];
+BOOL _MetroTRK_Has_Framing;
+int gReadCount;
+int gReadPos;
+int gWritePos;
 
 DBCommTable gDBCommTable = {};
 
@@ -87,7 +78,13 @@ static inline UARTError TRKReadUARTBuffer(void* data, u32 length) {
 }
 
 UARTError TRKReadUARTPoll(char* byte) {
-    TRKUARTState* state = &gTRKUARTState;
+    struct {
+        int writePos;
+        int readPos;
+        int readCount;
+        BOOL framing;
+        char readBuf[0x110A];
+    } *state = (void*)&gWritePos;
     UARTError error = 4;
     int cnt;
 

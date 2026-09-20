@@ -11,6 +11,9 @@ mw_comment_version: 10 # GC Linker 1.3.2
 symbols_known: true # Very fast analysis
 fill_gaps: false # Alignments known
 
+# TRKReadUARTPoll addresses these off one base register, so nothing names them
+force_active: [gReadPos, gReadCount, _MetroTRK_Has_Framing, gReadBuf]
+
 block_relocations:
 - source: .sdata:0x803f613c
 add_relocations:
