@@ -3027,10 +3027,8 @@ bool dCamera_c::followCamera(s32 param_1) {
             
             cSGlobe cStack_46c(dVar24, cSAngle(dVar28), acStack_4a4);
             cXyz cStack_2fc = cStack_248 + cStack_46c.Xyz();
-            cXyz cStack_2e0 = mEye - cStack_2fc;
-            dVar20 = cStack_2e0.abs();
-            cXyz cStack_314 = mCenter - cStack_248;
-            dVar19 = cStack_314.abs() * 4.0f;
+            dVar20 = (mEye - cStack_2fc).abs();
+            dVar19 = (mCenter - cStack_248).abs() * 4.0f;
 
             f32 tmp;
             if (dVar20 > dVar19) {
@@ -3040,13 +3038,14 @@ bool dCamera_c::followCamera(s32 param_1) {
             }
             fVar37 = std::fabsf(tmp);
             f32 playerHeight = heightOf(mpPlayerActor);
-
+            f32 h;
             if (playerHeight > 10.0f) {
+                h = playerHeight;
             } else {
-                playerHeight = 10.0f;
+                h = 10.0f;
             }
 
-            mWork.follow.m37C = (int)(std::sqrtf(fVar37 / playerHeight) * f14) + 1;
+            mWork.follow.m37C = (int)(std::sqrtf(fVar37 / h) * f14) + 1;
         }
 
         mWork.follow.m398 = mWork.follow.m39C = mDirection.R();
@@ -5882,18 +5881,15 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(200.0f, 160.0f, -80.0f),
             };
             cSGlobe globe(cannonOff[m07C & 3]);
-            cXyz* shipPos = &work->m37C->current.pos;
-            cXyz* playerPos = &mpPlayerActor->current.pos;
-            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
-            bool plus = (target - work->m3B0) > cSAngle::_0;
-            if (plus) {
+            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
+            if ((target - work->m3B0) > cSAngle::_0) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
@@ -5906,18 +5902,15 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(115.0f, 215.0f, 315.0f),
             };
             cSGlobe globe(craneOff[m07C & 3]);
-            cXyz* shipPos = &work->m37C->current.pos;
-            cXyz* playerPos = &mpPlayerActor->current.pos;
-            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
-            bool plus = (target - work->m3B0) > cSAngle::_0;
-            if (plus) {
+            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
+            if ((target - work->m3B0) > cSAngle::_0) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e | daPyStts0_UNK1000000_e) ||
@@ -5983,19 +5976,18 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
     cSGlobe targetDir;
     if (work->m37C != NULL) {
-        daShip_c* ship = (daShip_c*)work->m37C;
         cSAngle shipAng;
         if (check_owner_action1(mPadId, daPyStts1_UNK2_e)) {
-            shipAng.Val(ship->getCraneAngle());
+            shipAng.Val(((daShip_c*)work->m37C)->getCraneAngle());
             work->m3C4 += 0.05f * (1.0f - work->m3C4);
         } else if (check_owner_action1(mPadId, daPyStts1_UNK4_e)) {
-            cSAngle dir = directionOf(ship);
-            s16 cannonY = ship->getCannonAngleY();
+            cSAngle dir = directionOf(work->m37C);
+            s16 cannonY = ((daShip_c*)work->m37C)->getCannonAngleY();
             shipAng.Val(dir - cannonY + cSAngle::_90);
             f32 side = work->m384 ? -1.0f : 1.0f;
             work->m3C4 += 0.05f * (side - work->m3C4);
         } else {
-            shipAng.Val(ship->mSailAngle);
+            shipAng.Val(((daShip_c*)work->m37C)->mSailAngle);
             work->m3C4 += 0.1f * (speedRatio - work->m3C4);
         }
         posOffset.x -= (val1 * shipAng.Sin()) * work->m3C4;
@@ -6076,8 +6068,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
     cSAngle targetV = curGlobe.V();
     if (check_owner_action1(mPadId, daPyStts1_UNK4_e) && work->m37C != NULL) {
-        daShip_c* ship = (daShip_c*)work->m37C;
-        s16 cannonX = ship->getCannonAngleX();
+        s16 cannonX = ((daShip_c*)work->m37C)->getCannonAngleX();
         targetV.Val(curGlobe.V() + cannonX);
         targetV *= 0.3f;
     }
