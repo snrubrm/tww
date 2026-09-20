@@ -113,28 +113,28 @@ bool JMessage::TParse::parseHeader_next(const void** ppData, u32* pOutSize, u32 
 
 /* 802A0024-802A0170       .text parseBlock_next__Q28JMessage6TParseFPPCvPUlUl */
 bool JMessage::TParse::parseBlock_next(const void** ppData, u32* pOutSize, u32 flag) {
-    /* Nonmatching */
-    JUTDataBlockHeader* pHeader = *(JUTDataBlockHeader**)ppData;
-    *(char**)ppData += pHeader->mSize;
-    *pOutSize = pHeader->mSize;
+    const void* pData = *ppData;
+    data::TParse_TBlock oBlock(pData);
+    *ppData = (char*)pData + ((JUTDataBlockHeader*)pData)->mSize;
+    *pOutSize = ((JUTDataBlockHeader*)pData)->mSize;
 
-    switch (pHeader->mType) {
+    switch (((JUTDataBlockHeader*)pData)->mType) {
     case 'INF1':
-        mResource->setData_block_info(pHeader);
+        mResource->setData_block_info(pData);
         break;
     case 'DAT1': {
-        mResource->setData_block_messageData((char*)&pHeader[1]);
+        mResource->setData_block_messageData(pData);
         TResource* res = mResourceContainer->Get_groupID(mResource->mInfo.get_groupID());
-        if (res != mResource && !!(flag & 0x80)) {
+        if (res != mResource && (flag & 0x80)) {
             mResourceContainer->Erase_destroy(res);
         }
         break;
     }
     case 'STR1':
-        mResource->setData_block_stringAttribute((char*)&pHeader[1]);
+        mResource->setData_block_stringAttribute(pData);
         break;
     case 'MID1':
-        mResource->setData_block_messageID(pHeader);
+        mResource->setData_block_messageID(pData);
         break;
     default:
         if (!(flag & 0x40))
