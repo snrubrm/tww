@@ -3,7 +3,7 @@
 
 #include "f_op/f_op_actor.h"
 #include "c/c_damagereaction.h"
-#include "SSystem/SComponent/c_bg_s_gnd_chk.h"
+#include "d/d_bg_s_gnd_chk.h"
 #include "SSystem/SComponent/c_phase.h"
 #include "d/d_cc_d.h"
 #include "d/d_bg_s_acch.h"
@@ -12,12 +12,12 @@
 class mDoExt_McaMorf;
 class mDoExt_brkAnm;
 
-class yodare_ato_PcallBack_c : public dPa_smokePcallBack {
+class yodare_ato_PcallBack_c : public JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*> {
 public:
     void execute(JPABaseEmitter*, JPABaseParticle*);
 
 public:
-    /* 0x04 */ cBgS_GndChk mGndChk;
+    /* 0x04 */ dBgS_ObjGndChk mGndChk;
 };
 
 class bo_class : public fopEn_enemy_c {
@@ -91,7 +91,6 @@ public:
     /* 0x3D4 */ JPABaseEmitter* m3D4;
     /* 0x3D8 */ JPABaseEmitter* m3D8;
     /* 0x3DC */ yodare_ato_PcallBack_c mYodareCb;
-    /* 0x420 */ u8 m420[0x434 - 0x420];
     /* 0x434 */ dBgS_AcchCir mAcchCir;
     /* 0x474 */ dBgS_ObjAcch mAcch;
     /* 0x638 */ dCcD_Stts mStts;
