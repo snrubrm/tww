@@ -221,8 +221,8 @@ struct WatchActorWork {
     /* 0x3AC */ fopAc_ac_c* mTarget;
     /* 0x3B0 */ fpc_ProcID mTargetId;
     /* 0x3B4 */ cSGlobe mGlobe;
-    /* 0x3BC */ cSGlobe mSearchGlobe;
-    /* 0x3C4 */ u8 field_0x3c4[0x3CC - 0x3C4];
+    /* 0x3BC */ u8 field_0x3bc[0x3C4 - 0x3BC];
+    /* 0x3C4 */ cSGlobe mSearchGlobe;
     /* 0x3CC */ int mMode;
     /* 0x3D0 */ int mBlure;
     /* 0x3D4 */ f32 mFrontAngle;
@@ -766,15 +766,15 @@ bool dCamera_c::stokerEvCamera() {
         SkipSmoother();
     }
 
+    cSGlobe globe;
     if (work->mTarget != NULL) {
         if (fopAcM_SearchByID(work->mTargetId) == NULL) {
             return true;
         }
 
-        cSGlobe globe;
         globe.Val(work->mCtrGap);
-        globe.V(globe.V() + work->mTarget->shape_angle.x);
-        globe.U(globe.U() + work->mTarget->shape_angle.y);
+        globe.U(globe.V() + work->mTarget->shape_angle.x);
+        globe.V(globe.U() + work->mTarget->shape_angle.y);
         mViewCache.mCenter = attentionPos(work->mTarget) + globe.Xyz();
     }
 
@@ -783,10 +783,9 @@ bool dCamera_c::stokerEvCamera() {
             return true;
         }
 
-        cSGlobe globe;
         globe.Val(work->mEyeGap);
-        globe.V(globe.V() + work->mStoker->shape_angle.x);
-        globe.U(globe.U() + work->mStoker->shape_angle.y);
+        globe.U(globe.V() + work->mStoker->shape_angle.x);
+        globe.V(globe.U() + work->mStoker->shape_angle.y);
         mViewCache.mEye = attentionPos(work->mStoker) + globe.Xyz();
     }
 
@@ -1159,14 +1158,12 @@ bool dCamera_c::uniformTransEvCamera() {
             cSGlobe globe(work->mCenter);
             globe.U(work->mInvDir.U() + globe.U());
             endPos.mCenter = attentionPos(work->mRelActor) + globe.Xyz();
-        } else if (work->mRelUseMask[2] == '-') {
-            if (work->mTransType == 2) {
-                endPos.mCenter = dCamMath::xyzRotateY(work->mCenter, directionOf(work->mRelActor));
-            } else {
-                endPos.mCenter = work->mCenter;
-            }
-        } else {
+        } else if (work->mRelUseMask[2] != '-') {
             endPos.mCenter = relationalPos(work->mRelActor, &work->mCenter);
+        } else if (work->mTransType == 2) {
+            endPos.mCenter = dCamMath::xyzRotateY(work->mCenter, directionOf(work->mRelActor));
+        } else {
+            endPos.mCenter = work->mCenter;
         }
 
         if (work->mRelUseMask[3] == 't') {
@@ -1175,14 +1172,12 @@ bool dCamera_c::uniformTransEvCamera() {
             cSGlobe globe(work->mEye);
             globe.U(work->mInvDir.U() + globe.U());
             endPos.mEye = attentionPos(work->mRelActor) + globe.Xyz();
-        } else if (work->mRelUseMask[3] == '-') {
-            if (work->mTransType == 2) {
-                endPos.mEye = dCamMath::xyzRotateY(work->mEye, directionOf(work->mRelActor));
-            } else {
-                endPos.mEye = work->mEye;
-            }
-        } else {
+        } else if (work->mRelUseMask[3] != '-') {
             endPos.mEye = relationalPos(work->mRelActor, &work->mEye);
+        } else if (work->mTransType == 2) {
+            endPos.mEye = dCamMath::xyzRotateY(work->mEye, directionOf(work->mRelActor));
+        } else {
+            endPos.mEye = work->mEye;
         }
     } else {
         startPos.mCenter = work->mStartCenter;
@@ -1402,14 +1397,12 @@ bool dCamera_c::uniformBrakeEvCamera() {
             cSGlobe globe(work->mCenter);
             globe.U(work->mInvDir.U() + globe.U());
             endPos.mCenter = attentionPos(work->mRelActor) + globe.Xyz();
-        } else if (work->mRelUseMask[2] == '-') {
-            if (work->mTransType == 2) {
-                endPos.mCenter = dCamMath::xyzRotateY(work->mCenter, directionOf(work->mRelActor));
-            } else {
-                endPos.mCenter = work->mCenter;
-            }
-        } else {
+        } else if (work->mRelUseMask[2] != '-') {
             endPos.mCenter = relationalPos(work->mRelActor, &work->mCenter);
+        } else if (work->mTransType == 2) {
+            endPos.mCenter = dCamMath::xyzRotateY(work->mCenter, directionOf(work->mRelActor));
+        } else {
+            endPos.mCenter = work->mCenter;
         }
 
         if (work->mRelUseMask[3] == 't') {
@@ -1418,14 +1411,12 @@ bool dCamera_c::uniformBrakeEvCamera() {
             cSGlobe globe(work->mEye);
             globe.U(work->mInvDir.U() + globe.U());
             endPos.mEye = attentionPos(work->mRelActor) + globe.Xyz();
-        } else if (work->mRelUseMask[3] == '-') {
-            if (work->mTransType == 2) {
-                endPos.mEye = dCamMath::xyzRotateY(work->mEye, directionOf(work->mRelActor));
-            } else {
-                endPos.mEye = work->mEye;
-            }
-        } else {
+        } else if (work->mRelUseMask[3] != '-') {
             endPos.mEye = relationalPos(work->mRelActor, &work->mEye);
+        } else if (work->mTransType == 2) {
+            endPos.mEye = dCamMath::xyzRotateY(work->mEye, directionOf(work->mRelActor));
+        } else {
+            endPos.mEye = work->mEye;
         }
     } else {
         startPos.mCenter = work->mStartCenter;
@@ -1645,14 +1636,12 @@ bool dCamera_c::uniformAcceleEvCamera() {
             cSGlobe globe(work->mCenter);
             globe.U(work->mInvDir.U() + globe.U());
             endPos.mCenter = attentionPos(work->mRelActor) + globe.Xyz();
-        } else if (work->mRelUseMask[2] == '-') {
-            if (work->mTransType == 2) {
-                endPos.mCenter = dCamMath::xyzRotateY(work->mCenter, directionOf(work->mRelActor));
-            } else {
-                endPos.mCenter = work->mCenter;
-            }
-        } else {
+        } else if (work->mRelUseMask[2] != '-') {
             endPos.mCenter = relationalPos(work->mRelActor, &work->mCenter);
+        } else if (work->mTransType == 2) {
+            endPos.mCenter = dCamMath::xyzRotateY(work->mCenter, directionOf(work->mRelActor));
+        } else {
+            endPos.mCenter = work->mCenter;
         }
 
         if (work->mRelUseMask[3] == 't') {
@@ -1661,14 +1650,12 @@ bool dCamera_c::uniformAcceleEvCamera() {
             cSGlobe globe(work->mEye);
             globe.U(work->mInvDir.U() + globe.U());
             endPos.mEye = attentionPos(work->mRelActor) + globe.Xyz();
-        } else if (work->mRelUseMask[3] == '-') {
-            if (work->mTransType == 2) {
-                endPos.mEye = dCamMath::xyzRotateY(work->mEye, directionOf(work->mRelActor));
-            } else {
-                endPos.mEye = work->mEye;
-            }
-        } else {
+        } else if (work->mRelUseMask[3] != '-') {
             endPos.mEye = relationalPos(work->mRelActor, &work->mEye);
+        } else if (work->mTransType == 2) {
+            endPos.mEye = dCamMath::xyzRotateY(work->mEye, directionOf(work->mRelActor));
+        } else {
+            endPos.mEye = work->mEye;
         }
     } else {
         startPos.mCenter = work->mStartCenter;
@@ -1733,8 +1720,7 @@ bool dCamera_c::watchActorEvCamera() {
         getEvIntData(&work->mFarTimer, "FarTimer", DefaultFarTimer);
         getEvFloatData(&work->mFrontAngle, "FrontAngle", DefaultFrontAngle);
         getEvIntData(&work->mBlure, "Blure", 0);
-        work->mTarget = getEvActor("Target", "@STARTER");
-        if (work->mTarget == NULL) {
+        if ((work->mTarget = getEvActor("Target", "@STARTER")) == NULL) {
             return true;
         }
         work->mTargetId = work->mTarget != NULL ? fopAcM_GetID(work->mTarget) : -1;
@@ -1761,7 +1747,7 @@ bool dCamera_c::watchActorEvCamera() {
     s16 name = fopAcM_GetName(work->mTarget);
     bool special = false;
     bool allow = true;
-    if (name == 0x12e || name == 0x12f || name == 0x133 || name == 0x132) {
+    if (name == fpcNm_DOOR10_e || name == fpcNm_DOOR12_e || name == fpcNm_KNOB00_e || name == fpcNm_KDDOOR_e) {
         special = true;
     }
 
@@ -1785,6 +1771,7 @@ bool dCamera_c::watchActorEvCamera() {
             }
 
             cSAngle front = g0.U() - directionOf(work->mTarget);
+            cSAngle unused_angle;
             if (front < cSAngle(-work->mFrontAngle)) {
                 g0.U(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
             } else if (front > cSAngle(work->mFrontAngle)) {
@@ -1800,20 +1787,25 @@ bool dCamera_c::watchActorEvCamera() {
                 step.Val(8.0f);
             }
 
+            cXyz eye;
+            int i = 0;
             cSGlobe search = work->mSearchGlobe;
-            int i;
+            bool unused_bool = false;
             for (i = 0; i < 45; i++) {
-                cXyz eye = work->mCenter + search.Xyz();
+                eye = work->mCenter + search.Xyz();
                 if (allow && !lineBGCheck(&work->mCenter, &eye, 0x8f) &&
                     !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, work->mTarget))
                 {
                     work->mSearchGlobe = search;
+                    unused_bool = true;
+                    (void)unused_bool;
                     break;
                 }
                 search.U(search.U() + step);
                 if (special) {
                     cSAngle d = search.U() - directionOf(work->mTarget);
-                    if (std::fabsf(d.Degree()) < 70.0f) {
+                    f32 degree = d.Degree();
+                    if (std::fabsf(degree) < 70.0f) {
                         allow = true;
                     } else {
                         allow = false;
@@ -1832,10 +1824,11 @@ bool dCamera_c::watchActorEvCamera() {
         if (m11C < (u32)work->mNearTimer) {
             f32 t = m11C / (f32)work->mNearTimer;
             mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
-            mViewCache.mDirection.R(mViewCache.mDirection.R() + (work->mSearchGlobe.R() - mViewCache.mDirection.R()) * t);
-            mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->mSearchGlobe.U() - mViewCache.mDirection.U()) * t);
-            mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->mSearchGlobe.V() - mViewCache.mDirection.V()) * t);
-            mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+            cSGlobe* dir_p = &mViewCache.mDirection;
+            dir_p->R(dir_p->R() + (work->mSearchGlobe.R() - dir_p->R()) * t);
+            dir_p->U(dir_p->U() + (work->mSearchGlobe.U() - dir_p->U()) * t);
+            dir_p->V(dir_p->V() + (work->mSearchGlobe.V() - dir_p->V()) * t);
+            mViewCache.mEye = mViewCache.mCenter + dir_p->Xyz();
             return false;
         }
         break;
@@ -1847,6 +1840,7 @@ bool dCamera_c::watchActorEvCamera() {
                 g.V(work->mZoomVAngle);
             }
             cSAngle ang = g.U() - directionOf(work->mTarget);
+            cSAngle unused_angle;
             if (ang < cSAngle(-work->mFrontAngle)) {
                 g.U(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
             } else if (ang > cSAngle(work->mFrontAngle)) {
@@ -1865,20 +1859,25 @@ bool dCamera_c::watchActorEvCamera() {
                 step.Val(8.0f);
             }
 
+            cXyz eye;
+            int i = 0;
             cSGlobe search = work->mSearchGlobe;
-            int i;
+            bool unused_bool = false;
             for (i = 0; i < 45; i++) {
-                cXyz eye = work->mCenter + search.Xyz();
+                eye = work->mCenter + search.Xyz();
                 if (allow && !lineBGCheck(&work->mCenter, &eye, 0x8f) &&
                     !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, work->mTarget))
                 {
                     work->mSearchGlobe = search;
+                    unused_bool = true;
+                    (void)unused_bool;
                     break;
                 }
                 search.U(search.U() + step);
                 if (special) {
                     cSAngle d = search.U() - directionOf(work->mTarget);
-                    if (std::fabsf(d.Degree()) < 70.0f) {
+                    f32 degree = d.Degree();
+                    if (std::fabsf(degree) < 70.0f) {
                         allow = true;
                     } else {
                         allow = false;
@@ -1897,10 +1896,11 @@ bool dCamera_c::watchActorEvCamera() {
         if (m11C < (u32)work->mFarTimer) {
             f32 t = m11C / (f32)work->mFarTimer;
             mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
-            mViewCache.mDirection.R(mViewCache.mDirection.R() + (work->mSearchGlobe.R() - mViewCache.mDirection.R()) * t);
-            mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->mSearchGlobe.U() - mViewCache.mDirection.U()) * t);
-            mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->mSearchGlobe.V() - mViewCache.mDirection.V()) * t);
-            mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+            cSGlobe* dir_p = &mViewCache.mDirection;
+            dir_p->R(dir_p->R() + (work->mSearchGlobe.R() - dir_p->R()) * t);
+            dir_p->U(dir_p->U() + (work->mSearchGlobe.U() - dir_p->U()) * t);
+            dir_p->V(dir_p->V() + (work->mSearchGlobe.V() - dir_p->V()) * t);
+            mViewCache.mEye = mViewCache.mCenter + dir_p->Xyz();
             return false;
         }
         break;
@@ -1911,6 +1911,7 @@ bool dCamera_c::watchActorEvCamera() {
             cSGlobe g(attentionPos(mpPlayerActor) - work->mCenter);
             g.R(work->mZoomDist);
             cSAngle ang = g.U() - directionOf(work->mTarget);
+            cSAngle unused_angle;
             if (ang < cSAngle(-work->mFrontAngle)) {
                 g.U(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
             } else if (ang > cSAngle(work->mFrontAngle)) {
@@ -1920,7 +1921,48 @@ bool dCamera_c::watchActorEvCamera() {
                 g.V(work->mZoomVAngle);
             }
             work->mSearchGlobe.Val(work->mZoomDist, g.V(), g.U());
-            mViewCache.mDirection.Val(work->mSearchGlobe.R(), work->mSearchGlobe.V(), work->mSearchGlobe.U());
+
+            cSAngle step;
+            if (ang >= cSAngle::_0) {
+                step.Val(-8.0f);
+            } else {
+                step.Val(8.0f);
+            }
+
+            cXyz eye;
+            int i = 0;
+            cSGlobe search = work->mSearchGlobe;
+            bool unused_bool = false;
+            for (i = 0; i < 45; i++) {
+                eye = work->mCenter + search.Xyz();
+                if (allow && !lineBGCheck(&work->mCenter, &eye, 0x8f) &&
+                    !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, work->mTarget))
+                {
+                    work->mSearchGlobe = search;
+                    unused_bool = true;
+                    (void)unused_bool;
+                    break;
+                }
+                search.U(search.U() + step);
+                if (special) {
+                    cSAngle d = search.U() - directionOf(work->mTarget);
+                    f32 degree = d.Degree();
+                    if (std::fabsf(degree) < 70.0f) {
+                        allow = true;
+                    } else {
+                        allow = false;
+                    }
+                }
+                f32 vadd;
+                if ((i & 2) != 0) {
+                    vadd = -5.0f;
+                } else {
+                    vadd = 5.0f;
+                }
+                search.V((search.V() + cSAngle(vadd)) - (search.V() * 0.1f));
+            }
+
+            mViewCache.mDirection = work->mSearchGlobe;
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         }
         break;
@@ -2729,7 +2771,6 @@ bool dCamera_c::useItem0EvCamera() {
         cXyz(130.0f, -25.0f, 115.0f),
         cXyz(5.0f, 130.0f, 110.0f),
     };
-    int count0 = 2;
 
     cXyz ctr1(0.0f, -32.0f, 15.0f);
     cXyz eyes1[4] = {
@@ -2738,7 +2779,6 @@ bool dCamera_c::useItem0EvCamera() {
         cXyz(55.0f, -33.0f, 100.0f),
         cXyz(105.0f, -55.0f, 70.0f),
     };
-    int count1 = 4;
 
     cXyz ctr3(0.0f, -27.0f, 25.0f);
     cXyz eyes3[4] = {
@@ -2747,7 +2787,6 @@ bool dCamera_c::useItem0EvCamera() {
         cXyz(5.0f, 130.0f, 110.0f),
         cXyz(-45.0f, -50.0f, -110.0f),
     };
-    int count3 = 4;
 
     cXyz ctr4(19.885f, 11.056f, -2.464f);
     cXyz eyes4[3] = {
@@ -2755,7 +2794,6 @@ bool dCamera_c::useItem0EvCamera() {
         cXyz(18.97f, 64.078f, 21.898f),
         cXyz(139.0f, 118.0f, 340.0f),
     };
-    int count4 = 3;
 
     cXyz ctr5(30.241f, 12.653f, 13.95f);
     cXyz eyes5[3] = {
@@ -2763,7 +2801,6 @@ bool dCamera_c::useItem0EvCamera() {
         cXyz(-2.849f, 96.639f, 42.753f),
         cXyz(23.639f, 96.636f, 57.318f),
     };
-    int count5 = 3;
 
     cXyz ctr6(-12.0f, -75.0f, 140.0f);
     cXyz eyes6[3] = {
@@ -2771,26 +2808,13 @@ bool dCamera_c::useItem0EvCamera() {
         cXyz(-220.0f, 46.0f, 48.0f),
         cXyz(84.0f, 164.0f, -38.0f),
     };
-    int count6 = 3;
 
-    int count2 = 3;
-    struct UseItem0Data {
-        cXyz* center;
-        cXyz* eyes;
-        int count;
-        f32 fovy;
-        int timer;
-        int interval;
-    };
-    UseItem0Data data_list[7] = {
-        {&ctr0, eyes0, count0, 65.0f, 45, 0},
-        {&ctr1, eyes1, count1, 65.0f, 40, 0},
-        {&ctr0, eyes0, count2, 65.0f, 40, 0},
-        {&ctr3, eyes3, count3, 65.0f, 40, 0},
-        {&ctr4, eyes4, count4, 70.0f, 10, 0},
-        {&ctr5, eyes5, count5, 70.0f, 45, 0x49},
-        {&ctr6, eyes6, count6, 65.0f, 55, 0},
-    };
+    cXyz* centers[7] = {&ctr0, &ctr1, &ctr0, &ctr3, &ctr4, &ctr5, &ctr6};
+    cXyz* eyes[7] = {eyes0, eyes1, eyes0, eyes3, eyes4, eyes5, eyes6};
+    int counts[7] = {2, 4, 3, 4, 3, 3, 3};
+    f32 fovys[7] = {65.0f, 65.0f, 65.0f, 65.0f, 70.0f, 70.0f, 65.0f};
+    int timers[7] = {45, 40, 40, 40, 10, 45, 55};
+    int intervals[7] = {0, 0, 0, 0, 0, 0x49, 0};
 
     cSAngle angV, angU;
     cXyz eye;
@@ -2818,19 +2842,19 @@ bool dCamera_c::useItem0EvCamera() {
         // fallthrough
     state_10:
         work->mState = 10;
-        if (++work->mCounter < data_list[work->mType].interval) {
+        if (++work->mCounter < intervals[work->mType]) {
             break;
         }
         work->mCounter = 0;
         if ((m07C & 7) == 0 && work->mType >= 2 && work->mType < 4) {
-            cXyz tmp = data_list[work->mType].eyes[0];
-            data_list[work->mType].eyes[0] = data_list[work->mType].eyes[1];
-            data_list[work->mType].eyes[1] = tmp;
+            cXyz tmp = eyes[work->mType][0];
+            eyes[work->mType][0] = eyes[work->mType][1];
+            eyes[work->mType][1] = tmp;
         }
 
-        work->mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
-        for (idx = 0; idx < data_list[work->mType].count; idx++) {
-            eye = relationalPos(mpPlayerActor, &data_list[work->mType].eyes[idx]);
+        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+        for (idx = 0; idx < counts[work->mType]; idx++) {
+            eye = relationalPos(mpPlayerActor, &eyes[work->mType][idx]);
             if (eye.y < m368 + positionOf(mpPlayerActor).y) {
                 eye.y = m368 + positionOf(mpPlayerActor).y;
             }
@@ -2848,15 +2872,15 @@ bool dCamera_c::useItem0EvCamera() {
         }
 
         work->mGlobe.Val(eye - work->mCenter);
-        work->mFovy = data_list[work->mType].fovy;
-        work->mTimer = data_list[work->mType].timer;
+        work->mFovy = fovys[work->mType];
+        work->mTimer = timers[work->mType];
         work->mState = 1;
         break;
 
     state_1: {
         f32 t = (f32)work->mCounter / (f32)work->mTimer;
         mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
-        work->mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
+        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
         mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
 
         f32 rad = mViewCache.mDirection.R();
@@ -2876,7 +2900,7 @@ bool dCamera_c::useItem0EvCamera() {
     }
         // fallthrough
     state_2:
-        mViewCache.mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
+        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         work->mStay++;
         if (work->mType == 0 && work->mStay == 1) {
@@ -2888,7 +2912,7 @@ bool dCamera_c::useItem0EvCamera() {
         // fallthrough
     state_99:
         SkipSmoother();
-        mViewCache.mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
+        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         ret = true;
         break;
@@ -2908,7 +2932,6 @@ bool dCamera_c::useItem1EvCamera() {
         cXyz(130.0f, -25.0f, 115.0f),
         cXyz(5.0f, 130.0f, 110.0f),
     };
-    int count0 = 3;
 
     cXyz ctr1(0.0f, -32.0f, 15.0f);
     cXyz eyes1[4] = {
@@ -2917,7 +2940,6 @@ bool dCamera_c::useItem1EvCamera() {
         cXyz(55.0f, -33.0f, 100.0f),
         cXyz(105.0f, -55.0f, 70.0f),
     };
-    int count1 = 4;
 
     cXyz ctr3(0.0f, -27.0f, 25.0f);
     cXyz eyes3[3] = {
@@ -2925,7 +2947,6 @@ bool dCamera_c::useItem1EvCamera() {
         cXyz(130.0f, -68.0f, 114.0f),
         cXyz(5.0f, 130.0f, 110.0f),
     };
-    int count3 = 3;
 
     cXyz ctr4(0.0f, -16.0f, -17.0f);
     cXyz eyes4[3] = {
@@ -2933,7 +2954,6 @@ bool dCamera_c::useItem1EvCamera() {
         cXyz(36.0f, 67.0f, -30.0f),
         cXyz(-10.0f, 75.0f, -5.0f),
     };
-    int count4 = 3;
 
     cXyz ctr5(10.0f, -2.0f, -2.0f);
     cXyz eyes5[3] = {
@@ -2941,7 +2961,6 @@ bool dCamera_c::useItem1EvCamera() {
         cXyz(42.0f, 85.0f, 22.0f),
         cXyz(-65.0f, -50.0f, 25.0f),
     };
-    int count5 = 3;
 
     cXyz ctr6(-12.0f, -75.0f, 140.0f);
     cXyz eyes6[3] = {
@@ -2949,27 +2968,14 @@ bool dCamera_c::useItem1EvCamera() {
         cXyz(-220.0f, 46.0f, 48.0f),
         cXyz(84.0f, 164.0f, -38.0f),
     };
-    int count6 = 3;
 
-    int count2 = 3;
-    struct UseItem1Data {
-        cXyz* center;
-        cXyz* eyes;
-        int count;
-        f32 fovy;
-        int timer;
-    };
-    UseItem1Data data_list[7] = {
-        {&ctr0, eyes0, count0, 65.0f, 45},
-        {&ctr1, eyes1, count1, 65.0f, 40},
-        {&ctr0, eyes0, count2, 65.0f, 40},
-        {&ctr3, eyes3, count3, 65.0f, 40},
-        {&ctr4, eyes4, count4, 70.0f, 10},
-        {&ctr5, eyes5, count5, 70.0f, 45},
-        {&ctr6, eyes6, count6, 65.0f, 40},
-    };
+    cXyz* centers[7] = {&ctr0, &ctr1, &ctr0, &ctr3, &ctr4, &ctr5, &ctr6};
+    cXyz* eyes[7] = {eyes0, eyes1, eyes0, eyes3, eyes4, eyes5, eyes6};
+    int counts[7] = {3, 4, 3, 3, 3, 3, 3};
+    f32 fovys[7] = {65.0f, 65.0f, 65.0f, 65.0f, 70.0f, 70.0f, 65.0f};
+    int timers[7] = {45, 40, 40, 40, 10, 45, 40};
 
-    cSAngle angV, angU;
+    cSAngle angU, angV;
     cXyz eye;
     int idx;
     bool ret = false;
@@ -2979,56 +2985,43 @@ bool dCamera_c::useItem1EvCamera() {
     }
 
     switch (work->mState) {
-    case 1:
-        goto state_1;
-    case 2:
-        goto state_2;
-    case 99:
-        goto state_99;
-    case 10:
-        goto state_10;
     default: {
         getEvIntData(&work->mType, "Type", 0);
         work->mStay = 0;
     }
         // fallthrough
-    state_10:
+    case 10:
         work->mCounter = 0;
         if ((m07C & 7) == 0 && work->mType >= 2 && work->mType < 4) {
-            cXyz tmp = data_list[work->mType].eyes[0];
-            data_list[work->mType].eyes[0] = data_list[work->mType].eyes[1];
-            data_list[work->mType].eyes[1] = tmp;
+            cXyz tmp = eyes[work->mType][0];
+            eyes[work->mType][0] = eyes[work->mType][1];
+            eyes[work->mType][1] = tmp;
         }
 
-        work->mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
-        for (idx = 0; idx < data_list[work->mType].count; idx++) {
-            eye = relationalPos(mpPlayerActor, &data_list[work->mType].eyes[idx]);
+        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
+        for (idx = 0; idx < counts[work->mType]; idx++) {
+            eye = relationalPos(mpPlayerActor, &eyes[work->mType][idx]);
             if (eye.y < m368 + positionOf(mpPlayerActor).y) {
                 eye.y = m368 + positionOf(mpPlayerActor).y;
             }
 
-            fopAc_ac_c* ship = NULL;
-            if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_SHIP_RIDE_e)) {
-                ship = fopAcM_SearchByName(fpcNm_SHIP_e);
-            }
-
             if (!lineBGCheck(&work->mCenter, &eye, 0x8f) &&
-                !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, ship))
+                !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, NULL))
             {
                 break;
             }
         }
 
         work->mGlobe.Val(eye - work->mCenter);
-        work->mFovy = data_list[work->mType].fovy;
-        work->mTimer = data_list[work->mType].timer;
+        work->mFovy = fovys[work->mType];
+        work->mTimer = timers[work->mType];
         work->mState = 1;
         break;
 
-    state_1: {
+    case 1: {
         f32 t = (f32)work->mCounter / (f32)work->mTimer;
         mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
-        work->mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
+        work->mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
         mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * t;
 
         f32 rad = mViewCache.mDirection.R();
@@ -3047,8 +3040,8 @@ bool dCamera_c::useItem1EvCamera() {
         work->mState = 2;
     }
         // fallthrough
-    state_2:
-        mViewCache.mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
+    case 2:
+        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         work->mStay++;
         if (work->mType == 0 && work->mStay == 1) {
@@ -3058,9 +3051,9 @@ bool dCamera_c::useItem1EvCamera() {
         }
         work->mState = 99;
         // fallthrough
-    state_99:
+    case 99:
         SkipSmoother();
-        mViewCache.mCenter = relationalPos(mpPlayerActor, data_list[work->mType].center);
+        mViewCache.mCenter = relationalPos(mpPlayerActor, centers[work->mType]);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         ret = true;
         break;
@@ -3166,6 +3159,7 @@ bool dCamera_c::getItemEvCamera() {
 
 bool dCamera_c::possessedEvCamera() {
     PossessedWork* work = (PossessedWork*)&mWork;
+    cXyz eye;
     bool ret = false;
 
     if (m11C == 0) {
@@ -3175,8 +3169,7 @@ bool dCamera_c::possessedEvCamera() {
     switch (work->mState) {
     case 0:
     default: {
-        work->mTarget = getEvActor("Target", "@PLAYER");
-        if (work->mTarget == NULL) {
+        if (!(work->mTarget = getEvActor("Target", "@PLAYER"))) {
             return true;
         }
 
@@ -3184,12 +3177,11 @@ bool dCamera_c::possessedEvCamera() {
         getEvIntData(&work->mTimer, "Timer", 10);
         getEvFloatData(&work->mRadius, "Radius", 60.0f);
         getEvFloatData(&work->mCushion, "Cushion", 1.0f);
-        f32 latitude;
-        getEvFloatData(&latitude, "Latitude", -5.0f);
-        work->mLatitude.Val(latitude);
-        f32 longitude;
-        getEvFloatData(&longitude, "Longitude", 0.0f);
-        work->mLongitude.Val(longitude);
+        f32 tmp;
+        getEvFloatData(&tmp, "Latitude", -5.0f);
+        work->mLatitude.Val(tmp);
+        getEvFloatData(&tmp, "Longitude", 0.0f);
+        work->mLongitude.Val(tmp);
         getEvFloatData(&work->mFovy, "Fovy", 45.0f);
         getEvIntData(&work->mBlure, "Blure", 0);
 
@@ -3210,19 +3202,22 @@ bool dCamera_c::possessedEvCamera() {
 
         work->mState = 1;
         work->mCounter = work->mTimer;
-        if (work->mBlure == 2) {
+        switch (work->mBlure) {
+        case 1:
+            ResetBlure(1);
+            SetBlurePositionType(0xb);
+            SetBlureTimer(work->mTimer);
+            SetBlureAlpha(0.5f);
+            dComIfGp_getVibration().StartShock(1, 0x20, cXyz(0.0f, 1.0f, 0.0f));
+            break;
+        case 2:
             ResetBlure(0);
             SetBlurePositionType(0xb);
             SetBlureTimer(work->mTimer);
             SetBlureAlpha(0.63f);
             SetBlureScale(0.99f);
             dComIfGp_getVibration().StartShock(1, 0x20, cXyz(0.0f, 1.0f, 0.0f));
-        } else if (work->mBlure == 1) {
-            ResetBlure(1);
-            SetBlurePositionType(0xb);
-            SetBlureTimer(work->mTimer);
-            SetBlureAlpha(0.5f);
-            dComIfGp_getVibration().StartShock(1, 0x20, cXyz(0.0f, 1.0f, 0.0f));
+            break;
         }
         break;
     }
@@ -3232,10 +3227,13 @@ bool dCamera_c::possessedEvCamera() {
         mViewCache.mDirection.R(mViewCache.mDirection.R() + t * (work->mGlobe.R() - mViewCache.mDirection.R()));
         mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->mGlobe.V() - mViewCache.mDirection.V()) * t);
         mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->mGlobe.U() - mViewCache.mDirection.U()) * t);
-        cXyz eye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        eye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mEye += (eye - mViewCache.mEye) * work->mCushion;
         mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
-        if (work->mBlure == 1) {
+        switch (work->mBlure) {
+        default:
+            break;
+        case 1: {
             dDlst_window_c* window = dComIfGp_getWindow(dComIfGp_getCameraWinID(fopCamM_GetParam(mpCamera)));
             cXyz attn = eyePos(work->mTarget);
             cXyz proj;
@@ -3244,6 +3242,8 @@ bool dCamera_c::possessedEvCamera() {
             SetBlurePosition(proj.x / viewport->mWidth, proj.y / viewport->mHeight, 0.0f);
             SetBlureAlpha(0.5f + 0.7f * t);
             SetBlureScale(1.1f + 0.09f * t, 0.98f - 0.18f * t, 0.0f);
+            break;
+        }
         }
         work->mCounter -= 1;
         if (work->mCounter <= 0) {
