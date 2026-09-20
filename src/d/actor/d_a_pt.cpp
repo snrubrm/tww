@@ -105,7 +105,6 @@ void smoke_set(pt_class* i_this, signed char param_2) {
     fopAc_ac_c* actor = i_this;
     if (i_this->mSmokeFlag == 0) {
         i_this->mSmokeCb.remove();
-        s8 roomNo = actor->current.roomNo;
         JPABaseEmitter* emitter = dComIfGp_particle_setToon(
             dPa_name::ID_AK_JT_ELEMENTSMOKE00,
             &actor->current.pos,
@@ -113,7 +112,7 @@ void smoke_set(pt_class* i_this, signed char param_2) {
             NULL,
             0xB9,
             &i_this->mSmokeCb,
-            roomNo
+            fopAcM_GetRoomNo(actor)
         );
         if (emitter != NULL) {
             emitter->setRate(3.0f);
