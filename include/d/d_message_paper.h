@@ -35,7 +35,7 @@ public:
     /* 0x10 */ cXyz mScale;
     /* 0x1C */ u8 field_0x1c[0x28 - 0x1C];
     /* 0x28 */ csXyz mRot;
-    /* 0x30 */ J3DModel* mpModel;
+    /* 0x30 */ J3DModel* mModel;
     /* 0x34 */ mDoExt_bckAnm mBck;
     /* 0x44 */ u8 field_0x44[0x48 - 0x44];
     /* 0x48 */ JKRSolidHeap* mpHeap;

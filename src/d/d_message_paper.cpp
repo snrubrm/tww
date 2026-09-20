@@ -54,7 +54,7 @@ static u8 dMsg3_tex_i4_color[] = {
 
 /* 801EB128-801EB420       .text setDummyTexture__10dmsg3_3d_cFv */
 void dmsg3_3d_c::setDummyTexture() {
-    J3DModelData* modeldata = mpModel->getModelData();
+    J3DModelData* modeldata = mModel->getModelData();
     J3DTexture* texture = modeldata->getTexture();
     JUTNameTab* textureName = modeldata->getTextureName();
     JUT_ASSERT(146, texture != NULL);
@@ -97,8 +97,8 @@ dmsg3_3d_c::dmsg3_3d_c() {
     J3DModelData* modelData = loadModelData(mpModelBin);
     JUT_ASSERT(213, modelData != NULL);
 
-    mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x37441422);
-    JUT_ASSERT(218, mpModel != NULL);
+    mModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x37441422);
+    JUT_ASSERT(218, mModel != NULL);
 
     J3DAnmTransform* bck = (J3DAnmTransform*)loadAnmTransformData(mpAnmBin);
     JUT_ASSERT(221, bck != NULL);
@@ -112,7 +112,7 @@ dmsg3_3d_c::dmsg3_3d_c() {
     mRot.y = -0x8000;
     mRot.z = 0;
     mScale.set(1.0f, 1.0f, 1.0f);
-    mpModel->setBaseScale(mScale);
+    mModel->setBaseScale(mScale);
     set_mtx();
 
     mDoExt_adjustSolidHeap(mpHeap);
@@ -130,7 +130,7 @@ dmsg3_3d_c::~dmsg3_3d_c() {
 void dmsg3_3d_c::set_mtx() {
     mDoMtx_stack_c::transS(0.0f, 0.0f, 0.0f);
     mDoMtx_ZXYrotM(mDoMtx_stack_c::now, mRot.x, mRot.y, mRot.z);
-    mpModel->setBaseTRMtx(mDoMtx_stack_c::now);
+    mModel->setBaseTRMtx(mDoMtx_stack_c::now);
 }
 
 /* 801EB808-801EB840       .text exec__10dmsg3_3d_cFv */
@@ -142,9 +142,9 @@ void dmsg3_3d_c::exec() {
 /* 801EB840-801EB8DC       .text draw__10dmsg3_3d_cFv */
 void dmsg3_3d_c::draw() {
     dComIfGd_setListFilter();
-    mBck.entry(mpModel->getModelData());
-    mDoExt_modelUpdateDL(mpModel);
-    mBck.remove(mpModel->getModelData());
+    mBck.entry(mModel->getModelData());
+    mDoExt_modelUpdateDL(mModel);
+    mBck.remove(mModel->getModelData());
     dComIfGd_setList();
 }
 
