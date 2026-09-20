@@ -620,7 +620,7 @@ bool daPz_c::demo() {
         dDemo_setDemoData(this, 0x6A, mpMorf, m_arc_name, 0, NULL, 0, 0);
     }
 
-    return *(bool*)&m0F66; // header declares m0F66 as u8; the original member is bool
+    return m0F66;
 }
 
 /* 00001954-00001EEC       .text checkTgHit__6daPz_cFv */

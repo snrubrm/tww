@@ -210,7 +210,7 @@ public:
     /* 0x0F58 */ cXyz mGanondorfPosEye;
     /* 0x0F64 */ u8 mbHasGanondorf;
     /* 0x0F65 */ u8 m0F65;
-    /* 0x0F66 */ u8 m0F66;
+    /* 0x0F66 */ bool m0F66;
     /* 0x0F67 */ u8 m0F67;
     /* 0x0F68 */ f32 mKnockback;
     /* 0x0F6C */ s16 mHitAngleY;

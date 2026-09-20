@@ -1785,7 +1785,7 @@ void dMenu_Item_c::arrowLightAnime() {
 }
 
 /* 801CDC34-801CDCF0       .text bottleFwaterCheck__12dMenu_Item_cFv */
-u8 dMenu_Item_c::bottleFwaterCheck() {
+int dMenu_Item_c::bottleFwaterCheck() {
     for (int i = 0; i < 4; i++) {
         int slot = i + 0xE;
         if (dComIfGs_getItem(slot) == dItemNo_FOREST_WATER_e) {
@@ -1797,7 +1797,7 @@ u8 dMenu_Item_c::bottleFwaterCheck() {
 }
 
 /* 801CDCF0-801CDDC0       .text recollectBossCheck__12dMenu_Item_cFv */
-u8 dMenu_Item_c::recollectBossCheck() {
+int dMenu_Item_c::recollectBossCheck() {
     if (dStage_stagInfo_GetSTType(dComIfGp_getStage().getStagInfo()) == dStageType_BOSS_e) {
         if (strcmp(dComIfGp_getStartStageName(), "Xboss0") == 0 ||
             strcmp(dComIfGp_getStartStageName(), "Xboss1") == 0 ||

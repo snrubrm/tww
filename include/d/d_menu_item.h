@@ -80,8 +80,8 @@ public:
     void itemCheck(int);
     void itemBitCheck(bool);
     void arrowLightAnime();
-    u8 bottleFwaterCheck();
-    u8 recollectBossCheck();
+    int bottleFwaterCheck();
+    int recollectBossCheck();
     void cornerMove();
     u8 equipBeastItem(int);
     virtual void _create();
