@@ -2019,19 +2019,10 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
 
 /* 8004B148-8004B1D0       .text isPointStayInDspNowRoomAgbScr__6dMap_cFss */
 BOOL dMap_c::isPointStayInDspNowRoomAgbScr(s16 param_1, s16 param_2) {
-    /* Nonmatching */
     BOOL ret = true;
-    if (param_1 < -8) {
+    f32 tmp;
+    if (param_1 < -8 || (tmp = mNowRoomInfoP->field_0x28, param_1 > 8.0f + tmp) || param_2 < -8 || (tmp = mNowRoomInfoP->field_0x2c, param_2 > 8.0f + tmp)) {
         ret = false;
-    } else {
-        dMap_RoomInfo_c* room = mNowRoomInfoP;
-        if ((f32)param_1 > room->field_0x28 + 8.0f) {
-            ret = false;
-        } else if (param_2 < -8) {
-            ret = false;
-        } else if ((f32)param_2 > room->field_0x2c + 8.0f) {
-            ret = false;
-        }
     }
     return ret;
 }
