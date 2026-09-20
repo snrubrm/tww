@@ -5690,10 +5690,12 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         f32 mix = camRatio;
         cSAngle shipYaw;
         if (check_owner_action1(mPadId, daPyStts1_UNK2_e)) {
-            shipYaw.Val(ship->getCraneAngle());
+            s16 crane = ship->getCraneAngle();
+            shipYaw.Val(crane);
             mix = 1.0f;
         } else {
-            shipYaw.Val(ship->mSailAngle);
+            s16 sail = ship->mSailAngle;
+            shipYaw.Val(sail);
         }
         posOffset.x -= (val1 * shipYaw.Sin()) * mix;
         posOffset.y += val8 * mix;
@@ -5715,8 +5717,8 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             cXyz wavePos = positionOf(work->m37C) + waveGlobe.Xyz();
             if (daSea_ChkArea(wavePos.x, wavePos.z)) {
                 wavePos.y = daSea_calcWave(wavePos.x, wavePos.z);
-                cSGlobe waveDir(wavePos - positionOf(work->m37C));
-                targetVdeg += (mix * waveDir.V().Degree()) * 0.8f;
+                waveGlobe.Val(wavePos - positionOf(work->m37C));
+                targetVdeg += (mix * waveGlobe.V().Degree()) * 0.8f;
             }
         }
         targetDir.Val(targetR, cAngle::d2s(targetVdeg), yaw.Inv());
@@ -5740,8 +5742,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         case 2: {
             timer = 8;
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
-            cXyz cush(val3, val4, val3);
-            mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * cush;
+            mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * cXyz(val3, val4, val3);
             mViewCache.mDirection.V(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
             break;
@@ -5757,7 +5758,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             break;
         }
         mViewCache.mFovy += ratio * (targetFovy - mViewCache.mFovy);
-        if (m11C >= (u32)(timer - 1)) {
+        if (m11C == (u32)(timer - 1)) {
             m102 = 1;
             m101 = 1;
             m100 = 1;
@@ -6042,7 +6043,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
             break;
         }
         mViewCache.mFovy += ratio * (targetFovy - mViewCache.mFovy);
-        if (m11C >= (u32)(timer - 1)) {
+        if (m11C == (u32)(timer - 1)) {
             m102 = 1;
             m101 = 1;
             m100 = 1;
