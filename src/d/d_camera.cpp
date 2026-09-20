@@ -3232,7 +3232,7 @@ bool dCamera_c::followCamera(s32 param_1) {
     else if (daNpc_Md_c::isFlying() || daNpc_kam_c::m_hyoi_kamome) {
         mWork.follow.m3D8 = 1;
     }
-    else if (check_owner_action1(mPadId, check_owner_action1(mPadId, daPyStts1_UNK40000_e | daPyStts1_DEKU_LEAF_FAN_e))) {
+    else if (check_owner_action1(mPadId, daPyStts1_UNK40000_e | daPyStts1_DEKU_LEAF_FAN_e)) {
         if (mWork.follow.m3D8) {
             mWork.follow.m3B8 = 0.05f;
         }
@@ -3264,7 +3264,7 @@ bool dCamera_c::followCamera(s32 param_1) {
 
         if (
             check_owner_action(mPadId, daPyStts0_UNK2000000_e | daPyStts0_HANG_e) ||
-            check_owner_action1(mPadId, check_owner_action1(mPadId, daPyStts1_UNK10000_e))
+            check_owner_action1(mPadId, daPyStts1_UNK10000_e)
         ) {
             if (mWork.follow.m38C == 0) {
                 if (local_4ac > cSAngle::_270 && local_4ac < cSAngle::_90) {
@@ -3415,7 +3415,7 @@ bool dCamera_c::followCamera(s32 param_1) {
     
     mWork.follow.m3A4 = positionOf(mpPlayerActor).y;
     
-    if (check_owner_action(mPadId, daPyStts0_UNK2000000_e | daPyStts0_HANG_e | daPyStts0_UNK40_e | daPyStts0_UNK20_e | daPyStts0_UNK1_e || check_owner_action1(mPadId, daPyStts1_UNK10000_e))) {
+    if (check_owner_action(mPadId, daPyStts0_UNK2000000_e | daPyStts0_HANG_e | daPyStts0_UNK40_e | daPyStts0_UNK20_e | daPyStts0_UNK1_e) || check_owner_action1(mPadId, daPyStts1_UNK10000_e)) {
         mWork.follow.m3B4 = 1;
     }
     else {
@@ -3539,8 +3539,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         work->m38C = 0;
         work->m39C = 0;
         work->m390 = mViewCache.mCenter;
-        cXyz cStack_150 = mViewCache.mCenter - attentionPos(mpPlayerActor);
-        work->m3A8.Val(cStack_150);
+        work->m3A8.Val(mViewCache.mCenter - attentionPos(mpPlayerActor));
         work->m3B4 = 0.0f;
         work->m3B0 = 0.0f;
         work->m3B8 = mCamSetup.Cushion4Base();
@@ -3574,7 +3573,8 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         work->m39D = 0;
     }
 
-    if ((attn.mFlags & AttnFlag_00000008) || (attn.mFlags & AttnFlag_00000020)) {
+    bool lockEdge = attn.chkFlag(AttnFlag_00000008) || attn.chkFlag(AttnFlag_00000020);
+    if (lockEdge) {
         m11C = 0;
         m108 = 0;
         clrFlag(0x100);
@@ -3616,14 +3616,15 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     cSAngle acStack_254 = local_230.U();
     cSAngle local_258 = mCamParam.LockonLongitude(fVar4);
 
-    if (m11C < iVar15 && chkFlag(0x100)) {
+    if (m11C < iVar15 && !chkFlag(0x100)) {
         local_258 *= (f32)m108 / (f32)iVar15;
     }
     else if (iVar15 <= m11C) {
         setFlag(0x100);
     }
 
-    cSAngle local_25c = mViewCache.mDirection.U().Inv() - acStack_254;
+    s16 invU = mViewCache.mDirection.U().Inv();
+    cSAngle local_25c = invU - acStack_254;
 
     if (local_25c < cSAngle::_0) {
         work->m3A0 = 0;
@@ -3641,7 +3642,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         cXyz local_114 = attentionPos(mpPlayerActor);
         if (!pointInSight(&local_114)) {
             if (work->m388 == 0) {
-                work->m3A4 = work->m3A0 ? 0 : 1;
+                work->m3A4 = (1 - work->m3A0) != 0;
             }
             bVar6 = true;
             work->m388 = r28;
@@ -3655,13 +3656,13 @@ bool dCamera_c::lockonCamera(s32 param_1) {
 
     if (work->m388) {
         work->m388--;
-        if (work->m388 && mStickMainValueLast <= 0.1f) {
+        if (work->m388 == 0 && mStickMainValueLast <= 0.1f) {
             work->m388 = 1;
         }
         bVar6 = true;
     }
 
-    f32 fVar5 = mStickCPosYLast; 
+    f32 fVar5 = 1.0f - std::fabsf(mStickCPosYLast);
     dCamMath::customRBRatio(mCamParam.RadiusRatio(mViewCache.mDirection.R()), fVar3);
 
     if (chkFlag(0x10)) {
@@ -3696,17 +3697,16 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         if (std::fabsf(dVar18) < std::fabsf(dVar19)) {
           dVar19 = dVar18;
         }
-        dVar19 = (local_230.R() - dVar17 * 0.05f * 2.0f) * std::fabsf(dVar19 * -0.5f + 0.5f);
+        dVar19 = (local_230.R() - dVar17 * (0.05 * 2.0)) * std::fabsf(dVar19 * -0.5 + 0.5);
     }
     else {
-        dVar19 = local_230.R() * std::fabsf(local_25c.Cos() * -0.5f + 0.5f);
+        dVar19 = local_230.R() * std::fabsf(local_25c.Cos() * -0.5 + 0.5);
     }
 
     cSAngle acStack_260 = local_230.U();
     work->m3B4 += (fVar21 - work->m3B4) * mCamSetup.CusCus();
     work->m3B0 += (fVar2 - work->m3B0) * mCamSetup.CusCus();
-    cSAngle temp(work->m3B0 + 2);
-    cSAngle acStack_264 = temp + (acStack_260 - temp) * work->m3B4;
+    cSAngle acStack_264 = work->m3A8.U() + (acStack_260 - work->m3A8.U()) * work->m3B4;
     cSAngle acStack_268;
     if (bVar6) {
         fVar2 = work->m3A8.R() * 0.75f;
@@ -5601,8 +5601,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             };
             cSGlobe globe(tornadoOff0[m07C & 1]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            bool plus = (target - yaw) > cSAngle::_0;
-            if (plus) {
+            if ((target - yaw) > cSAngle::_0) {
                 globe.V(yaw + globe.U());
             } else {
                 globe.V(yaw - globe.U());
@@ -5620,8 +5619,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             };
             cSGlobe globe(tornadoOff1[m07C & 1]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            bool plus = (target - yaw) > cSAngle::_0;
-            if (plus) {
+            if ((target - yaw) > cSAngle::_0) {
                 globe.V(yaw + globe.U());
             } else {
                 globe.V(yaw - globe.U());
@@ -5647,8 +5645,8 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         work->m37C = NULL;
     }
 
-    f32 targetR = val10 + camRatio * (camRatio * val13);
-    f32 targetVdeg = val15 + camRatio * (camRatio * val18);
+    f32 targetR = val10 + val13 * camRatio * camRatio;
+    f32 targetVdeg = val15 + val18 * camRatio * camRatio;
     f32 targetFovy = val25 + val28 * camRatio;
 
     cSGlobe targetDir;
@@ -5842,8 +5840,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
             };
             cSGlobe globe(cannonOff[m07C & 3]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            bool plus = (target - work->m3B0) > cSAngle::_0;
-            if (plus) {
+            if ((target - work->m3B0) > cSAngle::_0) {
                 globe.V(work->m3B0 + globe.U());
             } else {
                 globe.V(work->m3B0 - globe.U());
@@ -5863,8 +5860,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
             };
             cSGlobe globe(craneOff[m07C & 3]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            bool plus = (target - work->m3B0) > cSAngle::_0;
-            if (plus) {
+            if ((target - work->m3B0) > cSAngle::_0) {
                 globe.V(work->m3B0 + globe.U());
             } else {
                 globe.V(work->m3B0 - globe.U());
@@ -5927,8 +5923,8 @@ bool dCamera_c::rideCamera(s32 param_1) {
     work->m3B8 += 0.08f * (val13 - work->m3B8);
     work->m3BC += 0.08f * (val15 - work->m3BC);
     work->m3C0 += 0.08f * (val18 - work->m3C0);
-    f32 targetR = work->m3B4 + speedRatio * (speedRatio * work->m3B8);
-    f32 targetVdeg = work->m3BC + speedRatio * (speedRatio * work->m3C0);
+    f32 targetR = work->m3B4 + work->m3B8 * speedRatio * speedRatio;
+    f32 targetVdeg = work->m3BC + work->m3C0 * speedRatio * speedRatio;
     f32 targetFovy = val25 + val28 * speedRatio;
 
     cSGlobe targetDir;
