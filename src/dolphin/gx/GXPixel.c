@@ -114,9 +114,9 @@ void GXSetFogRangeAdj(GXBool enable, u16 center, GXFogAdjTable* table) {
 void GXSetBlendMode(GXBlendMode type, GXBlendFactor src_factor, GXBlendFactor dst_factor,
                     GXLogicOp op) {
     u32 blendModeReg = gx->cmode0;
-    blendModeReg = __rlwimi(blendModeReg, __cntlzw(GX_BM_SUBTRACT - type), 6, 20, 20);
+    blendModeReg = __rlwimi(blendModeReg, type == GX_BM_SUBTRACT, 11, 20, 20);
     blendModeReg = __rlwimi(blendModeReg, type, 0, 31, 31);
-    blendModeReg = __rlwimi(blendModeReg, __cntlzw(GX_BM_LOGIC - type), 28, 30, 30);
+    blendModeReg = __rlwimi(blendModeReg, type == GX_BM_LOGIC, 1, 30, 30);
     blendModeReg = __rlwimi(blendModeReg, op, 12, 16, 19);
     blendModeReg = __rlwimi(blendModeReg, src_factor, 8, 21, 23);
     blendModeReg = __rlwimi(blendModeReg, dst_factor, 5, 24, 26);
@@ -159,35 +159,28 @@ void GXSetZCompLoc(GXBool beforeTex) {
 }
 
 void GXSetPixelFmt(GXPixelFmt pixelFmt, GXZFmt16 zFmt) {
-    GXBool isZ16;
+    u32 oldPeCtrl;
+    u8 aa;
     static u32 p2f[GX_PF_MAX] = {GX_PF_RGB8_Z24, GX_PF_RGBA6_Z24, GX_PF_RGB565_Z16, GX_PF_Z24,
                                  GX_PF_Y8,       GX_PF_Y8,        GX_PF_Y8,         GX_PF_U8};
 
-    const u32 zControlRegOld = gx->peCtrl;
-
-    GX_SET_REG(gx->peCtrl, p2f[pixelFmt], GX_BP_ZCONTROL_PIXEL_FMT_ST,
-               GX_BP_ZCONTROL_PIXEL_FMT_END);
-    GX_SET_REG(gx->peCtrl, zFmt, GX_BP_ZCONTROL_Z_FMT_ST, GX_BP_ZCONTROL_Z_FMT_END);
-
-    if (zControlRegOld != gx->peCtrl) {
+    oldPeCtrl = gx->peCtrl;
+    SET_REG_FIELD(gx->peCtrl, 3, 0, p2f[pixelFmt]);
+    SET_REG_FIELD(gx->peCtrl, 3, 3, zFmt);
+    if (oldPeCtrl != gx->peCtrl) {
         GX_BP_LOAD_REG(gx->peCtrl);
-        isZ16 = (pixelFmt == GX_PF_RGB565_Z16) ? GX_TRUE : GX_FALSE;
-        GX_SET_REG(gx->genMode, isZ16, GX_BP_GENMODE_MULTISAMPLE_ST,
-                   GX_BP_GENMODE_MULTISAMPLE_END);
+        if (pixelFmt == GX_PF_RGB565_Z16)
+            aa = 1;
+        else
+            aa = 0;
+        SET_REG_FIELD(gx->genMode, 1, 9, aa);
         gx->dirtyState |= GX_DIRTY_GEN_MODE;
     }
-
     if (p2f[pixelFmt] == GX_PF_Y8) {
-        u32 cmode1;
-        pixelFmt = pixelFmt - GX_PF_Y8;
-        cmode1 = gx->cmode1;
-        cmode1 = cmode1 & ~0x600;
-        cmode1 = __rlwimi(cmode1, pixelFmt, 9, 21, 22);
-        gx->cmode1 = cmode1;
-        GX_SET_REG(gx->cmode1, GX_BP_REG_DSTALPHA, 0, 7);
+        SET_REG_FIELD(gx->cmode1, 2, 9, (pixelFmt - GX_PF_Y8) & 0x3);
+        SET_REG_FIELD(gx->cmode1, 8, 24, GX_BP_REG_DSTALPHA);
         GX_BP_LOAD_REG(gx->cmode1);
     }
-
     gx->bpSentNot = FALSE;
 }
 
