@@ -31,6 +31,7 @@
 #include "d/actor/d_a_tsubo.h"
 #include "d/actor/d_a_npc_cb1.h"
 #include "d/actor/d_a_canon.h"
+#include "d/actor/d_a_hookshot.h"
 
 namespace {  
     static f32 limitf(f32 value, f32 min, f32 max) {
@@ -144,6 +145,14 @@ namespace {
         /* 0x3E8 */ fopAc_ac_c* m3E8;
         /* 0x3EC */ s16 m3EC;
         /* 0x3EE */ s16 m3EE;
+    };
+
+    struct HookshotWork {
+        /* 0x378 */ int m378;
+        /* 0x37C */ u8 m37C[0x380 - 0x37C];
+        /* 0x380 */ cXyz m380;
+        /* 0x38C */ cXyz m38C;
+        /* 0x398 */ u8 m398;
     };
 }  // namespace
 
@@ -4894,8 +4903,104 @@ bool dCamera_c::crawlCamera(s32 param_1) {
 }
 
 /* 8017346C-80173E40       .text hookshotCamera__9dCamera_cFl */
-bool dCamera_c::hookshotCamera(s32) {
-    /* Nonmatching */
+bool dCamera_c::hookshotCamera(s32 param_1) {
+    f32 val1 = mCamParam.Val(param_1, 1);
+    f32 val5 = mCamParam.Val(param_1, 5);
+    f32 val0 = mCamParam.Val(param_1, 0);
+    f32 val4 = mCamParam.Val(param_1, 4);
+    f32 val3 = mCamParam.Val(param_1, 3);
+    f32 val10 = mCamParam.Val(param_1, 10);
+    f32 val11 = mCamParam.Val(param_1, 11);
+    f32 val14 = mCamParam.Val(param_1, 14);
+    f32 val23 = mCamParam.Val(param_1, 23);
+    f32 val25 = mCamParam.Val(param_1, 25);
+
+    cXyz offsets[4] = {
+        cXyz(180.0f, 40.0f, -120.0f),
+        cXyz(160.0f, 80.0f, -160.0f),
+        cXyz(150.0f, -80.0f, -100.0f),
+        cXyz(100.0f, -120.0f, -140.0f),
+    };
+    cXyz eyeRef;
+    cXyz posOffset(val1, val5, val0);
+    f32 fovy;
+
+    HookshotWork* hook = (HookshotWork*)&mWork;
+
+    if (m11C == 0) {
+        hook->m378 = 'HOOK';
+        hook->m380 = mViewCache.mCenter;
+
+        fpc_ProcID itemId = ((daPy_py_c*)mpPlayerActor)->getItemID();
+        hook->m398 = 0;
+        if (itemId != fpcM_ERROR_PROCESS_ID_e) {
+            daHookshot_c* hookshot = (daHookshot_c*)fopAcM_SearchByID(itemId);
+            cXyz playerPos = positionOf(mpPlayerActor);
+            cXyz delta = positionOf(hookshot) - playerPos;
+
+            if (delta.abs() > val14) {
+                bool flip = (m07C & 0x10) != 0;
+                for (int i = 0; i < 8; i++) {
+                    cXyz off = offsets[(m07C + i) & 3];
+                    if (flip) {
+                        off.x = -off.x;
+                    }
+
+                    cSGlobe globe(off);
+                    globe.V(globe.U() + hookshot->getHookAngle()->y);
+                    globe.U(globe.V() + hookshot->getHookAngle()->x);
+                    hook->m38C = positionOf(hookshot) + globe.Xyz();
+
+                    dBgS_CamLinChk_NorWtr lin_chk;
+                    if (!lineBGCheck(&playerPos, &hook->m38C, &lin_chk, 0xf)) {
+                        hook->m398 = 1;
+                        break;
+                    }
+                    if (i == 3) {
+                        flip = !flip;
+                    }
+                }
+            }
+        }
+
+        m102 = 1;
+        m101 = 1;
+        m100 = 1;
+        return true;
+    } else {
+        if (hook->m398 && m11C > 8) {
+            eyeRef = hook->m38C;
+            fovy = val25;
+            val23 = 1.0f;
+        } else {
+            eyeRef = mEye;
+            fovy = val25;
+        }
+
+        cXyz cushion(val3, val4, val3);
+        cXyz targetCenter = relationalPos(mpPlayerActor, &posOffset);
+
+        if (m31D) {
+            dComIfG_Bgsp()->MoveBgMatrixCrrPos(mBG.m5C.m04, true, &hook->m380, NULL, NULL);
+            dComIfG_Bgsp()->MoveBgMatrixCrrPos(mBG.m5C.m04, true, &hook->m38C, NULL, NULL);
+        }
+
+        mViewCache.mCenter += (targetCenter - mViewCache.mCenter) * cushion;
+        cSGlobe dirGlobe(eyeRef - mViewCache.mCenter);
+        if (dirGlobe.R() < val11) {
+            dirGlobe.R(val11);
+        }
+        if (dirGlobe.R() > val10) {
+            dirGlobe.R(val10);
+        }
+
+        mViewCache.mDirection.R(mViewCache.mDirection.R() + (dirGlobe.R() - mViewCache.mDirection.R()) * val23);
+        mViewCache.mDirection.U(mViewCache.mDirection.V() + (dirGlobe.V() - mViewCache.mDirection.V()) * val23);
+        mViewCache.mDirection.V(mViewCache.mDirection.U() + (dirGlobe.U() - mViewCache.mDirection.U()) * val23);
+        mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+        mViewCache.mFovy += (fovy - mViewCache.mFovy) * val23;
+        return true;
+    }
 }
 
 /* 80173E40-80174E98       .text tornadoCamera__9dCamera_cFl */
