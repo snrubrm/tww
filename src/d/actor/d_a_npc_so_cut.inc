@@ -711,8 +711,8 @@ void daNpc_So_c::cutPartnerShipStart() {}
 
 /* 00007820-00007878       .text cutPartnerShipProc__10daNpc_So_cFv */
 void daNpc_So_c::cutPartnerShipProc() {
-    fopAc_ac_c* actor = dComIfGp_getShipActor();
-    dComIfGp_event_setTalkPartner(actor);
+    daShip_c* ship = dComIfGp_getShipActor();
+    dComIfGp_event_setTalkPartner(ship);
     dComIfGp_evmng_cutEnd(mStaffIdx);
 }
 
