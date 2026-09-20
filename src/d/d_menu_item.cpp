@@ -1173,79 +1173,77 @@ void dMenu_Item_c::itemnoteSet() {
     ((J2DTextBox*)m778.pane)->setFontSize(fontSize);
     ((J2DTextBox*)m778.pane)->setLineSpace(g_msgHIO.field_0x5e);
 
-    if (dComIfGs_getItem(mNowItem) == dItemNo_NONE_e) {
-        return;
-    }
-
-    msgNo = dItem_data::getItemMesgNum(dComIfGs_getItem(mNowItem));
-    if (msgNo == 0) {
-        msgNo = 0x264;
-    } else {
-        msgNo = msgNo + 0xC8;
-    }
-
-    mesg_header* head_p = msgGet.getMesgHeader(msgNo);
-    JUT_ASSERT(0x5F1, head_p);
-
-    const char* mesg = msgGet.getMessage(head_p);
-    JMSMesgEntry_c msg_entry;
-    msg_entry = msgGet.getMesgEntry(head_p);
-
-    msgProc.dataInit();
-    msgProc.setBmgData((char*)mesg);
-    msgProc.setOutMessage(note[0], note[1], dummy[0], dummy[1]);
-    msgProc.setFont(mFont);
-    msgProc.setRubyFont(mRFont);
-    msgProc.setCharSpace(((J2DTextBox*)m778.pane)->getCharSpace());
-    msgProc.setRubyCharSpace(((J2DTextBox*)m740.pane)->getCharSpace());
-    msgProc.setLineSpace(((J2DTextBox*)m778.pane)->getLineSpace());
-    msgProc.setMesgEntry(&msg_entry);
-    msgProc.setFontSize(fontSize.mSizeX);
-    msgProc.setRubyFontSize(rubySize);
-    msgProc.setLineWidth(0x1FE);
-    msgProc.setCenterLineWidth(0x1E6);
-    msgProc.setSendSpeed(2);
-    msgProc.setSpaceTimer(0);
-    msgProc.shortCut();
-    msgProc.setSpaceFlagOff();
-
-    msgProc.stringLength();
-    msgProc.stringShift();
-    msgProc.iconIdxRefresh();
-
-    s16 lineCount = msgProc.getLineCount();
-    msgProc.setLineCount(0);
-    f32 lineSpace = ((J2DTextBox*)m778.pane)->getLineSpace();
-    int unusedLines = 3 - lineCount;
-    f32 shiftY = unusedLines * (lineSpace / 2.0f);
-    ((J2DTextBox*)m740.pane)->shiftSet(0.0f, shiftY);
-    ((J2DTextBox*)m778.pane)->shiftSet(0.0f, shiftY);
-    msgProc.stringSet();
-
-    ((J2DTextBox*)m778.pane)->setString(note[0]);
-    ((J2DTextBox*)m740.pane)->setString(note[1]);
-
-    int halfSpace = ((J2DTextBox*)m778.pane)->getLineSpace() / 2.0f;
-    for (int i = 0; i < 15; i++) {
-        u8 iconNo = msgProc.getIconNum(i);
-        u32 color = msgProc.getIconColor(i);
-        if (color == 0xFFFFFFFF) {
-            color = 0xFF;
+    if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
+        msgNo = dItem_data::getItemMesgNum(dComIfGs_getItem(mNowItem));
+        if (msgNo == 0) {
+            msgNo = 0x264;
+        } else {
+            msgNo = msgNo + 0xC8;
         }
-        if (iconNo == 0xFF) {
-            continue;
-        }
-        if (m0B0[i].mUserArea != -1) {
-            continue;
-        }
-        if (iconNo == fopMsgM_Icon_INPUT_e) {
-            continue;
-        }
-        m0B0[i].mPosTopLeft.x = (f32)msgProc.getIconPosX(i);
-        m0B0[i].mPosTopLeft.y = (f32)(halfSpace * (unusedLines + msgProc.getIconPosY(i) * 2));
-        m0B0[i].mPosTopLeftOrig.y = (f32)iconNo;
 
-        fopMsgM_outFontSet((J2DPicture*)m0B0[i].pane, &m0B0[i].mUserArea, color, iconNo);
+        mesg_header* head_p = msgGet.getMesgHeader(msgNo);
+        JUT_ASSERT(0x5F1, head_p);
+
+        const char* mesg = msgGet.getMessage(head_p);
+        JMSMesgEntry_c msg_entry;
+        msg_entry = msgGet.getMesgEntry(head_p);
+
+        msgProc.dataInit();
+        msgProc.setBmgData((char*)mesg);
+        msgProc.setOutMessage(note[0], note[1], dummy[0], dummy[1]);
+        msgProc.setFont(mFont);
+        msgProc.setRubyFont(mRFont);
+        msgProc.setCharSpace(((J2DTextBox*)m778.pane)->getCharSpace());
+        msgProc.setRubyCharSpace(((J2DTextBox*)m740.pane)->getCharSpace());
+        msgProc.setLineSpace(((J2DTextBox*)m778.pane)->getLineSpace());
+        msgProc.setMesgEntry(&msg_entry);
+        msgProc.setFontSize(fontSize.mSizeX);
+        msgProc.setRubyFontSize(rubySize);
+        msgProc.setLineWidth(0x1FE);
+        msgProc.setCenterLineWidth(0x1E6);
+        msgProc.setSendSpeed(2);
+        msgProc.setSpaceTimer(0);
+        msgProc.shortCut();
+        msgProc.setSpaceFlagOff();
+
+        msgProc.stringLength();
+        msgProc.stringShift();
+        msgProc.iconIdxRefresh();
+
+        s16 lineCount = msgProc.getLineCount();
+        msgProc.setLineCount(0);
+        f32 lineSpace = ((J2DTextBox*)m778.pane)->getLineSpace();
+        int unusedLines = 3 - lineCount;
+        f32 shiftY = unusedLines * (lineSpace / 2.0f);
+        ((J2DTextBox*)m740.pane)->shiftSet(0.0f, shiftY);
+        ((J2DTextBox*)m778.pane)->shiftSet(0.0f, shiftY);
+        msgProc.stringSet();
+
+        ((J2DTextBox*)m778.pane)->setString(note[0]);
+        ((J2DTextBox*)m740.pane)->setString(note[1]);
+
+        int halfSpace = ((J2DTextBox*)m778.pane)->getLineSpace() / 2.0f;
+        for (int i = 0; i < 15; i++) {
+            u8 iconNo = msgProc.getIconNum(i);
+            u32 color = msgProc.getIconColor(i);
+            if (color == 0xFFFFFFFF) {
+                color = 0xFF;
+            }
+            if (iconNo == 0xFF) {
+                continue;
+            }
+            if (m0B0[i].mUserArea != -1) {
+                continue;
+            }
+            if (iconNo == fopMsgM_Icon_INPUT_e) {
+                continue;
+            }
+            m0B0[i].mPosTopLeft.x = (f32)msgProc.getIconPosX(i);
+            m0B0[i].mPosTopLeft.y = (f32)(halfSpace * (unusedLines + msgProc.getIconPosY(i) * 2));
+            m0B0[i].mPosTopLeftOrig.y = (f32)iconNo;
+
+            fopMsgM_outFontSet((J2DPicture*)m0B0[i].pane, &m0B0[i].mUserArea, color, iconNo);
+        }
     }
 }
 
@@ -1697,10 +1695,11 @@ void dMenu_Item_c::itemCheck(int i_slot) {
                 itemNo == dItemNo_WATER_BOTTLE_e ||
                 ((u8)(itemNo - dItemNo_FIREFLY_BOTTLE_e) <= 1))))
             {
-                cXyz pos;
-                pos.y = m1658[i_slot].mPosCenter.y - 240.0f;
-                pos.x = m1658[i_slot].mPosCenter.x - 320.0f;
-                pos.z = 0.0f;
+                cXyz pos(
+                    m1658[i_slot].mPosCenter.x - 320.0f,
+                    m1658[i_slot].mPosCenter.y - 240.0f,
+                    0.0f
+                );
 
                 if (m23B8[0] == NULL) {
                     m23B8[0] = dComIfGp_particle_set2DmenuFore(0x2D, &pos);
@@ -1718,12 +1717,11 @@ void dMenu_Item_c::itemCheck(int i_slot) {
         ((J2DPicture*)m1AF0[i_slot].pane)->changeTexture((ResTIMG*)mItemTexBuffer[i_slot], 0);
 
         if (i_slot == 8) {
-            u8 picto = dComIfGs_getItem(i_slot);
-            if (picto == dItemNo_PICTO_BOX_e) {
+            if (dComIfGs_getItem(i_slot) == dItemNo_PICTO_BOX_e) {
                 m1658[i_slot].pane->show();
                 m1AF0[i_slot].pane->show();
                 m1540.pane->show();
-            } else if (picto == dItemNo_DELUXE_PICTO_BOX_e) {
+            } else if (dComIfGs_getItem(i_slot) == dItemNo_DELUXE_PICTO_BOX_e) {
                 m1658[i_slot].pane->show();
                 m1AF0[i_slot].pane->show();
                 m1540.pane->show();
@@ -2349,13 +2347,11 @@ bool dMenu_Item_c::_open() {
 
         itemnameSet();
 
-        if (mNowItem == 0x15 || (recollectBossCheck() && (
+        if (mNowItem != 0x15 && !(recollectBossCheck() && (
             dComIfGs_getItem(mNowItem) == dItemNo_WATER_BOTTLE_e ||
             dComIfGs_getItem(mNowItem) == dItemNo_FIREFLY_BOTTLE_e ||
             dComIfGs_getItem(mNowItem) == dItemNo_FOREST_WATER_e)))
         {
-            dComIfGp_setDoStatusForce(dActStts_CHOOSE_e);
-        } else {
             itemnoteSet();
 
             if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
@@ -2364,6 +2360,8 @@ bool dMenu_Item_c::_open() {
                 dComIfGp_setDoStatusForce(dActStts_BLANK_e);
                 dComIfGp_setDoStatus(dActStts_BLANK_e);
             }
+        } else {
+            dComIfGp_setDoStatusForce(dActStts_CHOOSE_e);
         }
     }
 
@@ -2529,13 +2527,11 @@ bool dMenu_Item_c::_open2() {
 
         itemnameSet();
 
-        if (mNowItem == 0x15 || (recollectBossCheck() && (
+        if (mNowItem != 0x15 && !(recollectBossCheck() && (
             dComIfGs_getItem(mNowItem) == dItemNo_WATER_BOTTLE_e ||
             dComIfGs_getItem(mNowItem) == dItemNo_FIREFLY_BOTTLE_e ||
             dComIfGs_getItem(mNowItem) == dItemNo_FOREST_WATER_e)))
         {
-            dComIfGp_setDoStatusForce(dActStts_CHOOSE_e);
-        } else {
             itemnoteSet();
 
             if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
@@ -2544,6 +2540,8 @@ bool dMenu_Item_c::_open2() {
                 dComIfGp_setDoStatusForce(dActStts_BLANK_e);
                 dComIfGp_setDoStatus(dActStts_BLANK_e);
             }
+        } else {
+            dComIfGp_setDoStatusForce(dActStts_CHOOSE_e);
         }
     }
 
