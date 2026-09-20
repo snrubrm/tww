@@ -139,27 +139,22 @@ GXFifoObj* GXInit(void* base, u32 size) {
     gx->iref = 0;
     SET_REG_FIELD(gx->iref, 8, 24, 0x27);
 
-    for (i = 0; i < 2; i++) {
-        u32 j = i * 4;
-        gx->suTs0[j] = 0;
-        gx->suTs1[j] = 0;
-        SET_REG_FIELD(gx->suTs0[j], 8, 24, 0x30 + j * 2);
-        SET_REG_FIELD(gx->suTs1[j], 8, 24, 0x31 + j * 2);
-        j++;
-        gx->suTs0[j] = 0;
-        gx->suTs1[j] = 0;
-        SET_REG_FIELD(gx->suTs0[j], 8, 24, 0x30 + j * 2);
-        SET_REG_FIELD(gx->suTs1[j], 8, 24, 0x31 + j * 2);
-        j++;
-        gx->suTs0[j] = 0;
-        gx->suTs1[j] = 0;
-        SET_REG_FIELD(gx->suTs0[j], 8, 24, 0x30 + j * 2);
-        SET_REG_FIELD(gx->suTs1[j], 8, 24, 0x31 + j * 2);
-        j++;
-        gx->suTs0[j] = 0;
-        gx->suTs1[j] = 0;
-        SET_REG_FIELD(gx->suTs0[j], 8, 24, 0x30 + j * 2);
-        SET_REG_FIELD(gx->suTs1[j], 8, 24, 0x31 + j * 2);
+    {
+        int op = 0x30;
+        for (i = 0; i < 8; ) {
+            gx->suTs0[i] = 0;
+            gx->suTs1[i] = 0;
+            SET_REG_FIELD(gx->suTs0[i], 8, 24, op);
+            SET_REG_FIELD(gx->suTs1[i], 8, 24, op + 1);
+            i++;
+            op += 2;
+            gx->suTs0[i] = 0;
+            gx->suTs1[i] = 0;
+            SET_REG_FIELD(gx->suTs0[i], 8, 24, op);
+            SET_REG_FIELD(gx->suTs1[i], 8, 24, op + 1);
+            i++;
+            op += 2;
+        }
     }
 
     SET_REG_FIELD(gx->suScis0, 8, 24, 0x20);
@@ -188,31 +183,19 @@ GXFifoObj* GXInit(void* base, u32 size) {
 
     {
         u8 cpCmd = 8;
-        for (i = 0; i < 2; i++) {
-            u32 j = i * 4;
-            SET_REG_FIELD(gx->vatA[j], 1, 30, 1);
-            SET_REG_FIELD(gx->vatB[j], 1, 31, 1);
+        for (i = 0; i < 8; ) {
+            SET_REG_FIELD(gx->vatA[i], 1, 30, 1);
+            SET_REG_FIELD(gx->vatB[i], 1, 31, 1);
             GX_WRITE_U8(cpCmd);
-            GX_WRITE_U8(j | 0x80);
-            GX_WRITE_U32(gx->vatB[j]);
-            j++;
-            SET_REG_FIELD(gx->vatA[j], 1, 30, 1);
-            SET_REG_FIELD(gx->vatB[j], 1, 31, 1);
+            GX_WRITE_U8(i | 0x80);
+            GX_WRITE_U32(gx->vatB[i]);
+            i++;
+            SET_REG_FIELD(gx->vatA[i], 1, 30, 1);
+            SET_REG_FIELD(gx->vatB[i], 1, 31, 1);
             GX_WRITE_U8(cpCmd);
-            GX_WRITE_U8(j | 0x80);
-            GX_WRITE_U32(gx->vatB[j]);
-            j++;
-            SET_REG_FIELD(gx->vatA[j], 1, 30, 1);
-            SET_REG_FIELD(gx->vatB[j], 1, 31, 1);
-            GX_WRITE_U8(cpCmd);
-            GX_WRITE_U8(j | 0x80);
-            GX_WRITE_U32(gx->vatB[j]);
-            j++;
-            SET_REG_FIELD(gx->vatA[j], 1, 30, 1);
-            SET_REG_FIELD(gx->vatB[j], 1, 31, 1);
-            GX_WRITE_U8(cpCmd);
-            GX_WRITE_U8(j | 0x80);
-            GX_WRITE_U32(gx->vatB[j]);
+            GX_WRITE_U8(i | 0x80);
+            GX_WRITE_U32(gx->vatB[i]);
+            i++;
         }
     }
 
