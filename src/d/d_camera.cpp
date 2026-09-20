@@ -1803,7 +1803,7 @@ cXyz dCamera_c::relationalPos(fopAc_ac_c* i_actor, cXyz* i_offset) {
 
     cSGlobe offset_globe(*i_offset);
 
-    offset_globe.V(directionOf(i_actor) + offset_globe.U());
+    offset_globe.U(directionOf(i_actor) + offset_globe.U());
 
     return attentionPos(i_actor) + offset_globe.Xyz();
 }
@@ -1816,7 +1816,7 @@ cXyz dCamera_c::relationalPos(fopAc_ac_c* i_actor, cXyz* i_offset, cSAngle param
 
     cSGlobe offset_globe(*i_offset);
 
-    offset_globe.V(directionOf(i_actor) + offset_globe.U() + param_2);
+    offset_globe.U(directionOf(i_actor) + offset_globe.U() + param_2);
 
     return attentionPos(i_actor) + offset_globe.Xyz();
 }
@@ -1839,7 +1839,7 @@ cXyz dCamera_c::relationalPos(fopAc_ac_c* i_actor1, fopAc_ac_c* i_actor2, cXyz* 
     cSGlobe delta_globe(pos2 - pos1);
     cSGlobe offset_globe(*i_offset);
 
-    offset_globe.V(directionOf(i_actor1) + offset_globe.U());
+    offset_globe.U(directionOf(i_actor1) + offset_globe.U());
     
     cSAngle acStack_104 = mViewCache.mDirection.U() - delta_globe.U();
     delta_globe.R(0.5f * delta_globe.R() * acStack_104.Cos() * param_3);
@@ -2349,7 +2349,7 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
         if (direction.V() < cStack_3e4.V()) {
             cSAngle local_408 = mDirection.V();
             local_408 += (cStack_3e4.V() - local_408) * 0.05f;
-            direction.U(local_408);
+            direction.V(local_408);
             eye = mViewCache.mCenter + direction.Xyz();
             res |= 0x20;
         }
@@ -2415,8 +2415,8 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
                     globe.Val(m070 - mCenter);
 
                     mDirection.R(direction.R());
-                    mDirection.U(mDirection.V() + (globe.V() - mDirection.V()) * 0.05f);
-                    mDirection.V(mDirection.U() + (globe.U() - mDirection.U()) * corner_cushion);
+                    mDirection.V(mDirection.V() + (globe.V() - mDirection.V()) * 0.05f);
+                    mDirection.U(mDirection.U() + (globe.U() - mDirection.U()) * corner_cushion);
 
                     local_2b4 = mCenter + mDirection.Xyz();
                     globe.R(globe.R() + 50.0f);
@@ -2464,7 +2464,7 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
                         local_2e4 = *plane1->GetNP();
 
                         cSGlobe globe(local_2e4);
-                        globe.U(globe.V() + cSAngle::_90);
+                        globe.V(globe.V() + cSAngle::_90);
                         globe.R(dVar14 * globe.V().Sin());
 
                         local_284 += globe.Xyz();
@@ -2527,8 +2527,8 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
             }
 
             mDirection.R(mDirection.R() + (mViewCache.mDirection.R() - mDirection.R()) * fVar2);
-            mDirection.U(mDirection.V() + (mViewCache.mDirection.V() - mDirection.V()) * fVar2);
-            mDirection.V(mViewCache.mDirection.U());
+            mDirection.V(mDirection.V() + (mViewCache.mDirection.V() - mDirection.V()) * fVar2);
+            mDirection.U(mViewCache.mDirection.U());
 
             mEye = mCenter + mDirection.Xyz();
 
@@ -4749,7 +4749,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         switch (mWork.subject.m3C0) {
             case 1: {
                 cSGlobe g(camRel);
-                g.U(directionOf(mpPlayerActor) + g.U());
+                g.V(directionOf(mpPlayerActor) + g.U());
                 targetPos = eyePos(mpPlayerActor) + g.Xyz();
                 break;
             }
@@ -4772,8 +4772,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         desired.Val(p10, cSAngle::_0, baseYaw);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (desired.R() - mViewCache.mDirection.R()) * t);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * t);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * t);
+        mViewCache.mDirection.V(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * t);
+        mViewCache.mDirection.U(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * t);
 
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
@@ -4880,7 +4880,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     switch (mWork.subject.m3C0) {
         case 1: {
             cSGlobe g(v2);
-            g.V(directionOf(mpPlayerActor) + g.U());
+            g.U(directionOf(mpPlayerActor) + g.U());
             mViewCache.mCenter = eyePos(mpPlayerActor) + g.Xyz();
             break;
         }
@@ -4906,8 +4906,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p10 - mViewCache.mDirection.R()) * 0.04f);
 
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * 0.04f);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * 0.04f);
+        mViewCache.mDirection.V(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * 0.04f);
+        mViewCache.mDirection.U(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * 0.04f);
 
         cSAngle dy;
         cSAngle ax;
@@ -4925,8 +4925,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p10 - mViewCache.mDirection.R()) * 0.05f);
 
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * 0.05f);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * 0.05f);
+        mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * 0.05f);
+        mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * 0.05f);
 
         cSAngle dy;
         cSAngle ax;
@@ -4943,8 +4943,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         g.Val(p10, angX, baseYaw + angY);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * p20);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * p20);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * p20);
+        mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * p20);
+        mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * p20);
 
         if (mWork.subject.m3A8 < 10) {
             mWork.subject.m3A8++;
@@ -5166,7 +5166,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
 
     cSGlobe toArrow(attentionPos(mpPlayerActor) - work->m3C4);
     cSGlobe offsetGlobe(posOffset);
-    offsetGlobe.V(offsetGlobe.U() + toArrow.U());
+    offsetGlobe.U(offsetGlobe.U() + toArrow.U());
     cXyz targetCenter = attentionPos(mpPlayerActor) + offsetGlobe.Xyz();
     targetCenter.y = getWaterSurfaceHeight(&targetCenter);
 
@@ -5199,7 +5199,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
         }
         cSGlobe globe(spR, spV, cSAngle(mAngleY.Inv()));
         mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (globe.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
         if (m108 >= (u32)(work->m37C - 1)) {
@@ -5275,7 +5275,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
         stickVal = 0.0f;
     }
     work->m3E0 = val21 + val20 * stickVal;
-    mViewCache.mDirection.V(mViewCache.mDirection.U() + (work->m3A0 - mViewCache.mDirection.U()) * work->m3E0);
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->m3A0 - mViewCache.mDirection.U()) * work->m3E0);
 
     work->m39C += val14 * (val15 - work->m39C);
     if (!mCamParam.Flag(param_1, 0x4)) {
@@ -5297,7 +5297,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
     if (targetV > val17) {
         targetV.Val(val17);
     }
-    mViewCache.mDirection.U(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * work->m3DC);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * work->m3DC);
 
     work->m394 += val14 * (val11 - work->m394);
     work->m398 += val14 * (val10 - work->m398);
@@ -5518,8 +5518,8 @@ bool dCamera_c::hookshotCamera(s32 param_1) {
                     }
 
                     cSGlobe globe(off);
-                    globe.V(globe.U() + hookshot->getHookAngle()->y);
-                    globe.U(globe.V() + hookshot->getHookAngle()->x);
+                    globe.U(globe.U() + hookshot->getHookAngle()->y);
+                    globe.V(globe.V() + hookshot->getHookAngle()->x);
                     hook->m38C = positionOf(hookshot) + globe.Xyz();
 
                     dBgS_CamLinChk_NorWtr lin_chk;
@@ -5566,8 +5566,8 @@ bool dCamera_c::hookshotCamera(s32 param_1) {
         }
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (dirGlobe.R() - mViewCache.mDirection.R()) * val23);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (dirGlobe.V() - mViewCache.mDirection.V()) * val23);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (dirGlobe.U() - mViewCache.mDirection.U()) * val23);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (dirGlobe.V() - mViewCache.mDirection.V()) * val23);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (dirGlobe.U() - mViewCache.mDirection.U()) * val23);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy += (fovy - mViewCache.mFovy) * val23;
         return true;
@@ -5636,9 +5636,9 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             cSGlobe globe(tornadoOff0[m07C & 1]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
             if ((target - yaw) > cSAngle::_0) {
-                globe.V(yaw + globe.U());
+                globe.U(yaw + globe.U());
             } else {
-                globe.V(yaw - globe.U());
+                globe.U(yaw - globe.U());
             }
             work->m38C = positionOf(work->m37C) + globe.Xyz();
             if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
@@ -5654,9 +5654,9 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             cSGlobe globe(tornadoOff1[m07C & 1]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
             if ((target - yaw) > cSAngle::_0) {
-                globe.V(yaw + globe.U());
+                globe.U(yaw + globe.U());
             } else {
-                globe.V(yaw - globe.U());
+                globe.U(yaw - globe.U());
             }
             work->m38C = positionOf(work->m37C) + globe.Xyz();
             if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
@@ -5742,7 +5742,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             timer = 8;
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * cXyz(val3, val4, val3);
-            mViewCache.mDirection.V(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
+            mViewCache.mDirection.U(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
             break;
         }
@@ -5751,8 +5751,8 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * ratio;
             mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (targetDir.R() - mViewCache.mDirection.R()));
-            mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
-            mViewCache.mDirection.U(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
+            mViewCache.mDirection.U(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
+            mViewCache.mDirection.V(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
             break;
         }
@@ -5782,7 +5782,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             latMix = 0.0f;
         }
     }
-    targetDir.V(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
+    targetDir.U(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
 
     cSAngle targetV = mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * val21;
     if (targetV.Val() < val16.Val()) {
@@ -6173,8 +6173,8 @@ bool dCamera_c::hungCamera(s32 param_1) {
         f32 spR = limitf(mViewCache.mDirection.R(), val11, val10);
         cSGlobe globe(spR, cSAngle(val15), cSAngle(directionOf(mpPlayerActor).Inv()));
         mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (globe.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         work->m3A0 = mViewCache.mDirection.V().Degree();
         work->m398 = work->m39C = mViewCache.mDirection.R();
@@ -6297,8 +6297,8 @@ bool dCamera_c::hungCamera(s32 param_1) {
     }
 
     mViewCache.mDirection.R(mViewCache.mDirection.R() + val14 * (targetR - mViewCache.mDirection.R()));
-    mViewCache.mDirection.U(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * val19);
-    mViewCache.mDirection.V(targetU);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * val19);
+    mViewCache.mDirection.U(targetU);
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += val29 * (val25 - mViewCache.mFovy);
     work->m3AC = positionOf(mpPlayerActor).y;
@@ -6377,8 +6377,8 @@ bool dCamera_c::vomitCamera(s32 param_1) {
 
         cSGlobe globe(val10, cSAngle(val15), cSAngle(directionOf(mpPlayerActor).Inv()));
         mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (globe.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         work->m3A0 = mViewCache.mDirection.V().Degree();
         work->m398 = work->m39C = mViewCache.mDirection.R();
@@ -6441,8 +6441,8 @@ bool dCamera_c::vomitCamera(s32 param_1) {
     }
 
     mViewCache.mDirection.R(mViewCache.mDirection.R() + val14 * (targetR - mViewCache.mDirection.R()));
-    mViewCache.mDirection.U(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * val19);
-    mViewCache.mDirection.V(targetU);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * val19);
+    mViewCache.mDirection.U(targetU);
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += val29 * (val25 - mViewCache.mFovy);
     work->m3AC = positionOf(mpPlayerActor).y;
@@ -6466,12 +6466,12 @@ bool dCamera_c::shieldCamera(s32 param_1) {
     cSGlobe offsetGlobe(posOffset);
     if (is_player(mpPlayerActor)) {
         daPy_py_c* player = (daPy_py_c*)mpPlayerActor;
-        offsetGlobe.U(offsetGlobe.V() - player->getBodyAngleX());
-        offsetGlobe.V(offsetGlobe.U() + player->getBodyAngleY() + directionOf(mpPlayerActor));
+        offsetGlobe.V(offsetGlobe.V() - player->getBodyAngleX());
+        offsetGlobe.U(offsetGlobe.U() + player->getBodyAngleY() + directionOf(mpPlayerActor));
     } else if (fopAcM_GetName(mpPlayerActor) == fpcNm_NPC_MD_e) {
         daNpc_Md_c* medli = (daNpc_Md_c*)mpPlayerActor;
-        offsetGlobe.U(offsetGlobe.V() - medli->getWaistRotX());
-        offsetGlobe.V(offsetGlobe.U() + medli->getWaistRotY() + directionOf(mpPlayerActor));
+        offsetGlobe.V(offsetGlobe.V() - medli->getWaistRotX());
+        offsetGlobe.U(offsetGlobe.U() + medli->getWaistRotY() + directionOf(mpPlayerActor));
     }
 
     cXyz targetCenter = attentionPos(mpPlayerActor) + offsetGlobe.Xyz();
@@ -6531,8 +6531,8 @@ bool dCamera_c::shieldCamera(s32 param_1) {
         f32 spR = limitf(mViewCache.mDirection.R(), val11, val10);
         cSGlobe globe(spR, cSAngle(val15), cSAngle(directionOf(mpPlayerActor).Inv()));
         mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (globe.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         work->m390 = mViewCache.mDirection.V().Degree();
         work->m388 = work->m38C = mViewCache.mDirection.R();
@@ -6576,8 +6576,8 @@ bool dCamera_c::shieldCamera(s32 param_1) {
         bodyY.Val((s16)0);
     }
 
-    mViewCache.mDirection.U(mViewCache.mDirection.V() + ((lat + bodyX * val18) - mViewCache.mDirection.V()) * val20);
-    mViewCache.mDirection.V(mViewCache.mDirection.U() + ((yaw + bodyY * val23) - mViewCache.mDirection.U()) * val20);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + ((lat + bodyX * val18) - mViewCache.mDirection.V()) * val20);
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + ((yaw + bodyY * val23) - mViewCache.mDirection.U()) * val20);
 
     f32 targetR = limitf(mViewCache.mDirection.R(), val11, val10);
     mViewCache.mDirection.R(mViewCache.mDirection.R() + val20 * (targetR - mViewCache.mDirection.R()));
@@ -6819,8 +6819,8 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     mViewCache.mDirection.R(mViewCache.mDirection.R() + (work->m3A8.R() - mViewCache.mDirection.R()) * cushR);
-    mViewCache.mDirection.U(mViewCache.mDirection.V() + (work->m3A8.V() - mViewCache.mDirection.V()) * cushV);
-    mViewCache.mDirection.V(mViewCache.mDirection.U() + (work->m3A8.U() - mViewCache.mDirection.U()) * val21);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->m3A8.V() - mViewCache.mDirection.V()) * cushV);
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->m3A8.U() - mViewCache.mDirection.U()) * val21);
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
     f32 fov = mViewCache.mFovy;
@@ -6890,8 +6890,8 @@ bool dCamera_c::nonOwnerCamera(s32 param_1) {
     }
 
     cSGlobe cStack_110(local_90);
-    cStack_110.U(cStack_110.V() - mpLockonTarget->shape_angle.x);
-    cStack_110.V(cStack_110.U() + mpLockonTarget->shape_angle.y);
+    cStack_110.V(cStack_110.V() - mpLockonTarget->shape_angle.x);
+    cStack_110.U(cStack_110.U() + mpLockonTarget->shape_angle.y);
 
     local_84 = attentionPos(mpLockonTarget) + cStack_110.Xyz();
     mViewCache.mCenter += (local_84 - mViewCache.mCenter) * 0.2f;
@@ -6903,8 +6903,8 @@ bool dCamera_c::nonOwnerCamera(s32 param_1) {
     acStack_58.Val(mpLockonTarget->shape_angle.x);
     acStack_50.Val(directionOf(mpLockonTarget).Inv());
 
-    mViewCache.mDirection.U(mViewCache.mDirection.V() + ((acStack_5c + (acStack_58 * f28)) - mViewCache.mDirection.V()) * f30);
-    mViewCache.mDirection.V(mViewCache.mDirection.U() + ((acStack_54 + (acStack_50 * f29)) - mViewCache.mDirection.U()) * f30);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + ((acStack_5c + (acStack_58 * f28)) - mViewCache.mDirection.V()) * f30);
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + ((acStack_54 + (acStack_50 * f29)) - mViewCache.mDirection.U()) * f30);
     mViewCache.mDirection.R(mViewCache.mDirection.R() + f30 * (f27 - mViewCache.mDirection.R()));
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += f30 * (f31 - mViewCache.mFovy);
@@ -6981,8 +6981,8 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
         mViewCache.mCenter += (p->m39C - mViewCache.mCenter) * cam25;
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p->m384.R() - mViewCache.mDirection.R()) * cam25);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (p->m384.U() - mViewCache.mDirection.U()) * cam25);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (p->m384.V() - mViewCache.mDirection.V()) * cam25);
+        mViewCache.mDirection.V(mViewCache.mDirection.U() + (p->m384.U() - mViewCache.mDirection.U()) * cam25);
+        mViewCache.mDirection.U(mViewCache.mDirection.V() + (p->m384.V() - mViewCache.mDirection.V()) * cam25);
 
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
@@ -7126,8 +7126,8 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
         }
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * fVar15);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar15);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar15);
+        mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar15);
+        mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar15);
         
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy += fVar15 * (fVar8_2 - mViewCache.mFovy);
@@ -7151,8 +7151,8 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
     }
 
     mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * fVar7);
-    mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar7);
-    mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar7);
+    mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar7);
+    mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar7);
     
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += fVar7 * (fVar8_2 - mViewCache.mFovy);

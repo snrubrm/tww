@@ -773,8 +773,8 @@ bool dCamera_c::stokerEvCamera() {
         }
 
         globe.Val(work->mCtrGap);
-        globe.U(globe.V() + work->mTarget->shape_angle.x);
-        globe.V(globe.U() + work->mTarget->shape_angle.y);
+        globe.V(globe.V() + work->mTarget->shape_angle.x);
+        globe.U(globe.U() + work->mTarget->shape_angle.y);
         mViewCache.mCenter = attentionPos(work->mTarget) + globe.Xyz();
     }
 
@@ -784,8 +784,8 @@ bool dCamera_c::stokerEvCamera() {
         }
 
         globe.Val(work->mEyeGap);
-        globe.U(globe.V() + work->mStoker->shape_angle.x);
-        globe.V(globe.U() + work->mStoker->shape_angle.y);
+        globe.V(globe.V() + work->mStoker->shape_angle.x);
+        globe.U(globe.U() + work->mStoker->shape_angle.y);
         mViewCache.mEye = attentionPos(work->mStoker) + globe.Xyz();
     }
 
@@ -911,9 +911,9 @@ bool dCamera_c::rollingEvCamera() {
     mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * work->mCtrCus;
     mViewCache.mDirection.Val(work->mEye - work->mCenter);
     if (work->mTransType == 2) {
-        mViewCache.mDirection.U(cSAngle(work->mLatitude));
+        mViewCache.mDirection.V(cSAngle(work->mLatitude));
     }
-    mViewCache.mDirection.V(mViewCache.mDirection.U() + cSAngle((f32)m11C * work->mRoll));
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + cSAngle((f32)m11C * work->mRoll));
     mViewCache.mDirection.R((f32)m11C * work->mRadiusAdd + mViewCache.mDirection.R());
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy = work->mFovy;
@@ -2072,8 +2072,8 @@ bool dCamera_c::restorePosEvCamera() {
                 mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * ratio;
             }
             mViewCache.mDirection.R(mViewCache.mDirection.R() + (ratio * (work->mGlobe.R() - mViewCache.mDirection.R())));
-            mViewCache.mDirection.V(mViewCache.mDirection.U() + ((work->mGlobe.U() - mViewCache.mDirection.U()) * ratio));
-            mViewCache.mDirection.U(mViewCache.mDirection.V() + ((work->mGlobe.V() - mViewCache.mDirection.V()) * ratio));
+            mViewCache.mDirection.U(mViewCache.mDirection.U() + ((work->mGlobe.U() - mViewCache.mDirection.U()) * ratio));
+            mViewCache.mDirection.V(mViewCache.mDirection.V() + ((work->mGlobe.V() - mViewCache.mDirection.V()) * ratio));
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
             mViewCache.mFovy += ratio * (work->mSavedFovy - mViewCache.mFovy);
             return false;
@@ -2521,8 +2521,8 @@ bool dCamera_c::windDirectionEvCamera() {
             work->mInterpAccum += (f32)work->mCounter;
             f32 t = work->mInterpAccum / work->mInterpDenom;
             mViewCache.mDirection.R(work->mStartDir.R() + t * (work->mTargetDir.R() - work->mStartDir.R()));
-            mViewCache.mDirection.U(work->mStartDir.V() + (work->mTargetDir.V() - work->mStartDir.V()) * t);
-            mViewCache.mDirection.V(work->mStartDir.U() + (work->mTargetDir.U() - work->mStartDir.U()) * t);
+            mViewCache.mDirection.V(work->mStartDir.V() + (work->mTargetDir.V() - work->mStartDir.V()) * t);
+            mViewCache.mDirection.U(work->mStartDir.U() + (work->mTargetDir.U() - work->mStartDir.U()) * t);
             mViewCache.mCenter = work->mCenterTarget;
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
             break;
@@ -2600,16 +2600,16 @@ bool dCamera_c::turnToActorEvCamera() {
         cSGlobe globe2(mViewCache.mEye - positionOf(work->mTarget));
         cSAngle ang = globe2.U() - directionOf(work->mTarget);
         if (ang < cSAngle::_0) {
-            globe1.V(globe1.U() + cSAngle(5.0f));
+            globe1.U(globe1.U() + cSAngle(5.0f));
         } else {
-            globe1.V(globe1.U() + cSAngle(-5.0f));
+            globe1.U(globe1.U() + cSAngle(-5.0f));
         }
 
         cSAngle relU = globe1.U() - directionOf(work->mTarget);
         if (relU < cSAngle(-work->mFrontAngle)) {
-            globe1.V(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
+            globe1.U(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
         } else if (relU > cSAngle(work->mFrontAngle)) {
-            globe1.V(directionOf(work->mTarget) + cSAngle(work->mFrontAngle));
+            globe1.U(directionOf(work->mTarget) + cSAngle(work->mFrontAngle));
         }
 
         work->mGlobe.Val(120.0f, globe1.V(), globe1.U());
@@ -2620,8 +2620,8 @@ bool dCamera_c::turnToActorEvCamera() {
         f32 ratio = (f32)m11C / (f32)work->mTimer;
         mViewCache.mCenter += (work->mCenter - mViewCache.mCenter) * ratio;
         mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (work->mGlobe.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (work->mGlobe.U() - mViewCache.mDirection.U()) * ratio);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (work->mGlobe.V() - mViewCache.mDirection.V()) * ratio);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->mGlobe.U() - mViewCache.mDirection.U()) * ratio);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->mGlobe.V() - mViewCache.mDirection.V()) * ratio);
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
         return false;
@@ -3235,8 +3235,8 @@ bool dCamera_c::possessedEvCamera() {
         f32 t = 1.0f / (f32)work->mCounter;
         mViewCache.mCenter += (eyePos(work->mTarget) - mViewCache.mCenter) * t;
         mViewCache.mDirection.R(mViewCache.mDirection.R() + t * (work->mGlobe.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (work->mGlobe.V() - mViewCache.mDirection.V()) * t);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (work->mGlobe.U() - mViewCache.mDirection.U()) * t);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->mGlobe.V() - mViewCache.mDirection.V()) * t);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->mGlobe.U() - mViewCache.mDirection.U()) * t);
         eye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mEye += (eye - mViewCache.mEye) * work->mCushion;
         mViewCache.mFovy += t * (work->mFovy - mViewCache.mFovy);
