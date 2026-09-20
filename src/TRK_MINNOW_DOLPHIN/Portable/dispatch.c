@@ -25,6 +25,7 @@ extern int TRKDoWriteMemory(TRKBuffer*);
 extern int TRKDoReadRegisters(TRKBuffer*);
 extern int TRKDoWriteRegisters(TRKBuffer*);
 extern int TRKDoFlushCache(TRKBuffer*);
+extern int TRKDoSetOption(TRKBuffer*);
 extern int TRKDoContinue(TRKBuffer*);
 extern int TRKDoStep(TRKBuffer*);
 extern int TRKDoStop(TRKBuffer*);
@@ -37,7 +38,7 @@ struct DispatchEntry gTRKDispatchTable[33] = {
 	{ &TRKDoUnsupported },   { &TRKDoUnsupported },    { &TRKDoUnsupported },
 	{ &TRKDoUnsupported },   { &TRKDoReadMemory },     { &TRKDoWriteMemory },
 	{ &TRKDoReadRegisters }, { &TRKDoWriteRegisters }, { &TRKDoUnsupported },
-	{ &TRKDoUnsupported },   { &TRKDoFlushCache },     { &TRKDoUnsupported },
+	{ &TRKDoUnsupported },   { &TRKDoFlushCache },     { &TRKDoSetOption },
 	{ &TRKDoContinue },      { &TRKDoStep },           { &TRKDoStop },
 	{ &TRKDoUnsupported },   { &TRKDoUnsupported },    { &TRKDoUnsupported },
 	{ &TRKDoUnsupported },   { &TRKDoUnsupported },
@@ -55,6 +56,7 @@ BOOL TRKDispatchMessage(TRKBuffer* buffer) {
 	error = DS_DispatchError;
 	TRKSetBufferPosition(buffer, 0);
 	TRKReadBuffer1_ui8(buffer, &command);
+	command &= 0xFF;
 	if (command < gTRKDispatchTableSize) {
 		error = gTRKDispatchTable[command].fn(buffer);
 	}
