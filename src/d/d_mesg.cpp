@@ -677,7 +677,6 @@ char* dMesg_tSequenceProcessor::ruby_character(char* param_1, int param_2) {
 
 /* 801E1858-801E1B5C       .text do_systemTagCode__24dMesg_tSequenceProcessorFUsPCvUl */
 bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2, u32 param_3) {
-    /* Nonmatching */
     static const u32 colorTable[] = {
         0xFFFFFFFF,
         0xFF5A5AFF,
@@ -719,7 +718,7 @@ bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2
             if (field_0x70 == 0) {
                 dMesg_fontsizeCenter(mMesg, r31, r29);
             } else {
-                if (tmp > 100 && s_strSizeFlag == 0) {
+                if ((tmp & 0xFFFF) > 100u && s_strSizeFlag == 0) {
                     strcat(this->mMesg->text[0], "\n");
                     strcat(this->mMesg->text[1], "\n");
                     strcat(this->mMesg->text[2], "\n");
@@ -1047,7 +1046,7 @@ bool dMesg_tMeasureProcessor::do_systemTagCode(u16 param_1, const void* param_2,
         if (param_3 == 2) {
             u16 var1 = *(u16*)param_2;
             mesgControl->setNowFontSize((var1 * mesgControl->getInitFontSize()) / 100.0f + 0.5f);
-            if (var2 >= 1 && var2 <= 2 && var1 > 100 && m_strSizeFlag == 0) {
+            if (var2 >= 1 && var2 <= 2 && (var1 & 0xFFFF) > 100u && m_strSizeFlag == 0) {
                 linemax--;
                 m_strSizeFlag = true;
             }
