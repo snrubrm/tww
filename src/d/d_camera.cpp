@@ -4954,9 +4954,11 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         f32 a = 0.0f;
         f32 b = 0.0f;
         f32 stick = mStickCPosYLast;
-        if (stick > 0.0f) {
+        bool stickPos = stick > 0.0f;
+        if (stickPos) {
             a = dCamMath::rationalBezierRatio(stick, mCamSetup.mCurveWeight);
-        } else {
+        }
+        if (!stickPos) {
             b = dCamMath::rationalBezierRatio(-stick, mCamSetup.mCurveWeight);
         }
 
@@ -5691,8 +5693,10 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         posOffset.y += val8 * mix;
 
         f32 rx = dCamMath::rationalBezierRatio(mStickCPosXLast, 1.0f);
-        f32 ry = 0.0f;
-        if (mStickCPosYLast >= 0.0f) {
+        f32 ry;
+        if (mStickCPosYLast < 0.0f) {
+            ry = 0.0f;
+        } else {
             ry = dCamMath::rationalBezierRatio(mStickCPosYLast, 1.0f);
         }
         work->m398.x += 0.25f * (rx * -200.0f - work->m398.x);
@@ -5775,9 +5779,9 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     targetDir.V(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
 
     cSAngle targetV = mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * val21;
-    if (targetV < val16) {
+    if (targetV.Val() < val16.Val()) {
         targetV.Val(val16);
-    } else if (targetV > val17) {
+    } else if (targetV.Val() > val17.Val()) {
         targetV.Val(val17);
     }
     mViewCache.mDirection.Val(r, targetV, blendedU);
@@ -5907,8 +5911,11 @@ bool dCamera_c::rideCamera(s32 param_1) {
                    check_owner_action1(mPadId, daPyStts1_UNK2_e)) {
             work->m3A4 = mViewCache.mCenter;
             work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
+            work->m38C = mViewCache.mCenter;
         } else {
+            work->m3A4 = mViewCache.mCenter;
             work->m37C = NULL;
+            work->m38C = mViewCache.mCenter;
         }
 
         mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
