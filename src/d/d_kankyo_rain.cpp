@@ -1843,7 +1843,8 @@ void wave_move() {
         f32 t1 = 1.0f;
         f32 a = std::fabsf(windPowVec2.x * vectle.x + windPowVec2.z * vectle.z);
         f32 b = std::fabsf(windPowVec2.y);
-        pPkt->mSkewWidth = (t1 - a) * windPow * (t1 - b);
+        f32 tmp = t1 - a;
+        pPkt->mSkewWidth = tmp * windPow * (t1 - b);
     }
     pPkt->mSkewWidth *= 0.6f * std::fabsf(pPkt->mSkewDir);
 
@@ -3722,7 +3723,7 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
     GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
     GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
     MTXRotDeg(rotMtx, 'Z', rot);
-    MTXConcat(camMtx, rotMtx, drawMtx);
+    MTXConcat(camMtx, rotMtx, camMtx);
     GXLoadPosMtxImm(drawMtx, GX_PNMTX0);
     GXSetCurrentMtx(GX_PNMTX0);
 
@@ -3745,11 +3746,12 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
 
         f32 size = 2.5f + (i / 250.0f);
         f32 speed = 5.0f + (dist * 70.0f);
-        tilt.x = speed * (dummy.x + (0.08f * (i & 0x07)) + pPkt->mCenterDelta.x * pPkt->mCenterDeltaMul * 10.0f + windvec.x);
-        tilt.y = speed * (dummy.y + pPkt->mCenterDelta.y * pPkt->mCenterDeltaMul + windvec.y);
-        tilt.z = speed * (dummy.z + (0.08f * (i & 0x03)) + pPkt->mCenterDelta.z * pPkt->mCenterDeltaMul * 10.0f + windvec.z);
+        tilt.x = speed * ((dummy.x + (10.0f * (pPkt->mCenterDelta.x * pPkt->mCenterDeltaMul))) + (windvec.x + (0.08f * (i & 0x07))));
+        tilt.y = speed * ((dummy.y + (pPkt->mCenterDelta.y * pPkt->mCenterDeltaMul)) + windvec.y);
+        tilt.z = speed * ((dummy.z + (10.0f * (pPkt->mCenterDelta.z * pPkt->mCenterDeltaMul))) + (windvec.z + (0.08f * (i & 0x03))));
 
-        vp.x = -1.0f * -size;
+        f32 nsize = -size;
+        vp.x = nsize * -1.0f;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
@@ -3757,7 +3759,7 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
         pos[0].y = (p.y + lp.y) - tilt.y;
         pos[0].z = (p.z + lp.z) - tilt.z;
 
-        vp.x = -1.0f * size;
+        vp.x = size * -1.0f;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
@@ -3765,7 +3767,7 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
         pos[1].y = (p.y + lp.y) - tilt.y;
         pos[1].z = (p.z + lp.z) - tilt.z;
 
-        vp.x = -1.0f * -size;
+        vp.x = size * -1.0f;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
@@ -3773,7 +3775,7 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
         pos[2].y = p.y + lp.y;
         pos[2].z = p.z + lp.z;
 
-        vp.x = -1.0f * size;
+        vp.x = nsize * -1.0f;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
@@ -4102,7 +4104,7 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
         return;
     }
 
-    f32 var_f25 = 120.0f;
+    f32 var_f25 = 255.0f;
 
     GXColor color_reg0;
     color_reg0.r = 0xE5;
@@ -4122,8 +4124,7 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
         return;
     }
 
-    f32 temp_f26 = 1.2f;
-    f32 temp_f24 = 6.5f;
+    f32 var_f27 = 3.0f;
 
     for (int i = 0; i < 2; i++) {
         dKyr_set_btitex(&spDC, (ResTIMG*)pImg[0]);
@@ -4201,10 +4202,8 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
             GXLoadTexObj(&spDC, GX_TEXMAP0);
             GXSetTevColor(GX_TEVREG0, color_reg0);
 
-            f32 var_f27 = housi_packet->mEffect[j].field_0x48 * 9.0f;
-
-            f32 temp_f28 = (var_f27 * 0.2f) * cM_fsin(housi_packet->mEffect[j].mScale.x * 5.0f);
-            f32 temp_f30 = (var_f27 * 0.2f) * cM_fsin(housi_packet->mEffect[j].mScale.y * 6.0f);
+            f32 temp_f28 = 0.22f * cM_fsin(housi_packet->mEffect[j].mScale.x * 10.0f);
+            f32 temp_f30 = 0.22f * cM_fsin(housi_packet->mEffect[j].mScale.y * 10.0f);
 
             spC4.x = var_f27 - temp_f30;
             spC4.y = var_f27 - temp_f28;
@@ -4215,7 +4214,7 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
             pos[0].z = spD0.z + spB8.z;
 
             spC4.x = -var_f27 + temp_f30;
-            spC4.y = var_f27 - temp_f28;
+            spC4.y = var_f27 + temp_f28;
             spC4.z = 0.0f;
             MTXMultVec(camMtx, &spC4, &spB8);
             pos[1].x = spD0.x + spB8.x;
@@ -4231,7 +4230,7 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
             pos[2].z = spD0.z + spB8.z;
 
             spC4.x = var_f27 - temp_f30;
-            spC4.y = -var_f27 + temp_f28;
+            spC4.y = -var_f27 - temp_f28;
             spC4.z = 0.0f;
             MTXMultVec(camMtx, &spC4, &spB8);
             pos[3].x = spD0.x + spB8.x;
@@ -4857,7 +4856,7 @@ void dKyr_drawStar(Mtx drawMtx, u8** pImg) {
         if (i == 6 || i == 8)
             color_reg0 = star_col[1];
         else if ((i & 0x3F) == 0)
-            color_reg0 = star_col[(i >> 4) & 3];
+            color_reg0 = star_col[(i >> 6) & 3];
         else
             color_reg0 = star_col[0];
         GXSetTevColor(GX_TEVREG0, color_reg0);
@@ -4970,11 +4969,12 @@ void drawWave(Mtx drawMtx, u8** pImg) {
             continue;
 
         f32 waveScale = dKy_getEnvlight().mWaveChan.mWaveScale;
-        f32 scale = waveScale * pPkt->mEff[i].mScale * wave;
-        f32 scaleBottom = dKy_getEnvlight().mWaveChan.mWaveScaleBottom * scale;
-        f32 strength = pPkt->mEff[i].mStrengthEnv;
-        f32 height = scale * strength;
-        f32 width = scaleBottom * (strength - 0.00000015f * (i * 32) * height);
+        f32 mscale = pPkt->mEff[i].mScale;
+        f32 tmp = waveScale * mscale;
+        f32 scale = wave * tmp;
+        f32 scaleBottom = dKy_getEnvlight().mWaveChan.mWaveScaleBottom * tmp;
+        f32 height = scale * pPkt->mEff[i].mStrengthEnv;
+        f32 width = scaleBottom * (pPkt->mEff[i].mStrengthEnv - 0.00000015f * (i * 31) * height);
         if (height <= 0.0f)
             continue;
 
