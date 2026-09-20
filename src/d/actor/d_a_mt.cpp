@@ -30,11 +30,11 @@
 #include "SSystem/SComponent/c_lib.h"
 #include "SSystem/SComponent/c_math.h"
 
+static u8 mt_count;
 static daMt_HIO_c l_HIO;
 static s32 mt_all_count;
 static s32 mt_fight_count;
 static s32 j_index;
-static u8 mt_count;
 
 static u16 mt_tex_anm_idx[] = {0x36, 0x37};
 static u16 mt_tex_max_frame[] = {6, 1};
@@ -751,14 +751,16 @@ void body_control5(mt_class* i_this) {
     f32 ground_y = l_HIO.m18 + i_this->mAcch.GetGroundH();
 
     for (int i = 0; i < 8; i++, p4A0++, p560++) {
+        cXyz vec;
+        cXyz step;
+        cXyz wave_pos;
+
         if (i > 0) {
-            cXyz wave;
-            wave.x = i_this->m474 * ((50.0f + REG0_F(4)) * cM_ssin(i_this->m46A * (REG0_S(5) + 3500) + i * (REG0_S(6) + 7000)));
-            wave.y = i_this->m474 * ((80.0f + REG0_F(5)) * cM_ssin(i_this->m46A * (REG0_S(7) + 4500) + i * (REG0_S(8) + 6000)));
-            wave.z = -30.0f + REG0_F(3);
-            cXyz wave_pos;
+            vec.x = i_this->m474 * ((50.0f + REG0_F(4)) * cM_ssin(i_this->m46A * (REG0_S(5) + 3500) + i * (REG0_S(6) + 7000)));
+            vec.y = i_this->m474 * ((80.0f + REG0_F(5)) * cM_ssin(i_this->m46A * (REG0_S(7) + 4500) + i * (REG0_S(8) + 6000)));
+            vec.z = -30.0f + REG0_F(3);
             mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
-            MtxPosition(&wave, &wave_pos);
+            MtxPosition(&vec, &wave_pos);
 
             f32 y = (p4A0->y - 10.0f) + wave_pos.y;
             if (y < ground_y) {
@@ -773,14 +775,12 @@ void body_control5(mt_class* i_this) {
             f32 dist = std::sqrtf(dx * dx + dz * dz);
             int angX = (s16)-cM_atan2s(dy, dist);
 
-            cXyz offset;
-            offset.x = 0.0f;
-            offset.y = 0.0f;
-            offset.z = 35.0f + REG0_F(7);
+            vec.x = 0.0f;
+            vec.y = 0.0f;
+            vec.z = 35.0f + REG0_F(7);
             mDoMtx_YrotS(*calc_mtx, angY);
             mDoMtx_XrotM(*calc_mtx, angX);
-            cXyz step;
-            MtxPosition(&offset, &step);
+            MtxPosition(&vec, &step);
 
             p560->y = angY + 0x8000;
             p560->x = -angX;
@@ -811,21 +811,20 @@ void body_control5(mt_class* i_this) {
         model->setBaseTRMtx(mDoMtx_stack_c::get());
 
         if (i == 0) {
-            cXyz offset;
-            offset.x = 0.0f;
-            offset.y = 0.0f;
-            offset.z = 30.0f + REG0_F(9);
-            mDoMtx_stack_c::multVec(&offset, &actor->eyePos);
+            vec.x = 0.0f;
+            vec.y = 0.0f;
+            vec.z = 30.0f + REG0_F(9);
+            mDoMtx_stack_c::multVec(&vec, &actor->eyePos);
             i_this->mEyeSph.SetC(actor->eyePos);
             i_this->mEyeSph.SetR(30.0f);
             dComIfG_Ccsp()->Set(&i_this->mEyeSph);
         } else {
-            i_this->mSph[i].OffTgSetBit();
+            i_this->mSph[i].OffCoSetBit();
             i_this->mSph[i].SetC(*p4A0);
         }
 
         i_this->mSph[i].OffAtSetBit();
-        i_this->mSph[i].OffTgSetBit();
+        i_this->mSph[i].OffCoSetBit();
         dComIfG_Ccsp()->Set(&i_this->mSph[i]);
     }
 
@@ -1083,7 +1082,7 @@ void mt_move(mt_class* i_this) {
             } else {
                 if ((s8)i_this->m2BC != 0) {
                     diff = i_this->m47C - actor->current.pos;
-                    target_y = cM_atan2s(diff.x, diff.z);
+                    target_y = (s16)cM_atan2s(diff.x, diff.z);
                     i_this->m488 = 0x800;
                     f32 xz = std::sqrtf(diff.x * diff.x + diff.z * diff.z);
                     if (xz < 100.0f) {
@@ -1178,10 +1177,10 @@ void mt_move(mt_class* i_this) {
 void mt_fight(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
-    s16 angs[5];
-    s16 wave_ang = 0;
     cXyz offset;
     cXyz pos;
+    s16 angs[5];
+    s16 wave_ang = 0;
 
     switch (i_this->m455) {
     case 0:
@@ -1270,8 +1269,8 @@ void mt_fight(mt_class* i_this) {
         }
         break;
     case 1: {
-        f32 step;
         f32 max_step;
+        f32 step;
         if (player->getCutType() == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT) {
             dAttention_c& attn = dComIfGp_getAttention();
             if (attn.Lockon() && actor == attn.LockonTarget(0)) {
@@ -1313,12 +1312,8 @@ void mt_fight(mt_class* i_this) {
         if (i_this->mC02 == (s16)(l_HIO.m3E + REG0_S(3))) {
             fopAcM_monsSeStart(actor, JA_SE_CM_MAGTAIL_ATTACK, 0);
         }
-        {
-            int tmp = l_HIO.m3E;
-            tmp += REG6_S(7);
-            if (i_this->mC02 < (s16)(tmp + 3)) {
-                i_this->mC04 = 1;
-            }
+        if (i_this->mC02 < (s16)(l_HIO.m3E + (REG6_S(7) + 3))) {
+            i_this->mC04 = 1;
         }
         if (i_this->mC02 == (s16)(l_HIO.m3E + 2)) {
             i_this->m18D4 = 1;
@@ -1394,7 +1389,7 @@ void mt_fight(mt_class* i_this) {
                     i_this->m18F8 = 2;
                 }
             } else {
-                i_this->mSph[0].OffAtSetBit();
+                i_this->mSph[0].OffTgShield();
                 tex_anm_set(i_this, 1);
                 i_this->m454 = 2;
                 i_this->m466 = l_HIO.m54;
@@ -1448,8 +1443,9 @@ void mt_fight(mt_class* i_this) {
 void mt_move_maru(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
     u32 se_vol = 0;
-    cXyz offset;
     cXyz pos;
+    cXyz offset;
+    f32 old_speed_y;
     f32 step;
     f32 max_step;
 
@@ -1457,7 +1453,7 @@ void mt_move_maru(mt_class* i_this) {
     switch (i_this->m455) {
     case 0:
         if (i_this->m456 == 0) {
-            i_this->mSph[0].OnAtSetBit();
+            i_this->mSph[0].OnCoSetBit();
         }
         actor->shape_angle.x += (s16)(200.0f * actor->speedF);
         mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
@@ -1476,7 +1472,7 @@ void mt_move_maru(mt_class* i_this) {
         }
 
         {
-            f32 old_speed_y = actor->speed.y;
+            old_speed_y = actor->speed.y;
             mt_bg_check(i_this);
             if (i_this->mAcch.ChkGroundHit()) {
                 if (old_speed_y < -50.0f + REG0_F(12)) {
@@ -1485,23 +1481,25 @@ void mt_move_maru(mt_class* i_this) {
                 step = 0.0f;
                 max_step = 1.0f;
                 dBgS_GndChk gndChk;
-                pos = actor->current.pos;
-                pos.y += 50.0f;
-                gndChk.SetPos(&pos);
-                pos.y = dComIfG_Bgsp()->GroundCross(&gndChk);
+                cXyz ahead_ofs;
+                cXyz gnd_pos;
+                gnd_pos = actor->current.pos;
+                gnd_pos.y += 50.0f;
+                gndChk.SetPos(&gnd_pos);
+                gnd_pos.y = dComIfG_Bgsp()->GroundCross(&gndChk);
                 mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
                 offset.x = 0.0f;
                 offset.y = 50.0f;
                 offset.z = 5.0f;
-                MtxPosition(&offset, &offset);
-                cXyz ahead = actor->current.pos + offset;
+                MtxPosition(&offset, &ahead_ofs);
+                cXyz ahead = actor->current.pos + ahead_ofs;
                 gndChk.SetPos(&ahead);
                 ahead.y = dComIfG_Bgsp()->GroundCross(&gndChk);
                 if (ahead.y != -1.0e9f) {
-                    if (ahead.y < pos.y - 1.0f) {
+                    if (ahead.y < gnd_pos.y - 1.0f) {
                         step = 5.0f;
                         max_step = 0.3f;
-                    } else if (ahead.y > pos.y + 1.0f) {
+                    } else if (ahead.y > gnd_pos.y + 1.0f) {
                         step = -5.0f;
                         max_step = 0.3f;
                     }
@@ -1535,7 +1533,7 @@ void mt_move_maru(mt_class* i_this) {
         }
         break;
     case 1:
-        i_this->mSph[0].OffAtSetBit();
+        i_this->mSph[0].OffCoSetBit();
         actor->current.angle.x = 0;
         actor->current.angle.y = actor->shape_angle.y;
         actor->current.angle.z = actor->shape_angle.z;
@@ -1572,7 +1570,7 @@ void mt_move_maru(mt_class* i_this) {
         cLib_addCalc2(&i_this->m478, 1000.0f, 1.0f, 5.0f);
         cLib_addCalc2(&i_this->m338, 0.3f, 1.0f, 0.01f);
     } else {
-        if (i_this->m466 == 0) {
+        if (i_this->m466 == 0x46) {
             i_this->m330 = 2500.0f + REG0_F(3);
             i_this->m338 = 0.5f;
             if (i_this->m18FA == 0) {
@@ -1597,25 +1595,22 @@ void mt_move_maru(mt_class* i_this) {
 
     if (i_this->m348 != 0) {
         if (i_this->m348 == 1) {
-            JPABaseEmitter* em = dComIfGp_particle_setToon(
+            i_this->mp450 = (fopAc_ac_c*)dComIfGp_particle_setToon(
                 dPa_name::ID_AK_SN_MAGTAILSTEAM, &actor->current.pos, &actor->current.angle, NULL, 0xB4, NULL,
-                actor->current.roomNo);
-            i_this->mp450 = (fopAc_ac_c*)em;
-            if (em != NULL) {
-                em->becomeImmortalEmitter();
+                (int)actor->current.roomNo);
+            if (i_this->mp450 != NULL) {
+                ((JPABaseEmitter*)i_this->mp450)->becomeImmortalEmitter();
             }
             i_this->m348 = 2;
             i_this->m34A = 80;
         }
         if (i_this->mp450 != NULL) {
-            JPABaseEmitter* em = (JPABaseEmitter*)i_this->mp450;
             MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
             mDoMtx_YrotM(*calc_mtx, actor->shape_angle.y);
-            em->setGlobalRTMatrix(*calc_mtx);
+            ((JPABaseEmitter*)i_this->mp450)->setGlobalRTMatrix(*calc_mtx);
             if (i_this->m34A == 0) {
-                em->quitImmortalEmitter();
-                em->setMaxFrame(-1);
-                em->stopCreateParticle();
+                ((JPABaseEmitter*)i_this->mp450)->quitImmortalEmitter();
+                ((JPABaseEmitter*)i_this->mp450)->becomeInvalidEmitter();
                 i_this->mp450 = NULL;
                 i_this->m348 = 0;
             } else {
@@ -1623,7 +1618,7 @@ void mt_move_maru(mt_class* i_this) {
                 if (i_this->m34A < 30) {
                     alpha = (u8)(i_this->m34A * 6);
                 }
-                em->setGlobalAlpha(alpha);
+                ((JPABaseEmitter*)i_this->mp450)->setGlobalAlpha(alpha);
             }
         }
     }
@@ -1727,49 +1722,50 @@ void damage_check(mt_class* i_this) {
 
             at_power_check(&atInfo);
             i_this->m18FB -= atInfo.mDamage;
-            if (atInfo.mResultingAttackType == 6 || atInfo.mResultingAttackType == 3 ||
-                atInfo.mResultingAttackType == 4 || atInfo.mResultingAttackType == 2 || i_this->mC04 == 1)
+            if (atInfo.mResultingAttackType != 6 && atInfo.mResultingAttackType != 3 &&
+                atInfo.mResultingAttackType != 4 && atInfo.mResultingAttackType != 2 && i_this->mC04 != 1)
             {
-                cc_at_check(actor, &atInfo);
-                if (atInfo.mResultingAttackType == 6) {
-                    i_this->m18F8 = 1;
-                    i_this->m18FB = 0;
-                } else if (atInfo.mResultingAttackType == 4 || atInfo.mpObj->ChkAtType(AT_TYPE_ICE_ARROW)) {
-                    hit_kind = 2;
-                    i_this->m18FB = 0;
-                    water_damage_se_set(i_this);
-                }
-
-                if ((s8)i_this->m18FB <= 0) {
-                    hit_kind = 1;
-                } else {
-                    i_this->m455 = 15;
-                    mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
-                    offset.x = 0.0f;
-                    offset.y = 60.0f;
-                    offset.z = -120.0f;
-                    MtxPosition(&offset, &i_this->m47C);
-                    i_this->m47C += actor->current.pos;
-                    i_this->m462 = 25;
-                    i_this->m456 = 10;
-                    actor->current.angle.x = -0x4000;
-                }
-
-                fopAcM_monsSeStart(actor, JA_SE_CV_MG_DAMAGE, 0);
-                anm_init(i_this, 10, 2.0f, 2, 1.0f, 0);
-                i_this->m18D4 = 0;
-            } else {
                 return;
             }
+
+            atInfo.mpActor = cc_at_check(actor, &atInfo);
+            if (atInfo.mResultingAttackType == 6) {
+                i_this->m18F8 = 1;
+                i_this->m18FB = 0;
+            } else if (atInfo.mResultingAttackType == 4 || atInfo.mpObj->ChkAtType(AT_TYPE_ICE_ARROW)) {
+                hit_kind = 2;
+                i_this->m18FB = 0;
+                water_damage_se_set(i_this);
+            }
+
+            if ((s8)i_this->m18FB <= 0) {
+                hit_kind = 1;
+            } else {
+                i_this->m455 = 15;
+                mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+                offset.x = 0.0f;
+                offset.y = 60.0f;
+                offset.z = -120.0f;
+                MtxPosition(&offset, &i_this->m47C);
+                i_this->m47C += actor->current.pos;
+                i_this->m462 = 25;
+                i_this->m456 = 10;
+                actor->current.angle.x = -0x4000;
+            }
+
+            fopAcM_monsSeStart(actor, JA_SE_CV_MG_DAMAGE, 0);
+            anm_init(i_this, 10, 2.0f, 2, 1.0f, 0);
+            i_this->m18D4 = 0;
         }
     }
 
     if (hit_kind != 0) {
+        cXyz speed;
         mDoMtx_YrotS(*calc_mtx, atInfo.m0C.y);
-        offset.x = 0.0f;
-        offset.y = 40.0f * l_HIO.m4C;
-        offset.z = -20.0f * l_HIO.m4C;
-        MtxPosition(&offset, &actor->speed);
+        speed.x = 0.0f;
+        speed.y = 40.0f * l_HIO.m4C;
+        speed.z = -20.0f * l_HIO.m4C;
+        MtxPosition(&speed, &actor->speed);
         if (hit_kind == 2) {
             actor->speed.y = 0.0f;
         }
@@ -2388,6 +2384,142 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
         JUT_ASSERT(0x127F, actor->br_modelR[i] != 0);
         actor->br_modelL[i]->setBaseScale(actor->scale);
         actor->br_modelR[i]->setBaseScale(actor->scale);
+    }
+
+    return TRUE;
+}
+
+// An earlier revision of CallbackCreateHeap that nothing calls, so the linker dead-strips its code
+// out of the REL. Its string literals and function-scope statics survive in the pooled .rodata and
+// in .data, which is why it has to stay here for those sections to lay out like the original.
+static BOOL UnusedCallbackCreateHeap(mt_class* i_this) {
+    static int bmd_data[] = {
+        dRes_INDEX_MT_BDL_MG_HEAD_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_TAIL_e,
+    };
+    static f32 scale_data[] = {1.0f, 1.0f, 1.0f, 0.975f, 0.925f, 0.825f, 0.75f, 0.525f};
+
+    for (int i = 0; i < 8; i++) {
+        i_this->mpMorf[i] = new mDoExt_McaMorf(
+            (J3DModelData*)dComIfG_getObjectRes("Mt", bmd_data[i]),
+            NULL,
+            NULL,
+            NULL,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            1,
+            NULL,
+            0x80000,
+            0x37440402
+        );
+        if (i_this->mpMorf[i] == NULL || i_this->mpMorf[i]->getModel() == NULL) {
+            return FALSE;
+        }
+
+        J3DModel* model = i_this->mpMorf[i]->getModel();
+        J3DModelData* modelData = model->getModelData();
+
+        i_this->btk[i] = new mDoExt_btkAnm();
+        JUT_ASSERT(0x11C0, i_this->btk[i]);
+        if (!i_this->btk[i]->init(
+                model->getModelData(),
+                (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Mt", btk_data[i]),
+                TRUE,
+                J3DFrameCtrl::EMode_LOOP,
+                1.0f,
+                0,
+                -1,
+                false,
+                FALSE
+            ))
+        {
+            return FALSE;
+        }
+
+        i_this->brk[i] = new mDoExt_brkAnm();
+        JUT_ASSERT(0x11CD, i_this->brk[i]);
+        if (!i_this->brk[i]->init(
+                model->getModelData(),
+                (J3DAnmTevRegKey*)dComIfG_getObjectRes("Mt", brk_data[i]),
+                TRUE,
+                J3DFrameCtrl::EMode_LOOP,
+                1.0f,
+                0,
+                -1,
+                false,
+                FALSE
+            ))
+        {
+            return FALSE;
+        }
+
+        if (i == 0) {
+            anm_init(i_this, dRes_INDEX_MT_BCK_WAIT1_e, 20.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, 0);
+
+            J3DAnmTexPattern* btp = NULL;
+            for (int j = 0; j < 2; j++) {
+                btp = (J3DAnmTexPattern*)dComIfG_getObjectRes("Mt", mt_tex_anm_idx[j]);
+                btp->searchUpdateMaterialID(model->getModelData());
+            }
+
+            u16 materialNum = btp->getUpdateMaterialNum();
+            i_this->mpTexNoAnm = new J3DTexNoAnm[materialNum];
+            for (u16 j = 0; j < materialNum; j++) {
+                i_this->mpTexNoAnm[j].setAnmIndex(j);
+            }
+            tex_anm_set(i_this, 0);
+        }
+
+        model->setUserArea((u32)i_this);
+
+        for (u16 jntNo = 0; jntNo < modelData->getJointNum(); jntNo++) {
+            if (i == 0) {
+                if (jntNo < 2) {
+                } else if (jntNo > 5) {
+                } else {
+                    modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_head);
+                }
+            } else if (i == 7) {
+                if (jntNo < 2) {
+                } else if (jntNo > 5) {
+                } else {
+                    modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_tail);
+                }
+            } else {
+                if (jntNo < 2) {
+                } else if (jntNo > 5) {
+                } else {
+                    modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_body);
+                }
+            }
+        }
+
+        i_this->m600[i] = scale_data[i];
+    }
+
+    static int br_bmd[] = {
+        dRes_INDEX_MT_BDL_KBA_e,
+        dRes_INDEX_MT_BDL_KBB_e,
+        dRes_INDEX_MT_BDL_KBC_e,
+    };
+
+    for (int i = 0; i < 3; i++) {
+        J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes("Mt", br_bmd[i]);
+        JUT_ASSERT(0x12DA, modelData != 0);
+        i_this->br_modelL[i] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
+        JUT_ASSERT(0x12DD, i_this->br_modelL[i] != 0);
+        i_this->br_modelR[i] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
+        JUT_ASSERT(0x12DF, i_this->br_modelR[i] != 0);
+        i_this->br_modelL[i]->setBaseScale(i_this->scale);
+        i_this->br_modelR[i]->setBaseScale(i_this->scale);
     }
 
     return TRUE;
