@@ -1125,6 +1125,14 @@ void ph_fly_sea_move(ph_class* i_this) {
     }
 }
 
+static inline void ph_clear_hane(ph_class* i_this, s32 v) {
+    s32 i = v;
+    for (int n = 7; n != 0; n--) {
+        *(s16*)((char*)i_this + 0x356 + i) = v;
+        i += 2;
+    }
+}
+
 /* 00002E18-00002F50       .text ph_hane_move__FP8ph_class */
 void ph_hane_move(ph_class* i_this) {
     switch (i_this->m0346) {
@@ -1152,11 +1160,7 @@ void ph_hane_move(ph_class* i_this) {
                     i_this->m0364 = 0x3C;
                     i_this->mAtCyl.OnAtSetBit();
                     i_this->mAtCyl.OnAtHitBit();
-                    s32 i = v;
-                    for (int n = 7; n != 0; n--) {
-                        *(s16*)((char*)i_this + 0x356 + i) = v;
-                        i += 2;
-                    }
+                    ph_clear_hane(i_this, v);
                     i_this->m0346 = 1;
                 } else {
                     i_this->m0346 = v;
