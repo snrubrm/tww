@@ -400,8 +400,7 @@ bool daObjTribox::Act_c::chk_wall(int num) const {
 
 /* 000012A0-000012E8       .text chk_space__Q211daObjTribox5Act_cCFv */
 bool daObjTribox::Act_c::chk_space() const {
-    int num = mPushPullWalk;
-    int n = num == 1;
+    int n = mPushPullWalk == 1 ? 1 : 0;
     if (chk_wall(n + 1)) {
         return false;
     } else {
