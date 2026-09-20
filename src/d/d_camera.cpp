@@ -3638,7 +3638,8 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         cXyz local_114 = attentionPos(mpPlayerActor);
         if (!pointInSight(&local_114)) {
             if (work->m388 == 0) {
-                work->m3A4 = (1 - work->m3A0) != 0;
+                int inv = 1 - work->m3A0;
+                work->m3A4 = inv != 0;
             }
             bVar6 = true;
             work->m388 = r28;
@@ -3658,18 +3659,18 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         bVar6 = true;
     }
 
-    f32 fVar5 = 1.0f - std::fabsf(mStickCPosYLast);
+    f32 fVar5 = 1.0f - (f32)fabs(mStickCPosYLast);
     dCamMath::customRBRatio(mCamParam.RadiusRatio(mViewCache.mDirection.R()), fVar3);
 
     if (chkFlag(0x10)) {
         fVar3 = 0.01f;
         work->m3B8 = 0.01f;
     }
-    else if (m360) {
-        fVar3 = mCamSetup.Cushion4Base();
+    else if (!m360) {
+        fVar3 = mCamSetup.Cushion4Jump();
     }
     else {
-        fVar3 = mCamSetup.Cushion4Jump();
+        fVar3 = mCamSetup.Cushion4Base();
     }
 
     work->m3B8 += (fVar3 - work->m3B8) * mCamSetup.CusCus();
@@ -3685,15 +3686,16 @@ bool dCamera_c::lockonCamera(s32 param_1) {
 
     work->m390.y += work->m3B8 * ((local_108.y + dVar17) - work->m390.y);
     dVar17 = local_230.R();
+    double padR = 0.05 * dVar17;
 
     f32 dVar19;
     if (mpLockonTarget) {
         f32 dVar18 = local_25c.Cos();
-        dVar19 = cSAngle(local_230.U() * 1.3f).Cos();
+        dVar19 = cSAngle(local_230.V() * 1.3f).Cos();
         if (fabs(dVar18) < fabs(dVar19)) {
           dVar19 = dVar18;
         }
-        dVar19 = (local_230.R() - 2.0 * (0.05 * dVar17)) * fabs(dVar19 * -0.5 + 0.5);
+        dVar19 = (local_230.R() - 2.0 * padR) * fabs(dVar19 * -0.5 + 0.5);
     }
     else {
         dVar19 = local_230.R() * fabs(local_25c.Cos() * -0.5 + 0.5);
@@ -3750,21 +3752,22 @@ bool dCamera_c::lockonCamera(s32 param_1) {
                 dVar17 = 0.15f;
             }
             else {
-                f32 fVar7 = m11C;
+                f32 fVar7 = (f32)m11C / (f32)iVar15;
                 fVar3 = mCamParam.Val(param_1, dCamStyleParam_UNK15);
                 fVar3 *= dCamMath::customRBRatio(-((f32)local_274.Val() / (f32)iVar10), fVar21);
-                dVar17 = (fVar3 + (1.0f - fVar7 / (f32)iVar15) * (fVar22 - fVar3));
+                dVar17 = (fVar3 + (1.0f - fVar7) * (fVar22 - fVar3));
             }
         }
         else {
             iVar15 = local_258.Val();
-            f32 f1 = (f32)local_274.Val() / (f32)iVar15;
             if (local_25c.Val() < iVar15) {
+                f32 f1 = (f32)local_274.Val() / (f32)iVar15;
                 fVar22 = mCamParam.Val(param_1, dCamStyleParam_UNK15);
                 fVar21 = dCamMath::customRBRatio(-f1, fVar21);
                 dVar17 = fVar22 * fVar21;
             }
             else {
+                f32 f1 = (f32)local_274.Val() / (f32)iVar15;
                 cSAngle local_27c(45.0f);
                 cSAngle local_2d8(135.0f);
                 
@@ -4829,7 +4832,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
                 mWork.subject.m38C = 0.0f;
 
                 mWork.subject.m39C = mViewCache.mFovy;
-                mWork.subject.m398 = 0;
+                *(int*)&mWork.subject.m398 = 0;
                 mWork.subject.m390 = 0.0f;
             }
         }
@@ -4856,7 +4859,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         mWork.subject.m37C = 1;
         CalcSubjectAngle(&tmpX, &tmpY);
         angX = tmpX;
-        angY = tmpY - mWork.subject.m3BA;
+        cSAngle tmpAngY(tmpY);
+        angY = tmpAngY - mWork.subject.m3BA;
     } else {
         // actor-angle path
         if (is_player(mpPlayerActor)) {
@@ -4899,9 +4903,9 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         at.y -= 25.0f;
 
         desired.Val(mViewCache.mCenter - at);
+        desired.R(p10);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p10 - mViewCache.mDirection.R()) * 0.04f);
-        desired.R(p10);
 
         mViewCache.mDirection.U(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * 0.04f);
         mViewCache.mDirection.V(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * 0.04f);
@@ -4916,9 +4920,9 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     } else if (!mWork.subject.m3BC || ((mEventFlags & 0x2000000) == 0)) {
         cSGlobe g;
         g.Val(mExtendedPos - mViewCache.mCenter);
+        g.R(p10);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p10 - mViewCache.mDirection.R()) * 0.05f);
-        g.R(p10);
 
         mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * 0.05f);
         mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * 0.05f);
@@ -5630,13 +5634,15 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             };
             cSGlobe globe(tornadoOff0[m07C & 1]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - yaw) > cSAngle::_0) {
+            bool plus = (target - yaw) > cSAngle::_0;
+            if (plus) {
                 globe.V(yaw + globe.U());
             } else {
                 globe.V(yaw - globe.U());
             }
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
@@ -5648,13 +5654,15 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             };
             cSGlobe globe(tornadoOff1[m07C & 1]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - yaw) > cSAngle::_0) {
+            bool plus = (target - yaw) > cSAngle::_0;
+            if (plus) {
                 globe.V(yaw + globe.U());
             } else {
                 globe.V(yaw - globe.U());
             }
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e | daPyStts0_UNK1000000_e)) {
@@ -5689,7 +5697,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         } else {
             shipYaw.Val(ship->mSailAngle);
         }
-        posOffset.x -= val1 * mix * shipYaw.Sin();
+        posOffset.x -= (val1 * shipYaw.Sin()) * mix;
         posOffset.y += val8 * mix;
 
         f32 rx = dCamMath::rationalBezierRatio(mStickCPosXLast, 1.0f);
@@ -5710,7 +5718,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             if (daSea_ChkArea(wavePos.x, wavePos.z)) {
                 wavePos.y = daSea_calcWave(wavePos.x, wavePos.z);
                 cSGlobe waveDir(wavePos - positionOf(work->m37C));
-                targetVdeg += 0.8f * mix * waveDir.V().Degree();
+                targetVdeg += (mix * waveDir.V().Degree()) * 0.8f;
             }
         }
         targetDir.Val(targetR, cAngle::d2s(targetVdeg), yaw.Inv());
@@ -5876,14 +5884,16 @@ bool dCamera_c::rideCamera(s32 param_1) {
             };
             cSGlobe globe(cannonOff[m07C & 3]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - work->m3B0) > cSAngle::_0) {
+            bool plus = (target - work->m3B0) > cSAngle::_0;
+            if (plus) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
@@ -5897,14 +5907,16 @@ bool dCamera_c::rideCamera(s32 param_1) {
             };
             cSGlobe globe(craneOff[m07C & 3]);
             cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - work->m3B0) > cSAngle::_0) {
+            bool plus = (target - work->m3B0) > cSAngle::_0;
+            if (plus) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            cXyz* playerPos = &mpPlayerActor->current.pos;
+            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e | daPyStts0_UNK1000000_e) ||
@@ -5976,15 +5988,16 @@ bool dCamera_c::rideCamera(s32 param_1) {
             shipAng.Val(ship->getCraneAngle());
             work->m3C4 += 0.05f * (1.0f - work->m3C4);
         } else if (check_owner_action1(mPadId, daPyStts1_UNK4_e)) {
+            cSAngle dir = directionOf(ship);
             s16 cannonY = ship->getCannonAngleY();
-            shipAng.Val(directionOf(ship) - cannonY + cSAngle::_90);
+            shipAng.Val(dir - cannonY + cSAngle::_90);
             f32 side = work->m384 ? -1.0f : 1.0f;
             work->m3C4 += 0.05f * (side - work->m3C4);
         } else {
             shipAng.Val(ship->mSailAngle);
             work->m3C4 += 0.1f * (speedRatio - work->m3C4);
         }
-        posOffset.x -= val1 * work->m3C4 * shipAng.Sin();
+        posOffset.x -= (val1 * shipAng.Sin()) * work->m3C4;
         posOffset.y += val8 * speedRatio;
 
         if (m314 && m318 == m354 && mCamParam.Flag(param_1, dCamPrmFlg_UNK004)) {
@@ -5993,7 +6006,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
             if (daSea_ChkArea(wavePos.x, wavePos.z)) {
                 wavePos.y = daSea_calcWave(wavePos.x, wavePos.z);
                 cSGlobe waveDir(wavePos - positionOf(work->m37C));
-                targetVdeg += 0.8f * speedRatio * waveDir.V().Degree();
+                targetVdeg += (speedRatio * waveDir.V().Degree()) * 0.8f;
             }
         }
         targetDir.Val(targetR, cAngle::d2s(targetVdeg), work->m3B0.Inv());
