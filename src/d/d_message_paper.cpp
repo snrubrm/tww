@@ -169,22 +169,22 @@ void dMsg3_value_init(sub_msg3_class* i_Msg, u8 i_index) {
 
     const u32 color = colorTable[i_Msg->colorNo];
     int i = i_index;
-    u32 a, b, c, d, ca, cb, cc, cd;
-
-    a = i_Msg->msgDataProc[i].getCharAlpha();
-    b = i_Msg->msgDataProc[i].getGradAlpha();
-    c = i_Msg->msgDataProc[i].getRCharAlpha();
-    d = i_Msg->msgDataProc[i].getRGradAlpha();
-    ca = color | a;
-    cb = color | b;
-    cc = color | c;
-    cd = color | d;
-
+    u8 a = i_Msg->msgDataProc[i].getCharAlpha();
+    u8 b = i_Msg->msgDataProc[i].getGradAlpha();
+    u8 c = i_Msg->msgDataProc[i].getRCharAlpha();
+    u8 d = i_Msg->msgDataProc[i].getRGradAlpha();
+    u32 ca = color;
+    ca |= a;
+    u32 cb = color;
+    cb |= b;
+    u32 cc = color;
+    cc |= c;
+    u32 cd = color;
+    cd |= d;
     sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", ca, cb);
     sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", cc, cd);
     sprintf(textSdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", a, b);
     sprintf(rubySdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", c, d);
-
     strcpy(i_Msg->output_text[i], text_buf);
     strcpy(i_Msg->output_ruby[i], ruby_buf);
     strcpy(i_Msg->output_textSdw[i], textSdw_buf);
@@ -501,19 +501,23 @@ void dMsg3_aimAlphaSqrt(sub_msg3_class* i_Msg, int param_0, int param_1) {
 }
 
 /* 801ECE04-801ECEA0       .text dMsg3_kankyoBrightness__Fv */
-u8 dMsg3_kankyoBrightness() {
+int dMsg3_kankyoBrightness() {
     GXColorS10* difcol = dKy_Get_DifCol();
     return (difcol->b * 0.114f) + (difcol->r * 0.299f) + (difcol->g * 0.587f);
 }
 
 /* 801ECEA0-801ECEEC       .text dMsg3_aimBrightness__Fv */
 u8 dMsg3_aimBrightness() {
-    u32 brightness = dMsg3_kankyoBrightness();
-    if ((u8)brightness <= g_messageHIO.field_0x29) {
-        return 0xFF;
+    int brightness;
+    u8 b = (brightness = dMsg3_kankyoBrightness());
+    u8 field = g_messageHIO.field_0x29;
+    u8 result;
+    if (b <= field) {
+        result = 0xFF;
     } else {
-        return 0xFF - (brightness - g_messageHIO.field_0x29);
+        result = 0xFF - (brightness - field);
     }
+    return result;
 }
 
 /* 801ECEEC-801ED2C8       .text dMsg3_setCharAlpha__FP14sub_msg3_classUc */
