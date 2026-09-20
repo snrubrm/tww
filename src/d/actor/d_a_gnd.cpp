@@ -1600,6 +1600,8 @@ static void finish(gnd_class* i_this) {
     case 2:
         i_this->m2D0 = 3;
         break;
+    case 3:
+        break;
     }
 }
 
