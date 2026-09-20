@@ -2823,7 +2823,7 @@ bool dCamera_c::followCamera2(s32 param_0) {
 /* 8016A110-8016C4F8       .text followCamera__9dCamera_cFl */
 bool dCamera_c::followCamera(s32 param_1) {
     /* Nonmatching */
-    bool bVar2 = false;
+    bool bVar2;
     bool bVar3;
     bool bVar4;
     f32 fVar37;
@@ -2861,6 +2861,7 @@ bool dCamera_c::followCamera(s32 param_1) {
     
     f32 f14 = 3.8f;
     dAttention_c& attention = dComIfGp_getAttention();
+    bVar2 = false;
 
 #if VERSION > VERSION_DEMO
     if (m108 == 0) {
@@ -3289,7 +3290,7 @@ bool dCamera_c::followCamera(s32 param_1) {
                 }
             }
         }
-        else if (isSubPlayerFlying()) {
+        else if (bVar2) {
             if (mWork.follow.m38C == 0 && (local_4ac <= cSAngle::_270 || local_4ac >= cSAngle::_90)) {
                 mWork.follow.m38C = 1;
             }
@@ -3318,7 +3319,7 @@ bool dCamera_c::followCamera(s32 param_1) {
     if (chkFlag(0x80) && !chkFlag(0x80000) && mCurMode == 0 && mWork.follow.m38C == 0) {
         acStack_4b4 = cSAngle(mDirection.U().Val()); 
     }
-    else if (isSubPlayerFlying()) {
+    else if (bVar2) {
         acStack_4b4 = acStack_4a8;
         if (check_owner_action(mPadId, daPyStts0_UNK40_e | daPyStts0_UNK20_e)) {
             acStack_4b4 += acStack_4a0;
@@ -4888,7 +4889,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         case 2: {
             mViewCache.mCenter = mExtendedPos;
             cSAngle ang(m0FA);
-            baseYaw = ang.Inv();
+            baseYaw.Val(ang.Inv());
             break;
         }
         default: {
