@@ -671,8 +671,9 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS1() {
 BOOL dDlst_TerminaterScrnDraw_c::animeS2(fopMsgM_pane_class* i_pane) {
     BOOL rt = FALSE;
     i_pane->mUserArea++;
-    if (i_pane->mUserArea <= 7) {
-        f32 t = SQUARE((f32)i_pane->mUserArea) / 49.0f;
+    s16 tmp = i_pane->mUserArea;
+    if (tmp <= 7) {
+        f32 t = SQUARE((f32)tmp) / 49.0f;
         fopMsgM_setNowAlpha(i_pane, t);
     } else {
         rt = TRUE;
@@ -852,9 +853,10 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
     s16 timer = mAnimTimer3;
     if (timer <= f0) {
         f32 t = SQUARE((f32)timer) / SQUARE((f32)f0);
-        f32 r = (f32)rot[0];
-        r += t * (f32)(rot[1] - rot[0]);
-        f32 t2 = SQUARE((f32)(s16)(f0 - timer)) / SQUARE((f32)f0);
+        f32 rbase = (f32)rot[0];
+        f32 r = rbase + t * (f32)(rot[1] - rot[0]);
+        s16 remain = (s16)(f0 - timer);
+        f32 t2 = SQUARE((f32)remain) / SQUARE((f32)f0);
         f32 one = 1.0f;
         f32 scale = (f32)g_menuHIO.field_0x8e / 100.0f;
         scale = one + (scale - one) * t2;
