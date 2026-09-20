@@ -362,14 +362,20 @@ void JAIBasic::stopIDActorSoundOneBuffer(u32 soundID, void* param_2, JAISound* p
     }
 }
 
+static inline JAISound* getLinkHead(JAInter::LinkSound* link) {
+    return link->field_0x4;
+}
+
 /* 802909C0-80290A5C       .text stopAllSound__8JAIBasicFPv */
 void JAIBasic::stopAllSound(void* param_1) {
-    /* Nonmatching */
-    for (int i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); i++) {
-        stopActorSoundOneBuffer(param_1, JAInter::SeMgr::seRegist[i].field_0x4);
+    for (u32 i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); i++) {
+        JAISound* sound = getLinkHead(&JAInter::SeMgr::seRegist[i]);
+        stopActorSoundOneBuffer(param_1, sound);
     }
-    stopActorSoundOneBuffer(param_1, JAInter::SequenceMgr::seqControl.field_0x4);
-    stopActorSoundOneBuffer(param_1, JAInter::StreamMgr::streamControl.field_0x4);
+    JAISound* seqSound = getLinkHead(&JAInter::SequenceMgr::seqControl);
+    stopActorSoundOneBuffer(param_1, seqSound);
+    JAISound* streamSound = getLinkHead(&JAInter::StreamMgr::streamControl);
+    stopActorSoundOneBuffer(param_1, streamSound);
 }
 
 static void dummy2() {
