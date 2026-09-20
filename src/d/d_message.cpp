@@ -61,20 +61,24 @@ void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     const u32 color = colorTable[i_Msg->colorNo];
     int i = i_index;
 
-    int temp_r5 = i_Msg->msgDataProc[i].getCharAlpha();
-    int temp_r6 = i_Msg->msgDataProc[i].getGradAlpha();
-    int var_r30 = i_Msg->msgDataProc[i].getRCharAlpha();
-    int var_r29 = i_Msg->msgDataProc[i].getRGradAlpha();
+    u8 a = i_Msg->msgDataProc[i].getCharAlpha();
+    u8 b = i_Msg->msgDataProc[i].getGradAlpha();
+    u8 c = i_Msg->msgDataProc[i].getRCharAlpha();
+    u8 d = i_Msg->msgDataProc[i].getRGradAlpha();
 
-    u32 temp_a = color | temp_r5;
-    u32 temp_b = color | temp_r6;
-    u32 temp_c = color | var_r30;
-    u32 temp_d = color | var_r29;
+    u32 ca = color;
+    ca |= a;
+    u32 cb = color;
+    cb |= b;
+    u32 cc = color;
+    cc |= c;
+    u32 cd = color;
+    cd |= d;
 
-    sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", temp_a, temp_b);
-    sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", temp_c, temp_d);
-    sprintf(textSdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", temp_r5, temp_r6);
-    sprintf(rubySdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", var_r30, var_r29);
+    sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", ca, cb);
+    sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", cc, cd);
+    sprintf(textSdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", a, b);
+    sprintf(rubySdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", c, d);
 
     JKRHeap* heap = mDoExt_setCurrentHeap(i_Msg->Heap);
 
@@ -448,7 +452,7 @@ void dMsg2_yose_select(sub_msg2_class* i_Msg, u8 i_index) {
 /* 801E86E8-801E8798       .text dMsg2_textPosition__FP14sub_msg2_classUc */
 // NONMATCHING - small reg alloc
 void dMsg2_textPosition(sub_msg2_class* i_Msg, u8 i_index) {
-    int r7 = 0;
+    f32 r7 = 0.0f;
     int temp_r0 = i_Msg->field_0xeb0 * (3 - i_Msg->field_0xecc[i_index]);
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, temp_r0);
@@ -522,8 +526,9 @@ u8 dMsg2_kankyoBrightness() {
 /* 801E8C2C-801E8C78       .text dMsg2_aimBrightness__Fv */
 // NONMATCHING
 u8 dMsg2_aimBrightness() {
-    u32 brightness = dMsg2_kankyoBrightness();
-    return g_messageHIO.field_0x29 <= brightness ? 0xFF : 0xFF - (brightness - g_messageHIO.field_0x29);
+    int brightness = dMsg2_kankyoBrightness();
+    u8 field = g_messageHIO.field_0x29;
+    return ((u8)brightness <= field) ? 0xFF : (u8)(0xFF - (brightness - field));
 }
 
 /* 801E8C78-801E9054       .text dMsg2_setCharAlpha__FP14sub_msg2_classUc */
@@ -535,10 +540,11 @@ void dMsg2_setCharAlpha(sub_msg2_class* i_Msg, u8 i_index) {
     int var_r31 = i_index;
     f32 temp_f2 = temp_f1 + i_Msg->text_pane[var_r31].mPosTopLeft.y + (i_Msg->field_0xeb0 * (2 - i_Msg->field_0xecc[i_index]));
 
-    int temp_r27 = (temp_r6 * i_Msg->field_0xecc[i_index]);
-    int var_r26 = (int)temp_f2 + temp_r27;
+    int var_r27 = (int)temp_f2;
+    int temp_r5 = temp_r6 * i_Msg->field_0xecc[i_index];
+    int var_r26 = var_r27 + temp_r5;
     int var_r30 = (int)(temp_f2 - g_messageHIO.field_0x38);
-    int var_r29 = var_r30 + temp_r27;
+    int var_r29 = var_r30 + temp_r5;
 
     if (var_r26 < 58) {
         int temp_r3 = var_r26 + i_Msg->mx->getHeight();
@@ -553,10 +559,10 @@ void dMsg2_setCharAlpha(sub_msg2_class* i_Msg, u8 i_index) {
         } else {
             i_Msg->field_0xedf[1][var_r31] = 0;
         }
-    } else if (temp_r27 > 187) {
-        int temp_r3 = temp_r27 + i_Msg->mx->getHeight();
-        if (temp_r27 <= 239) {
-            i_Msg->field_0xedf[0][var_r31] = dMsg2_tex_i4_color[temp_r27];
+    } else if (var_r27 > 187) {
+        int temp_r3 = var_r27 + i_Msg->mx->getHeight();
+        if (var_r27 <= 239) {
+            i_Msg->field_0xedf[0][var_r31] = dMsg2_tex_i4_color[var_r27];
         } else {
             i_Msg->field_0xedf[0][var_r31] = 0;
         }
