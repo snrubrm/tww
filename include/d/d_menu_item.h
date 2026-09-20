@@ -4,6 +4,7 @@
 #include "dolphin/types.h"
 #include "JSystem/J2DGraph/J2DScreen.h"
 #include "JSystem/J2DGraph/J2DWindow.h"
+#include "JSystem/JParticle/JPAEmitter.h"
 #include "d/d_2dnumber.h"
 #include "d/d_lib.h"
 #include "d/d_menu_base.h"
@@ -79,10 +80,10 @@ public:
     void itemCheck(int);
     void itemBitCheck(bool);
     void arrowLightAnime();
-    void bottleFwaterCheck();
-    void recollectBossCheck();
+    u8 bottleFwaterCheck();
+    u8 recollectBossCheck();
     void cornerMove();
-    void equipBeastItem(int);
+    u8 equipBeastItem(int);
     virtual void _create();
     virtual void _delete();
     virtual void _move();
@@ -148,7 +149,9 @@ private:
     /* 0x2334 */ void* mItemTexBuffer[21];
     /* 0x2388 */ u8 padding_0x2388[0x2394 - 0x2388];
     /* 0x2394 */ void* mSubItemTexBuffer[9];
-    /* 0x23B8 */ u8 padding_0x23B8[0x23E0 - 0x23B8];
+    /* 0x23B8 */ JPABaseEmitter* m23B8[2];
+    /* 0x23C0 */ f32 m23C0[4];
+    /* 0x23D0 */ f32 m23D0[4];
     /* 0x23E0 */ char* name[2];
     /* 0x23E8 */ char* note[2];
     /* 0x23F0 */ char* dummy[2];
@@ -157,7 +160,12 @@ private:
     /* 0x23FC */ s16 m23FC;
     /* 0x23FE */ u8 mItemMode;
     /* 0x23FF */ u8 mNowItem;
-    /* 0x2400 */ u8 padding_0x2400[0x2406 - 0x2400];
+    /* 0x2400 */ u8 m2400;
+    /* 0x2401 */ u8 m2401;
+    /* 0x2402 */ u8 m2402;
+    /* 0x2403 */ u8 m2403;
+    /* 0x2404 */ u8 m2404;
+    /* 0x2405 */ u8 m2405;
     /* 0x2406 */ u8 mItemSlot[21];
     /* 0x241B */ u8 padding_0x241B[0x241E - 0x241B];
     /* 0x241E */ u8 m241E;

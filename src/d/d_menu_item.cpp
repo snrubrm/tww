@@ -9,15 +9,20 @@
 #include "d/d_item_data.h"
 #include "d/d_menu_save.h"
 #include "d/d_meter.h"
+#include "d/d_stage.h"
 #include "JSystem/J2DGraph/J2DOrthoGraph.h"
 #include "JSystem/J2DGraph/J2DPicture.h"
 #include "JSystem/J2DGraph/J2DTextBox.h"
 #include "JSystem/JKernel/JKRArchive.h"
+#include "JSystem/JUtility/JUTAssert.h"
 #include "JAZelAudio/JAZelAudio_SE.h"
 #include "dolphin/types.h"
 #include "f_op/f_op_msg_mng.h"
 #include "m_Do/m_Do_audio.h"
 #include "m_Do/m_Do_controller_pad.h"
+#include "string.h"
+
+void dMeter_subWinFlagOff();
 
 dMi_HIO_c g_miHIO;
 
@@ -296,22 +301,241 @@ void dMenu_Item_c::screenSet() {
 
 /* 801C8724-801C8B14       .text cursorAnime__12dMenu_Item_cFv */
 void dMenu_Item_c::cursorAnime() {
-    /* Nonmatching */
+    s16 x_trans;
+    s16 y_trans;
+    u8 now = mNowItem;
+
+    if (now == 0x15) {
+        mA18[0].mPosCenterOrig.x = m1498.mPosCenter.x - m1498.mSize.x / 2.0f;
+        mA18[0].mPosCenterOrig.y = m1498.mPosCenter.y + m1498.mSize.y / 2.0f;
+
+        mA18[1].mPosCenterOrig.x = m1498.mPosCenter.x + m1498.mSize.x / 2.0f;
+        mA18[1].mPosCenterOrig.y = m1498.mPosCenter.y + m1498.mSize.y / 2.0f;
+
+        mA18[2].mPosCenterOrig.x = m1498.mPosCenter.x - m1498.mSize.x / 2.0f;
+        mA18[2].mPosCenterOrig.y = m1498.mPosCenter.y - m1498.mSize.y / 2.0f;
+
+        mA18[3].mPosCenterOrig.x = m1498.mPosCenter.x + m1498.mSize.x / 2.0f;
+        mA18[3].mPosCenterOrig.y = m1498.mPosCenter.y - m1498.mSize.y / 2.0f;
+    } else if (now >= 0x18) {
+        u8 idx;
+        if (now == 0xFF) {
+            idx = 8;
+        } else {
+            idx = now - m2400;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            mA18[i].mPosCenterOrig.x = mE78[idx].mPosCenter.x + m23C0[i];
+            mA18[i].mPosCenterOrig.y = mE78[idx].mPosCenter.y + m23D0[i];
+        }
+    } else {
+        for (int i = 0; i < 4; i++) {
+            mA18[i].mPosCenterOrig.x = m1658[now].mPosCenter.x + m23C0[i];
+            mA18[i].mPosCenterOrig.y = m1658[now].mPosCenter.y + m23D0[i];
+        }
+    }
+
+    if (mA18[0].mUserArea < g_miHIO.field_0x32) {
+        for (int i = 0; i < 4; i++) {
+            J2DPicture* picture = (J2DPicture*)mA18[i].pane;
+            picture->setBlendColorRatio(1.0f, 0.0f, 1.0f, 1.0f);
+            picture->setBlendAlphaRatio(1.0f, 0.0f, 1.0f, 1.0f);
+        }
+
+        x_trans = g_miHIO.field_0x34;
+        y_trans = g_miHIO.field_0x34;
+    } else if (mA18[0].mUserArea < g_miHIO.field_0x32 * 2) {
+        for (int i = 0; i < 4; i++) {
+            J2DPicture* picture = (J2DPicture*)mA18[i].pane;
+            picture->setBlendColorRatio(0.0f, 1.0f, 1.0f, 1.0f);
+            picture->setBlendAlphaRatio(0.0f, 1.0f, 1.0f, 1.0f);
+        }
+
+        x_trans = g_miHIO.field_0x36;
+        y_trans = g_miHIO.field_0x36;
+    }
+
+    fopMsgM_paneTrans(&mA18[0], -x_trans, y_trans);
+    fopMsgM_paneTrans(&mA18[1], x_trans, y_trans);
+    fopMsgM_paneTrans(&mA18[2], -x_trans, -y_trans);
+    fopMsgM_paneTrans(&mA18[3], x_trans, -y_trans);
+
+    mA18[0].mUserArea++;
+
+    if (mA18[0].mUserArea >= g_miHIO.field_0x32 * 2) {
+        mA18[0].mUserArea = 0;
+    }
 }
 
 /* 801C8B14-801C8CA0       .text cursorMainMove__12dMenu_Item_cFv */
 void dMenu_Item_c::cursorMainMove() {
-    /* Nonmatching */
+    stick->checkTrigger();
+    u8 oldItem = mNowItem;
+
+    if (stick->checkRightTrigger()) {
+        if (mNowItem != 0x15) {
+            if (mNowItem % 7 == 6) {
+                mNowItem -= 6;
+            } else {
+                mNowItem += 1;
+            }
+        }
+    } else if (stick->checkLeftTrigger()) {
+        if (mNowItem != 0x15) {
+            if (mNowItem % 7 == 0) {
+                mNowItem += 6;
+            } else {
+                mNowItem -= 1;
+            }
+        }
+    }
+
+    if (stick->checkUpTrigger()) {
+        if (mNowItem == 0x15) {
+            mNowItem = 0xE;
+        } else if (mNowItem > 6) {
+            mNowItem -= 7;
+        }
+    } else if (stick->checkDownTrigger()) {
+        if (mNowItem < 0xE) {
+            mNowItem += 7;
+        } else if (mNowItem >= 0xE) {
+            if (mNowItem <= 0x14) {
+                mNowItem = 0x15;
+            }
+        }
+    }
+
+    if (mNowItem != oldItem) {
+        m858.mUserArea = 0;
+        itemnameSet();
+        mDoAud_seStart(JA_SE_ITM_MENU_CURSOR);
+    }
 }
 
 /* 801C8CA0-801C8E60       .text cursorSubMove__12dMenu_Item_cFv */
 void dMenu_Item_c::cursorSubMove() {
-    /* Nonmatching */
+    s16 maxItems = g_menuHIO.field_0x82;
+    u8 idx;
+
+    if (mNowItem == 0xFF) {
+        idx = 8;
+    } else {
+        idx = mNowItem - m2400;
+    }
+
+    stick->checkTrigger();
+
+    if (stick->checkRightTrigger()) {
+        if (idx % 3 != 2) {
+            if (idx <= maxItems - 1) {
+                idx += 1;
+            }
+        }
+    } else if (stick->checkLeftTrigger()) {
+        if (idx % 3 != 0) {
+            idx -= 1;
+        }
+    }
+
+    if (stick->checkUpTrigger()) {
+        if (idx >= 3) {
+            idx -= 3;
+        }
+    } else if (stick->checkDownTrigger()) {
+        if ((u8)(idx + 3) <= maxItems) {
+            idx += 3;
+        }
+    }
+
+    if (idx != (u8)(mNowItem - m2400)) {
+        if (idx == 8) {
+            if (mNowItem != 0xFF) {
+                mNowItem = 0xFF;
+                mDoAud_seStart(JA_SE_ITM_MENU_CURSOR);
+            }
+        } else {
+            mNowItem = idx + m2400;
+            mDoAud_seStart(JA_SE_ITM_MENU_CURSOR);
+        }
+
+        m858.mUserArea = 0;
+        itemnameSet();
+    }
 }
 
 /* 801C8E60-801C9124       .text checkMove__12dMenu_Item_cFv */
 void dMenu_Item_c::checkMove() {
-    /* Nonmatching */
+    for (int i = 0; i < 3; i++) {
+        u8 sel = dComIfGs_getSelectItem(i);
+
+        if (sel != 0xFF) {
+            m2030[i].pane->show();
+
+            if (dMeter_subWinFlag()) {
+                if (sel >= dInvSlot_ReserveFirst_e) {
+                    if (m2405 == 2) {
+                        u8 idx = sel - dInvSlot_ReserveFirst_e;
+                        m2030[i].mPosCenter.x = mE78[idx].mPosCenter.x;
+                        m2030[i].mPosCenter.y = mE78[idx].mPosCenter.y;
+                        m231C->insertChild(m1230.pane, m2030[i].pane);
+                    } else {
+                        u8 slot = fopMsgM_itemNum(dItemNo_DELIVERY_BAG_e);
+                        m2030[i].mPosCenter.x = m1658[slot].mPosCenterOrig.x;
+                        m2030[i].mPosCenter.y = m1658[slot].mPosCenterOrig.y;
+                        m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
+                    }
+                } else if (sel >= dInvSlot_BaitFirst_e) {
+                    if (m2405 == 1) {
+                        u8 idx = sel - dInvSlot_BaitFirst_e;
+                        m2030[i].mPosCenter.x = mE78[idx].mPosCenter.x;
+                        m2030[i].mPosCenter.y = mE78[idx].mPosCenter.y;
+                        m231C->insertChild(m1230.pane, m2030[i].pane);
+                    } else {
+                        u8 slot = fopMsgM_itemNum(dItemNo_BAIT_BAG_e);
+                        m2030[i].mPosCenter.x = m1658[slot].mPosCenterOrig.x;
+                        m2030[i].mPosCenter.y = m1658[slot].mPosCenterOrig.y;
+                        m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
+                    }
+                } else if (sel >= dInvSlot_BeastFirst_e) {
+                    if (m2405 == 0) {
+                        u8 idx = sel - dInvSlot_BeastFirst_e;
+                        m2030[i].mPosCenter.x = mE78[idx].mPosCenter.x;
+                        m2030[i].mPosCenter.y = mE78[idx].mPosCenter.y;
+                        m231C->insertChild(m1230.pane, m2030[i].pane);
+                    } else {
+                        u8 slot = fopMsgM_itemNum(dItemNo_SPOILS_BAG_e);
+                        m2030[i].mPosCenter.x = m1658[slot].mPosCenterOrig.x;
+                        m2030[i].mPosCenter.y = m1658[slot].mPosCenterOrig.y;
+                        m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
+                    }
+                } else {
+                    m2030[i].mPosCenter.x = m1658[sel].mPosCenterOrig.x;
+                    m2030[i].mPosCenter.y = m1658[sel].mPosCenterOrig.y;
+                    m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
+                }
+            } else {
+                if (sel >= dInvSlot_ReserveFirst_e) {
+                    sel = fopMsgM_itemNum(dItemNo_DELIVERY_BAG_e);
+                } else if (sel >= dInvSlot_BaitFirst_e) {
+                    sel = fopMsgM_itemNum(dItemNo_BAIT_BAG_e);
+                } else if (sel >= dInvSlot_BeastFirst_e) {
+                    sel = fopMsgM_itemNum(dItemNo_SPOILS_BAG_e);
+                }
+
+                m2030[i].mPosCenter.x = m1658[sel].mPosCenterOrig.x;
+                m2030[i].mPosCenter.y = m1658[sel].mPosCenterOrig.y;
+                m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
+            }
+
+            m2030[i].mPosCenterOrig.x = m2030[i].mPosCenter.x;
+            m2030[i].mPosCenterOrig.y = m2030[i].mPosCenter.y;
+            fopMsgM_cposMove(&m2030[i]);
+        } else {
+            m2030[i].pane->hide();
+        }
+    }
 }
 
 /* 801C9124-801C95FC       .text itemplaceCheck__12dMenu_Item_cFi */
@@ -342,7 +566,40 @@ void dMenu_Item_c::subWindowInit() {
 
 /* 801CAA04-801CAB48       .text subWindowDelete__12dMenu_Item_cFv */
 void dMenu_Item_c::subWindowDelete() {
-    /* Nonmatching */
+    m858.mUserArea = 0;
+
+    if (m2405 == 0) {
+        mNowItem = fopMsgM_itemNum(dItemNo_SPOILS_BAG_e);
+    } else if (m2405 == 1) {
+        mNowItem = fopMsgM_itemNum(dItemNo_BAIT_BAG_e);
+    } else {
+        mNowItem = fopMsgM_itemNum(dItemNo_DELIVERY_BAG_e);
+    }
+
+    itemnameSet();
+    itemScale();
+    dMeter_subWinFlagOff();
+
+    for (int i = 0; i < 8; i++) {
+        fopMsgM_setNowAlphaZero(&mAF8[i]);
+        fopMsgM_setNowAlphaZero(&mCB8[i]);
+        fopMsgM_setNowAlphaZero(&mE78[i]);
+        fopMsgM_setNowAlphaZero(&m1070[i]);
+    }
+
+    fopMsgM_setNowAlphaZero(&m1038);
+    fopMsgM_setNowAlphaZero(&m1230);
+
+    for (int i = 0; i < 9; i++) {
+        fopMsgM_setNowAlphaZero(&m1268[i]);
+    }
+
+    fopMsgM_setNowAlphaZero(&m1460);
+
+    m231C->insertChild(m1460.pane, mA18[3].pane);
+    m231C->insertChild(mA18[3].pane, mA18[2].pane);
+    m231C->insertChild(mA18[2].pane, mA18[1].pane);
+    m231C->insertChild(mA18[1].pane, mA18[0].pane);
 }
 
 /* 801CAB48-801CB020       .text subItemDecide__12dMenu_Item_cFv */
@@ -352,7 +609,36 @@ void dMenu_Item_c::subItemDecide() {
 
 /* 801CB020-801CB168       .text itemnameMove__12dMenu_Item_cFv */
 void dMenu_Item_c::itemnameMove() {
-    /* Nonmatching */
+    m858.mUserArea++;
+
+    if (m858.mUserArea > 0x82) {
+        m858.mUserArea = 0x0B;
+    }
+
+    int timer = m858.mUserArea;
+
+    if (timer <= 10) {
+        f32 t = fopMsgM_valueIncrease(10, timer, 0);
+        fopMsgM_setNowAlpha(&m890[0], t);
+        fopMsgM_setNowAlpha(&m890[1], 1.0f - t);
+        fopMsgM_setNowAlphaZero(&m858);
+    } else if (timer <= 60) {
+        fopMsgM_setInitAlpha(&m890[0]);
+        fopMsgM_setNowAlphaZero(&m858);
+    } else if (timer <= 70) {
+        f32 t = fopMsgM_valueIncrease(10, timer - 60, 0);
+        fopMsgM_setNowAlpha(&m890[0], 1.0f - t);
+        fopMsgM_setNowAlpha(&m858, t);
+    } else if (timer <= 120) {
+        fopMsgM_setNowAlphaZero(&m890[0]);
+        fopMsgM_setInitAlpha(&m858);
+    } else if (timer <= 130) {
+        f32 t = fopMsgM_valueIncrease(10, timer - 120, 0);
+        fopMsgM_setNowAlpha(&m890[0], t);
+        fopMsgM_setNowAlpha(&m858, 1.0f - t);
+    }
+
+    outFont->move();
 }
 
 /* 801CB168-801CB7C0       .text itemnameSet__12dMenu_Item_cFv */
@@ -737,17 +1023,52 @@ void dMenu_Item_c::itemBitCheck(bool force) {
 
 /* 801CDB14-801CDC34       .text arrowLightAnime__12dMenu_Item_cFv */
 void dMenu_Item_c::arrowLightAnime() {
-    /* Nonmatching */
+    m1F88[0].mUserArea++;
+    if (m1F88[0].mUserArea >= 0x78) {
+        m1F88[0].mUserArea = 0;
+    }
+
+    f32 t;
+    if (m1F88[0].mUserArea < 0x3C) {
+        t = fopMsgM_valueIncrease(0x3C, m1F88[0].mUserArea, 0);
+    } else {
+        t = fopMsgM_valueIncrease(0x3C, 0x78 - m1F88[0].mUserArea, 0);
+    }
+
+    f32 scale = 1.0f - 0.39999998f * t;
+    f32 alpha = m1F88[0].mInitAlpha - (m1F88[0].mInitAlpha - 50.0f) * t;
+
+    for (int i = 0; i < 3; i++) {
+        fopMsgM_paneScaleXY(&m1F88[i], scale);
+        m1F88[i].mNowAlpha = alpha;
+    }
 }
 
 /* 801CDC34-801CDCF0       .text bottleFwaterCheck__12dMenu_Item_cFv */
-void dMenu_Item_c::bottleFwaterCheck() {
-    /* Nonmatching */
+u8 dMenu_Item_c::bottleFwaterCheck() {
+    for (int i = 0; i < dInvSlot_BOTTLE_COUNT_e; i++) {
+        int slot = i + dInvSlot_BOTTLE0_e;
+        if (dComIfGs_getItem(slot) == dItemNo_FOREST_WATER_e) {
+            return slot;
+        }
+    }
+
+    return FALSE;
 }
 
 /* 801CDCF0-801CDDC0       .text recollectBossCheck__12dMenu_Item_cFv */
-void dMenu_Item_c::recollectBossCheck() {
-    /* Nonmatching */
+u8 dMenu_Item_c::recollectBossCheck() {
+    if (dStage_stagInfo_GetSTType(dComIfGp_getStage().getStagInfo()) == dStageType_BOSS_e) {
+        if (strcmp(dComIfGp_getStartStageName(), "Xboss0") == 0 ||
+            strcmp(dComIfGp_getStartStageName(), "Xboss1") == 0 ||
+            strcmp(dComIfGp_getStartStageName(), "Xboss2") == 0 ||
+            strcmp(dComIfGp_getStartStageName(), "Xboss3") == 0)
+        {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }
 
 /* 801CDDC0-801CF08C       .text cornerMove__12dMenu_Item_cFv */
@@ -858,20 +1179,122 @@ void dMenu_Item_c::cornerMove() {
 }
 
 /* 801CF08C-801CF12C       .text equipBeastItem__12dMenu_Item_cFi */
-void dMenu_Item_c::equipBeastItem(int) {
-    /* Nonmatching */
+u8 dMenu_Item_c::equipBeastItem(int i_idx) {
+    u8 itemNo = dComIfGs_getItemBeast(i_idx);
+    int ret = 0;
+
+    switch (itemNo) {
+    case dItemNo_SKULL_NECKLACE_e:
+        ret = dBeastIdx_SKULL_NECKLACE_e;
+        break;
+    case dItemNo_BOKOBABA_SEED_e:
+        ret = dBeastIdx_BOKOBABA_SEED_e;
+        break;
+    case dItemNo_GOLDEN_FEATHER_e:
+        ret = dBeastIdx_GOLDEN_FEATHER_e;
+        break;
+    case dItemNo_KNIGHTS_CREST_e:
+        ret = dBeastIdx_KNIGHTS_CREST_e;
+        break;
+    case dItemNo_RED_JELLY_e:
+        ret = dBeastIdx_RED_JELLY_e;
+        break;
+    case dItemNo_GREEN_JELLY_e:
+        ret = dBeastIdx_GREEN_JELLY_e;
+        break;
+    case dItemNo_BLUE_JELLY_e:
+        ret = dBeastIdx_BLUE_JELLY_e;
+        break;
+    case dItemNo_JOY_PENDANT_e:
+        ret = dBeastIdx_JOY_PENDANT_e;
+        break;
+    }
+
+    return ret;
 }
 
 /* 801CF12C-801CF510       .text _create__12dMenu_Item_cFv */
 void dMenu_Item_c::_create() {
-    /* Nonmatching */
+    scrn = new J2DScreen();
+    JUT_ASSERT(0xa57, scrn != 0);
+    scrn->set("menu_item_02.blo", mpArc);
+
+    stick = new STControl(5, 2, 3, 2);
+    JUT_ASSERT(0xa5b, stick != 0);
+
+    stick->setWaitParm(5, 2, 3, 2, 0.9f, 0.5f, 0, 0x800);
+
+    outFont = new dDlst_2DOutFont_c();
+    JUT_ASSERT(0xa5f, outFont != 0);
+
+    outFont->m74 = 1;
+
+    dMs_c = new dMenu_save_c();
+    JUT_ASSERT(0xa63, dMs_c != 0);
+
+    dMs_c->setUseType(0);
+    dMs_c->_create();
+
+    mItemMode = 0;
+    m23B8[0] = NULL;
+    m23B8[1] = NULL;
+
+    screenSet();
+    initialize();
 
     g_miHIO.mNo = mDoHIO_createChild("アイテム画面", &g_miHIO); // "Item Screen"
+
+    for (int i = 0; i < 4; i++) {
+        ((J2DPicture*)mA18[i].pane)->append("cursor_00_02.bti", 1.0f);
+
+        m23C0[i] = mA18[i].mPosCenterOrig.x - m1658[0].mPosCenterOrig.x;
+        m23D0[i] = mA18[i].mPosCenterOrig.y - m1658[0].mPosCenterOrig.y;
+    }
+
+    for (int i = 0; i < 15; i++) {
+        ((J2DPicture*)m0B0[i].pane)->changeTexture("font_07_02.bti", 0);
+        fopMsgM_blendInit(&m0B0[i], "font_00.bti");
+    }
+
+    m2400 = 0;
+    m2401 = 0;
+    m2402 = 0;
+    m2420 = 0;
+    m241F = 0;
+    m241E = 0;
+    m2404 = 3;
+    m2403 = 3;
+    m2405 = 3;
+
+    for (int i = 0; i < 21; i++) {
+        itemCheck(i);
+    }
+
+    cursorAnime();
 }
 
 /* 801CF510-801CF618       .text _delete__12dMenu_Item_cFv */
 void dMenu_Item_c::_delete() {
-    /* Nonmatching */
+    for (int i = 0; i < 2; i++) {
+        if (m23B8[i] != NULL) {
+            m23B8[i]->becomeInvalidEmitter();
+            m23B8[i]->quitImmortalEmitter();
+            m23B8[i] = NULL;
+        }
+    }
+
+    delete scrn;
+    delete stick;
+
+    if (outFont != NULL) {
+        delete outFont;
+    }
+
+    dMs_c->_delete();
+    delete dMs_c;
+
+    mpArc->removeResourceAll();
+    mDoHIO_deleteChild(g_miHIO.mNo);
 }
 
 /* 801CF618-801D0524       .text _move__12dMenu_Item_cFv */
