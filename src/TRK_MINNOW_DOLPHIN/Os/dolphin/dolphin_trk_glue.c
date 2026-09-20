@@ -77,24 +77,32 @@ static inline UARTError TRKReadUARTBuffer(void* data, u32 length) {
     return (-error | error) >> 31;
 }
 
-// Nonmatching: buffered-byte address calculation uses a different register sequence.
 UARTError TRKReadUARTPoll(char* byte) {
+    struct {
+        int writePos;
+        int readPos;
+        int readCount;
+        BOOL framing;
+        char readBuf[0x110A];
+    } *state = (void*)&gWritePos;
     UARTError error = 4;
-    if (gReadPos >= gReadCount) {
-        gReadPos = 0;
-        gReadCount = gDBCommTable.peek_func();
-        if (gReadCount > 0) {
-            if (gReadCount > 0x110A) {
-                gReadCount = 0x110A;
+    int cnt;
+
+    if (state->readPos >= state->readCount) {
+        state->readPos = 0;
+        cnt = state->readCount = gDBCommTable.peek_func();
+        if (cnt > 0) {
+            if (cnt > 0x110A) {
+                state->readCount = 0x110A;
             }
-            error = TRKReadUARTBuffer(gReadBuf, gReadCount);
+            error = TRKReadUARTBuffer(state->readBuf, state->readCount);
             if (error != 0) {
-                gReadCount = 0;
+                state->readCount = 0;
             }
         }
     }
-    if (gReadPos < gReadCount) {
-        *byte = gReadBuf[gReadPos++];
+    if (state->readPos < state->readCount) {
+        *byte = state->readBuf[state->readPos++];
         error = 0;
     }
     return error;
