@@ -936,7 +936,7 @@ void daNpc_Kk1_c::cut_init_TRN(int) {
         mPath.setNearPathIndx(&current.pos, 100.0f);
         u8 selfIdx = mPath.getIdx();
         u8 maxPt = mPath.maxPoint();
-        s16 half = (s16)(0.5f + maxPt * 0.5f);
+        s16 half = (s16)(0.5f + (int)maxPt * 0.5f);
         if (selfIdx > playerIdx) {
             playerIdx += mPath.maxPoint();
         }
@@ -1578,9 +1578,9 @@ BOOL daNpc_Kk1_c::kyorokyoro() {
 
 /* 00003A84-00003C9C       .text chk_attn__11daNpc_Kk1_cFv */
 bool daNpc_Kk1_c::chk_attn() {
-    f32 distance = (current.pos - dComIfGp_getPlayer(0)->current.pos).absXZ();
-    f32 height = current.pos.y - dComIfGp_getPlayer(0)->current.pos.y;
-    s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getPlayer(0)->current.pos) - current.angle.y;
+    f32 distance = (current.pos - dComIfGp_getLinkPlayer()->current.pos).absXZ();
+    f32 height = current.pos.y - dComIfGp_getLinkPlayer()->current.pos.y;
+    s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getLinkPlayer()->current.pos) - current.angle.y;
     if (m81E == 1) {
         return distance < 200.0f && abs(angle) / 182.04445f < 90.0f && std::fabsf(height) < 300.0f;
     }

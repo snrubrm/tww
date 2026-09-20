@@ -208,7 +208,7 @@ public:
     /* 0x810 */ JPABaseEmitter* mpAse;
     /* 0x814 */ u8 m814;
     /* 0x815 */ u8 m815;
-    /* 0x816 */ u8 m816;
+    /* 0x816 */ s8 m816;
     /* 0x817 */ u8 mAnmAttr;
     /* 0x818 */ u8 mAnmTag;
     /* 0x819 */ s8 mBtpNo;
@@ -216,7 +216,7 @@ public:
     /* 0x81B */ s8 mOrder;
     /* 0x81C */ s8 mState;
     /* 0x81D */ s8 mPreviousState;
-    /* 0x81E */ u8 m81E;
+    /* 0x81E */ s8 m81E;
     /* 0x81F */ s8 mType;
     /* 0x820 */ s8 mSubType;
     /* 0x821 */ s8 mActionState;
