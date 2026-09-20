@@ -1164,9 +1164,12 @@ void dKyr_housi_move() {
             if (effect->mStatus == 1) {
                 f32 temp_f0_5 = cM_fsin(effect->mScale.x);
 
-                effect->mPos.x += effect->field_0x34 * (sp78.x * temp_f3);
-                effect->mPos.y += effect->field_0x34 * (sp78.y * temp_f3);
-                effect->mPos.z += effect->field_0x34 * (sp78.z * temp_f3);
+                f32 temp_f1 = temp_f3 * sp78.x;
+                effect->mPos.x += temp_f1 * effect->field_0x34;
+                temp_f1 = temp_f3 * sp78.y;
+                effect->mPos.y += temp_f1 * effect->field_0x34;
+                temp_f1 = temp_f3 * sp78.z;
+                effect->mPos.z += temp_f1 * effect->field_0x34;
                 effect->mPos.y -= effect->field_0x34 * 0.6f;
 
                 effect->mPos.x += temp_f0_5 * effect->field_0x34;
@@ -3648,7 +3651,6 @@ void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
 
 /* 80095E8C-8009682C       .text dKyr_drawRain__FPA4_fPPUc */
 void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
-    /* Nonmatching */
     dKankyo_rain_Packet* pPkt = g_env_light.mpRainPacket;
     camera_process_class* pCamera = dComIfGp_getCamera(0);
 
@@ -3746,12 +3748,12 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
 
         f32 size = 2.5f + (i / 250.0f);
         f32 speed = 5.0f + (dist * 70.0f);
-        tilt.x = speed * ((dummy.x + (10.0f * (pPkt->mCenterDelta.x * pPkt->mCenterDeltaMul))) + (windvec.x + (0.08f * (i & 0x07))));
-        tilt.y = speed * ((dummy.y + (pPkt->mCenterDelta.y * pPkt->mCenterDeltaMul)) + windvec.y);
-        tilt.z = speed * ((dummy.z + (10.0f * (pPkt->mCenterDelta.z * pPkt->mCenterDeltaMul))) + (windvec.z + (0.08f * (i & 0x03))));
+        tilt.x = speed * ((windvec.x + (10.0f * (pPkt->mCenterDelta.x * pPkt->mCenterDeltaMul))) + (dummy.x + (0.08f * (i & 0x07))));
+        tilt.y = speed * ((windvec.y + (pPkt->mCenterDelta.y * pPkt->mCenterDeltaMul)) + dummy.y);
+        tilt.z = speed * ((windvec.z + (10.0f * (pPkt->mCenterDelta.z * pPkt->mCenterDeltaMul))) + (dummy.z + (0.08f * (i & 0x03))));
 
-        f32 nsize = -size;
-        vp.x = nsize * -1.0f;
+        f32 flipX = -1.0f;
+        vp.x = -size * flipX;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
@@ -3759,7 +3761,7 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
         pos[0].y = (p.y + lp.y) - tilt.y;
         pos[0].z = (p.z + lp.z) - tilt.z;
 
-        vp.x = size * -1.0f;
+        vp.x = size * flipX;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
@@ -3767,7 +3769,7 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
         pos[1].y = (p.y + lp.y) - tilt.y;
         pos[1].z = (p.z + lp.z) - tilt.z;
 
-        vp.x = size * -1.0f;
+        vp.x = size * flipX;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
@@ -3775,7 +3777,7 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
         pos[2].y = p.y + lp.y;
         pos[2].z = p.z + lp.z;
 
-        vp.x = nsize * -1.0f;
+        vp.x = -size * flipX;
         vp.y = 0.0f;
         vp.z = 0.0f;
         MTXMultVec(camMtx, &vp, &lp);
