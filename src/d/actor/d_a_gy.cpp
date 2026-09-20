@@ -1024,10 +1024,8 @@ void daGy_c::modeDeleteInit() {
 
     dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
     int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
-    n = cLib_maxLimit<int>(n, 0xFF);
-    u8 val = n;
-    u16 flag = dSv_event_flag_c::UNK_7EFF;
-    pEvent->setEventReg(flag, val);
+    n = cLib_maxLimit<int>(n, 0xFF) & 0xFF;
+    pEvent->setEventReg(dSv_event_flag_c::UNK_7EFF, n);
 
     m2B0 = 8;
     mPrmIdx = 8;
