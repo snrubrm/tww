@@ -486,7 +486,7 @@ bool dCamera_c::getEvIntData(int* out, char* name, int defaultVal) {
 }
 
 /* 800B0484-800B055C       .text getEvFloatData__9dCamera_cFPfPcf */
-bool dCamera_c::getEvFloatData(f32* out, char* name, f32 defaultVal) {
+BOOL dCamera_c::getEvFloatData(f32* out, char* name, f32 defaultVal) {
     if (chkFlag(0x20000000)) {
         int idx = searchEventArgData(name);
         if (idx == -1) {
@@ -761,8 +761,8 @@ bool dCamera_c::stokerEvCamera() {
         if (work->mStoker == NULL || work->mTarget == NULL) {
             return true;
         }
-        work->mStokerId = work->mStoker != NULL ? fopAcM_GetID(work->mStoker) : -1;
-        work->mTargetId = work->mTarget != NULL ? fopAcM_GetID(work->mTarget) : -1;
+        work->mStokerId = fopAcM_GetID(work->mStoker);
+        work->mTargetId = fopAcM_GetID(work->mTarget);
         SkipSmoother();
     }
 
@@ -950,7 +950,7 @@ bool dCamera_c::fixedPositionEvCamera() {
         if (work->mTarget == NULL) {
             return true;
         }
-        work->mTargetId = work->mTarget != NULL ? fopAcM_GetID(work->mTarget) : -1;
+        work->mTargetId = fopAcM_GetID(work->mTarget);
         work->mRelActor = getEvActor("RelActor");
         if (work->mRelActor != NULL && work->mRelUseMask[0] != '-') {
             work->mEye = relationalPos(work->mRelActor, &eye);
@@ -1030,7 +1030,7 @@ bool dCamera_c::uniformTransEvCamera() {
         getEvFloatData(&work->mCushion, "Cushion", 1.0f);
 
         if (work->mRelActor != NULL) {
-            work->mRelActorId = work->mRelActor != NULL ? fopAcM_GetID(work->mRelActor) : -1;
+            work->mRelActorId = fopAcM_GetID(work->mRelActor);
             if (work->mRelUseMask[1] == 'r') {
                 cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
                 if (m080 & 1) {
@@ -1239,7 +1239,7 @@ bool dCamera_c::uniformBrakeEvCamera() {
         getEvIntData(&work->mBrakeType, "BrakeType", 0);
         if (work->mBrakeType != 1) {
             work->mDenom = (f32)(work->mBrakingPoint * work->mRemain);
-            work->mDenom += (f32)(work->mRemain * (work->mRemain + 1) / 2);
+            work->mDenom += (f32)(work->mRemain * (work->mRemain + 1) >> 1);
         } else {
             f32 pow = (f32)(1 << (work->mRemain - 1));
             work->mDenom = (f32)work->mBrakingPoint * pow;
@@ -1259,7 +1259,7 @@ bool dCamera_c::uniformBrakeEvCamera() {
         getEvFloatData(&work->mCushion, "Cushion", 1.0f);
 
         if (work->mRelActor != NULL) {
-            work->mRelActorId = work->mRelActor != NULL ? fopAcM_GetID(work->mRelActor) : -1;
+            work->mRelActorId = fopAcM_GetID(work->mRelActor);
             if (work->mRelUseMask[1] == 'r') {
                 cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
                 if (m080 & 1) {
@@ -1478,7 +1478,7 @@ bool dCamera_c::uniformAcceleEvCamera() {
         work->mRemain = work->mTimer - work->mAcceleTimer;
         if (work->mAcceleType != 1) {
             work->mDenom = (f32)(work->mRemain * work->mAcceleTimer);
-            work->mDenom += (f32)(work->mAcceleTimer * (work->mAcceleTimer + 1) / 2);
+            work->mDenom += (f32)(work->mAcceleTimer * (work->mAcceleTimer + 1) >> 1);
         } else {
             f32 pow = (f32)(1 << (work->mAcceleTimer - 1));
             work->mDenom = (f32)work->mRemain * pow;
@@ -1498,7 +1498,7 @@ bool dCamera_c::uniformAcceleEvCamera() {
         getEvFloatData(&work->mCushion, "Cushion", 1.0f);
 
         if (work->mRelActor != NULL) {
-            work->mRelActorId = work->mRelActor != NULL ? fopAcM_GetID(work->mRelActor) : -1;
+            work->mRelActorId = fopAcM_GetID(work->mRelActor);
             if (work->mRelUseMask[1] == 'r') {
                 cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
                 if (m080 & 1) {
@@ -1723,7 +1723,7 @@ bool dCamera_c::watchActorEvCamera() {
         if ((work->mTarget = getEvActor("Target", "@STARTER")) == NULL) {
             return true;
         }
-        work->mTargetId = work->mTarget != NULL ? fopAcM_GetID(work->mTarget) : -1;
+        work->mTargetId = fopAcM_GetID(work->mTarget);
         work->mCenter = relationalPos(work->mTarget, &work->mCtrGap);
         work->mGlobe.Val(mViewCache.mEye - work->mCenter);
         if (work->mGlobe.R() < work->mNearDist) {
@@ -3468,8 +3468,8 @@ bool dCamera_c::twoActor0EvCamera() {
         if (work->mActor1 == NULL || work->mActor2 == NULL) {
             return true;
         }
-        work->mActor1Id = work->mActor1 != NULL ? fopAcM_GetID(work->mActor1) : -1;
-        work->mActor2Id = work->mActor2 != NULL ? fopAcM_GetID(work->mActor2) : -1;
+        work->mActor1Id = fopAcM_GetID(work->mActor1);
+        work->mActor2Id = fopAcM_GetID(work->mActor2);
         getEvXyzData(&work->mCtrGap, "CtrGap", DefaultGap);
         getEvFloatData(&work->mCtrRatio, "CtrRatio", IllegalRatio);
         getEvFloatData(&work->mCtrCus, "CtrCus", DefaultCtrCus);

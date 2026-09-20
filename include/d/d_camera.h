@@ -570,7 +570,7 @@ public:
     bool getEvIntData(int*, char*);
     char* getEvStringPntData(char*);
     bool getEvIntData(int*, char*, int);
-    bool getEvFloatData(f32*, char*, f32);
+    BOOL getEvFloatData(f32*, char*, f32);
     bool getEvXyzData(cXyz*, char*, cXyz);
     bool getEvStringData(char*, char*, char*);
     char* getEvStringPntData(char*, char*);
