@@ -40,7 +40,7 @@ DSError TRKMessageSend(TRKBuffer* msg) {
         }
     }
     if (error == DS_NoError) {
-        byte = checksum;
+        u8 byte = checksum;
         for (i = 0; i < 1; i++) {
             if ((u8)checksum == 0x7E || (u8)checksum == 0x7D) {
                 error = WriteUART1(0x7D);
