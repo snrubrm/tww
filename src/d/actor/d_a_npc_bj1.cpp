@@ -2825,17 +2825,9 @@ BOOL daNpc_Bj1_c::_execute() {
         f32 vol = 0.0f;
         s16 max = l_HIO.mChild[mType].mPrm.m40;
         if (max != 0) {
-            f32 t = 100.0f;
-            f32 v = t * ((f32)mPrpRotSpd / (f32)max);
-            if (v > t) {
-            } else {
-                t = v;
-            }
-            vol = 0.0f;
-            if (t < vol) {
-            } else {
-                vol = t;
-            }
+            vol = 100.0f * ((f32)mPrpRotSpd / (f32)max);
+            vol = vol > 100.0f ? 100.0f : vol;
+            vol = vol < 0.0f ? 0.0f : vol;
         }
         s8 reverb = dComIfGp_getReverb(fopAcM_GetRoomNo(this));
         mDoAud_seStart(JA_SE_CM_PRAPELLO_ROLLING, &current.pos, (u32)vol, reverb);
