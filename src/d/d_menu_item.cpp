@@ -1178,75 +1178,73 @@ void dMenu_Item_c::itemnoteSet() {
 
     if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
         msgNo = dItem_data::getItemMesgNum(dComIfGs_getItem(mNowItem));
-        if (msgNo == 0) {
-            msgNo = 0x264;
-        } else {
-            msgNo = msgNo + 0xC8;
+        msgNo = msgNo == 0 ? 0x264 : msgNo + 0xC8;
+    } else {
+        return;
+    }
+
+    mesg_header* head_p = msgGet.getMesgHeader(msgNo);
+    JUT_ASSERT(0x5F1, head_p);
+
+    const char* mesg = msgGet.getMessage(head_p);
+    JMSMesgEntry_c msg_entry;
+    msg_entry = msgGet.getMesgEntry(head_p);
+
+    msgProc.dataInit();
+    msgProc.setBmgData((char*)mesg);
+    msgProc.setOutMessage(note[0], note[1], dummy[0], dummy[1]);
+    msgProc.setFont(mFont);
+    msgProc.setRubyFont(mRFont);
+    msgProc.setCharSpace(((J2DTextBox*)m778.pane)->getCharSpace());
+    msgProc.setRubyCharSpace(((J2DTextBox*)m740.pane)->getCharSpace());
+    msgProc.setLineSpace(((J2DTextBox*)m778.pane)->getLineSpace());
+    msgProc.setMesgEntry(&msg_entry);
+    msgProc.setFontSize(fontSize.mSizeX);
+    msgProc.setRubyFontSize(rubySize);
+    msgProc.setLineWidth(0x1FE);
+    msgProc.setCenterLineWidth(0x1E6);
+    msgProc.setSendSpeed(2);
+    msgProc.setSpaceTimer(0);
+    msgProc.shortCut();
+    msgProc.setSpaceFlagOff();
+
+    msgProc.stringLength();
+    msgProc.stringShift();
+    msgProc.iconIdxRefresh();
+
+    s16 lineCount = msgProc.getLineCount();
+    msgProc.setLineCount(0);
+    f32 lineSpace = ((J2DTextBox*)m778.pane)->getLineSpace();
+    int unusedLines = 3 - lineCount;
+    f32 shiftY = unusedLines * (lineSpace / 2.0f);
+    ((J2DTextBox*)m740.pane)->shiftSet(0.0f, shiftY);
+    ((J2DTextBox*)m778.pane)->shiftSet(0.0f, shiftY);
+    msgProc.stringSet();
+
+    ((J2DTextBox*)m778.pane)->setString(note[0]);
+    ((J2DTextBox*)m740.pane)->setString(note[1]);
+
+    int halfSpace = ((J2DTextBox*)m778.pane)->getLineSpace() / 2.0f;
+    for (int i = 0; i < 15; i++) {
+        u8 iconNo = msgProc.getIconNum(i);
+        u32 color = msgProc.getIconColor(i);
+        if (color == 0xFFFFFFFF) {
+            color = 0xFF;
         }
-
-        mesg_header* head_p = msgGet.getMesgHeader(msgNo);
-        JUT_ASSERT(0x5F1, head_p);
-
-        const char* mesg = msgGet.getMessage(head_p);
-        JMSMesgEntry_c msg_entry;
-        msg_entry = msgGet.getMesgEntry(head_p);
-
-        msgProc.dataInit();
-        msgProc.setBmgData((char*)mesg);
-        msgProc.setOutMessage(note[0], note[1], dummy[0], dummy[1]);
-        msgProc.setFont(mFont);
-        msgProc.setRubyFont(mRFont);
-        msgProc.setCharSpace(((J2DTextBox*)m778.pane)->getCharSpace());
-        msgProc.setRubyCharSpace(((J2DTextBox*)m740.pane)->getCharSpace());
-        msgProc.setLineSpace(((J2DTextBox*)m778.pane)->getLineSpace());
-        msgProc.setMesgEntry(&msg_entry);
-        msgProc.setFontSize(fontSize.mSizeX);
-        msgProc.setRubyFontSize(rubySize);
-        msgProc.setLineWidth(0x1FE);
-        msgProc.setCenterLineWidth(0x1E6);
-        msgProc.setSendSpeed(2);
-        msgProc.setSpaceTimer(0);
-        msgProc.shortCut();
-        msgProc.setSpaceFlagOff();
-
-        msgProc.stringLength();
-        msgProc.stringShift();
-        msgProc.iconIdxRefresh();
-
-        s16 lineCount = msgProc.getLineCount();
-        msgProc.setLineCount(0);
-        f32 lineSpace = ((J2DTextBox*)m778.pane)->getLineSpace();
-        int unusedLines = 3 - lineCount;
-        f32 shiftY = unusedLines * (lineSpace / 2.0f);
-        ((J2DTextBox*)m740.pane)->shiftSet(0.0f, shiftY);
-        ((J2DTextBox*)m778.pane)->shiftSet(0.0f, shiftY);
-        msgProc.stringSet();
-
-        ((J2DTextBox*)m778.pane)->setString(note[0]);
-        ((J2DTextBox*)m740.pane)->setString(note[1]);
-
-        int halfSpace = ((J2DTextBox*)m778.pane)->getLineSpace() / 2.0f;
-        for (int i = 0; i < 15; i++) {
-            u8 iconNo = msgProc.getIconNum(i);
-            u32 color = msgProc.getIconColor(i);
-            if (color == 0xFFFFFFFF) {
-                color = 0xFF;
-            }
-            if (iconNo == 0xFF) {
-                continue;
-            }
-            if (m0B0[i].mUserArea != -1) {
-                continue;
-            }
-            if (iconNo == fopMsgM_Icon_INPUT_e) {
-                continue;
-            }
-            m0B0[i].mPosTopLeft.x = (f32)msgProc.getIconPosX(i);
-            m0B0[i].mPosTopLeft.y = (f32)(halfSpace * (unusedLines + msgProc.getIconPosY(i) * 2));
-            m0B0[i].mPosTopLeftOrig.y = (f32)iconNo;
-
-            fopMsgM_outFontSet((J2DPicture*)m0B0[i].pane, &m0B0[i].mUserArea, color, iconNo);
+        if (iconNo == 0xFF) {
+            continue;
         }
+        if (m0B0[i].mUserArea != -1) {
+            continue;
+        }
+        if (iconNo == fopMsgM_Icon_INPUT_e) {
+            continue;
+        }
+        m0B0[i].mPosTopLeft.x = (f32)msgProc.getIconPosX(i);
+        m0B0[i].mPosTopLeft.y = (f32)(halfSpace * (unusedLines + msgProc.getIconPosY(i) * 2));
+        m0B0[i].mPosTopLeftOrig.y = (f32)iconNo;
+
+        fopMsgM_outFontSet((J2DPicture*)m0B0[i].pane, &m0B0[i].mUserArea, color, iconNo);
     }
 }
 
