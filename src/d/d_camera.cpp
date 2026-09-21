@@ -6267,6 +6267,7 @@ bool dCamera_c::hungCamera(s32 param_1) {
     if (check_owner_action(mPadId, daPyStts0_UNK80000000_e | daPyStts0_UNK80_e)) {
         cSAngle hi(-20.0f);
         cSAngle lo(75.0f);
+        cSAngle unused(178.0f);
         f32 bx = mStickCPosXLast;
         if (bx > 0.7f) {
             bx = 1.0f;
