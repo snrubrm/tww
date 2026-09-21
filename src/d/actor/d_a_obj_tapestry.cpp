@@ -584,11 +584,8 @@ void daObjTapestryPacket_c::calc_acc_spring(int row, int col) {
     bool down_ok = down < 8;
     bool left_ok = left >= 0;
     bool right_ok = right < 6;
-    daObjTapestry_Attr_c a = attr();
-    daObjTapestry_Attr_c b = a;
-    f32 ortho = b.m2C;
-    daObjTapestry_Attr_c c = a;
-    f32 diag = c.m34;
+    f32 ortho = attr().m2C;
+    f32 diag = attr().m34;
     if (up >= 0) {
         calc_acc_spring_sub(now, &prev->pos[up][col], 42.42857f, ortho);
         if (left_ok) {
