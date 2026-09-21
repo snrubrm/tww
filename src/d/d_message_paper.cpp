@@ -935,13 +935,12 @@ void dDlst_2DMSG3_c::outFontDraw() {
         for (int j = 0; j < 8; j++) {
             u8 iconNum = actorP->msgDataProc[i].getIconNum(j);
             int posX = actorP->msgDataProc[i].getIconPosX(j);
-            int scale = actorP->msgDataProc[i].getIconScale(j);
             int posY = actorP->msgDataProc[i].getIconPosY(j);
+            int scale = actorP->msgDataProc[i].getIconScale(j);
 
             if (iconNum != fopMsgM_Icon_NONE_e) {
-                J2DPane* scrn = actorP->text_pane[i].pane;
-                int r18 = (int)((f32)posX + scrn->getGlbBounds().i.x);
-                int r17 = (int)((f32)(actorP->field_0xeac * (2 - actorP->field_0xec8[i] + (posY * 2))) + scrn->getGlbBounds().i.y);
+                int r18 = (int)((f32)posX + actorP->text_pane[i].pane->getGlbBounds().i.x);
+                int r17 = (int)((f32)(actorP->field_0xeac * (2 - actorP->field_0xec8[i] + (posY * 2))) + actorP->text_pane[i].pane->getGlbBounds().i.y);
                 u8 r14 = actorP->field_0xea8;
 
                 if ((f32)r17 > var_f31 && (f32)r17 < var_f30 - (f32)scale) {
