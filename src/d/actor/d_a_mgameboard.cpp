@@ -557,10 +557,10 @@ bool daMgBoard_c::_draw() {
     dComIfGd_setList();
     for (int i = 0; i < 3; ++i) {
         int type = mSeaFightGame.mShips[i].field_0x8;
-        u8 bullets = mSeaFightGame.mBulletNum;
-        u8 alive = mSeaFightGame.mAliveShipNum;
+        s32 bullets = mSeaFightGame.mBulletNum;
+        s32 alive = mSeaFightGame.mAliveShipNum;
         bool ended = false;
-        if ((bullets == 0) | (alive == 0)) {
+        if ((alive == 0) | (bullets == 0)) {
             ended = true;
         }
         if (ended) {
