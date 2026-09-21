@@ -1228,7 +1228,8 @@ void dMenu_Fmap2_c::gsIconAnime() {
         tmp = 1.0f - tmp;
     }
     u8 base = g_mf2HIO.field_0x91;
-    mGsGsixPaneAlpha[moonType].mNowAlpha = base + (u32)((f32)(g_mf2HIO.field_0x90 - base) * tmp);
+    f32 d = g_mf2HIO.field_0x90 - base;
+    mGsGsixPaneAlpha[moonType].mNowAlpha = base + (u32)(d * tmp);
     fopMsgM_setAlpha(&mGsGsixPaneAlpha[moonType]);
     if (field_0x284c == 0) {
         if (field_0x284d == 0) {
