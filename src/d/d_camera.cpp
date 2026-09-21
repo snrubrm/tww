@@ -8087,6 +8087,7 @@ static cPhs_State camera_create(camera_class* i_this) {
 
 /* 8017C9B0-8017C9DC       .text camera_delete__FP20camera_process_class */
 static bool camera_delete(camera_process_class* i_this) {
+    for (int i = 0; i < 1; i++) {} // fakematch: fixes instruction order
     i_this->mCamera.~dCamera_c();
     return TRUE;
 }
