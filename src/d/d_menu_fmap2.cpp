@@ -1285,7 +1285,6 @@ void dMenu_Fmap2_c::screenSetTn() {
 
 /* 801C073C-801C0ADC       .text screenSetTr__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::screenSetTr() {
-    /* Nonmatching */
     fmap2GsDl.scrn = new J2DScreen();
     JUT_ASSERT(VERSION_SELECT(1954, 1965, 2098, 2111), fmap2GsDl.scrn != NULL);
     fmap2GsDl.scrn->set("TR_map_1.blo", field_0x18->getArchive());
@@ -1299,15 +1298,16 @@ void dMenu_Fmap2_c::screenSetTr() {
     fopMsgM_setPaneData(&mTrLnkPane, fmap2GsDl.scrn->search('lnk'));
     fopMsgM_setPaneData(&mTrGdgtPane, fmap2GsDl.scrn->search('gdgt'));
 #if VERSION > VERSION_JPN
+    int i;
     u32 r27 = 'tf1';
     u32 r26 = 'tg1';
     u32 r25 = 'mg1';
-    for (int i = 0; i < 8; r25++, r27++, r26++, i++) {
+    for (i = 0; i < 8; r25++, r27++, r26++, i++) {
         fopMsgM_setPaneData(&field_0x1dc4[i], fmap2GsDl.scrn->search(r25));
         fopMsgM_setPaneData(&field_0x1e04[i], fmap2GsDl.scrn->search(r27));
         fopMsgM_setPaneData(&field_0x1e44[i], fmap2GsDl.scrn->search(r26));
     }
-    for (int i = 0; i < 8; i++) {
+    for (i = 0; i < 8; i++) {
         if (isGetCollectMap(i + 1)) {
             field_0x1dc4[i].pane->show();
             if (isOpenCollectMapTriforce(i)) {
