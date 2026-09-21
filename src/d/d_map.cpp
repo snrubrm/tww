@@ -3550,7 +3550,6 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
 
 /* 8004FFC8-800504C4       .text init__11dMap_Dmap_cFsssssssssUcUcUcUcUc */
 void dMap_Dmap_c::init(s16 param_1, s16 param_2, s16 param_3, s16 param_4, s16 param_5, s16 param_6, s16 param_7, s16 param_8, s16 param_9, u8 param_10, u8 param_11, u8 param_12, u8 param_13, u8 param_14) {
-    /* Nonmatching */
     field_0x35c = param_1;
     field_0x35e = param_2;
     field_0x360 = param_3;
@@ -3575,14 +3574,14 @@ void dMap_Dmap_c::init(s16 param_1, s16 param_2, s16 param_3, s16 param_4, s16 p
     mImageGridP = (ResTIMG*)JKRGetResource('TIMG', "grid_32.bti", mpArc);
     JUT_ASSERT(VERSION_SELECT(10519, 10519, 10519, 10519), mImageGridP !=NULL);
     field_0x2b0 = (ResTIMG*)dComIfG_getStageRes("Stage", "dmap_back.bti");
-    GXInitTexObj(&field_0x5c0, (u8*)mImageP + mImageP->imageOffset, mImageP->width, mImageP->height, GXTexFmt(mImageP->format), GXTexWrapMode(mImageP->wrapS), GXTexWrapMode(mImageP->wrapT), mImageP->mipmapCount > 1);
+    GXInitTexObj(&field_0x5c0, (u8*)mImageP + mImageP->imageOffset, mImageP->width, mImageP->height, GXTexFmt(mImageP->format), GXTexWrapMode(mImageP->wrapS), GXTexWrapMode(mImageP->wrapT), mImageP->mipmapCount > 1 ? GX_TRUE : GX_FALSE);
     GXInitTexObjLOD(&field_0x5c0, GXTexFilter(mImageP->minFilter), GXTexFilter(mImageP->magFilter), mImageP->minLOD * 0.125f, mImageP->maxLOD * 0.125f, mImageP->LODBias * 0.01f, mImageP->biasClamp, mImageP->doEdgeLOD, GXAnisotropy(mImageP->maxAnisotropy));
-    GXInitTexObj(&field_0x5a0, (u8*)mImageSeetP + mImageSeetP->imageOffset, mImageSeetP->width, mImageSeetP->height, GXTexFmt(mImageSeetP->format), GXTexWrapMode(mImageSeetP->wrapS), GXTexWrapMode(mImageSeetP->wrapT), mImageSeetP->mipmapCount > 1);
+    GXInitTexObj(&field_0x5a0, (u8*)mImageSeetP + mImageSeetP->imageOffset, mImageSeetP->width, mImageSeetP->height, GXTexFmt(mImageSeetP->format), GXTexWrapMode(mImageSeetP->wrapS), GXTexWrapMode(mImageSeetP->wrapT), mImageSeetP->mipmapCount > 1 ? GX_TRUE : GX_FALSE);
     GXInitTexObjLOD(&field_0x5a0, GXTexFilter(mImageSeetP->minFilter), GXTexFilter(mImageSeetP->magFilter), mImageSeetP->minLOD * 0.125f, mImageSeetP->maxLOD * 0.125f, mImageSeetP->LODBias * 0.01f, mImageSeetP->biasClamp, mImageSeetP->doEdgeLOD, GXAnisotropy(mImageSeetP->maxAnisotropy));
-    GXInitTexObj(&field_0x5e0, (u8*)mImageGridP + mImageGridP->imageOffset, mImageGridP->width, mImageGridP->height, GXTexFmt(mImageGridP->format), GXTexWrapMode(mImageGridP->wrapS), GXTexWrapMode(mImageGridP->wrapT), mImageGridP->mipmapCount > 1);
+    GXInitTexObj(&field_0x5e0, (u8*)mImageGridP + mImageGridP->imageOffset, mImageGridP->width, mImageGridP->height, GXTexFmt(mImageGridP->format), GXTexWrapMode(mImageGridP->wrapS), GXTexWrapMode(mImageGridP->wrapT), mImageGridP->mipmapCount > 1 ? GX_TRUE : GX_FALSE);
     GXInitTexObjLOD(&field_0x5e0, GXTexFilter(mImageGridP->minFilter), GXTexFilter(mImageGridP->magFilter), mImageGridP->minLOD * 0.125f, mImageGridP->maxLOD * 0.125f, mImageGridP->LODBias * 0.01f, mImageGridP->biasClamp, mImageGridP->doEdgeLOD, GXAnisotropy(mImageGridP->maxAnisotropy));
     if (field_0x2b0) {
-        GXInitTexObj(&field_0x600, (u8*)field_0x2b0 + field_0x2b0->imageOffset, field_0x2b0->width, field_0x2b0->height, GXTexFmt(field_0x2b0->format), GXTexWrapMode(field_0x2b0->wrapS), GXTexWrapMode(field_0x2b0->wrapT), field_0x2b0->mipmapCount > 1);
+        GXInitTexObj(&field_0x600, (u8*)field_0x2b0 + field_0x2b0->imageOffset, field_0x2b0->width, field_0x2b0->height, GXTexFmt(field_0x2b0->format), GXTexWrapMode(field_0x2b0->wrapS), GXTexWrapMode(field_0x2b0->wrapT), field_0x2b0->mipmapCount > 1 ? GX_TRUE : GX_FALSE);
         GXInitTexObjLOD(&field_0x600, GXTexFilter(field_0x2b0->minFilter), GXTexFilter(field_0x2b0->magFilter), field_0x2b0->minLOD * 0.125f, field_0x2b0->maxLOD * 0.125f, field_0x2b0->LODBias * 0.01f, field_0x2b0->biasClamp, field_0x2b0->doEdgeLOD, GXAnisotropy(field_0x2b0->maxAnisotropy));
     }
     for (int i = 0; i < 10; i++) {
