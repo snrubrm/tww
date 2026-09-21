@@ -1790,10 +1790,11 @@ void dMenu_Fmap2_c::changeSelCmap() {
 
 /* 801C3070-801C3210       .text changeSelCmap2__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::changeSelCmap2() {
+    int i;
     field_0x2812 = 3;
     int kind = getCollectMapKind(field_0x27a9);
     field_0x1aa4[field_0x2815 ^ 1][0].pane->hide();
-    for (int i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++) {
         field_0x1244[field_0x2814 ^ 1][i].pane->show();
         ((J2DPicture*)field_0x1244[field_0x2814 ^ 1][i].pane)->changeTexture(rollmapTex[kind], 0);
     }
@@ -1805,7 +1806,7 @@ void dMenu_Fmap2_c::changeSelCmap2() {
         outFont[field_0x2816 ^ 1]->messageSet(0x319e);
         outFontS[field_0x2816 ^ 1]->messageSet(0x319e);
     }
-    for (int i = 0; i < 5; i++) {
+    for (i = 0; i < 5; i++) {
         field_0x124c[field_0x2813 ^ 1][i].pane->hide();
     }
 }
