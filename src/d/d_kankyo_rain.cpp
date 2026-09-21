@@ -4677,7 +4677,6 @@ void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
 
 /* 80098FF0-80099D38       .text dKyr_drawStar__FPA4_fPPUc */
 void dKyr_drawStar(Mtx drawMtx, u8** pImg) {
-    /* Nonmatching */
     dScnKy_env_light_c* envlight = &dKy_getEnvlight();
     dKankyo_star_Packet* star_packet = g_env_light.mpStarPacket;
     camera_process_class* camera = (camera_process_class*)dComIfGp_getCamera(0);
@@ -4826,7 +4825,7 @@ void dKyr_drawStar(Mtx drawMtx, u8** pImg) {
                 star_size = 290.0f + star_packet->mEffect[0].mSin;
             }
 
-            star_size -= temp_f27 * (0.5f * star_size);
+            star_size -= var_f30 * (0.5f * star_size);
         } else {
             star_size = star_packet->mEffect[0].mSin + (0.066f * (i & 0x0F));
             if (star_size > 1.0f)
