@@ -479,12 +479,10 @@ void daObjTribox::Act_c::eff_sink_smoke_start() {
         mSinkSmokeState = 1;
         dPa_levelEcallBack* cbs[3] = { &mSinkSmoke0, &mSinkSmoke1, &mSinkSmoke2 };
         csXyz dummy = shape_angle;
-        s16 add = 0;
         for (int i = 0; i < 3; i++) {
             csXyz ang = shape_angle;
-            ang.y += add;
+            ang.y += i * 0x5555;
             dComIfGp_particle_setToon(dPa_name::ID_AK_ST_TRIFORCEBLOCKSMOKE00, &current.pos, &ang, NULL, 0xA0, cbs[i]);
-            add += 0x5555;
         }
     }
 }
