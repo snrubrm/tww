@@ -1091,8 +1091,8 @@ void daObjTapestryPacket_c::eff_pos() {
                     cXyz world;
                     mDoMtx_multVec(mMtx, &now.pos[row][col], &world);
                     mFire[idx].set_pos(world);
-                    cXyz delta = now.pos[row][col] - prev.pos[row][col];
                     cXyz spd;
+                    cXyz delta = now.pos[row][col] - prev.pos[row][col];
                     mDoMtx_multVecSR(mMtx, &delta, &spd);
                     mFire[idx].set_spd(spd);
                 }
