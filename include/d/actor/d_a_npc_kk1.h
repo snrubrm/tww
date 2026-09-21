@@ -112,7 +112,7 @@ public:
     void init_CMT_WAI();
     void move_CMT_WAI();
     void init_CMT_TRN();
-    BOOL move_CMT_TRN();
+    void move_CMT_TRN();
     void init_CMT_PCK();
     void move_CMT_PCK();
     BOOL cmmt_1();

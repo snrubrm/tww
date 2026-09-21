@@ -1851,8 +1851,8 @@ void daNpc_Kk1_c::init_CMT_TRN() {
 }
 
 /* 000047D4-00004A14       .text move_CMT_TRN__11daNpc_Kk1_cFv */
-BOOL daNpc_Kk1_c::move_CMT_TRN() {
-    s16 opposite = m7AA + 0x8000;
+void daNpc_Kk1_c::move_CMT_TRN() {
+    s16 targetAngle = m7AA + 0x8000;
     s16 prevAngle = current.angle.y;
     if (cLib_calcTimer(&m798) != 0) {
         if (mOrder != 1 && mOrder < 3) {
@@ -1862,22 +1862,20 @@ BOOL daNpc_Kk1_c::move_CMT_TRN() {
         }
     } else if (m7A4 == 0) {
         cXyz pos = mPath.getPoint(mPath.getIdx());
-        s16 target = cLib_targetAngleY(&current.pos, &pos);
-        cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
+        targetAngle = cLib_targetAngleY(&current.pos, &pos);
+        cLib_addCalcAngleS(&current.angle.y, targetAngle, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
         if (mOrder != 1 && mOrder < 3) {
             if (startEvent_check()) {
                 mOrder = 9;
-                return TRUE;
+            } else if (current.angle.y == targetAngle) {
+                m816 = 0;
+                setAnm_NUM(3, 1);
+                m7B6 = 1;
             }
         }
-        if (current.angle.y == target) {
-            m816 = 0;
-            setAnm_NUM(3, 1);
-            m7B6 = 1;
-        }
     } else {
-        cLib_addCalcAngleS(&current.angle.y, opposite, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
-        if (current.angle.y == opposite) {
+        cLib_addCalcAngleS(&current.angle.y, targetAngle, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
+        if (current.angle.y == targetAngle) {
             if (current.angle.y != prevAngle) {
                 m81E = 5;
                 m7C4 = 1;
@@ -1898,7 +1896,6 @@ BOOL daNpc_Kk1_c::move_CMT_TRN() {
             }
         }
     }
-    return TRUE;
 }
 
 /* 00004A14-00004A84       .text init_CMT_PCK__11daNpc_Kk1_cFv */
