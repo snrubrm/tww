@@ -2996,26 +2996,28 @@ void snap_sunmoon_proc(cXyz* pPos, int type) {
 
 /* 8009428C-8009514C       .text dKyr_drawSun__FPA4_fP4cXyzR8_GXColorPPUc */
 void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
-    /* Nonmatching */
     dKankyo_sun_Packet* pSunPkt;
     dKankyo_sunlenz_Packet* pSunlenzPkt;
-    camera_process_class* pCamera;
+    camera_class* pCamera;
+    int dayofweek;
+    s32 texidx;
     cXyz pos[4];
     cXyz sunPos;
     cXyz moonPos2;
     cXyz moonPos;
     cXyz vp;
     cXyz lp;
-    bool bDrawSun;
     bool bDrawMoon;
+    bool bDrawSun;
     Mtx camMtx;
     Mtx rotMtx;
     GXColor reg1;
     GXTexObj texObj;
+    f32 angle;
 
     pSunPkt = dKy_getEnvlight().mpSunPacket;
     pSunlenzPkt = dKy_getEnvlight().mpSunlenzPacket;
-    pCamera = dComIfGp_getCamera(0);
+    pCamera = (camera_class*)dComIfGp_getCamera(0);
 
     bDrawMoon = false;
     bDrawSun = false;
@@ -3046,7 +3048,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         moonPos2.z = moonPos.z + pCamera->view.mLookat.mEye.z;
     }
 
-    int dayofweek = dKy_get_dayofweek();
+    dayofweek = dKy_get_dayofweek();
     if (dComIfGs_getTime() < 180.0f) {
         if (dayofweek != 0)
             dayofweek--;
@@ -3054,7 +3056,6 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
             dayofweek = 6;
     }
 
-    s32 texidx;
     f32 flipX;
     switch (dayofweek) {
     case 0: texidx = 0; flipX = 1.0f; break;
@@ -3063,7 +3064,8 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
     case 3: texidx = 3; flipX = 1.0f; break;
     case 4: texidx = 3; flipX = -1.0f; break;
     case 5: texidx = 2; flipX = -1.0f; break;
-    case 6: texidx = 1; flipX = -1.0f; break;
+    case 6:
+    default: texidx = 1; flipX = -1.0f; break;
     }
 
     reg0.r = dKy_getEnvlight().mFogColor.r;
@@ -3125,7 +3127,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         f32 moon_theta = std::atan2f(moonPos.x, moonPos.z);
         f32 moon_phi = std::atan2f(moonPos.y, moon_distXZ);
 
-        f32 angle = 45.0f + (((moon_theta - cam_theta) / -8.0f) * moon_phi) * 360.0f;
+        angle = 45.0f + (((moon_theta - cam_theta) / -8.0f) * moon_phi) * 360.0f;
         MTXRotDeg(rotMtx, 'Z', angle);
         MTXConcat(camMtx, rotMtx, camMtx);
         GXLoadPosMtxImm(drawMtx, GX_PNMTX0);
@@ -3152,7 +3154,8 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
                 reg1.r = 0xC5;
                 reg1.g = 0x69;
                 reg1.b = 0x23;
-                MTXRotDeg(rotMtx, 'Z', 50.0f * flipX);
+                angle = 50.0f * flipX;
+                MTXRotDeg(rotMtx, 'Z', angle);
                 MTXConcat(camMtx, rotMtx, camMtx);
                 GXLoadPosMtxImm(drawMtx, GX_PNMTX0);
                 GXSetCurrentMtx(GX_PNMTX0);
@@ -3177,7 +3180,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
             pos[1].y = moonPos2.y + lp.y;
             pos[1].z = moonPos2.z + lp.z;
 
-            if (texidx == 0) {
+            if (j == 0) {
                 vp.x = size * flipX;
                 vp.y = -size;
             } else {
@@ -3225,7 +3228,8 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         f32 cam_theta = std::atan2f(camfwd.x, camfwd.z);
         f32 cam_phi = std::atan2f(camfwd.y, cam_distXZ);
 
-        MTXRotDeg(rotMtx, 'Z', -50.0f + (360.0f * ((sun_theta - cam_theta) / -8.0f)));
+        angle = -50.0f + (360.0f * ((sun_theta - cam_theta) / -8.0f));
+        MTXRotDeg(rotMtx, 'Z', angle);
         MTXConcat(camMtx, rotMtx, camMtx);
         GXLoadPosMtxImm(drawMtx, GX_PNMTX0);
         GXSetCurrentMtx(GX_PNMTX0);
@@ -3234,7 +3238,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         reg0.g = 0xFF;
         reg0.b = 0xF1;
 
-        reg1.r = 0xF1;
+        reg1.r = 0xFF;
         reg1.g = 0x91;
         reg1.b = 0x49;
 
@@ -3252,7 +3256,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
                 GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
                 GXLoadTexObj(&texObj, GX_TEXMAP0);
                 size *= 1.6f;
-                reg0.a = pSunPkt->mSunAlpha * 76.0f;
+                reg0.a = pSunPkt->mSunAlpha * 255.0f;
             }
 
             GXSetTevColor(GX_TEVREG0, reg0);
