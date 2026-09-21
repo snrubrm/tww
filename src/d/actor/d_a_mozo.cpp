@@ -21,6 +21,8 @@
 #include "m_Do/m_Do_hostIO.h"
 #include "d/d_cc_d.h"
 
+#pragma pool_data off
+
 static dCcD_SrcCps cps_src = {
     // dCcD_SrcGObjInf
     {
@@ -74,6 +76,9 @@ daMozo_HIO_c::daMozo_HIO_c() {
     mpFireChild->m0E = 0x2800;
     mpFireChild->m10 = 0;
 }
+
+#pragma push
+#pragma pool_data on
 
 /* 000002D0-00000568       .text daMozo_nodeCallBackBeam__FP8daMozo_cP8J3DModelP7J3DNodei */
 static BOOL daMozo_nodeCallBackBeam(daMozo_c* i_this, J3DModel* model, J3DNode* node, int calcTiming) {
@@ -140,6 +145,8 @@ static BOOL daMozo_nodeCallBackFire(daMozo_c* i_this, J3DModel* model, J3DNode* 
     }
     return TRUE;
 }
+
+#pragma pop
 
 /* 00000728-0000078C       .text daMozo_nodeCallBack__FP7J3DNodei */
 static BOOL daMozo_nodeCallBack(J3DNode* node, int calcTiming) {
