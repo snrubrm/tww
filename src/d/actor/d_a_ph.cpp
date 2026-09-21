@@ -1751,12 +1751,8 @@ void ph_wind_move(ph_class* i_this) {
         actor->speedF = 30.0f;
         actor->gravity = 0.0f;
         i_this->m0350 = 0;
-        {
-            s32 i = 0;
-            for (int n = 7; n != 0; n--) {
-                *(s16*)((char*)i_this + 0x356 + i) = 0;
-                i += 2;
-            }
+        for (int i = 0; i < 7; i++) {
+            (&i_this->m0356)[i] = 0;
         }
         actor->current.angle.x = 0;
         actor->current.angle.z = 0;
@@ -1831,7 +1827,7 @@ void ph_wind_move(ph_class* i_this) {
         }
         actor->shape_angle.y += i_this->m0360;
         if (i_this->mpBodyMorf->isStop()) {
-            if (i_this->m02FC.x == 0.0f) {
+            if (!i_this->m02FC.x) {
                 actor->speedF = 0.0f;
                 i_this->m033F = 2;
                 i_this->m0346 = 0x18;
@@ -1859,7 +1855,7 @@ void ph_wind_move(ph_class* i_this) {
         }
         if (i_this->m0366 == 0) {
             actor->speedF = 0.0f;
-            if (i_this->m02FC.x == 0.0f) {
+            if (!i_this->m02FC.x) {
                 i_this->m033F = 2;
                 i_this->m0346 = 0x18;
             } else {
