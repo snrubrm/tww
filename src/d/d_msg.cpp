@@ -3073,14 +3073,6 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     return cPhs_COMPLEATE_e;
 }
 
-/* 80215CD0-80215D2C       .text __dt__14dDlst_2Dtact_cFv */
-dDlst_2Dtact_c::~dDlst_2Dtact_c() {
-}
-
-/* 80215D2C-80215D88       .text __dt__13dDlst_2DMSG_cFv */
-dDlst_2DMSG_c::~dDlst_2DMSG_c() {
-}
-
 static msg_method_class l_dMsg_Method = {
     (process_method_func)dMsg_Create,
     (process_method_func)dMsg_Delete,
