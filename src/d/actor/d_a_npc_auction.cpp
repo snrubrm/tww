@@ -861,33 +861,32 @@ u32 daNpcAuction_c::getMsg() {
 
 /* 00001F04-00002070       .text setAnmFromMsgTag__14daNpcAuction_cFv */
 void daNpcAuction_c::setAnmFromMsgTag() {
-    u8 attr = dComIfGp_getMesgAnimeAttrInfo();
+    int attr = dComIfGp_getMesgAnimeAttrInfo();
     if (mMdlNo == 0 || mMdlNo == 7) {
         switch (attr) {
         case 0:
+        case 1:
             setAnmTbl(l_npc_anm_0);
             break;
-        case 1:
+        case 2:
             setAnmTbl(l_npc_anm_2);
             break;
-        case 2:
+        case 3:
             setAnmTbl(l_npc_anm_3);
             break;
-        case 3:
+        case 4:
             setAnmTbl(l_npc_anm_4);
             break;
-        case 4:
+        case 5:
             setAnmTbl(l_npc_anm_5);
             break;
-        case 5:
+        case 6:
             setAnmTbl(l_npc_anm_6);
             mSeNo = JA_SE_AUC_START;
             mSeTimer = 100;
             break;
-        case 6:
-            setAnmTbl(l_npc_anm_7);
-            break;
         case 7:
+            setAnmTbl(l_npc_anm_7);
             break;
         }
     } else {
@@ -902,16 +901,15 @@ void daNpcAuction_c::setAnmFromMsgTag() {
             setAnmTbl(l_npc_anm_kuyasi);
             break;
         case 3:
+        case 5:
             setAnmTbl(l_npc_anm_happy);
             break;
         case 4:
-            setAnmTbl(l_npc_anm_talk2);
-            break;
-        case 5:
+        case 7:
             setAnmTbl(l_npc_anm_talk2);
             break;
         case 6:
-        case 7:
+            setAnmTbl(l_npc_anm_talk2);
             break;
         }
     }
