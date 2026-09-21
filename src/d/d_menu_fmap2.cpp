@@ -1336,10 +1336,10 @@ void dMenu_Fmap2_c::trTrifAnime() {
     if (field_0x2850 == 0) {
         tmp = 1.0f - tmp;
     }
-    u32 add = (u32)((f32)(g_mf2HIO.field_0x93 - g_mf2HIO.field_0x94) * tmp);
+    int diff = g_mf2HIO.field_0x93 - g_mf2HIO.field_0x94;
     for (int i = 0; i < 8; i++) {
         if (field_0x1e04[i].pane->isVisible() && !field_0x1e44[i].pane->isVisible()) {
-            field_0x1e04[i].mNowAlpha = g_mf2HIO.field_0x94 + add;
+            field_0x1e04[i].mNowAlpha = g_mf2HIO.field_0x94 + (u32)(diff * tmp);
             fopMsgM_setAlpha(&field_0x1e04[i]);
         }
     }
