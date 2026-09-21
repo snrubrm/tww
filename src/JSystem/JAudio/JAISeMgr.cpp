@@ -123,6 +123,10 @@ void JAInter::SeMgr::processGFrameSe() {
 /* 80293530-80293C94       .text checkNextFrameSe__Q27JAInter5SeMgrFv */
 void JAInter::SeMgr::checkNextFrameSe() {
     JAISound* sound;
+    u32 max;
+    u8 i;
+    u32 end;
+    u8 j;
     JAISound removed;
     struct Candidate {
         u8 state;
@@ -220,18 +224,18 @@ void JAInter::SeMgr::checkNextFrameSe() {
                         sound = &removed;
                     }
                 } else {
-                    u32 max = categoryInfoTable[seScene][sound->getSeCategoryNumber() * 2];
-                    u8 i = 0;
-                    u32 last = max - 1;
+                    max = categoryInfoTable[seScene][sound->getSeCategoryNumber() * 2];
+                    i = 0;
+                    end = max - 1;
                     for (; i < max; i++) {
                         u32 priority = sound->field_0x10;
                         Candidate* candidate = &candidates[i];
-                        if (priority < candidate->priority ||
+                        if (priority < candidates[i].priority ||
                             (candidate->priority == priority && candidate->state >= sound->mState)) {
                             if (count < max) {
                                 count++;
                             }
-                            for (u8 j = last; j > i; j--) {
+                            for (j = end; j > i; j--) {
                                 candidates[j].priority = candidates[j - 1].priority;
                                 candidates[j].sound = candidates[j - 1].sound;
                                 candidate->state = candidates[j - 1].state;
@@ -256,9 +260,9 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 selected->mState = 3;
             }
         }
-        u32 max = categoryInfoTable[seScene][category * 2];
-        u8 i = 0;
-        u32 end = max + 1;
+        max = categoryInfoTable[seScene][category * 2];
+        i = 0;
+        end = max + 1;
         for (; i < max; i++) {
             u8 available = 0;
             JAISound* playing = (JAISound*)sePlaySound[category][i];
@@ -276,7 +280,7 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 sePlaySound[category][i] = 0;
                 available = 1;
             } else {
-                for (u8 j = 0; j < max; j++) {
+                for (j = 0; j < max; j++) {
                     JAISound* playing = (JAISound*)sePlaySound[category][i];
                     if (playing == candidates[j].sound) {
                         candidates[j].sound = NULL;
@@ -285,7 +289,6 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 }
             }
             if (available == 1) {
-                u8 j;
                 for (j = 0; j < max; j++) {
                     JAISound* candidate = candidates[j].sound;
                     if (candidate != NULL && candidate->mState != 3) {
