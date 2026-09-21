@@ -5816,6 +5816,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
     cXyz posOffset(0.0f, val5, val0);
     RideWork* work = (RideWork*)&mWork;
+    f32 ratio;
 
     if (m11C == 0) {
         work->m384 = 0;
@@ -5871,18 +5872,15 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(200.0f, 160.0f, -80.0f),
             };
             cSGlobe globe(cannonOff[m07C & 3]);
-            cXyz* shipPos = &work->m37C->current.pos;
-            cXyz* playerPos = &mpPlayerActor->current.pos;
-            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
-            bool plus = (target - work->m3B0) > cSAngle::_0;
-            if (plus) {
+            cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
+            if ((target - work->m3B0) >= cSAngle::_0) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, fopAcM_GetPosition_p(mpPlayerActor), 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
@@ -5895,18 +5893,15 @@ bool dCamera_c::rideCamera(s32 param_1) {
                 cXyz(115.0f, 215.0f, 315.0f),
             };
             cSGlobe globe(craneOff[m07C & 3]);
-            cXyz* shipPos = &work->m37C->current.pos;
-            cXyz* playerPos = &mpPlayerActor->current.pos;
-            cSAngle target(cLib_targetAngleY(playerPos, shipPos));
-            bool plus = (target - work->m3B0) > cSAngle::_0;
-            if (plus) {
+            cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
+            if ((target - work->m3B0) >= cSAngle::_0) {
                 globe.U(work->m3B0 + globe.U());
             } else {
                 globe.U(work->m3B0 - globe.U());
             }
             mViewCache.mCenter = positionOf(work->m37C);
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, playerPos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, fopAcM_GetPosition_p(mpPlayerActor), 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e | daPyStts0_UNK1000000_e) ||
@@ -5938,10 +5933,10 @@ bool dCamera_c::rideCamera(s32 param_1) {
     f32 speedRatio = mMonitor.field_0x0C.y / val14;
     if (mMonitor.field_0x0C.z > 25.0f &&
         check_owner_action1(mPadId, daPyStts1_SAIL_e) &&
-        !check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e) &&
-        !check_owner_action1(mPadId, daPyStts1_UNK80_e) &&
-        work->m385)
+        !check_owner_action(mPadId, daPyStts0_UNK1000000_e) &&
+        !check_owner_action1(mPadId, daPyStts1_UNK80_e))
     {
+        if (work->m385) {
         ResetBlure(0);
         f32 t = mMonitor.field_0x0C.z / 90.0f;
         if (t > 1.0f) {
@@ -5952,6 +5947,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
         SetBlureScale(0.99f - (-0.35f * t));
         dComIfGp_getVibration().StartShock(7, 0x20, cXyz(0.0f, 1.0f, 0.0f));
         work->m385 = 0;
+        }
     } else if (speedRatio < 0.8f) {
         work->m385 = 1;
     }
@@ -5977,25 +5973,24 @@ bool dCamera_c::rideCamera(s32 param_1) {
             shipAng.Val(((daShip_c*)work->m37C)->getCraneAngle());
             work->m3C4 += 0.05f * (1.0f - work->m3C4);
         } else if (check_owner_action1(mPadId, daPyStts1_UNK4_e)) {
-            cSAngle dir = directionOf(work->m37C);
-            s16 cannonY = ((daShip_c*)work->m37C)->getCannonAngleY();
-            shipAng.Val(dir - cannonY + cSAngle::_90);
+            shipAng.Val(directionOf(work->m37C) - ((daShip_c*)work->m37C)->getCannonAngleY() + cSAngle::_90);
             f32 side = work->m384 ? -1.0f : 1.0f;
             work->m3C4 += 0.05f * (side - work->m3C4);
         } else {
-            shipAng.Val(((daShip_c*)work->m37C)->mSailAngle);
+            s16 sail = ((daShip_c*)work->m37C)->getSailAngle();
+            shipAng.Val(sail);
             work->m3C4 += 0.1f * (speedRatio - work->m3C4);
         }
         posOffset.x -= (val1 * shipAng.Sin()) * work->m3C4;
         posOffset.y += val8 * speedRatio;
 
         if (m314 && m318 == m354 && mCamParam.Flag(param_1, dCamPrmFlg_UNK004)) {
-            cSGlobe waveGlobe(100.0f, cSAngle::_0, work->m3B0);
+            cSGlobe waveGlobe(200.0f, cSAngle::_0, work->m3B0);
             cXyz wavePos = positionOf(work->m37C) + waveGlobe.Xyz();
             if (daSea_ChkArea(wavePos.x, wavePos.z)) {
                 wavePos.y = daSea_calcWave(wavePos.x, wavePos.z);
-                cSGlobe waveDir(wavePos - positionOf(work->m37C));
-                targetVdeg += (speedRatio * waveDir.V().Degree()) * 0.8f;
+                waveGlobe.Val(wavePos - positionOf(work->m37C));
+                targetVdeg += (speedRatio * waveGlobe.V().Degree()) * 0.8f;
             }
         }
         targetDir.Val(targetR, cAngle::d2s(targetVdeg), work->m3B0.Inv());
@@ -6008,7 +6003,6 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
     if (m100 == 0) {
         int timer;
-        f32 ratio;
         switch (work->m388) {
         case 1:
             timer = 0x28;
@@ -6019,7 +6013,6 @@ bool dCamera_c::rideCamera(s32 param_1) {
             break;
         case 2:
             timer = 1;
-            ratio = 1.0f;
             break;
         default:
             timer = 0x14;
@@ -6050,8 +6043,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
     }
     cSAngle blendedU = mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * val20;
 
-    cSGlobe curGlobe;
-    curGlobe.Val(mViewCache.mEye - mViewCache.mCenter);
+    cSGlobe curGlobe(mViewCache.mEye - mViewCache.mCenter);
     f32 latMix = 1.0f;
     if (m314 && m318 == m354 && mCamParam.Flag(param_1, dCamPrmFlg_UNK004)) {
         if (speedRatio <= 0.5f) {
@@ -6062,13 +6054,14 @@ bool dCamera_c::rideCamera(s32 param_1) {
     }
     targetDir.V(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
 
-    cSAngle targetV = curGlobe.V();
-    if (check_owner_action1(mPadId, daPyStts1_UNK4_e) && work->m37C != NULL) {
-        s16 cannonX = ((daShip_c*)work->m37C)->getCannonAngleX();
-        targetV.Val(curGlobe.V() + cannonX);
-        targetV *= 0.3f;
+    cSAngle cannonV;
+    if (check_owner_action1(mPadId, daPyStts1_UNK4_e)) {
+        cannonV.Val(targetDir.V() + ((daShip_c*)work->m37C)->getCannonAngleX());
+        cannonV *= 0.3f;
+    } else {
+        cannonV = targetDir.V();
     }
-    targetV = mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * val21;
+    cSAngle targetV = mViewCache.mDirection.V() + (cannonV - mViewCache.mDirection.V()) * val21;
     if (targetV < val16) {
         targetV.Val(val16);
     } else if (targetV > val17) {
@@ -6078,8 +6071,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += val21 * (targetFovy - mViewCache.mFovy);
 
-    cSAngle bankAdd = val29 * mStickMainPosXLast;
-    mViewCache.mBank += (bankAdd - mViewCache.mBank) * (0.01f * std::fabsf(speedRatio));
+    mViewCache.mBank += (val29 * mStickMainPosXLast - mViewCache.mBank) * (0.01f * std::fabsf(speedRatio));
     setFlag(0x400);
     return true;
 }
