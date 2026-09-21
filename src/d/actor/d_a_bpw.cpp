@@ -4050,7 +4050,6 @@ void torituki_execute(bpw_class* i_this) {
 
 /* 0000C154-0000C5C0       .text daBPW_Execute__FP9bpw_class */
 static BOOL daBPW_Execute(bpw_class* i_this) {
-    /* Nonmatching - retail-only fpr regalloc */
     fopAc_ac_c* actor = &i_this->actor;
     cXyz local_1c;
     cXyz local_28;
@@ -4129,16 +4128,12 @@ static BOOL daBPW_Execute(bpw_class* i_this) {
                 } else if (vec1.z < -1.0f) {
                     vec1.z = -1.0f;
                 }
-                JGeometry::TVec3<f32> dir;
-                dir.x = vec1.x;
-                dir.y = 0.1f;
-                dir.z = vec1.z;
+                JGeometry::TVec3<f32> dir(vec1.x, 0.1f, vec1.z);
                 emitter->setDirection(dir);
-                JGeometry::TVec3<f32> vel;
-                vel = actor->current.pos - actor->old.pos;
+                dir = actor->current.pos - actor->old.pos;
                 Vec vec2;
                 vec2.x = 1.0f;
-                vec2.y = 1.0f + std::sqrtf(SQUARE(vel.x) + SQUARE(vel.y) + SQUARE(vel.z)) * 0.05f;
+                vec2.y = 1.0f + std::sqrtf(SQUARE(dir.x) + SQUARE(dir.y) + SQUARE(dir.z)) * 0.05f;
                 if (vec2.y > 2.0f) {
                     vec2.y = 2.0f;
                 }
