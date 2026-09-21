@@ -1117,29 +1117,19 @@ void bo2_move(bo_class* i_this) {
                 emitter->setGlobalSRTMatrix(i_this->mpMorfUP->getModel()->getAnmMtx(BO_UE1_JNT_J_BOKOBABA_AGO_e));
             }
         }
-        int dirX = i_this->m2D4;
-        if (dirX > 0) {
-            if (stickX < 0.0f) {
-                i_this->m2D4 = -1;
-                i_this->m376 += 2;
-            }
-        } else if (dirX < 0) {
-            if (stickX > 0.0f) {
-                i_this->m2D4 = 1;
-                i_this->m376 += 2;
-            }
+        if (i_this->m2D4 > 0 && stickX < 0.0f) {
+            i_this->m2D4 = -1;
+            i_this->m376 += 2;
+        } else if (i_this->m2D4 < 0 && stickX > 0.0f) {
+            i_this->m2D4 = 1;
+            i_this->m376 += 2;
         }
-        int dirY = i_this->m2D8;
-        if (dirY > 0) {
-            if (stickY < 0.0f) {
-                i_this->m2D8 = -1;
-                i_this->m376 += 2;
-            }
-        } else if (dirY < 0) {
-            if (stickY > 0.0f) {
-                i_this->m2D8 = 1;
-                i_this->m376 += 2;
-            }
+        if (i_this->m2D8 > 0 && stickY < 0.0f) {
+            i_this->m2D8 = -1;
+            i_this->m376 += 2;
+        } else if (i_this->m2D8 < 0 && stickY > 0.0f) {
+            i_this->m2D8 = 1;
+            i_this->m376 += 2;
         }
         if (CPad_CHECK_TRIG_A(0)) {
             i_this->m376 += 2;
@@ -1166,7 +1156,9 @@ void bo2_move(bo_class* i_this) {
     }
 
     if (i_this->m2C5 < 0xC && i_this->m2CB == 0) {
-        damage_check(i_this);
+        if (damage_check(i_this)) {
+            return;
+        }
     }
 }
 
