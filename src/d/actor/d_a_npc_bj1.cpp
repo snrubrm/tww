@@ -2096,8 +2096,8 @@ bool daNpc_Bj1_c::eMove_PTH_MOV_() {
     if (!ret) {
         if (m84A != 0) {
             m7D8 = mPathRun.getPoint(mPathRun.getIdx());
-            m84A = 0;
         }
+        m84A = 0;
     }
     return ret;
 }
