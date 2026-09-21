@@ -3513,7 +3513,6 @@ f32 dCamera_c::heightOf(fopAc_ac_c* i_actor) {
 
 /* 8016C618-8016D824       .text lockonCamera__9dCamera_cFl */
 bool dCamera_c::lockonCamera(s32 param_1) {
-    /* Nonmatching - Lots of conficts between the asm produced by this function and `followCamera` regarding class member types */
     int r28 = 0x3C;
     f32 f30 = 0.05f;
     int iVar15 = mCamSetup.ChargeTimer();
@@ -3625,7 +3624,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     if (local_25c < cSAngle::_0) {
         work->m3A0 = 0;
         acStack_254 -= local_258;
-        local_25c = -acStack_254;
+        local_25c = -local_25c;
     }
     else {
         work->m3A0 = 1;
@@ -3638,7 +3637,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         cXyz local_114 = attentionPos(mpPlayerActor);
         if (!pointInSight(&local_114)) {
             if (work->m388 == 0) {
-                work->m3A4 = (1 - work->m3A0) != 0;
+                work->m3A4 = (1 - work->m3A0) ? 1 : 0;
             }
             bVar6 = true;
             work->m388 = r28;
@@ -3684,16 +3683,13 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     }
 
     work->m390.y += work->m3B8 * ((local_108.y + dVar17) - work->m390.y);
-    dVar17 = local_230.R();
-    double padR = 0.05 * dVar17;
+    double padR = 0.05 * local_230.R();
 
-    f32 dVar19;
+    double dVar19;
     if (mpLockonTarget) {
         f32 dVar18 = local_25c.Cos();
         dVar19 = cSAngle(local_230.V() * 1.3f).Cos();
-        if (fabs(dVar18) < fabs(dVar19)) {
-          dVar19 = dVar18;
-        }
+        dVar19 = fabs(dVar18) < fabs(dVar19) ? dVar18 : dVar19;
         dVar19 = (local_230.R() - 2.0 * padR) * fabs(dVar19 * -0.5 + 0.5);
     }
     else {
@@ -3725,11 +3721,11 @@ bool dCamera_c::lockonCamera(s32 param_1) {
 
     cSGlobe cStack_238(mEye - mViewCache.mCenter);
     cSGlobe local_240(mViewCache.mEye - mViewCache.mCenter);
-    cSAngle acStack_26c(mViewCache.mDirection.V());
-    cSAngle local_270(mViewCache.mDirection.U());
+    cSAngle acStack_26c(mViewCache.mDirection.U());
+    cSAngle local_270(mViewCache.mDirection.V());
     fVar2 = mViewCache.mDirection.R();
     cSAngle local_274 = local_25c - local_258;
-    fVar21 = mCamSetup.m044;
+    fVar21 = mCamSetup.CurveWeight();
 
     if (bVar6) {
         cSAngle acStack_278;
@@ -3739,7 +3735,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         else {
             acStack_278.Val(-15.0f);
         }
-        acStack_26c += (mViewCache.mDirection.U().Inv() + acStack_278 - acStack_26c) * 0.05f;
+        acStack_26c += (local_230.U().Inv() + acStack_278 - acStack_26c) * 0.05f;
     }
     else {
         if (!mpLockonTarget) {
@@ -3752,28 +3748,25 @@ bool dCamera_c::lockonCamera(s32 param_1) {
             }
             else {
                 f32 fVar7 = (f32)m11C / (f32)iVar15;
-                fVar3 = mCamParam.Val(param_1, dCamStyleParam_UNK15);
-                fVar3 *= dCamMath::customRBRatio(-((f32)local_274.Val() / (f32)iVar10), fVar21);
-                dVar17 = (fVar3 + (1.0f - fVar7) * (fVar22 - fVar3));
+                f32 base = mCamParam.Val(param_1, dCamStyleParam_UNK21) * dCamMath::customRBRatio(-((f32)local_274.Val() / (f32)iVar10), fVar21);
+                dVar17 = (base + (1.0f - fVar7) * (fVar22 - base));
             }
         }
         else {
-            iVar15 = local_258.Val();
-            if (local_25c.Val() < iVar15) {
+            if (local_25c.Val() < (iVar15 = local_258.Val())) {
                 f32 f1 = (f32)local_274.Val() / (f32)iVar15;
-                fVar22 = mCamParam.Val(param_1, dCamStyleParam_UNK15);
+                fVar22 = mCamParam.Val(param_1, dCamStyleParam_UNK21);
                 fVar21 = dCamMath::customRBRatio(-f1, fVar21);
                 dVar17 = fVar22 * fVar21;
             }
             else {
                 cSAngle local_27c(45.0f);
-                cSAngle local_2d8(135.0f);
-                if (local_258 < local_2d8) {
+                if (local_258 > cSAngle(135.0f)) {
                     local_27c = cSAngle::_180 - local_258;
                 }
 
-                f32 f1 = (f32)local_274.Val() / (f32)iVar15;
-                dVar17 = mCamParam.Val(param_1, dCamStyleParam_UNK20) * dCamMath::rationalBezierRatio(f1, fVar21);
+                dVar17 = (f32)local_274.Val() / (f32)local_27c.Val();
+                dVar17 = mCamParam.Val(param_1, dCamStyleParam_UNK20) * dCamMath::rationalBezierRatio(dVar17, fVar21);
                 
                 if (dVar20 < 100.0f) {
                     dVar17 *= dCamMath::rationalBezierRatio(dVar20 / 100.0f, 1.0f);
@@ -3786,10 +3779,9 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     }
 
     if (check_owner_action1(mPadId, daPyStts1_UNK20000_e)) {
-        iVar15 = work->m380;
-        if (iVar15 <= iVar16) {
-            f32 bezier_ratio = dCamMath::rationalBezierRatio((f32)iVar15 / (f32)iVar16, fVar1);
-            local_270 += (local_250 - local_270) * bezier_ratio;
+        if (work->m380 <= iVar16) {
+            f32 t = (f32)work->m380 / (f32)iVar16;
+            local_270 += (local_250 - local_270) * dCamMath::rationalBezierRatio(t, fVar1);
             setFlag(0x4000000);
             work->m380++;
         }
@@ -3799,7 +3791,9 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     }
     else {
         if (bVar6) {
-            local_270 -= (local_230.U() * 0.7f + local_270) * 0.1f;
+            cSAngle tmp;
+            tmp = local_230.V() * 0.7f;
+            local_270 -= (tmp + local_270) * 0.1f;
         }
         else {
             work->m380 = 0;
@@ -3807,7 +3801,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
                 local_270 += (mCamParam.LockonLatitude(fVar4) - local_270) * 0.05f;
             }
             else if (!m360 && !check_owner_action(mPadId, daPyStts0_UNK400_e)) {
-                local_270 += (local_240.U() - local_270) * fVar5 * std::fabsf(work->m3A8.V().Cos());
+                local_270 += (local_240.V() - local_270) * fVar5 * std::fabsf(mViewCache.mDirection.V().Cos());
             }
             else {
                 fopAc_ac_c* playerActor;
@@ -3853,7 +3847,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     }
 
     if (bVar6) {
-        fVar22 = fVar2 + (280.0f - fVar2) * 0.05f;
+        fVar22 = fVar2 + (280.0f - fVar2) * f30;
     }
     else {
         f32 local_244 = local_240.R();
@@ -3866,9 +3860,10 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     }
 
     mViewCache.mDirection.Val(fVar22, local_270, acStack_26c);
-    mViewCache.mCenter = mViewCache.mCenter + mViewCache.mDirection.Xyz();
+    mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     f32 fovyCush = mCamSetup.m028;
-    mViewCache.mFovy += (mCamParam.LockonFovy(fVar4) - mViewCache.mFovy) * fovyCush;
+    f32 d = mCamParam.LockonFovy(fVar4) - mViewCache.mFovy;
+    mViewCache.mFovy += d * fovyCush;
     setFlag(0x2000);
     return true;
 }
