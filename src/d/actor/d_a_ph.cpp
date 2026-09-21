@@ -896,10 +896,8 @@ void ph_fly_move(ph_class* i_this) {
             i_this->m0364 = (s16)(60.0f + cM_rndF(60.0f));
             i_this->mAtCyl.OnAtSetBit();
             i_this->mAtCyl.OnAtHitBit();
-            s32 i = 0;
-            for (int n = 7; n != 0; n--) {
-                *(s16*)((char*)i_this + 0x356 + i) = 0;
-                i += 2;
+            for (int i = 0; i < 7; i++) {
+                (&i_this->m0356)[i] = 0;
             }
             i_this->m0346 = 1;
         }
