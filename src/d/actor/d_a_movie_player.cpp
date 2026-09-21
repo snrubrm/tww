@@ -3410,8 +3410,8 @@ static void daMP_THPPlayerQuit() {
 
 /* 00004BD4-00004FB4       .text daMP_THPPlayerOpen__FPCci */
 static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
-    /* Nonmatching - retail-only regalloc */
     s32 offset;
+    s32 compOffset;
     s32 i;
 
     if (!daMP_Initialized) {
@@ -3464,9 +3464,9 @@ static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
         return FALSE;
     }
 
-    offset = daMP_ActivePlayer.header.compInfoDataOffsets;
+    compOffset = daMP_ActivePlayer.header.compInfoDataOffsets;
 
-    if (DVDReadPrio(&daMP_ActivePlayer.fileInfo, daMP_WorkBuffer, 0x20, offset, 2) < 0) {
+    if (DVDReadPrio(&daMP_ActivePlayer.fileInfo, daMP_WorkBuffer, 0x20, compOffset, 2) < 0) {
 #if VERSION > VERSION_DEMO
         OSReport("Fail to read the frame component infomation from THP file.\n");
 #endif
@@ -3475,6 +3475,7 @@ static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
     }
 
     memcpy(&daMP_ActivePlayer.compInfo, daMP_WorkBuffer, sizeof(THPFrameCompInfo));
+    offset = compOffset;
     offset += sizeof(THPFrameCompInfo);
 
     daMP_ActivePlayer.audioExist = 0;
