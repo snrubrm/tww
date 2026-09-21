@@ -2699,7 +2699,6 @@ void dMap_c::mapBufferSendAGB_commonCursor() {
 
 /* 8004D364-8004D4CC       .text mapBufferSendAGB_ocean__6dMap_cFv */
 void dMap_c::mapBufferSendAGB_ocean() {
-    /* Nonmatching */
     mapBufferSendAGB_commonCursor();
     if (mDoGaC_GbaLink() && mDoGac_SendStatusCheck(0xB)) {
         for (int i = 0; i < 7; i++) {
@@ -2710,8 +2709,7 @@ void dMap_c::mapBufferSendAGB_ocean() {
                 int gridNo = gridPos2GridNo(x, y);
                 int byteIdx = gridNo / 8;
                 int bitIdx = gridNo % 8;
-                BOOL arrived = isSaveArriveGridForAgbUseGridPos(x, y);
-                mGbaSendMapOceanDt__6dMap_c[byteIdx] |= arrived << bitIdx;
+                mGbaSendMapOceanDt__6dMap_c[byteIdx] |= (isSaveArriveGridForAgbUseGridPos(x, y) ? 1 : 0) << bitIdx;
             }
         }
         mDoGac_SendDataSet((u32*)mGbaSendMapOceanDt__6dMap_c, 8, 0xB, 0);
