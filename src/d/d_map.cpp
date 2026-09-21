@@ -3047,7 +3047,7 @@ void dMap_2DAGBScrDsp_c::calc_standard_prm(u16 param_1, u16 param_2, f32 param_3
 /* 8004E698-8004EE30       .text draw__18dMap_2DAGBScrDsp_cFv */
 void dMap_2DAGBScrDsp_c::draw() {
     /* Nonmatching */
-    static GXColor masterTevColor = {255, 255, 255, 255};
+    static const GXColor masterTevColor = {255, 255, 255, 255};
 
     if (field_0x4 == NULL || mImg == NULL) {
         return;
