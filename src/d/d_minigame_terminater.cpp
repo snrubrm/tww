@@ -45,25 +45,25 @@ cPhs_State dMinigame_Terminater_c::_create() {
         } else {
             return cPhs_ERROR_e;
         }
-
-        fopMsg_prm_MGameTerm* prm = (fopMsg_prm_MGameTerm*)fopMsgM_GetAppend(this);
-        field_0x11a = prm->field_0x24;
-        mFinishType = prm->mFinishType;
-        setResultTime(prm->mTime);
-        setResultRupee(prm->mRupee);
-
-        if (mFinishType == 2 || mFinishType == 1) {
-            mScrn->setScrnSuccess(getResultRupee(), getResultTime());
-        } else {
-            mScrn->setScrnFailed();
-        }
-
-        mTimer = 330;
-        mStatus = 1;
-        return cPhs_COMPLEATE_e;
+    } else {
+        return phase_state;
     }
 
-    return phase_state;
+    fopMsg_prm_MGameTerm* prm = (fopMsg_prm_MGameTerm*)fopMsgM_GetAppend(this);
+    field_0x11a = prm->field_0x24;
+    mFinishType = prm->mFinishType;
+    setResultTime(prm->mTime);
+    setResultRupee(prm->mRupee);
+
+    if (mFinishType == 2 || mFinishType == 1) {
+        mScrn->setScrnSuccess(getResultRupee(), getResultTime());
+    } else {
+        mScrn->setScrnFailed();
+    }
+
+    mTimer = 330;
+    mStatus = 1;
+    return cPhs_COMPLEATE_e;
 }
 
 /* 80207164-8020725C       .text _execute__22dMinigame_Terminater_cFv */
