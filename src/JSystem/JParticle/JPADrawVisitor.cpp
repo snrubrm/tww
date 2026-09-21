@@ -816,13 +816,10 @@ void JPADrawExecRotDirectionalCross::exec(const JPADrawContext* pDC, JPABasePart
     pt[1].set(x1, y0, 0.0f);
     pt[2].set(x1, y1, 0.0f);
     pt[3].set(x0, y1, 0.0f);
-    f32 z0 = 0.5f * (x1 - x0);
-    f32 x2 = 0.5f * (x1 + x0);
-    pt[4].set(x2, y0, z0);
-    f32 z1 = 0.5f * (x0 - x1);
-    pt[5].set(x2, y0, z1);
-    pt[6].set(x2, y1, z1);
-    pt[7].set(x2, y1, z0);
+    pt[4].set((pt[1].x + pt[0].x) * 0.5f, y0, (pt[1].x - pt[0].x) * 0.5f);
+    pt[5].set((pt[1].x + pt[0].x) * 0.5f, y0, (pt[0].x - pt[1].x) * 0.5f);
+    pt[6].set((pt[1].x + pt[0].x) * 0.5f, y1, (pt[0].x - pt[1].x) * 0.5f);
+    pt[7].set((pt[1].x + pt[0].x) * 0.5f, y1, (pt[1].x - pt[0].x) * 0.5f);
 
     JPADrawContext::pcb->mRotTypeFunc(sin, cos, rotMtx);
 
