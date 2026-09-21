@@ -2462,7 +2462,7 @@ int daNpc_Bj1_c::talk_1() {
                 m840 = 1;
                 break;
             case 0x1429:
-                dComIfGp_setMiniGameRupee(dComIfGp_getMiniGameRupee() - 4);
+                dComIfGp_setItemBeastNumCount(dBeastIdx_BOKOBABA_SEED_e, -4);
                 m8B0 = 3;
                 break;
             case 0x142B:
