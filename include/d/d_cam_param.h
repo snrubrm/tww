@@ -358,6 +358,7 @@ public:
     f32 CurveWeight() { return mCurveWeight; }
     f32 DMCAngle() { return mDMCAngle; }
     f32 DMCValue() { return mDMCValue; }
+    f32 FanFovyAmplitude() { return m07C; }
 
 public:
     /* 0x0D0 */ dCstick_c mCstick;

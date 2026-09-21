@@ -6663,20 +6663,21 @@ bool dCamera_c::manualCamera(s32 param_1) {
         val27 = 55.0f;
     }
 
-    f32 stick[2];
+    f32 stickCX;
+    f32 stickCY;
     if (mStickCPosXLast >= 0.75f) {
-        stick[0] = 1.0f;
+        stickCX = 1.0f;
     } else if (mStickCPosXLast <= -0.75f) {
-        stick[0] = -1.0f;
+        stickCX = -1.0f;
     } else {
-        stick[0] = dCamMath::rationalBezierRatio(mStickCPosXLast * 1.333333f, 2.0f);
+        stickCX = dCamMath::rationalBezierRatio(mStickCPosXLast * 1.333333f, 2.0f);
     }
     if (mStickCPosYLast >= 0.75f) {
-        stick[1] = 1.0f;
+        stickCY = 1.0f;
     } else if (mStickCPosYLast <= -0.75f) {
-        stick[1] = -1.0f;
+        stickCY = -1.0f;
     } else {
-        stick[1] = dCamMath::rationalBezierRatio(mStickCPosYLast * 1.333333f, 2.0f);
+        stickCY = dCamMath::rationalBezierRatio(mStickCPosYLast * 1.333333f, 2.0f);
     }
 
     f32 cush = val21;
@@ -6690,7 +6691,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 height = work->m398;
-    if (!limited_range_addition(&height, -stick[1] * val9, val6, val7)) {
+    if (!limited_range_addition(&height, -stickCY * val9, val6, val7)) {
         cush = val20;
     }
     if (chkFlag(0x1000) && mpLockonTarget != NULL && (m784 || m785)) {
@@ -6781,14 +6782,14 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 r = work->m3A8.R();
-    if (!limited_range_addition(&r, -stick[1] * val14, val11, val12)) {
+    if (!limited_range_addition(&r, -stickCY * val14, val11, val12)) {
         cushR = val20;
     }
     f32 v = work->m3A8.V().Degree();
-    if (!limited_range_addition(&v, -stick[1] * val19, val16, val17)) {
+    if (!limited_range_addition(&v, -stickCY * val19, val16, val17)) {
         cushV = val20;
     }
-    f32 u = work->m3A8.U().Degree() + stick[0] * val24;
+    f32 u = work->m3A8.U().Degree() + stickCX * val24;
     work->m3A8.Val(r, cAngle::d2s(v), cAngle::d2s(u));
 
     if (chkFlag(0x1000) && mpLockonTarget != NULL) {
@@ -6801,7 +6802,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
     f32 fov = mViewCache.mFovy;
-    if (!limited_range_addition(&fov, -stick[1] * val29, val26, val27)) {
+    if (!limited_range_addition(&fov, -stickCY * val29, val26, val27)) {
         cush = mCamParam.Val(param_1, 20);
     }
     mViewCache.mFovy += cush * (fov - mViewCache.mFovy);
@@ -6813,20 +6814,20 @@ bool dCamera_c::manualCamera(s32 param_1) {
     if (check_owner_action1(mPadId, daPyStts1_DEKU_LEAF_FLY_e)) {
         cXyz pos = positionOf(mpPlayerActor);
         pos.y += 10.0f;
-        f32 eyeY = eyePos(mpPlayerActor).y;
-        f32 heightOffGround = eyeY - groundHeight(&pos);
+        f32 playerY = mpPlayerActor->current.pos.y;
+        f32 heightOffGround = playerY - groundHeight(&pos);
         f32 stickX;
         f32 bankCush;
         if (heightOffGround < 200.0f) {
-            f32 t = heightOffGround / 200.0f;
-            stickX = mStickMainPosXLast * t;
-            bankCush = 1.0f - 0.95f * t;
+            stickX = mStickMainPosXLast * (heightOffGround / 200.0f);
+            bankCush = 1.0f - 0.95f * (heightOffGround / 200.0f);
         } else {
             stickX = mStickMainPosXLast;
             bankCush = 0.05f;
         }
-        mViewCache.mFovy += zoomT * mCamSetup.m07C * cSAngle((s16)(m07C << 7)).Sin();
-        mViewCache.mBank += (cSAngle(stickX * mCamSetup.FanBank()) - mViewCache.mBank) * bankCush;
+        mViewCache.mFovy += zoomT * (mCamSetup.FanFovyAmplitude() * cSAngle((s16)(m07C << 7)).Sin());
+        cSAngle bank(zoomT * (stickX * mCamSetup.FanBank()));
+        mViewCache.mBank += (bank - mViewCache.mBank) * bankCush;
         setFlag(0x400);
     }
 
