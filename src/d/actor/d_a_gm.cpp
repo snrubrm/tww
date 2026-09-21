@@ -2270,7 +2270,7 @@ static BOOL daGM_Execute(gm_class* i_this) {
             }
         }
 
-        if (i_this->m2EE == 0 && (i_this->mAction == 34 || i_this->mAction == 208)) {
+        if (i_this->m2EE != 0 || i_this->mAction == 34 || i_this->mAction == 208) {
             switch (i_this->m2D5) {
             case 0:
                 i_this->mpEmitters[2] = dComIfGp_particle_set(
