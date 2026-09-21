@@ -32,8 +32,6 @@ const u32 daNpc_P2_c::m_heapsize[3] = { 0x3EE0, 0x37E0, 0x4280 };
 const char daNpc_P2_c::m_arc_name[3] = "P2";
 
 static daNpc_P2_HIO_c l_HIO;
-static fpc_ProcID l_msgId;
-static msg_class* l_msg;
 
 /* 000000EC-0000020C       .text __ct__19daNpc_P2_childHIO_cFv */
 daNpc_P2_childHIO_c::daNpc_P2_childHIO_c() {
@@ -165,9 +163,9 @@ static BOOL nodeCallBack(J3DNode* node, int calcTiming) {
             } else if (jntNo == 2) {
                 mDoMtx_stack_c::XrotM(i_this->getBackbone_y());
                 mDoMtx_stack_c::ZrotM(i_this->getBackbone_x());
-                mDoMtx_stack_c::ZrotM(REG0_S(0));
-                mDoMtx_stack_c::XrotM(REG0_S(1));
-                mDoMtx_stack_c::YrotM(REG0_S(2));
+                mDoMtx_stack_c::ZrotM(REG12_S(0));
+                mDoMtx_stack_c::XrotM(REG12_S(1));
+                mDoMtx_stack_c::YrotM(REG12_S(2));
             }
             cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
             model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
@@ -481,6 +479,9 @@ void daNpc_P2_c::smoke_set() {
         mSmoke.getEmitter()->setGlobalScale(smoke_scale);
     }
 }
+
+static fpc_ProcID l_msgId;
+static msg_class* l_msg;
 
 /* 00001338-00001534       .text next_msgStatus__10daNpc_P2_cFPUl */
 u16 daNpc_P2_c::next_msgStatus(unsigned long* pMsgNo) {
