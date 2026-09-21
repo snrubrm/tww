@@ -374,6 +374,7 @@ void shibuki_set(oq_class* i_this, cXyz pos, float scale) {
 BOOL sea_water_check(oq_class* i_this) {
     fopAc_ac_c* actor = i_this;
     u8 hit = 0;
+    f32 bob;
     i_this->mRipplePos = actor->current.pos;
     i_this->mRipplePos.y = i_this->mHomePos.y;
     actor->gravity = -3.0f;
@@ -384,8 +385,8 @@ BOOL sea_water_check(oq_class* i_this) {
         if (actor->current.pos.y < 40.0f + waveY) {
             actor->gravity = 0.0f;
             i_this->mBobAngle += 0x800;
-            f32* pPosY = &actor->current.pos.y;
-            cLib_addCalc2(pPosY, waveY - (45.0f + 15.0f * cM_ssin(i_this->mBobAngle)), 1.0f, 30.0f);
+            bob = 45.0f + 15.0f * cM_ssin(i_this->mBobAngle);
+            cLib_addCalc2(&actor->current.pos.y, waveY - bob, 1.0f, 30.0f);
             hit = 1;
         }
     } else if (i_this->mAcch.MaskWaterIn()) {
@@ -396,8 +397,8 @@ BOOL sea_water_check(oq_class* i_this) {
         if (actor->current.pos.y < f3) {
             actor->gravity = 0.0f;
             i_this->mBobAngle += 0x800;
-            f32* pPosY = &actor->current.pos.y;
-            cLib_addCalc2(pPosY, f3 - (45.0f + 15.0f * cM_ssin(i_this->mBobAngle)), 1.0f, 30.0f);
+            bob = 45.0f + 15.0f * cM_ssin(i_this->mBobAngle);
+            cLib_addCalc2(&actor->current.pos.y, f3 - bob, 1.0f, 30.0f);
             hit = 1;
         }
     } else if (i_this->mType == 1 || i_this->mType == 4 || i_this->mType == 5) {
