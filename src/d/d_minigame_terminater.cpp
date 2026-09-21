@@ -512,10 +512,9 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF2(int i_no) {
 
         if (timer <= animeFrame[0]) {
             t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
-            f32 inv = 1.0f - t;
-            x = transX[1] + inv * (f32)(transX[0] - transX[1]);
-            y = transY[1] + inv * (f32)(transY[0] - transY[1]);
-            r = 710.0f * inv + (f32)rot[1];
+            x = transX[1] + (1.0f - t) * (f32)(transX[0] - transX[1]);
+            y = transY[1] + (1.0f - t) * (f32)(transY[0] - transY[1]);
+            r = 710.0f * (1.0f - t) + (f32)rot[1];
             fopMsgM_paneTrans(&mFailed[i_no], x, y);
             setRotate(&mFailed[i_no], r);
             fopMsgM_setNowAlpha(&mFailed[i_no], t);
@@ -554,7 +553,7 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF2(int i_no) {
             r = rot[6] + (1.0f - t) * (f32)(rot[5] - rot[6]);
             fopMsgM_paneTrans(&mFailed[i_no], x, y);
             setRotate(&mFailed[i_no], r);
-        } else {
+        } else if (timer <= animeFrame[6]) {
             t = acc(animeFrame[6], timer, animeFrame[5]);
             x = transX[7] + (1.0f - t) * (f32)(transX[6] - transX[7]);
             y = transY[7] + (1.0f - t) * (f32)(transY[6] - transY[7]);
