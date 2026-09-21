@@ -732,7 +732,6 @@ static void pl_pos_add(himo2_class* i_this) {
 
 /* 800ED6F4-800F0038       .text new_himo2_move__FP11himo2_class */
 static void new_himo2_move(himo2_class* i_this) {
-    /* Nonmatching - regalloc */
     fopAc_ac_c* actor = (fopAc_ac_c*)&i_this->actor;
     fopAc_ac_c* player_actor;
     daPy_py_c* player;
@@ -845,7 +844,7 @@ static void new_himo2_move(himo2_class* i_this) {
     case 0: {
         actor->speedF = 0.0f;
         if ((r30 == 0) && player->checkRopeReadyAnime()) {
-            cMtx_YrotS(*calc_mtx, player_actor->shape_angle.y);
+            cMtx_YrotS(*calc_mtx, (int)player_actor->shape_angle.y);
             cMtx_ZrotM(*calc_mtx, REG0_S(2) + -12000);
             cMtx_YrotM(*calc_mtx, i_this->m02D8 * (REG0_S(3) + 0x2000));
             sp130.x = 0.0f;
@@ -917,7 +916,7 @@ static void new_himo2_move(himo2_class* i_this) {
         break;
     }
     case 1: {
-        cMtx_YrotS(*calc_mtx, player_actor->shape_angle.y);
+        cMtx_YrotS(*calc_mtx, (int)player_actor->shape_angle.y);
         cMtx_ZrotM(*calc_mtx, REG0_S(2) + -12000);
         cMtx_YrotM(*calc_mtx, i_this->m02D8 * (REG0_S(3) + 0x2000));
         sp130.x = 0.0f;
