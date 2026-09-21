@@ -6058,6 +6058,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
 /* 8017623C-80176F54       .text hungCamera__9dCamera_cFl */
 bool dCamera_c::hungCamera(s32 param_1) {
+    f32 val18 = mCamParam.Val(param_1, 18);
     f32 val1 = mCamParam.Val(param_1, 1);
     f32 val5 = mCamParam.Val(param_1, 5);
     f32 val0 = mCamParam.Val(param_1, 0);
@@ -6070,7 +6071,6 @@ bool dCamera_c::hungCamera(s32 param_1) {
     f32 val15 = mCamParam.Val(param_1, 15);
     f32 val16 = mCamParam.Val(param_1, 16);
     f32 val19 = mCamParam.Val(param_1, 19);
-    f32 val18 = mCamParam.Val(param_1, 18);
     f32 val25 = mCamParam.Val(param_1, 25);
     f32 val29 = mCamParam.Val(param_1, 29);
 
