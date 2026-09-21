@@ -217,7 +217,7 @@ void bon_move(kantera_class* i_this) {
 
 /* 00000B68-0000153C       .text kantera_move__FP13kantera_class */
 void kantera_move(kantera_class* i_this) {
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    fopAc_ac_c* const player = dComIfGp_getPlayer(0);
     mo2_class* mo2 = (mo2_class*)fopAcM_SearchByID(i_this->mTargetActorID);
 
     i_this->mAnimCounter++;
@@ -297,16 +297,17 @@ void kantera_move(kantera_class* i_this) {
                     s16 playerAng = cM_atan2s(player->current.pos.x - i_this->actor.current.pos.x,
                                               player->current.pos.z - i_this->actor.current.pos.z);
                     cMtx_YrotS(*calc_mtx, playerAng);
-                    cXyz sp1C;
-                    sp1C.x = 0.0f;
-                    sp1C.y = 0.0f;
-                    sp1C.z = 20.0f + REG6_F(9);
-                    MtxPosition(&sp1C, &i_this->actor.speed);
+                    sp34.x = 0.0f;
+                    sp34.y = 0.0f;
+                    sp34.z = 20.0f + REG6_F(9);
+                    MtxPosition(&sp34, &i_this->actor.speed);
                     i_this->actor.speed.y = 10.0f + REG6_F(8);
                 }
                 goto state5;
             }
         }
+        break;
+    case 3:
         break;
     case 5:
     state5:
@@ -329,12 +330,12 @@ void kantera_move(kantera_class* i_this) {
 
         if (i_this->mAcch.ChkGroundHit() || i_this->mAcch.ChkWallHit() || i_this->mSph.ChkAtHit()) {
             dBgS_GndChk gndChk;
-            cXyz* gndPos = gndChk.GetPointP();
-            f32 gndYPos = i_this->actor.current.pos.y + 50.0f;
-            f32 gndZPos = i_this->actor.current.pos.z;
-            gndPos->x = i_this->actor.current.pos.x;
-            gndPos->y = gndYPos;
-            gndPos->z = gndZPos;
+            Vec temp;
+            temp.x = i_this->actor.current.pos.x;
+            temp.y = i_this->actor.current.pos.y;
+            temp.z = i_this->actor.current.pos.z;
+            temp.y += 50.0f;
+            gndChk.SetPos(&temp);
             f32 gndY = 2.5f + dComIfG_Bgsp()->GroundCross(&gndChk);
             if (gndY != -G_CM3D_F_INF) {
                 i_this->actor.current.pos.y = 2.0f + gndY;
