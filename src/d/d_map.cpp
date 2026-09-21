@@ -775,46 +775,39 @@ BOOL dMap_RoomInfo_c::deleteRoom() {
 
 /* 80046FE0-800470CC       .text enlagementSizeTextureCordCalc__15dMap_RoomInfo_cFPfPfPfPfffffff */
 bool dMap_RoomInfo_c::enlagementSizeTextureCordCalc(f32* param_1, f32* param_2, f32* param_3, f32* param_4, f32 param_5, f32 param_6, f32 param_7, f32 param_8, f32 param_9, f32 param_10) {
-    /* Nonmatching */
-    f32 f7;
-    f32 f8;
-    f32 f12;
-    f32 f11;
-    f32 f10;
-    f32 f9;
-    f32 f13;
-    f32 f31;
-    f10 = param_5 - 0.5f * param_6;
-    f9 = param_5 + 0.5f * param_6;
-    f32 inv = 1.0f / param_9;
-    f7 = *param_3;
-    f12 = inv * f7;
-    f8 = *param_4;
-    f11 = inv * f8;
-    f31 = param_8 + f12;
-    f13 = param_8 + f11;
+    f32 inv;
+    f32 hi, lo;
+    f32 sb, sa;
+    f32 e1, e0;
+    lo = param_5 - 0.5f * param_6;
+    hi = param_5 + 0.5f * param_6;
+    inv = 1.0f / param_9;
+    sa = inv * *param_3;
+    sb = inv * *param_4;
+    e0 = param_8 + sa;
+    e1 = param_8 + sb;
     bool ret = false;
-    if (0.0f != param_9 || f31 <= f9 || f13 >= f10) {
+    if (0.0f != param_9 || e0 <= hi || e1 >= lo) {
         f32 diff = param_8 - param_5;
         f32 tmp = (diff * param_7) / param_10;
-        param_7 = f7;
-        param_10 = f8;
-        *param_1 = 0.5f + tmp + f12 / param_6;
-        *param_2 = 0.5f + tmp + f11 / param_6;
-        if (f31 < f10) {
+        f32 ra = *param_3;
+        f32 rb = *param_4;
+        *param_1 = 0.5f + tmp + sa / param_6;
+        *param_2 = 0.5f + tmp + sb / param_6;
+        if (e0 < lo) {
             *param_1 = 0.0f;
-            diff = f10 - param_8;
-            param_7 = diff * param_9;
+            f32 dl = lo - param_8;
+            ra = dl * param_9;
             *param_1 = 0.0f;
         }
-        if (f13 > f9) {
+        if (e1 > hi) {
             *param_2 = 1.0f;
-            diff = f9 - param_8;
-            param_10 = diff * param_9;
+            f32 dh = hi - param_8;
+            rb = dh * param_9;
             *param_2 = 1.0f;
         }
-        *param_3 = param_7;
-        *param_4 = param_10;
+        *param_3 = ra;
+        *param_4 = rb;
         ret = true;
     }
     return ret;
