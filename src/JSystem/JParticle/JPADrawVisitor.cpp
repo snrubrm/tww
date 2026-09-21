@@ -1137,10 +1137,6 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
     GXEnd();
 }
 
-// Loop 2 of JPADrawExecStripeCross::exec needs the cos products to be
-// compiler temporaries (allocated early) rather than plain assignments.
-static inline f32 mulf(f32 a, f32 b) { return a * b; }
-
 /* 80263A68-802643B0       .text exec__22JPADrawExecStripeCrossFPC14JPADrawContext */
 void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
     u32 numLinks = pDC->mpActiveParticles->getNumLinks();
@@ -1178,6 +1174,8 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
     JGeometry::TVec3<f32> dir;
     JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33R<f32> > > mtx;
     JGeometry::TVec3<f32> side;
+    JGeometry::TVec3<f32> v1;
+    JGeometry::TVec3<f32> v2;
     GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, numLinks * 2);
     for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT += texStep) {
         ptcl = (JPABaseParticle*)link->getObject();
@@ -1189,12 +1187,12 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
         f32 sin = JMASSin(params->mRotateAngle);
         f32 cos = JMASCos(params->mRotateAngle);
 
-        f32 x0 = -params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX + JPADrawContext::pcb->mPivotX);
-        sx0 = x0 * sin;
-        cx0 = x0 * cos;
-        f32 x1 = +params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX - JPADrawContext::pcb->mPivotX);
-        sx1 = x1 * sin;
-        cx1 = x1 * cos;
+        v1.set(-params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX + JPADrawContext::pcb->mPivotX), 0.0f, 0.0f);
+        sx0 = v1.x * sin;
+        cx0 = v1.x * cos;
+        v2.set(+params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX - JPADrawContext::pcb->mPivotX), 0.0f, 0.0f);
+        sx1 = v2.x * sin;
+        cx1 = v2.x * cos;
 
         JPADrawContext::pcb->mDirTypeFunc(ptcl, pDC->pbe, dir);
         if (dir.isZero())
@@ -1215,8 +1213,8 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
         f32* hack = &mtx.mMtx[0][0];
 
-        JGeometry::TVec3<f32> v1(cx0, 0.0f, sx0);
-        JGeometry::TVec3<f32> v2(cx1, 0.0f, sx1);
+        v1.set(cx0, 0.0f, sx0);
+        v2.set(cx1, 0.0f, sx1);
         mtx.mult(v1);
         mtx.mult(v2);
 
@@ -1240,13 +1238,12 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
         f32 sin = -JMASSin(params->mRotateAngle);
 
         // This stripe is the perpendicular one, so the width direction is
-        // (-sin, 0, cos) instead of the first loop's (cos, 0, sin).
-        f32 z0 = +params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY);
-        sx0 = mulf(z0, cos);
-        cx0 = z0 * sin;
-        f32 z1 = -params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY - JPADrawContext::pcb->mPivotY);
-        sx1 = mulf(z1, cos);
-        cx1 = z1 * sin;
+        // (-sin, 0, cos) instead of the first loop's (cos, 0, sin). The width
+        // is built in place (scale into x, then rotate) as in JPA2.
+        v1.set(+params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY), 0.0f, 0.0f);
+        v1.set(v1.x * sin, 0.0f, v1.x * cos);
+        v2.set(-params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY - JPADrawContext::pcb->mPivotY), 0.0f, 0.0f);
+        v2.set(v2.x * sin, 0.0f, v2.x * cos);
 
         ptcl->getVelVec(dir);
 
@@ -1266,8 +1263,6 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
         mtx.setXYZDir(side, dir, params->mAxis);
 
-        JGeometry::TVec3<f32> v1(cx0, 0.0f, sx0);
-        JGeometry::TVec3<f32> v2(cx1, 0.0f, sx1);
         mtx.mult(v1);
         mtx.mult(v2);
 
