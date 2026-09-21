@@ -615,37 +615,24 @@ void daNpc_P2_c::anmAtr(unsigned short status) {
     if (status == 6) {
         u8 attr = dComIfGp_getMesgAnimeAttrInfo();
         if (attr < 0x15) {
-            if (mType == 0) {
-                s32 anmNo = mAnmNo;
-                if (anmNo == 0x0D) {
-                    if ((s8)anm_atr[attr] == 0x17) {
-                        return;
-                    }
-                }
-            }
-            if (mType == 1) {
-                u8 next = anm_atr[attr];
-                if ((s8)next == 7) {
-                    if (m751 != 0) {
-                        return;
-                    }
-                    m751 = 1;
-                    mAnmNo = next;
-                    return;
-                }
-            }
-            s8 cur = (s8)(*(volatile u8*)&mAnmNo);
-            u8 next = anm_atr[attr];
-            if (cur == (s8)next) {
+            if (mType == 0 && mAnmNo == 0x0D && (s8)anm_atr[attr] == 0x17) {
                 return;
             }
-            mAnmNo = next;
-            return;
+            if (mType == 1 && (s8)anm_atr[attr] == 7) {
+                if (m751 == 0) {
+                    m751 = 1;
+                    mAnmNo = anm_atr[attr];
+                }
+                return;
+            }
+            u8 next;
+            if (mAnmNo != (s8)(next = anm_atr[attr])) {
+                mAnmNo = next;
+            }
+        } else {
+            mAnmNo = 1;
         }
-        mAnmNo = 1;
-        return;
-    }
-    if (status == 0x10) {
+    } else if (status == 0x10) {
         mAnmNo = 1;
     }
 }
