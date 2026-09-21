@@ -1547,34 +1547,32 @@ bool daGy_c::_execute() {
 /* 00004264-00004560       .text drawDebug__6daGy_cFv */
 void daGy_c::drawDebug() {
     {
-        s16 spread = l_HIO.m180;
-        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        if ((u32)l_HIO.m180 - 0x70000 != 0xFFFF || l_HIO.m180 != 0) {
             cXyz pos = current.pos;
             pos.y += 10.0f;
-            int angle1 = shape_angle.y + spread;
+            int angle1 = shape_angle.y + l_HIO.m180;
             cXyz corner1(pos);
             corner1.z += l_HIO.m184 * cM_scos(angle1);
             corner1.x += l_HIO.m184 * cM_ssin(angle1);
             cXyz corner2(pos);
-            int angle2 = shape_angle.y - spread;
+            int angle2 = shape_angle.y - l_HIO.m180;
             corner2.z += l_HIO.m184 * cM_scos(angle2);
             corner2.x += l_HIO.m184 * cM_ssin(angle2);
         }
     }
 
     {
-        s16 spread = l_HIO.m140;
-        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        if ((u32)l_HIO.m140 - 0x70000 != 0xFFFF || l_HIO.m140 != 0) {
             daShip_c* ship = dComIfGp_getShipActor();
             if (ship != NULL) {
                 cXyz pos = ship->current.pos;
                 pos.y += 100.0f;
-                int angle1 = ship->shape_angle.y + spread;
+                int angle1 = ship->shape_angle.y + l_HIO.m140;
                 cXyz corner1(pos);
                 corner1.z += 3000.0f * cM_scos(angle1);
                 corner1.x += 3000.0f * cM_ssin(angle1);
                 cXyz corner2(pos);
-                int angle2 = ship->shape_angle.y - spread;
+                int angle2 = ship->shape_angle.y - l_HIO.m140;
                 corner2.z += 3000.0f * cM_scos(angle2);
                 corner2.x += 3000.0f * cM_ssin(angle2);
             }
@@ -1582,18 +1580,17 @@ void daGy_c::drawDebug() {
     }
 
     {
-        s16 spread = l_HIO.m142;
-        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        if ((u32)l_HIO.m142 - 0x70000 != 0xFFFF || l_HIO.m142 != 0) {
             daShip_c* ship = dComIfGp_getShipActor();
             if (ship != NULL) {
                 cXyz pos = ship->current.pos;
                 pos.y += 100.0f;
-                int angle1 = ship->shape_angle.y + spread;
+                int angle1 = ship->shape_angle.y + l_HIO.m142;
                 cXyz corner1(pos);
                 corner1.z += 3000.0f * cM_scos(angle1);
                 corner1.x += 3000.0f * cM_ssin(angle1);
                 cXyz corner2(pos);
-                int angle2 = ship->shape_angle.y - spread;
+                int angle2 = ship->shape_angle.y - l_HIO.m142;
                 corner2.z += 3000.0f * cM_scos(angle2);
                 corner2.x += 3000.0f * cM_ssin(angle2);
             }
