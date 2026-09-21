@@ -5133,8 +5133,8 @@ bool dCamera_c::towerCamera(s32 param_1) {
             f32 height = get_actor_height(mpPlayerActor);
             dist /= height < 10.0f ? 10.0f : height;
             work->m37C = (int)(8.0f * std::sqrtf(dist)) + 1;
+            work->m380 = work->m37C * (work->m37C + 1) >> 1;
         }
-        work->m380 = work->m37C * (work->m37C + 1) >> 1;
         work->m384 = 0.0f;
     }
 
