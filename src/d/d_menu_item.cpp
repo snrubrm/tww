@@ -1557,7 +1557,7 @@ void dMenu_Item_c::noteOpenProc(short i_step, short i_max) {
 
 /* 801CCF50-801CD004       .text nameOpenProc__12dMenu_Item_cFss */
 void dMenu_Item_c::nameOpenProc(short i_step, short i_max) {
-    s16 trans = g_miHIO.field_0x2C;
+    const s16 trans = g_miHIO.field_0x2C;
 
     if (i_max >= i_step) {
         fopMsgM_valueIncrease(i_max, i_step, 0);
