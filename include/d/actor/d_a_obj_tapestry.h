@@ -112,10 +112,15 @@ public:
 
 STATIC_ASSERT(sizeof(daObjTapestryDrawVtx_c) == 0x6C0);
 
-class daObjTapestrySpd_c {
+class daObjTapestryWork_c {
 public:
     /* 0x000 */ cXyz spd[8][6];
-};  // Size: 0x240
+    /* 0x240 */ u8 flag0[8][6];
+    /* 0x270 */ u8 flag1[8][6];
+    /* 0x2A0 */ u8 alpha[8][6];
+};  // Size: 0x2D0
+
+STATIC_ASSERT(sizeof(daObjTapestryWork_c) == 0x2D0);
 
 class daObjTapestryDrawData_c {
 public:
@@ -179,10 +184,7 @@ public:
 
 public:
     /* 0x0010 */ daObjTapestryDrawVtx_c mDraw[2];
-    /* 0x0D90 */ daObjTapestrySpd_c mSpd;
-    /* 0x0FD0 */ u8 mFlag0[8][6];
-    /* 0x1000 */ u8 mFlag1[8][6];
-    /* 0x1030 */ u8 mAlpha[8][6];
+    /* 0x0D90 */ daObjTapestryWork_c mWork;
     /* 0x1060 */ int mBuffer;
     /* 0x1064 */ daObjTapestryFireEff_c mFire[0x10];
     /* 0x1324 */ int mFireCount;

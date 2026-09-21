@@ -495,10 +495,10 @@ daObjTapestryPacket_c::daObjTapestryPacket_c() {
     }
     for (row = 0; row < 8; row++) {
         for (col = 0; col < 6; col++) {
-            mSpd.spd[row][col] = cXyz::Zero;
-            mFlag0[row][col] = 0;
-            mFlag1[row][col] = 0;
-            mAlpha[row][col] = 0xFF;
+            mWork.spd[row][col] = cXyz::Zero;
+            mWork.flag0[row][col] = 0;
+            mWork.flag1[row][col] = 0;
+            mWork.alpha[row][col] = 0xFF;
         }
     }
     mBuffer = 0;
@@ -690,9 +690,9 @@ void daObjTapestryPacket_c::calc_acc_hit(int row, int col) {
 
 /* 000019CC-00001AF4       .text calc_spd__21daObjTapestryPacket_cFii */
 void daObjTapestryPacket_c::calc_spd(int row, int col) {
-    cXyz* spd = &mSpd.spd[row][col];
+    cXyz* spd = &mWork.spd[row][col];
     f32 damp;
-    if (mFlag0[row][col] & 2) {
+    if (mWork.flag0[row][col] & 2) {
         damp = -attr().m0C;
     } else {
         damp = -attr().m08;
@@ -719,9 +719,9 @@ void daObjTapestryPacket_c::calc_pos_crr(int row, int col) {
         if (world.y < gy) {
             world.y = gy;
             mDoMtx_multVec(mInvMtx, &world, now);
-            mFlag0[row][col] |= 2;
+            mWork.flag0[row][col] |= 2;
         } else {
-            mFlag0[row][col] &= ~2;
+            mWork.flag0[row][col] &= ~2;
         }
     }
 }
@@ -732,7 +732,7 @@ void daObjTapestryPacket_c::calc_pos() {
     daObjTapestryDrawVtx_c* prev = &mDraw[mBuffer ^ 1];
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 6; col++) {
-            if (row == 0 && !(mFlag0[row][col] & 1)) {
+            if (row == 0 && !(mWork.flag0[row][col] & 1)) {
                 continue;
             }
             mAcc = cXyz::Zero;
@@ -741,7 +741,7 @@ void daObjTapestryPacket_c::calc_pos() {
             calc_acc_wave(row, col);
             calc_acc_hit(row, col);
             calc_spd(row, col);
-            now->pos[row][col] = prev->pos[row][col] + mSpd.spd[row][col];
+            now->pos[row][col] = prev->pos[row][col] + mWork.spd[row][col];
             calc_pos_crr(row, col);
         }
     }
@@ -873,13 +873,13 @@ void daObjTapestryPacket_c::calc_hit() {
 
 /* 00002F38-00003008       .text calc_fire_leap__21daObjTapestryPacket_cFii */
 void daObjTapestryPacket_c::calc_fire_leap(int row, int col) {
-    if (mFlag1[row][col] == 0) {
+    if (mWork.flag1[row][col] == 0) {
         if (row == 0 && ((col == 0 && m1466 == 1) || (col == 5 && m1466 == 2))) {
-            mFlag1[row][col] = 1;
+            mWork.flag1[row][col] = 1;
         } else {
-            mFlag1[row][col] = (u8)(1.0f + cM_rndF(8.0f));
+            mWork.flag1[row][col] = (u8)(1.0f + cM_rndF(8.0f));
         }
-        mAlpha[row][col] = eff_start(row, col);
+        mWork.alpha[row][col] = eff_start(row, col);
     }
 }
 
@@ -888,15 +888,15 @@ void daObjTapestryPacket_c::calc_fire() {
     if (m1454) {
         int row = (int)(7.0f * m145C);
         int col = (int)(5.0f * m1460);
-        mFlag1[row][col]++;
+        mWork.flag1[row][col]++;
         m1454 = 0;
     }
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 6; col++) {
-            if (mFlag1[row][col] == 0) {
+            if (mWork.flag1[row][col] == 0) {
                 continue;
             }
-            if (mFlag1[row][col] >= attr().m41) {
+            if (mWork.flag1[row][col] >= attr().m41) {
                 continue;
             }
             f32 rate;
@@ -906,15 +906,15 @@ void daObjTapestryPacket_c::calc_fire() {
                 rate = 0.8f;
             }
             if (cM_rnd() < rate) {
-                mFlag1[row][col]++;
+                mWork.flag1[row][col]++;
             }
-            if (mFlag1[row][col] < attr().m40) {
+            if (mWork.flag1[row][col] < attr().m40) {
                 continue;
             }
-            if (mFlag0[row][col] & 1) {
+            if (mWork.flag0[row][col] & 1) {
                 continue;
             }
-            mFlag0[row][col] |= 1;
+            mWork.flag0[row][col] |= 1;
             int down = row + 1;
             int left = col - 1;
             int right = col + 1;
@@ -951,7 +951,7 @@ void daObjTapestryPacket_c::calc_fire() {
     if (m1464 == 0) {
         int i;
         for (i = 0; i < 6; i++) {
-            if (mFlag0[0][i] & 1) {
+            if (mWork.flag0[0][i] & 1) {
                 continue;
             }
             break;
@@ -1033,36 +1033,37 @@ u8 daObjTapestryPacket_c::eff_start_chk(int row, int col) {
     bool down_ok = down < 8;
     bool left_ok = left >= 0;
     bool right_ok = right < 6;
+    daObjTapestryWork_c* w = &mWork;
     u8 ok = 1;
     if (up >= 0) {
-        if (cM_rnd() < 0.8f && mAlpha[up][col] != 0xFF) {
+        if (cM_rnd() < 0.8f && w->alpha[up][col] != 0xFF) {
             ok = 0;
         }
-        if (cM_rnd() < 0.35f && left_ok && mAlpha[up][left] != 0xFF) {
+        if (cM_rnd() < 0.35f && left_ok && w->alpha[up][left] != 0xFF) {
             ok = 0;
         }
-        if (cM_rnd() < 0.35f && right_ok && mAlpha[up][right] != 0xFF) {
+        if (cM_rnd() < 0.35f && right_ok && w->alpha[up][right] != 0xFF) {
             ok = 0;
         }
     }
     if (down_ok) {
-        if (cM_rnd() < 0.8f && mAlpha[down][col] != 0xFF) {
+        if (cM_rnd() < 0.8f && w->alpha[down][col] != 0xFF) {
             ok = 0;
         }
-        if (cM_rnd() < 0.35f && left_ok && mAlpha[down][left] != 0xFF) {
+        if (cM_rnd() < 0.35f && left_ok && w->alpha[down][left] != 0xFF) {
             ok = 0;
         }
-        if (cM_rnd() < 0.35f && right_ok && mAlpha[down][right] != 0xFF) {
+        if (cM_rnd() < 0.35f && right_ok && w->alpha[down][right] != 0xFF) {
             ok = 0;
         }
     }
-    if (cM_rnd() < 0.8f && left_ok && mAlpha[row][left] != 0xFF) {
+    if (cM_rnd() < 0.8f && left_ok && w->alpha[row][left] != 0xFF) {
         ok = 0;
     }
-    if (cM_rnd() < 0.8f && right_ok && mAlpha[row][right] != 0xFF) {
+    if (cM_rnd() < 0.8f && right_ok && w->alpha[row][right] != 0xFF) {
         ok = 0;
     }
-    if (mAlpha[row][col] != 0xFF) {
+    if (w->alpha[row][col] != 0xFF) {
         ok = 0;
     }
     if (row == 0) {
@@ -1088,7 +1089,7 @@ void daObjTapestryPacket_c::eff_pos() {
         daObjTapestryDrawVtx_c now = mDraw[mBuffer];
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 6; col++) {
-                u8 idx = mAlpha[row][col];
+                u8 idx = mWork.alpha[row][col];
                 if (idx != 0xFF) {
                     cXyz world;
                     mDoMtx_multVec(mMtx, &now.pos[row][col], &world);
