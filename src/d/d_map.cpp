@@ -1709,7 +1709,6 @@ void dMap_c::calcScissor() {
 
 /* 8004A478-8004A6E8       .text mapMoveAll__6dMap_cFffif */
 void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
-    /* Nonmatching */
     setPlayerStayAgbMapTypeNow(param_1, param_2);
     u32 stageType = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo());
     if (stageType != dStageType_FF1_e && stageType != dStageType_SEA_e && param_3 >= 0 && param_3 < 64) {
@@ -1752,6 +1751,7 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
             if (mNowRoomInfoP->mStageMapInfoP) {
                 mCompAlpha = ((u8)mNowRoomInfoP->mStageMapInfoP->field_0x34 * mAlpha) >> 8;
             } else {
+                for (int i = 0; i < 1; i++) {}
                 mCompAlpha = 0;
             }
 #if VERSION > VERSION_DEMO
