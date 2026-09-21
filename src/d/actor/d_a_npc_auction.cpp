@@ -350,6 +350,15 @@ static cPhs_State phase_2(daNpcAuction_c* i_this) {
     return phase_state;
 }
 
+inline cPhs_State daNpcAuction_c::_create() {
+    static cPhs__Handler l_method[] = {
+        (cPhs__Handler)phase_1,
+        (cPhs__Handler)phase_2,
+        NULL,
+    };
+    return dComLbG_PhaseHandler(&mPhs2, l_method, this);
+}
+
 /* 00000B4C-00000E74       .text createHeap__14daNpcAuction_cFv */
 BOOL daNpcAuction_c::createHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], l_bmd_ix_tbl[mNpcNo]);
@@ -1118,15 +1127,6 @@ void daNpcAuction_c::clrEmitter() {
         }
         mpEmitter = NULL;
     }
-}
-
-inline cPhs_State daNpcAuction_c::_create() {
-    static cPhs__Handler l_method[] = {
-        (cPhs__Handler)phase_1,
-        (cPhs__Handler)phase_2,
-        NULL,
-    };
-    return dComLbG_PhaseHandler(&mPhs2, l_method, this);
 }
 
 inline BOOL daNpcAuction_c::_delete() {
