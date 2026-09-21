@@ -713,7 +713,8 @@ BOOL pt_bat(pt_class* i_this) {
         anm_init(i_this, dRes_INDEX_PT_BCK_WAIT_e, 1.0f, J3DFrameCtrl::EMode_NONE, 5.0f, -1);
         {
             s16 angle = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
-            i_this->m324 = angle + 0x8000 + (s16)cM_rndFX(6000.0f);
+            s16 rnd = cM_rndFX(6000.0f);
+            i_this->m324 = rnd + angle + 0x8000;
             mDoMtx_YrotS(*calc_mtx, i_this->m324);
             cXyz offset;
             offset.x = 0.0f;
