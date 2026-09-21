@@ -112,6 +112,11 @@ public:
 
 STATIC_ASSERT(sizeof(daObjTapestryDrawVtx_c) == 0x6C0);
 
+class daObjTapestrySpd_c {
+public:
+    /* 0x000 */ cXyz spd[8][6];
+};  // Size: 0x240
+
 class daObjTapestryDrawData_c {
 public:
     daObjTapestryDrawData_c();
@@ -174,7 +179,7 @@ public:
 
 public:
     /* 0x0010 */ daObjTapestryDrawVtx_c mDraw[2];
-    /* 0x0D90 */ cXyz mSpd[8][6];
+    /* 0x0D90 */ daObjTapestrySpd_c mSpd;
     /* 0x0FD0 */ u8 mFlag0[8][6];
     /* 0x1000 */ u8 mFlag1[8][6];
     /* 0x1030 */ u8 mAlpha[8][6];

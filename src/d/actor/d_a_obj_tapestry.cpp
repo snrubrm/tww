@@ -495,7 +495,7 @@ daObjTapestryPacket_c::daObjTapestryPacket_c() {
     }
     for (row = 0; row < 8; row++) {
         for (col = 0; col < 6; col++) {
-            mSpd[row][col] = cXyz::Zero;
+            mSpd.spd[row][col] = cXyz::Zero;
             mFlag0[row][col] = 0;
             mFlag1[row][col] = 0;
             mAlpha[row][col] = 0xFF;
@@ -690,7 +690,7 @@ void daObjTapestryPacket_c::calc_acc_hit(int row, int col) {
 
 /* 000019CC-00001AF4       .text calc_spd__21daObjTapestryPacket_cFii */
 void daObjTapestryPacket_c::calc_spd(int row, int col) {
-    cXyz* spd = &mSpd[row][col];
+    cXyz* spd = &mSpd.spd[row][col];
     f32 damp;
     if (mFlag0[row][col] & 2) {
         damp = -attr().m0C;
@@ -741,7 +741,7 @@ void daObjTapestryPacket_c::calc_pos() {
             calc_acc_wave(row, col);
             calc_acc_hit(row, col);
             calc_spd(row, col);
-            now->pos[row][col] = prev->pos[row][col] + mSpd[row][col];
+            now->pos[row][col] = prev->pos[row][col] + mSpd.spd[row][col];
             calc_pos_crr(row, col);
         }
     }
