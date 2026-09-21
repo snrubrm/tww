@@ -1990,18 +1990,15 @@ void action_demo(gm_class* i_this) {
         step = 0.1f * std::fabsf(i_this->m450.y - target);
         cLib_addCalc2(&i_this->m450.y, target + REG12_F(5), 1.0f, step);
         target = 582.0f;
-        step = std::fabsf(i_this->m450.z - target);
-        step *= 0.1f;
+        step = 0.1f * std::fabsf(i_this->m450.z - target);
         cLib_addCalc2(&i_this->m450.z, target + REG12_F(6), 1.0f, step);
         if (i_this->m2E2 != 0) {
             break;
         }
         anm_init(i_this, dRes_INDEX_GM_BCK_JETATACK_e, 0.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
-        {
-            f32 jdx = i_this->mSpawnPos.x - (actor->current.pos.x + i_this->mDrawOffset.x);
-            f32 jdz = i_this->mSpawnPos.z - (actor->current.pos.z + i_this->mDrawOffset.z);
-            actor->current.angle.y = cM_atan2s(jdx, jdz);
-        }
+        step = i_this->mSpawnPos.x - (actor->current.pos.x + i_this->mDrawOffset.x);
+        target = i_this->mSpawnPos.z - (actor->current.pos.z + i_this->mDrawOffset.z);
+        actor->current.angle.y = cM_atan2s(step, target);
         i_this->m320 = 0;
         actor->shape_angle.x = 0x4000;
         actor->shape_angle.y += (s16)-0x8000;
