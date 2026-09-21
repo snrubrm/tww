@@ -5513,21 +5513,20 @@ bool dCamera_c::hookshotCamera(s32 param_1) {
         fpc_ProcID itemId = ((daPy_py_c*)mpPlayerActor)->getItemID();
         hook->m398 = 0;
         if (itemId != fpcM_ERROR_PROCESS_ID_e) {
-            daHookshot_c* hookshot = (daHookshot_c*)fopAcM_SearchByID(itemId);
+            fopAc_ac_c* hookshot = fopAcM_SearchByID(itemId);
             cXyz playerPos = positionOf(mpPlayerActor);
-            cXyz delta = positionOf(hookshot) - playerPos;
-
-            if (delta.abs() > val14) {
+            if (cXyz(positionOf(hookshot) - playerPos).abs() > val14) {
+                int i;
                 bool flip = (m07C & 0x10) != 0;
-                for (int i = 0; i < 8; i++) {
+                for (i = 0; i < 8; i++) {
                     cXyz off = offsets[(m07C + i) & 3];
                     if (flip) {
                         off.x = -off.x;
                     }
 
                     cSGlobe globe(off);
-                    globe.U(globe.U() + hookshot->getHookAngle()->y);
-                    globe.V(globe.V() + hookshot->getHookAngle()->x);
+                    globe.U(globe.U() + ((daHookshot_c*)hookshot)->getHookAngle()->y);
+                    globe.V(globe.V() + ((daHookshot_c*)hookshot)->getHookAngle()->x);
                     hook->m38C = positionOf(hookshot) + globe.Xyz();
 
                     dBgS_CamLinChk_NorWtr lin_chk;
