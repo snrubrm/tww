@@ -46,6 +46,20 @@ static dCcD_SrcCyl l_cyl_src = {
     }},
 };
 
+class daNpc_Kg1_HIO_c : public JORReflexible {
+public:
+    daNpc_Kg1_HIO_c();
+
+public:
+    virtual ~daNpc_Kg1_HIO_c() {}
+    s8 mChild;
+    int mCount;
+    u8 m0C;
+    dNpc_HIO_c mNpc[1];
+    u8 m38;
+    u8 m39;
+};
+
 static daNpc_Kg1_HIO_c l_HIO;
 
 daNpc_Kg1_HIO_c::daNpc_Kg1_HIO_c() {

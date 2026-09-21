@@ -90,18 +90,4 @@ public:
 
 STATIC_ASSERT(sizeof(daNpc_Kg1_c) == 0x78C);
 
-class daNpc_Kg1_HIO_c : public JORReflexible {
-public:
-    daNpc_Kg1_HIO_c();
-
-public:
-    virtual ~daNpc_Kg1_HIO_c() {}
-    s8 mChild;
-    int mCount;
-    u8 m0C;
-    dNpc_HIO_c mNpc[1];
-    u8 m38;
-    u8 m39;
-};
-
 #endif /* D_A_NPC_KG1_H */
