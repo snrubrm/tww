@@ -975,12 +975,13 @@ BOOL daObj_Search::Act_c::_execute() {
         }
     }
     eyePos = current.pos;
-    if (abs(mLightAng[0].y - m7B0) && mMode != MODE_STOP_e) {
+    if ((s16)abs(mLightAng[0].y - m7B0) != 0 && mMode != MODE_STOP_e) {
         fopAcM_seStart(this, JA_SE_OBJ_SEARCH_LIGHT, 0);
     }
     mpModel->calc();
+    cXyz src;
     cXyz unused(0.0f, 0.0f, 0.0f);
-    cXyz src(0.0f, 0.0f, 0.0f);
+    src.set(0.0f, 0.0f, 0.0f);
     mDoMtx_stack_c::copy(mpModel->getAnmMtx(S_SEARCH_JNT_LIGHTA_e));
     mDoMtx_stack_c::multVec(&src, &m600);
     set_mtx_light_A();
