@@ -638,10 +638,10 @@ void daObjFtree::Act_c::action_waitL_main() {
 
 /* 000019BC-00001A4C       .text action_pikupikuS_init__Q210daObjFtree5Act_cFs */
 BOOL daObjFtree::Act_c::action_pikupikuS_init(s16 param) {
-    int duration = param > 0 ? param : 1;
+    param = param > 0 ? param : 1;
     mModelS = 1;
     mModelL = 0;
-    mPikuSMax = duration;
+    mPikuSMax = param;
     mPikuSCount = 0;
     f32 speed = 0.7f + cM_rndF(1.0f) * 0.50000005f;
     return SetJointAnimation(dRes_INDEX_VMR_BCK_VMRTY_e, speed, 10.0f, 0);
