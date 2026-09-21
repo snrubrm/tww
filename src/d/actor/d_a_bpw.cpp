@@ -4251,9 +4251,7 @@ static BOOL daBPW_Delete(bpw_class* i_this) {
 
 /* 0000C770-0000CC40       .text boss_useHeapInit__FP10fopAc_ac_c */
 static BOOL boss_useHeapInit(fopAc_ac_c* a_this) {
-    /* Nonmatching - retail-only regalloc */
     J3DModel* model;
-    J3DAnmTevRegKey* pBrk;
     bpw_class* i_this = (bpw_class*)a_this;
 
     i_this->mpMorf = new mDoExt_McaMorf(
@@ -4282,40 +4280,35 @@ static BOOL boss_useHeapInit(fopAc_ac_c* a_this) {
     if (i_this->mpLightFreezeBrkAnm == NULL) {
         return FALSE;
     }
-    pBrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_HIRARU1_e);
-    if (!i_this->mpLightFreezeBrkAnm->init(model->getModelData(), pBrk, true, J3DFrameCtrl::EMode_NONE)) {
+    if (!i_this->mpLightFreezeBrkAnm->init(model->getModelData(), (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_HIRARU1_e), true, J3DFrameCtrl::EMode_NONE)) {
         return FALSE;
     }
     i_this->mpLightStunBrkAnm = new mDoExt_brkAnm();
     if (i_this->mpLightStunBrkAnm == NULL) {
         return FALSE;
     }
-    pBrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_HIT_e);
-    if (!i_this->mpLightStunBrkAnm->init(model->getModelData(), pBrk, true, J3DFrameCtrl::EMode_LOOP)) {
+    if (!i_this->mpLightStunBrkAnm->init(model->getModelData(), (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_HIT_e), true, J3DFrameCtrl::EMode_LOOP)) {
         return FALSE;
     }
     i_this->mpCurseStartBrkAnm = new mDoExt_brkAnm();
     if (i_this->mpCurseStartBrkAnm == NULL) {
         return FALSE;
     }
-    pBrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_NOROI_S1_e);
-    if (!i_this->mpCurseStartBrkAnm->init(model->getModelData(), pBrk, true, J3DFrameCtrl::EMode_NONE)) {
+    if (!i_this->mpCurseStartBrkAnm->init(model->getModelData(), (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_NOROI_S1_e), true, J3DFrameCtrl::EMode_NONE)) {
         return FALSE;
     }
     i_this->mpCurseEndBrkAnm = new mDoExt_brkAnm();
     if (i_this->mpCurseEndBrkAnm == NULL) {
         return FALSE;
     }
-    pBrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_NOROI_E1_e);
-    if (!i_this->mpCurseEndBrkAnm->init(model->getModelData(), pBrk, true, J3DFrameCtrl::EMode_NONE)) {
+    if (!i_this->mpCurseEndBrkAnm->init(model->getModelData(), (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_NOROI_E1_e), true, J3DFrameCtrl::EMode_NONE)) {
         return FALSE;
     }
     i_this->mpDefaultBrkAnm = new mDoExt_brkAnm();
     if (i_this->mpDefaultBrkAnm == NULL) {
         return FALSE;
     }
-    pBrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_DEFAULT_e);
-    if (!i_this->mpDefaultBrkAnm->init(model->getModelData(), pBrk, true, J3DFrameCtrl::EMode_LOOP)) {
+    if (!i_this->mpDefaultBrkAnm->init(model->getModelData(), (J3DAnmTevRegKey*)dComIfG_getObjectRes("BPW", dRes_INDEX_BPW_BRK_DEFAULT_e), true, J3DFrameCtrl::EMode_LOOP)) {
         return FALSE;
     }
     if (!i_this->mInvisibleModel.create(i_this->mpMorf->getModel())) {
