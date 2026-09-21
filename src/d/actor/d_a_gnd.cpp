@@ -558,7 +558,7 @@ static void wait_set(gnd_class* i_this) {
 /* 00001334-00001974       .text move0__FP9gnd_class */
 static void move0(gnd_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
     f32 dist = fopAcM_searchActorDistance(actor, player);
     int frame = (int)i_this->mpMorf->getFrame();
     s8 track = 0;
