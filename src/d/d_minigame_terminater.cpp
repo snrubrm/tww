@@ -615,11 +615,7 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS1() {
     static const s16 animeFrame[] = {8, 10};
 
     BOOL rt = FALSE;
-    f32 a = mYouGot[0].mPosTopLeftOrig.x;
-    f32 b = mYouGot[5].mSizeOrig.x;
-    f32 c = mYouGot[5].mPosTopLeftOrig.x;
-    f32 base = ((a + c) + b) + a;
-    base *= 0.5f;
+    f32 base = (mYouGot[0].mPosTopLeftOrig.x + (mYouGot[0].mPosTopLeftOrig.x + mYouGot[5].mPosTopLeftOrig.x + mYouGot[5].mSizeOrig.x)) / 2.0f;
 
     if (mYouGot[0].mUserArea < animeFrame[1]) {
         mYouGot[0].mUserArea++;
@@ -633,8 +629,8 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS1() {
     f32 scale;
     if (timer <= animeFrame[0]) {
         alpha = 0.0f;
-        t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
-        scale = 0.3f + 0.9f * t;
+        t = acc(animeFrame[0], timer, 0);
+        scale = 0.3f + (1.2f - 0.3f) * t;
     } else {
         t = acc(animeFrame[1], timer, animeFrame[0]);
         alpha = t;
