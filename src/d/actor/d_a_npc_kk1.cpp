@@ -1431,9 +1431,10 @@ void daNpc_Kk1_c::setStt(signed char state) {
 /* 0000311C-000032D8       .text createTama__11daNpc_Kk1_cFf */
 void daNpc_Kk1_c::createTama(float distance) {
     csXyz angle(0, 0, 0);
+    cXyz target;
     cXyz pos = eyePos;
     pos.y = 15.0f + eyePos.y;
-    cXyz target = dNpc_playerEyePos(-20.0f);
+    target = dNpc_playerEyePos(-20.0f);
     f32 dist = (target - eyePos).absXZ();
     angle.y = cLib_targetAngleY(&pos, &target);
     angle.x = cLib_targetAngleX(&pos, &target);
