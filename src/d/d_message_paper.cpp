@@ -503,7 +503,7 @@ void dMsg3_aimAlphaSqrt(sub_msg3_class* i_Msg, int param_0, int param_1) {
 /* 801ECE04-801ECEA0       .text dMsg3_kankyoBrightness__Fv */
 int dMsg3_kankyoBrightness() {
     GXColorS10* difcol = dKy_Get_DifCol();
-    return (difcol->b * 0.114f) + (difcol->r * 0.299f) + (difcol->g * 0.587f);
+    return (difcol->r * 0.299f) + (difcol->g * 0.587f) + (difcol->b * 0.114f);
 }
 
 /* 801ECEA0-801ECEEC       .text dMsg3_aimBrightness__Fv */
