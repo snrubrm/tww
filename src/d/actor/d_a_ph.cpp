@@ -219,15 +219,13 @@ void puropera_sound(ph_class* i_this) {
             }
         }
         if (!(i_this->m0354 & 2)) {
-            s16 dist = cLib_distanceAngleS(i_this->m033A, 0x6000);
-            if (dist < 0x1000) {
+            if ((s16)cLib_distanceAngleS(i_this->m033A, 0x6000) < 0x1000) {
                 play = 1;
                 i_this->m0354 |= 2;
             }
         }
         if (!(i_this->m0354 & 4)) {
-            s16 dist = cLib_distanceAngleS(i_this->m033A, -0x4000);
-            if (dist < 0x1000) {
+            if ((s16)cLib_distanceAngleS(i_this->m033A, -0x4000) < 0x1000) {
                 play = 1;
                 i_this->m0354 |= 4;
             }
