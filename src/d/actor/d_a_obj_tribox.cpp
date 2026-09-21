@@ -533,10 +533,11 @@ void daObjTribox::Act_c::vib_sink_end() {
 
 /* 0000197C-00001A08       .text search_block__Q211daObjTribox5Act_cFPvPv */
 void* daObjTribox::Act_c::search_block(void* ptr, void* data) {
-    if (fopAc_IsActor(ptr) && fopAcM_GetName(ptr) == fpcNm_Obj_Tribox_e) {
-        Act_c* other = static_cast<Act_c*>(ptr);
+    Act_c* other = static_cast<Act_c*>(ptr);
+    Act_c* self = static_cast<Act_c*>(data);
+    if (fopAc_IsActor(other) && fopAcM_GetName(other) == fpcNm_Obj_Tribox_e) {
         if (other->prm_get_type() == 0) {
-            if (fopAcM_searchActorDistance2(static_cast<fopAc_ac_c*>(data), other) < 225.0f) {
+            if (fopAcM_searchActorDistance2(self, other) < 225.0f) {
                 return other;
             }
         }
