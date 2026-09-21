@@ -1125,14 +1125,6 @@ void ph_fly_sea_move(ph_class* i_this) {
     }
 }
 
-static inline void ph_clear_hane(ph_class* i_this, s32 v) {
-    s32 i = v;
-    for (int n = 7; n != 0; n--) {
-        *(s16*)((char*)i_this + 0x356 + i) = v;
-        i += 2;
-    }
-}
-
 /* 00002E18-00002F50       .text ph_hane_move__FP8ph_class */
 void ph_hane_move(ph_class* i_this) {
     switch (i_this->m0346) {
@@ -1154,16 +1146,17 @@ void ph_hane_move(ph_class* i_this) {
         fly_angle_set(i_this, 4);
         if (i_this->m0364 == 0) {
             if (i_this->speedF < 0.1f) {
-                s32 v = 0;
-                i_this->m033F = v;
+                i_this->m033F = 0;
                 if (i_this->mType == 0) {
                     i_this->m0364 = 0x3C;
                     i_this->mAtCyl.OnAtSetBit();
                     i_this->mAtCyl.OnAtHitBit();
-                    ph_clear_hane(i_this, v);
+                    for (int i = 0; i < 7; i++) {
+                        (&i_this->m0356)[i] = 0;
+                    }
                     i_this->m0346 = 1;
                 } else {
-                    i_this->m0346 = v;
+                    i_this->m0346 = 0;
                 }
             }
         }
