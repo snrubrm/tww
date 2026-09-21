@@ -1411,9 +1411,17 @@ void dPa_cutTurnEcallBack_c::end() {
     field_0x5 = 1;
 }
 
+// The width products of the stripe callback have to be compiler temporaries
+// (created before the inlined vector math) rather than plain assignments.
+static inline f32 mulf(f32 a, f32 b) {
+    f32 r = a * b;
+    return r;
+}
+
 /* 8007EB00-8007F028       .text draw__20dPa_stripesEcallBackFP14JPABaseEmitter */
 void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
-    f32 sx[2];
+    f32 sx0;
+    f32 sx1;
     f32 cx0;
     f32 cx1;
     if (!emitter->isChildDraw()) {
@@ -1452,9 +1460,9 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
                     emitter->getGlobalParticleScale(gscale);
                     f32 x1 = 25.0f * params->mScaleX * gscale.x * userScale;
                     f32 x0 = -x1;
-                    sx[0] = x0 * sin;
+                    sx0 = mulf(x0, sin);
                     cx0 = x0 * cos;
-                    sx[1] = x1 * sin;
+                    sx1 = mulf(x1, sin);
                     cx1 = x1 * cos;
 
                     JGeometry::TVec3<f32> dir;
@@ -1481,8 +1489,8 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
                     f32* hack = &mtx.mMtx[0][0];
                     (void)hack;
 
-                    JGeometry::TVec3<f32> v1(cx0, 0.0f, sx[0]);
-                    JGeometry::TVec3<f32> v2(cx1, 0.0f, sx[1]);
+                    JGeometry::TVec3<f32> v1(cx0, 0.0f, sx0);
+                    JGeometry::TVec3<f32> v2(cx1, 0.0f, sx1);
                     mtx.mult(v1);
                     mtx.mult(v2);
 
