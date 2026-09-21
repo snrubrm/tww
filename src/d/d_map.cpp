@@ -1374,19 +1374,19 @@ void dMap_c::mapDrawRealSize(f32 param_1, f32 param_2, u8 i_alpha) {
 
 /* 80049354-800494A0       .text mapAGBSendIslandData__6dMap_cFv */
 void dMap_c::mapAGBSendIslandData() {
-    /* Nonmatching */
     if (mFmapChkPntData_p == NULL) {
         return;
     }
 
-    u8 yb;
+    s8 prm;
     FmapChkPnt* src;
     u8* dst = mAgbSendBufIsland;
+    u8 yb;
     for (int i = 0; i < 49; i++, dst += 4) {
         if (i < mFmapChkPntValue) {
             src = &mFmapChkPntData_p[i];
             yb = 255.0f * ((50000.0f + (f32)src->field_0x4) / 100000.0f);
-            u8 prm = src->field_0x6;
+            prm = src->field_0x6;
             s8 gx = src->mSectorX;
             s8 gy = src->mSectorY;
             u8 grid = gx + 3 + (gy + 3) * 7;
