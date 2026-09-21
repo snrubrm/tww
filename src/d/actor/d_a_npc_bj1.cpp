@@ -1934,6 +1934,7 @@ void daNpc_Bj1_c::eInit_JMP_(float* spdY, float* grav) {
 
 /* 00003F74-0000406C       .text eInit_CHG_PTH___11daNpc_Bj1_cFPiPi */
 void daNpc_Bj1_c::eInit_CHG_PTH_(int* pthNo, int* indexP) {
+    u8 idx;
     mPathRun.setInf(mPathIdx, fopAcM_GetRoomNo(this), 1);
     if (mPathRun.isPath() && pthNo != NULL) {
         int n = *pthNo;
@@ -1954,7 +1955,7 @@ void daNpc_Bj1_c::eInit_CHG_PTH_(int* pthNo, int* indexP) {
         }
     }
     if (indexP != NULL) {
-        u8 idx = *indexP;
+        idx = *indexP;
         if (idx >= mPathRun.maxPoint()) {
             idx = mPathRun.maxPoint() - 1;
         }
