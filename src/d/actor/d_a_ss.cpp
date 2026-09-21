@@ -141,18 +141,18 @@ static void hand_1_set_2(ss_class* i_this, ss_s* hand) {
 }
 
 static void hand_1_move(ss_class* i_this, ss_s* hand) {
-    // Nonmatching: Register allocation differs.
     fopAc_ac_c* actor = i_this;
     ss_s_s* segment;
     int length;
+    s8 len;
     int i;
     int collider;
     CcAtInfo hit;
     cXyz speed;
     u8 damage;
     segment = hand->segments;
-    length = (s8)hand->length;
-    if ((i_this->mFrame & 3) == 0 && i_this->mMode < 50 && length < 20) hand->length++;
+    length = len = hand->length;
+    if ((i_this->mFrame & 3) == 0 && i_this->mMode < 50 && length < 20) hand->length = len + 1;
     collider = 0;
     for (i = 0; i < 20; i++, segment++) {
         if (i >= length - 1) segment->size = 0;
