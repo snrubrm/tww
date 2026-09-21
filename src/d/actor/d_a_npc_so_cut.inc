@@ -681,9 +681,7 @@ void daNpc_So_c::cutMiniGameReturnProc() {
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
     shape_angle.x = 0;
-    cXyz delta = mBA0 - current.pos;
-    delta.y = 0.0f;
-    f32 dist = delta.abs();
+    f32 dist = (mBA0 - current.pos).absXZ();
     if (dist < 400.0f) {
         daPy_py_c* player = (daPy_py_c*)dComIfGp_getLinkPlayer();
         player->changeOriginalDemo();
