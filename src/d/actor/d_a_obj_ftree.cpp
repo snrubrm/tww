@@ -1171,14 +1171,7 @@ bool daObjFtree::Act_c::_draw() {
         set_tev_color(mpModel->getModelData(), 2, mColorLBase.r, mColorLBase.g, mColorLBase.b);
         mDoExt_modelUpdateDL(mpModel);
         dComIfGd_setList();
-        f32 ratio;
-        if (mScaleMul <= 0.2f) {
-            ratio = 0.0f;
-        } else if (mScaleMul >= 1.0f) {
-            ratio = 1.0f;
-        } else {
-            ratio = (mScaleMul - 0.2f) / 0.8f;
-        }
+        f32 ratio = mScaleMul <= 0.2f ? 0.0f : (mScaleMul >= 1.0f ? 1.0f : (mScaleMul - 0.2f) / 0.8f);
         cXyz pos(current.pos.x, current.pos.y, current.pos.z);
         dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f * (1.0f + 2.5f * ratio), mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
