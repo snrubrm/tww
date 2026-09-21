@@ -220,7 +220,6 @@ void dMsg2_screenDataSet(sub_msg2_class* i_Msg, u8 i_index) {
 }
 
 /* 801E7AB8-801E8154       .text dMsg2_screenDataInit__FP14sub_msg2_classUc */
-// NONMATCHING - USA/PAL-only regalloc and load issues
 void dMsg2_screenDataInit(sub_msg2_class* i_Msg, u8 i_index) {
     fopMsgM_setPaneData(&i_Msg->text_pane[i_index], sScreen2[i_index]->search('tx23'));
     fopMsgM_setPaneData(&i_Msg->ruby_pane[i_index], sScreen2[i_index]->search('tx29'));
@@ -299,8 +298,9 @@ void dMsg2_screenDataInit(sub_msg2_class* i_Msg, u8 i_index) {
         ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setFontSize(fontSize);
     }
 #else
-    fontSize.mSizeX = g_msgHIO.field_0x70;
-    fontSize.mSizeY = g_msgHIO.field_0x70;
+    int size = g_msgHIO.field_0x70;
+    fontSize.mSizeX = size;
+    fontSize.mSizeY = size;
 
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setFontSize(fontSize);
     ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setFontSize(fontSize);
