@@ -668,9 +668,9 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS1() {
 BOOL dDlst_TerminaterScrnDraw_c::animeS2(fopMsgM_pane_class* i_pane) {
     BOOL rt = FALSE;
     i_pane->mUserArea++;
-    s16 tmp = i_pane->mUserArea;
-    if (tmp <= 7) {
-        f32 t = SQUARE((f32)tmp) / 49.0f;
+    if (i_pane->mUserArea <= 7) {
+        f32 t = SQUARE((f32)i_pane->mUserArea);
+        t /= 49.0f;
         fopMsgM_setNowAlpha(i_pane, t);
     } else {
         rt = TRUE;
