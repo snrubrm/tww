@@ -2992,7 +2992,7 @@ bool daNpc_Bj1_c::create_itm_Mdl() {
         }
     }
 
-    J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", l_bmd_tbl[mType]);
+    J3DModelData* a_mdl_dat = static_cast<J3DModelData*>(dComIfG_getObjectIDRes("Bj", l_bmd_tbl[mType]));
     JUT_ASSERT(0x1166, a_mdl_dat != 0);
     mpFaceModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     return mpFaceModel != NULL;
