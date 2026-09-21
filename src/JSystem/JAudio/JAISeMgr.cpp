@@ -122,6 +122,7 @@ void JAInter::SeMgr::processGFrameSe() {
 
 /* 80293530-80293C94       .text checkNextFrameSe__Q27JAInter5SeMgrFv */
 void JAInter::SeMgr::checkNextFrameSe() {
+    JAISound* sound;
     JAISound removed;
     struct Candidate {
         u8 state;
@@ -143,7 +144,7 @@ void JAInter::SeMgr::checkNextFrameSe() {
             candidates[i].sound = NULL;
         }
         u8 count = 0;
-        JAISound* sound = seRegist[category].field_0x4;
+        sound = seRegist[category].field_0x4;
         while (sound != NULL) {
             if (sound->mState == 1 && (sound->mSoundID & 0xC00)) {
                 sound->field_0x6--;
