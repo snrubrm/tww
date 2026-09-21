@@ -468,16 +468,17 @@ void daObj_Search::Act_c::modeFind() {
     cXyz dir = pos;
     dir = (dir + player->current.pos) - mBeamStart[m830];
     m7B0 = mLightAng[0].y;
-    u16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+    s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+    int angle = yaw;
     s16 pitch = (s16)cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
     if (m830 == 0) {
-        mLightAng[1].y = yaw;
+        mLightAng[1].y = angle;
     } else {
-        yaw += 0x8000;
+        angle = yaw + 0x8000;
         pitch = -pitch;
-        mLightAng[0].y = yaw;
+        mLightAng[0].y = angle;
     }
-    cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].y, angle, 10, 0x400);
     cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
 
     if (eventInfo.checkCommandDemoAccrpt()) {
