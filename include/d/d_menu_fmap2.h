@@ -402,7 +402,7 @@ private:
     /* 0x27B8 */ f32 field_0x27b8;
     /* 0x27BC */ s8 field_0x27bc;
     /* 0x27BD */ s8 field_0x27bd;
-    /* 0x27BE */ u8 field_0x27be;
+    /* 0x27BE */ s8 field_0x27be;
     /* 0x27BF */ s8 field_0x27bf;
     /* 0x27C0 */ char* field_0x27c0[2];
     /* 0x27C8 */ char* field_0x27c8[4];
