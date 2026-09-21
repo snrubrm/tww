@@ -676,9 +676,7 @@ void daNpc_Kf1_c::cut_init_ANGRY_START(int staff) {
     cXyz* pos = dComIfGp_evmng_getMyXyzP(staff, "Pos");
     if (pos) {
         current.pos.set(pos->x, pos->y, pos->z);
-        cXyz* src = mObjAcch.GetPos();
-        cXyz* dst = mObjAcch.GetOldPos();
-        *dst = *src;
+        mObjAcch.SetOld();
     }
     mLookPos.set(0, eyePos.y, 0);
     mLookMode = 2;
