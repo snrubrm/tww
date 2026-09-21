@@ -626,7 +626,7 @@ void body_control3(mt_class* i_this) {
 
             int angY = (s16)cM_atan2s(dx, dz);
             f32 dist = std::sqrtf(dx * dx + dz * dz);
-            int angX = (s16)-cM_atan2s(dy, dist);
+            s16 angX = -cM_atan2s(dy, dist);
 
             offset.x = 0.0f;
             offset.y = 0.0f;
