@@ -1486,7 +1486,7 @@ void daNpc_P2_c::cutSwOffProc(int staffIdx) {
 /* 00008254-000082CC       .text cutSurpriseStart__10daNpc_P2_cFi */
 void daNpc_P2_c::cutSurpriseStart(int) {
     mDoAud_seStart(JA_SE_ITM_OMAMORI_BLINK);
-    ((daPy_py_c*)dComIfGp_getLinkPlayer())->voiceStart(0x1C);
+    daPy_getPlayerActorClass()->voiceStart(0x1C);
 }
 
 /* 000082CC-000082F8       .text cutSurpriseProc__10daNpc_P2_cFi */
