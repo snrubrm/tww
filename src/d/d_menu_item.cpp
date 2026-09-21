@@ -2400,23 +2400,30 @@ bool dMenu_Item_c::_close() {
     f32 title = g_miHIO.field_0x28 * fopMsgM_valueIncrease(10, 10 - mTimer, 0);
     f32 name = g_miHIO.field_0x2C * fopMsgM_valueIncrease(10, 10 - mTimer, 0);
     f32 note_t = fopMsgM_valueIncrease(10, 10 - mTimer, 0);
-    u8 alpha = 255.0f * fopMsgM_valueIncrease(10, mTimer, 0);
+    f32 alpha = fopMsgM_valueIncrease(10, mTimer, 0);
+
+    f32 angle;
+    f32 rotation;
 
     for (int i = 0; i < 2; i++) {
         if (m23B8[i] != NULL) {
-            m23B8[i]->setGlobalAlpha(alpha);
+            m23B8[i]->setGlobalAlpha(255.0f * alpha);
         }
     }
 
     if (mTriggerInfo == 2) {
         mainTrans(-main, 0.0f);
         titleTrans(0.0f, title);
-        noteRotate(g_miHIO.field_0x3E * note_t, m820.mUserArea + note_t * (g_miHIO.field_0x2A - m820.mUserArea));
+        angle = m820.mUserArea + note_t * (g_miHIO.field_0x2A - m820.mUserArea);
+        rotation = g_miHIO.field_0x3E * note_t;
+        noteRotate(rotation, angle);
         nameTrans(0.0f, name);
     } else if (mTriggerInfo == 1) {
         mainTrans(main, 0.0f);
         titleTrans(0.0f, title);
-        noteRotate(g_miHIO.field_0x3E * note_t, m820.mUserArea + note_t * (g_miHIO.field_0x2A - m820.mUserArea));
+        angle = m820.mUserArea + note_t * (g_miHIO.field_0x2A - m820.mUserArea);
+        rotation = g_miHIO.field_0x3E * note_t;
+        noteRotate(rotation, angle);
         nameTrans(0.0f, name);
     }
 
