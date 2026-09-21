@@ -1397,6 +1397,9 @@ void dPa_cutTurnEcallBack_c::end() {
 
 /* 8007EB00-8007F028       .text draw__20dPa_stripesEcallBackFP14JPABaseEmitter */
 void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
+    f32 sx[2];
+    f32 cx0;
+    f32 cx1;
     if (!emitter->isChildDraw()) {
         return;
     }
@@ -1433,10 +1436,10 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
                     emitter->getGlobalParticleScale(gscale);
                     f32 x1 = 25.0f * params->mScaleX * gscale.x * userScale;
                     f32 x0 = -x1;
-                    f32 sx0 = x0 * sin;
-                    f32 cx0 = x0 * cos;
-                    f32 sx1 = x1 * sin;
-                    f32 cx1 = x1 * cos;
+                    sx[0] = x0 * sin;
+                    cx0 = x0 * cos;
+                    sx[1] = x1 * sin;
+                    cx1 = x1 * cos;
 
                     JGeometry::TVec3<f32> dir;
                     ptcl->getVelVec(dir);
@@ -1462,8 +1465,8 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
                     f32* hack = &mtx.mMtx[0][0];
                     (void)hack;
 
-                    JGeometry::TVec3<f32> v1(cx0, 0.0f, sx0);
-                    JGeometry::TVec3<f32> v2(cx1, 0.0f, sx1);
+                    JGeometry::TVec3<f32> v1(cx0, 0.0f, sx[0]);
+                    JGeometry::TVec3<f32> v2(cx1, 0.0f, sx[1]);
                     mtx.mult(v1);
                     mtx.mult(v2);
 
