@@ -695,13 +695,12 @@ void alpha_anime(pw_class* i_this) {
 
 /* 00002254-00002400       .text fuwafuwa_calc__FP8pw_class */
 void fuwafuwa_calc(pw_class* i_this) {
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
-    dBgS* bgsp;
+    fopAc_ac_c* const player = dComIfGp_getPlayer(0);
     f32 f31 = i_this->m2F0.y;
     i_this->m390 += 0x2BC;
     if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF &&
-        (bgsp = dComIfG_Bgsp(), bgsp->ChkPolySafe(i_this->mAcch.m_gnd)) &&
-        bgsp->GetGroundCode(i_this->mAcch.m_gnd) == 4)
+        dComIfG_Bgsp()->ChkPolySafe(i_this->mAcch.m_gnd) &&
+        dComIfG_Bgsp()->GetGroundCode(i_this->mAcch.m_gnd) == 4)
     {
         if (i_this->mAction == 1) {
             f31 = player->current.pos.y;
@@ -719,9 +718,8 @@ void fuwafuwa_calc(pw_class* i_this) {
     cLib_addCalc2(&i_this->current.pos.y, 30.0f + f31 + 30.0f * cM_ssin(i_this->m390), 1.0f, 3.0f);
     if (i_this->mMode == 0x26) {
         i_this->m392 += 0x3E8;
-        f32 sin = cM_ssin(i_this->m392);
-        f31 = 50.0f + i_this->m320.z + 50.0f * sin;
-        cLib_addCalc2(&i_this->current.pos.x, 50.0f + i_this->m320.x + 50.0f * sin, 1.0f, 5.0f);
+        f31 = 50.0f + i_this->m320.z + 50.0f * cM_ssin(i_this->m392);
+        cLib_addCalc2(&i_this->current.pos.x, 50.0f + i_this->m320.x + 50.0f * cM_ssin(i_this->m392), 1.0f, 5.0f);
         cLib_addCalc2(&i_this->current.pos.z, f31, 1.0f, 5.0f);
     }
 }
