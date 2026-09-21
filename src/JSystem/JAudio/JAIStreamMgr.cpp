@@ -808,7 +808,6 @@ void JAInter::StreamLib::__start() {
 
 /* 8029D7C0-8029E14C       .text callBack__Q27JAInter9StreamLibFPv */
 s32 JAInter::StreamLib::callBack(void*) {
-    // Nonmatching - register allocation in channel startup.
     using JASystem::DSPInterface::getDSPHandle;
     using JASystem::TDSPChannel;
     if (startInitFlag) {
@@ -968,7 +967,8 @@ s32 JAInter::StreamLib::callBack(void*) {
                     volume = 0x5A7E;
                 }
                 for (u32 i = 0; i < 2; i++) {
-                    getDSPHandle(assign_ch[i]->getNumber());
+                    TDSPChannel* ch = assign_ch[i];
+                    getDSPHandle(ch->getNumber());
                     Play_DirectPCM(assign_ch[i], loop_buffer[i][0], LOOP_SAMPLESIZE, playback_samples,
                         (s16)(outvolume * (volume * pan[i])),
                         (u16)(outpitch * ((header.field_0x8 << 12) / 32000)));
