@@ -1655,6 +1655,7 @@ void daNpc_Kk1_c::delAse() {
 
 /* 00003ED0-0000415C       .text wait_1__11daNpc_Kk1_cFv */
 BOOL daNpc_Kk1_c::wait_1() {
+    cXyz pos;
     if (m7C3) {
         if (chk_talk()) {
             setStt(2);
@@ -1669,7 +1670,7 @@ BOOL daNpc_Kk1_c::wait_1() {
     m81E = 0;
     m7C4 = 1;
     if (m7B6) {
-        cXyz pos = mPath.getPoint(mPath.getIdx());
+        pos = mPath.getPoint(mPath.getIdx());
         s16 target = cLib_targetAngleY(&current.pos, &pos);
         cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
         if (abs((s16)(target - current.angle.y)) < 0x1800) {
@@ -1689,9 +1690,8 @@ BOOL daNpc_Kk1_c::wait_1() {
     cXyz offset(-100.0f, 0.0f, 0.0f);
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::YrotM(mInitialAngle.y);
-    cXyz dst;
-    mDoMtx_stack_c::multVec(&offset, &dst);
-    s16 target = cLib_targetAngleY(&current.pos, &dst);
+    mDoMtx_stack_c::multVec(&offset, &pos);
+    s16 target = cLib_targetAngleY(&current.pos, &pos);
     cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
     s16 diff = target - current.angle.y;
     if (!m7B7) {
