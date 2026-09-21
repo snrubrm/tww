@@ -488,8 +488,8 @@ void daNpc_Kf1_c::checkOrder() {
             case 0:
                 ((daPy_py_c*)dComIfGp_getPlayer(0))->changeDemoMoveAngle(dComIfGp_getPlayer(0)->current.angle.y);
                 break;
-            case -1:
-            default:
+            case 1:
+            case 2:
                 break;
             }
             mEventOrder = 0;
