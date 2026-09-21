@@ -182,21 +182,21 @@ JASystem::TDSPChannel* JASystem::TDSPChannel::getLower() {
 
 /* 80289C0C-80289D10       .text getLowerActive__Q28JASystem11TDSPChannelFv */
 JASystem::TDSPChannel* JASystem::TDSPChannel::getLowerActive() {
-    /* Nonmatching - regalloc */
     u8 i;
-    u32 r27;
+    u8 r30;
     u8 r29;
     u8 r28;
-    u8 r30;
+    u32 r27;
     r29 = 0xff;
     r28 = 0;
     r27 = 0;
     for (i = 0; i < 64; i++) {
         TDSPChannel* dspch = &DSPCH[i];
-        if (dspch->getStatus() == 2 || dspch->isFree()) {
+        u8 st = dspch->mStatus;
+        if (st == 2 || st == 1) {
             continue;
         }
-        r30 = dspch->getPriority();
+        r30 = dspch->mPriority;
         if (r30 <= r29) {
             JUT_ASSERT(345, i == dspch->getNumber());
             if (r30 != r29 || dspch->field_0xc->field_0x10c >= r27) {
