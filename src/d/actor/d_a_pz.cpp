@@ -625,7 +625,7 @@ bool daPz_c::demo() {
 
 /* 00001954-00001EEC       .text checkTgHit__6daPz_cFv */
 bool daPz_c::checkTgHit() {
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    daPy_py_c* player = daPy_getPlayerActorClass();
     mStts.Move();
     if (cLib_calcTimer(&mInvulnTimer) == 0) {
         if (mCyl.ChkTgHit()) {
