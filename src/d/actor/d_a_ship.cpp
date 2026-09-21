@@ -3752,6 +3752,7 @@ BOOL daShip_c::execute() {
     }
 
     f32 fVar4;
+    daGrid_c* grid;
     if (mCurMode != 12 && mCurMode != 15) {
         if (mCurMode != 7 && mCurMode != MODE_CRANE_UP_e) {
             if (
@@ -4047,7 +4048,6 @@ BOOL daShip_c::execute() {
 
     cMtx_multVec(model1->getAnmMtx(FN_BODY_JNT_J_FN_STEER1_e), &l_tiller_top_offset, &mTillerTopPos);
 
-    daGrid_c* grid;
     MtxP mtx = model1->getAnmMtx(FN_BODY_JNT_J_FN_SAIL1_e);
 
     m0444.x = mtx[0][3];
