@@ -1421,9 +1421,8 @@ void action_kougeki(pw_class* i_this) {
 
 /* 000042B8-00004C50       .text action_itai__FP8pw_class */
 void action_itai(pw_class* i_this) {
-    /* Nonmatching */
     fopAc_ac_c* actor = i_this;
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    fopAc_ac_c* const player = dComIfGp_getPlayer(0);
     J3DModel* model = i_this->mpMorf->getModel();
     switch (i_this->mMode) {
     case 50:
