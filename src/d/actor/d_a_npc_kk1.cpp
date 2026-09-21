@@ -2212,8 +2212,7 @@ BOOL daNpc_Kk1_c::_draw() {
 
         cXyz pos = current.pos;
         pos.y = eyePos.y;
-        cXyz point = mPath.getPoint(mPath.getIdx());
-        pos = point;
+        pos = mPath.getPoint(mPath.getIdx());
     }
     return TRUE;
 }
