@@ -515,8 +515,7 @@ BOOL daBigelf_c::demoProcAppear() {
         setAnm(0);
         dComIfGp_evmng_cutEnd(mStaffId);
     }
-    scale.y = scale.x;
-    scale.z = scale.x;
+    scale.z = scale.y = scale.x;
     return TRUE;
 }
 
