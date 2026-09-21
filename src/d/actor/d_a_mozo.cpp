@@ -613,10 +613,10 @@ cPhs_State daMozo_c::CreateInit() {
     if (mType == 0) {
         cXyz beamScale(1.5f, 1.5f, 20.0f);
         mBeamID1 = fopAcM_createChild(
-            fpcNm_Beam_e, fopAcM_GetID(this), 0, &mBeamLStart, fopAcM_GetRoomNo(this), NULL, &beamScale, -1, NULL
+            fpcNm_Beam_e, fopAcM_GetID(this), 0, &mBeamLStart, tevStr.mRoomNo, NULL, &beamScale, -1, NULL
         );
         mBeamID2 = fopAcM_createChild(
-            fpcNm_Beam_e, fopAcM_GetID(this), 0x30000000, &mBeamRStart, fopAcM_GetRoomNo(this), NULL, &beamScale, -1, NULL
+            fpcNm_Beam_e, fopAcM_GetID(this), 0x30000000, &mBeamRStart, tevStr.mRoomNo, NULL, &beamScale, -1, NULL
         );
     } else {
         mStts.Init(0xFF, 0xFF, this);
