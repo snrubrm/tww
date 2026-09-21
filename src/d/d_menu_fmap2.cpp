@@ -2481,22 +2481,22 @@ BOOL dMenu_Fmap2_c::paneTranceMessage(s16 param_1, u8 param_2, f32 param_3, f32 
         return true;
     }
     f32 t = fopMsgM_valueIncrease(param_2, param_1, param_7);
-    f32 scale = param_3 + t * (param_4 - param_3);
-    f32 trans = param_5 + t * (param_6 - param_5);
-    fopMsgM_paneTrans(&field_0xcc4[param_8][0], trans, 0.0f);
-    fopMsgM_paneScaleXY(&field_0xcc4[param_8][0], scale);
+    f32 ds = t * (param_4 - param_3);
+    f32 dt = t * (param_6 - param_5);
+    fopMsgM_paneTrans(&field_0xcc4[param_8][0], param_5 + dt, 0.0f);
+    fopMsgM_paneScaleXY(&field_0xcc4[param_8][0], param_3 + ds);
     for (int i = 1; i < 15; i++) {
-        fopMsgM_paneTrans(&field_0xcc4[param_8][i], trans, 0.0f);
-        paneScaleXYChild(&field_0xcc4[param_8][i], scale);
+        fopMsgM_paneTrans(&field_0xcc4[param_8][i], param_5 + dt, 0.0f);
+        paneScaleXYChild(&field_0xcc4[param_8][i], param_3 + ds);
     }
     J2DTextBox::TFontSize fs0;
-    fs0.mSizeX = field_0x2830.mSizeX * scale;
-    fs0.mSizeY = field_0x2830.mSizeY * scale;
+    fs0.mSizeX = field_0x2830.mSizeX * (param_3 + ds);
+    fs0.mSizeY = field_0x2830.mSizeY * (param_3 + ds);
     J2DTextBox::TFontSize fs1;
-    fs1.mSizeX = field_0x2838.mSizeX * scale;
-    fs1.mSizeY = field_0x2838.mSizeY * scale;
-    f32 line0 = field_0x2840 * scale;
-    f32 line1 = field_0x2844 * scale;
+    fs1.mSizeX = field_0x2838.mSizeX * (param_3 + ds);
+    fs1.mSizeY = field_0x2838.mSizeY * (param_3 + ds);
+    f32 line0 = field_0x2840 * (param_3 + ds);
+    f32 line1 = field_0x2844 * (param_3 + ds);
     ((J2DTextBox*)field_0xcc4[param_8][1].pane)->setFontSize(fs0);
     ((J2DTextBox*)field_0xcc4[param_8][1].pane)->setLineSpace(line0);
     ((J2DTextBox*)field_0xcc4[param_8][2].pane)->setFontSize(fs0);
