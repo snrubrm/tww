@@ -1020,11 +1020,8 @@ u8 daObjTapestryPacket_c::eff_start(int row, int col) {
             cXyz world;
             mDoMtx_multVec(mMtx, get_now_pos(row, col), &world);
             eff->set_pos(world);
-            daObjTapestry_Attr_c a = attr();
-            daObjTapestry_Attr_c b = a;
-            daObjTapestry_Attr_c c = a;
-            daObjTapestry_Attr_c d = a;
-            f32 s = d.m54 + cM_rndF(c.m58 - b.m54);
+            f32 rng = attr().m58 - attr().m54;
+            f32 s = attr().m54 + cM_rndF(rng);
             cXyz scl(s, s, s);
             dComIfGp_particle_set(dPa_name::ID_AK_JN_TORCH, eff->get_pos(), NULL, &scl, 0xFF, eff);
             ret = (u8)mFireCount;
