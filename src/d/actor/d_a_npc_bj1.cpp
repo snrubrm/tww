@@ -1287,6 +1287,8 @@ void daNpc_Bj1_c::bj_clcFlySpd() {
     case 2:
         cLib_chaseF(&speed.y, -l_HIO.mChild[mType].mPrm.m2C, -l_HIO.mChild[mType].mPrm.m30);
         break;
+    case 3:
+        break;
     }
     cLib_chaseF(&speedF, m80C, m814);
 }
