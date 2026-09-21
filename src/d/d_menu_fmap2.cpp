@@ -2184,10 +2184,10 @@ void dMenu_Fmap2_c::fmapPlayerPosDisp() {
 
 /* 801C4634-801C4834       .text fmapPlayerPosDispCheck__13dMenu_Fmap2_cFPfPf */
 BOOL dMenu_Fmap2_c::fmapPlayerPosDispCheck(f32* outX, f32* outY) {
-    int chk1 = dMap_c::getCheckPointUseGrid(field_0x27bc, field_0x27bd);
+    int chk1 = dMap_getCheckPointUseGrid(field_0x27bc, field_0x27bd);
     s8 hy = getCtCurHY();
     s8 hx = getCtCurHX();
-    int chk2 = dMap_c::getCheckPointUseGrid(hx, hy);
+    int chk2 = dMap_getCheckPointUseGrid(hx, hy);
     if (chk1 == -1 || chk1 != chk2) {
         return FALSE;
     }
@@ -2195,7 +2195,7 @@ BOOL dMenu_Fmap2_c::fmapPlayerPosDispCheck(f32* outX, f32* outY) {
     s8 gy;
     s16 px;
     s16 py;
-    dMap_c::getFmapChkPntPrm(chk1, &gx, &gy, &px, &py, NULL);
+    dMap_getFmapChkPntPrm(chk1, &gx, &gy, &px, &py, NULL);
     f32 islandY = py + 100000.0f * gy;
     *outX = field_0x27b0 - (px + 100000.0f * gx);
     *outY = field_0x27b4 - islandY;
