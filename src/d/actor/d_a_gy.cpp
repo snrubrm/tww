@@ -6,6 +6,7 @@
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_gy.h"
 #include "d/actor/d_a_gy_ctrl.h"
+#include "d/actor/d_a_player.h"
 #include "d/actor/d_a_sea.h"
 #include "d/actor/d_a_ship.h"
 #include "d/d_a_obj.h"
@@ -1324,7 +1325,7 @@ void daGy_c::checkTgHit() {
 
     if (damaged == 1) {
         mDoAud_onEnemyDamage();
-        fopAc_ac_c* player = dComIfGp_getPlayer(0);
+        daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
         dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hit_pos);
         if (mCE8 == 0xB) {
             cXyz scale(2.0f, 2.0f, 2.0f);
