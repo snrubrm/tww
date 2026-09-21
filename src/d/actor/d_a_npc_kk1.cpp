@@ -445,6 +445,8 @@ void daNpc_Kk1_c::ctrlAnmAtr() {
             mAnmAttr = 0;
         }
         break;
+    case 7:
+        break;
     case 0xC:
         break;
     }
