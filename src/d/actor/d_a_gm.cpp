@@ -1360,13 +1360,14 @@ void action_fly_damage(gm_class* i_this) {
         /* fallthrough */
     }
     case 51: {
-        for (int i = 0; i < 4; i++) {
-            i_this->mTimers[4 + i * 3] += i_this->mTimers[16];
-            i_this->mTimers[5 + i * 3] += i_this->mTimers[17];
-            i_this->mTimers[6 + i * 3] += i_this->mTimers[18];
-            i_this->mWingAngle[i].y = 5000.0f * cM_ssin(i_this->mTimers[4 + i * 3]);
-            i_this->mWingAngle[i].x = 5000.0f * cM_scos(i_this->mTimers[5 + i * 3]);
-            i_this->mWingAngle[i].z = 3000.0f * cM_scos(i_this->mTimers[6 + i * 3]);
+        int i, j;
+        for (i = 0, j = 4; i < 4; i++, j += 3) {
+            i_this->mTimers[j] += i_this->mTimers[16];
+            i_this->mTimers[j + 1] += i_this->mTimers[17];
+            i_this->mTimers[j + 2] += i_this->mTimers[18];
+            i_this->mWingAngle[i].y = 5000.0f * cM_ssin(i_this->mTimers[j]);
+            i_this->mWingAngle[i].x = 5000.0f * cM_scos(i_this->mTimers[j + 1]);
+            i_this->mWingAngle[i].z = 3000.0f * cM_scos(i_this->mTimers[j + 2]);
         }
         i_this->mTimers[0] += i_this->mTimers[19];
         i_this->mTimers[1] += i_this->mTimers[20];
