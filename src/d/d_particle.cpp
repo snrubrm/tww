@@ -475,7 +475,7 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     f32 pivotX = emtr->getPivotX();
     f32 x0 = width * pivotX;
     x0 = -(0.5f * x0);
-    f32 x1 = x0 + width;
+    width += x0;
     f32 pivotY = emtr->getPivotY();
     f32 y1 = height * pivotY;
     y1 = -(0.5f * y1);
@@ -486,8 +486,8 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
 
     JGeometry::TVec3<f32> pt[4];
     pt[0].set(cos * x0 - sin * y0, cos * y0 + sin * x0, 0.0f);
-    pt[1].set(cos * x1 - sin * y0, cos * y0 + sin * x1, 0.0f);
-    pt[2].set(cos * x1 - sin * y1, cos * y1 + sin * x1, 0.0f);
+    pt[1].set(cos * width - sin * y0, cos * y0 + sin * width, 0.0f);
+    pt[2].set(cos * width - sin * y1, cos * y1 + sin * width, 0.0f);
     pt[3].set(cos * x0 - sin * y1, cos * y1 + sin * x0, 0.0f);
     JGeometry::TVec3<f32> c0(pt[0].x + pos.x, pt[0].y + pos.y, pos.z);
     JGeometry::TVec3<f32> c1(pt[1].x + pos.x, pt[1].y + pos.y, pos.z);
