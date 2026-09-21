@@ -1150,13 +1150,12 @@ void daObj_Search::Act_c::bg_check() {
 
 /* 80101D94-8010234C       .text player_check__Q212daObj_Search5Act_cFv */
 bool daObj_Search::Act_c::player_check() {
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
-    cXyz diffA;
-    diffA = player->current.pos - mBeamStart[0];
-    f32 distA = diffA.abs();
-    cXyz diffB;
-    diffB = player->current.pos - mBeamStart[1];
-    f32 distB = diffB.abs();
+    daPy_py_c* player = daPy_getPlayerActorClass();
+    cXyz diff;
+    diff = player->current.pos - mBeamStart[0];
+    f32 distA = diff.abs();
+    diff = player->current.pos - mBeamStart[1];
+    f32 distB = diff.abs();
 
     mCps[0].SetStartEnd(mBeamStart[0], mBeamEnd[0]);
     mCps[0].SetR(m_attr.mCpsR);
@@ -1165,10 +1164,11 @@ bool daObj_Search::Act_c::player_check() {
         fopAc_ac_c* hit = mCps[0].GetCoHitAc();
         cXyz toHit;
         toHit = hit->current.pos - mBeamStart[0];
+        cXyz n;
         cXyz beam;
         beam = mBeamEnd[0] - mBeamStart[0];
-        cXyz n = beam.normZP();
-        volatile f32 t = n.getDotProduct(toHit) - 250.0f;
+        n = beam.normZP();
+        f32 t = VECDotProduct(&n, &toHit) - 250.0f;
         mLightInf.mPos = mBeamStart[0] + n * t;
         mLightInf.mColor.r = m_attr.m50;
         mLightInf.mColor.g = m_attr.m50;
@@ -1190,10 +1190,11 @@ bool daObj_Search::Act_c::player_check() {
         fopAc_ac_c* hit = mCps[1].GetCoHitAc();
         cXyz toHit;
         toHit = hit->current.pos - mBeamStart[1];
+        cXyz n;
         cXyz beam;
         beam = mBeamEnd[1] - mBeamStart[1];
-        cXyz n = beam.normZP();
-        volatile f32 t = n.getDotProduct(toHit) - 250.0f;
+        n = beam.normZP();
+        f32 t = VECDotProduct(&n, &toHit) - 250.0f;
         mLightInf.mPos = mBeamStart[1] + n * t;
         mLightInf.mColor.r = m_attr.m50;
         mLightInf.mColor.g = m_attr.m50;
@@ -1209,10 +1210,11 @@ bool daObj_Search::Act_c::player_check() {
     if (!mCps[0].ChkCoHit() && !mCps[1].ChkCoHit()) {
         cXyz toPt;
         toPt = m60C[0] - mBeamStart[0];
+        cXyz n;
         cXyz beam;
         beam = mBeamEnd[0] - mBeamStart[0];
-        cXyz n = beam.normZP();
-        volatile f32 t = n.getDotProduct(toPt) - 250.0f;
+        n = beam.normZP();
+        f32 t = VECDotProduct(&n, &toPt) - 250.0f;
         mLightInf.mPos = mBeamStart[0] + n * t;
         mLightInf.mColor.r = m_attr.m50;
         mLightInf.mColor.g = m_attr.m50;
