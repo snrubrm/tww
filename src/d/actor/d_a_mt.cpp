@@ -1810,11 +1810,7 @@ static BOOL daMt_Execute(mt_class* i_this) {
             if (i_this->m18FA == 0) {
                 i_this->speedF *= 0.1f;
                 i_this->speed.y = 0.0f;
-                cXyz pillar_pos;
-                pillar_pos.x = pos_x;
-                pillar_pos.y = lava_y;
-                pillar_pos.z = pos_z;
-                fopKyM_createMpillar(&pillar_pos, 0.5f);
+                fopKyM_createMpillar(&cXyz(pos_x, lava_y, pos_z), 0.5f);
             }
             i_this->m18FA = 1;
             i_this->gravity = -0.5f;
@@ -1838,16 +1834,13 @@ static BOOL daMt_Execute(mt_class* i_this) {
             }
         }
 
-        int timer_off = 0;
-        i_this->setBtAttackData(100.0f, 100.0f, 10000.0f, timer_off);
+        i_this->setBtAttackData(100.0f, 100.0f, 10000.0f, 0);
         i_this->setBtNowFrame(0.0f);
 
         for (int i = 0; i < 5; i++) {
-            s16* timer = (s16*)((u8*)i_this + 0x456 + timer_off);
-            if (*timer != 0) {
-                *timer -= 1;
+            if ((&i_this->m456)[i] != 0) {
+                (&i_this->m456)[i]--;
             }
-            timer_off += 2;
         }
         if (i_this->m18FC != 0) {
             i_this->m18FC--;
@@ -1883,9 +1876,10 @@ static BOOL daMt_Execute(mt_class* i_this) {
         i_this->mC04 = 0;
 
         dBgS_LinChk linChk;
+        cXyz actor_pos;
         cXyz player_pos = player->current.pos;
         player_pos.y += 20.0f;
-        cXyz actor_pos = i_this->current.pos;
+        actor_pos = i_this->current.pos;
         actor_pos.y += 30.0f;
         linChk.Set(&actor_pos, &player_pos, i_this);
         if (dComIfG_Bgsp()->LineCross(&linChk)) {
@@ -1975,7 +1969,7 @@ static BOOL daMt_Execute(mt_class* i_this) {
             if (i_this->m45A == 1) {
                 i_this->m1CBC = 1;
                 fopAcM_delete(i_this);
-                dComIfGs_onActor(i_this->setID, i_this->home.roomNo);
+                fopAcM_onActor(i_this);
             }
             break;
         case 6: {
@@ -2156,7 +2150,7 @@ static BOOL daMt_Execute(mt_class* i_this) {
                     wave = 0;
                 }
             }
-            i_this->mJntRot[i].x = (s16)(-(5000.0f + REG6_F(11)) * cM_ssin(wave + i * (REG6_S(2) + 0x32C8)));
+            i_this->mJntRot[i].x = (s16)((5000.0f + REG6_F(11)) * -cM_ssin(wave + i * (REG6_S(2) + 0x32C8)));
             cLib_addCalcAngleS2(
                 &i_this->mJntRot[i].z,
                 (s16)(l_HIO.m0C + (5000.0f + REG6_F(12)) * cM_scos(wave + i * (REG6_S(3) + 0x32C8))),
