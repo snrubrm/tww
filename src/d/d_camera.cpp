@@ -6997,7 +6997,6 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
 
 /* 80179F8C-8017A80C       .text fixedPositionCamera__9dCamera_cFl */
 bool dCamera_c::fixedPositionCamera(s32 param_1) {
-    /* Nonmatching */
     int uVar10;
     cXyz sp160;
     cXyz sp154;
@@ -7067,15 +7066,8 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
                 fVar16 = fVar15;
             }
 
-            f32 temp;
-            if (is_player(mpPlayerActor)) {
-                temp = ((daPy_py_c *)mpPlayerActor)->getHeight();
-            }
-            else {
-                temp = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
-            }
-
-            fVar16 = fVar16 / (10.0f > temp ? 10.0f : temp);
+            f32 temp = get_actor_height(mpPlayerActor);
+            fVar16 = fVar16 / (temp < 10.0f ? 10.0f : temp);
 
             mWork.fixedPos.m378 = (s32)(fVar6 * std::sqrtf(fVar16)) + 1;
             mWork.fixedPos.m37C = mWork.fixedPos.m378 * (mWork.fixedPos.m378 + 1) >> 1;
