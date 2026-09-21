@@ -833,8 +833,7 @@ void daNpc_Kf1_c::cut_init_RUPEE_SET(int) {
         int index;
         for (int i = 0; i < 3; i++) {
             do {
-                f32 random = cM_rndF(32.0f);
-                index = random * 0.25f;
+                index = cM_rndF(32.0f) / 4.0f;
             } while (selected[index]);
             fopAc_ac_c* a_tsubo_actor = fopAcM_SearchByID(mPotIDs[index]);
             JUT_ASSERT(1475, 0 != a_tsubo_actor);
