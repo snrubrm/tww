@@ -534,7 +534,7 @@ void action_dousa(oq_class* i_this) {
             break;
         case 2:
             cLib_addCalc2(&actor->scale.x, i_this->mSplashScale, 1.0f, 0.2f);
-            actor->scale.z = actor->scale.y = actor->scale.x;
+            actor->scale.y = actor->scale.z = actor->scale.x;
             if (i_this->mpMorf->isStop()) {
                 i_this->mBodyAtCyl.OnAtSetBit();
                 i_this->mBodyAtCyl.OnAtHitBit();
