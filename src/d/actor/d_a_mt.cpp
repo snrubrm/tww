@@ -191,7 +191,7 @@ static BOOL nodeCallBack_head(J3DNode* node, int calcTiming) {
                 cMtx_YrotM(*calc_mtx, -i_this->mJntRot[0].x);
                 cMtx_ZrotM(*calc_mtx, -i_this->mJntRot[0].z);
             } else if (jntNo == 3) {
-                cMtx_YrotM(*calc_mtx, i_this->mJntRot[15].x);
+                cMtx_YrotM(*calc_mtx, (s16)i_this->mJntRot[15].x);
                 cMtx_ZrotM(*calc_mtx, -i_this->mJntRot[15].z);
             } else {
                 MtxScale(i_this->m18F0, i_this->m18F0, i_this->m18F0, 1);
