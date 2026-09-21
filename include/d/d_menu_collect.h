@@ -12,7 +12,9 @@
 #include "d/d_menu_base.h"
 #include "f_op/f_op_msg_mng.h"
 #include "d/d_lib.h"
-#include "d/d_file_error.h"
+#include "JSystem/J2DGraph/J2DOrthoGraph.h"
+
+class MyScreen;
 
 struct fopMsgM_pane_class;
 class JKRArchive;

@@ -12,6 +12,11 @@
 #include "JAZelAudio/JAZelAudio_SE.h"
 #include "d/d_meter.h"
 
+class MyScreen : public J2DScreen {
+public:
+    virtual ~MyScreen() {}
+};
+
 dMc_HIO_c g_mcHIO;
 
 // Number of beats in each baton song.
