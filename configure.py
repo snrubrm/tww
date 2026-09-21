@@ -1707,7 +1707,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),  "d_a_npc_os"),
     ActorRel(Matching, "d_a_npc_p1"),
     ActorRel(MatchingFor("GZLE01"), "d_a_npc_p2"),
-    ActorRel(EquivalentFor("GZLJ01", "GZLE01", "GZLP01") or MatchingFor("D44J01"), "d_a_npc_people"), # regalloc
+    ActorRel(EquivalentFor("GZLJ01", "GZLP01") or MatchingFor("D44J01", "GZLE01"), "d_a_npc_people"), # regalloc
     ActorRel(MatchingFor("GZLE01"), "d_a_npc_pf1"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_npc_photo"),
     ActorRel(MatchingFor("GZLE01"), "d_a_npc_pm1"),
