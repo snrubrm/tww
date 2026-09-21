@@ -1220,15 +1220,15 @@ bool daNpc_So_c::_execute() {
         }
     } else {
         f32 spdY = speed.y;
-        f32 thresh = mB00 * 0.25f;
+        f32 thresh = mB00 / 4.0f;
         if (spdY < -thresh) {
-            if (spdY < -(mB00 * 0.5f)) {
+            if (spdY < -(mB00 / 2.0f)) {
                 targetX = l_HIO.m64;
             } else {
                 targetX = l_HIO.m66;
             }
         } else if (spdY > thresh) {
-            if (spdY > mB00 * 0.5f) {
+            if (spdY > mB00 / 2.0f) {
                 targetX = l_HIO.m68;
             } else {
                 targetX = l_HIO.m6A;
