@@ -1019,7 +1019,7 @@ void action_itai(wz_class* i_this) {
 /* 00002E3C-000047C8       .text action_demo__FP8wz_class */
 void action_demo(wz_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    fopAc_ac_c* player_ac = dComIfGp_getPlayer(0);
+    fopAc_ac_c* player_ac = daPy_getPlayerActorClass();
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
     cXyz mtx_off;
