@@ -836,12 +836,12 @@ void dMesg_tMeasureProcessor::do_end() {
 
 /* 801E1F9C-801E27BC       .text do_tag__23dMesg_tMeasureProcessorFUlPCvUl */
 bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param_3) {
-    /* Nonmatching */
     dMesg_tControl* mesgControl = (dMesg_tControl*)getControl();
     u32 r6 = param_1 & 0xFF0000;
     int r27 = field_0x50 - field_0x4c;
     bool r26 = false;
     int r25;
+    int char_code;
     switch(r6) {
     case 0:
         switch(param_1) {
@@ -879,7 +879,6 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
             }
 #endif
             while (sp44[r25]) {
-                int char_code;
                 u8 byte = sp44[r25];
                 if (byte >> 4 == 8 || byte >> 4 == 9) {
                     byte = sp44[r25++];
@@ -996,27 +995,25 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
             }
 #endif
 
-            dMesg_tControl* ctl = (dMesg_tControl*)getControl();
             while (sp18[j]) {
-                int char_code;
                 u8 byte = sp18[j];
                 if (byte >> 4 == 8 || byte >> 4 == 9) {
                     byte = sp18[j++];
                     char_code = ((byte << 8) & ~0xFF);
-                    byte = sp18[j++];
+                    byte = sp18[j++] & 0xFF;
                     char_code |= (byte & 0xFF);
                 } else {
                     byte = sp18[j++];
                     char_code = byte;
                 }
 
-                f32 f30 = f32(ctl->getNowFontSize()) / f32(ctl->getMainFont()->getCellWidth());
-                int width = ctl->getMainFont()->getWidth(char_code);
+                f32 f30 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
+                int width = mesgControl->getMainFont()->getWidth(char_code);
                 if (r27 >= 0 && r27 <= linemax) {
                     if (field_0x38[r27] == 0.0f) {
                         field_0x38[r27] = width * f30;
                     } else {
-                        field_0x38[r27] += width * f30 + ctl->getCharSpace();
+                        field_0x38[r27] += width * f30 + mesgControl->getCharSpace();
                     }
                 }
             }
