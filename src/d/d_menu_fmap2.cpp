@@ -2279,19 +2279,17 @@ void dMenu_Fmap2_c::cmapSalvagePosDisp() {
 BOOL dMenu_Fmap2_c::cmapPlayerPosDispCheck(f32* outX, f32* outY) {
     u8 idx = dComIfGs_getRandomSalvagePoint();
     aramCmapDatPnt_t* pnt = getCmapDatPnt4(field_0x27a9);
-    int sx = pnt->salvagePnt[idx].field_0x0;
-    int sy = pnt->salvagePnt[idx].field_0x2;
-    s32 gx = ((s8*)pnt)[4];
-    s32 gy = ((s8*)pnt)[5];
+    const s16 sx = pnt->salvagePnt[idx].field_0x0;
+    const s16 sy = pnt->salvagePnt[idx].field_0x2;
+    const s8 gx = ((s8*)pnt)[4];
+    const s8 gy = ((s8*)pnt)[5];
     int chk1 = dMap_c::getCheckPointUseGrid(field_0x27bc, field_0x27bd);
     int chk2 = dMap_c::getCheckPointUseGrid(gx, gy);
     if (chk1 == -1 || chk1 != chk2) {
         return FALSE;
     }
-    s16 sx16 = sx;
-    s16 sy16 = sy;
-    *outX = field_0x27b0 - (sx16 + 100000.0f * gx);
-    *outY = field_0x27b4 - (sy16 + 100000.0f * gy);
+    *outX = field_0x27b0 - (sx + 100000.0f * gx);
+    *outY = field_0x27b4 - (sy + 100000.0f * gy);
     if (*outX >= -5000.0f && *outX <= 5000.0f && *outY >= -5000.0f && *outY <= 5000.0f) {
         return TRUE;
     }
