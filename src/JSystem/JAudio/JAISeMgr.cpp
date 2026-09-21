@@ -122,6 +122,8 @@ void JAInter::SeMgr::processGFrameSe() {
 
 /* 80293530-80293C94       .text checkNextFrameSe__Q27JAInter5SeMgrFv */
 void JAInter::SeMgr::checkNextFrameSe() {
+    u8 slot;
+    u32 slotMax;
     JAISound* sound;
     u32 max;
     u8 i;
@@ -260,12 +262,12 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 selected->mState = 3;
             }
         }
-        max = categoryInfoTable[seScene][category * 2];
-        i = 0;
-        end = max + 1;
-        for (; i < max; i++) {
+        slotMax = categoryInfoTable[seScene][category * 2];
+        slot = 0;
+        end = slotMax + 1;
+        for (; slot < slotMax; slot++) {
             u8 available = 0;
-            JAISound* playing = (JAISound*)sePlaySound[category][i];
+            JAISound* playing = (JAISound*)sePlaySound[category][slot];
             if (playing == NULL) {
                 available = 1;
             } else if (playing->mState == 4) {
@@ -277,37 +279,36 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 }
                 available = 1;
             } else if (playing->mState == 0 || playing->mState == 5) {
-                sePlaySound[category][i] = 0;
+                sePlaySound[category][slot] = 0;
                 available = 1;
             } else {
-                for (j = 0; j < max; j++) {
-                    JAISound* playing = (JAISound*)sePlaySound[category][i];
+                for (j = 0; j < slotMax; j++) {
+                    JAISound* playing = (JAISound*)sePlaySound[category][slot];
                     if (playing == candidates[j].sound) {
                         candidates[j].sound = NULL;
-                        j = max;
+                        j = slotMax;
                     }
                 }
             }
             if (available == 1) {
-                for (j = 0; j < max; j++) {
-                    JAISound* candidate = candidates[j].sound;
-                    if (candidate != NULL && candidate->mState != 3) {
-                        for (u8 k = 0; k < max; k++) {
+                for (j = 0; j < slotMax; j++) {
+                    if (candidates[j].sound != NULL && candidates[j].sound->mState != 3) {
+                        for (u8 k = 0; k < slotMax; k++) {
                             JAISound* other = (JAISound*)sePlaySound[category][k];
                             if (other != NULL && candidates[j].sound == other) {
                                 available = 0;
-                                k = max;
+                                k = slotMax;
                             }
                         }
                         if (available == 1) {
-                            sePlaySound[category][i] = (u32)candidate;
+                            sePlaySound[category][slot] = (u32)candidates[j].sound;
                             candidates[j].sound = NULL;
                             j = end;
                         }
                     }
                 }
-                if (j == max) {
-                    sePlaySound[category][i] = 0;
+                if (j == slotMax) {
+                    sePlaySound[category][slot] = 0;
                 }
             }
         }
