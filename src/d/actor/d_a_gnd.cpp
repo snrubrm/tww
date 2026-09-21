@@ -1844,8 +1844,10 @@ static void damage_check(gnd_class* i_this) {
         }
     } else if (actor->health <= 0x32) {
         if (i_this->m3D8 == 0) {
-            if (fopAcM_GetName(atInfo.mpActor) == fpcNm_ARROW_e && ((daArrow_c*)atInfo.mpActor)->mbSetByZelda) {
-                i_this->m3D9 = 1;
+            if (fopAcM_GetName(atInfo.mpActor) == fpcNm_ARROW_e) {
+                if (((daArrow_c*)atInfo.mpActor)->mbSetByZelda) {
+                    i_this->m3D9 = 1;
+                }
             } else {
                 actor->health = 0x32;
             }
