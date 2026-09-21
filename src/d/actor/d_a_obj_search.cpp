@@ -827,14 +827,18 @@ void daObj_Search::Act_c::CreateInit() {
     set_moveBG_mtx_base();
     mpModel->setUserArea((u32)this);
     J3DModelData* modelData = mpModel->getModelData();
-    u16 i = 0;
-    while (i < modelData->getJointNum()) {
-        if (i < 8) {
-            if (i >= 1) {
-                modelData->getJointNodePointer(i)->setCallBack(nodeControl_CB);
-            }
+    for (u16 i = 0; i < modelData->getJointNum(); i++) {
+        switch (i) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+            modelData->getJointNodePointer(i)->setCallBack(nodeControl_CB);
+            break;
         }
-        i++;
     }
     mpModel->calc();
 
