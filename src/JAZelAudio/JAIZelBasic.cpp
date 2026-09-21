@@ -1375,7 +1375,7 @@ void JAIZelBasic::bgmNowBattle(f32 i_dist) {
     if (field_0x0206 == 1) {
         return;
     }
-    switch (mMainBgmNum) {
+    switch ((s32&)mMainBgmNum) {
     case JA_BGM_GOMA:
     case JA_BGM_KINDAN_BOSS:
     case JA_BGM_DIE_LINK:
