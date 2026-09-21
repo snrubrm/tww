@@ -1646,7 +1646,7 @@ void action_itai(pw_class* i_this) {
 /* 00004C50-00004FFC       .text action_demo__FP8pw_class */
 void action_demo(pw_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    daPy_py_c* player = daPy_getPlayerActorClass();
     camera_process_class* camera = (camera_process_class*)dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
     cXyz pos = player->current.pos;
     switch (i_this->mMode) {
