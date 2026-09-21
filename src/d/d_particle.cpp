@@ -1641,15 +1641,3 @@ void dPa_trackEcallBack::draw(JPABaseEmitter* emitter) {
         f31 += f30;
     }
 }
-
-/* 8007F704-8007F708       .text setup__22dPa_bombSmokeEcallBackFP14JPABaseEmitterPC4cXyzPC5csXyzSc */
-void dPa_bombSmokeEcallBack::setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8) {
-}
-
-/* 8007F7D0-8007F7D4       .text setup__20dPa_stripesEcallBackFP14JPABaseEmitterPC4cXyzPC5csXyzSc */
-void dPa_stripesEcallBack::setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8) {
-}
-
-/* 8007FAE8-8007FAEC       .text setup__22dPa_selectTexEcallBackFP14JPABaseEmitterPC4cXyzPC5csXyzSc */
-void dPa_selectTexEcallBack::setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8) {
-}
