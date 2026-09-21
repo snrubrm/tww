@@ -626,8 +626,9 @@ void daNpc_So_c::cutMiniGameWarpStart() {
     player->setPlayerPosAndAngle(&mMinigamePos, playerAng);
     mSpeed = 0.0f;
     speedF = mSpeed;
-    s16 ang = ship->shape_angle.y + REG12_S(6);
-    ang -= 0x4000;
+    int tmp = ship->shape_angle.y + REG12_S(6);
+    tmp -= 0x4000;
+    s16 ang = tmp;
     current.pos = mMinigamePos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
