@@ -1110,7 +1110,7 @@ u32 daNpc_Bj1_c::getMsg_Corog() {
             if (bits & 1) {
                 num++;
             }
-            bits >>= 1;
+            bits = (u8)(bits >> 1);
         }
         dComIfGp_setMessageCountNumber(8 - num);
         return 0x1482;
