@@ -90,6 +90,7 @@ GXFifoObj* GXInit(void* base, u32 size) {
     u32 i;
     u32 reg;
     u32 freqBase;
+    u8 padding[16];
     GXData* data = &gxData;
 
     OSRegisterVersion(__GXVersion);
@@ -101,8 +102,8 @@ GXFifoObj* GXInit(void* base, u32 size) {
 
     GXSetMisc(GX_MT_XF_FLUSH, 0);
 
-    __cpReg = OSPhysicalToUncached(GX_CP_ADDR);
     __piReg = OSPhysicalToUncached(GX_PI_ADDR);
+    __cpReg = OSPhysicalToUncached(GX_CP_ADDR);
     __peReg = OSPhysicalToUncached(GX_PE_ADDR);
     __memReg = OSPhysicalToUncached(GX_MEM_ADDR);
 
@@ -139,22 +140,11 @@ GXFifoObj* GXInit(void* base, u32 size) {
     gx->iref = 0;
     SET_REG_FIELD(gx->iref, 8, 24, 0x27);
 
-    {
-        int op = 0x30;
-        for (i = 0; i < 8; ) {
-            gx->suTs0[i] = 0;
-            gx->suTs1[i] = 0;
-            SET_REG_FIELD(gx->suTs0[i], 8, 24, op);
-            SET_REG_FIELD(gx->suTs1[i], 8, 24, op + 1);
-            i++;
-            op += 2;
-            gx->suTs0[i] = 0;
-            gx->suTs1[i] = 0;
-            SET_REG_FIELD(gx->suTs0[i], 8, 24, op);
-            SET_REG_FIELD(gx->suTs1[i], 8, 24, op + 1);
-            i++;
-            op += 2;
-        }
+    for (i = 0; i != 8; i++) {
+        gx->suTs0[i] = 0;
+        gx->suTs1[i] = 0;
+        SET_REG_FIELD(gx->suTs0[i], 8, 24, 0x30 + i * 2);
+        SET_REG_FIELD(gx->suTs1[i], 8, 24, 0x31 + i * 2);
     }
 
     SET_REG_FIELD(gx->suScis0, 8, 24, 0x20);
@@ -181,22 +171,12 @@ GXFifoObj* GXInit(void* base, u32 size) {
     reg = (freqBase / 0x1080) | 0x46000200;
     GX_WRITE_RAS_REG(reg);
 
-    {
-        u8 cpCmd = 8;
-        for (i = 0; i < 8; ) {
-            SET_REG_FIELD(gx->vatA[i], 1, 30, 1);
-            SET_REG_FIELD(gx->vatB[i], 1, 31, 1);
-            GX_WRITE_U8(cpCmd);
-            GX_WRITE_U8(i | 0x80);
-            GX_WRITE_U32(gx->vatB[i]);
-            i++;
-            SET_REG_FIELD(gx->vatA[i], 1, 30, 1);
-            SET_REG_FIELD(gx->vatB[i], 1, 31, 1);
-            GX_WRITE_U8(cpCmd);
-            GX_WRITE_U8(i | 0x80);
-            GX_WRITE_U32(gx->vatB[i]);
-            i++;
-        }
+    for (i = 0; i != GX_MAX_VTXFMT; i++) {
+        SET_REG_FIELD(gx->vatA[i], 1, 30, 1);
+        SET_REG_FIELD(gx->vatB[i], 1, 31, 1);
+        GX_WRITE_U8(0x8);
+        GX_WRITE_U8(i | 0x80);
+        GX_WRITE_U32(gx->vatB[i]);
     }
 
     {
@@ -260,7 +240,7 @@ GXFifoObj* GXInit(void* base, u32 size) {
     GX_WRITE_RAS_REG(0x24000000);
     GX_WRITE_RAS_REG(0x67000000);
 
-    __GXSetTmemConfig(2);
+    __GXSetTmemConfig(0);
     __GXInitGX();
 
     return (GXFifoObj*)(data + 1);
