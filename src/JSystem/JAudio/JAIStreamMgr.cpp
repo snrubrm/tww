@@ -53,7 +53,7 @@ JAInter::streamList_t* JAInter::StreamMgr::streamList;
 JAInter::streamList_t* JAInter::StreamMgr::initOnCodeStrm;
 u32 JAInter::StreamLib::adpcm_remain;
 u32 JAInter::StreamLib::adpcm_loadpoint;
-u32 JAInter::StreamLib::loadsize;
+unsigned int JAInter::StreamLib::loadsize;
 s16* JAInter::StreamLib::adpcm_buffer;
 s16*** JAInter::StreamLib::loop_buffer;
 void** JAInter::StreamLib::store_buffer;
@@ -620,7 +620,6 @@ void JAInter::StreamLib::__LoadFin(s32, DVDFileInfo*) {
 
 /* 8029D1E8-8029D328       .text LoadADPCM__Q27JAInter9StreamLibFv */
 void JAInter::StreamLib::LoadADPCM() {
-    // Nonmatching - register allocation in the remaining-byte update.
     if (adpcmbuf_state == 0) {
         switch (header.field_0xa) {
         case 2:
