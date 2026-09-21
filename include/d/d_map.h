@@ -67,6 +67,12 @@ public:
     ~dMap_2DMtMapSpcl_tex_c() {}
     void init(ResTIMG*, u32, const GXColor&);
     void setScroll(f32, f32, f32, f32);
+    u8 check() { return field_0x0; }
+    int getCI() { return field_0x1; }
+    f32 getS() { return field_0x34; }
+    f32 getT() { return field_0x38; }
+    f32 getSw() { return field_0x3c; }
+    f32 getTw() { return field_0x40; }
 
     /* 0x00 */ u8 field_0x0;
     /* 0x01 */ u8 field_0x1;

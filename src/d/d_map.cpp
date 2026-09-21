@@ -2876,7 +2876,6 @@ void dMap_2DMtMapSpcl_c::setPos(s16 param_1, s16 param_2, s16 param_3, s16 param
 
 /* 8004DC1C-8004E068       .text draw__18dMap_2DMtMapSpcl_cFv */
 void dMap_2DMtMapSpcl_c::draw() {
-    /* Nonmatching */
     GXVtxAttrFmtList fmtList[GX_VA_MAX_ATTR + 1];
     GXGetVtxAttrFmtv(GX_VTXFMT0, fmtList);
     GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_S16, 0);
@@ -2885,12 +2884,11 @@ void dMap_2DMtMapSpcl_c::draw() {
     GXSetZMode(GX_DISABLE, GX_LEQUAL, GX_DISABLE);
     dMap_2DMtMapSpcl_tex_c* r27 = field_0x8;
     int r28 = 0;
-    int r30 = 0;
     for (int i = 0; i < field_0x4; r27++, i++) {
         if (r27->field_0x0 == 0) {
             continue;
         }
-        if (r27->field_0x1) {
+        if (r27->getCI()) {
             GXLoadTlut(&r27->mTlutObj, r27->field_0x44);
         }
         GXLoadTexObj(&r27->mTexObj, GXTexMapID(r28));
@@ -2899,12 +2897,11 @@ void dMap_2DMtMapSpcl_c::draw() {
         GXSetTevColor(GXTevRegID(GX_TEVREG0 + r28), r27->mColor);
         GXSetTexCoordGen(GXTexCoordID(r28), GX_TG_MTX2x4, GXTexGenSrc(GX_TG_TEX0 + r28), GX_IDENTITY);
         GXSetTevOrder(GXTevStageID(r28), GXTexCoordID(r28), GXTexMapID(r28), GX_COLOR_NULL);
-        GXSetTevColorIn(GXTevStageID(r28), GX_CC_ZERO, GXTevColorArg(GX_CC_C0 + r30), GX_CC_TEXC, r28 ? GX_CC_CPREV : GX_CC_ZERO);
+        GXSetTevColorIn(GXTevStageID(r28), GX_CC_ZERO, GXTevColorArg(GX_CC_C0 + r28 * 2), GX_CC_TEXC, r28 ? GX_CC_CPREV : GX_CC_ZERO);
         GXSetTevColorOp(GXTevStageID(r28), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
         GXSetTevAlphaIn(GXTevStageID(r28), GX_CA_ZERO, GXTevAlphaArg(GX_CA_A0 + r28), GX_CA_TEXA, r28 ? GX_CA_APREV : GX_CA_ZERO);
         GXSetTevAlphaOp(GXTevStageID(r28), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
         r28 += 1;
-        r30 += 2;
         if (r28 >= 3) {
             break;
         }
@@ -2936,28 +2933,28 @@ void dMap_2DMtMapSpcl_c::draw() {
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
         if (r27->field_0x0) {
-            GXTexCoord2f32(r27->field_0x34, r27->field_0x38);
+            GXTexCoord2f32(r27->getS(), r27->getT());
         }
     }
     GXPosition3s16(field_0x10, field_0xe, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
         if (r27->field_0x0) {
-            GXTexCoord2f32(r27->field_0x34 + r27->field_0x3c, r27->field_0x38);
+            GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT());
         }
     }
     GXPosition3s16(field_0x10, field_0x12, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
         if (r27->field_0x0) {
-            GXTexCoord2f32(r27->field_0x34 + r27->field_0x3c, r27->field_0x38 + r27->field_0x40);
+            GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT() + r27->getTw());
         }
     }
     GXPosition3s16(field_0xc, field_0x12, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
         if (r27->field_0x0) {
-            GXTexCoord2f32(r27->field_0x34, r27->field_0x38 + r27->field_0x40);
+            GXTexCoord2f32(r27->getS(), r27->getT() + r27->getTw());
         }
     }
     GXEnd();
