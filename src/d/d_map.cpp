@@ -202,6 +202,10 @@ static inline f32 getMapInfo_map1_ZC(stage_map_info_class* i_mapInfoP) {
     return i_mapInfoP->field_0x2c;
 }
 
+static inline f32 getMapInfo_scale(stage_map_info_class* i_mapInfoP) {
+    return i_mapInfoP->field_0x30;
+}
+
 static inline int gridPos2GridNo(int i_gridX, int i_gridY) {
     JUT_ASSERT(VERSION_SELECT(1258, 1188, 1188, 1188), (i_gridX >= -3) && (i_gridX <= 3) && (i_gridY >= -3) && (i_gridY <= 3));
     return i_gridX + 3 + (i_gridY + 3) * 7;
@@ -1339,7 +1343,6 @@ void dMap_c::mapDrawEnlargementSize(f32 param_1, f32 param_2, f32 param_3, f32 p
 
 /* 80048F74-80049354       .text mapDrawRealSize__6dMap_cFffUc */
 void dMap_c::mapDrawRealSize(f32 param_1, f32 param_2, u8 i_alpha) {
-    /* Nonmatching */
     static const GXColor l_color_field = {0, 0, 255, 255};
     static const GXColor l_color_dungeon = {0, 0, 0, 255};
 
@@ -1349,15 +1352,15 @@ void dMap_c::mapDrawRealSize(f32 param_1, f32 param_2, u8 i_alpha) {
         m2DSQdraw.setMode(0);
         dComIfGd_set2DOpa(&m2DSQdraw);
         if (mNowRoomInfoP->getEnableFlg() & 1) {
-            f32 f31 = mNowRoomInfoP->getStageMapInfoP()->field_0x30;
-            f32 f30 = mNowRoomInfoP->getStageMapInfoP()->field_0x30;
             mRoomInfoCtrl.ctrlDrawRoomRealSize(
                 mNowRoomInfoP->getRoomNo(),
                 mDispPosLeftUpX, mDispPosLeftUpY, mDispSizeX, mDispSizeY,
                 param_1, param_2,
                 getMapInfo_map1_XC(mNowRoomInfoP->getStageMapInfoP()),
                 getMapInfo_map1_ZC(mNowRoomInfoP->getStageMapInfoP()),
-                f30, f31, i_alpha
+                getMapInfo_scale(mNowRoomInfoP->getStageMapInfoP()),
+                getMapInfo_scale(mNowRoomInfoP->getStageMapInfoP()),
+                i_alpha
             );
         }
         m2DSQdraw2.setDispPos(mDispPosLeftUpX, mDispPosLeftUpY, mDispPosLeftUpX + mDispSizeX, mDispPosLeftUpY + mDispSizeY);
