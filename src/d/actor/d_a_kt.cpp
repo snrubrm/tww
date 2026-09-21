@@ -73,6 +73,7 @@ void kotori_move(kt_class* i_this) {
     s16* r18;
     s16* r17;
     s16* r16;
+    s16* r16b;
 
     switch (i_this->mMode) {
     case 0:
@@ -171,8 +172,8 @@ calc_012:
     case 9:
         i_this->mTargetPos = headTopPos;
         i_this->mTargetPos.y += 100.0f;
-        r16 = &i_this->current.angle.y;
-        cLib_addCalcAngleS2(&i_this->current.angle.y, angleX, 10, (s16)((REG0_F(3) * 10.0f + 1500.0f) * i_this->mSpeedLerp));
+        r16 = (r16b = &i_this->current.angle.y);
+        cLib_addCalcAngleS2(r16b, angleX, 10, (s16)((REG0_F(3) * 10.0f + 1500.0f) * i_this->mSpeedLerp));
         cLib_addCalc0(&i_this->mSpeedLerp, 1.0f, REG0_F(4) + 0.05f);
         cLib_addCalc0(&i_this->mSpeedFwd, 1.0f, REG0_F(5) + 1.0f);
         offs.x = 0.0f;
