@@ -83,9 +83,7 @@ void daNpc_So_c::cutSwimStart() {}
 void daNpc_So_c::cutSwimProc() {
     cXyz look = mEventCut.getAttnPos();
     mSpeed = 7.0f + REG12_F(10);
-    cXyz delta = current.pos - look;
-    delta.y = 0.0f;
-    f32 dist = delta.abs();
+    f32 dist = (current.pos - look).absXZ();
     s16 target = cLib_targetAngleY(&current.pos, &look);
     cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
     if (dist < 150.0f + REG12_F(7)) {
