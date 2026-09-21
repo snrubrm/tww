@@ -1033,12 +1033,12 @@ bool daObjFtree::Act_c::create_heap() {
     if (brk_data == NULL) {
         return false;
     }
-    BOOL brk = mBrkAnm.init(mdl_dataS, brk_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, 0);
+    BOOL brk = mBrkAnm.init(mdl_dataS, brk_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
     get_tev_material0_color(mpMorf->getModel()->getModelData(), 2, &mColorS.r, &mColorS.g, &mColorS.b);
     mColorSBase = mColorS;
     get_tev_material0_color(mpModel->getModelData(), 2, &mColorL.r, &mColorL.g, &mColorL.b);
     mColorLBase = mColorL;
-    return bool(tmp_bck_data && mpMorf) && mpMorf->getModel() && mdl_dataL && brk_data && brk;
+    return bool(mdl_dataS && mpMorf) && mpMorf->getModel() && mdl_dataL && brk_data && brk;
 }
 
 /* 00003354-000035F4       .text _create__Q210daObjFtree5Act_cFv */
