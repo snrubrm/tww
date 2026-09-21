@@ -5657,6 +5657,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     f32 targetFovy = val25 + val28 * camRatio;
 
     cSGlobe targetDir;
+    f32 ratio;
     if (work->m37C != NULL) {
         daShip_c* ship = (daShip_c*)work->m37C;
         cSAngle shipYaw;
@@ -5671,14 +5672,14 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         posOffset.x -= (val1 * shipYaw.Sin()) * camRatio;
         posOffset.y += val8 * camRatio;
 
-        f32 rx = dCamMath::rationalBezierRatio(mStickCPosXLast, 1.0f);
+        ratio = dCamMath::rationalBezierRatio(mStickCPosXLast, 1.0f);
         f32 ry;
         if (mStickCPosYLast < 0.0f) {
             ry = 0.0f;
         } else {
             ry = dCamMath::rationalBezierRatio(mStickCPosYLast, 1.0f);
         }
-        work->m398.x += 0.25f * (rx * -200.0f - work->m398.x);
+        work->m398.x += 0.25f * (ratio * -200.0f - work->m398.x);
         work->m398.y += 0.25f * (ry * 500.0f - work->m398.y);
         posOffset.x += work->m398.x;
         posOffset.y += work->m398.y;
@@ -5701,7 +5702,6 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
 
     if (m100 == 0) {
         int timer;
-        f32 ratio;
         switch (work->m388) {
         case 1:
             timer = 0x28;
@@ -5723,8 +5723,8 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             ratio = 1.0f / (f32)(s32)(timer - (int)m11C);
             mViewCache.mCenter += (work->m3A4 - mViewCache.mCenter) * ratio;
             mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (targetDir.R() - mViewCache.mDirection.R()));
-            mViewCache.mDirection.U(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
-            mViewCache.mDirection.V(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
+            mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * ratio);
+            mViewCache.mDirection.U(mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * ratio);
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
             break;
         }
@@ -5753,7 +5753,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
             latMix = 0.0f;
         }
     }
-    targetDir.U(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
+    targetDir.V(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
 
     cSAngle targetV = mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * val21;
     if (targetV < val16) {
