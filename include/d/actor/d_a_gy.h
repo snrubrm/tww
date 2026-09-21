@@ -79,8 +79,8 @@ public:
     /* 0x4F0 */ f32 mAimSpeedF;
     /* 0x4F4 */ u8 m4F4[0x4F8 - 0x4F4];
     /* 0x4F8 */ s32 m4F8;
-    /* 0x4FC */ s32 m4FC;
-    /* 0x500 */ s32 m500;
+    /* 0x4FC */ int m4FC;
+    /* 0x500 */ int m500;
     /* 0x504 */ u8 m504;
     /* 0x505 */ u8 m505[0x508 - 0x505];
     /* 0x508 */ f32 m508;
@@ -98,7 +98,7 @@ public:
     /* 0x8F8 */ cXyz m8F8;
     /* 0x904 */ cXyz m904;
     /* 0x910 */ u8 m910[0x914 - 0x910];
-    /* 0x914 */ s32 m914;
+    /* 0x914 */ int m914;
     /* 0x918 */ f32 m918;
     /* 0x91C */ f32 m91C;
     /* 0x920 */ f32 m920;
@@ -184,9 +184,7 @@ public:
     /* 0x0AC */ f32 mAC;
     /* 0x0B0 */ f32 mB0;
     /* 0x0B4 */ f32 mB4;
-    /* 0x0B8 */ f32 mB8;
-    /* 0x0BC */ f32 mBC;
-    /* 0x0C0 */ f32 mC0;
+    /* 0x0B8 */ cXyz mB8;
     /* 0x0C4 */ f32 mC4;
     /* 0x0C8 */ f32 mC8;
     /* 0x0CC */ f32 mCC;

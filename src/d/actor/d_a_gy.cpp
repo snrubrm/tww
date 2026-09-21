@@ -174,9 +174,9 @@ daGy_HIO_c::daGy_HIO_c() {
     mAC = -80.0f;
     mB4 = -25.0f;
     mB0 = 20.0f;
-    mB8 = 0.0f;
-    mBC = 0.0f;
-    mC0 = 0.0f;
+    mB8.x = 0.0f;
+    mB8.y = 0.0f;
+    mB8.z = 0.0f;
     mC4 = 8.0f;
     m178 = 0.5f;
     mC8 = 30.0f;
@@ -453,7 +453,7 @@ void daGy_c::setMtx() {
     mDoMtx_stack_c::multVec(&sp14, &mE84);
 
     if (l_HIO.m94 != 0) {
-        mDoMtx_stack_c::transM(l_HIO.mB8, l_HIO.mBC, l_HIO.mC0);
+        mDoMtx_stack_c::transM(l_HIO.mB8.x, l_HIO.mB8.y, l_HIO.mB8.z);
     }
     mDoMtx_stack_c::transM(0.0f, m4E4, 0.0f);
     model->setBaseTRMtx(mDoMtx_stack_c::now);
