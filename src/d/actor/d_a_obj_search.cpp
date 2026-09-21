@@ -466,11 +466,11 @@ void daObj_Search::Act_c::modeFind() {
     mLightInf.mColor.g = attr()->m5C;
 
     static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
-    cXyz offset = pos;
-    cXyz dir = (offset + player->current.pos) - mBeamStart[m830];
+    cXyz dir = pos;
+    dir = (dir + player->current.pos) - mBeamStart[m830];
     m7B0 = mLightAng[0].y;
-    s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
-    s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+    u16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
+    s16 pitch = (s16)cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
     if (m830 == 0) {
         mLightAng[1].y = yaw;
     } else {
@@ -478,10 +478,8 @@ void daObj_Search::Act_c::modeFind() {
         pitch = -pitch;
         mLightAng[0].y = yaw;
     }
-    s16 tgtY = yaw;
-    s16 tgtX = pitch;
-    cLib_addCalcAngleS2(&mLightAng[m830].y, tgtY, 10, 0x400);
-    cLib_addCalcAngleS2(&mLightAng[m830].x, tgtX, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
 
     if (eventInfo.checkCommandDemoAccrpt()) {
         int staffId = evtMgr->getMyStaffId("Search", NULL, 0);
