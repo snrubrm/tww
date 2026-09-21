@@ -452,7 +452,6 @@ static BOOL daSitem_solidHeapCB(fopAc_ac_c* actor) {
 
 /* 00002844-00002C04       .text daSitem_Create__FP10fopAc_ac_c */
 static cPhs_State daSitem_Create(fopAc_ac_c* actor) {
-    // USA: remaining differences are register allocation.
     static dCcD_SrcSph tg_sph_src = {
         // dCcD_SrcGObjInf
         {
@@ -509,22 +508,22 @@ static cPhs_State daSitem_Create(fopAc_ac_c* actor) {
             /* Radius */ 80.0f,
         }},
     };
-    fopAcM_SetupActor(actor, sitem_class);
     sitem_class* i_this = static_cast<sitem_class*>(actor);
+    fopAcM_SetupActor(actor, sitem_class);
     cPhs_State phase = dComIfG_resLoad(&i_this->mPhase, "Sitem");
     if (phase == cPhs_COMPLEATE_e) {
-        i_this->mType = fopAcM_GetParam(i_this);
+        i_this->mType = fopAcM_GetParam(actor);
         if (i_this->mType == 255) i_this->mType = 0;
-        i_this->mLengthType = fopAcM_GetParam(i_this) >> 8;
+        i_this->mLengthType = fopAcM_GetParam(actor) >> 8;
         if (i_this->mLengthType > 3) i_this->mLengthType = 0;
-        i_this->mItemTable = fopAcM_GetParam(i_this) >> 24;
+        i_this->mItemTable = fopAcM_GetParam(actor) >> 24;
         if (i_this->mItemTable == 255) i_this->mItemTable = 0;
-        i_this->mItemBit = fopAcM_GetParam(i_this) >> 16;
-        if (fopAcM_entrySolidHeap(i_this, daSitem_solidHeapCB, 0x3040)) {
+        i_this->mItemBit = fopAcM_GetParam(actor) >> 16;
+        if (fopAcM_entrySolidHeap(actor, daSitem_solidHeapCB, 0x3040)) {
             non_pos.set(0.0f, 30000.0f, -20000.0f);
-            i_this->health = 2;
+            actor->health = 2;
             i_this->mFrame = cM_rndF(10000.0f);
-            i_this->mStts.Init(255, 255, i_this);
+            i_this->mStts.Init(255, 255, actor);
             for (int i = 0; i < 4; i++) {
                 i_this->mSph[i].Set(tg_sph_src);
                 i_this->mSph[i].SetStts(&i_this->mStts);
@@ -532,8 +531,8 @@ static cPhs_State daSitem_Create(fopAc_ac_c* actor) {
             }
             i_this->mBoomerangSph.Set(bm_sph_src);
             i_this->mBoomerangSph.SetStts(&i_this->mStts);
-            i_this->mPos = i_this->current.pos;
-            i_this->mAcch.Set(&i_this->mPos, &i_this->mOldPos, i_this, 1, &i_this->mAcchCir, &i_this->speed, NULL, NULL);
+            i_this->mPos = actor->current.pos;
+            i_this->mAcch.Set(&i_this->mPos, &i_this->mOldPos, actor, 1, &i_this->mAcchCir, &actor->speed, NULL, NULL);
             i_this->mAcchCir.SetWall(30.0f, 50.0f);
             for (int i = 0; i < 2; i++) daSitem_Execute(i_this);
         } else phase = cPhs_ERROR_e;
