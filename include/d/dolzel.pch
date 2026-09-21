@@ -1,6 +1,11 @@
 #ifndef DOLZEL_PCH
 #define DOLZEL_PCH
 
+// Keeps headers from putting parts that were not in the original PCH into it (see f_op_actor_mng.h).
+#ifndef DECOMPCTX
+#define DOLZEL_PCH_BUILD
+#endif
+
 #ifdef DECOMPCTX
 // Hack to mitigate fake mismatches when building from decompctx output
 // (which doesn't support precompiled headers).
@@ -34,5 +39,7 @@
 #include "d/d_magma.h" // IWYU pragma: export
 #include "d/d_mesg.h" // IWYU pragma: export
 #include "d/d_menu_base.h" // IWYU pragma: export
+
+#undef DOLZEL_PCH_BUILD
 
 #endif /* DOLZEL_PCH */
