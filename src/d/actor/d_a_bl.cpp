@@ -216,6 +216,7 @@ void anm_init(bl_class* i_this, int bckFileIdx, f32 morf, u8 loopMode, f32 speed
 /* 0000094C-00000C08       .text skull_atari_check__FP8bl_class */
 BOOL skull_atari_check(bl_class* i_this) {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    fopAc_ac_c* actor = i_this;
 
     i_this->mStts.Move();
 
@@ -242,7 +243,7 @@ BOOL skull_atari_check(bl_class* i_this) {
         return FALSE;
     }
 
-    i_this->current.angle.y = fopAcM_searchPlayerAngleY(i_this) + 0x8000;
+    i_this->current.angle.y = fopAcM_searchPlayerAngleY(actor) + 0x8000;
     u8 no_kill = 0;
     s16 hit_timer = 8;
     i_this->mHitTimer = hit_timer;
@@ -291,7 +292,7 @@ BOOL skull_atari_check(bl_class* i_this) {
 
     cXyz hitPos = *i_this->mSph.GetTgHitPosP();
     if (no_kill == 0) {
-        fopAcM_seStart(i_this, JA_SE_OBJ_BREAK_STONE, 0);
+        fopAcM_seStart(actor, JA_SE_OBJ_BREAK_STONE, 0);
         i_this->health = 0;
         i_this->attention_info.flags = 0;
         i_this->m2D2 = 0xA;
