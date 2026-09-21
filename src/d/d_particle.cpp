@@ -1248,19 +1248,18 @@ void dPa_waveEcallBack::executeAfter(JPABaseEmitter* emitter) {
     mVel = speed;
 }
 
-static inline Vec wScale(const Vec& v, f32 s) {
-    Vec r = v;
-    r.x *= s;
-    r.y *= s;
-    r.z *= s;
-    return r;
-}
-static inline Vec wAdd(Vec a, const Vec& b) {
-    a.x += b.x;
-    a.y += b.y;
-    a.z += b.z;
-    return a;
-}
+struct dPa_waveVec : public JGeometry::TVec3<f32> {
+    dPa_waveVec operator*(f32 s) const {
+        dPa_waveVec r(*this);
+        r.scale(s);
+        return r;
+    }
+    dPa_waveVec operator+(const JGeometry::TVec3<f32>& b) const {
+        dPa_waveVec r(*this);
+        r += b;
+        return r;
+    }
+};
 
 /* 8007E484-8007E804       .text draw__17dPa_waveEcallBackFP14JPABaseEmitter */
 void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
@@ -1284,10 +1283,11 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
     GXSetTevColor(GX_TEVREG0, amb);
     GXSetTevColor(GX_TEVREG1, dif);
 
+    const dPa_waveVec* rot = (const dPa_waveVec*)mRotMtx;
     Vec* collapse = mCollapsePos;
     for (int i = 0; i < 2; i++, collapse++) {
         u = 0.0f;
-        const Vec& out2 = wAdd(wAdd(wScale(mRotMtx[0], collapse->x), wScale(mRotMtx[1], collapse->y)), wScale(mRotMtx[2], collapse->z));
+        dPa_waveVec out2 = rot[0] * collapse->x + rot[1] * collapse->y + rot[2] * collapse->z;
 
         GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, n + 1);
         GXPosition3f32(trans.x + out2.x, trans.y + out2.y, trans.z + out2.z);
