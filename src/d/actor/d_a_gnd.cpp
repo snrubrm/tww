@@ -2093,7 +2093,7 @@ static void demo_camera(gnd_class* i_this) {
         // fallthrough
     case 2: {
         s16 ang = cM_atan2s(actor->current.pos.x - pz->current.pos.x, actor->current.pos.z - pz->current.pos.z);
-        actor->shape_angle.y = ang + (REG0_S(0) + 0x4000);
+        actor->shape_angle.y = ang + 0x4000 + REG0_S(0);
         actor->current.angle.y = actor->shape_angle.y;
         if (i_this->m1560 > REG0_S(1) + 0x19) {
             i_this->m155C = 0x82;
@@ -2134,8 +2134,8 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m1570 = actor->current.pos;
         i_this->m1570.y += 150.0f + REG0_F(13);
         {
-            s16 pang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
-            player->setPlayerPosAndAngle(&player->current.pos, pang);
+            s16 pang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+            player->setPlayerPosAndAngle(&player->current.pos, pang + 0x8000);
         }
         break;
     case 4:
@@ -2196,10 +2196,7 @@ static void demo_camera(gnd_class* i_this) {
         }
         break;
     case 10:
-        if (i_this->m2CE != 0) {
-            return;
-        }
-        if (!checkGround(i_this, 0.0f)) {
+        if (i_this->m2CE != 0 || !checkGround(i_this, 0.0f)) {
             return;
         }
         if (!actor->eventInfo.checkCommandDemoAccrpt()) {
@@ -2332,13 +2329,12 @@ static void demo_camera(gnd_class* i_this) {
         // fallthrough
     case 0x66: {
         for (int i = 0; i < 2; i++) {
-            JPABaseEmitter* emitter = i_this->mp13F0[i];
-            if (emitter != NULL) {
+            if (i_this->mp13F0[i] != NULL) {
                 if (i_this->mpMorf->isStop()) {
-                    emitter->becomeInvalidEmitter();
+                    i_this->mp13F0[i]->becomeInvalidEmitter();
                     i_this->mp13F0[i] = NULL;
                 } else {
-                    emitter->setGlobalRTMatrix(i_this->mpMorf->getModel()->getAnmMtx(GND_JNT_GND_DEKO_1_e));
+                    i_this->mp13F0[i]->setGlobalRTMatrix(i_this->mpMorf->getModel()->getAnmMtx(GND_JNT_GND_DEKO_1_e));
                 }
             }
         }
