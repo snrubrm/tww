@@ -946,7 +946,7 @@ void bo_move(bo_class* i_this) {
             s16 ydiff = cLib_distanceAngleS(i_this->m33A.y, i_this->m340.y);
             if (ydiff < 0x100) {
                 i_this->m340.y ^= 0xFF00;
-                i_this->m340.y = i_this->m340.y * 0.1f;
+                i_this->m340.y *= 0.1f;
                 i_this->m372++;
                 if (i_this->m372 >= 0x10) {
                     i_this->m340.y = 0;
@@ -959,7 +959,7 @@ void bo_move(bo_class* i_this) {
             s16 zdiff = cLib_distanceAngleS(i_this->m33A.z, i_this->m340.z);
             if (zdiff < 0x100) {
                 i_this->m340.z ^= 0xFF00;
-                i_this->m340.z = i_this->m340.z * 0.1f;
+                i_this->m340.z *= 0.1f;
                 i_this->m374++;
                 if (i_this->m374 >= 0x10) {
                     i_this->m340.z = 0;
@@ -1011,7 +1011,9 @@ void bo_move(bo_class* i_this) {
         }
     }
     if (i_this->m2C5 != 0 && i_this->m2C5 != 5) {
-        damage_check(i_this);
+        if (damage_check(i_this)) {
+            return;
+        }
     }
 }
 
