@@ -528,10 +528,10 @@ void dMsg3_setCharAlpha(sub_msg3_class* i_Msg, u8 i_index) {
     int var_r31 = i_index;
     f32 temp_f2 = temp_f1 + i_Msg->text_pane[var_r31].mPosTopLeft.y + (i_Msg->field_0xeac * (2 - i_Msg->field_0xec8[i_index]));
 
-    int temp_r27 = (temp_r6 * i_Msg->field_0xec8[i_index]);
-    int var_r26 = (int)temp_f2 + temp_r27;
+    int var_r27 = (int)temp_f2;
+    int var_r26 = var_r27 + temp_r6 * i_Msg->field_0xec8[i_index];
     int var_r30 = (int)(temp_f2 - g_messageHIO.field_0x38);
-    int var_r29 = var_r30 + temp_r27;
+    int var_r29 = var_r30 + temp_r6 * i_Msg->field_0xec8[i_index];
 
     if (var_r26 < 58) {
         int temp_r3 = var_r26 + i_Msg->mx->getHeight();
@@ -546,10 +546,10 @@ void dMsg3_setCharAlpha(sub_msg3_class* i_Msg, u8 i_index) {
         } else {
             i_Msg->field_0xedb[1][var_r31] = 0;
         }
-    } else if (temp_r27 > 187) {
-        int temp_r3 = temp_r27 + i_Msg->mx->getHeight();
-        if (temp_r27 <= 239) {
-            i_Msg->field_0xedb[0][var_r31] = dMsg3_tex_i4_color[temp_r27];
+    } else if (var_r27 > 187) {
+        int temp_r3 = var_r27 + i_Msg->mx->getHeight();
+        if (var_r27 <= 239) {
+            i_Msg->field_0xedb[0][var_r31] = dMsg3_tex_i4_color[var_r27];
         } else {
             i_Msg->field_0xedb[0][var_r31] = 0;
         }
