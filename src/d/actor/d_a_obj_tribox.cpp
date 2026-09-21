@@ -564,8 +564,9 @@ u32 daObjTribox::Act_c::sound_get_mapinfo(const cXyz& pos) {
     p.y += 50.0f;
     gndChk.SetPos(&p);
     dComIfG_Bgsp()->GroundCross(&gndChk);
+    int idx = gndChk.GetBgIndex();
     u32 result = 0xD;
-    if (gndChk.GetBgIndex() >= 0 && gndChk.GetBgIndex() < 0x100) {
+    if (idx >= 0 && idx < 0x100) {
         result = dComIfG_Bgsp()->GetMtrlSndId(gndChk);
     }
     return result;
