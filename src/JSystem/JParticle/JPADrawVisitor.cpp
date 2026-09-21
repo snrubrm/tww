@@ -1067,6 +1067,7 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
 
     f32 sx0;
     f32 sx1;
+    f32 px, py, pz;
     f32 cx0;
     f32 cx1;
     JSULink<JPABaseParticle>* start;
@@ -1086,8 +1087,9 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
     GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, numLinks * 2);
     for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT += texStep) {
         JPABaseParticle* ptcl = link->getObject();
-        JGeometry::TVec3<f32> pos;
-        ptcl->getGlobalPosition(pos);
+        px = ptcl->mGlobalPosition.x;
+        py = ptcl->mGlobalPosition.y;
+        pz = ptcl->mGlobalPosition.z;
 
         JPADrawParams* params = ptcl->getDrawParamPPtr();
         f32 sin = JMASSin(params->mRotateAngle);
@@ -1127,9 +1129,9 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
         mtx.mult(v1);
         mtx.mult(v2);
 
-        GXPosition3f32(v1.x + pos.x, v1.y + pos.y, v1.z + pos.z);
+        GXPosition3f32(v1.x + px, v1.y + py, v1.z + pz);
         GXTexCoord2f32(0.0f, texT);
-        GXPosition3f32(v2.x + pos.x, v2.y + pos.y, v2.z + pos.z);
+        GXPosition3f32(v2.x + px, v2.y + py, v2.z + pz);
         GXTexCoord2f32(1.0f, texT);
     }
     GXEnd();
