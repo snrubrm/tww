@@ -5679,8 +5679,10 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         } else {
             ry = dCamMath::rationalBezierRatio(mStickCPosYLast, 1.0f);
         }
-        work->m398.x += 0.25f * (ratio * -200.0f - work->m398.x);
-        work->m398.y += 0.25f * (ry * 500.0f - work->m398.y);
+        f32 offsetX = -200.0f;
+        f32 offsetY = 500.0f;
+        work->m398.x += 0.25f * (ratio * offsetX - work->m398.x);
+        work->m398.y += 0.25f * (ry * offsetY - work->m398.y);
         posOffset.x += work->m398.x;
         posOffset.y += work->m398.y;
 
