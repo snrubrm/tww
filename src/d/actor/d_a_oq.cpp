@@ -686,16 +686,16 @@ void action_kougeki(oq_class* i_this) {
             break;
         case 0x17:
             if (i_this->mpMorf->checkFrame(1.0f)) {
-                if (REG8_S(9) == 0 && i_this->m2C2 == 0) {
+                if (REG8_S(5) == 0 && i_this->m2C2 == 0) {
                     u32 params = ((u32)i_this->m2C2 << 8) | 6;
                     cXyz scale;
                     scale.setall(0.5f);
-                    fopAcM_create(fpcNm_OQ_e, params, &i_this->mMouthPos, fopAcM_GetRoomNo(actor), &actor->shape_angle, &scale, 0, NULL);
-                    csXyz angle = actor->shape_angle;
+                    fopAcM_create(fpcNm_OQ_e, params, &i_this->mMouthPos, fopAcM_GetRoomNo(actor), &actor->current.angle, &scale, 0, NULL);
+                    csXyz angle = actor->current.angle;
                     angle.y += 0x4000;
                     dComIfGp_particle_set(dPa_name::ID_AK_JN_OQROCKATTACK00, &i_this->mMouthPos2, &angle);
                     fopAcM_seStart(actor, JA_SE_CM_OQ_SPIT_ROCK, 0);
-                } else if (REG8_S(9) == 0) {
+                } else if (REG8_S(5) == 0) {
                     cXyz scale;
                     scale.setall(2.25f + REG8_F(18));
                     daBomb_c* bomb = (daBomb_c*)fopAcM_fastCreate(
@@ -703,7 +703,7 @@ void action_kougeki(oq_class* i_this) {
                         daBomb_c::prm_make(daBomb_c::STATE_4, true, true),
                         &i_this->mMouthPos,
                         fopAcM_GetRoomNo(actor),
-                        &actor->shape_angle,
+                        &actor->current.angle,
                         &scale,
                         -1,
                         NULL
@@ -736,12 +736,13 @@ void action_kougeki(oq_class* i_this) {
             // fallthrough
         case 0x19:
             if (i_this->mBckIdx == dRes_INDEX_OQ_BCK_AATTACK2_FUKU_e) {
-                if (i_this->mpMorf->isStop()) {
-                    if (i_this->mType == 1 || i_this->mType == 4 || i_this->mType == 5) {
-                        anm_init(i_this, dRes_INDEX_OQ_BCK_UMI_NEW_WAIT_e, 15.0f + REG8_F(3), J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
-                    } else {
-                        anm_init(i_this, dRes_INDEX_OQ_BCK_NOM_WAIT_e, 15.0f + REG8_F(3), J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
-                    }
+                if (!i_this->mpMorf->isStop()) {
+                    break;
+                }
+                if (i_this->mType == 1 || i_this->mType == 4 || i_this->mType == 5) {
+                    anm_init(i_this, dRes_INDEX_OQ_BCK_UMI_NEW_WAIT_e, 15.0f + REG8_F(3), J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
+                } else {
+                    anm_init(i_this, dRes_INDEX_OQ_BCK_NOM_WAIT_e, 15.0f + REG8_F(3), J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
                 }
             }
             if (i_this->mTimers[6] != 0) {
