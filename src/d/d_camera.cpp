@@ -6615,15 +6615,15 @@ bool dCamera_c::manualCamera(s32 param_1) {
         val27 = 55.0f;
     }
 
-    f32 stickCX;
-    f32 stickCY;
-    if (mStickCPosXLast >= 0.75f) {
+    f32 stickCX = mStickCPosXLast;
+    if (stickCX >= 0.75f) {
         stickCX = 1.0f;
-    } else if (mStickCPosXLast <= -0.75f) {
+    } else if (stickCX <= -0.75f) {
         stickCX = -1.0f;
     } else {
-        stickCX = dCamMath::rationalBezierRatio(mStickCPosXLast * 1.333333f, 2.0f);
+        stickCX = dCamMath::rationalBezierRatio(stickCX * 1.333333f, 2.0f);
     }
+    f32 stickCY;
     if (mStickCPosYLast >= 0.75f) {
         stickCY = 1.0f;
     } else if (mStickCPosYLast <= -0.75f) {
@@ -6643,7 +6643,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 height = work->m398;
-    if (!limited_range_addition(&height, -stickCY * val9, val6, val7)) {
+    if (!limited_range_addition(&height, (stickCY = -stickCY) * val9, val6, val7)) {
         cush = val20;
     }
     if (chkFlag(0x1000) && mpLockonTarget != NULL && (m784 || m785)) {
@@ -6734,14 +6734,15 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 r = work->m3A8.R();
-    if (!limited_range_addition(&r, -stickCY * val14, val11, val12)) {
+    if (!limited_range_addition(&r, stickCY * val14, val11, val12)) {
         cushR = val20;
     }
     f32 v = work->m3A8.V().Degree();
-    if (!limited_range_addition(&v, -stickCY * val19, val16, val17)) {
+    if (!limited_range_addition(&v, stickCY * val19, val16, val17)) {
         cushV = val20;
     }
-    f32 u = work->m3A8.U().Degree() + stickCX * val24;
+    f32 u = work->m3A8.U().Degree();
+    u += stickCX * val24;
     work->m3A8.Val(r, cAngle::d2s(v), cAngle::d2s(u));
 
     if (chkFlag(0x1000) && mpLockonTarget != NULL) {
@@ -6754,7 +6755,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
     f32 fov = mViewCache.mFovy;
-    if (!limited_range_addition(&fov, -stickCY * val29, val26, val27)) {
+    if (!limited_range_addition(&fov, stickCY * val29, val26, val27)) {
         cush = mCamParam.Val(param_1, 20);
     }
     mViewCache.mFovy += cush * (fov - mViewCache.mFovy);
