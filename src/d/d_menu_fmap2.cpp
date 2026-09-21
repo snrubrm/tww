@@ -1732,16 +1732,16 @@ void dMenu_Fmap2_c::cmapMove() {
 
 /* 801C2BA0-801C3070       .text changeSelCmap__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::changeSelCmap() {
-    /* Nonmatching */
+    int i;
     int r30 = getCollectMapKind(field_0x27a9);
     ((J2DPicture *)field_0x124c[field_0x2813 ^ 1][0].pane)->changeTexture(mCmapTxtMain_p[field_0x2815 ^ 1], 0);
     if (isOpenCollectMap(field_0x27a9)) {
         field_0x2812 = 2;
         field_0x1aa4[field_0x2815 ^ 1][0].pane->show();
-        for (int i = 0; i < 2; i++) {
+        for (i = 0; i < 2; i++) {
             field_0x1244[field_0x2814 ^ 1][i].pane->hide();
         }
-        for (int i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             field_0x124c[field_0x2813 ^ 1][i].pane->show();
         }
         if (r30 == 0) {
@@ -1768,7 +1768,7 @@ void dMenu_Fmap2_c::changeSelCmap() {
     } else {
         field_0x2812 = 3;
         field_0x1aa4[field_0x2815 ^ 1][0].pane->hide();
-        for (int i = 0; i < 2; i++) {
+        for (i = 0; i < 2; i++) {
             field_0x1244[field_0x2814 ^ 1][i].pane->show();
             ((J2DPicture *)field_0x1244[field_0x2814 ^ 1][i].pane)->changeTexture(rollmapTex[r30], 0);
         }
@@ -1782,7 +1782,7 @@ void dMenu_Fmap2_c::changeSelCmap() {
             ((J2DPicture *)field_0x124c[field_0x2813 ^ 1][1].pane)->changeTexture("f_cmap_normal.bti", 0);
             ((J2DPicture *)field_0x124c[field_0x2813 ^ 1][2].pane)->changeTexture("f_cmap_normal.bti", 0);
         }
-        for (int i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             field_0x124c[field_0x2813 ^ 1][i].pane->hide();
         }
     }
