@@ -1738,7 +1738,6 @@ void dKyr_star_move() {
 
 /* 80090DE0-80091964       .text wave_move__Fv */
 void wave_move() {
-    /* Nonmatching */
     dScnKy_env_light_c& envLight = dKy_getEnvlight();
     dStage_FileList_dt_c* fili_p;
     fopAc_ac_c* pPlayer;
@@ -1762,7 +1761,7 @@ void wave_move() {
     f32 windPow;
     s32 stageWindY;
     s16 windX;
-    s16 windY;
+    int windY;
 
     windPowVec = dKyw_get_wind_vecpow();
 
@@ -1821,16 +1820,16 @@ void wave_move() {
         }
 #endif
 
-        windY += stageWindY;
+        s16 windY2 = windY + stageWindY;
 
-        windNrmVec2.x = cM_scos(windX) * cM_scos(windY);
+        windNrmVec2.x = cM_scos(windX) * cM_scos(windY2);
         windNrmVec2.y = cM_ssin(windX);
-        windNrmVec2.z = cM_scos(windX) * cM_ssin(windY);
+        windNrmVec2.z = cM_scos(windX) * cM_ssin(windY2);
 
         windPowVec.x = 0.6f * windNrmVec2.x;
         windPowVec.y = 0.6f * windNrmVec2.y;
         windPowVec.z = 0.6f * windNrmVec2.z;
-        windPowVec2 = windPowVec;
+        windPowVec2 = windNrmVec2;
         windPow = 0.6f;
     }
 
