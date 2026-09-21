@@ -1874,7 +1874,7 @@ void daNpc_P2_c::treasure_wait_talk() {
 /* 00002A88-00002B18       .text demo_arrive__10daNpc_P2_cFv */
 void daNpc_P2_c::demo_arrive() {
     if (dComIfGp_evmng_endCheck("P2B_ARRIVE_MAJYU")) {
-        dKy_instant_timechg(180.0f);
+        dKy_instant_timechg(300.0f);
         dComIfGs_onEventBit(dSv_event_flag_c::UNK_0808);
         m7D6 = 1;
         m7D5 = 0;
