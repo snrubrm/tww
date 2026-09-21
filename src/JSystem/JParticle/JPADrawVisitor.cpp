@@ -1083,6 +1083,10 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
 
     typedef JSULink<JPABaseParticle>* (*NextFunc)(JSULink<JPABaseParticle>*);
 
+    f32 sx0;
+    f32 sx1;
+    f32 cx0;
+    f32 cx1;
     JSULink<JPABaseParticle>* start;
     NextFunc getNext;
     f32 texT = 0.0f;
@@ -1107,10 +1111,6 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
         f32 sin = JMASSin(params->mRotateAngle);
         f32 cos = JMASCos(params->mRotateAngle);
 
-        f32 sx0;
-        f32 sx1;
-        f32 cx0;
-        f32 cx1;
         f32 x0 = -params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX + JPADrawContext::pcb->mPivotX);
         sx0 = x0 * sin;
         cx0 = x0 * cos;
