@@ -2332,7 +2332,7 @@ void dMenu_Item_c::_draw() {
 
 /* 801D0F50-801D1438       .text _open__12dMenu_Item_cFv */
 bool dMenu_Item_c::_open() {
-    s16 main_off = g_miHIO.field_0x26;
+    const s16 main_off = g_miHIO.field_0x26;
     bool ret = false;
 
     if (mTimer == 0) {
