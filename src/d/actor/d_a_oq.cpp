@@ -1368,7 +1368,6 @@ static BOOL useHeapInit(fopAc_ac_c* i_ac) {
 
 /* 00004708-00004DBC       .text daOQ_Create__FP10fopAc_ac_c */
 static cPhs_State daOQ_Create(fopAc_ac_c* i_actor) {
-    /* Nonmatching */
     static dCcD_SrcCyl body_co_cyl_src = {
         // dCcD_SrcGObjInf
         {
@@ -1534,7 +1533,7 @@ static cPhs_State daOQ_Create(fopAc_ac_c* i_actor) {
             i_this->m2C2 = 0;
         }
         if (i_this->mType != 3 && i_this->mType != 2) {
-            if (!fopAcM_entrySolidHeap(i_this, useHeapInit, heapSize)) {
+            if (!fopAcM_entrySolidHeap(i_actor, useHeapInit, heapSize)) {
                 return cPhs_ERROR_e;
             }
         }
@@ -1543,13 +1542,15 @@ static cPhs_State daOQ_Create(fopAc_ac_c* i_actor) {
             hazure_shoot_timer = 0x64;
             cXyz offset;
             cXyz pos;
-            mDoMtx_YrotS(*calc_mtx, 0);
-            offset.x = 0.0f;
-            offset.y = 0.0f;
-            offset.z = 1000.0f;
-            MtxPosition(&offset, &pos);
-            pos += player->current.pos;
-            pos.y -= 40.0f;
+            for (int i = 0; i < 1; i++) {
+                mDoMtx_YrotS(*calc_mtx, 0);
+                offset.x = 0.0f;
+                offset.y = 0.0f;
+                offset.z = 1000.0f;
+                MtxPosition(&offset, &pos);
+                pos += player->current.pos;
+                pos.y -= 40.0f;
+            }
             pos.x += cM_rndFX(200.0f);
             pos.z += cM_rndFX(200.0f);
             csXyz angle;
