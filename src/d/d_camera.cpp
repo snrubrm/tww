@@ -1303,7 +1303,7 @@ int dCamera_c::nextMode(s32 i_curMode) {
         if (i_curMode == 12 && m144 != 0) {
             next_mode = 0;
         }
-        else if (check_owner_action(mPadId, daPyStts0_TELESCOPE_LOOK_e) || check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
+        else if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_TELESCOPE_LOOK_e) != 0 || check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
             next_mode = 0xe;
         }
         else if (check_owner_action(mPadId, daPyStts0_UNK80000000_e | daPyStts0_UNK80_e)) {
