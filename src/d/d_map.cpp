@@ -3044,7 +3044,6 @@ void dMap_2DAGBScrDsp_c::calc_standard_prm(u16 param_1, u16 param_2, f32 param_3
 
 /* 8004E698-8004EE30       .text draw__18dMap_2DAGBScrDsp_cFv */
 void dMap_2DAGBScrDsp_c::draw() {
-    /* Nonmatching */
     static const GXColor masterTevColor = {255, 255, 255, 255};
 
     if (field_0x4 == NULL || mImg == NULL) {
@@ -3058,8 +3057,7 @@ void dMap_2DAGBScrDsp_c::draw() {
     f32 texT0Flip;
     f32 texT1Flip;
     f32 s0;
-    f32 y1;
-    f32 texS1;
+    f32 t0n;
     f32 s1;
     f32 t1n;
     f32 invW;
@@ -3069,8 +3067,9 @@ void dMap_2DAGBScrDsp_c::draw() {
     f32 x0;
     f32 x1;
     f32 y0;
+    f32 y1;
     f32 texS0;
-    f32 t0n;
+    f32 texS1;
     f32 texT0;
     f32 texT1;
     u16* row;
