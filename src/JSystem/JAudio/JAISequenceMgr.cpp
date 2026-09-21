@@ -52,13 +52,13 @@ void JAInter::SequenceMgr::init() {
         SeqParameter* _para = new (JAIBasic::getCurrentJAIHeap(), 0x20) SeqParameter();
         JUT_ASSERT_MSG(47, _para, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
         seqControl.Buffer[i].field_0x3c = _para;
-        _para->seqPan = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqPan = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(50, _para->seqPan, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
-        _para->seqPitch = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqPitch = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(52, _para->seqPitch, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
-        _para->seqFxmix = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqFxmix = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(54, _para->seqFxmix, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
-        _para->seqDolby = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqDolby = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(56, _para->seqDolby, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
     }
     FixSeqBufPointer = new (JAIBasic::getCurrentJAIHeap(), 0x20) JAISound*[JAIGlobalParameter::getParamSeqPlayTrackMax()];
