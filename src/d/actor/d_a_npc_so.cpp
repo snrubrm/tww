@@ -456,12 +456,14 @@ u16 daNpc_So_c::next_msgStatus(u32* pMsgNo) {
     case 0x32D6:
         fopAcIt_Judge(searchMinigameTagSo_CB, this);
         if (l_HIO.m30 != 0 || mMinigameTagFound != 0) {
-            if (dComIfGs_getItem(dInvSlot_BOW_e) == 0xFF || dComIfG_getTimerPtr() != NULL) {
-                *pMsgNo = 0x32D7;
-            } else if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_3A10)) {
-                *pMsgNo = 0x32DC;
+            if (dComIfGs_getItem(dInvSlot_BOW_e) != 0xFF && dComIfG_getTimerPtr() == NULL) {
+                if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3A10)) {
+                    *pMsgNo = 0x32D8;
+                } else {
+                    *pMsgNo = 0x32DC;
+                }
             } else {
-                *pMsgNo = 0x32D8;
+                *pMsgNo = 0x32D7;
             }
         } else {
             *pMsgNo = 0x32D7;
