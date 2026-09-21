@@ -585,7 +585,7 @@ u16 daNpc_Kk1_c::next_msgStatus(unsigned long* pMsg) {
             *pMsg = 0x1C98;
             break;
         case 1:
-            *pMsg = 0x1C9B + (mLookAngle < 1 ? -1 : 0);
+            *pMsg = 0x1C9B + (mLookAngle > 1 ? -1 : 0);
             break;
         }
         break;
@@ -602,7 +602,7 @@ u16 daNpc_Kk1_c::next_msgStatus(unsigned long* pMsg) {
     case 0x1C99:
         switch (mpCurrMsg->mSelectNum) {
         case 0:
-            *pMsg = 0x1C9D + (mLookAngle < 1 ? -1 : 0);
+            *pMsg = 0x1C9D + (mLookAngle > 1 ? -1 : 0);
             break;
         case 1:
             *pMsg = 0x1C9A;
