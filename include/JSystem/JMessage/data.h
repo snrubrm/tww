@@ -18,7 +18,7 @@ struct TParse_THeader : public JGadget::binary::TParseData_aligned<4> {
     u32* get_signature() const { return (u32*)(get() + 0x0); }
     u32 get_type() const { return *(u32*)(get() + 0x4); }
     u32 get_blockNumber() const { return *(u32*)(get() + 0xC); }
-    u8 get_encoding() const { return *(u8*)(get() + 0x10); }
+    u8 get_encoding() const { return *(const u8*)((const char*)getRaw() + 0x10); }
 };
 
 struct TParse_TBlock : public JGadget::binary::TParseData_aligned<4> {
