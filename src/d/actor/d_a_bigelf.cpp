@@ -99,7 +99,7 @@ BOOL daBigelf_c::nodeCallBack(J3DNode* node) {
         setEyePos(pos);
         incAttnSetCount();
     } else if (jntNo != getBackboneJntNum()) {
-        if (jntNo == m_handRB) {
+        if (jntNo == m_fl_jnt) {
             offset.set(0.0f, 0.0f, 0.0f);
             MtxPosition(&offset, &mHandPos);
         }
@@ -1051,7 +1051,7 @@ BOOL daBigelf_c::_draw() {
     mpMorf->entry();
     if (chkFlag(0x8)) {
         mFlowerBrk.entry(flowerModelData);
-        MtxP mtx = model->getAnmMtx(m_handRB);
+        MtxP mtx = model->getAnmMtx(m_fl_jnt);
         MTXCopy(mtx, mpFlowerModel->getBaseTRMtx());
         mDoExt_modelUpdateDL(mpFlowerModel);
     }
@@ -1164,10 +1164,14 @@ BOOL daBigelf_c::CreateHeap() {
         return FALSE;
     }
     s32 err = mpMorf->getModel()->setSkinDeform(deform, 1);
-    if (err == J3DErrType_OutOfMemory) {
+    switch (err) {
+    case J3DErrType_Success:
+        break;
+    case J3DErrType_OutOfMemory:
         return FALSE;
-    } else if (err != J3DErrType_Success) {
+    default:
         JUT_ASSERT(0x811, 0);
+        break;
     }
 
     J3DModel* pModel = mpMorf->getModel();
@@ -1180,12 +1184,11 @@ BOOL daBigelf_c::CreateHeap() {
     JUT_ASSERT(0x824, m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
     JUT_ASSERT(0x829, m_jnt.getBackboneJntNum() >= 0);
-    s8 m_fl_jnt = modelData->getJointName()->getIndex("handRB");
-    m_handRB = m_fl_jnt;
+    m_fl_jnt = modelData->getJointName()->getIndex("handRB");
     JUT_ASSERT(0x82d, m_fl_jnt >= 0);
 
     for (u16 i = 0; i < modelData->getJointNum(); i++) {
-        if (i == getHeadJntNum() || i == getBackboneJntNum() || i == m_handRB) {
+        if (i == getHeadJntNum() || i == getBackboneJntNum() || i == m_fl_jnt) {
             mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_Bigelf);
         }
     }
@@ -1207,19 +1210,19 @@ BOOL daBigelf_c::CreateHeap() {
     switch (getType()) {
     case 2:
     case 3:
-        mBrk.setPlaySpeed(1.0f);
-        mFlowerBrk.setPlaySpeed(1.0f);
+        mBrk.setFrame(1.0f);
+        mFlowerBrk.setFrame(1.0f);
         mPaNo = 1;
         break;
     case 4:
     case 5:
-        mBrk.setPlaySpeed(2.0f);
-        mFlowerBrk.setPlaySpeed(2.0f);
+        mBrk.setFrame(2.0f);
+        mFlowerBrk.setFrame(2.0f);
         mPaNo = 2;
         break;
     case 6:
-        mBrk.setPlaySpeed(3.0f);
-        mFlowerBrk.setPlaySpeed(3.0f);
+        mBrk.setFrame(3.0f);
+        mFlowerBrk.setFrame(3.0f);
         mPaNo = 3;
         break;
     }

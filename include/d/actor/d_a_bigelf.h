@@ -122,7 +122,7 @@ public:
     /* 0x2B4 */ mDoExt_btkAnm mBtk;
     /* 0x2C8 */ J3DModel* mpFlowerModel;
     /* 0x2CC */ mDoExt_brkAnm mFlowerBrk;
-    /* 0x2E4 */ s8 m_handRB;
+    /* 0x2E4 */ s8 m_fl_jnt;
     /* 0x2E5 */ u8 m2E5[0x2E8 - 0x2E5];
     /* 0x2E8 */ dNpc_JntCtrl_c m_jnt;
     /* 0x31C */ cXyz mEyePos;
