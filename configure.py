@@ -1628,7 +1628,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_bmdhand"),
     ActorRel(MatchingFor("GZLE01"), "d_a_bo"),
     ActorRel(Matching,    "d_a_boss_item"),
-    ActorRel(NonMatching, "d_a_bpw"),
+    ActorRel(MatchingFor("GZLE01"), "d_a_bpw"),
     ActorRel(MatchingFor("GZLE01"), "d_a_bst"),
     ActorRel(Matching,    "d_a_btd"),
     ActorRel(Matching,    "d_a_bwd"),
@@ -1845,7 +1845,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_ygcwp"),
     ActorRel(Matching,    "d_a_yougan"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_ghostship"),
-    ActorRel(NonMatching, "d_a_movie_player", extra_cflags=["-O3,p"]),
+    ActorRel(MatchingFor("GZLE01"), "d_a_movie_player", extra_cflags=["-O3,p"]),
 ]
 
 
