@@ -308,8 +308,10 @@ void dKyr_wind_move() {
         }
     }
 
+    cXyz move;
+    cXyz eyePos;
     cXyz pos;
-    dKy_set_eyevect_calc2(pCamera, &pos, var_f15, var_f15);
+    dKy_set_eyevect_calc2(pCamera, &eyePos, var_f15, var_f15);
 
     for (s32 i = 0; i < (s32)ARRAY_SIZE(pWind->mWindEff); i++) {
         if (i >= windlineCount && pWind->mWindEff[i].mState == 0) {
@@ -332,10 +334,10 @@ void dKyr_wind_move() {
                 windEff.mAlpha = 0.0f;
                 windEff.field_0x2c = 0;
 
-                if (pWind->mbHasCustomWindPower) {
-                    windEff.mBasePos.set(pPlayer->current.pos);
+                if (pWind->mbHasCustomWindPower != TRUE) {
+                    windEff.mBasePos.set(eyePos);
                 } else {
-                    windEff.mBasePos.set(pos);
+                    windEff.mBasePos.set(pPlayer->current.pos);
                 }
 
                 windEff.mBasePos.y += offsetY;
@@ -351,7 +353,6 @@ void dKyr_wind_move() {
 
                 windEff.field_0x2c = cM_rndF(0xFFFF);
 
-                cXyz pos;
                 pos.x = windEff.mBasePos.x + windEff.mPos.x;
                 pos.y = windEff.mBasePos.y + windEff.mPos.y;
                 pos.z = windEff.mBasePos.z + windEff.mPos.z;
@@ -394,7 +395,8 @@ void dKyr_wind_move() {
         case 1:
         case 2:
             {
-                f32 temp_f1_3 = var_f26 - ((0.2f * var_f26) * (1.0f - windPow));
+                f32 invPow = 1.0f - windPow;
+                f32 temp_f1_3 = var_f26 - ((0.2f * var_f26) * invPow);
                 windEff.field_0x2c += var_f17 * windPow; // mSwerveAnimCounter
                 if (i & 1) {
                     windEff.mAngleY += temp_f1_3 * cM_ssin(windEff.field_0x2c);
@@ -418,12 +420,11 @@ void dKyr_wind_move() {
                     cLib_addCalcAngleS(&windEff.mAngleXZ, targetAngleXZ, 10, 1000, 1);
                 }
 
-                cXyz move;
                 move.x = cM_scos(windEff.mAngleY) * cM_ssin(windEff.mAngleXZ);
                 move.y = cM_ssin(windEff.mAngleY);
                 move.z = cM_scos(windEff.mAngleY) * cM_scos(windEff.mAngleXZ);
 
-                f32 temp_f0_7 = var_f29 - ((var_f29 * 0.2f) * (1.0f - windPow));
+                f32 temp_f0_7 = var_f29 - ((var_f29 * 0.2f) * invPow);
                 f32 var_f2 = windEff.field_0x2c / (f32)0xFFFF;
                 if (var_f2 > 1.0f) {
                     var_f2 = 1.0f;
@@ -431,12 +432,11 @@ void dKyr_wind_move() {
                 if (var_f2 < 0.0f) {
                     var_f2 = 0.0f;
                 }
-                f32 temp_f0_8 = temp_f0_7 + (0.3f * temp_f0_7 * var_f2);
-                windEff.mPos.x += move.x * temp_f0_8;
-                windEff.mPos.y += move.y * temp_f0_8;
-                windEff.mPos.z += move.z * temp_f0_8;
+                temp_f0_7 = temp_f0_7 + (0.3f * temp_f0_7 * var_f2);
+                windEff.mPos.x += move.x * temp_f0_7;
+                windEff.mPos.y += move.y * temp_f0_7;
+                windEff.mPos.z += move.z * temp_f0_7;
 
-                cXyz pos;
                 pos.x = windEff.mBasePos.x + windEff.mPos.x;
                 pos.y = windEff.mBasePos.y + windEff.mPos.y;
                 pos.z = windEff.mBasePos.z + windEff.mPos.z;
@@ -449,7 +449,8 @@ void dKyr_wind_move() {
                 }
 
                 f32 temp_f1_4 = ((envLight.mBG0_K0.r + envLight.mBG0_K0.g + envLight.mBG0_K0.b) * 0.33333334f) / 255.0f;
-                f32 var_f15_2 = windPow * (distance * SQUARE(temp_f1_4));
+                distance *= SQUARE(temp_f1_4);
+                f32 var_f15_2 = windPow * distance;
                 if (var_f15_2 < 0.5f) {
                     var_f15_2 = 0.5f;
                 }
@@ -462,7 +463,7 @@ void dKyr_wind_move() {
                     windEff.mState = 2;
                 }
 
-                windEff.mpEmitter->setGlobalAlpha(var_f15_2 * var_f25 * windEff.mAlpha);
+                windEff.mpEmitter->setGlobalAlpha(var_f15_2 * (var_f25 * windEff.mAlpha));
                 if (windEff.mState == 1) {
                     cLib_addCalc(&windEff.mStateTimer, 1.0f, 0.3f, var_f18_3 * 0.1f, 0.01f);
                     if (windEff.mStateTimer >= 1.0f)
