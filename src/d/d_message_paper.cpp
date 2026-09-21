@@ -141,7 +141,7 @@ void dmsg3_3d_c::exec() {
 
 /* 801EB840-801EB8DC       .text draw__10dmsg3_3d_cFv */
 void dmsg3_3d_c::draw() {
-    dComIfGd_setListFilter();
+    dComIfGd_setList2D();
     mBck.entry(mModel->getModelData());
     mDoExt_modelUpdateDL(mModel);
     mBck.remove(mModel->getModelData());
