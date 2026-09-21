@@ -6477,8 +6477,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
     if (m11C == 0) {
         work->m378 = 'SHLD';
 
-        cXyz delta = mCenter - targetCenter;
-        f32 dist = delta.abs();
+        f32 dist = cXyz(mCenter - targetCenter).abs();
         f32 f20;
         if (val10 > dist) {
             f20 = val10;
@@ -6486,20 +6485,11 @@ bool dCamera_c::shieldCamera(s32 param_1) {
             f20 = dist;
         }
 
-        f32 height;
-        if (is_player(mpPlayerActor)) {
-            height = ((daPy_py_c*)mpPlayerActor)->getHeight();
-        } else {
-            height = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
-        }
-        if (height < 10.0f) {
-            height = 10.0f;
-        }
-        f20 /= height;
+        f32 height = get_actor_height(mpPlayerActor);
+        f20 /= height < 10.0f ? 10.0f : height;
 
-        cSAngle ang = directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U();
-        f32 angFac = std::fabsf(2.0f * ang.Norm());
-        f32 t = 8.0f * std::sqrtf(f20);
+        f32 angFac = std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
+        f32 t = 3.0f * std::sqrtf(f20);
         work->m37C = (int)(t * (1.0f + angFac)) + 1;
         work->m380 = work->m37C * (work->m37C + 1) >> 1;
     }
@@ -6513,11 +6503,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
         attn.y -= 15.0f;
         dBgS_CamLinChk_NorWtr lin_chk;
         f32 xyzDist = dCamMath::xyzHorizontalDistance(targetCenter, mViewCache.mCenter);
-        f32 maxOff = posOffset.x;
-        if (posOffset.x <= posOffset.z) {
-            maxOff = posOffset.z;
-        }
-        if (xyzDist < std::fabsf(maxOff) + 20.0f) {
+        if (xyzDist < 20.0f + std::fabsf(posOffset.x > posOffset.z ? posOffset.x : posOffset.z)) {
             if (lineBGCheck(&attn, &mViewCache.mCenter, &lin_chk, 0x7f)) {
                 cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
                 mViewCache.mCenter = lin_chk.GetCross();
@@ -6557,8 +6543,8 @@ bool dCamera_c::shieldCamera(s32 param_1) {
     }
 
     cSAngle lat(val15);
-    cSAngle yaw(directionOf(mpPlayerActor).Inv());
     cSAngle bodyX;
+    cSAngle yaw(directionOf(mpPlayerActor).Inv());
     cSAngle bodyY;
     if (is_player(mpPlayerActor)) {
         daPy_py_c* player = (daPy_py_c*)mpPlayerActor;
