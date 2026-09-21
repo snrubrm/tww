@@ -1594,6 +1594,10 @@ void summon_call_sub(wz_class* i_this) {
     static u32 cc_birth_dt[] = {0, 1, 4, 3};
 
     fopAc_ac_c* actor = i_this;
+    u32 arg;
+    int i;
+    int spawned;
+    int birthNum;
     cXyz pos = actor->current.pos;
     wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
     if (parent == NULL) {
@@ -1603,8 +1607,9 @@ void summon_call_sub(wz_class* i_this) {
         return;
     }
 
-    int tableIndex = (parent->mSummonTableType << 3) + (parent->mSummonWave << 1);
-    int birthNum = birth_dt[tableIndex];
+    int tableIndex = parent->mSummonTableType << 3;
+    tableIndex += parent->mSummonWave << 1;
+    birthNum = birth_dt[tableIndex];
     csXyz angle;
     angle.x = 0;
     angle.y = 0;
@@ -1615,11 +1620,9 @@ void summon_call_sub(wz_class* i_this) {
         angle.x = 0x80;
     }
 
-    int spawned = 0;
-    int i;
-    for (i = spawned; i < 20 && spawned < birthNum; i++) {
+    for (i = 0, spawned = 0; i < 20 && spawned < birthNum; i++) {
         if (i_this->mChildIds[i] == fpcM_ERROR_PROCESS_ID_e) {
-            u32 arg = enemy_arg_dt[tableIndex];
+            arg = enemy_arg_dt[tableIndex];
             if (enemy_name_dt[tableIndex] == fpcNm_CC_e) {
                 if ((arg & 0xA00) == 0) {
                     int rnd = (int)cM_rndF(2.99f);
@@ -1660,24 +1663,22 @@ void summon_call_sub(wz_class* i_this) {
     if (enemy_name_dt[nextIndex] == 0x7FFF) {
         return;
     }
-    int nextBirth = birth_dt[nextIndex];
+    birthNum = birth_dt[nextIndex];
     angle.x = 0;
     angle.y = 0;
     angle.z = 0;
     angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
     pos = actor->current.pos;
 
-    int spawned2 = 0;
-    int i2;
-    for (i2 = spawned2; i2 < 20 && spawned2 < nextBirth; i2++) {
-        if (i_this->mChildIds[i2] == fpcM_ERROR_PROCESS_ID_e) {
-            u32 arg = enemy_arg_dt[nextIndex];
+    for (i = 0, spawned = 0; i < 20 && spawned < birthNum; i++) {
+        if (i_this->mChildIds[i] == fpcM_ERROR_PROCESS_ID_e) {
+            arg = enemy_arg_dt[nextIndex];
             if (tableIndex + 1 == fpcNm_CC_e) {
                 arg |= 0xA00;
                 int rnd = (int)cM_rndF(3.19f);
                 arg |= cc_birth_dt[rnd] << 8;
             }
-            i_this->mChildIds[i2] = fopAcM_create(
+            i_this->mChildIds[i] = fopAcM_create(
                 enemy_name_dt[nextIndex],
                 arg,
                 &pos,
@@ -1687,10 +1688,10 @@ void summon_call_sub(wz_class* i_this) {
                 -1,
                 NULL
             );
-            if (i_this->mChildIds[i2] != fpcM_ERROR_PROCESS_ID_e) {
-                i_this->mChildAlive[i2] = 1;
+            if (i_this->mChildIds[i] != fpcM_ERROR_PROCESS_ID_e) {
+                i_this->mChildAlive[i] = 1;
                 pos = actor->current.pos;
-                spawned2++;
+                spawned++;
                 pos.x += cM_rndFX(100.0f);
                 pos.y += cM_rndFX(100.0f);
                 pos.z += cM_rndFX(100.0f);
