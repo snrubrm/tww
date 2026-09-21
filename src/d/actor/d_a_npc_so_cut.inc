@@ -676,8 +676,9 @@ void daNpc_So_c::cutMiniGameReturnStart() {
 /* 00007524-0000781C       .text cutMiniGameReturnProc__10daNpc_So_cFv */
 void daNpc_So_c::cutMiniGameReturnProc() {
     daShip_c* ship = dComIfGp_getShipActor();
-    int ang = ship->shape_angle.y + REG12_S(6);
-    ang -= 0x4000;
+    int tmp = ship->shape_angle.y + REG12_S(6);
+    tmp -= 0x4000;
+    s16 ang = tmp;
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
