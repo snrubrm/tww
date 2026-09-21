@@ -386,7 +386,7 @@ void daNpc_Kg1_c::wait_action() {
         if (m732 == 0) {
             m751 = 0;
             u8 items[] = {0x07, 0xCC, 0x05};
-            int index = dComIfGs_getEventReg(0xFE07) - 1;
+            u8 index = g_dComIfG_gameInfo.save.getEvent().getEventReg(0xFE07) - 1;
             mItemId = fopAcM_createItemForPresentDemo(&current.pos, items[index], 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
             if (mItemId != fpcM_ERROR_PROCESS_ID_e) dComIfGp_event_setItemPartnerId(mItemId);
             mWaitMode = 7;
