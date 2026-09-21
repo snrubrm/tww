@@ -573,6 +573,12 @@ void BG_check(gm_class* i_this) {
 
 /* 000017D8-00001B84       .text Line_check__FP8gm_class4cXyz */
 BOOL Line_check(gm_class* i_this, cXyz destPos) {
+    static GXColor all_line_color_dt[] = {
+        {0xFF, 0x00, 0x00, 0xFF},
+        {0x00, 0xFF, 0x00, 0xFF},
+        {0x00, 0x00, 0xFF, 0xFF},
+        {0xFF, 0x00, 0xFF, 0xFF},
+    };
     fopAc_ac_c* actor = i_this;
     dBgS_LinChk linChk;
 
