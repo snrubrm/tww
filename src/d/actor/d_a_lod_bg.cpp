@@ -97,12 +97,12 @@ void daLodbg_c::deleteModelData() {
 #if VERSION > VERSION_DEMO
 /* 0000046C-00000738       .text loadModelData__9daLodbg_cFPCcRP12J3DModelDataRP12JKRSolidHeapRUl */
 BOOL daLodbg_c::loadModelData(const char* filename, J3DModelData*& mModelData, JKRSolidHeap*& mDataHeap, u32& mDataSize) {
-    /* Nonmatching - regalloc */
     void* bin;
     bool success;
-    void* dst;
     s32 resSize;
+    void* dst;
     JKRHeap* oldHeap;
+    JKRHeap* archiveHeap;
     s32 size;
 
     JUT_ASSERT(0x124, mModelData == NULL);
@@ -130,8 +130,10 @@ BOOL daLodbg_c::loadModelData(const char* filename, J3DModelData*& mModelData, J
         mDataHeap->destroy();
         mDataHeap = NULL;
     }
-    if (mDataHeap == NULL)
-        mDataHeap = JKRSolidHeap::create(-1, mDoExt_getArchiveHeap(), false);
+    if (mDataHeap == NULL) {
+        archiveHeap = mDoExt_getArchiveHeap();
+        mDataHeap = JKRSolidHeap::create(-1, archiveHeap, false);
+    }
     oldHeap = JKRGetCurrentHeap();
     mDataHeap->becomeCurrentHeap();
     mModelData = J3DModelLoaderDataBase::loadBinaryDisplayList(bin, 0x2020);
