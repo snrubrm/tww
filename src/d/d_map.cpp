@@ -3446,61 +3446,59 @@ void dMap_2DT2_c::init(ResTIMG* param_1, f32 param_2, f32 param_3, f32 param_4, 
 
 /* 8004F8B4-8004FC68       .text setTlut__11dMap_Dmap_cFP16dmap_dmap_tlut_sUcUcUcf */
 void dMap_Dmap_c::setTlut(dmap_dmap_tlut_s* param_1, u8 param_2, u8 param_3, u8 param_4, f32 param_5) {
-    /* Nonmatching */
     static const GXColor color_on = {0, 128, 0, 255};
     static const GXColor color_off_map_possession = {30, 30, 30, 255};
     static const GXColor color_off_map_none = {0, 0, 0, 0};
     static const GXColor flash_color = {0, 255, 180, 255};
 
     dStage_FloorInfo_dt_c* floorInfo = dMap_GetFloorInfoDtPFromFloorNo(dComIfGp_getStage().getFloorInfo(), param_2);
-    if (!floorInfo) {
-        return;
-    }
-    if (param_5 > 1.0f) {
-        param_5 = 1.0f - param_5;
-    }
-    s8* r29 = floorInfo->field_0x05;
-    for (int i = 0; i < 14; i++, r29++) {
-        if (*r29 == -1) {
-            continue;
+    if (floorInfo) {
+        if (param_5 > 1.0f) {
+            param_5 = 1.0f - param_5;
         }
-        u16* r30 = NULL;
-        int tmp = field_0x2bb[param_2 - Floor_Base][i + 1];
-        if (tmp >= 0) {
-            r30 = &param_1->field_0x0[tmp];
-        }
-        if (!r30) {
-            continue;
-        }
-        stage_stag_info_class* stageInfo = dComIfGp_getStage().getStagInfo();
-        if ((stageInfo->mStageTypeAndSchbit >> 16 & 7) != 3 && *r29 == param_3) {
-            *r30 =
-                ((u16(flash_color.r + param_5 * (color_on.r - flash_color.r)) << 7) & 0x7C00) |
-                ((u16(flash_color.g + param_5 * (color_on.g - flash_color.g)) << 2) & 0x3E0) |
-                ((u16(flash_color.b + param_5 * (color_on.b - flash_color.b)) >> 3) & 0x1F) |
-                0x8000;
-            continue;
-        }
-        if (!dComIfGs_isDungeonItemMap()) {
-            if (dComIfGs_isVisitedRoom(*r29)) {
-                *r30 = color_on.a >= 0xe0
-                    ? u16((u16(color_on.r & 0xf8) << 7) | (u16(color_on.g & 0xf8) << 2) | (u16(color_on.b) >> 3) | 0x8000)
-                    : u16(color_on.r & 0xf0) << 4 | u16(color_on.g & 0xf0) | u16(color_on.b) >> 4 | u16(color_on.a & 0xe0) << 7;
-            } else {
-                *r30 = color_off_map_none.a >= 0xe0
-                    ? u16((u16(color_off_map_none.r & 0xf8) << 7) | (u16(color_off_map_none.g & 0xf8) << 2) | (u16(color_off_map_none.b) >> 3) | 0x8000)
-                    : u16(color_off_map_none.r & 0xf0) << 4 | u16(color_off_map_none.g & 0xf0) | u16(color_off_map_none.b) >> 4 | u16(color_off_map_none.a & 0xe0) << 7;
+        s8* r29 = floorInfo->field_0x05;
+        for (int i = 0; i < 14; i++, r29++) {
+            if (*r29 == -1) {
+                continue;
             }
-            continue;
-        } else {
-            if (dComIfGs_isVisitedRoom(*r29)) {
-                *r30 = color_on.a >= 0xe0
-                    ? u16((u16(color_on.r & 0xf8) << 7) | (u16(color_on.g & 0xf8) << 2) | (u16(color_on.b) >> 3) | 0x8000)
-                    : u16(color_on.r & 0xf0) << 4 | u16(color_on.g & 0xf0) | u16(color_on.b) >> 4 | u16(color_on.a & 0xe0) << 7;
+            u16* r30 = NULL;
+            int tmp = field_0x2bb[param_2 - Floor_Base][i + 1];
+            if (tmp >= 0) {
+                r30 = &param_1->field_0x0[tmp];
+            }
+            if (!r30) {
+                continue;
+            }
+            stage_stag_info_class* stageInfo = dComIfGp_getStage().getStagInfo();
+            if ((stageInfo->mStageTypeAndSchbit >> 16 & 7) != 3 && *r29 == param_3) {
+                *r30 =
+                    ((u16(flash_color.r + param_5 * (color_on.r - flash_color.r)) << 7) & 0x7C00) |
+                    ((u16(flash_color.g + param_5 * (color_on.g - flash_color.g)) << 2) & 0x3E0) |
+                    ((u16(flash_color.b + param_5 * (color_on.b - flash_color.b)) >> 3) & 0x1F) |
+                    0x8000;
+                continue;
+            }
+            if (!dComIfGs_isDungeonItemMap()) {
+                if (dComIfGs_isVisitedRoom(*r29)) {
+                    *r30 = color_on.a >= 0xe0
+                        ? (u16(color_on.r & 0xf8) << 7) | (u16(color_on.g & 0xf8) << 2) | (u16(color_on.b) >> 3) | 0x8000
+                        : u16(color_on.r & 0xf0) << 4 | u16(color_on.g & 0xf0) | u16(color_on.b) >> 4 | u16(color_on.a & 0xe0) << 7;
+                } else {
+                    *r30 = color_off_map_none.a >= 0xe0
+                        ? (u16(color_off_map_none.r & 0xf8) << 7) | (u16(color_off_map_none.g & 0xf8) << 2) | (u16(color_off_map_none.b) >> 3) | 0x8000
+                        : u16(color_off_map_none.r & 0xf0) << 4 | u16(color_off_map_none.g & 0xf0) | u16(color_off_map_none.b) >> 4 | u16(color_off_map_none.a & 0xe0) << 7;
+                }
+                continue;
             } else {
-                *r30 = color_off_map_possession.a >= 0xe0
-                    ? u16((u16(color_off_map_possession.r & 0xf8) << 7) | (u16(color_off_map_possession.g & 0xf8) << 2) | (u16(color_off_map_possession.b) >> 3) | 0x8000)
-                    : u16(color_off_map_possession.r & 0xf0) << 4 | u16(color_off_map_possession.g & 0xf0) | u16(color_off_map_possession.b) >> 4 | u16(color_off_map_possession.a & 0xe0) << 7;
+                if (dComIfGs_isVisitedRoom(*r29)) {
+                    *r30 = color_on.a >= 0xe0
+                        ? (u16(color_on.r & 0xf8) << 7) | (u16(color_on.g & 0xf8) << 2) | (u16(color_on.b) >> 3) | 0x8000
+                        : u16(color_on.r & 0xf0) << 4 | u16(color_on.g & 0xf0) | u16(color_on.b) >> 4 | u16(color_on.a & 0xe0) << 7;
+                } else {
+                    *r30 = color_off_map_possession.a >= 0xe0
+                        ? (u16(color_off_map_possession.r & 0xf8) << 7) | (u16(color_off_map_possession.g & 0xf8) << 2) | (u16(color_off_map_possession.b) >> 3) | 0x8000
+                        : u16(color_off_map_possession.r & 0xf0) << 4 | u16(color_off_map_possession.g & 0xf0) | u16(color_off_map_possession.b) >> 4 | u16(color_off_map_possession.a & 0xe0) << 7;
+                }
             }
         }
     }
