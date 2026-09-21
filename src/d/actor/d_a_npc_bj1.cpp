@@ -646,6 +646,9 @@ void daNpc_Bj1_c::checkOrder() {
     if (eventInfo.checkCommandDemoAccrpt()) {
         if (dComIfGp_evmng_startCheck(mEventIdTable[mEventIdx])) {
             switch (mEventIdx) {
+            case 0:
+            case 1:
+                break;
             case 2:
                 fopAcM_OffStatus(this, fopAcStts_UNK4000_e);
                 break;
