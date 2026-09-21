@@ -543,8 +543,8 @@ void daObj_Search::Act_c::modeFind2nd() {
     cXyz offset = pos;
     offset = (offset + player->current.pos) - mBeamStart[m830];
     m7B0 = mLightAng[0].y;
-    s16 yaw = cM_atan2s(offset.x, offset.z) - current.angle.y;
-    int pitch = cM_atan2s(offset.y, std::sqrtf(offset.x * offset.x + offset.z * offset.z));
+    u16 yaw = cM_atan2s(offset.x, offset.z) - current.angle.y;
+    s16 pitch = (s16)cM_atan2s(offset.y, std::sqrtf(offset.x * offset.x + offset.z * offset.z));
     bool hit = false;
 
     BOOL below;
@@ -553,17 +553,11 @@ void daObj_Search::Act_c::modeFind2nd() {
     s16 minP = REG12_S(1) - 0x2710;
     below = pitch <= minP;
     above = pitch >= maxP;
-    s16 tmp;
     if (above) {
-        tmp = (pitch < maxP) ? maxP : (s16)pitch;
-        pitch = tmp;
+        pitch = cLib_minLimit<s16>(pitch, maxP);
     }
     if (below) {
-        tmp = (s16)pitch;
-        if (tmp > minP) {
-            tmp = minP;
-        }
-        pitch = tmp;
+        pitch = cLib_maxLimit<s16>(pitch, minP);
     }
     if (above || below) {
         hit = true;
@@ -582,13 +576,11 @@ void daObj_Search::Act_c::modeFind2nd() {
         mLightAng[1].y = yaw;
     } else {
         yaw += 0x8000;
-        pitch = (s16)-pitch;
+        pitch = -pitch;
         mLightAng[0].y = yaw;
     }
-
-    s16 pitchS = pitch;
     cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
-    cLib_addCalcAngleS2(&mLightAng[m830].x, pitchS, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
 }
 
 /* 800FF7A4-800FF7A8       .text modeSearchBdkInit__Q212daObj_Search5Act_cFv */
