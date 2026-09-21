@@ -550,15 +550,15 @@ u8 dMap_RoomInfo_c::getRoomImage(int i_roomNo, u8 param_2, int param_3, ResTIMG*
 
 /* 80046314-80046470       .text makeRoomDspFloorNoTbl__15dMap_RoomInfo_cFi */
 BOOL dMap_RoomInfo_c::makeRoomDspFloorNoTbl(int i_roomNo) {
-    /* Nonmatching */
     dStage_FloorInfo_c* floor = getFloorInfo_WithRoom(i_roomNo);
+    u8 floorNo;
     for (int i = 0; i < ARRAY_SIZE(field_0x2); i++) {
         field_0x2[i] = -1;
     }
     if (floor) {
         dStage_FloorInfo_dt_c* floorData = floor->m_entries;
         for (int i = 0; i < floor->num; i++, floorData++) {
-            u8 floorNo = floorData->floorNo;
+            floorNo = floorData->floorNo;
             if (IsFloorNo(floorNo)) {
                 for (int j = 0; j < int(ARRAY_SIZE(floorData->field_0x05)); j++) {
                     if (i_roomNo == floorData->field_0x05[j]) {
