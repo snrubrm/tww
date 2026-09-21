@@ -31,7 +31,7 @@ public:
     void setAnm();
     void setTexAnm();
     void setAttention();
-    BOOL chkAttention();
+    bool chkAttention();
     void lookBack();
     void setMtx();
     void setCollision();

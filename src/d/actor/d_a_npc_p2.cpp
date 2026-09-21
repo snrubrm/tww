@@ -323,16 +323,16 @@ void daNpc_P2_c::setAttention() {
 }
 
 /* 00000B90-00000CEC       .text chkAttention__10daNpc_P2_cFv */
-BOOL daNpc_P2_c::chkAttention() {
+bool daNpc_P2_c::chkAttention() {
     f32 distXZ = fopAcM_searchPlayerDistanceXZ(this);
     s16 maxAttnAngleY = l_HIO.mChild[mType].mNpc.mMaxAttnAngleY;
     s16 lookAngle = current.angle.y + mJnt.getHead_y() + mJnt.getBackbone_y();
 
     if (mType == 1 && (m7C1 != 0 || m7D6 == 0x15) && distXZ < l_HIO.mChild[mType].mNpc.mMaxAttnDistXZ) {
-        return TRUE;
+        return true;
     }
     if (maxAttnAngleY > abs(lookAngle) && distXZ < l_HIO.mChild[mType].mNpc.mMaxAttnDistXZ && dComIfGp_event_runCheck()) {
-        return TRUE;
+        return true;
     }
 
     dAttention_c& attention = dComIfGp_getAttention();
