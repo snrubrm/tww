@@ -2988,7 +2988,6 @@ bool dCamera_c::followCamera(s32 param_1) {
     
 
     cXyz local_314(mWork.follow.m3AC, dVar20, mWork.follow.m3B0);
-    cXyz local_158;
     if (m108 == 0) {
         mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
         mWork.follow.m378 = 'FLLW';
@@ -3025,13 +3024,13 @@ bool dCamera_c::followCamera(s32 param_1) {
                 acStack_4a4.Val(directionOf(mpPlayerActor).Inv());
             }
             else {
-                acStack_4a4.Val(mViewCache.mDirection.V());
+                acStack_4a4.Val(mViewCache.mDirection.U());
             }
             
             cSGlobe cStack_46c(dVar24, cSAngle(dVar28), acStack_4a4);
             cXyz cStack_2fc = cStack_248 + cStack_46c.Xyz();
-            dVar20 = (mEye - cStack_2fc).abs();
-            dVar19 = (mCenter - cStack_248).abs() * 4.0f;
+            dVar20 = cXyz(mEye - cStack_2fc).abs();
+            dVar19 = cXyz(mCenter - cStack_248).abs() * 4.0f;
 
             f32 tmp;
             if (dVar20 > dVar19) {
@@ -3059,10 +3058,9 @@ bool dCamera_c::followCamera(s32 param_1) {
 
     cXyz cStack_260 = relationalPos(mpPlayerActor, &local_314);
     cSAngle acStack_4a8 = directionOf(mpPlayerActor);
-    cSAngle local_4ac = acStack_4a8 - mViewCache.mDirection.V();
+    cSAngle local_4ac = acStack_4a8 - mViewCache.mDirection.U();
     cStack_260.y = getWaterSurfaceHeight(&cStack_260);
     cM3dGPla* plane;
-    cXyz cross;
     if (m100 == 0) {
         if (m31D != 0) {
             dComIfG_Bgsp()->MoveBgMatrixCrrPos(mBG.m5C.m04, true, &mWork.follow.m3C0, NULL, NULL);
@@ -3094,19 +3092,20 @@ bool dCamera_c::followCamera(s32 param_1) {
 
         dVar29 = limitf(mViewCache.mDirection.R(), dVar25, dVar24);
 
-        cSAngle local_4b0 = mViewCache.mDirection.U();
+        cSAngle local_4b0;
+        local_4b0 = mViewCache.mDirection.V();
 
         if (local_4b0 < local_498) {
             local_4b0 = local_498;
         }
 
-        if (local_49c > local_4b0) {
+        if (local_4b0 > local_49c) {
             local_4b0 = local_49c;
         }
         
         cSGlobe local_474(dVar29, local_4b0, cSAngle(mAngleY.Inv()));
         mViewCache.mDirection.R(mViewCache.mDirection.R() + fVar40 * (local_474.R() - mViewCache.mDirection.R()));
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + ((local_474.U() - mViewCache.mDirection.U()) * fVar40));
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + ((local_474.V() - mViewCache.mDirection.V()) * fVar40));
 
         if (chkFlag(0x100000)) {
             mViewCache.mDirection.U(mViewCache.mDirection.U() + ((acStack_4a8.Inv() - mViewCache.mDirection.U()) * fVar40));
@@ -3132,7 +3131,7 @@ bool dCamera_c::followCamera(s32 param_1) {
     fVar37 = mpPlayerActor->current.pos.y;
     fVar37 -= groundHeight(&player_pos);
 
-    if (m360 && (check_owner_action(mPadId, daPyStts0_SWIM_e) || daNpc_kam_c::m_hyoi_kamome == 0 || check_owner_action(mPadId, daPyStts0_UNK200_e))) {
+    if ((m360 || check_owner_action(mPadId, daPyStts0_SWIM_e) || daNpc_kam_c::m_hyoi_kamome) && !check_owner_action(mPadId, daPyStts0_UNK200_e)) {
         mWork.follow.m394 = 0.0f;
         mWork.follow.m388 = 0;
     }
@@ -3145,11 +3144,11 @@ bool dCamera_c::followCamera(s32 param_1) {
         setDMCAngle();
     }
 
-    if ((check_owner_action(mPadId, daPyStts0_UNK2000000_e | daPyStts0_HANG_e | daPyStts0_UNK40_e | daPyStts0_UNK20_e | daPyStts0_UNK1_e) && check_owner_action1(mPadId, daPyStts1_UNK10000_e)) || (local_4ac > cSAngle::_270 && local_4ac < cSAngle::_90)) {
-        mWork.follow.m3EC = dVar23;
+    if ((check_owner_action(mPadId, daPyStts0_UNK2000000_e | daPyStts0_HANG_e | daPyStts0_UNK40_e | daPyStts0_UNK20_e | daPyStts0_UNK1_e) || check_owner_action1(mPadId, daPyStts1_UNK10000_e)) && !(local_4ac > cSAngle::_270 && local_4ac < cSAngle::_90)) {
+        mWork.follow.m3EC = 0.1f;
     }
     else {
-        mWork.follow.m3EC = 0.1f;
+        mWork.follow.m3EC = dVar23;
     }
 
     if (mWork.follow.m388 == 0) {
