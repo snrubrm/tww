@@ -182,10 +182,10 @@ public:
     void getMapDtSize() {}
     void getMap0ScaleX() {}
     void getMap0ScaleZ() {}
-    void getMap1ScaleX() {}
-    void getMap1ScaleZ() {}
-    void getMap1Width() {}
-    void getMap1Height() {}
+    f32 getMap1ScaleX() { return field_0x20; }
+    f32 getMap1ScaleZ() { return field_0x24; }
+    f32 getMap1Width() { return field_0x28; }
+    f32 getMap1Height() { return field_0x2c; }
 
     u8 getEnableFlg() { return field_0x1; }
     int getRoomNo() { return m_no; }

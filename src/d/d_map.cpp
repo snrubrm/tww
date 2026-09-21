@@ -2081,59 +2081,48 @@ void dMap_c::setCollectPoint(u8 param_1, u8 param_2, f32 param_3, f32 param_4, f
 
 /* 8004B33C-8004B814       .text setGbaPoint_dungeon__6dMap_cFUcffsUcUcUcUc */
 void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm6, u8 prm7, u8 prm8) {
-    /* Nonmatching */
-    if (mNowRoomInfoP != NULL) {
-        if (mNowRoomInfoP->getEnableFlg()) {
-            f32 x0 = getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoP());
-            s32 sx = (s32)((x - x0) * mNowRoomInfoP->field_0x20);
-            f32 z0 = getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoP());
-            s32 sz = (s32)((z - z0) * mNowRoomInfoP->field_0x24);
-            s16 scrX = (s16)sx - agbScrollX();
-            s16 scrY = (s16)sz - agbScrollY();
+    u8* ptr;
+    if (mNowRoomInfoP == NULL || !mNowRoomInfoP->getEnableFlg()) {
+        return;
+    }
 
-            if (type != 1) {
-                if (!(u8)isPointStayInDspNowRoomAgbScr(sx, sz)) {
-                    return;
+    {
+        s16 sx = (x - getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoP())) * mNowRoomInfoP->getMap1ScaleX();
+        s16 sz = (z - getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoP())) * mNowRoomInfoP->getMap1ScaleZ();
+        s16 scrX = (s16)(s32)sx - agbScrollX();
+        s16 scrY = (s16)(s32)sz - agbScrollY();
+
+        if (type == 1 || (type != 1 && (u8)isPointStayInDspNowRoomAgbScr(sx, sz))) {
+            if (type == 1 || type == 3 || ((f32)scrX >= -8.0f && (f32)scrX <= 160.0f && (f32)scrY >= -8.0f && (f32)scrY <= 160.0f)) {
+                switch (type) {
+                case 1: {
+                    u8* buf = mAgbSendBuf + 2;
+                    *(u16*)(buf + 0) = mDoLib_cnvind16(sx);
+                    *(u16*)(buf + 2) = mDoLib_cnvind16(sz);
+                    buf[4] = (s16)angle >> 8;
+                    buf[5] = type;
+                    buf[6] = prm5;
+                    buf[7] = prm6;
+                    mAGBPointValueC++;
+                    mAGBPointValueAll++;
+                    mSetCursorFlg |= 1;
+                    break;
                 }
-            }
-
-            if (type != 1 && type != 3) {
-                if (!((f32)scrX >= -8.0f && (f32)scrX <= 160.0f && (f32)scrY >= -8.0f && (f32)scrY <= 160.0f)) {
-                    return;
+                case 3: {
+                    u8* buf = mAgbSendBuf + 0xA;
+                    *(u16*)(buf + 0) = mDoLib_cnvind16(sx);
+                    *(u16*)(buf + 2) = mDoLib_cnvind16(sz);
+                    buf[4] = (s16)angle >> 8;
+                    buf[5] = type;
+                    buf[6] = prm5;
+                    buf[7] = prm6;
+                    mSetCursorFlg |= 2;
+                    mAGBPointValueC++;
+                    mAGBPointValueAll++;
+                    break;
                 }
-            }
-
-            switch (type) {
-            case 1: {
-                u8* buf = mAgbSendBuf;
-                *(u16*)(buf + 2) = mDoLib_cnvind16((u16)sx);
-                *(u16*)(buf + 4) = mDoLib_cnvind16((u16)sz);
-                buf[6] = (s16)angle >> 8;
-                buf[7] = type;
-                buf[8] = prm5;
-                buf[9] = prm6;
-                mAGBPointValueC++;
-                mAGBPointValueAll++;
-                mSetCursorFlg |= 1;
-                break;
-            }
-            case 3: {
-                u8* buf = mAgbSendBuf;
-                *(u16*)(buf + 0xA) = mDoLib_cnvind16((u16)sx);
-                *(u16*)(buf + 0xC) = mDoLib_cnvind16((u16)sz);
-                buf[0xE] = (s16)angle >> 8;
-                buf[0xF] = type;
-                buf[0x10] = prm5;
-                buf[0x11] = prm6;
-                mSetCursorFlg |= 2;
-                mAGBPointValueC++;
-                mAGBPointValueAll++;
-                break;
-            }
-            default:
-                if (type == 0 || type == 0x12 || type >= 0x16) {
-                    JUT_ASSERT(VERSION_SELECT(6661, 6661, 6661, 6661), 0);
-                } else {
+                case 2: case 4: case 5: case 6: case 7: case 8: case 9: case 10: case 11:
+                case 12: case 13: case 14: case 15: case 16: case 17: case 19: case 20: case 21:
                     if (getPosAgbMapType(x, z, true) == 3) {
                         if ((type == 0xE || type == 0xF) && mNowRoomInfoP->getRoomNo() == 0xB) {
                             return;
@@ -2149,21 +2138,24 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
                         return;
                     }
                     if (mAGBPointValueE < 0xE) {
-                        u8* ptr = mAgbSendBuf + (mAGBPointValueE << 3) + 0x12;
-                        *(u16*)(ptr + 0) = mDoLib_cnvind16((u16)sx);
-                        *(u16*)(ptr + 2) = mDoLib_cnvind16((u16)sz);
+                        ptr = mAgbSendBuf + (mAGBPointValueE << 3) + 0x12;
+                        *(u16*)(ptr + 0) = mDoLib_cnvind16(sx);
+                        *(u16*)(ptr + 2) = mDoLib_cnvind16(sz);
                         ptr[4] = (s16)angle >> 8;
                         ptr[5] = type;
                         if (type == 2) {
-                            ptr[5] = (type & 0x3F) | ((prm7 & 3) << 6);
+                            ptr[5] |= (type & 0x3F) | ((prm7 & 3) << 6);
                         }
                         ptr[6] = prm5;
                         ptr[7] = prm6;
                         mAGBPointValueE++;
                     }
                     mAGBPointValueAll++;
+                    break;
+                default:
+                    JUT_ASSERT(VERSION_SELECT(6661, 6661, 6661, 6661), 0);
+                    break;
                 }
-                break;
             }
         }
     }
