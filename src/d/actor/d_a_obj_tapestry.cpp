@@ -1442,7 +1442,7 @@ cPhs_State daObjTapestry_c::_create() {
                 init_cc();
                 set_eye_pos();
                 m1AAA = 0;
-                mEventIdx = dComIfGp_evmng_getEventIdx(NULL, param_get_evId());
+                mEventIdx = dComIfGp_evmng_getEventIdx(NULL, daObj::PrmAbstract(this, PRM_EVID_W, PRM_EVID_S));
                 if (chk_appear()) {
                     m1AB0 = 1.0f;
                     setup_action(0);
