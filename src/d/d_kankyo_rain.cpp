@@ -238,7 +238,6 @@ void dKyr_wind_init() {
 }
 
 /* 8008B504-8008C4BC       .text dKyr_wind_move__Fv */
-// NONMATCHING - some float stuff within the loop
 void dKyr_wind_move() {
     dScnKy_env_light_c& envLight = dKy_getEnvlight();
     WINDEFF_SET* pWind = envLight.mpWind;
@@ -324,7 +323,7 @@ void dKyr_wind_move() {
         }
 
         WIND_EFF& windEff = pWind->mWindEff[i];
-        switch (windEff.mState) {
+        switch (pWind->mWindEff[i].mState) {
         case 4:
             break;
         case 0:
