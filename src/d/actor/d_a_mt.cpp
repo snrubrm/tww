@@ -203,6 +203,12 @@ static BOOL nodeCallBack_head(J3DNode* node, int calcTiming) {
     return TRUE;
 }
 
+// Fakematch? Fixes ~cXyz dtor ordering.
+static void dummy() {
+    cXyz temp;
+    temp.~cXyz();
+}
+
 /* 0000075C-0000098C       .text nodeCallBack_body__FP7J3DNodei */
 static BOOL nodeCallBack_body(J3DNode* node, int calcTiming) {
     if (calcTiming == J3DNodeCBCalcTiming_In) {
