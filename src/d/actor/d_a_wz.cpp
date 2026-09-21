@@ -502,6 +502,7 @@ void fuwafuwa_calc(wz_class* i_this) {
 void weapon_shoot(wz_class* i_this, unsigned char type) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    f32 dx, dy, dz;
     csXyz angle = i_this->shape_angle;
     angle.x = i_this->shape_angle.x;
     angle.y = i_this->shape_angle.y;
@@ -511,9 +512,9 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
 
     switch (type) {
     case 0: {
-        f32 dx = player->current.pos.x - i_this->mRodTipPos.x;
-        f32 dy = 50.0f + player->current.pos.y - i_this->mRodTipPos.y;
-        f32 dz = player->current.pos.z - i_this->mRodTipPos.z;
+        dx = player->current.pos.x - i_this->mRodTipPos.x;
+        dy = 50.0f + player->current.pos.y - i_this->mRodTipPos.y;
+        dz = player->current.pos.z - i_this->mRodTipPos.z;
         angle.x = -cM_atan2s(dy, std::sqrtf(dx * dx + dz * dz));
 
         s16 yawOff = -0xBB8;
@@ -538,9 +539,9 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
         if (i_this->m439 != 0xFF) {
             if (i_this->mpPath != NULL) {
                 cXyz scale = i_this->scale;
-                f32 dx = i_this->mPathTarget.x - i_this->mRodTipPos.x;
-                f32 dy = 300.0f + i_this->mPathTarget.y - i_this->mRodTipPos.y;
-                f32 dz = i_this->mPathTarget.z - i_this->mRodTipPos.z;
+                dx = i_this->mPathTarget.x - i_this->mRodTipPos.x;
+                dy = 300.0f + i_this->mPathTarget.y - i_this->mRodTipPos.y;
+                dz = i_this->mPathTarget.z - i_this->mRodTipPos.z;
                 angle.x = -cM_atan2s(dy, std::sqrtf(dx * dx + dz * dz));
                 angle.y = cM_atan2s(dx, dz);
                 scale.setall(1.0f);
