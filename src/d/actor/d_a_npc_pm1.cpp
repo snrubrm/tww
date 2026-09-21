@@ -9,9 +9,31 @@
 #include "d/d_demo.h"
 #include "f_op/f_op_actor_mng.h"
 #include "res/Object/Pm.h"
-// Nonmatching - the inherited NPC virtual functions are emitted before the final helpers.
+
+class daNpc_Pm1_HIO_c : public JORReflexible {
+public:
+    struct hio_prm_c {
+        s16 mMaxHeadX, mMaxHeadY;
+        s16 mMinHeadX, mMinHeadY;
+        s16 mMaxBackboneX, mMaxBackboneY;
+        s16 mMinBackboneX, mMinBackboneY;
+        s16 mMaxTurnStep, mTurnSpeed;
+        f32 mAttentionYOffset, mUnused;
+    };
+    daNpc_Pm1_HIO_c();
+    virtual ~daNpc_Pm1_HIO_c() {}
+    void genMessage(JORMContext*) {}
+
+public:
+    s8 mNo;
+    int mCount;
+    hio_prm_c mPrm;
+};
+
 static daNpc_Pm1_HIO_c l_HIO;
-/* 000000EC-00000144       .text __ct__15daNpc_Pm1_HIO_cFv */daNpc_Pm1_HIO_c::daNpc_Pm1_HIO_c() {
+
+/* 000000EC-00000144       .text __ct__15daNpc_Pm1_HIO_cFv */
+daNpc_Pm1_HIO_c::daNpc_Pm1_HIO_c() {
     static hio_prm_c a_prm_tbl = {
         0x1FFE, 0x38E0, (s16)0xE002, (s16)0xC720,
         0, 0, 0, 0, 0x800, 0x800, 150.0f, 0.0f,
