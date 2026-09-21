@@ -883,7 +883,7 @@ config.libs = [
             Object(Matching,    "JSystem/JAudio/JASBankMgr.cpp"),
             Object(Matching,    "JSystem/JAudio/JASAudioThread.cpp"),
             Object(Matching,    "JSystem/JAudio/JASDSPBuf.cpp"),
-            Object(NonMatching, "JSystem/JAudio/JASDSPChannel.cpp"),
+            Object(MatchingFor("GZLE01"), "JSystem/JAudio/JASDSPChannel.cpp"),
             Object(Matching,    "JSystem/JAudio/JASDSPInterface.cpp"),
             Object(Matching,    "JSystem/JAudio/JASDriverIF.cpp"),
             Object(Matching,    "JSystem/JAudio/JASChGlobal.cpp"),
