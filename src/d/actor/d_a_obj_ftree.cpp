@@ -713,7 +713,7 @@ void daObjFtree::Act_c::action_pikupikuL_main() {
 BOOL daObjFtree::Act_c::action_changeSL_init(s16) {
     mModelS = 1;
     mModelL = 0;
-    J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BRK_VMRMZ_e);
+    J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BRK_VMRMZ_e));
     if (brk != NULL) {
         if (mBrkAnm.init(mpMorf->getModel()->getModelData(), brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, 0)) {
             if (SetJointAnimation(dRes_INDEX_VMR_BCK_VMRMZ_e, 1.0f, 10.0f, 0)) {
