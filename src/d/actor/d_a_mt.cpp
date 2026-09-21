@@ -267,6 +267,9 @@ static BOOL nodeCallBack_tail(J3DNode* node, int calcTiming) {
 /* 00000B28-0000171C       .text body_control2__FP8mt_class */
 void body_control2(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
+    int i;
+    s16 angX;
+    s16 angY;
     f32 dy;
     f32 y;
     f32 inertia = i_this->m18F4;
@@ -289,7 +292,7 @@ void body_control2(mt_class* i_this) {
     wave.y = 0.0f;
     wave.z = 0.0f;
 
-    for (int i = 0; i < 8; i++, p4A0++, p560++, p590++, p500++) {
+    for (i = 0; i < 8; i++, p4A0++, p560++, p590++, p500++) {
         if (i > 0) {
             u8 hit = 0;
             start = *p4A0;
@@ -342,9 +345,9 @@ void body_control2(mt_class* i_this) {
             f32 dx = wave.x + (p590->x + (p4A0->x - p4A0[-1].x));
             f32 dz = wave.z + (p590->z + (p4A0->z - p4A0[-1].z));
 
-            int angY = (s16)cM_atan2s(dx, dz);
+            angY = (s16)cM_atan2s(dx, dz);
             f32 dist = std::sqrtf(dx * dx + dz * dz);
-            int angX = (s16)-cM_atan2s(dy, dist);
+            angX = -cM_atan2s(dy, dist);
 
             offset.x = 0.0f;
             offset.y = 0.0f;
