@@ -1149,15 +1149,11 @@ void daObj_Search::Act_c::set_moveBG_mtx_light_B() {
 
 /* 80101D30-80101D94       .text bg_check__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::bg_check() {
-    if (fopAcM_searchActorDistance(this, dComIfGp_getPlayer(0)) > 2000.0f) {
-    } else {
-        switch ((u32)mCullBase) {
-        case 0:
-            set_moveBG_mtx_light_A();
-            set_moveBG_mtx_light_B();
-            break;
-        }
+    if (fopAcM_searchActorDistance(this, dComIfGp_getPlayer(0)) > 2000.0f || mCullBase != 0) {
+        return;
     }
+    set_moveBG_mtx_light_A();
+    set_moveBG_mtx_light_B();
 }
 
 /* 80101D94-8010234C       .text player_check__Q212daObj_Search5Act_cFv */
