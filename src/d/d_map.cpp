@@ -1378,19 +1378,17 @@ void dMap_c::mapAGBSendIslandData() {
         return;
     }
 
+    u8 yb;
+    FmapChkPnt* src;
     u8* dst = mAgbSendBufIsland;
-    int i = 0;
-    int offs = 0;
-    u8 chkValue = mFmapChkPntValue;
-    for (; i < 49; i++, offs += 8, dst += 4) {
-        if (i < chkValue) {
-            FmapChkPnt* src = (FmapChkPnt*)((u8*)mFmapChkPntData_p + offs);
-            u8 yb = 255.0f * ((50000.0f + (f32)src->field_0x4) / 100000.0f);
+    for (int i = 0; i < 49; i++, dst += 4) {
+        if (i < mFmapChkPntValue) {
+            src = &mFmapChkPntData_p[i];
+            yb = 255.0f * ((50000.0f + (f32)src->field_0x4) / 100000.0f);
             u8 prm = src->field_0x6;
             s8 gx = src->mSectorX;
             s8 gy = src->mSectorY;
-            int grid = gx + (gy + 3) * 7;
-            grid += 3;
+            u8 grid = gx + 3 + (gy + 3) * 7;
             s16 xraw = src->field_0x2;
             u8 xb = 255.0f * ((50000.0f + (f32)xraw) / 100000.0f);
             dst[0] = xb;
