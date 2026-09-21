@@ -1094,24 +1094,18 @@ void daGy_c::modeDeleteBomb() {
     }
 
     if (mPrmIdx == 9) {
-        f32 f2 = m4E4;
-        if (f2 >= l_HIO.m16C - 10.0f) {
-            daGy_HIO_c* hio = &l_HIO;
+        if (m4E4 >= l_HIO.m16C - 10.0f) {
             if ((f32)m8EC == -1.0f) {
-                m8EC = hio->m164;
+                m8EC = l_HIO.m164;
             }
             m4EC = l_HIO.m178;
             m918 = l_HIO.m17C;
         }
 
-        {
-            f32 f4 = m4E4, f1 = 10.0f, f3 = l_HIO.m16C, f2 = l_HIO.m170;
-            f32 f5 = f3 - f2;
-            if (f4 <= f1 + f5) {
-                m4E8 = f3 + f2;
-            } else if (f4 >= (f3 + f2) - f1) {
-                m4E8 = f5;
-            }
+        if (m4E4 <= 10.0f + (l_HIO.m16C - l_HIO.m170)) {
+            m4E8 = l_HIO.m16C + l_HIO.m170;
+        } else if (m4E4 >= (l_HIO.m16C + l_HIO.m170) - 10.0f) {
+            m4E8 = l_HIO.m16C - l_HIO.m170;
         }
 
         if ((f32)m8EC != -1.0f) {
