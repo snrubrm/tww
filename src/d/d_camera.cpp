@@ -1078,7 +1078,7 @@ bool dCamera_c::Run() {
     if (mCenter.x == mEye.x && mCenter.z == mEye.z) {
         mUp.set(0.01f, 1.0f, 0.0f);
     }
-    else if (mDirection.V() > cSAngle(-90.0f) && mDirection.V() < cSAngle(90.0f)) {
+    else if (mDirection.V() >= cSAngle(-90.0f) && mDirection.V() <= cSAngle(90.0f)) {
         mUp.set(0.0f, 1.0f, 0.0f);
     }
     else {
@@ -1096,13 +1096,8 @@ bool dCamera_c::Run() {
     }
 
     m258 = m254;
-    bool r3 = FALSE;
-    m254 = FALSE;    
-    
-    if (m100 && m101 && m102) { // Also Inline?
-        r3 = TRUE;
-    }
-
+    m254 = FALSE;
+    bool r3 = m100 && m101 && m102;
     if (r3) {
         setComStat(dCamAttnStts_00000010_e);
     }
