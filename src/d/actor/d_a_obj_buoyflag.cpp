@@ -193,7 +193,6 @@ void daObjBuoyflag::Packet_c::hasi_nrm_init() {
 
 /* 000001F8-00000744       .text draw_hata__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
 void daObjBuoyflag::Packet_c::draw_hata(Act_c* actor) {
-    // USA: texture setup instruction scheduling differs.
     dKy_tevstr_c* tev = &actor->tevStr;
     DrawVtx_c* draw = &mDraw[mBuffer];
     u8* texture = &Khata::l_k_hata01TEX[actor->prm_get_texture() * 0x800];
@@ -216,7 +215,8 @@ void daObjBuoyflag::Packet_c::draw_hata(Act_c* actor) {
     GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
     GXLoadTexObj(&texObj, GX_TEXMAP0);
     ResTIMG* texInfo = (ResTIMG*)dComIfG_getObjectRes(L_arcname, dRes_INDEX_CLOTH_BTI_CLOTHTOON_e);
-    void* image = (u8*)texInfo + texInfo->imageOffset;
+    u8* image = (u8*)texInfo;
+    image += texInfo->imageOffset;
     GXInitTexObj(&texObj, image, texInfo->width, texInfo->height,
         GXTexFmt(texInfo->format), GXTexWrapMode(texInfo->wrapS), GXTexWrapMode(texInfo->wrapT), GXBool(texInfo->mipmapCount > 1));
     GXInitTexObjLOD(&texObj, GXTexFilter(texInfo->minFilter), GXTexFilter(texInfo->magFilter),
