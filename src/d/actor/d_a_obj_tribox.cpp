@@ -953,7 +953,7 @@ bool daObjTribox::Act_c::_draw() {
             }
         }
         if (mLightState != 0) {
-            dComIfGd_setListFilter();
+            dComIfGd_setListP1();
             mDoExt_modelUpdateDL(mpYtfbl);
             dComIfGd_setList();
         }
