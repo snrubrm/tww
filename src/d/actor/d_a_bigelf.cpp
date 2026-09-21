@@ -1102,9 +1102,11 @@ cPhs_State daBigelf_c::_create() {
     fopAcM_SetupActor(this, daBigelf_c);
     cPhs_State phase_state = dComIfG_resLoad(&mPhase, "bigelf");
     if (phase_state == cPhs_COMPLEATE_e) {
-        if (fopAcM_GetName(this) == fpcNm_BIGELF_e) {
+        switch (fopAcM_GetName(this)) {
+        case fpcNm_BIGELF_e:
             mNpcType = 0;
-        } else {
+            break;
+        default:
             return cPhs_ERROR_e;
         }
         if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0xB7B0)) {
