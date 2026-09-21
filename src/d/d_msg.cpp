@@ -1580,26 +1580,30 @@ void dMsg_subTextScale(sub_msg_class* i_Msg, f32 param_2) {
     }
 }
 
+static inline f32 dMsg_subTextSelHeight(sub_msg_class* i_Msg) {
+    f32 height;
+    int lineSpace = (int)((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace();
+    if (i_Msg->mStatus == fopMsgStts_SELECT_2_e) {
+        height = lineSpace + i_Msg->m110C;
+    } else if (i_Msg->mStatus == fopMsgStts_SELECT_3_e) {
+        height = i_Msg->m110C + lineSpace * 2;
+    }
+    return height;
+}
+
 /* 80210FF8-8021172C       .text dMsg_subTextSizeSet__FP13sub_msg_class */
 void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
-    /* Nonmatching */
     f32 fVar1;
     f32 fVar2;
     f32 fVar3;
     f32 fVar5;
     int uVar6;
-    int iVar7;
     f32 dVar11;
     f32 local_78;
     f32 local_68;
     f32 posY;
 
-    iVar7 = (int)((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace();
-    if (i_Msg->mStatus == fopMsgStts_SELECT_2_e) {
-        local_78 = iVar7 + i_Msg->m110C;
-    } else if (i_Msg->mStatus == fopMsgStts_SELECT_3_e) {
-        local_78 = i_Msg->m110C + iVar7 * 2;
-    }
+    local_78 = dMsg_subTextSelHeight(i_Msg);
     posY = i_Msg->m049C.mPosCenter.y;
     if (posY >= 240.0f) {
         posY = (int)g_msgHIO.field_0x7c + (posY - i_Msg->m049C.mSize.y / 2.0f);
