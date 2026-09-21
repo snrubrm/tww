@@ -546,10 +546,9 @@ void dMsg2_setCharAlpha(sub_msg2_class* i_Msg, u8 i_index) {
     f32 temp_f2 = temp_f1 + i_Msg->text_pane[var_r31].mPosTopLeft.y + (i_Msg->field_0xeb0 * (2 - i_Msg->field_0xecc[i_index]));
 
     int var_r27 = (int)temp_f2;
-    int temp_r5 = temp_r6 * i_Msg->field_0xecc[i_index];
-    int var_r26 = var_r27 + temp_r5;
+    int var_r26 = var_r27 + temp_r6 * i_Msg->field_0xecc[i_index];
     int var_r30 = (int)(temp_f2 - g_messageHIO.field_0x38);
-    int var_r29 = var_r30 + temp_r5;
+    int var_r29 = var_r30 + temp_r6 * i_Msg->field_0xecc[i_index];
 
     if (var_r26 < 58) {
         int temp_r3 = var_r26 + i_Msg->mx->getHeight();
