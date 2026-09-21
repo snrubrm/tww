@@ -482,7 +482,8 @@ BOOL head_atari_check(bo_class* i_this) {
         actor->attention_info.flags = 0;
         i_this->m2D0 = 3;
         {
-            u32 params = (i_this->m2C1 << 8) | 1;
+            u32 params = 1;
+            params |= i_this->m2C1 << 8;
             fopAcM_create(fpcNm_BO_e, params, &i_this->current.pos, fopAcM_GetRoomNo(i_this), &i_this->current.angle, &i_this->scale, 0);
         }
         break;
