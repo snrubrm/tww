@@ -51,6 +51,27 @@ static dCcD_SrcCyl l_cyl_src = {
 STATIC_ASSERT(sizeof(daNpc_Bms1_c) == 0x8A8);
 static fpc_ProcID l_msgId;
 static msg_class* l_msg;
+
+class daNpc_Bms1_childHIO_c : public JORReflexible {
+public:
+    daNpc_Bms1_childHIO_c();
+    virtual ~daNpc_Bms1_childHIO_c() {}
+    void genMessage(JORMContext*) {}
+    dNpc_HIO_c mNpc;
+    f32 mCursorScale, mCursor48, mCursor4C, mCursor50, mCursor38;
+    f32 mSpring, mDamping, mBlend, mStretch;
+};
+
+class daNpc_Bms1_HIO_c : public JORReflexible {
+public:
+    daNpc_Bms1_HIO_c();
+    virtual ~daNpc_Bms1_HIO_c() {}
+    void genMessage(JORMContext*) {}
+    s8 m04;
+    s32 m08;
+    daNpc_Bms1_childHIO_c mChild[1];
+};
+
 static daNpc_Bms1_HIO_c l_HIO;
 char daNpc_Bms1_c::m_arcname[] = "Bms";
 daNpc_Bms1_childHIO_c::daNpc_Bms1_childHIO_c() {
