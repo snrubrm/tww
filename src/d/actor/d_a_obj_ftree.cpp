@@ -456,12 +456,8 @@ void daObjFtree::Act_c::set_tev_color(J3DModelData* mdl, unsigned long idx, s16 
 
 /* 00001070-000010F0       .text is_broughtID__10daObjFtreeFi */
 BOOL daObjFtree::is_broughtID(int id) {
-    u8 ret = TRUE;
-    if (((dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) >> (id & 7)) & 1) == 0 &&
-        !dComIfGs_isEventBit(dSv_event_flag_c::UNK_0102))
-    {
-        ret = FALSE;
-    }
+    bool ret = ((dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) >> (id & 7)) & 1) ||
+               dComIfGs_isEventBit(dSv_event_flag_c::UNK_0102);
     return ret;
 }
 
