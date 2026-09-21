@@ -267,7 +267,7 @@ BOOL dDlst_StarterScrnDraw_c::anime2() {
     BOOL rt = FALSE;
 
     s16 var_r30 = cdFrame4;
-    s16 var_r31 = var_r30 + cdFrame5;
+    int var_r31 = (s16)(var_r30 + cdFrame5);
     s16 temp_r6 = var_r31 + cdFrame6;
     s16 var_r27 = temp_r6 + cdFrame7;
     s16 temp_r7 = var_r27 + cdFrame8;
