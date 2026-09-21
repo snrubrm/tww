@@ -654,11 +654,11 @@ void daObjTribox::Act_c::mode_block_walk_init() {
 
 /* 0000262C-00002B34       .text mode_block_walk__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::mode_block_walk() {
-    bool done = --mTimer == 0;
+    bool done = --mTimer <= 0;
 
     f32 c = (f32)cos(0.157079637f * mTimer);
-    f32 home_rad = 9.58738019e-5f * home.angle.y;
-    f32 rot0 = 1.04719758f * mWalkRot + home_rad;
+    f32 rot0 = 9.58738019e-5f * home.angle.y;
+    rot0 = 1.04719758f * mWalkRot + rot0;
     f32 rot1 = 1.04719758f * ((f32)mSign * (0.5f * (1.0f + c)));
 
     MTXRotRad(mDoMtx_stack_c::now, 'Y', rot0);
@@ -689,8 +689,9 @@ void daObjTribox::Act_c::mode_block_walk() {
         cXyz p(current.pos.x, current.pos.y + 50.0f, current.pos.z);
         gndChk.SetPos(&p);
         dComIfG_Bgsp()->GroundCross(&gndChk);
+        int idx = gndChk.GetBgIndex();
         u32 mapinfo = 0;
-        if (gndChk.GetBgIndex() >= 0 && gndChk.GetBgIndex() < 0x100) {
+        if (idx >= 0 && idx < 0x100) {
             mapinfo = dComIfG_Bgsp()->GetMtrlSndId(gndChk);
         }
         mDoAud_seStart(JA_SE_LK_MOVE_ROCK, &eyePos, mapinfo, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
