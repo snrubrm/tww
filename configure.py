@@ -648,7 +648,7 @@ config.libs = [
             Object(Matching,    "d/d_menu_option.cpp"),
             Object(Matching,    "d/d_menu_save.cpp"),
             Object(MatchingFor("GZLE01"), "d/d_menu_window.cpp"),
-            Object(NonMatching, "d/d_mesg.cpp"),
+            Object(MatchingFor("GZLE01"), "d/d_mesg.cpp"),
             Object(NonMatching, "d/d_message.cpp"),
             Object(NonMatching, "d/d_message_paper.cpp"),
             Object(NonMatching, "d/d_meter.cpp"),
