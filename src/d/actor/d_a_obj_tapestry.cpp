@@ -835,8 +835,8 @@ void daObjTapestryPacket_c::calc_wind() {
         mPhase[1] += 0x46D;
         mPhase[2] += 0x32B;
         m13F8 = s0 * ((1.0f + cM_ssin(mPhase[0])) * attr().m1C);
-        m1404 = s1 * ((1.0f + cM_ssin(mPhase[1])) * attr().m1C);
-        m1410 = s2 * ((1.0f + cM_ssin(mPhase[2])) * attr().m1C);
+        m1404 = s1 * ((1.0f + cM_ssin(mPhase[1])) * attr().m20);
+        m1410 = s2 * ((1.0f + cM_ssin(mPhase[2])) * attr().m24);
     }
 }
 
