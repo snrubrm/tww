@@ -1212,7 +1212,6 @@ bool dCamera_c::Draw() {
 
 /* 8016418C-80164898       .text nextMode__9dCamera_cFl */
 int dCamera_c::nextMode(s32 i_curMode) {
-    /* Nonmatching - regswap related to check_owner_action/check_owner_action1 */
     dAttention_c& attn = dComIfGp_getAttention();
     s32 next_mode = i_curMode;
     cXyz player_pos = positionOf(mpPlayerActor);
@@ -1303,7 +1302,7 @@ int dCamera_c::nextMode(s32 i_curMode) {
         if (i_curMode == 12 && m144 != 0) {
             next_mode = 0;
         }
-        else if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_TELESCOPE_LOOK_e) != 0 || check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
+        else if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_TELESCOPE_LOOK_e) != 0 || dComIfGp_checkPlayerStatus1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
             next_mode = 0xe;
         }
         else if (check_owner_action(mPadId, daPyStts0_UNK80000000_e | daPyStts0_UNK80_e)) {
@@ -1317,7 +1316,7 @@ int dCamera_c::nextMode(s32 i_curMode) {
                 next_mode = 0x12;
             }
         }
-        else if (check_owner_action1(mPadId, daPyStts1_UNK10_e)) {
+        else if (dComIfGp_checkPlayerStatus1(mPadId, daPyStts1_UNK10_e)) {
             next_mode = 0xf;
         }
         else if (check_owner_action(mPadId, daPyStts0_SUBJECT_e)) {
