@@ -3003,12 +3003,10 @@ void dMenu_Collect_c::itemnameSet() {
 
 /* 801A36AC-801A42D0       .text itemnoteSet__15dMenu_Collect_cFv */
 void dMenu_Collect_c::itemnoteSet() {
-    /* Nonmatching - regswap */
     fopMsgM_itemMsgGet_c msgGet;
     int triforceCount;
     u32 msgNo;
-    J2DPicture* pic;
-    
+
     msgNo = 0;
     triforceCount = 0;
 
@@ -3298,21 +3296,7 @@ void dMenu_Collect_c::itemnoteSet() {
 
                 fopMsgM_blendDraw(&m0B0[m27E0], "font_10.bti");
 
-                pic = (J2DPicture*)m0B0[m27E0].pane;
-
-                pic->setBlendColorRatio(
-                    0.0f,
-                    1.0f,
-                    1.0f,
-                    1.0f
-                );
-
-                pic->setBlendAlphaRatio(
-                    0.0f,
-                    1.0f,
-                    1.0f,
-                    1.0f
-                );
+                ((J2DPicture*)m0B0[m27E0].pane)->setBlendRatio(0.0f, 1.0f, 1.0f, 1.0f);
 
                 if (mNowItem == 0x12) {
                     if (dComIfGs_isCollect(4, 1)) {
