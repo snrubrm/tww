@@ -1334,15 +1334,15 @@ void daNpc_Kk1_c::event_proc(int staff) {
         case 2:
             eventInfo.setEventId(-1);
             switch (mCurrMsgNo) {
+            case 0x1C9A:
+                mOrder = 10;
+                m81E = 0;
+                m7C4 = 1;
+                break;
             case 0x1C98:
             case 0x1C9C:
                 mOrder = 7;
                 m81E = 1;
-                m7C4 = 1;
-                break;
-            case 0x1C9A:
-                mOrder = 10;
-                m81E = 0;
                 m7C4 = 1;
                 break;
             case 0x1C9F:
