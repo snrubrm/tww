@@ -6891,9 +6891,10 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
 
     for (s32 i = 0; i < 4; i++) {
         if (i_Meter->field_0x2e10[i].mUserArea == 1) {
-            iVar6 = i_Meter->field_0x3025;
-            if (iVar6 > 0x14) {
-                iVar6 = iVar6 - 0x14;
+            if (i_Meter->field_0x3025 > 0x14) {
+                iVar6 = i_Meter->field_0x3025 - 0x14;
+            } else {
+                iVar6 = i_Meter->field_0x3025;
             }
             dVar7 = fopMsgM_valueIncrease(10, iVar6, 0);
             transVal = (dVar7 * (trans[1] - trans[0])) + trans[0];
@@ -6914,9 +6915,9 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
                 i_Meter->field_0x2e10[i].mUserArea = 2;
             }
         } else if (i_Meter->field_0x2e10[i].mUserArea == 2) {
-            s8 t = i_Meter->field_0x3025;
-            if (t <= 0x14) {
-                dVar7 = fopMsgM_valueIncrease(10, (s16)(t - 10), 0);
+            if (i_Meter->field_0x3025 <= 0x14) {
+                iVar6 = i_Meter->field_0x3025 - 10;
+                dVar7 = fopMsgM_valueIncrease(10, iVar6, 0);
                 transVal = (dVar7 * (trans[2] - trans[1])) + trans[1];
                 scaleVal = (dVar7 * (scale[2] - scale[1])) + scale[1];
                 dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
@@ -6931,7 +6932,8 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
                 ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setBlack(color1);
                 ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setWhite(color2);
             } else {
-                dVar7 = fopMsgM_valueIncrease(10, (s16)(t - 0x14), 0);
+                iVar6 = i_Meter->field_0x3025 - 0x14;
+                dVar7 = fopMsgM_valueIncrease(10, iVar6, 0);
                 transVal = (dVar7 * (trans[3] - trans[2])) + trans[2];
                 scaleVal = (dVar7 * (scale[3] - scale[2])) + scale[2];
                 dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
