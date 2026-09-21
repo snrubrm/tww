@@ -76,15 +76,5 @@ public:
     /* 0x746 */ s8 mActionState;
 };
 
-class daNpc_Sarace_HIO_c : public JORReflexible {
-public:
-    daNpc_Sarace_HIO_c();
-    virtual ~daNpc_Sarace_HIO_c() {}
-    void genMessage(JORMContext*) {}
-    s8 mNo;
-    dNpc_HIO_c mPrm;
-    f32 mTalkMorf;
-    f32 mOtherMorf;
-};
 STATIC_ASSERT(sizeof(daNpc_Sarace_c) == 0x748);
 #endif /* D_A_NPC_SARACE_H */

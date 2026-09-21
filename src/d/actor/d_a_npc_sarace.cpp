@@ -13,6 +13,17 @@
 #include "f_op/f_op_actor_mng.h"
 #include "res/Object/Sarace.h"
 
+class daNpc_Sarace_HIO_c : public JORReflexible {
+public:
+    daNpc_Sarace_HIO_c();
+    virtual ~daNpc_Sarace_HIO_c() {}
+    void genMessage(JORMContext*) {}
+    s8 mNo;
+    dNpc_HIO_c mPrm;
+    f32 mTalkMorf;
+    f32 mOtherMorf;
+};
+
 static daNpc_Sarace_HIO_c l_HIO;
 
 static dCcD_SrcCyl l_cyl_src = {
