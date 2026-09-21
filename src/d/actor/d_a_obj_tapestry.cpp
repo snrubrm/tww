@@ -410,17 +410,8 @@ void daObjTapestryFireEff_c::execute(JPABaseEmitter* emitter) {
     f32 lim = b.m50;
     daObjTapestry_Attr_c c = a;
     cXyz vel = mSpd * c.m4C;
-    f32 nlim = -lim;
-    f32 x = vel.x;
-    if (x < nlim) {
-        x = nlim;
-    } else if (x > lim) {
-        x = lim;
-    }
-    vel.x = x;
-    f32 z = vel.z;
-    z = (z < nlim) ? nlim : (z > lim ? lim : z);
-    vel.z = z;
+    vel.x = cLib_minMaxLimit<f32>(vel.x, -lim, lim);
+    vel.z = cLib_minMaxLimit<f32>(vel.z, -lim, lim);
     emitter->setDirection(JGeometry::TVec3<f32>(vel.x, 0.1f, vel.z));
     dPa_followEcallBack::execute(emitter);
 }
