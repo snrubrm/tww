@@ -465,6 +465,7 @@ void dPa_smokePcallBack::execute(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
 
 /* 8007BCB4-8007C380       .text draw__18dPa_smokePcallBackFP14JPABaseEmitterP15JPABaseParticle */
 void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
+    f32 pz;
     JGeometry::TVec3<f32> pos;
     ptcl->getGlobalPosition(pos);
     JPADrawParams* params = ptcl->getDrawParamPPtr();
@@ -475,7 +476,7 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     f32 pivotX = emtr->getPivotX();
     f32 x0 = width * pivotX;
     x0 = -(0.5f * x0);
-    f32 x1 = width + x0;
+    f32 x1 = x0 + width;
     f32 pivotY = emtr->getPivotY();
     f32 y1 = height * pivotY;
     y1 = -(0.5f * y1);
@@ -488,7 +489,7 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     c0x += pos.x;
     f32 c0y = cos * y0 + sin * x0;
     c0y += pos.y;
-    f32 pz = pos.z;
+    pz = pos.z;
     f32 c1x = (cos * x1 - sin * y0) + pos.x;
     f32 c1y = (cos * y0 + sin * x1) + pos.y;
     f32 c2x = (cos * x1 - sin * y1) + pos.x;
@@ -496,86 +497,40 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     f32 c3x = (cos * x0 - sin * y1) + pos.x;
     f32 c3y = (cos * y1 + sin * x0) + pos.y;
 
-    f32 ncx = drawMtx[0][3] - pos.x;
-    f32 ncy = drawMtx[1][3] - pos.y;
-    f32 ncz = drawMtx[2][3] - pz;
-    f32 n0x = c0x - pos.x;
-    f32 n0y = c0y - pos.y;
-    f32 n0z = pz - pz;
-    f32 n1x = c1x - pos.x;
-    f32 n1y = c1y - pos.y;
-    f32 n1z = n0z;
-    f32 n2x = c2x - pos.x;
-    f32 n2y = c2y - pos.y;
-    f32 n2z = n0z;
-    f32 n3x = c3x - pos.x;
-    f32 n3y = c3y - pos.y;
-    f32 n3z = n0z;
-
-    f32 sq = ncz * ncz + (ncx * ncx + ncy * ncy);
-    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
-    } else {
-        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
-        ncx *= n;
-        ncy *= n;
-        ncz *= n;
-    }
-    sq = n0z * n0z + (n0x * n0x + n0y * n0y);
-    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
-    } else {
-        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
-        n0x *= n;
-        n0y *= n;
-        n0z *= n;
-    }
-    sq = n1z * n1z + (n1x * n1x + n1y * n1y);
-    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
-    } else {
-        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
-        n1x *= n;
-        n1y *= n;
-        n1z *= n;
-    }
-    sq = n2z * n2z + (n2x * n2x + n2y * n2y);
-    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
-    } else {
-        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
-        n2x *= n;
-        n2y *= n;
-        n2z *= n;
-    }
-    sq = n3z * n3z + (n3x * n3x + n3y * n3y);
-    if (sq <= JGeometry::TUtil<f32>::epsilon()) {
-    } else {
-        f32 n = JGeometry::TUtil<f32>::inv_sqrt(sq);
-        n3x *= n;
-        n3y *= n;
-        n3z *= n;
-    }
+    JGeometry::TVec3<f32> nc(drawMtx[0][3] - pos.x, drawMtx[1][3] - pos.y, drawMtx[2][3] - pz);
+    JGeometry::TVec3<f32> n0(c0x - pos.x, c0y - pos.y, pz - pz);
+    JGeometry::TVec3<f32> n1(c1x - pos.x, c1y - pos.y, n0.z);
+    JGeometry::TVec3<f32> n2(c2x - pos.x, c2y - pos.y, n0.z);
+    JGeometry::TVec3<f32> n3(c3x - pos.x, c3y - pos.y, n0.z);
+    nc.normalize();
+    n0.normalize();
+    n1.normalize();
+    n2.normalize();
+    n3.normalize();
 
     GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, 6);
-    GXPosition3f32(pos.x, pos.y, pz);
-    GXNormal3f32(ncx, ncy, ncz);
+    GXPosition3f32(pos.x, pos.y, pos.z);
+    GXNormal3f32(nc.x, nc.y, nc.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.5f, 0.5f);
     GXPosition3f32(c0x, c0y, pz);
-    GXNormal3f32(n0x, n0y, n0z);
+    GXNormal3f32(n0.x, n0.y, n0.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 0.0f);
     GXPosition3f32(c1x, c1y, pz);
-    GXNormal3f32(n1x, n1y, n1z);
+    GXNormal3f32(n1.x, n1.y, n1.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(1.0f, 0.0f);
     GXPosition3f32(c2x, c2y, pz);
-    GXNormal3f32(n2x, n2y, n2z);
+    GXNormal3f32(n2.x, n2.y, n2.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(1.0f, 1.0f);
     GXPosition3f32(c3x, c3y, pz);
-    GXNormal3f32(n3x, n3y, n3z);
+    GXNormal3f32(n3.x, n3.y, n3.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 1.0f);
     GXPosition3f32(c0x, c0y, pz);
-    GXNormal3f32(n0x, n0y, n0z);
+    GXNormal3f32(n0.x, n0.y, n0.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 0.0f);
     ptcl->setInvisibleParticleFlag();
