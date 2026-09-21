@@ -1112,9 +1112,9 @@ void daNpc_Kk1_c::cut_init_PLYER_MOV(int) {
     } else {
         cXyz dst;
         cXyz offset(0.0f, 0.0f, 0.0f);
-        int rot = diff > 0 ? 0x2800 : -0x2800;
+        diff = diff > 0 ? 0x2800 : -0x2800;
         mDoMtx_stack_c::transS(current.pos);
-        mDoMtx_stack_c::YrotM(current.angle.y + rot);
+        mDoMtx_stack_c::YrotM(current.angle.y + diff);
         offset.z = 150.0f;
         mDoMtx_stack_c::multVec(&offset, &dst);
         dComIfGp_evmng_setGoal(&dst);
