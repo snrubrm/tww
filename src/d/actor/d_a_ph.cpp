@@ -747,14 +747,14 @@ BOOL sea_water_check(ph_class* i_this, unsigned char param) {
     fopAc_ac_c* actor = i_this;
     u8 inWater = 0;
     u8 inSea = 0;
+    f32 bob;
 
     i_this->m05BC = actor->current.pos;
     i_this->m05BC.y = i_this->m032C.y;
     i_this->m05BC += i_this->m02E4;
 
     if (param == 0 || param == 2) {
-        f32 g = actor->gravity;
-        if (g == 0.0f) {
+        if (!actor->gravity) {
             actor->gravity = -5.0f;
         }
     }
@@ -778,7 +778,7 @@ BOOL sea_water_check(ph_class* i_this, unsigned char param) {
                     actor->speed.setall(0.0f);
                 }
                 i_this->m0370 += 0x3E8;
-                f32 bob = 2.0f + 2.0f * cM_ssin(i_this->m0370);
+                bob = 2.0f + 2.0f * cM_ssin(i_this->m0370);
                 cLib_addCalc2(&actor->current.pos.y, waveY - bob, 1.0f, i_this->m0398);
                 cLib_addCalc2(&i_this->m0398, 100.0f, 1.0f, 30.0f);
             }
@@ -788,7 +788,7 @@ BOOL sea_water_check(ph_class* i_this, unsigned char param) {
     } else if (i_this->mAcch.MaskWaterIn()) {
         inWater = 2;
         f32 waterY = i_this->mAcch.m_wtr.GetHeight();
-        i_this->m05BC.y = waterY;
+        i_this->m05BC.y = i_this->mAcch.m_wtr.GetHeight();
         if (actor->current.pos.y + i_this->m02E4.y < 100.0f + waterY) {
             if (param == 0 || param == 2) {
                 actor->gravity = 0.0f;
@@ -796,7 +796,6 @@ BOOL sea_water_check(ph_class* i_this, unsigned char param) {
                     actor->speed.setall(0.0f);
                 }
                 i_this->m0370 += 0x3E8;
-                f32 bob;
                 if (i_this->mType == 0) {
                     bob = 2.0f + 2.0f * cM_ssin(i_this->m0370);
                 } else {
@@ -826,7 +825,7 @@ BOOL sea_water_check(ph_class* i_this, unsigned char param) {
             i_this->mParticleCallBack.setRate(0.0f);
             shibuki_set(i_this, i_this->m05BC, 0.5f);
         }
-        return (inSea != 0) + 1;
+        return inSea ? 2 : 1;
     }
 
     if (i_this->m0341 != 0) {
