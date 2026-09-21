@@ -2905,8 +2905,8 @@ void vrkumo_move() {
         sp74.y = 0.0f;
 
         f32 sp24 = sp74.abs();
+        f32 sp20 = 1.0f - sp24 / 15000.0f;
         f32 f2 = sp24 / 15000.0f;
-        f32 sp20 = 1.0f - f2;
         if (sp20 < 0.0f) {
             sp20 = 0.0f;
         }
