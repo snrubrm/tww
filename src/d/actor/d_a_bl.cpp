@@ -865,7 +865,7 @@ s16 way_check(bl_class* i_this, s16 param_1) {
 /* 00003054-000039F0       .text action_dousa__FP8bl_class */
 void action_dousa(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    int target_angle;
+    s16 target_angle;
 
     switch (i_this->m306) {
     case 0:
@@ -942,12 +942,12 @@ void action_dousa(bl_class* i_this) {
         actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
         if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
             dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
-            target_angle = cM_atan2s(pnt->m_position.x - actor->current.pos.x, pnt->m_position.z - actor->current.pos.z);
+            target_angle = (s16)cM_atan2s(pnt->m_position.x - actor->current.pos.x, pnt->m_position.z - actor->current.pos.z);
             actor->speedF = i_this->m324;
         } else {
             i_this->m2EC = (s16)(100.0f + cM_rndFX(50.0f));
             target_angle = cM_rndFX(32767.0f);
-            if (actor->speedF == 0.0f) {
+            if (!actor->speedF) {
                 actor->speedF = 4.0f + cM_rndF(2.0f);
             }
         }
@@ -959,7 +959,7 @@ void action_dousa(bl_class* i_this) {
             dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
             f32 dx = pnt->m_position.x - actor->current.pos.x;
             f32 dz = pnt->m_position.z - actor->current.pos.z;
-            target_angle = cM_atan2s(dx, dz);
+            target_angle = (s16)cM_atan2s(dx, dz);
             f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
             if (dist < 80.0f + REG8_F(3)) {
                 i_this->mPathPntIdx++;
