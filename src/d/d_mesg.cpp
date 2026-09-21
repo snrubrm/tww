@@ -841,12 +841,13 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
     u32 r6 = param_1 & 0xFF0000;
     int r27 = field_0x50 - field_0x4c;
     bool r26 = false;
+    int r25;
     switch(r6) {
     case 0:
         switch(param_1) {
         case 0: {
             r26 = true;
-            int r25 = 0;
+            r25 = 0;
             char sp44[17];
 #if VERSION > VERSION_DEMO
             JMSMesgEntry_c stack_98 = *(JMSMesgEntry_c*)dMesg_gpControl->getMessageEntry(nowMesgCode);
@@ -985,7 +986,7 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
             break;
         case 41: {
             r26 = true;
-            int r25 = 0;
+            r25 = 0;
             char sp18[17];
             u32 tmp = dComIfGs_getEventReg(dSv_event_flag_c::UNK_BA0F);
             fopMsgM_passwordGet(sp18, tmp + 0x1B37);
