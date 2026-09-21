@@ -157,10 +157,13 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     f32 a = 0.25f * y - 0.5f;
     f32 b = (1.0f / 6.0f) * x;
     f32 distance = std::sqrtf(a * a + b * b);
+    s16 angle1 = 32768.0f * distance + mPhase[9];
+    s16 angle2 = 32768.0f * distance + mPhase[10];
+    s16 angle3 = 32768.0f * distance + mPhase[11];
     f32 wave = 1.0f + (1.0f / 3.0f) * (
-        jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[9]) >> jmaSinShift] +
-        jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[10]) >> jmaSinShift] +
-        jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[11]) >> jmaSinShift]);
+        jmaSinTable[(u16)angle1 >> jmaSinShift] +
+        jmaSinTable[(u16)angle2 >> jmaSinShift] +
+        jmaSinTable[(u16)angle3 >> jmaSinShift]);
     f32 dot = normal->inprod(mWind);
     f32 w = wave * L_attr.wave;
     mForce += *normal * (dot * (w * (1.0f / L_attr.windScale)));
@@ -450,7 +453,6 @@ void daObjBuoyflag::Packet_c::calc_pos_spring_near(const cXyz* pos, const cXyz* 
 
 /* 000015FC-00001BC0       .text calc_pos__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
 void daObjBuoyflag::Packet_c::calc_pos(Act_c* actor) {
-    // USA: remaining difference is the placement of 32768.0f * distance in calc_pos_wave.
     DrawVtx_c* draw = &mDraw[mBuffer];
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
     calc_wind_base(actor);
