@@ -1212,7 +1212,8 @@ static void kamome_imouto_move(kamome_class* i_this) {
         cVar8 = 1;
         i_this->mVelocityFwdTarget = 0.0f;
         a_this->speedF = 0.0f;
-        if (i_this->mpMorf->isStop()) {
+        mDoExt_McaMorf* morf = i_this->mpMorf;
+        if (morf->isStop()) {
             if (cM_rndF(1.0f) < 0.2f) {
                 i_this->mMoveState = 0x13;
                 anm_init(i_this, dRes_INDEX_KAMOME_BCK_KA_SING2_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, 0);
