@@ -3,12 +3,7 @@
  * Boss - Jalhalla
  */
 
-// Shared fopAcM_monsSeStart hardcodes the monsSe param to 0; retail's weak copy in this
-// REL forwards param_2. Rename the PCH inline so this TU can emit a matching body.
-#define fopAcM_monsSeStart fopAcM_monsSeStart_unused
-#define DECOMPCTX
 #include "d/dolzel_rel.h" // IWYU pragma: keep
-#undef DECOMPCTX
 #include "d/actor/d_a_bpw.h"
 #include "d/actor/d_a_player.h"
 #include "d/actor/d_a_pw.h"
@@ -24,11 +19,6 @@
 #else
 #include "m_Do/m_Do_graphic.h"
 #endif
-#undef fopAcM_monsSeStart
-
-inline void fopAcM_monsSeStart(fopAc_ac_c* actor, u32 i_seNum, u32 param_2) {
-    mDoAud_monsSeStart(i_seNum, &actor->eyePos, fopAcM_GetID(actor), param_2, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
-}
 
 enum Actor_Type {
     ACTOR_TYPE_BODY = 0,
