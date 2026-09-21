@@ -266,11 +266,11 @@ void daObj_Search::Act_c::modeSearchPath() {
             if (attr()->m3A[0] != 0) {
                 daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
                 static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
-                cXyz offset = pos;
-                cXyz dir = (offset + player->current.pos) - mBeamStart[0];
+                cXyz dir = pos;
+                dir = (dir + player->current.pos) - mBeamStart[0];
                 m7B0 = mLightAng[0].y;
                 s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
-                s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+                int pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
                 cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
                 cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
                 return;
@@ -278,22 +278,22 @@ void daObj_Search::Act_c::modeSearchPath() {
             if (m8D0 == 2) {
                 daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
                 static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
-                cXyz offset = pos;
-                cXyz dir = (offset + player->current.pos) - mBeamStart[0];
+                cXyz dir = pos;
+                dir = (dir + player->current.pos) - mBeamStart[0];
                 m7B0 = mLightAng[0].y;
                 s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
-                s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+                int pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
                 cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
                 cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
                 return;
             }
             if (m8D0 == 3) {
                 static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
-                cXyz offset = pos;
-                cXyz dir = (offset + fganon->current.pos) - mBeamStart[0];
+                cXyz dir = pos;
+                dir = (dir + fganon->current.pos) - mBeamStart[0];
                 m7B0 = mLightAng[0].y;
                 s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
-                s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+                int pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
                 cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
                 cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
                 return;
@@ -321,7 +321,7 @@ void daObj_Search::Act_c::modeSearchPath() {
     m7B2 = mLightAng[0].x;
     m7B4 = mLightAng[1].x;
     s16 yaw = cM_atan2s(dir.x, dir.z) - current.angle.y;
-    s16 pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
+    int pitch = cM_atan2s(dir.y, std::sqrtf(dir.x * dir.x + dir.z * dir.z));
     if (attr()->m3E != 0) {
         s16 tgtY = yaw;
         s16 tgtX = pitch;
