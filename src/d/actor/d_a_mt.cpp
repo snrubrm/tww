@@ -6,6 +6,7 @@
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_mt.h"
 #include "d/actor/d_a_player.h"
+#include "d/actor/d_a_player_main.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_cc_d.h"
 #include "d/d_cc_uty.h"
@@ -893,8 +894,7 @@ static void daMt_shadowDraw(mt_class* i_this) {
             dComIfGd_addRealShadow(i_this->mShadowId, i_this->mpMorf[i]->getModel());
         }
     } else {
-        fopAc_ac_c* player = dComIfGp_getLinkPlayer();
-        u32 shadowId = *(u32*)((u8*)player + 0x3614);
+        u32 shadowId = daPy_getPlayerLinkActorClass()->getShadowID();
         if (shadowId != 0) {
             for (int i = 0; i < 8; i++) {
                 dComIfGd_addRealShadow(shadowId, i_this->mpMorf[i]->getModel());
