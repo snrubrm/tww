@@ -616,13 +616,7 @@ void daObj_Search::Act_c::modeSearchBdk() {
     mDebugFanSpread = REG8_S(0) + 0x3500;
     mDebugFanAngleY = REG8_S(1);
 
-    cXyz tmp = mDebugFanPos - pBdk->current.pos;
-    cXyz xz;
-    xz.x = tmp.x;
-    xz.y = 0.0f;
-    xz.z = tmp.z;
-    f32 mag = xz.abs();
-    (void)mag;
+    f32 mag = (mDebugFanPos - pBdk->current.pos).absXZ();
 
     mDebugFanOk = dLib_checkActorInFan(mDebugFanPos, pBdk, mDebugFanAngleY, mDebugFanSpread, mDebugFanRadius, 3000.0f);
     if (dLib_checkActorInCircle(mDebugFanPos, pBdk, mDebugCircleRadius, 10000.0f)) {
@@ -630,16 +624,6 @@ void daObj_Search::Act_c::modeSearchBdk() {
     }
 
     switch (bdk->mAction) {
-    case 0:
-    case 1:
-    case 7:
-        if (mDebugFanOk != 0) {
-            radius += 500.0f;
-            target.y += 100.0f;
-        } else {
-            track = false;
-        }
-        break;
     case 2:
     case 3:
     case 4:
@@ -650,6 +634,19 @@ void daObj_Search::Act_c::modeSearchBdk() {
         if (mDebugFanOk != 0) {
             radius += 3000.0f;
             target.y += 1000.0f;
+        } else {
+            track = false;
+        }
+        break;
+    case 15:
+        track = false;
+        break;
+    case 0:
+    case 1:
+    case 7:
+        if (mDebugFanOk != 0) {
+            radius += 500.0f;
+            target.y += 100.0f;
         } else {
             track = false;
         }
@@ -673,9 +670,6 @@ void daObj_Search::Act_c::modeSearchBdk() {
             track = false;
         }
         break;
-    case 15:
-        track = false;
-        break;
     default:
         track = false;
         break;
@@ -695,11 +689,11 @@ void daObj_Search::Act_c::modeSearchBdk() {
         dLib_setCirclePath(&mCirclePath);
 
         static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
-        cXyz offset = pos;
-        cXyz aim = (offset + mCirclePath.mPos) - mBeamStart[0];
+        cXyz aim = pos;
+        aim = (aim + mCirclePath.mPos) - mBeamStart[0];
         m7B0 = mLightAng[0].y;
         s16 yaw = cM_atan2s(aim.x, aim.z) - current.angle.y;
-        s16 pitch = cM_atan2s(aim.y, std::sqrtf(aim.x * aim.x + aim.z * aim.z));
+        int pitch = cM_atan2s(aim.y, std::sqrtf(aim.x * aim.x + aim.z * aim.z));
         s16 tgtY = yaw;
         s16 tgtX = pitch;
         cLib_addCalcAngleS2(&mLightAng[0].y, tgtY, 10, 0x100);
