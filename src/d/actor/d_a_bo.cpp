@@ -660,7 +660,7 @@ BOOL damage_check(bo_class* i_this) {
         if (i_this->m2CA == 1) {
             nokezori_damage_rtn(i_this);
         } else {
-            if (REG8_F(11) != 0.0f && i_this->m2C5 == 4) {
+            if (REG8_F(11) && i_this->m2C5 == 4) {
                 return FALSE;
             }
 
