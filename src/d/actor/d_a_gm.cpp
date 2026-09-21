@@ -271,8 +271,8 @@ BOOL wing_cut_stat(gm_class* i_this) {
         cXyz(-144.0f, 72.0f, -30.0f),
     };
 
-    int i = 0;
     int off = 0;
+    int i = 0;
     int bit = 1;
     while (i < 4) {
         if ((i_this->mWingBits & bit) == 0) {
