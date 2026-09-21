@@ -385,8 +385,8 @@ void daObj_Search::Act_c::modeToStop() {
     if (!(dComIfGs_isEventBit(dSv_event_flag_c::UNK_0201) && attr()->m42 == 0) && mSwSave == 0xFF) {
         if (eventInfo.checkCommandDemoAccrpt()) {
             m77E = 0xFF;
+            int staffId = dComIfGp_evmng_getMyStaffId("Search");
             dEvent_manager_c* evtMgr = dComIfGp_getPEvtManager();
-            int staffId = evtMgr->getMyStaffId("Search", NULL, 0);
             if (evtMgr->endCheckOld("Search_Light_Up")) {
                 dComIfGp_event_reset();
                 dComIfGs_onEventBit(dSv_event_flag_c::UNK_0201);
