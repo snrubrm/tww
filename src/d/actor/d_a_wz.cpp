@@ -2304,10 +2304,10 @@ static BOOL useHeapInit2(fopAc_ac_c* i_this) {
         0x80000,
         0x19000222
     );
-    J3DModel* model;
-    if (a_this->mpMorf == NULL || (model = a_this->mpMorf->getModel()) == NULL) {
+    if (a_this->mpMorf == NULL || a_this->mpMorf->getModel() == NULL) {
         return FALSE;
     }
+    J3DModel* model = a_this->mpMorf->getModel();
 
     a_this->mpBtk = new mDoExt_btkAnm();
     if (a_this->mpBtk == NULL) {
