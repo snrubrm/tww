@@ -5029,8 +5029,8 @@ bool dCamera_c::towerCamera(s32 param_1) {
     cSAngle val16(mCamParam.Val(param_1, 16));
     cSAngle val17(mCamParam.Val(param_1, 17));
     f32 val19 = mCamParam.Val(param_1, 19);
-    f32 val25 = mCamParam.Val(param_1, 25);
     f32 val27 = mCamParam.Val(param_1, 27);
+    f32 val25 = mCamParam.Val(param_1, 25);
     f32 val29 = mCamParam.Val(param_1, 29);
     cSAngle val23(mCamParam.Val(param_1, 23));
     cSAngle val24(mCamParam.Val(param_1, 24));
@@ -5116,7 +5116,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
         work->m3B0 = 0.0f;
         work->m3A0 = mViewCache.mDirection.U();
         work->m3C4 = mCurRoomArrowEntry.position;
-        work->m3D0 = val23 <= cSAngle::_90;
+        work->m3D0 = val23 <= cSAngle::_90 ? TRUE : FALSE;
 
         if (chkFlag(0x8000) || mCurMode == 1) {
             m102 = 1;
@@ -5225,8 +5225,8 @@ bool dCamera_c::towerCamera(s32 param_1) {
         zoomT = 1.0f;
     }
 
-    cSAngle gap = val23 + (val23 - val24) * mStickMainValueLast;
     cSAngle targetU;
+    cSAngle gap = val23 + (val23 - val24) * mStickMainValueLast;
     if (!farSide) {
         cSAngle diff = globe.U() - toArrow.U();
         zoomT = dCamMath::rationalBezierRatio(zoomT, val27);
