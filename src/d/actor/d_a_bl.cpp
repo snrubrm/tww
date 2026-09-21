@@ -1602,10 +1602,9 @@ void action_normal_skull(bl_class* i_this) {
         break;
     case 0x68: {
         pos.y += 25.0f + REG8_F(2);
-        s8 roomNo = actor->current.roomNo;
         JPABaseEmitter* emitter = dComIfGp_particle_set(
             dPa_name::ID_IT_JN_DOKURO00, &pos, &actor->current.angle, &actor->scale,
-            0xFF, NULL, roomNo, &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
+            0xFF, NULL, fopAcM_GetRoomNo(actor), &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
         );
         if (emitter != NULL) {
             emitter->setAwayFromAxisSpeed(30.0f);
