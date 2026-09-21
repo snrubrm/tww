@@ -395,8 +395,9 @@ void daBigelf_c::demoInitExit() {
     mHeightOffset = 250.0f;
     m3EC = 1.0f;
     m3F0 = 1.0f;
+    cXyz pos;
     cXyz scale(1.0f, 1.0f, 1.0f);
-    cXyz pos = current.pos;
+    pos = current.pos;
     pos.y += mHeightOffset;
     dComIfGp_particle_set(dPa_name::ID_AK_JN_ENEMYFLASH00, &pos, NULL, &scale);
     tevStr.mFogColor.b = 0xFF;
@@ -406,6 +407,7 @@ void daBigelf_c::demoInitExit() {
     tevStr.mFogEndZ = 2000.0f;
     fopAcM_seStart(this, JA_SE_CM_DY_GO_AWAY, 0);
     fopAcM_seStart(this, JA_SE_CV_DY_GO_AWAY, 0);
+    darkEnd();
 }
 
 /* 0000115C-000012D4       .text demoProcExit__10daBigelf_cFv */
