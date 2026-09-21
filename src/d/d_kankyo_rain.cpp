@@ -325,6 +325,8 @@ void dKyr_wind_move() {
 
         WIND_EFF& windEff = pWind->mWindEff[i];
         switch (windEff.mState) {
+        case 4:
+            break;
         case 0:
             if (windPow < 0.3f)
                 continue;
@@ -448,8 +450,10 @@ void dKyr_wind_move() {
                     distance = 1.0f;
                 }
 
-                f32 temp_f1_4 = ((envLight.mBG0_K0.r + envLight.mBG0_K0.g + envLight.mBG0_K0.b) * 0.33333334f) / 255.0f;
-                distance *= SQUARE(temp_f1_4);
+                f32 temp_f1_4 = (envLight.mBG0_K0.r + envLight.mBG0_K0.g + envLight.mBG0_K0.b) * 0.33333334f;
+                temp_f1_4 /= 255.0f;
+                temp_f1_4 *= temp_f1_4;
+                distance *= temp_f1_4;
                 f32 var_f15_2 = windPow * distance;
                 if (var_f15_2 < 0.5f) {
                     var_f15_2 = 0.5f;
