@@ -753,8 +753,9 @@ BOOL water_check(pt_class* i_this) {
     cXyz pillar_pos;
 
     cXyz* p = gnd_chk.GetPointP();
-    f32 y = actor->current.pos.y + 500.0f;
+    f32 y = actor->current.pos.y;
     f32 z = actor->current.pos.z;
+    y += 500.0f;
     p->x = actor->current.pos.x;
     p->y = y;
     p->z = z;
