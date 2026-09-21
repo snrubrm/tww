@@ -154,7 +154,7 @@ void anm_init(pw_class* i_this, int bckFileIdx, f32 morf, u8 loopMode, f32 speed
 /* 00000600-000006F4       .text kantera_break__FP8pw_class */
 void kantera_break(pw_class* i_this) {
     fopAc_ac_c* actor;
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    fopAc_ac_c* const player = dComIfGp_getPlayer(0);
     i_this->m346 = 0;
     if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e) {
         if (fopAcM_SearchByID(i_this->mKanteraID, &actor) && actor != NULL && fopAcM_GetName(actor) == fpcNm_KANTERA_e) {
