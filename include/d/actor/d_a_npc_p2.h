@@ -183,7 +183,7 @@ public:
     /* 0x7A4 */ f32 m7A4;
     /* 0x7A8 */ s16 m7A8;
     /* 0x7AA */ s16 m7AA;
-    /* 0x7AC */ f32 m7AC;
+    /* 0x7AC */ s32 m7AC;
     /* 0x7B0 */ cXyz mSoundPos;
     /* 0x7BC */ himo3_class* mpHimo3;
     /* 0x7C0 */ u8 m7C0;
