@@ -4895,7 +4895,6 @@ void dKyr_drawStar(Mtx drawMtx, u8** pImg) {
 
 /* 80099D38-8009A5D4       .text drawWave__FPA4_fPPUc */
 void drawWave(Mtx drawMtx, u8** pImg) {
-    /* Nonmatching */
     dKankyo_wave_Packet* pPkt;
     camera_process_class* pCamera;
     GXTexObj texObj;
@@ -4919,7 +4918,7 @@ void drawWave(Mtx drawMtx, u8** pImg) {
         return;
     }
 
-    f32 rot = cM_sht2d(pCamera->view.mBank);
+    f32 rot = cAngle::s2d(fopCamM_GetBank(pCamera));
     j3dSys.reinitGX();
 
     GXSetClipMode(GX_CLIP_ENABLE);
@@ -4971,10 +4970,12 @@ void drawWave(Mtx drawMtx, u8** pImg) {
         f32 waveScale = dKy_getEnvlight().mWaveChan.mWaveScale;
         f32 mscale = pPkt->mEff[i].mScale;
         f32 tmp = waveScale * mscale;
-        f32 scale = wave * tmp;
-        f32 scaleBottom = dKy_getEnvlight().mWaveChan.mWaveScaleBottom * tmp;
-        f32 height = scale * pPkt->mEff[i].mStrengthEnv;
-        f32 width = scaleBottom * (pPkt->mEff[i].mStrengthEnv - 0.00000015f * (i * 31) * height);
+        f32 height = wave * tmp;
+        f32 bottom = dKy_getEnvlight().mWaveChan.mWaveScaleBottom;
+        f32 width = bottom * tmp;
+        f32 strength = pPkt->mEff[i].mStrengthEnv;
+        height *= strength;
+        width *= (strength - 0.00000015f * (i * 31) * height);
         if (height <= 0.0f)
             continue;
 
