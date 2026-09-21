@@ -571,8 +571,8 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF2(int i_no) {
 
 /* 80208E38-802091D8       .text animeF3__26dDlst_TerminaterScrnDraw_cFi */
 BOOL dDlst_TerminaterScrnDraw_c::animeF3(int i_no) {
-    static s16 animeFrame[] = {5, 10};
-    static s16 transY[] = {0, -25, 150};
+    static const s16 animeFrame[] = {5, 10};
+    static const s16 transY[] = {0, -25, 150};
     static const s16 rot[] = {40, 30, 20, -20, -30, -40};
 
     BOOL rt = FALSE;
@@ -586,27 +586,21 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF3(int i_no) {
 
     if (mRemainK[i_no].mUserArea < animeFrame[1]) {
         mRemainK[i_no].mUserArea++;
-        s16 timer = mRemainK[i_no].mUserArea;
 
-        if (timer <= animeFrame[0]) {
-            f32 t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
-            f32 y = (f32)transY[1];
-            y += (1.0f - t) * (f32)(transY[0] - transY[1]);
-            f32 t2 = SQUARE((f32)timer) / SQUARE((f32)animeFrame[1]);
-            f32 r = (f32)mFailed[i_no].mUserArea;
-            r += (f32)mRemain[i_no].mUserArea * t2;
+        f32 t, y, r;
+        if (mRemainK[i_no].mUserArea <= animeFrame[0]) {
+            t = acc(animeFrame[0], mRemainK[i_no].mUserArea, 0);
+            y = transY[1] + (1.0f - t) * (f32)(transY[0] - transY[1]);
+            r = SQUARE((f32)mRemainK[i_no].mUserArea) / SQUARE((f32)animeFrame[1]);
+            r = mFailed[i_no].mUserArea + mRemain[i_no].mUserArea * r;
             fopMsgM_paneTrans(&mFailed[i_no], 0.0f, y);
             setRotate(&mFailed[i_no], r);
         } else {
-            f32 t = acc(animeFrame[1], timer, animeFrame[0]);
-            f32 y = (f32)transY[2];
-            f32 inv = 1.0f - t;
-            y += inv * (f32)(transY[1] - transY[2]);
-            f32 t2 = SQUARE((f32)timer) / SQUARE((f32)animeFrame[1]);
-            f32 r = (f32)mFailed[i_no].mUserArea;
-            r += (f32)mRemain[i_no].mUserArea * t2;
+            t = acc(animeFrame[1], mRemainK[i_no].mUserArea, animeFrame[0]);
+            y = transY[2] + (1.0f - t) * (f32)(transY[1] - transY[2]);
+            r = mFailed[i_no].mUserArea + mRemain[i_no].mUserArea * acc(animeFrame[1], mRemainK[i_no].mUserArea, 0);
             fopMsgM_paneTrans(&mFailed[i_no], 0.0f, y);
-            fopMsgM_setNowAlpha(&mFailed[i_no], inv);
+            fopMsgM_setNowAlpha(&mFailed[i_no], 1.0f - t);
             setRotate(&mFailed[i_no], r);
         }
     } else {
@@ -618,7 +612,7 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF3(int i_no) {
 
 /* 802091D8-80209420       .text animeS1__26dDlst_TerminaterScrnDraw_cFv */
 BOOL dDlst_TerminaterScrnDraw_c::animeS1() {
-    static s16 animeFrame[] = {8, 10};
+    static const s16 animeFrame[] = {8, 10};
 
     BOOL rt = FALSE;
     f32 a = mYouGot[0].mPosTopLeftOrig.x;
