@@ -803,14 +803,7 @@ BOOL daObjFtree::Act_c::action_changeLS_init(s16) {
 /* 00002344-000025DC       .text action_changeLS_main__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::action_changeLS_main() {
     if (mModelL != 0) {
-        f32 ratio;
-        if (mScaleMul <= 0.2f) {
-            ratio = 0.0f;
-        } else if (mScaleMul >= 1.0f) {
-            ratio = 1.0f;
-        } else {
-            ratio = (mScaleMul - 0.2f) / 0.8f;
-        }
+        f32 ratio = mScaleMul <= 0.2f ? 0.0f : (mScaleMul >= 1.0f ? 1.0f : (mScaleMul - 0.2f) / 0.8f);
         cLib_addCalc(&mScaleMul, 0.2f, 0.02f, 1.0f, 0.005f);
         mColorLBase.r = (s16)(255.0f + ((f32)mColorL.r - 255.0f) * ratio);
         mColorLBase.g = (s16)(255.0f + ((f32)mColorL.g - 255.0f) * ratio);
