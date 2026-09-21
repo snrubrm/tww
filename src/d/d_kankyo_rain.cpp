@@ -4266,6 +4266,8 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
 void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
     dKankyo_snow_Packet* snow_packet = g_env_light.mpSnowPacket;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    u8 var_r24;
+    int sp1D8;
     Mtx camMtx;
     cXyz pos[4];
     Mtx rotMtx;
@@ -4351,7 +4353,6 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
         for (int j = 0; j < 2; j++) {
             if (i != 1 || j != 1) {
                 int start;
-                int sp1D8;
                 if (j == 0) {
                     start = 0;
                     sp1D8 = snow_packet->mEffCount;
@@ -4363,7 +4364,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                 for (int temp_r4 = start; temp_r4 < sp1D8; temp_r4++) {
                     f32 sp44 = -1.0f;
                     if (i != 1 || snow_packet->mEff[temp_r4].mStatus != 2) {
-                        u8 var_r24 = 8;
+                        var_r24 = 8;
 
                         sp88.x = snow_packet->mEff[temp_r4].mBasePos.x + snow_packet->mEff[temp_r4].mPos.x;
                         sp88.y = snow_packet->mEff[temp_r4].mBasePos.y + snow_packet->mEff[temp_r4].mPos.y;
@@ -4404,7 +4405,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                             color1.r = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
                             color1.g = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
                             u32 _104 = 0x68;
-                            color1.b = (f32)_104 + (temp_f2 * ((f32)_255 - (f32)_104));
+                            color1.b = (f32)_104 + (temp_f2 * ((f32)_0 - (f32)_104));
 
                             temp_f2 *= temp_f2;
                             color0.r = temp_f2 * (f32)_255;
