@@ -262,15 +262,20 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
 
 
 /* 80206908-80206CB0       .text anime2__23dDlst_StarterScrnDraw_cFv */
-// NONMATCHING - regalloc
 BOOL dDlst_StarterScrnDraw_c::anime2() {
     BOOL rt = FALSE;
 
-    s16 var_r30 = cdFrame4;
-    int var_r31 = (s16)(var_r30 + cdFrame5);
-    s16 temp_r6 = var_r31 + cdFrame6;
-    s16 var_r27 = temp_r6 + cdFrame7;
-    s16 temp_r7 = var_r27 + cdFrame8;
+    int var_r31;
+    s16 temp_r6;
+    s16 var_r27;
+    s16 temp_r7;
+    int var_r30;
+
+    var_r30 = cdFrame4;
+    var_r31 = (s16)(var_r30 + cdFrame5);
+    temp_r6 = var_r31 + cdFrame6;
+    var_r27 = temp_r6 + cdFrame7;
+    temp_r7 = var_r27 + cdFrame8;
 
     field_0x008[0].mUserArea++;
 
