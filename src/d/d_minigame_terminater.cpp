@@ -828,16 +828,11 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
     }
     mAnimTimer3++;
 
-    s16 timer = mAnimTimer3;
-    if (timer <= f0) {
-        f32 t = SQUARE((f32)timer) / SQUARE((f32)f0);
-        f32 rbase = (f32)rot[0];
-        f32 r = rbase + t * (f32)(rot[1] - rot[0]);
-        s16 remain = (s16)(f0 - timer);
-        f32 t2 = SQUARE((f32)remain) / SQUARE((f32)f0);
-        f32 one = 1.0f;
-        f32 scale = (f32)g_menuHIO.field_0x8e / 100.0f;
-        scale = one + (scale - one) * t2;
+    if (mAnimTimer3 <= f0) {
+        f32 t = acc(f0, mAnimTimer3, 0);
+        f32 r = rot[0] + t * (f32)(rot[1] - rot[0]);
+        f32 t2 = acc(f0, f0 - mAnimTimer3, 0);
+        f32 scale = 1.0f + ((f32)g_menuHIO.field_0x8e / 100.0f - 1.0f) * t2;
 
         fopMsgM_setNowAlpha(&mPerfect[0], t);
         fopMsgM_setNowAlpha(&mPerfectNt[0], t);
@@ -852,28 +847,28 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
             setScale(&mPerfectNt[i], scale);
             setScale(&mPerfectNk[i], scale);
         }
-    } else if (timer <= f1) {
-        f32 t = acc(f1, timer, f0);
+    } else if (mAnimTimer3 <= f1) {
+        f32 t = acc(f1, mAnimTimer3, f0);
         f32 r = (f32)rot[1];
         r += t * (f32)(rot[2] - rot[1]);
         setRotate(&mDmpe, r);
-    } else if (timer <= f2) {
-        f32 t = acc(f2, timer, f1);
+    } else if (mAnimTimer3 <= f2) {
+        f32 t = acc(f2, mAnimTimer3, f1);
         f32 r = (f32)rot[2];
         r += t * (f32)(rot[3] - rot[2]);
         setRotate(&mDmpe, r);
-    } else if (timer <= f3) {
-        f32 t = acc(f3, timer, f2);
+    } else if (mAnimTimer3 <= f3) {
+        f32 t = acc(f3, mAnimTimer3, f2);
         f32 r = (f32)rot[3];
         r += t * (f32)(rot[4] - rot[3]);
         setRotate(&mDmpe, r);
-    } else if (timer <= f4) {
-        f32 t = acc(f4, timer, f3);
+    } else if (mAnimTimer3 <= f4) {
+        f32 t = acc(f4, mAnimTimer3, f3);
         f32 r = (f32)rot[4];
         r += t * (f32)(rot[5] - rot[4]);
         setRotate(&mDmpe, r);
     } else {
-        if (timer >= f5) {
+        if (mAnimTimer3 >= f5) {
             mAnimTimer3 = f4;
         }
 
@@ -899,11 +894,10 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
                 val = 200.0f - val;
             }
 
-            u8* col = (u8*)&flags[i];
-            col[0] = 0xFF;
-            col[1] = (u8)(s32)val;
-            col[2] = 0;
-            col[3] = 0xFF;
+            ((u8*)&flags[i])[0] = 0xFF;
+            ((u8*)&flags[i])[1] = (u8)(s32)val;
+            ((u8*)&flags[i])[2] = 0;
+            ((u8*)&flags[i])[3] = 0xFF;
             ((J2DPicture*)mPerfect[i].pane)->setWhite(*(JUtility::TColor*)&flags[i]);
         }
     }
