@@ -264,7 +264,8 @@ void daNpc_P2_c::setAnm() {
                 switch (mEventCut.getNowCut()) {
                 case 2:
                 case 4:
-                    speed = moveSpeed * 0.25f;
+                    speed = moveSpeed;
+                    speed *= 0.25f;
                     break;
                 }
             }
