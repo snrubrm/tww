@@ -1905,17 +1905,14 @@ void ph_water_move(ph_class* i_this) {
             actor->shape_angle.z = zero;
             actor->current.angle.x = zero;
             actor->current.angle.z = zero;
-            s32 i = zero;
-            for (int n = 7; n != 0; n--) {
-                *(s16*)((char*)i_this + 0x356 + i) = zero;
-                i += 2;
+            for (int i = 0; i < 7; i++) {
+                (&i_this->m0356)[i] = 0;
             }
         }
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
         if (i_this->mType != 1) {
-            f32 x = i_this->m02FC.x;
-            if (x == 0.0f) {
+            if (!i_this->m02FC.x) {
                 i_this->m0366 = (s16)(200.0f + cM_rndF(200.0f));
             } else {
                 i_this->m0366 = (s16)(100.0f + cM_rndF(100.0f));
@@ -1982,17 +1979,14 @@ void ph_water_move(ph_class* i_this) {
             actor->shape_angle.z = zero;
             actor->current.angle.x = zero;
             actor->current.angle.z = zero;
-            s32 i = 0;
-            for (int n = 7; n != 0; n--) {
-                *(s16*)((char*)i_this + 0x356 + i) = zero;
-                i += 2;
+            for (int i = 0; i < 7; i++) {
+                (&i_this->m0356)[i] = 0;
             }
         }
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
         {
-            f32 x = i_this->m02FC.x;
-            if (x == 0.0f) {
+            if (!i_this->m02FC.x) {
                 i_this->m0366 = (s16)(200.0f + cM_rndF(200.0f));
             } else {
                 i_this->m0366 = (s16)(100.0f + cM_rndF(100.0f));
