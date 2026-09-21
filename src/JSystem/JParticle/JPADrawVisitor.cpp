@@ -904,7 +904,6 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* p
     scaleY *= (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY);
 
     f32 x0 = -scaleX;
-    y1 = -y1;
     f32 dirX = dir.x;
 
     JGeometry::TVec2<f32> p0;
@@ -913,8 +912,8 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* p
     JGeometry::TVec2<f32> p3;
     p0.set(x0, scaleY);
     p1.set(x1, scaleY);
-    p2.set(x1, y1);
-    p3.set(x0, y1);
+    p2.set(x1, -y1);
+    p3.set(x0, -y1);
     p0.set(dirX * p0.x - dirY * p0.y, dirX * p0.y + dirY * p0.x);
     p1.set(dirX * p1.x - dirY * p1.y, dirX * p1.y + dirY * p1.x);
     p2.set(dirX * p2.x - dirY * p2.y, dirX * p2.y + dirY * p2.x);
