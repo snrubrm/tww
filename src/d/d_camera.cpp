@@ -7007,8 +7007,6 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
     cXyz sp154;
     cXyz sp148;
     cXyz sp13C;
-    cXyz sp124;
-    cXyz sp100;
     
     f32 fVar15 = mCamParam.Val(param_1, 1);
     f32 fVar16 = mCamParam.Val(param_1, 5);
@@ -7063,14 +7061,12 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
 
     if (m11C == 0) {
         if (mWork.fixedPos.m39C == 0) {
-            sp124 = sp160 - mEye;
-            fVar15 = std::sqrtf(sp124.getSquareMag());
+            fVar15 = cXyz(sp160 - mEye).abs();
             if (fVar15 > fVar4) {
                 fVar15 = fVar4;
             }
 
-            sp100 = mCenter - relationalPos(mpPlayerActor, &sp154);
-            fVar16 = std::sqrtf(sp100.getSquareMag());
+            fVar16 = cXyz(mCenter - relationalPos(mpPlayerActor, &sp154)).abs();
             if (fVar15 > fVar16) {
                 fVar16 = fVar15;
             }
@@ -7083,9 +7079,7 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
                 temp = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
             }
 
-            temp = temp < 10.0f ? 10.0f : temp;
-
-            fVar16 = fVar16 / temp;
+            fVar16 = fVar16 / (10.0f > temp ? 10.0f : temp);
 
             mWork.fixedPos.m378 = (s32)(fVar6 * std::sqrtf(fVar16)) + 1;
             mWork.fixedPos.m37C = mWork.fixedPos.m378 * (mWork.fixedPos.m378 + 1) >> 1;
@@ -7124,8 +7118,8 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
         }
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * fVar15);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar15);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar15);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar15);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar15);
         
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy += fVar15 * (fVar8_2 - mViewCache.mFovy);
@@ -7149,8 +7143,8 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
     }
 
     mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * fVar7);
-    mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar7);
-    mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar7);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar7);
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar7);
     
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += fVar7 * (fVar8_2 - mViewCache.mFovy);
