@@ -4342,17 +4342,17 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
 
         for (int j = 0; j < 2; j++) {
             if (i != 1 || j != 1) {
-                int temp_r4;
+                int start;
                 int sp1D8;
                 if (j == 0) {
-                    temp_r4 = 0;
+                    start = 0;
                     sp1D8 = snow_packet->mEffCount;
                 } else {
-                    temp_r4 = 200;
+                    start = 200;
                     sp1D8 = snow_packet->mTamariStart + 200;
                 }
 
-                for (; temp_r4 < sp1D8; temp_r4++) {
+                for (int temp_r4 = start; temp_r4 < sp1D8; temp_r4++) {
                     f32 sp44 = -1.0f;
                     if (i != 1 || snow_packet->mEff[temp_r4].mStatus != 2) {
                         u8 var_r24 = 8;
