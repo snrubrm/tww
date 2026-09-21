@@ -484,9 +484,12 @@ void BG_check(wz_class* i_this) {
     i_this->old.pos.y += i_this->mCorrectionOffsetY;
 }
 
-static void unused_wz_lit_100() {
-    volatile f32 v = 100.0f;
-    (void)v;
+static BOOL wz_line_check(wz_class* i_this, cXyz* i_pos) {
+    dBgS_LinChk linChk;
+    cXyz start = i_this->current.pos;
+    start.y += 100.0f;
+    linChk.Set(&start, i_pos, i_this);
+    return dComIfG_Bgsp()->LineCross(&linChk);
 }
 
 /* 00001728-00001780       .text fuwafuwa_calc__FP8wz_class */
