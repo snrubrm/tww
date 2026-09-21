@@ -986,7 +986,7 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
             break;
         case 41: {
             r26 = true;
-            r25 = 0;
+            int j = 0;
             char sp18[17];
             u32 tmp = dComIfGs_getEventReg(dSv_event_flag_c::UNK_BA0F);
             fopMsgM_passwordGet(sp18, tmp + 0x1B37);
@@ -996,26 +996,27 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
             }
 #endif
 
-            while (sp18[r25]) {
+            dMesg_tControl* ctl = (dMesg_tControl*)getControl();
+            while (sp18[j]) {
                 int char_code;
-                u8 byte = sp18[r25];
+                u8 byte = sp18[j];
                 if (byte >> 4 == 8 || byte >> 4 == 9) {
-                    byte = sp18[r25++];
+                    byte = sp18[j++];
                     char_code = ((byte << 8) & ~0xFF);
-                    byte = sp18[r25++];
+                    byte = sp18[j++];
                     char_code |= (byte & 0xFF);
                 } else {
-                    byte = sp18[r25++];
+                    byte = sp18[j++];
                     char_code = byte;
                 }
 
-                f32 f30 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
-                int width = mesgControl->getMainFont()->getWidth(char_code);
+                f32 f30 = f32(ctl->getNowFontSize()) / f32(ctl->getMainFont()->getCellWidth());
+                int width = ctl->getMainFont()->getWidth(char_code);
                 if (r27 >= 0 && r27 <= linemax) {
                     if (field_0x38[r27] == 0.0f) {
                         field_0x38[r27] = width * f30;
                     } else {
-                        field_0x38[r27] += width * f30 + mesgControl->getCharSpace();
+                        field_0x38[r27] += width * f30 + ctl->getCharSpace();
                     }
                 }
             }
