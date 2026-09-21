@@ -92,7 +92,7 @@ public:
     /* 0x8E4 */ u32 m8E4;
     /* 0x8E8 */ u8 m8E8[0x8EC - 0x8E8];
     /* 0x8EC */ int m8EC;
-    /* 0x8F0 */ s32 m8F0;
+    /* 0x8F0 */ int m8F0;
     /* 0x8F4 */ s16 m8F4;
     /* 0x8F6 */ u8 m8F6[0x8F8 - 0x8F6];
     /* 0x8F8 */ cXyz m8F8;

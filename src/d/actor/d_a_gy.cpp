@@ -1445,7 +1445,7 @@ bool daGy_c::_execute() {
     if (gravity == 0.0f) {
         cLib_addCalc2(&m4E4, m4E8, m918, m4EC);
     }
-    cLib_addCalc2(&speedF, mAimSpeedF, 0.1f, 1.0f);
+    cLib_addCalc2(&speedF, mAimSpeedF, 0.3f, 4.0f);
     setAnm();
 
     if (l_HIO.m97 != 0) {
@@ -1463,11 +1463,11 @@ bool daGy_c::_execute() {
 
     s8 prm = mPrmIdx;
     if (prm == 5) {
-        if (speed.y < -10.0f) {
+        if (speed.y < -5.0f) {
             s16* pAngleX = &current.angle.x;
             s16 target = REG12_S(1) + 0x2000;
             cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
-        } else if (speed.y > 10.0f) {
+        } else if (speed.y > 5.0f) {
             s16* pAngleX = &current.angle.x;
             s16 target = REG12_S(2) - 0x1000;
             cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
@@ -1514,29 +1514,29 @@ bool daGy_c::_execute() {
     setMtx();
     setWave();
     attention_info.position = current.pos;
-    attention_info.position.y += 150.0f;
+    attention_info.position.y += 160.0f;
     eyePos = current.pos;
-    eyePos.y += 80.0f;
+    eyePos.y += 60.0f;
     m91C = gravity;
 
     if (mPrmIdx != 5 && m2B0 != 0) {
         f32 dist = (current.pos - old.pos).abs();
-        f32 f31 = dist / 40.0f;
+        f32 f31 = dist / 30.0f;
         if (f31 <= 0.0f) {
             f31 = 0.0f;
         } else if (f31 >= 1.0f) {
             f31 = 1.0f;
         }
-        fopAcM_seStart(this, JA_SE_CM_GY_CRUISING, (s8)(s32)(127.0f * f31));
+        fopAcM_seStart(this, JA_SE_CM_GY_CRUISING, (s8)(s32)(100.0f * f31));
         if (mPrmIdx == 1) {
             f32 play = f31 * l_HIO.m04;
-            f32 out = l_HIO.m08;
-            if (play < out) {
-                goto set_play;
+            f32 res;
+            if (play < l_HIO.m08) {
+                res = l_HIO.m08;
+            } else {
+                res = play;
             }
-            out = play;
-        set_play:
-            mpMorf->setPlaySpeed(out);
+            mpMorf->setPlaySpeed(res);
         }
     }
 
