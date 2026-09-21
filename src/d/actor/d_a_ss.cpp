@@ -97,9 +97,9 @@ static void hand_1_set(ss_class* i_this, ss_s* hand) {
 static void hand_1_set_2(ss_class* i_this, ss_s* hand) {
     // Nonmatching: Register allocation differs.
     cXyz step, world, start, delta;
-    fopAc_ac_c* actor = i_this;
     ss_s_s* segment;
     s16 angle;
+    fopAc_ac_c* actor = i_this;
     int i;
     dBgS_LinChk line;
     segment = hand->segments;
