@@ -1592,6 +1592,7 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
     f32 dVar11;
     f32 local_78;
     f32 local_68;
+    f32 posY;
 
     iVar7 = (int)((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace();
     if (i_Msg->mStatus == fopMsgStts_SELECT_2_e) {
@@ -1599,11 +1600,11 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
     } else if (i_Msg->mStatus == fopMsgStts_SELECT_3_e) {
         local_78 = i_Msg->m110C + iVar7 * 2;
     }
-    fVar1 = i_Msg->m049C.mPosCenter.y;
-    if (fVar1 >= 240.0f) {
-        fVar1 = (int)g_msgHIO.field_0x7c + (fVar1 - i_Msg->m049C.mSize.y / 2.0f);
+    posY = i_Msg->m049C.mPosCenter.y;
+    if (posY >= 240.0f) {
+        posY = (int)g_msgHIO.field_0x7c + (posY - i_Msg->m049C.mSize.y / 2.0f);
     } else {
-        fVar1 = (fVar1 + i_Msg->m049C.mSize.y / 2.0f) - ((int)g_msgHIO.field_0x7c);
+        posY = (posY + i_Msg->m049C.mSize.y / 2.0f) - ((int)g_msgHIO.field_0x7c);
     }
     local_68 = (int)g_msgHIO.field_0x78;
     fVar3 = local_68 + ((2.0f * g_msgHIO.field_0x7e + i_Msg->mMsgDataProc.getSelectLength()) - i_Msg->m011C[0].mSizeOrig.x);
@@ -1633,8 +1634,8 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
         i_Msg->m011C[i].mPosCenter.x = (i_Msg->m011C[i].mPosCenterOrig.x + fVar3) + g_msgHIO.field_0x7e;
     }
     fVar5 = (i_Msg->m026C[9].mSizeOrig.y - i_Msg->m026C[9].mSize.y) / 2.0f;
-    fVar2 = fVar1 - i_Msg->m026C[0].mPosCenterOrig.y;
-    i_Msg->m026C[0].mPosCenter.y = fVar1;
+    fVar2 = posY - i_Msg->m026C[0].mPosCenterOrig.y;
+    i_Msg->m026C[0].mPosCenter.y = posY;
     i_Msg->m026C[1].mPosCenter.y = i_Msg->m026C[1].mPosCenterOrig.y - fVar5;
     i_Msg->m026C[2].mPosCenter.y = i_Msg->m026C[2].mPosCenterOrig.y - fVar5;
     i_Msg->m026C[3].mPosCenter.y = i_Msg->m026C[3].mPosCenterOrig.y + fVar5;
@@ -1674,15 +1675,14 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
     }
     fVar1 = i_Msg->m026C[9].mSize.x;
     uVar6 = (int)g_msgHIO.field_0x74;
-    if ((uVar6) <= fVar1) {
+    if (fVar1 <= uVar6) {
         fVar1 = 1.0f;
     } else {
         fVar1 = (int)((fVar1 / uVar6) + 0.5f);
     }
     fVar3 = i_Msg->m026C[9].mSize.y;
     uVar6 = (int)g_msgHIO.field_0x74;
-    local_78 = uVar6;
-    if ((local_78) <= fVar3) {
+    if (fVar3 <= uVar6) {
         fVar3 = 1.0f;
     } else {
         fVar3 = (int)((fVar3 / uVar6) + 0.5f);
