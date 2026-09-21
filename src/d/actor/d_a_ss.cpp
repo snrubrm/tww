@@ -16,6 +16,7 @@ static BOOL nodeCallBack(J3DNode* node, int phase) {
         J3DModel* model = j3dSys.getModel();
         ss_class* i_this = (ss_class*)model->getUserArea();
         if (i_this != NULL && joint == SW_JNT_EYE_e) {
+            cXyz unused;
             PSMTXCopy(model->getAnmMtx(joint), *calc_mtx);
             if (i_this->mWall != 0) mDoMtx_XrotM(*calc_mtx, 0x4000);
             mDoMtx_YrotM(*calc_mtx, i_this->mEyeAngle.y);
