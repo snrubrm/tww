@@ -16,6 +16,10 @@
 
 static f32 kt_scale = 1.5f;
 
+static inline f32* kt_px(fopAc_ac_c* a) { return &a->current.pos.x; }
+static inline f32* kt_py(fopAc_ac_c* a) { return &a->current.pos.y; }
+static inline f32* kt_pz(fopAc_ac_c* a) { return &a->current.pos.z; }
+
 /* 00000078-000001BC       .text kotori_draw__FP8kt_class */
 void kotori_draw(kt_class* i_this) {
     kt_scale = REG0_F(0) + 1.0f;
@@ -44,24 +48,19 @@ static BOOL daKt_Draw(kt_class* i_this) {
 
 /* 000001E0-000011D4       .text kotori_move__FP8kt_class */
 void kotori_move(kt_class* i_this) {
-    /* Nonmatching - regalloc */
-    f32* r28;
-    f32* r27;
-    f32* r26;
-    
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     bool dispWing = false;
     u8 ret = 0;
     dBgS_GndChk gndChk;
 
-    f32 dx = player->current.pos.x - *(r28 = &i_this->current.pos.x);
-    f32 dz = player->current.pos.z - *(r27 = &i_this->current.pos.z);
+    f32 dx = player->current.pos.x - *kt_px(i_this);
+    f32 dz = player->current.pos.z - *kt_pz(i_this);
     f32 dist_xz = std::sqrtf(dx*dx + dz*dz);
     cLib_addCalcAngleS2(&i_this->mAngleRoll, 0, 2, REG0_S(4) + 0x1000);
 
-    f32 vx = i_this->mTargetPos.x - *r28;
-    f32 vy = i_this->mTargetPos.y - *(r26 = &i_this->current.pos.y);
-    f32 vz = i_this->mTargetPos.z - *r27;
+    f32 vx = i_this->mTargetPos.x - *kt_px(i_this);
+    f32 vy = i_this->mTargetPos.y - *kt_py(i_this);
+    f32 vz = i_this->mTargetPos.z - *kt_pz(i_this);
     s16 angleX = cM_atan2s(vx, vz);
     s16 angleY = -cM_atan2s(vy, std::sqrtf(vx*vx + vz*vz));
 
@@ -132,9 +131,9 @@ calc_012:
         cMtx_YrotS(*calc_mtx, *r18);
         cMtx_XrotM(*calc_mtx, *r17);
         MtxPosition(&offs, &i_this->mSpeedVel);
-        *r28 += i_this->mSpeedVel.x;
-        *r26 += i_this->mSpeedVel.y;
-        *r27 += i_this->mSpeedVel.z;
+        *kt_px(i_this) += i_this->mSpeedVel.x;
+        *kt_py(i_this) += i_this->mSpeedVel.y;
+        *kt_pz(i_this) += i_this->mSpeedVel.z;
         if (i_this->mLiftYTimer >= 0.0f)
             dispWing = true;
         ret = 2;
@@ -149,11 +148,11 @@ calc_012:
         offs.z = i_this->mSpeedFwd;
         cMtx_YrotS(*calc_mtx, *r16);
         MtxPosition(&offs, &pt);
-        *r28 += pt.x;
-        *r27 += pt.z;
-        cLib_addCalc2(&*r26, i_this->mGroundY, REG0_F(6) + 0.3f, REG0_F(7) + 20.0f);
-        if (std::fabsf(*r26 - i_this->mGroundY) < 1.0f) {
-            *r26 = i_this->mGroundY;
+        *kt_px(i_this) += pt.x;
+        *kt_pz(i_this) += pt.z;
+        cLib_addCalc2(kt_py(i_this), i_this->mGroundY, REG0_F(6) + 0.3f, REG0_F(7) + 20.0f);
+        if (std::fabsf(*kt_py(i_this) - i_this->mGroundY) < 1.0f) {
+            *kt_py(i_this) = i_this->mGroundY;
             i_this->mMode = 10;
         }
         dispWing = true;
@@ -181,10 +180,10 @@ calc_012:
         offs.z = i_this->mSpeedFwd;
         cMtx_YrotS(*calc_mtx, *r16);
         MtxPosition(&offs, &pt);
-        *r28 += pt.x;
-        *r27 += pt.z;
-        cLib_addCalc2(&*r26, i_this->mTargetPos.y, REG0_F(6) + 0.5f, REG0_F(7) + 20.0f);
-        if (std::fabsf(*r26 - i_this->mTargetPos.y) < 1.0f) {
+        *kt_px(i_this) += pt.x;
+        *kt_pz(i_this) += pt.z;
+        cLib_addCalc2(kt_py(i_this), i_this->mTargetPos.y, REG0_F(6) + 0.5f, REG0_F(7) + 20.0f);
+        if (std::fabsf(*kt_py(i_this) - i_this->mTargetPos.y) < 1.0f) {
             i_this->mMode = 20;
             i_this->mSpeedLerp = 0.0f;
         }
@@ -193,12 +192,12 @@ calc_012:
         break;
     case 20:
         i_this->mTargetPos = headTopPos;
-        cLib_addCalc2(&*r28, i_this->mTargetPos.x, 1.0f, i_this->mSpeedLerp);
-        cLib_addCalc2(&*r26, i_this->mTargetPos.y, 1.0f, i_this->mSpeedLerp * 0.5f);
-        cLib_addCalc2(&*r27, i_this->mTargetPos.z, 1.0f, i_this->mSpeedLerp);
+        cLib_addCalc2(kt_px(i_this), i_this->mTargetPos.x, 1.0f, i_this->mSpeedLerp);
+        cLib_addCalc2(kt_py(i_this), i_this->mTargetPos.y, 1.0f, i_this->mSpeedLerp * 0.5f);
+        cLib_addCalc2(kt_pz(i_this), i_this->mTargetPos.z, 1.0f, i_this->mSpeedLerp);
         cLib_addCalc2(&i_this->mSpeedLerp, 1000.0f, 1.0f, REG0_F(16) + 10.0f);
         cLib_addCalcAngleS2(&i_this->current.angle.y, player->shape_angle.y, 2, 0x1000);
-        if (std::fabsf(*r26 - i_this->mTargetPos.y) > 1.0f)
+        if (std::fabsf(*kt_py(i_this) - i_this->mTargetPos.y) > 1.0f)
             dispWing = true;
         if (CPad_CHECK_TRIG_LEFT(0)) {
             i_this->mMode = 0;
@@ -227,8 +226,8 @@ calc_012:
         offs.z = REG0_F(11) + 10.0f;
         cMtx_YrotS(*calc_mtx, *r16_2);
         MtxPosition(&offs, &i_this->mSpeedVel);
-        *r28 += i_this->mSpeedVel.x;
-        *r27 += i_this->mSpeedVel.z;
+        *kt_px(i_this) += i_this->mSpeedVel.x;
+        *kt_pz(i_this) += i_this->mSpeedVel.z;
         goto calc_11;
         break;
     }
@@ -246,7 +245,7 @@ calc_012:
             i_this->mTargetPos.z = i_this->mTargetPosHome.z + cM_rndFX(1000.0f);
         }
 calc_11:
-        *r26 -= 5.0f;
+        *kt_py(i_this) -= 5.0f;
         if (!i_this->mHitGround || dist_xz < (REG0_F(15) * 100.0f + 1500.0f)) {
             i_this->mMode = 0;
             i_this->mTimer[0] = 0;
@@ -261,14 +260,14 @@ calc_11:
     i_this->mHitGround = false;
     if (i_this->mMode >= 8) {
         Vec pos;
-        pos.x = *r28;
-        pos.y = *r26;
-        pos.z = *r27;
+        pos.x = *kt_px(i_this);
+        pos.y = *kt_py(i_this);
+        pos.z = *kt_pz(i_this);
         pos.y += 1000.0f;
         gndChk.SetPos(&pos);
         i_this->mGroundY = dComIfG_Bgsp()->GroundCross(&gndChk);
-        if (*r26 <= i_this->mGroundY) {
-            *r26 = i_this->mGroundY;
+        if (*kt_py(i_this) <= i_this->mGroundY) {
+            *kt_py(i_this) = i_this->mGroundY;
             i_this->mHitGround = true;
         }
     }
@@ -290,6 +289,7 @@ calc_11:
         i_this->mWingScale = 100.0f;
     }
 }
+
 
 /* 000011D4-00001240       .text daKt_Execute__FP8kt_class */
 static BOOL daKt_Execute(kt_class* i_this) {
