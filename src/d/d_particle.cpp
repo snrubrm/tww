@@ -1135,40 +1135,42 @@ void dPa_ripplePcallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* ptcl
 
 /* 8007DE94-8007E254       .text draw__19dPa_ripplePcallBackFP14JPABaseEmitterP15JPABaseParticle */
 void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
+    f32 z0;
+    f32 z1;
+    f32 z2;
+    f32 z3;
+    f32 sin;
+    f32 halfY;
+    f32 nx;
+    f32 cos;
+    f32 ny;
+    f32 halfX;
     f32 posX = particle->mGlobalPosition.x;
     f32 posY = particle->mGlobalPosition.y;
     f32 posZ = particle->mGlobalPosition.z;
     JPADrawParams* params = particle->getDrawParamPPtr();
-    f32 sin = JMASSin(params->mRotateAngle);
-    f32 cos = JMASCos(params->mRotateAngle);
-    f32 halfX = 0.5f * (2.0f * params->mScaleX * JPADraw::cb.mGlobalScaleX);
-    f32 halfY = 0.5f * (2.0f * params->mScaleY * JPADraw::cb.mGlobalScaleY);
-    f32 nx = -halfX;
-    f32 ny = -halfY;
-    f32 cz = cos * halfY;
-    f32 sxn = sin * nx;
-    f32 z0 = cz + sxn;
-    f32 cxn = cos * nx;
-    f32 sy = sin * halfY;
-    f32 x0 = cxn - sy;
-    f32 sx = sin * halfX;
-    f32 z1 = cz + sx;
-    f32 cx = cos * halfX;
-    f32 x1 = cx - sy;
-    f32 cyn = cos * ny;
-    f32 z2 = cyn + sx;
-    f32 syn = sin * ny;
-    f32 x2 = cx - syn;
-    f32 z3 = cyn + sxn;
-    f32 x3 = cxn - syn;
+    sin = JMASSin(params->mRotateAngle);
+    cos = JMASCos(params->mRotateAngle);
+    halfX = 0.5f * (2.0f * params->mScaleX * JPADraw::cb.mGlobalScaleX);
+    halfY = 0.5f * (2.0f * params->mScaleY * JPADraw::cb.mGlobalScaleY);
+    nx = -halfX;
+    ny = -halfY;
+    z0 = cos * halfY + sin * nx;
+    f32 x0 = cos * nx - sin * halfY;
+    z1 = cos * halfY + sin * halfX;
+    f32 x1 = cos * halfX - sin * halfY;
+    z2 = cos * ny + sin * halfX;
+    f32 x2 = cos * halfX - sin * ny;
+    z3 = cos * ny + sin * nx;
+    f32 x3 = cos * nx - sin * ny;
 
     f32 y0;
     f32 y1;
     f32 y2;
     f32 y3;
+    cXyz chk;
+    f32 height;
     if (dPa_control_c::isStatus(1)) {
-        cXyz chk;
-        f32 height;
         chk.x = x0 + posX;
         chk.y = posY;
         chk.z = z0 + posZ;
@@ -1202,8 +1204,9 @@ void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
             y3 = 2.0f + posY;
         }
     } else {
-        cXyz chk(posX, posY, posZ);
-        f32 height;
+        chk.x = posX;
+        chk.y = posY;
+        chk.z = posZ;
         if (fopAcM_getWaterY(&chk, &height)) {
             y0 = 2.0f + height;
         } else {
