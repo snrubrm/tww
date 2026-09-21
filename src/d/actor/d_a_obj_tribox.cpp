@@ -91,7 +91,7 @@ BOOL daObjTribox::Act_c::solidHeapCB(fopAc_ac_c* i_this) {
 }
 
 /* 000001C8-000004B0       .text create_heap__Q211daObjTribox5Act_cFv */
-bool daObjTribox::Act_c::create_heap() {
+u8 daObjTribox::Act_c::create_heap() {
     J3DModelData* model_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BDL_MTRYB_e));
     JUT_ASSERT(0x140, model_data != 0);
 
