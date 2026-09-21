@@ -483,11 +483,8 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF1(int i_no) {
     if (mRemain[i_no].mUserArea < 26) {
         mRemain[i_no].mUserArea++;
         f32 t = SQUARE((f32)mRemain[i_no].mUserArea) / 676.0f;
-        f32 rot = 720.0f;
-        f32 inv = 1.0f - t;
-        rot *= inv;
-        rot += (f32)mFailed[i_no].mUserArea;
-        fopMsgM_paneTrans(&mFailed[i_no], -150.0f * inv, 0.0f);
+        f32 rot = 720.0f * (1.0f - t) + (f32)mFailed[i_no].mUserArea;
+        fopMsgM_paneTrans(&mFailed[i_no], -150.0f * (1.0f - t), 0.0f);
         setRotate(&mFailed[i_no], rot);
         fopMsgM_setNowAlpha(&mFailed[i_no], t);
     } else {
