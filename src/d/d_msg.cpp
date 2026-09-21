@@ -1238,13 +1238,14 @@ static void unused_5874() {
 
 /* 8020F844-8020FC10       .text dMsg_arrowMove__FP13sub_msg_class */
 void dMsg_arrowMove(sub_msg_class* i_Msg) {
-    /* Nonmatching */
     static const s32 time[] = {0x00, 0x3C, 0x07, 0x04, 0x03, 0x02};
     static const f32 scaleX[] = {1.0f, 1.3f, 0.8f, 1.2f, 1.0f};
     static const f32 scaleY[] = {1.0f, 0.3f, 1.1f, 0.8f, 1.0f};
     f32 fVar1;
     f32 fVar2;
     f32 dVar4;
+    f32 fRatio;
+    f32 fDelta;
     s32 temp_r5;
     s32 temp_r6;
     s32 temp_r7;
@@ -1273,27 +1274,28 @@ void dMsg_arrowMove(sub_msg_class* i_Msg) {
         }
     } else {
         if (i_Msg->m1100 <= temp_r9) {
-            fVar1 = fVar2 = 1.0f;
+            fVar1 = 1.0f;
+            fVar2 = 1.0f;
         } else if (i_Msg->m1100 <= temp_r10) {
-            fVar1 = (f32)(i_Msg->m1100) - temp_r9;
-            fVar2 = (fVar1 * fVar1) / ((f32)temp_r8 * (f32)temp_r8);
-            fVar1 = scaleX[0] + (fVar2 * (scaleX[1] - scaleX[0]));
-            fVar2 = scaleY[0] + (fVar2 * (scaleY[1] - scaleY[0]));
+            fDelta = (f32)(i_Msg->m1100) - temp_r9;
+            fRatio = (fDelta * fDelta) / ((f32)time[2] * (f32)time[2]);
+            fVar1 = scaleX[0] + (fRatio * (scaleX[1] - scaleX[0]));
+            fVar2 = scaleY[0] + (fRatio * (scaleY[1] - scaleY[0]));
         } else if (i_Msg->m1100 <= temp_r11) {
-            fVar1 = (f32)(i_Msg->m1100) - temp_r10;
-            fVar2 = (fVar1 * fVar1) / ((f32)temp_r7 * (f32)temp_r7);
-            fVar1 = scaleX[1] + (fVar2 * (scaleX[2] - scaleX[1]));
-            fVar2 = scaleY[1] + (fVar2 * (scaleY[2] - scaleY[1]));
+            fDelta = (f32)(i_Msg->m1100) - temp_r10;
+            fRatio = (fDelta * fDelta) / ((f32)time[3] * (f32)time[3]);
+            fVar1 = scaleX[1] + (fRatio * (scaleX[2] - scaleX[1]));
+            fVar2 = scaleY[1] + (fRatio * (scaleY[2] - scaleY[1]));
         } else if (i_Msg->m1100 <= temp_r12) {
-            fVar1 = (f32)(i_Msg->m1100) - temp_r11;
-            fVar2 = (fVar1 * fVar1) / ((f32)temp_r6 * (f32)temp_r6);
-            fVar1 = scaleX[2] + (fVar2 * (scaleX[3] - scaleX[2]));
-            fVar2 = scaleY[2] + (fVar2 * (scaleY[3] - scaleY[2]));
+            fDelta = (f32)(i_Msg->m1100) - temp_r11;
+            fRatio = (fDelta * fDelta) / ((f32)time[4] * (f32)time[4]);
+            fVar1 = scaleX[2] + (fRatio * (scaleX[3] - scaleX[2]));
+            fVar2 = scaleY[2] + (fRatio * (scaleY[3] - scaleY[2]));
         } else if (i_Msg->m1100 <= temp_r30) {
-            fVar1 = (f32)(i_Msg->m1100) - temp_r12;
-            fVar2 = (fVar1 * fVar1) / ((f32)temp_r5 * (f32)temp_r5);
-            fVar1 = scaleX[3] + (fVar2 * (scaleX[4] - scaleX[3]));
-            fVar2 = scaleY[3] + (fVar2 * (scaleY[4] - scaleY[3]));
+            fDelta = (f32)(i_Msg->m1100) - temp_r12;
+            fRatio = (fDelta * fDelta) / ((f32)time[5] * (f32)time[5]);
+            fVar1 = scaleX[3] + (fRatio * (scaleX[4] - scaleX[3]));
+            fVar2 = scaleY[3] + (fRatio * (scaleY[4] - scaleY[3]));
         } else {
             fVar1 = 1.0f;
             fVar2 = fVar1;
