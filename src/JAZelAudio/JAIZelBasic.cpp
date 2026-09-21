@@ -726,12 +726,10 @@ void JAIZelBasic::bgmStart(u32 i_bgmNum, u32 i_fadeTime, s32 param_3) {
     if (field_0x0066 != 0 && (i_bgmNum + 0x80000000) != 0x1E) {
         return;
     }
-    if ((i_bgmNum + 0x80000000) == 0x800) {
+    if ((i_bgmNum + 0x80000000) == 0x800 || i_bgmNum == 0) {
         return;
     }
-    if (i_bgmNum == 0) {
-        return;
-    } else if (i_bgmNum + 0x10000 == 0xFFFF) {
+    if (i_bgmNum + 0x10000 == 0xFFFF) {
         return;
     }
     if (i_bgmNum + 0x40000000 == 0) {
@@ -1000,11 +998,9 @@ void JAIZelBasic::bgmStart(u32 i_bgmNum, u32 i_fadeTime, s32 param_3) {
     }
 
     if ((i_bgmNum + 0x80000000) != 0xA) {
-        f32 one = 1.0f;
-        f32 vol = field_0x00ac * (field_0x009c * (field_0x0098 * (field_0x0094 * (field_0x0090 * (field_0x008c * (field_0x0088 * (field_0x0080 * field_0x0084)))))));
-        if (one != vol && (i_bgmNum + 0x80000000) != 0x51 && (i_bgmNum + 0x80000000) != 0x52) {
+        if (1.0f != calcMainBgmVol() && (i_bgmNum + 0x80000000) != 0x51 && (i_bgmNum + 0x80000000) != 0x52) {
             if (mpMainBgmSound) {
-                mpMainBgmSound->setVolume(vol, 0, SOUNDPARAM_Unk0);
+                mpMainBgmSound->setVolume(calcMainBgmVol(), 0, SOUNDPARAM_Unk0);
             }
         }
     } else {
