@@ -287,19 +287,10 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
     }
 
     u8 prmNo = i_this->getPrmNpcNo();
-    u8 mdlNo = ((u8*)auction + prmNo)[0x80C];
+    u8 mdlNo = auction->getAucNpcNo(prmNo);
     i_this->setMdlNo(mdlNo);
 
-    fpc_ProcID id = fopAcM_GetID(i_this);
-    fpc_ProcID* pId = (fpc_ProcID*)((u8*)auction + mdlNo * 4);
-    int assigned;
-    if (pId[0x738 / 4] == fpcM_ERROR_PROCESS_ID_e) {
-        pId[0x738 / 4] = id;
-        assigned = TRUE;
-    } else {
-        assigned = FALSE;
-    }
-    if (assigned == 0) {
+    if (!auction->setNpcID(mdlNo, fopAcM_GetID(i_this))) {
         return cPhs_INIT_e;
     }
 

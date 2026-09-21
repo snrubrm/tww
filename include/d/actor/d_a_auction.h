@@ -24,7 +24,7 @@ public:
     void chkNpcExec(int) {}
     void getAnmNpcNo() {}
     u8 getAucMdlNo(u8 idx) { return mAucMdlNo[idx]; }
-    void getAucNpcNo(unsigned char) {}
+    u8 getAucNpcNo(u8 idx) { return m80C[idx]; }
     void getBetNpcNo() {}
     void getKind(unsigned char) {}
     void getNpcNo() {}
@@ -42,7 +42,13 @@ public:
     void setAucMdlNo(u8 idx, u8 mdlNo) { mAucMdlNo[idx] = mdlNo; }
     void setItemNo(unsigned char) {}
     void setKind(unsigned char, unsigned char) {}
-    void setNpcID(int, fpc_ProcID) {}
+    BOOL setNpcID(int idx, fpc_ProcID id) {
+        if (m738[idx] == fpcM_ERROR_PROCESS_ID_e) {
+            m738[idx] = id;
+            return TRUE;
+        }
+        return FALSE;
+    }
     void setStart(unsigned char) {}
 
     cPhs_State _create();
