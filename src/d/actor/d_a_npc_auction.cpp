@@ -478,8 +478,8 @@ void daNpcAuction_c::wait_action() {
                     }
                 }
             }
-            setAnmFromMsgTag();
         }
+        setAnmFromMsgTag();
     }
     if (mAnmNo == 0) {
         setAnm2(7, 2, 8.0f);
