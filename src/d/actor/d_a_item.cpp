@@ -976,7 +976,6 @@ BOOL daItem_c::itemActionForEmono() {
 
 /* 800F73A4-800F7898       .text itemActionForSword__8daItem_cFv */
 BOOL daItem_c::itemActionForSword() {
-    /* Nonmatching - retail-only regalloc */
     mAcch.CrrPos(*dComIfG_Bgsp());
     
     bool isQuake = dComIfGp_getDetect().chk_quake(&current.pos);
@@ -1004,7 +1003,7 @@ BOOL daItem_c::itemActionForSword() {
     cXyz bottomPos(0.0f, 0.0f, 0.0f);
     cXyz topPos(0.0f, 50.0f, 0.0f);
     mDoMtx_stack_c::transS(current.pos);
-    mDoMtx_stack_c::ZXYrotM(current.angle);
+    mDoMtx_stack_c::ZXYrotM(current.angle.x, current.angle.y, current.angle.z);
     mDoMtx_stack_c::multVec(&bottomPos, &bottomPos);
     mDoMtx_stack_c::multVec(&topPos, &topPos);
     gndChk.SetPos(&bottomPos);
