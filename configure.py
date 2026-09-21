@@ -1593,7 +1593,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_obj_swhammer"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_obj_swheavy"),
     ActorRel(Matching,    "d_a_obj_swlight"),
-    ActorRel(NonMatching, "d_a_oq"),
+    ActorRel(MatchingFor("GZLE01"), "d_a_oq"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),  "d_a_pedestal"),
     ActorRel(MatchingFor("GZLE01"), "d_a_saku"),
     ActorRel(Matching,    "d_a_seatag"),
