@@ -426,7 +426,7 @@ u16 daNpc_Kf1_c::next_msgStatus(u32* msg) {
         *msg = 0x1C2E;
         break;
     case 0x1C33:
-        *msg = mSavedRupees < mBrokenPots * 10 ? 0x1C2F : 0x1C30;
+        *msg = 0x1C30 + (mSavedRupees < mBrokenPots * 10 ? 0 : -1);
         break;
     case 0x1C36:
         *msg = 0x1C37;
