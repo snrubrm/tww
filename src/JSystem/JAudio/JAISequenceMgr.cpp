@@ -596,7 +596,7 @@ void JAInter::SequenceMgr::checkDvdLoadArc(u32, u32 data) {
 
 /* 80297FD0-80298208       .text storeSeqBuffer__Q27JAInter11SequenceMgrFPP8JAISoundPQ27JAInter5ActorUlUlUcPv */
 void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 soundID, u32 fadeTime, u8 priority, void* info) {
-    /* Nonmatching - register allocation and instruction ordering */
+    JAISound* sound;
     u32 track = ((u8*)info)[5];
     if (handle && *handle) {
         if (track != (*handle)->field_0x4) {
@@ -607,11 +607,10 @@ void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 s
     }
     JAISound*& playing = seqTrackInfo[track].field_0x48;
     u32 available;
-    JAISound* sound;
     if (!playing) {
         available = 1;
     } else if (playing->mState == 5) {
-        playing->getSeqParameter()->mTrack.stopSeq();
+        playing->getSeqParameter()->getRootTrackPointer()->stopSeq();
         playing->clearMainSoundPPointer();
         stopSeq(playing);
         available = 1;
@@ -619,7 +618,7 @@ void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 s
         *handle = NULL;
         return;
     } else if (((u8*)playing->field_0x40)[4] <= ((u8*)info)[4]) {
-        playing->getSeqParameter()->mTrack.stopSeq();
+        playing->getSeqParameter()->getRootTrackPointer()->stopSeq();
         playing->clearMainSoundPPointer();
         stopSeq(playing);
         available = 1;
