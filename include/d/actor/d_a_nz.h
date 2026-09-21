@@ -93,19 +93,4 @@ public:
 
 STATIC_ASSERT(sizeof(nz_class) == 0xF64);
 
-class daNZ_HIO_c : public mDoHIO_entry_c {
-public:
-    daNZ_HIO_c();
-    virtual ~daNZ_HIO_c() {}
-
-public:
-    /* 0x04 */ f32 m04;
-    /* 0x08 */ f32 m08;
-    /* 0x0C */ f32 m0C;
-    /* 0x10 */ f32 m10;
-    /* 0x14 */ f32 m14;
-};
-
-STATIC_ASSERT(sizeof(daNZ_HIO_c) == 0x18);
-
 #endif /* D_A_NZ_H */
