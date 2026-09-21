@@ -3594,7 +3594,6 @@ void dMap_Dmap_c::init(s16 param_1, s16 param_2, s16 param_3, s16 param_4, s16 p
 
 /* 800504C4-800517AC       .text draw__11dMap_Dmap_cFv */
 void dMap_Dmap_c::draw() {
-    /* Nonmatching */
     static const GXColor backColorWhite = {185, 135, 0, 255};
     static const GXColor backColorBlack = {150, 80, 0, 255};
     static const GXColor wallPaperColorWhite = {255, 255, 255, 255};
@@ -3602,6 +3601,12 @@ void dMap_Dmap_c::draw() {
     static const GXColor edgeColor = {255, 255, 255, 255};
 
     f32 f30, f29, f28;
+    GXTexObj* r26;
+    s16 r25;
+    s16 r24;
+    s16 r23;
+    s16 r22;
+    s16 r21;
     JUT_ASSERT(VERSION_SELECT(10663, 10663, 10663, 10663), mMaskHeight != 0.0f);
     f32 f27 = field_0x368 / 64.0f;
     f32 f26 = field_0x36a / 64.0f;
@@ -3611,18 +3616,16 @@ void dMap_Dmap_c::draw() {
     if (f30 > 1.0f) {
         f30 = 2.0f - f30;
     }
-    s16 r21 = field_0x35e - (mMaskHeight >> 1);
-    s16 r25 = field_0x364 - (field_0x368 >> 1);
-    s16 r24 = field_0x364 + (field_0x368 >> 1);
-    s16 r23 = field_0x366 + (field_0x36a >> 1) + (field_0x36c + (field_0x36a + field_0x36c) * 4);
+    r21 = field_0x35e - (mMaskHeight >> 1);
+    r25 = field_0x364 - (field_0x368 >> 1);
+    r24 = field_0x364 + (field_0x368 >> 1);
+    r23 = field_0x366 + (field_0x36a >> 1) + (field_0x36c + (field_0x36a + field_0x36c) * 4);
     GXVtxAttrFmtList fmtList[GX_VA_MAX_ATTR + 1];
     GXGetVtxAttrFmtv(GX_VTXFMT0, fmtList);
     GXLoadPosMtxImm(mDoMtx_getIdentity(), GX_PNMTX0);
     GXSetCurrentMtx(GX_PNMTX0);
     setTlutDblBufNo(0);
     changeTlutDblBufNo();
-    s16 r22;
-    GXTexObj* r26;
     for (int i = 0; i < 10; i++) {
         if (r23 <= 480) {
             r22 = r23 + field_0x36a;
