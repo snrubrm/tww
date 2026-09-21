@@ -307,25 +307,24 @@ void dDlst_TerminaterScrnDraw_c::setScrnSuccess(int i_rupee, int i_time) {
         '\0rkr',
     };
 
-    int i;
-    for (i = 0; i < dMgtem_perfect_tex; i++) {
+    for (int i = 0; i < dMgtem_perfect_tex; i++) {
         fopMsgM_setPaneData(&mPerfect[i], mpScrn->search(perfect[i]));
     }
 
-    for (i = 0; i < dMgtem_failed_tex; i++) {
+    for (int i = 0; i < dMgtem_failed_tex; i++) {
         mpScrn->search(failed[i])->hide();
     }
 
-    for (i = 0; i < dMgtem_yougot_tex; i++) {
+    for (int i = 0; i < dMgtem_yougot_tex; i++) {
         fopMsgM_setPaneData(&mYouGot[i], mpScrn, yougot[i]);
     }
 
-    for (i = 0; i < dMgtem_remain_tex; i++) {
+    for (int i = 0; i < dMgtem_remain_tex; i++) {
         fopMsgM_setPaneData(&mRemain[i], mpScrn, remaintime[i]);
         fopMsgM_setPaneData(&mRemainK[i], mpScrn, remaintimek[i]);
     }
 
-    for (i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         fopMsgM_setPaneData(&mPerfectNt[i], mpScrn->search(perfect_nt[i]));
         fopMsgM_setPaneData(&mPerfectNk[i], mpScrn->search(perfect_nk[i]));
     }
@@ -360,10 +359,8 @@ void dDlst_TerminaterScrnDraw_c::setScrnSuccess(int i_rupee, int i_time) {
     mRupeePane[4] = mpScrn->search('rpk2');
     mRupeePane[5] = mpScrn->search('rpk1');
 
-    int rupee = i_rupee;
-    int time = i_time;
-    int cs = time % 100;
-    int sec = time / 100;
+    int sec = i_time / 100;
+    i_time = i_time - sec * 100;
     int min = sec / 60;
     sec = sec - min * 60;
 
@@ -371,18 +368,18 @@ void dDlst_TerminaterScrnDraw_c::setScrnSuccess(int i_rupee, int i_time) {
     changeNumberTexture(mNum[6].pane, min % 10);
     changeNumberTexture(mNum[4].pane, sec / 10);
     changeNumberTexture(mNum[3].pane, sec % 10);
-    changeNumberTexture(mNum[1].pane, cs / 10);
-    changeNumberTexture(mNum[0].pane, cs % 10);
+    changeNumberTexture(mNum[1].pane, i_time / 10);
+    changeNumberTexture(mNum[0].pane, i_time % 10);
     changeNumberTexture(mNumK[7].pane, min / 10);
     changeNumberTexture(mNumK[6].pane, min % 10);
     changeNumberTexture(mNumK[4].pane, sec / 10);
     changeNumberTexture(mNumK[3].pane, sec % 10);
-    changeNumberTexture(mNumK[1].pane, cs / 10);
-    changeNumberTexture(mNumK[0].pane, cs % 10);
+    changeNumberTexture(mNumK[1].pane, i_time / 10);
+    changeNumberTexture(mNumK[0].pane, i_time % 10);
 
     int r001 = i_rupee % 10;
-    int r100 = i_rupee / 100;
     int r010 = (i_rupee % 100) / 10;
+    int r100 = i_rupee / 100;
     changeNumberTexture(mRupeePane[0], r001);
     changeNumberTexture(mRupeePane[1], r010);
     changeNumberTexture(mRupeePane[2], r100);
