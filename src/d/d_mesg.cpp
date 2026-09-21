@@ -1357,8 +1357,7 @@ void dMesg_screenDataTalk_c::changeFont(JUTFont* font) {
 
 /* 801E39F8-801E3BBC       .text openAnime__22dMesg_screenDataTalk_cFv */
 bool dMesg_screenDataTalk_c::openAnime() {
-    /* Nonmatching - fpr regswap */
-    f32 f31, f30, f29, f28, tmp;
+    f32 f29, f28, f31, f30, tmp;
     bool ret = false;
     mTimer++;
     if (mTimer >= 13) {
