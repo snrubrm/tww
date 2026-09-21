@@ -271,23 +271,19 @@ BOOL wing_cut_stat(gm_class* i_this) {
         cXyz(-144.0f, 72.0f, -30.0f),
     };
 
-    int off = 0;
     int i = 0;
     int bit = 1;
     while (i < 4) {
         if ((i_this->mWingBits & bit) == 0) {
             u32 parameters = (i + 1) | 0x100;
             if (i_this->m2D0 == 4) {
-                parameters = (i + 1) | 0x200;
+                parameters = i;
+                parameters = (parameters + 1) | 0x200;
             }
 
-            cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+            cMtx_YrotS(*calc_mtx, (int)actor->shape_angle.y);
 
-            cXyz* src = (cXyz*)((char*)wing_birth_pos_dt + off);
-            cXyz offset;
-            offset.x = src->x;
-            offset.y = src->y;
-            offset.z = src->z;
+            cXyz offset = wing_birth_pos_dt[i];
             cXyz pos;
             MtxPosition(&offset, &pos);
             pos += actor->current.pos + i_this->mDrawOffset;
@@ -320,7 +316,6 @@ BOOL wing_cut_stat(gm_class* i_this) {
 
         bit <<= 1;
         i++;
-        off += (int)sizeof(cXyz);
     }
 
     if (actor->health <= 0 || i_this->m2D1 == 10) {
