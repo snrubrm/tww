@@ -329,7 +329,7 @@ void daNpc_Ds1_c::checkOrder() {
 /* 000011F8-00001698       .text next_msgStatus__11daNpc_Ds1_cFPUl */
 u16 daNpc_Ds1_c::next_msgStatus(u32* msg) {
     u16 status = 15;
-    int price;
+    u32 price;
     u32 msgNo = *msg;
     switch (msgNo) {
     case 0x1DB1:
