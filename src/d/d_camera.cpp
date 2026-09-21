@@ -6119,40 +6119,25 @@ bool dCamera_c::hungCamera(s32 param_1) {
         work->m390 = 0.0f;
         work->m388 = 0;
         work->m3AC = work->m394 = positionOf(mpPlayerActor).y;
-        work->m3C4 = work->m3C0 = 0.75f;
-        work->m3D8 = work->m3DC = 0.0f;
+        work->m3C0 = work->m3C4 = 0.75f;
+        work->m3DC = work->m3D8 = 0.0f;
         work->m3BC = 0;
         work->m3A4 = val4;
         work->m38C = 0;
 
-        cXyz delta = mCenter - relationalPos(mpPlayerActor, &posOffset);
-        f32 dist = delta.abs();
-        f32 f20;
-        if (val10 > dist) {
-            f20 = val10;
-        } else {
-            f20 = dist;
-        }
+        f32 dist = cXyz(mCenter - relationalPos(mpPlayerActor, &posOffset)).abs();
+        f32 f20 = val10 > dist ? val10 : dist;
 
-        f32 height;
-        if (is_player(mpPlayerActor)) {
-            height = ((daPy_py_c*)mpPlayerActor)->getHeight();
-        } else {
-            height = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
-        }
-        if (height < 10.0f) {
-            height = 10.0f;
-        }
-        f20 /= height;
+        f32 height = get_actor_height(mpPlayerActor);
+        f20 /= height < 10.0f ? 10.0f : height;
 
-        cSAngle ang = directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U();
-        f32 angFac = std::fabsf(2.0f * ang.Norm());
+        f32 angFac = std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
         f32 t = 5.0f * std::sqrtf(f20);
         work->m37C = (int)(t * (1.0f + angFac)) + 1;
         work->m380 = work->m37C * (work->m37C + 1) >> 1;
     }
 
-    if (!check_owner_action(mPadId, daPyStts0_UNK1_e)) {
+    if (!check_owner_action(mPadId, daPyStts0_UNK80000000_e)) {
         work->m394 += (positionOf(mpPlayerActor).y - work->m394) * 0.05f;
     }
 
@@ -6163,7 +6148,8 @@ bool dCamera_c::hungCamera(s32 param_1) {
         mViewCache.mCenter += (work->m3B0 - mViewCache.mCenter) * val3;
 
         f32 spR = limitf(mViewCache.mDirection.R(), val11, val10);
-        cSGlobe globe(spR, cSAngle(val15), cSAngle(directionOf(mpPlayerActor).Inv()));
+        cSAngle v15(val15);
+        cSGlobe globe(spR, v15, cSAngle(directionOf(mpPlayerActor).Inv()));
         mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (globe.R() - mViewCache.mDirection.R()));
         mViewCache.mDirection.V(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
         mViewCache.mDirection.U(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
@@ -6203,9 +6189,9 @@ bool dCamera_c::hungCamera(s32 param_1) {
         cXyz player = positionOf(mpPlayerActor);
         cXyz proj = dCamMath::xyzProjPosOnYZ(directionOf(mpPlayerActor), player, rope);
         f32 hdist = dCamMath::xyzHorizontalDistance(player, proj);
-        latAdd = cM_atan2f(proj.y - player.y, hdist) * 57.295776f;
+        latAdd = cM_atan2f(hdist, proj.y - player.y) * 57.295776f;
         cSAngle ropeYaw(cLib_targetAngleY(&rope, &player));
-        if ((ropeYaw - directionOf(mpPlayerActor)).Cos() < 0.0f) {
+        if (cSAngle(ropeYaw - directionOf(mpPlayerActor)).Cos() > 0.0f) {
             latAdd = -latAdd;
         }
     } else if (check_owner_action(mPadId, daPyStts0_UNK80000000_e | daPyStts0_UNK80_e)) {
@@ -6229,28 +6215,29 @@ bool dCamera_c::hungCamera(s32 param_1) {
     f32 targetR;
     cSAngle targetV;
     cSAngle targetU;
-    if (check_owner_action(mPadId, daPyStts0_UNK1_e) && work->m38C < 10) {
+    if (check_owner_action(mPadId, daPyStts0_UNK80000000_e) && work->m38C < 10) {
         targetR = globe.R();
         targetV = globe.V();
         targetU = globe.U();
-        f32 t = 1.0f - (f32)work->m38C / 10.0f;
-        val14 += (1.0f - val14) * t;
-        val19 += (1.0f - val19) * t;
+        val14 += (1.0f - val14) * (1.0f - (f32)work->m38C / 10.0f);
+        val19 += (1.0f - val19) * (1.0f - (f32)work->m38C / 10.0f);
         work->m38C++;
     } else {
-        if (!check_owner_action(mPadId, daPyStts0_UNK1_e)) {
+        if (!check_owner_action(mPadId, daPyStts0_UNK80000000_e)) {
             work->m38C = 0;
         }
         targetR = globe.R();
-        if (check_owner_action(mPadId, daPyStts0_UNK80_e)) {
+        u32 isUnk80 = check_owner_action(mPadId, daPyStts0_UNK80_e);
+        if (isUnk80) {
             targetR = mViewCache.mDirection.R() + val13 * (val11 - mViewCache.mDirection.R());
+        } else if (targetR > val10) {
+            targetR = globe.R() + val13 * (val10 - globe.R());
+        } else if (targetR < val11) {
+            targetR = globe.R() + val13 * (val11 - globe.R());
+        }
+        if (isUnk80) {
             targetV.Val(val16);
         } else {
-            if (targetR > val10) {
-                targetR = globe.R() + val13 * (val10 - globe.R());
-            } else if (targetR < val11) {
-                targetR = globe.R() + val13 * (val11 - globe.R());
-            }
             targetV.Val(val15 + latAdd * val18);
         }
         targetU.Val(directionOf(mpPlayerActor).Inv());
