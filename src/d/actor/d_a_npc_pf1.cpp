@@ -333,9 +333,10 @@ void daNpc_Pf1_c::eventOrder() {
 void daNpc_Pf1_c::checkOrder() {
     if (eventInfo.getCommand() == dEvtCmd_INDEMO_e) {
         if (dComIfGp_evmng_startCheck(mEventIdx[mEventNo]) && mOrder >= 3) {
-            // Dummy volatile load keeps orig's vestigial `lha mEventNo`; the following dead `cmpwi r0,0` still DCE's.
-            switch (*(volatile s16*)&mEventNo) {
-            case 0: break;
+            switch (mEventNo) {
+            case 0:
+                for (int i = 0; i < 1; i++) {}
+                break;
             }
             mOrder = 0;
             mAnmAttr = 0xFF;
