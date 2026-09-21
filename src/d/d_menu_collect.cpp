@@ -3017,6 +3017,7 @@ void dMenu_Collect_c::itemnoteSet() {
     fopMsgM_itemMsgGet_c msgGet;
     int triforceCount;
     u32 msgNo;
+    J2DPicture* pic;
     
     msgNo = 0;
     triforceCount = 0;
@@ -3307,7 +3308,7 @@ void dMenu_Collect_c::itemnoteSet() {
 
                 fopMsgM_blendDraw(&m0B0[m27E0], "font_10.bti");
 
-                J2DPicture* pic = (J2DPicture*)m0B0[m27E0].pane;
+                pic = (J2DPicture*)m0B0[m27E0].pane;
 
                 pic->setBlendColorRatio(
                     0.0f,
