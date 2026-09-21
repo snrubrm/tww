@@ -3055,23 +3055,33 @@ void dMap_2DAGBScrDsp_c::draw() {
     /* Nonmatching */
     static GXColor masterTevColor = {255, 255, 255, 255};
 
-    if (field_0x4 == NULL) {
+    if (field_0x4 == NULL || mImg == NULL) {
         return;
     }
-    if (mImg != NULL) {
-        if (mScaleX == 0.0f) {
-            return;
-        }
-        if (mScaleY != 0.0f) {
-            goto body;
-        } else {
-            return;
-        }
-    } else {
+    if (mScaleX == 0.0f || mScaleY == 0.0f) {
         return;
     }
-body: {
+    {
     GXColor color;
+    f32 texT0Flip;
+    f32 texT1Flip;
+    f32 s0;
+    f32 y1;
+    f32 texS1;
+    f32 s1;
+    f32 t1n;
+    f32 invW;
+    f32 invH;
+    f32 centerX;
+    f32 centerY;
+    f32 x0;
+    f32 x1;
+    f32 y0;
+    f32 texS0;
+    f32 t0n;
+    f32 texT0;
+    f32 texT1;
+    u16* row;
     memcpy(&color, &masterTevColor, 4);
     GXVtxAttrFmtList fmtList[GX_VA_MAX_ATTR + 1];
     GXGetVtxAttrFmtv(GX_VTXFMT0, fmtList);
@@ -3101,12 +3111,12 @@ body: {
     GXSetAlphaUpdate(GX_ENABLE);
     GXSetDstAlpha(GX_ENABLE, 0);
 
-    f32 invW = 8.0f / (int)mImg->width;
-    f32 invH = 8.0f / (int)mImg->height;
+    invW = 8.0f / (int)mImg->width;
+    invH = 8.0f / (int)mImg->height;
     u8 mapW = ((u8*)field_0x4)[0x30];
     u8 mapH = ((u8*)field_0x4)[0x31];
-    f32 centerX = 0.5f * (field_0x40 + field_0x3c);
-    f32 centerY = 0.5f * (field_0x42 + field_0x3e);
+    centerX = 0.5f * (field_0x40 + field_0x3c);
+    centerY = 0.5f * (field_0x42 + field_0x3e);
     u32 mapOff = mDoLib_cnvind32(*(u32*)((u8*)field_0x4 + 0x34));
     u16* mapBase = (u16*)((u8*)field_0x4 + mapOff);
 
@@ -3126,17 +3136,16 @@ body: {
     );
 
     int iy = 0;
-    int yPix = 0;
-    for (; iy < tileNumY; iy++, yPix += 8) {
-        f32 y0 = centerY + (offY + mScaleY * yPix);
-        f32 y1 = y0 + 8.0f * mScaleY;
+    for (; iy < tileNumY; iy++) {
+        y0 = centerY + (offY + mScaleY * (iy * 8));
+        y1 = y0 + 8.0f * mScaleY;
         int tileY = iy + startTileY;
         if (tileY < 0 || tileY >= mapH) {
             continue;
         }
 
-        f32 texT0 = 0.00625f;
-        f32 texT1 = 0.99375f;
+        texT0 = 0.00625f;
+        texT1 = 0.99375f;
         if (iy == 0) {
             texT0 = texT0Start;
             y0 = field_0x3e;
@@ -3146,20 +3155,19 @@ body: {
         }
 
         int ix = 0;
-        int xPix = 0;
-        u16* row = mapBase + tileY * mapW;
-        f32 texT0Flip = 1.0f - texT0;
-        f32 texT1Flip = 1.0f - texT1;
-        for (; ix < tileNumX; ix++, xPix += 8) {
-            f32 x0 = centerX + (offX + mScaleX * xPix);
-            f32 x1 = x0 + 8.0f * mScaleX;
+        row = mapBase + tileY * mapW;
+        texT0Flip = 1.0f - texT0;
+        texT1Flip = 1.0f - texT1;
+        for (; ix < tileNumX; ix++) {
+            x0 = centerX + (offX + mScaleX * (ix * 8));
+            x1 = x0 + 8.0f * mScaleX;
             int tileX = ix + startTileX;
             if (tileX < 0 || tileX >= mapW) {
                 continue;
             }
 
-            f32 texS0 = 0.00625f;
-            f32 texS1 = 0.99375f;
+            texS0 = 0.00625f;
+            texS1 = 0.99375f;
             if (ix == 0) {
                 texS0 = texS0Start;
                 x0 = field_0x3c;
@@ -3185,10 +3193,10 @@ body: {
 
             int idxS = info & 0xF;
             int idxT = (info >> 4) & 0x3F;
-            f32 s0 = invW * (idxS + texS0);
-            f32 s1 = invW * (idxS + texS1);
-            f32 t0n = invH * (idxT + t0);
-            f32 t1n = invH * (idxT + t1);
+            s0 = invW * (idxS + texS0);
+            s1 = invW * (idxS + texS1);
+            t0n = invH * (idxT + t0);
+            t1n = invH * (idxT + t1);
 
             GXBegin(GX_QUADS, GX_VTXFMT0, 4);
             GXPosition3f32(x0, y0, 0.0f);
