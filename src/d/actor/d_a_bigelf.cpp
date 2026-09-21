@@ -853,8 +853,10 @@ u16 daBigelf_c::talk() {
 
 /* 0000236C-00002534       .text init__10daBigelf_cFv */
 BOOL daBigelf_c::init() {
-    if (mNpcType == 0) {
+    switch (mNpcType) {
+    case 0:
         setAction(&daBigelf_c::wait_action, NULL);
+        break;
     }
     current.pos.y = home.pos.y + 30.0f;
     mAttnBasePos = current.pos;
