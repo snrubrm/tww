@@ -3001,10 +3001,11 @@ void dMap_2DAGBScrDsp_c::init(map_dt_c* param_1, ResTIMG* param_2, f32 param_3, 
 
 /* 8004E264-8004E384       .text getScrnPrm__18dMap_2DAGBScrDsp_cFffifPiPfPf */
 void dMap_2DAGBScrDsp_c::getScrnPrm(f32 param_1, f32 param_2, int param_3, f32 param_4, int* param_5, f32* param_6, f32* param_7) {
-    /* Nonmatching */
     if (param_4 != 0.0) {
-        f32 f30 = param_3;
-        f32 f31 = param_1 + param_2 * (1.0f / param_4);
+        f32 f31;
+        f32 f30;
+        f30 = param_3;
+        f31 = param_1 + param_2 * (1.0f / param_4);
         int tmp1 = floor(f31 / f30);
         if (param_5) {
             *param_5 = tmp1;
