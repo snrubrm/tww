@@ -348,7 +348,7 @@ void daNpc_P2_c::lookBack() {
     cXyz lookTarget(0.0f, 0.0f, 0.0f);
     cXyz* dstPos = NULL;
     s16 desiredAngle = current.angle.y;
-    u8 headOnly = mEventCut.getAttnNoTurnFlag();
+    bool headOnly = mEventCut.getAttnNoTurnFlag();
 
     if (m72C || mEventCut.getAttnFlag()) {
         mJnt.setTrn();
