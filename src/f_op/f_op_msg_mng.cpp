@@ -3548,10 +3548,7 @@ void fopMsgM_msgDataProc_c::colorAnime(J2DPicture* i_pic) {
 
 /* 800322B4-80034F3C       .text stringSet__21fopMsgM_msgDataProc_cFv */
 void fopMsgM_msgDataProc_c::stringSet() {
-    /* Nonmatching - regalloc */
     // demo: regswap on int r28
-    // jpn: matches 100%
-    // usa and pal: regswap on s8 r30
     s8 r30 = g_msgHIO.field_0x6c;
 
     field_0x60 = field_0x40;
@@ -3763,7 +3760,8 @@ void fopMsgM_msgDataProc_c::stringSet() {
                 const char* player_name = dComIfGs_getPlayerName();
 #else
                 char player_name[20];
-                strcpy(player_name, dComIfGs_getPlayerName());
+                const char* pn = dComIfGs_getPlayerName();
+                strcpy(player_name, pn);
 #endif
 
 #if VERSION > VERSION_JPN
