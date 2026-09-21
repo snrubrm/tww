@@ -1378,7 +1378,7 @@ bool daNpc_Bj1_c::bj_flyMove() {
         }
         break;
     case 7:
-        m849 = mPrpRotSpd < l_HIO.mChild[mType].mPrm.m46;
+        m849 = mPrpRotSpd > l_HIO.mChild[mType].mPrm.m46;
         if (m849 != 0) {
             setAnm_NUM(0xA);
             m82E = l_HIO.mChild[mType].mPrm.m20;

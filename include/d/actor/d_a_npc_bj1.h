@@ -199,7 +199,7 @@ public:
     /* 0x846 */ bool mKeepShapeAngle;
     /* 0x847 */ u8 mStopMove;
     /* 0x848 */ u8 m848;
-    /* 0x849 */ u8 m849;
+    /* 0x849 */ bool m849;
     /* 0x84A */ u8 m84A;
     /* 0x84B */ u8 m84B;
     /* 0x84C */ u8 m84C;
