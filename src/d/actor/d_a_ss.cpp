@@ -302,11 +302,11 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
 static cXyz non_pos;
 
 static void hand_move(ss_class* i_this) {
-    // Nonmatching: Register allocation differs.
-    ss_s* hand;
-    int j, i;
-    cXyz offset, world;
+    fopAc_ac_c* actor = i_this;
     dBgS_LinChk line;
+    cXyz offset, world;
+    int i, j;
+    ss_s* hand;
     non_pos.set(0.0f, -10000.0f, 0.0f);
     for (i = 0; i < 10; i++) {
         for (j = 0; j < 4; j++) {
@@ -324,7 +324,7 @@ static void hand_move(ss_class* i_this) {
                 offset.z = -1000.0f;
                 MtxPosition(&offset, &world);
                 world += i_this->current.pos;
-                line.Set(&i_this->current.pos, &world, i_this);
+                line.Set(&i_this->current.pos, &world, actor);
                 if (dComIfG_Bgsp()->LineCross(&line)) {
                     i_this->mHands[i].pos = line.GetCross();
                     i_this->home.pos = i_this->mHands[i].pos;
@@ -338,7 +338,7 @@ static void hand_move(ss_class* i_this) {
                 i_this->mHands[i].pos = i_this->current.pos;
                 world = i_this->current.pos;
                 world.y -= 1000.0f;
-                line.Set(&i_this->mHands[i].pos, &world, i_this);
+                line.Set(&i_this->mHands[i].pos, &world, actor);
                 if (dComIfG_Bgsp()->LineCross(&line)) {
                     i_this->mHands[i].pos = line.GetCross();
                     i_this->home.pos = i_this->mHands[i].pos;
