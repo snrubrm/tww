@@ -194,10 +194,6 @@ static J3DNodeCallBack l_node_call_back_tbl[] = {
     daNpc_Auction_nodeCallBack1,
 };
 
-static u32 l_mdl_status[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x27, 0x27,
-};
-
 static daNpc_Auction2_HIO_c l_npc_dat[12] = {
     daNpc_Auction2_HIO_c(0.0f, 4000, 0, 8000, 8000, -3700, 0, -8000, -8000, 1500, 1700, 195.0f, 0x7FFF, 0, 0.0f, 160.0f, 10.0f, 185.0f),
     daNpc_Auction2_HIO_c(0.0f, 4000, 0, 4000, 7000, -4000, 0, -7000, -8000, 1000, 1500, 180.0f, 0x7FFF, 0, 0.0f, 150.0f, 5.0f, 180.0f),
@@ -1092,6 +1088,10 @@ void daNpcAuction_c::setAnmTbl(sAnmDat* pDat) {
         setAnm(mpAnmDat->mAnm, mode, mpAnmDat->mMorf);
     }
 }
+
+static u32 l_mdl_status[] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x27, 0x27,
+};
 
 /* 00002874-00002928       .text isExecute__14daNpcAuction_cFv */
 BOOL daNpcAuction_c::isExecute() {

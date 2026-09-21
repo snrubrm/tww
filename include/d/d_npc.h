@@ -29,7 +29,7 @@ public:
     /* 0x1C */ f32 mAttnYOffset;
     /* 0x20 */ s16 mMaxAttnAngleY;
     /* 0x22 */ u8 m22;
-    /* 0x23 */ u8 m23[0x24 - 0x23];
+    /* 0x23 */ // padding
     /* 0x24 */ f32 mMaxAttnDistXZ;
 }; // Size: 0x28
 
