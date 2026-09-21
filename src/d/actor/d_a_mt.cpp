@@ -2384,8 +2384,8 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
         JUT_ASSERT(0x127D, actor->br_modelL[i] != 0);
         actor->br_modelR[i] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
         JUT_ASSERT(0x127F, actor->br_modelR[i] != 0);
-        actor->br_modelL[i]->setBaseScale(actor->scale);
-        actor->br_modelR[i]->setBaseScale(actor->scale);
+        actor->br_modelL[i]->setBaseScale(i_this->scale);
+        actor->br_modelR[i]->setBaseScale(i_this->scale);
     }
 
     return TRUE;
