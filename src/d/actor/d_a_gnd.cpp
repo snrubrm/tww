@@ -1903,6 +1903,8 @@ static void yawait(gnd_class* i_this) {
 static void gnd_move(gnd_class* i_this) {
     fopAc_ac_c* actor = i_this;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    cXyz vec;
+    cXyz out;
 
     switch (i_this->m2CE) {
     case 0:
@@ -1955,9 +1957,9 @@ static void gnd_move(gnd_class* i_this) {
         s8 found_near = 0;
         fopAc_ac_c* shot = (fopAc_ac_c*)fpcEx_Search(shot_s_sub, i_this);
         if (shot != NULL) {
-            cXyz diff = shot->current.pos - actor->eyePos;
+            vec = shot->current.pos - actor->eyePos;
             if (fopAcM_GetName(shot) == fpcNm_ARROW_e) {
-                f32 dist = diff.abs();
+                f32 dist = vec.abs();
                 if (dist < 10.0f * shot->speedF) {
                     if (((daArrow_c*)shot)->mbSetByZelda && i_this->m3D8 < 2) {
                         s16 ang_diff = actor->shape_angle.y - shot->current.angle.y;
@@ -1979,7 +1981,7 @@ static void gnd_move(gnd_class* i_this) {
                     }
                 }
             } else {
-                f32 dist = diff.abs();
+                f32 dist = vec.abs();
                 if (dist < 10.0f * shot->speedF) {
                     found_near = 1;
                 }
@@ -2010,13 +2012,11 @@ static void gnd_move(gnd_class* i_this) {
     }
 
     if (i_this->m310 > 0.01f) {
-        cXyz offset;
-        offset.x = 0.0f;
-        offset.y = 0.0f;
-        offset.z = i_this->m310;
+        vec.x = 0.0f;
+        vec.y = 0.0f;
+        vec.z = i_this->m310;
         cMtx_YrotS(*calc_mtx, i_this->m314);
-        cXyz out;
-        MtxPosition(&offset, &out);
+        MtxPosition(&vec, &out);
         actor->current.pos += out;
         cLib_addCalc0(&i_this->m310, 1.0f, 7.0f + REG0_F(12));
     }
