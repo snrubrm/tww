@@ -449,11 +449,14 @@ void dMsg2_yose_select(sub_msg2_class* i_Msg, u8 i_index) {
     dMsg2_textPosition(i_Msg, i_index);
 }
 
+inline int dMsg2_getShiftY(sub_msg2_class* i_Msg, u8 i_index) {
+    return i_Msg->field_0xeb0 * (3 - i_Msg->field_0xecc[i_index]);
+}
+
 /* 801E86E8-801E8798       .text dMsg2_textPosition__FP14sub_msg2_classUc */
-// NONMATCHING - small reg alloc
 void dMsg2_textPosition(sub_msg2_class* i_Msg, u8 i_index) {
     f32 r7 = 0.0f;
-    int temp_r0 = i_Msg->field_0xeb0 * (3 - i_Msg->field_0xecc[i_index]);
+    int temp_r0 = dMsg2_getShiftY(i_Msg, i_index);
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
