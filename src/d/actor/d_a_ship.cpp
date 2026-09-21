@@ -3542,7 +3542,6 @@ void daShip_c::setHeadAnm() {
 
 /* 00009B4C-0000B978       .text execute__8daShip_cFv */
 BOOL daShip_c::execute() {
-    /* Nonmatching */
     static cXyz sail_offset(0.5f, 155.0f, 50.0f);
     static cXyz sph_offset(-5.0f, 0.0f, 0.0f);
     static f32 cyl_offset[] = {100.0f, -20.0f, -100.0f};
@@ -4066,7 +4065,8 @@ BOOL daShip_c::execute() {
         cMtx_multVecSR(mtx, &top_offset, &spD8);
         mpGrid->scale.y = spD8.abs() / 365.0f;
 
-        cMtx_multVecSR(model1->getAnmMtx(FN_BODY_JNT_J_FN_SAIL2_e), &XZ_top_offset, &spD8);
+        mtx = model1->getAnmMtx(FN_BODY_JNT_J_FN_SAIL2_e);
+        cMtx_multVecSR(mtx, &XZ_top_offset, &spD8);
         grid->field_0x2200 = 1.0f - (spD8.abs() / 265.0f); // No idea why this is generating an extra lwz instruction for loading mpGrid when the instructions above don't
 
         if (mTornadoActor) {
