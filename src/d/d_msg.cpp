@@ -102,7 +102,6 @@ void dDlst_2DMSG_c::draw() {
 
 /* 8020A950-8020AC40       .text outFontDraw__13dDlst_2DMSG_cFv */
 void dDlst_2DMSG_c::outFontDraw() {
-    /* Nonmatching - regswap */
     for (int i = 0; i < 8; i++) {
         u8 iconNum = mpMsg->mMsgDataProc.getIconNum(i);
         int posX = mpMsg->mMsgDataProc.getIconPosX(i);
@@ -115,31 +114,32 @@ void dDlst_2DMSG_c::outFontDraw() {
             iconNum != fopMsgM_Icon_INPUT_e
         ) {
             J2DScreen* scrn = (J2DScreen*)mpMsg->m0544[0].pane;
-            int r5 = posX + scrn->getBounds().i.x;
+            const JGeometry::TBox2<f32>& b = scrn->getBounds();
+            int r5 = posX + b.i.x;
             int r6;
             u8 alpha;
             if (mpMsg->mMesgEntry.mTextboxType == 5) {
                 f32 local_30 = g_msgHIO.field_0x5e * posY;
                 f32 local_38 = mpMsg->m1104 * (2 - mpMsg->m1108);
-                r6 = (int)(local_38 + scrn->getBounds().i.y + local_30);
+                r6 = (int)(local_38 + b.i.y + local_30);
                 alpha = mpMsg->m0544[0].mNowAlpha;
             } else if (mpMsg->mMesgEntry.mTextboxType == 0xe) {
                 f32 local_28 = g_msgHIO.field_0x5e * posY;
                 f32 local_30 = mpMsg->m1104;
-                r6 = (int)(local_30 + scrn->getBounds().i.y + local_28);
+                r6 = (int)(local_30 + b.i.y + local_28);
                 alpha = mpMsg->m0544[0].mNowAlpha;
             } else {
                 if (scale > mpMsg->m110C) {
                     if (mpMsg->m1108 > 1) {
                         int temp1 = (mpMsg->m1104 * ((3 - posY) - (mpMsg->m1108 + -2)));
-                        r6 = ((scale - mpMsg->m110C) / 2) + (int)((temp1 + scrn->getBounds().i.y) - (f32)(int)(scale / 2));
+                        r6 = ((scale - mpMsg->m110C) / 2) + (int)((temp1 + b.i.y) - (f32)(int)(scale / 2));
                     } else {
-                        r6 = (int)(((mpMsg->m1104 << 2) + scrn->getBounds().i.y) - (f32)(int)(scale / 2));
+                        r6 = (int)(((mpMsg->m1104 << 2) + b.i.y) - (f32)(int)(scale / 2));
                     }
                 } else {
                     f32 local_28 = g_msgHIO.field_0x5e * posY;
                     f32 local_30 = mpMsg->m1104 * (3 - mpMsg->m1108);
-                    r6 = (int)(local_30 + scrn->getBounds().i.y + local_28);
+                    r6 = (int)(local_30 + b.i.y + local_28);
                 }
                 alpha = mpMsg->m0544[0].mNowAlpha;
             }
