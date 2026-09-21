@@ -547,7 +547,7 @@ BOOL body_atari_check(ph_class* i_this) {
         i_this->m0346 = 0x2B;
         break;
     case AT_TYPE_BOMB:
-        i_this->m0340 = 1;
+        i_this->m0340 = 8;
         i_this->m033F = 4;
         i_this->m0346 = 0x2B;
         break;
@@ -599,6 +599,7 @@ BOOL body_atari_check(ph_class* i_this) {
     }
 
     if (skipAtCheck == 0) {
+    daPy_py_c* player2 = (daPy_py_c*)dComIfGp_getPlayer(0);
     cXyz hitPos = *i_this->mBodySph.GetTgHitPosP();
     atInfo.mpObj = i_this->mBodySph.GetTgHitObj();
     cc_at_check(actor, &atInfo);
@@ -613,10 +614,10 @@ BOOL body_atari_check(ph_class* i_this) {
             scaleB.setall(big);
             scaleA.setall(1.25f);
         }
-        dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos, &player->shape_angle, &scaleA);
-        dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scaleB);
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos, &player2->shape_angle, &scaleA);
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player2->shape_angle, &scaleB);
     } else {
-        dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle, NULL);
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player2->shape_angle, NULL);
     }
     return TRUE;
     }
