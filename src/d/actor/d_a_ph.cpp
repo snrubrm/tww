@@ -1507,8 +1507,7 @@ void ph_damage_dead_move(ph_class* i_this) {
         }
         i_this->m0364 = 0;
         {
-            f32 propellerScaleX = i_this->m02FC.x;
-            if (propellerScaleX != 0.0f) {
+            if (i_this->m02FC.x) {
                 anm_init(i_this, dRes_INDEX_PH_BCK_PUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 0);
             }
         }
@@ -1657,7 +1656,7 @@ void ph_damage_dead_move(ph_class* i_this) {
         actor->attention_info.flags = 0;
         actor->health = zero;
         i_this->m035E = zero;
-        if (i_this->m02FC.x != 0.0f) {
+        if (i_this->m02FC.x) {
             anm_init(i_this, dRes_INDEX_PH_BCK_PUCHI_CHAKU_e, 1.0f, 0, 1.0f, -1, 0);
         }
         anm_init(i_this, dRes_INDEX_PH_BCK_BDAMAGE_e, 1.0f, 0, 1.0f, -1, 1);
@@ -1674,8 +1673,7 @@ void ph_damage_dead_move(ph_class* i_this) {
         cLib_addCalc2(&actor->scale.y, 0.1f, 1.0f, 0.5f);
         cLib_addCalc2(&actor->scale.x, 1.7f, 1.0f, 0.7f);
         {
-            f32 propellerScaleX = i_this->m02FC.x;
-            if (propellerScaleX != 0.0f) {
+            if (i_this->m02FC.x) {
                 i_this->m02FC.x = actor->scale.x;
                 i_this->m02FC.y = actor->scale.y;
                 i_this->m02FC.z = actor->scale.z;
