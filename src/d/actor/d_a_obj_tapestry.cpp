@@ -540,13 +540,15 @@ void daObjTapestryPacket_c::init(daObjTapestry_c* actor) {
     cXyz back = base_z_rev;
     mDoMtx_stack_c::transS(-100.0f, -297.0f, 10.0f);
     mDoMtx_stack_c::scaleM(200.0f, 297.0f, 1.0f);
+    int buf, row, col;
+    daObjTapestryDrawVtx_c* vtx;
     cXyz local;
     local.z = 0.0f;
-    for (int buf = 0; buf < 2; buf++) {
-        daObjTapestryDrawVtx_c* vtx = &mDraw[buf];
-        for (int row = 0; row < 8; row++) {
+    for (buf = 0; buf < 2; buf++) {
+        vtx = &mDraw[buf];
+        for (row = 0; row < 8; row++) {
             local.y = (7 - row) * (1.0f / 7.0f);
-            for (int col = 0; col < 6; col++) {
+            for (col = 0; col < 6; col++) {
                 local.x = col * 0.2f;
                 mDoMtx_stack_c::multVec(&local, &vtx->pos[row][col]);
                 vtx->nrm[row][col] = nrm;
