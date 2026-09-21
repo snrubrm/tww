@@ -2566,18 +2566,19 @@ BOOL dMenu_Fmap2_c::paneTransSelCmapOpn(s16 param_1, u8 param_2, f32 param_3, f3
     if (param_1 > param_2) {
         return true;
     }
+    int i;
     f32 f29 = fopMsgM_valueIncrease(param_2, param_1, param_7);
-    f32 trans = param_5 + f29 * (param_6 - param_5);
-    f32 scale = param_3 + f29 * (param_4 - param_3);
-    for (int i = 0; i < 5; i++) {
-        fopMsgM_paneScaleXY(&field_0x124c[param_8][i], scale);
-        fopMsgM_paneTrans(&field_0x124c[param_8][i], trans, 0.0f);
+    f32 dt = f29 * (param_6 - param_5);
+    f32 ds = f29 * (param_4 - param_3);
+    for (i = 0; i < 5; i++) {
+        fopMsgM_paneScaleXY(&field_0x124c[param_8][i], param_3 + ds);
+        fopMsgM_paneTrans(&field_0x124c[param_8][i], param_5 + dt, 0.0f);
     }
     if (param_9 != 2) {
         if (param_9 == 1) {
             f29 = 1.0f - f29;
         }
-        for (int i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             fopMsgM_setNowAlpha(&field_0x124c[param_8][i], f29);
             fopMsgM_setAlpha(&field_0x124c[param_8][i]);
         }
