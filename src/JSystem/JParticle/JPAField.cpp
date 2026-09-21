@@ -260,10 +260,9 @@ void JPAConvectionField::preCalc(JPAFieldData* data) {
 
 /* 8025B114-8025B3CC       .text calc__18JPAConvectionFieldFP12JPAFieldDataP15JPABaseParticle */
 void JPAConvectionField::calc(JPAFieldData* data, JPABaseParticle* ptcl) {
-    /* Nonmatching - fpr regalloc */
-
     JGeometry::TVec3<f32> axisX;
     JGeometry::TVec3<f32> axisZ;
+    JGeometry::TVec3<f32> vec;
 
     f32 dot0 = data->mWork0.dot(ptcl->mLocalPosition);
     axisX.set(data->mWork0);
@@ -273,16 +272,13 @@ void JPAConvectionField::calc(JPAFieldData* data, JPABaseParticle* ptcl) {
     axisZ.set(data->mWork2);
     axisZ.scale(dot2);
 
-    JGeometry::TVec3<f32> newPos;
-    JGeometry::TVec3<f32> newPos2;
-    newPos.add(axisX, axisZ);
-    newPos2.setLength(newPos, data->mVal1);
+    vec.add(axisX, axisZ);
+    axisX.setLength(vec, data->mVal1);
 
     JGeometry::TVec3<f32> delta;
-    JGeometry::TVec3<f32> axisY;
-    delta.sub(ptcl->mLocalPosition, newPos2);
-    axisY.cross(data->mWork1, newPos2);
-    data->mVel.cross(axisY, delta);
+    delta.sub(ptcl->mLocalPosition, axisX);
+    vec.cross(data->mWork1, axisX);
+    data->mVel.cross(vec, delta);
     data->mVel.setLength(data->mMag);
 
     if (data->mVal2 != 0.0f) {
