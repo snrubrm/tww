@@ -6913,13 +6913,11 @@ bool dCamera_c::nonOwnerCamera(s32 param_1) {
 
 /* 801799C0-80179F8C       .text fixedFrameCamera__9dCamera_cFl */
 bool dCamera_c::fixedFrameCamera(s32 param_1) {
-    /* Nonmatching */
     f32 cam24  = mCamParam.Val(param_1, 24);
     f32 cam25  = mCamParam.Val(param_1, 25);
     cXyz spF0;
     cXyz spE4;
     cXyz spD8;
-    cSGlobe g;
     f32 sp30;
 
     dCamera_c::Work::FixedFrame* p = &mWork.fixedFrame;
@@ -6931,7 +6929,8 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
     if (m11C == 0) {
         p->m378 = cXyz(mCurRoomArrowEntry.position.x, mCurRoomArrowEntry.position.y, mCurRoomArrowEntry.position.z);
 
-        p->m3A8 = p->m378 + cSGlobe(3000.0f, -mCurRoomArrowEntry.angle.x, mCurRoomArrowEntry.angle.y).Xyz();
+        cSGlobe g(3000.0f, -mCurRoomArrowEntry.angle.x, mCurRoomArrowEntry.angle.y);
+        p->m3A8 = p->m378 + g.Xyz();
         p->m39C = p->m3A8;
 
         cM3dGLin line;
