@@ -954,8 +954,8 @@ void daNpc_Kk1_c::cut_init_TRN(int) {
         u8 playerIdx = mPath.getIdx();
         mPath.setNearPathIndx(&current.pos, 100.0f);
         u8 selfIdx = mPath.getIdx();
-        u8 maxPt = mPath.maxPoint();
-        s16 half = (s16)(0.5f + (int)maxPt * 0.5f);
+        int maxPt = mPath.maxPoint();
+        s16 half = 0.5f + maxPt / 2.0f;
         if (selfIdx > playerIdx) {
             playerIdx += mPath.maxPoint();
         }
