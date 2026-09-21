@@ -1338,8 +1338,9 @@ bool daObjTapestry_c::checkCollision() {
     f32 rad = 0.0f;
     cXyz* hitPos = NULL;
     cXyz dir = cXyz::Zero;
+    int i;
     bool fire = false;
-    for (int i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++) {
         if (!mTri[i].ChkTgHit()) {
             continue;
         }
