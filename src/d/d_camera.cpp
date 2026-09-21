@@ -6514,6 +6514,9 @@ bool dCamera_c::shieldCamera(s32 param_1) {
 
 /* 801787B8-801795C8       .text manualCamera__9dCamera_cFl */
 bool dCamera_c::manualCamera(s32 param_1) {
+    f32 cush;
+    f32 cushV;
+    f32 cushR;
     f32 val1 = mCamParam.Val(param_1, 1);
     f32 val0 = mCamParam.Val(param_1, 0);
     f32 val3 = mCamParam.Val(param_1, 3);
@@ -6629,9 +6632,9 @@ bool dCamera_c::manualCamera(s32 param_1) {
         stickCY = dCamMath::rationalBezierRatio(mStickCPosYLast * 1.333333f, 2.0f);
     }
 
-    f32 cush = val21;
-    f32 cushR = val21;
-    f32 cushV = val21;
+    cush = val21;
+    cushV = val21;
+    cushR = val21;
 
     if ((check_owner_action(mPadId, daPyStts0_UNK4000000_e | daPyStts0_UNK2000000_e | daPyStts0_UNK800000_e | daPyStts0_UNK40_e | daPyStts0_UNK20_e | daPyStts0_UNK1_e) ||
          check_owner_action1(mPadId, daPyStts1_UNK10000_e)) &&
