@@ -500,12 +500,7 @@ static void ke_move(gnd_class* i_this) {
     J3DModel* model = i_this->mpMorf->getModel();
     for (s32 i = 0; i < 4; i++, ke++) {
         MTXCopy(model->getAnmMtx(ke_set_index[i]), *calc_mtx);
-        f32 z = (*calc_mtx)[2][0];
-        f32 y = (*calc_mtx)[1][0];
-        f32 x = (*calc_mtx)[0][0];
-        axis.x = x;
-        axis.y = y;
-        axis.z = z;
+        axis.set((*calc_mtx)[0][0], (*calc_mtx)[1][0], (*calc_mtx)[2][0]);
         f32 len = axis.abs();
         if (dComIfGp_evmng_startCheck("endhr") && dComIfGp_demo_get()->getFrameNoMsg() >= 0x12C) {
             len = 0.0f;
