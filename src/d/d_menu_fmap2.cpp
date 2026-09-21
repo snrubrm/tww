@@ -1043,7 +1043,6 @@ void dMenu_Fmap2_c::CmapSpLoadWait() {
 
 /* 801BF7F4-801BFCB8       .text screenSetGs__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::screenSetGs() {
-    /* Nonmatching */
     static u32 moon[] = {
         'tk01', 'tk02', 'tk03', 'tk04',
         'tk05', 'tk06', 'tk07',
@@ -1055,6 +1054,7 @@ void dMenu_Fmap2_c::screenSetGs() {
     };
 #endif
 
+    int i;
     fmap2GsDl.scrn = new J2DScreen();
     JUT_ASSERT(VERSION_SELECT(1728, 1749, 1793, 1806), fmap2GsDl.scrn != NULL);
     fmap2GsDl.scrn->set("g_map_01.blo", field_0x18->getArchive());
@@ -1079,7 +1079,7 @@ void dMenu_Fmap2_c::screenSetGs() {
     fopMsgM_setPaneData(&mGsBt2PaneAlpha, fmap2GsDl.scrn->search('BT2'));
     fopMsgM_setPaneData(&mGsBt3PaneAlpha, fmap2GsDl.scrn->search('BT3'));
 #endif
-    for (int i = 0; i < 7; i++) {
+    for (i = 0; i < 7; i++) {
         fopMsgM_setPaneData(&mGsTk0xPaneAlpha[i], fmap2GsDl.scrn->search(moon[i]));
 #if VERSION > VERSION_JPN
         fopMsgM_setPaneData(&mGsGsixPaneAlpha[i], fmap2GsDl.scrn->search(shipicon[i]));
@@ -1089,13 +1089,13 @@ void dMenu_Fmap2_c::screenSetGs() {
     color_0x2824 = (u32)((J2DPicture*)mGsTk0xPaneAlpha[0].pane)->getWhite();
     int r0 = dComIfGs_getEventReg(0x8803);
 #if VERSION == VERSION_DEMO
-    for (int i = 0; i < r0; i++) {
+    for (i = 0; i < r0; i++) {
         mGsTk0xPaneAlpha[i].pane->show();
     }
 #endif
     if (r0 == 3) {
         field_0x2811 = 1;
-        for (int i = 0; i < 7; i++) {
+        for (i = 0; i < 7; i++) {
             mGsTk0xPaneAlpha[i].pane->hide();
         }
         mGsKz01PaneAlpha.pane->hide();
