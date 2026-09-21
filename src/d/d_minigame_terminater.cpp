@@ -675,16 +675,14 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS3() {
     static const s16 rot[] = {0, 0, 5, -5, 0, 0};
 
     BOOL rt = FALSE;
-    s16 timer = mDummy.mUserArea;
-    if (timer < animeFrame[4]) {
+    if (mDummy.mUserArea < animeFrame[4]) {
         mDummy.mUserArea++;
-        timer = mDummy.mUserArea;
 
         f32 t;
         f32 y;
         f32 r;
-        if (timer <= animeFrame[0]) {
-            t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
+        if (mDummy.mUserArea <= animeFrame[0]) {
+            t = SQUARE((f32)mDummy.mUserArea) / SQUARE((f32)animeFrame[0]);
             y = (f32)transY[1];
             y += (1.0f - t) * (f32)(transY[0] - transY[1]);
             fopMsgM_paneTrans(&mDummy, 0.0f, y);
@@ -695,32 +693,26 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS3() {
             if (mDummy.mUserArea == animeFrame[0]) {
                 mDoAud_seStart(JA_SE_SGAME_DISP_LUPY);
             }
-        } else if (timer <= animeFrame[1]) {
-            t = acc(animeFrame[1], timer, animeFrame[0]);
-            y = (f32)transY[2];
-            y += (1.0f - t) * (f32)(transY[1] - transY[2]);
-            r = (f32)rot[2];
-            r += (1.0f - t) * (f32)(rot[1] - rot[2]);
+        } else if (mDummy.mUserArea <= animeFrame[1]) {
+            t = acc(animeFrame[1], mDummy.mUserArea, animeFrame[0]);
+            y = transY[2] + (1.0f - t) * (f32)(transY[1] - transY[2]);
+            r = rot[2] + (1.0f - t) * (f32)(rot[1] - rot[2]);
             fopMsgM_paneTrans(&mDummy, 0.0f, y);
             mDummy.pane->rotate(0.0f, 0.0f, ROTATE_Z, r);
-        } else if (timer <= animeFrame[2]) {
-            t = acc(animeFrame[2], timer, animeFrame[1]);
-            y = (f32)transY[3];
-            y += (1.0f - t) * (f32)(transY[2] - transY[3]);
-            r = (f32)rot[3];
-            r += (1.0f - t) * (f32)(rot[2] - rot[3]);
+        } else if (mDummy.mUserArea <= animeFrame[2]) {
+            t = acc(animeFrame[2], mDummy.mUserArea, animeFrame[1]);
+            y = transY[3] + (1.0f - t) * (f32)(transY[2] - transY[3]);
+            r = rot[3] + (1.0f - t) * (f32)(rot[2] - rot[3]);
             fopMsgM_paneTrans(&mDummy, 0.0f, y);
             mDummy.pane->rotate(0.0f, 0.0f, ROTATE_Z, r);
-        } else if (timer <= animeFrame[3]) {
-            t = acc(animeFrame[3], timer, animeFrame[2]);
-            y = (f32)transY[4];
-            y += (1.0f - t) * (f32)(transY[3] - transY[4]);
-            r = (f32)rot[4];
-            r += (1.0f - t) * (f32)(rot[3] - rot[4]);
+        } else if (mDummy.mUserArea <= animeFrame[3]) {
+            t = acc(animeFrame[3], mDummy.mUserArea, animeFrame[2]);
+            y = transY[4] + (1.0f - t) * (f32)(transY[3] - transY[4]);
+            r = rot[4] + (1.0f - t) * (f32)(rot[3] - rot[4]);
             fopMsgM_paneTrans(&mDummy, 0.0f, y);
             mDummy.pane->rotate(0.0f, 0.0f, ROTATE_Z, r);
-        } else {
-            t = acc(animeFrame[4], timer, animeFrame[3]);
+        } else if (mDummy.mUserArea <= animeFrame[4]) {
+            t = acc(animeFrame[4], mDummy.mUserArea, animeFrame[3]);
             y = (f32)transY[5];
             y += (1.0f - t) * (f32)(transY[4] - transY[5]);
             fopMsgM_paneTrans(&mDummy, 0.0f, y);
