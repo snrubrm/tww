@@ -671,9 +671,7 @@ void daNpc_So_c::modeJump() {
     if (current.pos.y < waterY) {
         fopAcM_seStart(this, JA_SE_CM_SO_LANDING_L, 0);
         fopKyM_createWpillar(&current.pos, 1.4f * scale.x, 1.4f, 0);
-        cXyz delta = mHidePos - current.pos;
-        delta.y = 0.0f;
-        if (delta.abs() > mTagRadius) {
+        if ((mHidePos - current.pos).absXZ() > mTagRadius) {
             current.pos = mHidePos;
         }
         modeProcInit(MODE_SWIM_e);
