@@ -703,7 +703,8 @@ void daObjTapestryPacket_c::calc_spd(int row, int col) {
 
 /* 00001AF4-00001D34       .text calc_pos_crr__21daObjTapestryPacket_cFii */
 void daObjTapestryPacket_c::calc_pos_crr(int row, int col) {
-    cXyz* now = &mDraw[mBuffer].pos[row][col];
+    daObjTapestryDrawVtx_c* v = &mDraw[mBuffer];
+    cXyz* now = &v->pos[row][col];
     if (now->z < 1.0f) {
         now->z = 1.0f;
     }
