@@ -668,7 +668,6 @@ s32 body_atari_check(nz_class* i_this) {
 
 /* 00003240-000042D8       .text nz_move__FP8nz_class */
 void nz_move(nz_class* i_this) {
-    /* Nonmatching */
     static GXColor all_line_color_dt[] = {
         {0xFF, 0x00, 0x00, 0xFF},
         {0x00, 0xFF, 0x00, 0xFF},
@@ -688,6 +687,7 @@ void nz_move(nz_class* i_this) {
     short sVar4;
     fpc_ProcID fVar6;
     fopAc_ac_c* pfVar7;
+    daBomb_c* bomb;
     s16 sVar9;
     s32 sVar8;
     int iVar13;
@@ -781,10 +781,11 @@ void nz_move(nz_class* i_this) {
             actor->speed.y = 0.0f;
             i_this->mStts.SetWeight(255);
             actor->current.angle.x = 0;
-            pfVar7 = (fopAc_ac_c*)search_get_obj(i_this);
+            bomb = search_get_obj(i_this);
             i_this->m42C = 0;
-            if (pfVar7 != NULL) {
+            if (bomb != NULL) {
                 i_this->m42C = 1;
+                pfVar7 = bomb;
                 i_this->m580 = fopAcM_searchActorAngleY(actor, pfVar7);
                 i_this->mHeldID = fopAcM_GetID(pfVar7);
                 i_this->m2BD = MODE_NZ_MOVE_2;
@@ -866,8 +867,8 @@ void nz_move(nz_class* i_this) {
                 fVar6 = i_this->mHeldID;
                 if (fVar6 == fpcM_ERROR_PROCESS_ID_e) {
                     if (fopAcM_searchPlayerDistance(actor) < 500.0f) {
-                        pfVar7 = (fopAc_ac_c*)search_get_obj(i_this);
-                        if (pfVar7 == NULL) {
+                        bomb = search_get_obj(i_this);
+                        if (bomb == NULL) {
                             if (DEMO_SELECT(cLib_distanceAngleS(player->shape_angle.y, fopAcM_searchActorAngleY(player, actor)), (s16)cLib_distanceAngleS(player->shape_angle.y, fopAcM_searchActorAngleY(player, actor))) < 0x2A71) {
                                 i_this->m2BD = MODE_NZ_MOVE_6;
                             } else {
@@ -876,6 +877,7 @@ void nz_move(nz_class* i_this) {
                                 i_this->m2BD = MODE_NZ2_MOVE_20;
                             }
                         } else {
+                            pfVar7 = bomb;
                             i_this->m580 = fopAcM_searchActorAngleY(actor, pfVar7);
                             i_this->mHeldID = fopAcM_GetID(pfVar7);
                         }
