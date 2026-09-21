@@ -556,14 +556,15 @@ void anm_init(nz_class* i_this, int anmResIdx, float morf, unsigned char loopMod
 s32 search_check(nz_class* i_this) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* pfVar2;
+    daBomb_c* bomb;
     cXyz local_bc;
     cXyz cStack_c8;
 
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     dBgS_LinChk linChk;
     if (fopAcM_searchActorDistanceXZ(actor, player) < 1200.0f) {
-        pfVar2 = (fopAc_ac_c*)search_get_obj(i_this);
-        if (pfVar2 == NULL) {
+        bomb = search_get_obj(i_this);
+        if (bomb == NULL) {
             s16 angle = fopAcM_searchPlayerAngleY(actor);
             angle += (s16)cM_rndFX(8000.0f);
             cMtx_YrotS(*calc_mtx, angle);
@@ -579,6 +580,7 @@ s32 search_check(nz_class* i_this) {
             i_this->m580 = fopAcM_searchPlayerAngleY(actor);
             return 2;
         }
+        pfVar2 = bomb;
         i_this->m580 = fopAcM_searchActorAngleY(actor, pfVar2);
         i_this->mHeldID = fopAcM_GetID(pfVar2);
         return 1;
