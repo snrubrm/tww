@@ -2321,6 +2321,10 @@ BOOL daNpc_P2_c::_createHeap() {
         dRes_INDEX_P2_BDL_P2HEAD03_e,
     };
     static const u8 head_tex_tbl[2] = {0, 1};
+    J3DModelData* headModelData;
+    J3DModelData* daggerGripModelData;
+    J3DModelData* daggerModelData;
+    J3DModelData* bookModelData;
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2_e);
     JUT_ASSERT(0x9F1, modelData != 0);
     mpMorf = new mDoExt_McaMorf(modelData, NULL, NULL, NULL, -1, 1.0f, 0, -1, 1, NULL, 0x80000, 0x15021222);
@@ -2328,7 +2332,7 @@ BOOL daNpc_P2_c::_createHeap() {
         mpMorf = NULL;
         return FALSE;
     } else {
-        J3DModelData* headModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, head_bdl_tbl[mType]);
+        headModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, head_bdl_tbl[mType]);
         JUT_ASSERT(0xA0A, headModelData != 0);
         if (mType != 2) {
             mpHeadModel = mDoExt_J3DModel__create(headModelData, 0x80000, 0x11020022);
@@ -2345,20 +2349,20 @@ BOOL daNpc_P2_c::_createHeap() {
                 return FALSE;
             }
         }
-        J3DModelData* daggerModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2DAGGER_e);
+        daggerModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2DAGGER_e);
         JUT_ASSERT(0xA27, daggerModelData != 0);
         mpModel2BC = mDoExt_J3DModel__create(daggerModelData, 0, 0x11020203);
         if (mpModel2BC == NULL) {
             return FALSE;
         }
-        J3DModelData* daggerGripModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2_DAGGERGRIP_e);
+        daggerGripModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2_DAGGERGRIP_e);
         JUT_ASSERT(0xA2E, daggerModelData != 0);
         mpModel2C0 = mDoExt_J3DModel__create(daggerGripModelData, 0, 0x11020203);
         if (mpModel2C0 == NULL) {
             return FALSE;
         }
         if (mType == 2) {
-            J3DModelData* bookModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2BOOK_e);
+            bookModelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2BOOK_e);
             JUT_ASSERT(0xA36, bookModelData != 0);
             mpMorf2 = new mDoExt_McaMorf(
                 bookModelData, NULL, NULL,
