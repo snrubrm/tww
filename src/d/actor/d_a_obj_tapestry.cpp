@@ -915,10 +915,10 @@ void daObjTapestryPacket_c::calc_fire() {
                 continue;
             }
             mFlag0[row][col] |= 1;
-            int up = row - 1;
             int down = row + 1;
             int left = col - 1;
             int right = col + 1;
+            int up = row - 1;
             bool down_ok = down < 8;
             bool left_ok = left >= 0;
             bool right_ok = right < 6;
