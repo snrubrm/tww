@@ -2253,10 +2253,10 @@ cSAngle dCamera_c::forwardCheckAngle() {
         local_1bc = local_1b0.V() * mCamSetup.mBGChk.FwdWeightL(1);
     }
 
-    if (local_1b8 >= cSAngle::_0 && local_1bc >= cSAngle::_0) { // regswap here
-        ret = local_1b8 >= local_1bc ? -local_1b8 : -local_1bc;
-    } else if (local_1b8 <= cSAngle::_0 && local_1bc <= cSAngle::_0) { // and here
-        ret = local_1b8 <= local_1bc ? -local_1b8 : -local_1bc;
+    if (local_1b8 >= cSAngle::_0 && local_1bc >= cSAngle::_0) {
+        ret = (local_1b8 < local_1bc) == false ? -local_1b8 : -local_1bc;
+    } else if (local_1b8 <= cSAngle::_0 && local_1bc <= cSAngle::_0) {
+        ret = (local_1b8 > local_1bc) == false ? -local_1b8 : -local_1bc;
     } else {
         ret = -local_1b8;
     }
