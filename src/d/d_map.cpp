@@ -1640,10 +1640,12 @@ void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
 void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
     /* Nonmatching */
     if ((u8)isEnableEnlargementScroll() && mNowRoomInfoP->getEnableFlg() & 2) {
-        f32 tmp = mNowRoomInfoP->getStageMapInfoP()->field_0x10;
+        f32 tmp;
+        f32 f27;
+        tmp = mNowRoomInfoP->getStageMapInfoP()->field_0x10;
         f32 f28 = std::fabsf(mNowRoomInfoP->getStageMapInfoP()->field_0x08 - tmp) * 0.9f;
         tmp = mNowRoomInfoP->getStageMapInfoP()->field_0x14;
-        f32 f27 = std::fabsf(mNowRoomInfoP->getStageMapInfoP()->field_0x0C - tmp) * 0.9f;
+        f27 = std::fabsf(mNowRoomInfoP->getStageMapInfoP()->field_0x0C - tmp) * 0.9f;
         f32 f29 = param_1 - mNowRoomInfoP->getStageMapInfoP()->field_0x10;
         f32 dz = param_2 - mNowRoomInfoP->getStageMapInfoP()->field_0x14;
         tmp = f29 >= 0.0f ? 1.0f : -1.0f;
