@@ -3607,19 +3607,20 @@ void dMap_Dmap_c::draw() {
     static const GXColor wallPaperColorBlack = {255, 255, 255, 255};
     static const GXColor edgeColor = {255, 255, 255, 255};
 
+    f32 f30, f29, f28;
     JUT_ASSERT(VERSION_SELECT(10663, 10663, 10663, 10663), mMaskHeight != 0.0f);
     f32 f27 = field_0x368 / 64.0f;
     f32 f26 = field_0x36a / 64.0f;
     f32 f23 = 1.0f / GXGetTexObjWidth(&field_0x5e0);
     f32 f25 = 1.0f / GXGetTexObjHeight(&field_0x5e0);
-    f32 f30 = 2.0f * fopMsgM_valueIncrease(40, field_0x2ba, 2);
+    f30 = 2.0f * fopMsgM_valueIncrease(40, field_0x2ba, 2);
     if (f30 > 1.0f) {
         f30 = 2.0f - f30;
     }
     s16 r21 = field_0x35e - (mMaskHeight >> 1);
     s16 r25 = field_0x364 - (field_0x368 >> 1);
     s16 r24 = field_0x364 + (field_0x368 >> 1);
-    s16 r23 = field_0x366 + field_0x36c + (field_0x36a + field_0x36c) * 4 + (field_0x36a >> 1);
+    s16 r23 = field_0x366 + (field_0x36a >> 1) + (field_0x36c + (field_0x36a + field_0x36c) * 4);
     GXVtxAttrFmtList fmtList[GX_VA_MAX_ATTR + 1];
     GXGetVtxAttrFmtv(GX_VTXFMT0, fmtList);
     GXLoadPosMtxImm(mDoMtx_getIdentity(), GX_PNMTX0);
@@ -3632,10 +3633,10 @@ void dMap_Dmap_c::draw() {
             if (r22 < 0) {
                 break;
             }
-            if (field_0x36e & 1 << i && i <= field_0x2b4 - Floor_Base && field_0x2b5 - Floor_Base <= i) {
+            if (field_0x36e & 1 << i && i <= field_0x2b4 - Floor_Base && i >= field_0x2b5 - Floor_Base) {
                 setTlut(&field_0x20[getLoadTlutDblBufNo()][i], i + Floor_Base, field_0x2b8, field_0x2b9, f30);
-                f32 f29 = (f32(r23) - f32(r21)) / mMaskHeight;
-                f32 f28 = (f32(r22) - f32(r21)) / mMaskHeight;
+                f29 = (f32(r23) - f32(r21)) / mMaskHeight;
+                f28 = (f32(r22) - f32(r21)) / mMaskHeight;
                 GXTexObj* r26 = &field_0x370[i];
                 f32 f24 = 0.3f / GXGetTexObjWidth(r26);
                 f32 f23_2 = 0.3f / GXGetTexObjHeight(r26);
