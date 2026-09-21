@@ -61,8 +61,9 @@ void daBigelf_c::oct_delete() {
                     cXyz pos;
                     fpoAcM_absolutePos(octa, &offset, &pos);
                     pos.y = ship->current.pos.y;
-                    int angle = cLib_targetAngleY(&current.pos, &pos);
-                    ship->initStartPos(&pos, angle + 0x4000);
+                    s16 angle = cLib_targetAngleY(&current.pos, &pos);
+                    angle += 0x4000;
+                    ship->initStartPos(&pos, angle);
                 }
                 fopAcM_delete(octa);
             }
