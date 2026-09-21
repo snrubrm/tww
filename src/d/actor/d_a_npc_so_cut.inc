@@ -613,7 +613,7 @@ void daNpc_So_c::cutMiniGameWarpStart() {
     JAIZelBasic::getInterface()->field_0x00bf = 1;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getLinkPlayer();
     player->changeOriginalDemo();
-    daShip_c* ship = dComIfGp_getShipActor();
+    daShip_c* const ship = dComIfGp_getShipActor();
     mMinigamePos.y = dLib_getWaterY(mMinigamePos, mAcch2);
     mBA0 = ship->current.pos;
     mBAC = ship->shape_angle.y;
