@@ -341,12 +341,14 @@ void daNpc_Kk1_c::setAnm_anm(daNpc_Kk1_c::anm_prm_c* prm) {
     delBikon();
     delAse();
     m7BE = 1;
-    if (mAnmNo == 1) {
+    switch (mAnmNo) {
+    case 1:
         setAse();
         mBckFrame = 0;
         mBtkFrame = 0;
         mBpkFrame = 0;
         m7BE = 0;
+        break;
     }
     mAnmEnd = 0;
     mAnmRepeat = 0;
