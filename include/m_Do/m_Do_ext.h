@@ -49,6 +49,7 @@ private:
 class mDoExt_btkAnm : public mDoExt_baseAnm {
 public:
     mDoExt_btkAnm() { mpTexMtxAnm = NULL; }
+    virtual ~mDoExt_btkAnm() {}
     int init(J3DMaterialTable* i_matTable, J3DAnmTextureSRTKey* i_btk, BOOL i_anmPlay, int i_attribute,
              f32 i_rate = 1.0f, s16 i_start = 0, s16 i_end = -1, bool i_modify = false, BOOL i_entry = FALSE);
     void entry(J3DMaterialTable* i_matTable, f32 i_frame);
