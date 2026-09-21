@@ -1719,10 +1719,9 @@ void action_demo(pw_class* i_this) {
 
 /* 00004FFC-000052B8       .text action_torituku__FP8pw_class */
 void action_torituku(pw_class* i_this) {
-    /* Nonmatching */
     fopAc_ac_c* actor = i_this;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
-    daPy_py_c* player2 = (daPy_py_c*)dComIfGp_getLinkPlayer();
+    fopAc_ac_c* player2 = dComIfGp_getLinkPlayer();
     cXyz pos = player->current.pos;
     u8 cancel = 0;
     switch (i_this->mMode) {
