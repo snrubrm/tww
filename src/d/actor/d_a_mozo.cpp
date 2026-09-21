@@ -384,12 +384,8 @@ void daMozo_c::search_fire_proc() {
             cXyz scaled = dir;
             f32 length = 45.0f * mFireTimer;
             f32 radius = 3.0f * mFireTimer;
-            if (length > 600.0f) {
-                length = 600.0f;
-            }
-            if (radius > 80.0f) {
-                radius = 80.0f;
-            }
+            length = cLib_maxLimit<f32>(length, 600.0f);
+            radius = cLib_maxLimit<f32>(radius, 80.0f);
             scaled *= length;
             scaled += mFireStart;
             mCps.cM3dGCps::Set(mFireStart, scaled, radius);
