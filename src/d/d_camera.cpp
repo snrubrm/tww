@@ -4094,8 +4094,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
                 }
 
                 talk->m3A0.U(talk->m3A0.U() + step);
-                cSAngle d2 = relGlobe.U() - talk->m3A0.U();
-                lat = relGlobe.V() * (d2.Cos() + 0.1f) * val3 + cSAngle(val15);
+                lat = relGlobe.V() * (cSAngle(relGlobe.U() - talk->m3A0.U()).Cos() + 0.1f) * val3 + cSAngle(val15);
                 if (lat > latMax) {
                     lat = latMax;
                 }
@@ -4123,7 +4122,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         }
     }
 
-    switch (talk->m3B4) {
+    switch (((TalkWork*)&mWork)->m3B4) {
     case 0: {
         if (fopAcM_GetName(speaker) == fpcNm_SHIP_e) {
             cXyz offset(val1, val5, val0);
@@ -4147,8 +4146,8 @@ bool dCamera_c::talktoCamera(s32 param_1) {
 
         talk->m3C8 = (f32)(talk->m3C0 - talk->m3BC);
         f32 t = talk->m3C8 / talk->m3C4;
-        cSGlobe* dir = &mViewCache.mDirection;
         mViewCache.mCenter += (talk->m37C - mViewCache.mCenter) * t;
+        cSGlobe* dir = &mViewCache.mDirection;
         dir->R(dir->R() + t * (talk->m3A0.R() - dir->R()));
         dir->V(dir->V() + (talk->m3A0.V() - dir->V()) * t);
         dir->U(dir->U() + (talk->m3A0.U() - dir->U()) * t);
@@ -4471,9 +4470,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             m101 = 1;
             m100 = 1;
         }
-        cXyz speakerAttn = attentionPos(speaker);
-        cXyz listenerAttn = attentionPos(listener);
-        cXyz delta = speakerAttn - listenerAttn;
+        cXyz delta = attentionPos(speaker) - attentionPos(listener);
         cSGlobe globe(delta);
         cSAngle sideAng;
         if (talk->m3B0) {
@@ -4497,7 +4494,9 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         hideActor(listener);
         mViewCache.mCenter = positionOf(speaker);
         if (talk->m3BC == 0) {
-            mViewCache.mDirection.Val(positionOf(listener) - positionOf(speaker));
+            cXyz lpos = positionOf(listener);
+            cXyz spos = positionOf(speaker);
+            mViewCache.mDirection.Val(lpos - spos);
             mViewCache.mDirection.R(200.0f);
             talk->m394.y = attentionPos(speaker).y - 68.0f - positionOf(speaker).y;
             m102 = 1;
