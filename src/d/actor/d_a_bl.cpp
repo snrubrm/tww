@@ -1450,10 +1450,9 @@ void action_itaiyo_ne_san(bl_class* i_this) {
                 if (i_this->m2D4 == 4) {
                     cXyz skullPos = actor->current.pos;
                     skullPos.y += 25.0f + REG8_F(2);
-                    s8 roomNo = actor->current.roomNo;
                     JPABaseEmitter* emitter = dComIfGp_particle_set(
                         dPa_name::ID_IT_JN_DOKURO00, &skullPos, &actor->current.angle, &actor->scale,
-                        0xFF, NULL, roomNo, &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
+                        0xFF, NULL, fopAcM_GetRoomNo(actor), &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
                     );
                     if (emitter != NULL) {
                         emitter->setAwayFromAxisSpeed(30.0f);
