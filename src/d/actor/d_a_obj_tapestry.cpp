@@ -992,7 +992,7 @@ void daObjTapestryPacket_c::set_hit(cXyz pos, cXyz dir, float f1, float f2, bool
     m144C = f1;
     m1450 = f2;
     m1454 = flag;
-    if (m1454 == true) {
+    if (flag == true) {
         f32 rnd = cM_rnd();
         m1465 = 1;
         if (rnd < 0.4f) {
