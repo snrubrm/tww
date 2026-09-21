@@ -311,9 +311,10 @@ BOOL body_atari_check(oq_class* i_this) {
         scale.setall(2.0f);
         dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
         fopAcM_monsSeStart(actor, JA_SE_CV_OQ_DIE, 0);
-        atInfo.pParticlePos = NULL;
-        atInfo.mpObj = i_this->mBodyCoCyl.GetTgHitObj();
-        cc_at_check(actor, &atInfo);
+        CcAtInfo atInfo2;
+        atInfo2.pParticlePos = NULL;
+        atInfo2.mpObj = i_this->mBodyCoCyl.GetTgHitObj();
+        cc_at_check(actor, &atInfo2);
         i_this->mAction = 0x14;
         i_this->mMode = 0x1E;
     }
