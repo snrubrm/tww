@@ -3,7 +3,8 @@
  * Enemy - Moblin Statue / モ石像 (Mo Sekizou)
  */
 
-#include "d/dolzel_rel.h" // IWYU pragma: keep
+// This TU does not use the dolzel_rel precompiled header (no weak @3569 .bss object, no .rodata pooling).
+#include "weak_bss_936_to_1036.h" // IWYU pragma: keep
 #include "d/actor/d_a_mozo.h"
 #include "d/actor/d_a_beam.h"
 #include "d/actor/d_a_player.h"
@@ -20,8 +21,6 @@
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_hostIO.h"
 #include "d/d_cc_d.h"
-
-#pragma pool_data off
 
 static dCcD_SrcCps cps_src = {
     // dCcD_SrcGObjInf
@@ -53,9 +52,6 @@ static dCcD_SrcCps cps_src = {
     }},
 };
 
-static daMozo_HIO_c l_HIO;
-u8 daMozo_c::m_event_flag;
-
 /* 000000EC-000001D0       .text __ct__12daMozo_HIO_cFv */
 daMozo_HIO_c::daMozo_HIO_c() {
     mTargetOffset.x = 0.0f;
@@ -77,8 +73,8 @@ daMozo_HIO_c::daMozo_HIO_c() {
     mpFireChild->m10 = 0;
 }
 
-#pragma push
-#pragma pool_data on
+static daMozo_HIO_c l_HIO;
+u8 daMozo_c::m_event_flag;
 
 /* 000002D0-00000568       .text daMozo_nodeCallBackBeam__FP8daMozo_cP8J3DModelP7J3DNodei */
 static BOOL daMozo_nodeCallBackBeam(daMozo_c* i_this, J3DModel* model, J3DNode* node, int calcTiming) {
@@ -145,8 +141,6 @@ static BOOL daMozo_nodeCallBackFire(daMozo_c* i_this, J3DModel* model, J3DNode* 
     }
     return TRUE;
 }
-
-#pragma pop
 
 /* 00000728-0000078C       .text daMozo_nodeCallBack__FP7J3DNodei */
 static BOOL daMozo_nodeCallBack(J3DNode* node, int calcTiming) {
