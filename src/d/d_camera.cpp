@@ -4609,7 +4609,8 @@ bool dCamera_c::CalcSubjectAngle(s16* param_1, s16* param_2) {
     fVar5 = f3;
 
     f32 f2 = 5.0f;
-    if ((mEye.y <= m354 + f2 || mEye.y <= mBG.m5C.m58 + f2) && ((mWork.subject.m388 >= 0.0f && f3 > 0.0f) || (mWork.subject.m388 < 0.0f && f3 <= 0.0f))) {
+    f32 eyeY = mEye.y;
+    if ((eyeY <= m354 + f2 || eyeY <= mBG.m5C.m58 + f2) && ((mWork.subject.m388 >= 0.0f && f3 > 0.0f) || (mWork.subject.m388 < 0.0f && f3 <= 0.0f))) {
         fVar5 = 0.0f;
     }
     
