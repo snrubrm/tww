@@ -280,7 +280,7 @@ BOOL daBigelf_c::demoProcFlDmMd() {
         dComIfGp_evmng_cutEnd(mStaffId);
         return TRUE;
     }
-    if (frame >= 16.0f) {
+    if (!(frame < 16.0f)) {
         if (frame < 116.0f) {
             mDarkTarget = 0.01f * (116.0f - frame);
         } else {
