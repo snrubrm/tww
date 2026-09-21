@@ -1989,7 +1989,6 @@ void wave_move() {
 }
 
 /* 80091964-80092294       .text cloud_shadow_move__Fv */
-// NONMATCHING - some float math / load order issues
 void cloud_shadow_move() {
     dKankyo_cloud_Packet* pPkt = dKy_getEnvlight().mpMoyaPacket;
     camera_process_class* pCamera = (camera_process_class*)dComIfGp_getCamera(0);
@@ -2141,14 +2140,16 @@ void cloud_shadow_move() {
         pos.y = pPkt->mEff[i].mBasePos.y + pPkt->mEff[i].mPos.y;
         pos.z = pPkt->mEff[i].mBasePos.z + pPkt->mEff[i].mPos.z;
 
-        f32 sp18 = ((pos.abs(pCamera->view.mLookat.mEye) - 1000.0f) / rnd_pos) * 1.5f;
-        pPkt->mEff[i].mSize = sp18 + (40.0f * cM_ssin(pPkt->mEff[i].mAnimCounter)) + (pPkt->mEff[i].mInitialSize * sp18);
+        f32 sp18 = (pos.abs(pCamera->view.mLookat.mEye) - 1000.0f) / rnd_pos;
+        sp18 = sp18 * 1.5f;
+        f32 wave = (40.0f * cM_ssin(pPkt->mEff[i].mAnimCounter));
+        pPkt->mEff[i].mSize = wave + (pPkt->mEff[i].mInitialSize + pPkt->mEff[i].mInitialSize * sp18);
 
         f32 distCenter = pos.abs(center);
         if (distCenter < 0.0f)
             distCenter = 0.0f;
 
-        f32 alphaTarget = 1.0f - distCenter / 1000.0f;
+        f32 alphaTarget = 1.0f - distCenter / rnd_pos;
         f32 maxAlpha = 0.035f;
         if (dKy_getEnvlight().mMoyaMode == 3) {
             maxAlpha = 0.06f;
@@ -2760,7 +2761,6 @@ void poison_move() {
 }
 
 /* 800937BC-800940D4       .text vrkumo_move__Fv */
-// NONMATCHING - float literal load order
 void vrkumo_move() {
     cXyz wind_vecpow = dKyw_get_wind_vecpow();
     dKankyo_vrkumo_Packet* vrkumo_packet = g_env_light.mpVrkumoPacket;
