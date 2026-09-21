@@ -2602,7 +2602,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
                 &i_this->mAcchCir,
                 fopAcM_GetSpeed_p(i_this)
             );
-            i_this->mStts.Init(0xFE, 1, i_this);
+            i_this->mStts.Init(0xFE, 1, i_actor);
             BG_check(i_this);
         }
 
