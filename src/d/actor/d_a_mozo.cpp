@@ -284,8 +284,7 @@ void daMozo_c::search_beam_proc() {
             cXyz dir = mBeamEnd - mBeamStart;
             csXyz angle = csXyz::Zero;
             angle.y = cM_atan2s(dir.x, dir.z);
-            cXyz xz(dir.x, 0.0f, dir.z);
-            angle.x = cM_atan2s(-dir.y, xz.abs());
+            angle.x = cM_atan2s(-dir.y, dir.absXZ());
 
             if (!beam1->beamCheck()) {
                 beam1->beamOn();
