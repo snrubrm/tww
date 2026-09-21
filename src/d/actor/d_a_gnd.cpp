@@ -2054,7 +2054,6 @@ static cXyz f_eye[] = {
 
 /* 000054F0-00006B04       .text demo_camera__FP9gnd_class */
 static void demo_camera(gnd_class* i_this) {
-    fopAc_ac_c* actor = i_this;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
     daPz_c* zelda = (daPz_c*)pz;
@@ -2070,9 +2069,9 @@ static void demo_camera(gnd_class* i_this) {
     case 0:
         break;
     case 1:
-        if (!actor->eventInfo.checkCommandDemoAccrpt()) {
-            fopAcM_orderPotentialEvent(actor, dEvtCnd_UNK2_e, 0xFFFF, 0);
-            actor->eventInfo.onCondition(dEvtCnd_UNK2_e);
+        if (!i_this->eventInfo.checkCommandDemoAccrpt()) {
+            fopAcM_orderPotentialEvent(i_this, dEvtCnd_UNK2_e, 0xFFFF, 0);
+            i_this->eventInfo.onCondition(dEvtCnd_UNK2_e);
             return;
         }
         i_this->m155E++;
@@ -2092,9 +2091,9 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m1588.z = REG0_F(5);
         // fallthrough
     case 2: {
-        s16 ang = cM_atan2s(actor->current.pos.x - pz->current.pos.x, actor->current.pos.z - pz->current.pos.z);
-        actor->shape_angle.y = ang + 0x4000 + REG0_S(0);
-        actor->current.angle.y = actor->shape_angle.y;
+        s16 ang = cM_atan2s(i_this->current.pos.x - pz->current.pos.x, i_this->current.pos.z - pz->current.pos.z);
+        i_this->shape_angle.y = ang + 0x4000 + REG0_S(0);
+        i_this->current.angle.y = i_this->shape_angle.y;
         if (i_this->m1560 > REG0_S(1) + 0x19) {
             i_this->m155C = 0x82;
             cLib_addCalc2(&i_this->m157C.x, 130.0f + REG0_F(6), 0.6f, 270.0f * i_this->m15A0);
@@ -2110,8 +2109,8 @@ static void demo_camera(gnd_class* i_this) {
             i_this->m1588.y = 200.0f + REG0_F(4);
             i_this->m1588.z = REG0_F(5);
         }
-        MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
-        mDoMtx_YrotM(*calc_mtx, actor->shape_angle.y);
+        MtxTrans(i_this->current.pos.x, i_this->current.pos.y, i_this->current.pos.z, 0);
+        mDoMtx_YrotM(*calc_mtx, i_this->shape_angle.y);
         MtxPosition(&i_this->m157C, &i_this->m1564);
         MtxPosition(&i_this->m1588, &i_this->m1570);
         if (i_this->m1560 > REG0_S(2) + 0x3C) {
@@ -2131,10 +2130,10 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m157C.y = 50.0f + REG0_F(11);
         i_this->m157C.z = REG0_F(12) - 300.0f;
         MtxPosition(&i_this->m157C, &i_this->m1564);
-        i_this->m1570 = actor->current.pos;
+        i_this->m1570 = i_this->current.pos;
         i_this->m1570.y += 150.0f + REG0_F(13);
         {
-            s16 pang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+            s16 pang = fopAcM_searchActorAngleY(i_this, dComIfGp_getPlayer(0));
             player->setPlayerPosAndAngle(&player->current.pos, pang + 0x8000);
         }
         break;
@@ -2189,7 +2188,7 @@ static void demo_camera(gnd_class* i_this) {
             );
             i_this->m2CE = 0;
             i_this->m2D0 = 0;
-            actor->current.angle.y = actor->shape_angle.y;
+            i_this->current.angle.y = i_this->shape_angle.y;
             i_this->m302[1] = l_HIO.m68;
             i_this->m155E = 0x96;
             i_this->m3D8 = 1;
@@ -2199,9 +2198,9 @@ static void demo_camera(gnd_class* i_this) {
         if (i_this->m2CE != 0 || !checkGround(i_this, 0.0f)) {
             return;
         }
-        if (!actor->eventInfo.checkCommandDemoAccrpt()) {
-            fopAcM_orderPotentialEvent(actor, dEvtCnd_UNK2_e, 0xFFFF, 0);
-            actor->eventInfo.onCondition(dEvtCnd_UNK2_e);
+        if (!i_this->eventInfo.checkCommandDemoAccrpt()) {
+            fopAcM_orderPotentialEvent(i_this, dEvtCnd_UNK2_e, 0xFFFF, 0);
+            i_this->eventInfo.onCondition(dEvtCnd_UNK2_e);
             return;
         }
         i_this->m155E++;
@@ -2234,7 +2233,7 @@ static void demo_camera(gnd_class* i_this) {
         if (i_this->m1560 >= REG0_S(0) + 0x64) {
             i_this->m2CE = 0;
             i_this->m2D0 = 0;
-            actor->current.angle.y = actor->shape_angle.y;
+            i_this->current.angle.y = i_this->shape_angle.y;
             i_this->m302[1] = l_HIO.m68;
             i_this->m155E = 0x96;
             zelda->m0740 = 1;
@@ -2243,9 +2242,9 @@ static void demo_camera(gnd_class* i_this) {
         break;
     }
     case 0x14:
-        if (!actor->eventInfo.checkCommandDemoAccrpt()) {
-            fopAcM_orderPotentialEvent(actor, dEvtCnd_CANTALK_e, 0xFFFF, 0);
-            actor->eventInfo.onCondition(dEvtCnd_UNK2_e);
+        if (!i_this->eventInfo.checkCommandDemoAccrpt()) {
+            fopAcM_orderPotentialEvent(i_this, dEvtCnd_CANTALK_e, 0xFFFF, 0);
+            i_this->eventInfo.onCondition(dEvtCnd_UNK2_e);
             return;
         }
         i_this->m155E++;
@@ -2277,30 +2276,30 @@ static void demo_camera(gnd_class* i_this) {
         }
         // fallthrough
     case 0x16:
-        cLib_addCalc2(&i_this->m1570.x, actor->current.pos.x, 0.5f, 70.0f + REG8_F(6));
-        cLib_addCalc2(&i_this->m1570.y, actor->eyePos.y + REG8_F(4), 0.1f, 50.0f);
-        cLib_addCalc2(&i_this->m1570.z, actor->current.pos.z + REG8_F(5), 0.5f, 70.0f + REG8_F(6));
-        cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+        cLib_addCalc2(&i_this->m1570.x, i_this->current.pos.x, 0.5f, 70.0f + REG8_F(6));
+        cLib_addCalc2(&i_this->m1570.y, i_this->eyePos.y + REG8_F(4), 0.1f, 50.0f);
+        cLib_addCalc2(&i_this->m1570.z, i_this->current.pos.z + REG8_F(5), 0.5f, 70.0f + REG8_F(6));
+        cMtx_YrotS(*calc_mtx, i_this->shape_angle.y);
         offset.x = -300.0f + REG8_F(7);
         offset.y = 100.0f + REG8_F(8);
         offset.z = 500.0f + REG8_F(9);
         MtxPosition(&offset, &sp);
-        i_this->m1564 = sp + actor->current.pos;
+        i_this->m1564 = sp + i_this->current.pos;
         if (i_this->m1560 > 0x1E) {
             i_this->m1560 = 0;
             if (i_this->m2CE != 0xB) {
                 i_this->m2CE = 0;
                 i_this->m2D0 = 0;
-                actor->current.angle.y = actor->shape_angle.y;
+                i_this->current.angle.y = i_this->shape_angle.y;
                 i_this->m302[1] = l_HIO.m68;
             }
             i_this->m155E = 0x96;
         }
         break;
     case 0x64:
-        if (!actor->eventInfo.checkCommandDemoAccrpt()) {
-            fopAcM_orderPotentialEvent(actor, dEvtCnd_UNK2_e, 0xFFFF, 0);
-            actor->eventInfo.onCondition(dEvtCnd_UNK2_e);
+        if (!i_this->eventInfo.checkCommandDemoAccrpt()) {
+            fopAcM_orderPotentialEvent(i_this, dEvtCnd_UNK2_e, 0xFFFF, 0);
+            i_this->eventInfo.onCondition(dEvtCnd_UNK2_e);
             return;
         }
         i_this->m155E++;
@@ -2318,13 +2317,13 @@ static void demo_camera(gnd_class* i_this) {
         zelda->m073F = 1;
         i_this->m155E++;
         player->setPlayerPosAndAngle(&zero, (s16)0);
-        actor->current.pos = zero;
-        actor->shape_angle.y = 0;
-        actor->current.angle.y = 0;
+        i_this->current.pos = zero;
+        i_this->shape_angle.y = 0;
+        i_this->current.angle.y = 0;
         pz->current.pos = zero;
         pz->current.pos.x += 400.0f;
-        i_this->mp13F0[0] = dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDFINISHOFF00, &actor->current.pos);
-        i_this->mp13F0[1] = dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDFINISHOFF01, &actor->current.pos);
+        i_this->mp13F0[0] = dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDFINISHOFF00, &i_this->current.pos);
+        i_this->mp13F0[1] = dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDFINISHOFF01, &i_this->current.pos);
         i_this->m1562 = 0;
         // fallthrough
     case 0x66: {
@@ -2339,13 +2338,13 @@ static void demo_camera(gnd_class* i_this) {
             }
         }
         if (i_this->m1560 == 0x22) {
-            fopAcM_monsSeStart(actor, JA_SE_CV_GN_LAST_HIT_1, 0);
+            fopAcM_monsSeStart(i_this, JA_SE_CV_GN_LAST_HIT_1, 0);
         }
         if (i_this->m1560 == 0x4A) {
-            fopAcM_monsSeStart(actor, JA_SE_CV_GN_LAST_HIT_2, 0);
+            fopAcM_monsSeStart(i_this, JA_SE_CV_GN_LAST_HIT_2, 0);
         }
         if (i_this->m1560 == 0x1E) {
-            mDoAud_seStart(JA_SE_LK_SW_CRT_HIT, &actor->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
+            mDoAud_seStart(JA_SE_LK_SW_CRT_HIT, &i_this->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(i_this)));
             dComIfGp_getVibration().StartShock(REG0_S(2) + 4, -0x21, cXyz(0.0f, 1.0f, 0.0f));
         }
         if (i_this->m1560 == 0x13 || i_this->m1560 == REG0_S(4) + 0x27 ||
@@ -2378,7 +2377,7 @@ static void demo_camera(gnd_class* i_this) {
             cLib_addCalc2(&i_this->m15A4, f_fovy[i_this->m1562], rate, i_this->m15A8 * i_this->m15A0);
         }
         if (i_this->m1560 == 0x4A) {
-            mDoAud_seStart(JA_SE_CM_GN_SW_SPIKE_HEAD, &actor->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
+            mDoAud_seStart(JA_SE_CM_GN_SW_SPIKE_HEAD, &i_this->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(i_this)));
             mDoAud_bgmStop(10);
             dComIfGp_getVibration().StartShock(REG0_S(2) + 8, -0x21, cXyz(0.0f, 1.0f, 0.0f));
         }
