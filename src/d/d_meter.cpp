@@ -6878,14 +6878,16 @@ void dMeter_arrowTransScale(sub_meter_class* i_Meter, f32 param_2, f32 param_3, 
 
 /* 80202770-80203298       .text dMeter_arrowAnime__FP15sub_meter_class */
 void dMeter_arrowAnime(sub_meter_class* i_Meter) {
+    s16 iVar6;
+    f32 dVar7;
+    f32 transVal;
+    f32 scaleVal;
+    GXColor color2;
+    GXColor color1;
     static const f32 scale[] = {1.0f, 1.9f, 1.0f, 1.9f};
     static const s32 trans[] = {0, 30, 0, 30};
     static const u8 white[] = {0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF};
     static const u8 black[] = {0xFF, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
-    s16 iVar6;
-    f32 dVar7;
-    GXColor color1;
-    GXColor color2;
 
     for (s32 i = 0; i < 4; i++) {
         if (i_Meter->field_0x2e10[i].mUserArea == 1) {
@@ -6894,7 +6896,9 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
                 iVar6 = iVar6 - 0x14;
             }
             dVar7 = fopMsgM_valueIncrease(10, iVar6, 0);
-            dMeter_arrowTransScale(i_Meter, (dVar7 * (trans[1] - trans[0])) + trans[0], (dVar7 * (scale[1] - scale[0])) + scale[0], i);
+            transVal = (dVar7 * (trans[1] - trans[0])) + trans[0];
+            scaleVal = (dVar7 * (scale[1] - scale[0])) + scale[0];
+            dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
             fopMsgM_setNowAlpha(&i_Meter->field_0x2e10[i], dVar7 * 0.8627451f);
             color1.r = (dVar7 * (black[4] - black[0])) + black[0];
             color1.g = (dVar7 * (black[5] - black[1])) + black[1];
@@ -6910,9 +6914,12 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
                 i_Meter->field_0x2e10[i].mUserArea = 2;
             }
         } else if (i_Meter->field_0x2e10[i].mUserArea == 2) {
-            if (i_Meter->field_0x3025 <= 0x14) {
-                dVar7 = fopMsgM_valueIncrease(10, (i_Meter->field_0x3025 - 10), 0);
-                dMeter_arrowTransScale(i_Meter, (dVar7 * (trans[2] - trans[1])) + trans[1], (dVar7 * (scale[2] - scale[1])) + scale[1], i);
+            s8 t = i_Meter->field_0x3025;
+            if (t <= 0x14) {
+                dVar7 = fopMsgM_valueIncrease(10, (s16)(t - 10), 0);
+                transVal = (dVar7 * (trans[2] - trans[1])) + trans[1];
+                scaleVal = (dVar7 * (scale[2] - scale[1])) + scale[1];
+                dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
                 color1.r = (dVar7 * (black[8] - black[4])) + black[4];
                 color1.g = (dVar7 * (black[9] - black[5])) + black[5];
                 color1.b = (dVar7 * (black[10] - black[6])) + black[6];
@@ -6924,8 +6931,10 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
                 ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setBlack(color1);
                 ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setWhite(color2);
             } else {
-                dVar7 = fopMsgM_valueIncrease(10, (i_Meter->field_0x3025 - 0x14), 0);
-                dMeter_arrowTransScale(i_Meter, (dVar7 * (trans[3] - trans[2])) + trans[2], (dVar7 * (scale[3] - scale[2])) + scale[2], i);
+                dVar7 = fopMsgM_valueIncrease(10, (s16)(t - 0x14), 0);
+                transVal = (dVar7 * (trans[3] - trans[2])) + trans[2];
+                scaleVal = (dVar7 * (scale[3] - scale[2])) + scale[2];
+                dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
                 color1.r = (dVar7 * (black[12] - black[8])) + black[8];
                 color1.g = (dVar7 * (black[13] - black[9])) + black[9];
                 color1.b = (dVar7 * (black[14] - black[10])) + black[10];
