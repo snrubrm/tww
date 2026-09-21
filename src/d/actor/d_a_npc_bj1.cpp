@@ -1448,7 +1448,8 @@ void daNpc_Bj1_c::bj_nMove() {
         return;
     }
 
-    if (m8AA == 1) {
+    switch (m8AA) {
+    case 1:
         if (nmove != 0) {
             return;
         }
@@ -1467,6 +1468,7 @@ void daNpc_Bj1_c::bj_nMove() {
             m8AA = 0;
             break;
         }
+        break;
     }
 }
 
