@@ -439,30 +439,29 @@ void daObjTapestryDrawData_c::ct_tex() {
 void daObjTapestryDrawData_c::ct_dl() {
     static const u8 begin_data[] = {0x98, 0x00, 0x0C};
     int now = 0;
-    int vtx0 = 0;
+    u8 idx8;
     for (int y = 0; y < 7; y++) {
         memcpy(mDl + now, begin_data, 3);
         int idx_base[2] = {0, 0};
-        idx_base[0] = vtx0;
+        idx_base[0] = y * 6;
         idx_base[1] = (y + 1) * 6;
         now += 3;
         for (int x = 0; x < 6; x++) {
             for (int k = 0; k < 2; k++) {
                 int idx = x + idx_base[k];
                 u8 tmp[2] = {0, 0};
-                u8 idx8 = idx;
+                idx8 = idx;
                 tmp[0] = idx;
-                tmp[1] = idx;
+                tmp[1] = idx8;
                 memcpy(mDl + now, tmp, 2);
                 static const u8 tmp_clr[1] = {0};
-                memcpy((u8*)this + now + 0x182, tmp_clr, 1);
+                memcpy(&mDl[now + 2], tmp_clr, 1);
                 u8 b[1] = {0};
                 b[0] = idx8;
-                memcpy((u8*)this + now + 0x183, b, 1);
+                memcpy(&mDl[now + 3], b, 1);
                 now += 4;
             }
         }
-        vtx0 += 6;
     }
     for (int i = 0; i < 0x20; i++) {
         mDl[now++] = 0;
