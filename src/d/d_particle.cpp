@@ -465,7 +465,6 @@ void dPa_smokePcallBack::execute(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
 
 /* 8007BCB4-8007C380       .text draw__18dPa_smokePcallBackFP14JPABaseEmitterP15JPABaseParticle */
 void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
-    f32 pz;
     JGeometry::TVec3<f32> pos;
     ptcl->getGlobalPosition(pos);
     JPADrawParams* params = ptcl->getDrawParamPPtr();
@@ -485,23 +484,25 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     MtxP drawMtx = JPADraw::cb.mDrawMtxPtr;
     MTXMultVec(drawMtx, pos, pos);
 
-    f32 c0x = cos * x0 - sin * y0;
-    c0x += pos.x;
-    f32 c0y = cos * y0 + sin * x0;
-    c0y += pos.y;
-    pz = pos.z;
-    f32 c1x = (cos * x1 - sin * y0) + pos.x;
-    f32 c1y = (cos * y0 + sin * x1) + pos.y;
-    f32 c2x = (cos * x1 - sin * y1) + pos.x;
-    f32 c2y = (cos * y1 + sin * x1) + pos.y;
-    f32 c3x = (cos * x0 - sin * y1) + pos.x;
-    f32 c3y = (cos * y1 + sin * x0) + pos.y;
+    JGeometry::TVec3<f32> pt[4];
+    pt[0].set(cos * x0 - sin * y0, cos * y0 + sin * x0, 0.0f);
+    pt[1].set(cos * x1 - sin * y0, cos * y0 + sin * x1, 0.0f);
+    pt[2].set(cos * x1 - sin * y1, cos * y1 + sin * x1, 0.0f);
+    pt[3].set(cos * x0 - sin * y1, cos * y1 + sin * x0, 0.0f);
+    JGeometry::TVec3<f32> c0(pt[0].x + pos.x, pt[0].y + pos.y, pos.z);
+    JGeometry::TVec3<f32> c1(pt[1].x + pos.x, pt[1].y + pos.y, pos.z);
+    JGeometry::TVec3<f32> c2(pt[2].x + pos.x, pt[2].y + pos.y, pos.z);
+    JGeometry::TVec3<f32> c3(pt[3].x + pos.x, pt[3].y + pos.y, pos.z);
 
-    JGeometry::TVec3<f32> nc(drawMtx[0][3] - pos.x, drawMtx[1][3] - pos.y, drawMtx[2][3] - pz);
-    JGeometry::TVec3<f32> n0(c0x - pos.x, c0y - pos.y, pz - pz);
-    JGeometry::TVec3<f32> n1(c1x - pos.x, c1y - pos.y, n0.z);
-    JGeometry::TVec3<f32> n2(c2x - pos.x, c2y - pos.y, n0.z);
-    JGeometry::TVec3<f32> n3(c3x - pos.x, c3y - pos.y, n0.z);
+    JGeometry::TVec3<f32> nc(drawMtx[0][3] - pos.x, drawMtx[1][3] - pos.y, drawMtx[2][3] - pos.z);
+    JGeometry::TVec3<f32> n0;
+    n0.sub(c0, pos);
+    JGeometry::TVec3<f32> n1;
+    n1.sub(c1, pos);
+    JGeometry::TVec3<f32> n2;
+    n2.sub(c2, pos);
+    JGeometry::TVec3<f32> n3;
+    n3.sub(c3, pos);
     nc.normalize();
     n0.normalize();
     n1.normalize();
@@ -513,23 +514,23 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     GXNormal3f32(nc.x, nc.y, nc.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.5f, 0.5f);
-    GXPosition3f32(c0x, c0y, pz);
+    GXPosition3f32(c0.x, c0.y, c0.z);
     GXNormal3f32(n0.x, n0.y, n0.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 0.0f);
-    GXPosition3f32(c1x, c1y, pz);
+    GXPosition3f32(c1.x, c1.y, c1.z);
     GXNormal3f32(n1.x, n1.y, n1.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(1.0f, 0.0f);
-    GXPosition3f32(c2x, c2y, pz);
+    GXPosition3f32(c2.x, c2.y, c2.z);
     GXNormal3f32(n2.x, n2.y, n2.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(1.0f, 1.0f);
-    GXPosition3f32(c3x, c3y, pz);
+    GXPosition3f32(c3.x, c3.y, c3.z);
     GXNormal3f32(n3.x, n3.y, n3.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 1.0f);
-    GXPosition3f32(c0x, c0y, pz);
+    GXPosition3f32(c0.x, c0.y, c0.z);
     GXNormal3f32(n0.x, n0.y, n0.z);
     GXColor4x8(0xFF, 0xFF, 0xFF, alpha);
     GXTexCoord2f32(0.0f, 0.0f);
