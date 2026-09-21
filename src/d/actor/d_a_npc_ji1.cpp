@@ -5002,7 +5002,6 @@ static cXyz l_head_top(1.0f, 0.0f, 0.0f);
 
 /* 0001031C-00010E3C       .text daNpc_Ji1_setHairAngle__FP11daNpc_Ji1_c */
 static BOOL daNpc_Ji1_setHairAngle(daNpc_Ji1_c* i_this) {
-    /* Nonmatching - hair segment delta temps scheduled Y then X; orig is X then Y */
     f32 wind = *dKyw_get_wind_power() * *dKyw_get_wind_power() * 25.0f;
     cXyz* windVec = dKyw_get_wind_vec();
 
@@ -5089,10 +5088,10 @@ static BOOL daNpc_Ji1_setHairAngle(daNpc_Ji1_c* i_this) {
 
     i_this->field_0xBBA = (s16)(i_this->field_0xBAE - r26) * 0.2f;
     i_this->field_0xBBC = (s16)(i_this->field_0xBB0 - r25) * 0.2f;
-    s16 temp17 = i_this->field_0xBAE - r26;
-    s16 temp18 = i_this->field_0xBB0 - r25;
-    i_this->field_0xBB2 -= temp17;
-    i_this->field_0xBB4 -= temp18;
+    temp15 = i_this->field_0xBAE - r26;
+    temp16 = i_this->field_0xBB0 - r25;
+    i_this->field_0xBB2 -= temp15;
+    i_this->field_0xBB4 -= temp16;
 
     r26 = i_this->field_0xBB2;
     r25 = i_this->field_0xBB4;
