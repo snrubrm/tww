@@ -549,7 +549,7 @@ config.libs = [
             Object(Matching,    "d/d_boss_magma.cpp"),
             Object(Matching,    "d/d_grass.cpp"),
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d/d_tree.cpp"),
-            Object(NonMatching, "d/d_particle.cpp"),
+            Object(MatchingFor("GZLE01"), "d/d_particle.cpp"),
             Object(Matching,    "d/d_particle_name.cpp"),
             Object(Matching,    "d/d_path.cpp"),
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d/d_drawlist.cpp"),
