@@ -539,15 +539,16 @@ void pt_attack(pt_class* i_this) {
 
 /* 00002528-00002AC8       .text pt_wait__FP8pt_class */
 void pt_wait(pt_class* i_this) {
-    camera_process_class* camera = dComIfGp_getCamera(0);
+    fopAc_ac_c* actor = i_this;
+    camera_process_class* const camera = dComIfGp_getCamera(0);
     dBgS_LinChk lin_chk;
     cXyz delta;
     cXyz pos;
     s8 unseen = 0;
 
     i_this->m30E = 6;
-    fopAcM_OffStatus(i_this, 0);
-    i_this->attention_info.flags = 0;
+    fopAcM_OffStatus(actor, 0);
+    actor->attention_info.flags = 0;
 
     if (i_this->mInitialSpawnDelay != 0) {
         i_this->mInitialSpawnDelay--;
@@ -576,10 +577,10 @@ switch_fail:
     return;
 
 do_wait:
-    if (fopAcM_searchActorDistance(i_this, dComIfGp_getPlayer(0)) < 100.0f * (f32)(u32)i_this->mNoticeRange) {
-        pos = i_this->current.pos;
+    if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 100.0f * (f32)(u32)i_this->mNoticeRange) {
+        pos = actor->current.pos;
         pos.y += 100.0f;
-        lin_chk.Set(&camera->view.mLookat.mEye, &pos, i_this);
+        lin_chk.Set(&camera->view.mLookat.mEye, &pos, actor);
         if (dComIfG_Bgsp()->LineCross(&lin_chk)) {
             unseen = 1;
         } else {
@@ -594,8 +595,8 @@ do_wait:
         }
 
         if (i_this->mHide == 0 || unseen != 0) {
-            fopAcM_OnStatus(i_this, 0x36);
-            i_this->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+            fopAcM_OnStatus(actor, 0x36);
+            actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
             i_this->m2D2 = 1;
             i_this->mMode = 0;
             i_this->mHide = 0;
