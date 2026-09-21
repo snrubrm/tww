@@ -882,6 +882,16 @@ void daObjTapestryPacket_c::calc_fire_leap(int row, int col) {
     }
 }
 
+static inline void calc_fire_leap_row(daObjTapestryPacket_c* p, const int& r, int col, int left, int right, bool left_ok, bool right_ok) {
+    p->calc_fire_leap(r, col);
+    if (left_ok) {
+        p->calc_fire_leap(r, left);
+    }
+    if (right_ok) {
+        p->calc_fire_leap(r, right);
+    }
+}
+
 /* 00003008-0000331C       .text calc_fire__21daObjTapestryPacket_cFv */
 void daObjTapestryPacket_c::calc_fire() {
     if (m1454) {
@@ -914,30 +924,18 @@ void daObjTapestryPacket_c::calc_fire() {
                 continue;
             }
             mWork.flag0[row][col] |= 1;
+            int up = row - 1;
             int down = row + 1;
             int left = col - 1;
             int right = col + 1;
-            int up = row - 1;
             bool down_ok = down < 8;
             bool left_ok = left >= 0;
             bool right_ok = right < 6;
             if (up >= 0) {
-                calc_fire_leap(up, col);
-                if (left_ok) {
-                    calc_fire_leap(up, left);
-                }
-                if (right_ok) {
-                    calc_fire_leap(up, right);
-                }
+                calc_fire_leap_row(this, up, col, left, right, left_ok, right_ok);
             }
             if (down_ok) {
-                calc_fire_leap(down, col);
-                if (left_ok) {
-                    calc_fire_leap(down, left);
-                }
-                if (right_ok) {
-                    calc_fire_leap(down, right);
-                }
+                calc_fire_leap_row(this, down, col, left, right, left_ok, right_ok);
             }
             if (left_ok) {
                 calc_fire_leap(row, left);
