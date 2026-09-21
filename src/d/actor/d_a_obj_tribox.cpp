@@ -339,7 +339,7 @@ fopAc_ac_c* daObjTribox::Act_c::push_pullCB(fopAc_ac_c* actor, fopAc_ac_c* other
         }
 
         static const s16 face_ang_offset[] = {0, 0x5555, (s16)0xAAAB};
-        s16 search = fopAcM_searchActorAngleY(i_this, other);
+        s16 search = fopAcM_searchActorAngleY(actor, other);
         s16 face_ang = i_this->shape_angle.y + face_ang_offset[i_this->mFace];
         if ((s16)(face_ang - search) >= 0) {
             i_this->mSide = 0;
