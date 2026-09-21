@@ -1989,11 +1989,10 @@ void action_demo(gm_class* i_this) {
         target = 621.0f;
         step = 0.1f * std::fabsf(i_this->m450.y - target);
         cLib_addCalc2(&i_this->m450.y, target + REG12_F(5), 1.0f, step);
-        {
-            f32 targetZ = 582.0f;
-            step = 0.1f * std::fabsf(i_this->m450.z - targetZ);
-            cLib_addCalc2(&i_this->m450.z, targetZ + REG12_F(6), 1.0f, step);
-        }
+        target = 582.0f;
+        step = std::fabsf(i_this->m450.z - target);
+        step *= 0.1f;
+        cLib_addCalc2(&i_this->m450.z, target + REG12_F(6), 1.0f, step);
         if (i_this->m2E2 != 0) {
             break;
         }
@@ -2063,7 +2062,7 @@ void action_demo(gm_class* i_this) {
         /* fallthrough */
     case 221: {
         f32 speed = actor->speedF;
-        if (0.0f != speed) {
+        if (speed) {
             if (i_this->m2E2 == 0 || i_this->mAcch.ChkGroundHit()) {
                 if (i_this->mBckIdx != dRes_INDEX_GM_BCK_G_DEAD02_e) {
                     anm_init(i_this, dRes_INDEX_GM_BCK_G_DEAD02_e, 1.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
@@ -2079,7 +2078,7 @@ void action_demo(gm_class* i_this) {
             break;
         }
         speed = actor->speedF;
-        if (speed != 0.0f) {
+        if (speed) {
             break;
         }
         if (i_this->mBckIdx != dRes_INDEX_GM_BCK_G_DEAD02_e) {
