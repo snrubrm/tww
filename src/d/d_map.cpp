@@ -997,7 +997,6 @@ void dMap_RoomInfoCtrl_c::init() {
 
 /* 80047CD0-8004826C       .text create__6dMap_cFv */
 void dMap_c::create() {
-    /* Nonmatching */
     static const GXColor l_cursorColor = {255, 255, 0, 255};
     static const int frameArcIdx[] = {
         dRes_INDEX_ALWAYS_BTI_MAP_FRAME1_e,
@@ -1091,34 +1090,34 @@ void dMap_c::create() {
     ResTIMG* timg;
     int i;
     for (i = 0; i < 8; i++) {
-        timg = (ResTIMG*)dComIfG_getObjectRes("Always", frameArcIdx[i]);
+        timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", frameArcIdx[i]));
         JUT_ASSERT(VERSION_SELECT(3450, 3450, 3450, 3450), timg != NULL);
         mFrameTexture[i].init(timg, i + 2, (GXColor){255, 255, 255, 255});
         mFrameTexture[i].field_0x0 = 1;
         mFrameTexture[i].setScroll(cord[i][0], cord[i][1], cord[i][2], cord[i][3]);
         mFrameTex[i].init(1, &mFrameTexture[i]);
     }
-    timg = (ResTIMG*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_FREE_e);
+    timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_FREE_e));
     JUT_ASSERT(VERSION_SELECT(3476, 3476, 3476, 3476), timg != NULL);
     mIconFreeTexture.init(timg, 10, (GXColor){255, 210, 0, 255});
     mIconFreeTexture.field_0x0 = 1;
     mIconFreeTexture.setScroll(0.0f, 0.0f, 1.0f, 1.0f);
     mIconFreeTex.init(1, &mIconFreeTexture);
-    timg = (ResTIMG*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_SELF_e);
+    timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_SELF_e));
     JUT_ASSERT(VERSION_SELECT(3489, 3489, 3489, 3489), timg != NULL);
     mIconSelfTexture.init(timg, 10, (GXColor){255, 222, 255, 255});
     mIconSelfTexture.field_0x0 = 1;
     mIconSelfTexture.setScroll(0.0f, 0.0f, 1.0f, 1.0f);
     mIconSelfTex.init(1, &mIconSelfTexture);
-    timg = (ResTIMG*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_F_SHIPICON_e);
+    timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_F_SHIPICON_e));
     JUT_ASSERT(VERSION_SELECT(3502, 3502, 3502, 3502), timg != NULL);
     mShip.init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0, 1.0f, 1.0f, 0);
-    timg = (ResTIMG*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_TREASUREBOX_e);
+    timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_TREASUREBOX_e));
     JUT_ASSERT(VERSION_SELECT(3511, 3511, 3511, 3511), timg != NULL);
     for (i = 0; i < 8; i++) {
         mTbox[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
-    timg = (ResTIMG*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_BLACK_WHITE_2_e);
+    timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_BLACK_WHITE_2_e));
     for (i = 0; i < 16; i++) {
         mDoor[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
