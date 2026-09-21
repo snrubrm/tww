@@ -324,6 +324,7 @@ void JAInter::SeMgr::checkPlayingSe() {
         for (slot = 0; slot < categoryInfoTable[seScene][(u32)category * 2]; track++, slot++) {
             sound = (JAISound*)sePlaySound[category][slot];
             if (sound != NULL) {
+                u32 value;
                 sound->field_0x18++;
                 u32 port = 0x20000000 + (track >> 4) + ((track & 0xF) << 4);
                 JASystem::TTrack* root = seHandle->getSeqParameter()->getRootTrackPointer();
@@ -332,8 +333,8 @@ void JAInter::SeMgr::checkPlayingSe() {
                 root->readPortApp(port + 0x20000, &active);
                 root->readPortApp(port, &command);
                 JAISound::PositionInfo_t* positions = sound->mPositionInfo;
-                for (u8 camera = 0; camera < JAIGlobalParameter::getParamAudioCameraMax(); camera++) {
-                    positions[camera].field_0x18 = std::sqrtf(positions[camera].field_0x18);
+                for (value = 0; (u8)value < JAIGlobalParameter::getParamAudioCameraMax(); value++) {
+                    positions[(u8)value].field_0x18 = std::sqrtf(positions[(u8)value].field_0x18);
                 }
                 if (sound->mState == 2) {
                     u32 flags = sound->getSwBit();
@@ -352,10 +353,10 @@ void JAInter::SeMgr::checkPlayingSe() {
                     }
                     SeParameter* parameter = sound->getSeParameter();
                     for (u8 i = 0; parameter->field_0x0[16] != 0; i++) {
-                        u32 bit = 1 << i;
-                        if (parameter->field_0x0[16] & bit) {
+                        value = 1 << i;
+                        if (parameter->field_0x0[16] & value) {
                             seHandle->setTrackPortData(sound->getTrack(), i, sound->getSeParameter()->field_0x0[i]);
-                            parameter->field_0x0[16] ^= bit;
+                            parameter->field_0x0[16] ^= value;
                         }
                     }
                     sound->setSeDistanceParameters();
