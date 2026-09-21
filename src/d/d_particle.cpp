@@ -1460,13 +1460,10 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
     u32 groups = childN / 5;
     f32 step = 1.0f / (f32)(groups - 1);
     u32 activeN = emitter->getParticleList()->getNumLinks();
-    if (activeN % 5 != 0) {
+    if (activeN % 5 != 0 || childN < 10 || childN % 5 != 0) {
         return;
     }
-    if (childN < 10) {
-        return;
-    }
-    if (childN % 5 == 0) {
+    {
         u32 vtxCount;
         u8 stripe;
         stripe = 0;
@@ -1479,9 +1476,8 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
             while (link != NULL) {
                 if ((u16)idx % 5 == stripe) {
                     JPABaseParticle* ptcl = link->getObject();
-                    f32 posx = ptcl->mGlobalPosition.x;
-                    f32 posy = ptcl->mGlobalPosition.y;
-                    f32 posz = ptcl->mGlobalPosition.z;
+                    JGeometry::TVec3<f32> pos;
+                    ptcl->getGlobalPosition(pos);
 
                     JPADrawParams* params = ptcl->getDrawParamPPtr();
                     f32 sin = JMASSin(params->mRotateAngle);
@@ -1525,9 +1521,9 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
                     mtx.mult(v1);
                     mtx.mult(v2);
 
-                    GXPosition3f32(v1.x + posx, v1.y + posy, v1.z + posz);
+                    GXPosition3f32(v1.x + pos.x, v1.y + pos.y, v1.z + pos.z);
                     GXTexCoord2f32(0.0f, texT);
-                    GXPosition3f32(v2.x + posx, v2.y + posy, v2.z + posz);
+                    GXPosition3f32(v2.x + pos.x, v2.y + pos.y, v2.z + pos.z);
                     GXTexCoord2f32(1.0f, texT);
                     texT += step;
                 }
