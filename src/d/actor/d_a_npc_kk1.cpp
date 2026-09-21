@@ -2336,27 +2336,26 @@ BOOL daNpc_Kk1_c::bodyCreateHeap() {
 BOOL daNpc_Kk1_c::effcCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BMD_GFKDS00_e);
     mpEffModel = mDoExt_J3DModel__create(a_mdl_dat, 0, 0x11020203);
-    if (mpEffModel == NULL) {
-        return TRUE;
+    if (mpEffModel != NULL) {
+        J3DAnmColor* a_bpk = (J3DAnmColor*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BPK_GFKDS00_e);
+        JUT_ASSERT(0xE01, 0 != a_bpk);
+        if (!mBpkAnm.init(mpEffModel->getModelData(), a_bpk, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false, 0)) {
+            return FALSE;
+        }
+        J3DAnmTextureSRTKey* a_btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BTK_GFKDS00_e);
+        JUT_ASSERT(0xE09, 0 != a_btk);
+        if (!mBtkAnm.init(mpEffModel->getModelData(), a_btk, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false, 0)) {
+            return FALSE;
+        }
+        J3DAnmTransform* a_bck = (J3DAnmTransform*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BCK_GFKDS00_e);
+        JUT_ASSERT(0xE11, 0 != a_bck);
+        if (!mBckAnm.init(mpEffModel->getModelData(), a_bck, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false)) {
+            return FALSE;
+        }
+        mBpkFrame = 0;
+        mBtkFrame = 0;
+        mBckFrame = 0;
     }
-    J3DAnmColor* a_bpk = (J3DAnmColor*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BPK_GFKDS00_e);
-    JUT_ASSERT(0xE01, 0 != a_bpk);
-    if (!mBpkAnm.init(mpEffModel->getModelData(), a_bpk, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false, 0)) {
-        return FALSE;
-    }
-    J3DAnmTextureSRTKey* a_btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BTK_GFKDS00_e);
-    JUT_ASSERT(0xE09, 0 != a_btk);
-    if (!mBtkAnm.init(mpEffModel->getModelData(), a_btk, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false, 0)) {
-        return FALSE;
-    }
-    J3DAnmTransform* a_bck = (J3DAnmTransform*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BCK_GFKDS00_e);
-    JUT_ASSERT(0xE11, 0 != a_bck);
-    if (!mBckAnm.init(mpEffModel->getModelData(), a_bck, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false)) {
-        return FALSE;
-    }
-    mBpkFrame = 0;
-    mBtkFrame = 0;
-    mBckFrame = 0;
     return TRUE;
 }
 
