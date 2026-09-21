@@ -3145,7 +3145,8 @@ void JAIZelBasic::shipCruiseSePlay(Vec* pos, f32 speed) {
     if (matrix) {
         PSMTXMultVec(matrix, &position, &position);
     }
-    f32 dist = std::sqrtf(position.x * position.x + position.y * position.y + position.z * position.z);
+    f32 sum = position.x * position.x + position.y * position.y + position.z * position.z;
+    f32 dist = std::sqrtf(sum);
     if (dist >= JAIGlobalParameter::getParamDistanceMax()) {
         return;
     }
@@ -3155,9 +3156,10 @@ void JAIZelBasic::shipCruiseSePlay(Vec* pos, f32 speed) {
         waveSe = JA_SE_SHIP_WAVE_S;
         speed = 1.0f;
     } else if (speed <= 0.5f) {
-        goVol = (speed - 0.1f) / 0.4f;
+        f32 t = (speed - 0.1f) / 0.4f;
+        goVol = t;
         waveSe = JA_SE_SHIP_WAVE_S;
-        speed = 1.0f - goVol;
+        speed = 1.0f - t;
     } else if (speed <= 0.8f) {
         goVol = 1.0f;
         waveSe = JA_SE_SHIP_WAVE_L;
