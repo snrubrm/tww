@@ -1716,13 +1716,14 @@ BOOL daNpc_Kk1_c::wait_1() {
 
 /* 0000415C-0000449C       .text walk_1__11daNpc_Kk1_cFv */
 BOOL daNpc_Kk1_c::walk_1() {
+    s16 prevAngle;
     cXyz pos = mPath.getPoint(mPath.getIdx());
     if (dPath_ChkClose(mPath.getPath())) {
         return TRUE;
     }
     f32 dist = (current.pos - pos).absXZ();
     if (m7B6 && dist < l_HIO.mPrm.m28) {
-        bool atEnd = !mPath.nextIdxAuto();
+        bool atEnd = mPath.nextIdxAuto() == 0;
         if (!atEnd) {
             if (mPath.getDir() != 0 && mPath.getIdx() >= daObj_Roten_c::getCreateCount()) {
                 mPath.decIdx();
@@ -1735,8 +1736,8 @@ BOOL daNpc_Kk1_c::walk_1() {
             mPath.turnDir();
         }
     }
-    s16 prevAngle = current.angle.y;
     s16 target = cLib_targetAngleY(&current.pos, &pos);
+    prevAngle = current.angle.y;
     cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
     f32 targetSpeed = l_HIO.mPrm.m2C;
     if (!m7B6 || m7C3 || chk_attn()) {
