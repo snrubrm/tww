@@ -452,17 +452,17 @@ void daMozo_c::towait_proc() {
             if (beam1->m5A8 < 4.0f) {
                 beam1->m5A8 += 1.0f;
                 done1 = FALSE;
-            } else {
-                beam1->m5A8 = 0.0f;
-                beam1->m588 = 0.0f;
-                beam1->m5F4 = 0;
-                done1 = TRUE;
+                goto end1;
             }
+            beam1->m5A8 = 0.0f;
+            beam1->m588 = 0.0f;
+            beam1->m5F4 = 0;
         } else {
             beam1->m588 = 0.0f;
             beam1->m5A8 = 0.0f;
-            done1 = TRUE;
         }
+        done1 = TRUE;
+    end1:
 
         if (beam2->beamCheck()) {
             beam2->beamOff();
@@ -475,17 +475,17 @@ void daMozo_c::towait_proc() {
             if (beam2->m5A8 < 4.0f) {
                 beam2->m5A8 += 1.0f;
                 done2 = FALSE;
-            } else {
-                beam2->m5A8 = 0.0f;
-                beam2->m588 = 0.0f;
-                beam2->m5F4 = 0;
-                done2 = TRUE;
+                goto end2;
             }
+            beam2->m5A8 = 0.0f;
+            beam2->m588 = 0.0f;
+            beam2->m5F4 = 0;
         } else {
             beam2->m588 = 0.0f;
             beam2->m5A8 = 0.0f;
-            done2 = TRUE;
         }
+        done2 = TRUE;
+    end2:
 
         if (done1 && done2 && mQuatRotation.w > 0.99f && mAnimMorf->getFrame() < 25.0f &&
             mBrkAnm.getFrame() < 1.0f && mBtkAnm.getFrame() < 1.0f)
