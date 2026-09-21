@@ -3611,9 +3611,11 @@ void dMap_Dmap_c::draw() {
     GXSetCurrentMtx(GX_PNMTX0);
     setTlutDblBufNo(0);
     changeTlutDblBufNo();
+    s16 r22;
+    GXTexObj* r26;
     for (int i = 0; i < 10; i++) {
         if (r23 <= 480) {
-            s16 r22 = r23 + field_0x36a;
+            r22 = r23 + field_0x36a;
             if (r22 < 0) {
                 break;
             }
@@ -3621,7 +3623,7 @@ void dMap_Dmap_c::draw() {
                 setTlut(&field_0x20[getLoadTlutDblBufNo()][i], i + Floor_Base, field_0x2b8, field_0x2b9, f30);
                 f29 = (f32(r23) - f32(r21)) / mMaskHeight;
                 f28 = (f32(r22) - f32(r21)) / mMaskHeight;
-                GXTexObj* r26 = &field_0x370[i];
+                r26 = &field_0x370[i];
                 f32 f24 = 0.3f / GXGetTexObjWidth(r26);
                 f32 f23_2 = 0.3f / GXGetTexObjHeight(r26);
                 GXColor local_2c4;
