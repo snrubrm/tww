@@ -5122,7 +5122,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
         work->m390 = 0.0f;
         work->m394 = work->m398 = mDirection.R();
         work->m388 = work->m38C = 0;
-        work->m3B4 = work->m39C = mDirection.V().Degree();
+        work->m39C = work->m3B4 = mDirection.V().Degree();
         work->m3B8 = mViewCache.mCenter;
         work->m3DC = work->m3E0 = 0.01f;
         work->m3E4 = 0.01f;
@@ -5144,23 +5144,13 @@ bool dCamera_c::towerCamera(s32 param_1) {
             work->m37C = 1;
         } else {
             cXyz rel = relationalPos(mpPlayerActor, &posOffset);
-            cXyz eyeDelta = mEye - rel;
-            f32 distEye = eyeDelta.abs() - val10;
-            cXyz centerDelta = mCenter - rel;
-            f32 distCenter = centerDelta.abs() - val10;
+            f32 distEye = cXyz(mEye - rel).abs() - val10;
+            f32 distCenter = cXyz(mCenter - rel).abs() - val10;
             f32 dist = distEye > distCenter ? distEye : distCenter;
             dist = std::fabsf(dist);
 
-            f32 height;
-            if (is_player(mpPlayerActor)) {
-                height = ((daPy_py_c*)mpPlayerActor)->getHeight();
-            } else {
-                height = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
-            }
-            if (height < 10.0f) {
-                height = 10.0f;
-            }
-            dist /= height;
+            f32 height = get_actor_height(mpPlayerActor);
+            dist /= height < 10.0f ? 10.0f : height;
             work->m37C = (int)(8.0f * std::sqrtf(dist)) + 1;
         }
         work->m380 = work->m37C * (work->m37C + 1) >> 1;
@@ -5193,7 +5183,8 @@ bool dCamera_c::towerCamera(s32 param_1) {
         }
 
         f32 spR = limitf(mViewCache.mDirection.R(), val11, val10);
-        cSAngle spV = mViewCache.mDirection.V();
+        cSAngle spV;
+        spV = mViewCache.mDirection.V();
         if (spV < val16) {
             spV = val16;
         }
@@ -5296,15 +5287,14 @@ bool dCamera_c::towerCamera(s32 param_1) {
     }
     if (targetV < val16) {
         targetV.Val(val16);
-    }
-    if (targetV > val17) {
+    } else if (targetV > val17) {
         targetV.Val(val17);
     }
     mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * work->m3DC);
 
+    f32 targetR = globe.R();
     work->m394 += val14 * (val11 - work->m394);
     work->m398 += val14 * (val10 - work->m398);
-    f32 targetR = globe.R();
     if (targetR < work->m394) {
         work->m3D8 += 0.01f * (val13 - work->m3D8);
         targetR = work->m394;
