@@ -209,10 +209,10 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
     BOOL rt = FALSE;
 
     s16 var_r30 = cdFrame0;
-    s16 var_r31 = var_r30 + cdFrame1;
-    s16 temp_r6 = var_r31 + tmFrame;
+    int var_r31 = (s16)(var_r30 + cdFrame1);
+    int temp_r6 = (s16)(var_r31 + tmFrame);
     s16 var_r27 = temp_r6 + cdFrame2;
-    s16 temp_r7 = var_r27 + cdFrame3;
+    int temp_r7 = (s16)(var_r27 + cdFrame3);
 
     field_0x1c8[i_no].mUserArea++;
 
@@ -221,8 +221,7 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
 
     s16 temp_r0 = field_0x1c8[i_no].mUserArea;
     if (temp_r0 <= var_r30) {
-        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea);
-        temp /= SQUARE((f32)var_r31);
+        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea) / SQUARE((f32)var_r31);
         fopMsgM_paneScaleXY(&field_0x270[i_no], temp * 0.3f + 0.7f);
 
         temp = SQUARE((f32)field_0x1c8[i_no].mUserArea) / SQUARE((f32)var_r30);
@@ -232,18 +231,17 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
         fopMsgM_paneScaleXY(&field_0x1c8[i_no], var_f2 * 0.3f + 0.7f);
         fopMsgM_setNowAlpha(&field_0x1c8[i_no], var_f2);
 
-        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea);
-        temp /= SQUARE((f32)var_r31);
+        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea) / SQUARE((f32)var_r31);
         fopMsgM_paneScaleXY(&field_0x270[i_no], temp * 0.3f + 0.7f);
         fopMsgM_setNowAlpha(&field_0x270[i_no], 1.0f - var_f2);
 
         if (field_0x1c8[i_no].mUserArea == var_r31) {
             mDoAud_seStart(JA_SE_SGAME_COUNTDOWN, NULL);
         }
-    } else if (temp_r6 > temp_r0) {
+    } else if (temp_r0 > temp_r6) {
         if (temp_r0 <= var_r27) {
-            int r7 = ((var_r27 - temp_r0) / 4);
-            if (((temp_r6 - temp_r0) / r7) % 2)
+            int r7 = ((var_r27 - temp_r6) / 4);
+            if (((temp_r0 - temp_r6) / r7) % 2)
                 angle *= -1.0f;
             setRotate(&field_0x1c8[i_no], angle);
         } else if (temp_r0 < temp_r7) {
@@ -261,6 +259,7 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
 
     return rt;
 }
+
 
 /* 80206908-80206CB0       .text anime2__23dDlst_StarterScrnDraw_cFv */
 // NONMATCHING - regalloc
@@ -320,6 +319,7 @@ BOOL dDlst_StarterScrnDraw_c::anime2() {
 
     return rt;
 }
+
 
 /* 80206CB0-80206DA4       .text scaleAnime__23dDlst_StarterScrnDraw_cFf */
 void dDlst_StarterScrnDraw_c::scaleAnime(f32 i_scale) {
