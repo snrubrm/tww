@@ -267,6 +267,8 @@ static BOOL nodeCallBack_tail(J3DNode* node, int calcTiming) {
 /* 00000B28-0000171C       .text body_control2__FP8mt_class */
 void body_control2(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
+    f32 dy;
+    f32 y;
     f32 inertia = i_this->m18F4;
 
     i_this->m4A0[0] = actor->current.pos;
@@ -315,7 +317,6 @@ void body_control2(mt_class* i_this) {
             }
 
             s16 wall_z = 0;
-            f32 y;
             if (hit == 2) {
                 y = p4A0->y - 10.0f;
                 f32 ground_y = end[0].y + l_HIO.m18;
@@ -328,7 +329,7 @@ void body_control2(mt_class* i_this) {
             }
             cLib_addCalcAngleS2(&p560->z, wall_z, 2, 0x400);
 
-            f32 dy = p590->y + (y - p4A0[-1].y);
+            dy = p590->y + (y - p4A0[-1].y);
 
             if (i_this->m48E == 0) {
                 offset.x = 3.0f * cM_ssin(i_this->m46A * (REG0_S(5) + 1500) + i * (REG0_S(6) + 7500));
