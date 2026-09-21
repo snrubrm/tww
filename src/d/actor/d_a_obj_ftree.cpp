@@ -606,10 +606,8 @@ void daObjFtree::Act_c::action_waitM_main() {
         BOOL coHit = mCyl.ChkCoHit();
         if (dKy_rain_check()) {
             process_init(11, -1);
-        } else if (mPrevCoHit == 0 && coHit == TRUE) {
-            if (process_init(11, 0x78)) {
-                coHit = FALSE;
-            }
+        } else if (mPrevCoHit == 0 && coHit == TRUE && process_init(11, 0x78)) {
+            coHit = FALSE;
         } else if ((int)cM_rndF(90.0f) == 0) {
             process_init(11, (s16)(30.0f + cM_rndF(1.0f) * 90.0f));
         }
