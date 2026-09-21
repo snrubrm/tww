@@ -50,9 +50,11 @@ namespace {
 
     inline static f32 get_actor_height(fopAc_ac_c* actor) {
         if (is_player(actor)) {
-            return ((daPy_py_c*)actor)->getHeight();
+            f32 height = ((daPy_py_c*)actor)->getHeight();
+            return height;
         } else {
-            return (actor->eyePos.y - actor->current.pos.y) * 1.1f;
+            f32 height = (actor->eyePos.y - actor->current.pos.y) * 1.1f;
+            return height;
         }
     }
 
@@ -5028,8 +5030,8 @@ bool dCamera_c::towerCamera(s32 param_1) {
     cSAngle val16(mCamParam.Val(param_1, 16));
     cSAngle val17(mCamParam.Val(param_1, 17));
     f32 val19 = mCamParam.Val(param_1, 19);
-    f32 val25 = dCamParam_c::styles[param_1].styleParam[25];
-    f32 val27 = dCamParam_c::styles[param_1].styleParam[27];
+    f32 val25 = mCamParam.Val(param_1, 25);
+    f32 val27 = mCamParam.Val(param_1, 27);
     f32 val29 = mCamParam.Val(param_1, 29);
     cSAngle val23(mCamParam.Val(param_1, 23));
     cSAngle val24(mCamParam.Val(param_1, 24));
@@ -6069,7 +6071,7 @@ bool dCamera_c::hungCamera(s32 param_1) {
     f32 val14 = mCamParam.Val(param_1, 14);
     f32 val13 = mCamParam.Val(param_1, 13);
     f32 val15 = mCamParam.Val(param_1, 15);
-    f32 val16 = dCamParam_c::styles[param_1].styleParam[16];
+    f32 val16 = mCamParam.Val(param_1, 16);
     f32 val19 = mCamParam.Val(param_1, 19);
     f32 val18 = mCamParam.Val(param_1, 18);
     f32 val25 = mCamParam.Val(param_1, 25);
