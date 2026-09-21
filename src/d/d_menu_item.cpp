@@ -1068,13 +1068,14 @@ void dMenu_Item_c::itemnameSet() {
 
     if (mNowItem == 0x15) {
         msgNo = 0x1F8;
-    } else if (dComIfGs_getItem(mNowItem) == dItemNo_NONE_e) {
-        return;
-    } else {
-        msgNo = dItem_data::getItemMesgNum(dComIfGs_getItem(mNowItem));
-        if (msgNo == 0) {
+    } else if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
+        u32 no = dItem_data::getItemMesgNum(dComIfGs_getItem(mNowItem));
+        msgNo = no;
+        if (no == 0) {
             msgNo = 0x19C;
         }
+    } else {
+        return;
     }
 
     mesg_header* head_p = msgGet.getMesgHeader(msgNo);
