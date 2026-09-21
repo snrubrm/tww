@@ -110,7 +110,7 @@ public:
     BOOL walk_1();
     BOOL wait_2();
     void init_CMT_WAI();
-    BOOL move_CMT_WAI();
+    void move_CMT_WAI();
     void init_CMT_TRN();
     BOOL move_CMT_TRN();
     void init_CMT_PCK();

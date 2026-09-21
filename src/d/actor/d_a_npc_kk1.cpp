@@ -1820,24 +1820,20 @@ void daNpc_Kk1_c::init_CMT_WAI() {
 }
 
 /* 0000466C-00004754       .text move_CMT_WAI__11daNpc_Kk1_cFv */
-BOOL daNpc_Kk1_c::move_CMT_WAI() {
+void daNpc_Kk1_c::move_CMT_WAI() {
     if (cLib_calcTimer(&m7A4) == 0) {
-        if (mOrder != 1 && mOrder < 3) {
-            BOOL inArea = chk_areaIN(l_HIO.mPrm.m50, current.pos);
-            if (inArea) {
-                mOrder = 8;
-                return inArea;
-            }
+        if (mOrder != 1 && mOrder < 3 && chk_areaIN(l_HIO.mPrm.m50, current.pos)) {
+            mOrder = 8;
+        } else {
+            m816 = 0;
+            setAnm_NUM(3, 1);
+            m7B6 = 1;
         }
-        m816 = 0;
-        setAnm_NUM(3, 1);
-        m7B6 = 1;
     } else if (mOrder != 1 && mOrder < 3) {
         if (startEvent_check()) {
             mOrder = 9;
         }
     }
-    return TRUE;
 }
 
 /* 00004754-000047D4       .text init_CMT_TRN__11daNpc_Kk1_cFv */
