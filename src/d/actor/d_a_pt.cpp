@@ -229,14 +229,15 @@ void damage_check(pt_class* i_this) {
 
 /* 0000093C-00000D74       .text get_z_ang__FP8pt_class */
 s16 get_z_ang(pt_class* i_this) {
+    fopAc_ac_c* actor = i_this;
     dBgS_LinChk lin_chk;
     cXyz src;
     cXyz p1;
     cXyz p2;
 
-    MtxTrans(i_this->current.pos.x, i_this->current.pos.y, i_this->current.pos.z, 0);
-    mDoMtx_YrotM(*calc_mtx, i_this->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, i_this->current.angle.x);
+    MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
+    mDoMtx_YrotM(*calc_mtx, actor->current.angle.y);
+    mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
 
     s16 z = 0;
     for (int i = 0; i < 16; i++, z += 0x1000) {
@@ -248,14 +249,14 @@ s16 get_z_ang(pt_class* i_this) {
         MtxPosition(&src, &p1);
         src.y = -5.0f;
         MtxPosition(&src, &p2);
-        lin_chk.Set(&p1, &p2, i_this);
+        lin_chk.Set(&p1, &p2, actor);
         if (dComIfG_Bgsp()->LineCross(&lin_chk)) {
             src.x = -10.0f;
             src.y = 2.0f;
             MtxPosition(&src, &p1);
             src.y = -5.0f;
             MtxPosition(&src, &p2);
-            lin_chk.Set(&p1, &p2, i_this);
+            lin_chk.Set(&p1, &p2, actor);
             if (dComIfG_Bgsp()->LineCross(&lin_chk)) {
                 MtxPull();
                 return z;
