@@ -1831,7 +1831,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_tag_ret"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_tag_volcano"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_title"),
-    ActorRel(MatchingFor("D44J01"), "d_a_tn"),
+    ActorRel(MatchingFor("D44J01", "GZLE01"), "d_a_tn"),
     ActorRel(Matching,    "d_a_toge"),
     ActorRel(Matching,    "d_a_tori_flag"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_wall"),
