@@ -374,7 +374,6 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* base) {
 
 /* 000017C4-00001C78       .text daKlft_Create__FP10fopAc_ac_c */
 static cPhs_State daKlft_Create(fopAc_ac_c* base) {
-    // USA: the inline wind sphere constructor uses a different temporary register.
     static dCcD_SrcSph utiwa_sph_src = {
         // dCcD_SrcGObjInf
         {
@@ -432,8 +431,8 @@ static cPhs_State daKlft_Create(fopAc_ac_c* base) {
             /* Height */ 60.0f,
         }},
     };
-    fopAcM_SetupActor(base, klft_class);
     klft_class* actor = (klft_class*)base;
+    fopAcM_SetupActor(base, klft_class);
     u32 pathNo;
     cPhs_State phase;
     phase = dComIfG_resLoad(&actor->mPhase, "Klft");
@@ -455,7 +454,7 @@ static cPhs_State daKlft_Create(fopAc_ac_c* base) {
         if (actor->mType == 0xFF) {
             actor->mType = 0;
         }
-        if (!fopAcM_entrySolidHeap(actor, CallbackCreateHeap, 0x10000)) {
+        if (!fopAcM_entrySolidHeap(base, CallbackCreateHeap, 0x10000)) {
             return cPhs_ERROR_e;
         }
         if (actor->pm_bgw != NULL && dComIfG_Bgsp()->Regist(actor->pm_bgw, actor)) {
