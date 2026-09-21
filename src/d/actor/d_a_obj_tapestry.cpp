@@ -756,6 +756,7 @@ void daObjTapestryPacket_c::calc_nrm() {
             cXyz* right = &prev->pos[row][col + 1];
             cXyz* left = &prev->pos[row][col - 1];
             cXyz vy;
+            cXyz vx;
             if (row == 0) {
                 vy = *down - *p;
             } else if (row == 7) {
@@ -773,7 +774,6 @@ void daObjTapestryPacket_c::calc_nrm() {
                 acc2 += *down * 0.57475f;
                 vy = acc2 - acc;
             }
-            cXyz vx;
             if (col == 0) {
                 vx = *right - *p;
             } else if (col == 5) {
