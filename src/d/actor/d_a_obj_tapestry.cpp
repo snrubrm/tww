@@ -645,7 +645,8 @@ void daObjTapestryPacket_c::calc_acc_gravity() {
 
 /* 000015B8-00001858       .text calc_acc_wave__21daObjTapestryPacket_cFii */
 void daObjTapestryPacket_c::calc_acc_wave(int row, int col) {
-    cXyz* pos = &mDraw[mBuffer ^ 1].pos[row][col];
+    daObjTapestryDrawVtx_c* v = &mDraw[mBuffer ^ 1];
+    cXyz* pos = &v->pos[row][col];
     f32 t = 0.8f + 0.028571429f * (f32)row;
     mAcc += m13D4 * t;
     mAcc += m13E4 * t;
