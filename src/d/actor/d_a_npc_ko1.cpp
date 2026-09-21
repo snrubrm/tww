@@ -1513,7 +1513,7 @@ void daNpc_Ko1_c::event_actionInit(int staff) {
 }
 
 /* 00004264-00004274       .text event_action__11daNpc_Ko1_cFv */
-BOOL daNpc_Ko1_c::event_action() {
+bool daNpc_Ko1_c::event_action() {
     switch (mEventAction) {
     case 0:
         break;
@@ -1536,7 +1536,7 @@ void daNpc_Ko1_c::privateCut(int staff) {
                     break;
                 }
             }
-            BOOL done;
+            bool done;
             switch (mCutIndex) {
             case 0:
                 done = event_action();

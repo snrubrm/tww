@@ -97,7 +97,7 @@ public:
     void setPrtcl_HanaPachi();
     bool charDecide(int);
     void event_actionInit(int);
-    BOOL event_action();
+    bool event_action();
     void privateCut(int);
     void endEvent();
     int isEventEntry();
