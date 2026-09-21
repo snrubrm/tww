@@ -1841,7 +1841,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLE01"), "d_a_warpmj"),
     ActorRel(MatchingFor("GZLE01"), "d_a_waterfall"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_windmill"),
-    ActorRel(NonMatching, "d_a_wz"),
+    ActorRel(MatchingFor("GZLE01"), "d_a_wz"),
     ActorRel(Matching,    "d_a_ygcwp"),
     ActorRel(Matching,    "d_a_yougan"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d_a_ghostship"),
