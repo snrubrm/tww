@@ -806,14 +806,14 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
     s16 f3;
     s16 f4;
     s16 wait;
-    s16 f5;
+    int f5;
     wait = g_menuHIO.field_0xae;
     f0 = g_menuHIO.field_0xa4;
     f1 = f0 + g_menuHIO.field_0xa6;
     f2 = f1 + g_menuHIO.field_0xa8;
     f3 = f2 + g_menuHIO.field_0xaa;
     f4 = f3 + g_menuHIO.field_0xac;
-    f5 = f4 + wait * 2;
+    f5 = (s16)(f4 + wait * 2);
 
     if (mAnimTimer2 <= g_menuHIO.field_0xb0 + 0x20) {
         return FALSE;
