@@ -3498,7 +3498,6 @@ void dMap_Dmap_c::setTlut(dmap_dmap_tlut_s* param_1, u8 param_2, u8 param_3, u8 
 
 /* 8004FC68-8004FFC8       .text setFloorTextureOne__11dMap_Dmap_cFUc */
 void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
-    /* Nonmatching */
     static const u16 l_indexColor[] = {
         0x0000, 0x8218, 0x821F, 0x83E8,
         0x83F0, 0x83FF, 0xC3E0, 0xC3F0,
@@ -3506,6 +3505,7 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
         0xFE1F, 0xFFE0, 0xFFF0, 0xFFFF,
     };
 
+    int i;
     int r29 = param_1 - Floor_Base;
     if (r29 > field_0x2b4 - Floor_Base || r29 < field_0x2b5 - Floor_Base) {
         return;
@@ -3517,10 +3517,10 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
         return;
     }
     field_0x36e |= 1 << r29;
-    for (int i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++) {
         field_0x2bb[r29][i] = -1;
     }
-    for (int i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++) {
         u16* palette = (u16*)((u8*)imageP + imageP->paletteOffset);
         u16 color = palette[i];
         u32 j;
@@ -3533,17 +3533,15 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
             field_0x2bb[r29][j] = i;
         }
     }
-    for (int i = 0; i < 2; i++) {
-        dmap_dmap_tlut_s* r23 = &field_0x20[i][r29];
-        memset(r23, 0, sizeof(dmap_dmap_tlut_s));
-        GXInitTlutObj(&field_0x4b0[i][r29], r23, GXTlutFmt(imageP->colorFormat), imageP->numColors);
+    for (i = 0; i < 2; i++) {
+        memset(&field_0x20[i][r29], 0, sizeof(dmap_dmap_tlut_s));
+        GXInitTlutObj(&field_0x4b0[i][r29], &field_0x20[i][r29], GXTlutFmt(imageP->colorFormat), imageP->numColors);
         JUT_ASSERT(VERSION_SELECT(10393, 10393, 10393, 10393), imageP->numColors == (16))
     }
-    GXTexObj* texObj = &field_0x370[r29];
-    GXInitTexObjCI(texObj, (u8*)imageP + imageP->imageOffset, imageP->width, imageP->height, GXCITexFmt(imageP->format), GXTexWrapMode(imageP->wrapS), GXTexWrapMode(imageP->wrapT), imageP->mipmapCount > 1, r29);
-    GXInitTexObjLOD(texObj, GXTexFilter(imageP->minFilter), GXTexFilter(imageP->magFilter), imageP->minLOD * 0.125f, imageP->maxLOD * 0.125f, imageP->LODBias * 0.01f, imageP->biasClamp, imageP->doEdgeLOD, GXAnisotropy(imageP->maxAnisotropy));
+    GXInitTexObjCI(&field_0x370[r29], (u8*)imageP + imageP->imageOffset, imageP->width, imageP->height, GXCITexFmt(imageP->format), GXTexWrapMode(imageP->wrapS), GXTexWrapMode(imageP->wrapT), imageP->mipmapCount > 1 ? GX_TRUE : GX_FALSE, r29);
+    GXInitTexObjLOD(&field_0x370[r29], GXTexFilter(imageP->minFilter), GXTexFilter(imageP->magFilter), imageP->minLOD * 0.125f, imageP->maxLOD * 0.125f, imageP->LODBias * 0.01f, imageP->biasClamp, imageP->doEdgeLOD, GXAnisotropy(imageP->maxAnisotropy));
     JUT_ASSERT(VERSION_SELECT(10419, 10419, 10419, 10419), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
-    for (int i = 0; i < 2; i++) {
+    for (i = 0; i < 2; i++) {
         setTlut(&field_0x20[i][r29], param_1, field_0x2b8, field_0x2b9, field_0x2ba);
     }
 }
