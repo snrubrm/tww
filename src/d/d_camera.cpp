@@ -5763,8 +5763,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     cSAngle uDelta = directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U();
     cSAngle blendedU = mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * val20;
 
-    cSGlobe curGlobe;
-    curGlobe.Val(mViewCache.mEye - mViewCache.mCenter);
+    cSGlobe curGlobe(mViewCache.mEye - mViewCache.mCenter);
     f32 latMix = 1.0f;
     if (mCamParam.Flag(param_1, dCamPrmFlg_UNK004)) {
         if (camRatio <= 0.5f) {
