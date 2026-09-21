@@ -21,6 +21,31 @@ add_relocations:
   type: abs
   target: buffer__14mDoMtx_stack_c
   addend: 0x300
+# Linker-generated stack/arena symbols are absolute; restore their references
+- source: .init:0x80003278
+  type: hi
+  target: _stack_addr
+- source: .init:0x8000327c
+  type: l
+  target: _stack_addr
+- source: .text:0x8030794c
+  type: ha
+  target: _stack_addr
+- source: .text:0x80307950
+  type: l
+  target: _stack_addr
+- source: .text:0x8030181c
+  type: ha
+  target: __ArenaLo
+- source: .text:0x80301820
+  type: l
+  target: __ArenaLo
+- source: .text:0x80301854
+  type: ha
+  target: _db_stack_end
+- source: .text:0x80301858
+  type: l
+  target: _db_stack_end
 # Interrupt vector table is copied to low memory at runtime; restore its references to the TRK handler
 - source: .init:0x8000376c
   type: hi
