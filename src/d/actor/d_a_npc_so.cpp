@@ -321,25 +321,26 @@ BOOL daNpc_So_c::jntHitCreateHeap() {
 BOOL daNpc_So_c::checkTgHit() {
     fopAc_ac_c* actor = dComIfGp_getPlayer(0);
     mStts2.Move();
-    if (cLib_calcTimer(&mHitTimer) != 0 || mSph.ChkTgHit() == 0) {
-        return FALSE;
+    if (cLib_calcTimer(&mHitTimer) == 0 && mSph.ChkTgHit()) {
+        cXyz* hitPos = mSph.GetTgHitPosP();
+        cCcD_Obj* hitObj = mSph.GetTgHitObj();
+        mHitTimer = l_HIO.m7C;
+        if (hitObj == NULL) {
+            return FALSE;
+        }
+        switch (hitObj->GetAtType()) {
+        case AT_TYPE_NORMAL_ARROW:
+            fopAcM_seStart(this, JA_SE_LK_ARROW_HIT, 0x20);
+            break;
+        }
+        fopAcM_monsSeStart(this, JA_SE_CV_SO_DAMAGE, 0);
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, hitPos);
+        cXyz scale(2.0f, 2.0f, 2.0f);
+        dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, hitPos, &actor->shape_angle, &scale);
+        fopAcM_seStart(this, JA_SE_LK_LAST_HIT, 0);
+        return TRUE;
     }
-
-    cXyz* hitPos = mSph.GetTgHitPosP();
-    cCcD_Obj* hitObj = mSph.GetTgHitObj();
-    mHitTimer = l_HIO.m7C;
-    if (hitObj == NULL) {
-        return FALSE;
-    }
-    if ((s32)hitObj->GetAtType() == AT_TYPE_NORMAL_ARROW) {
-        fopAcM_seStart(this, JA_SE_LK_ARROW_HIT, 0x20);
-    }
-    fopAcM_monsSeStart(this, JA_SE_CV_SO_DAMAGE, 0);
-    dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, hitPos);
-    cXyz scale(2.0f, 2.0f, 2.0f);
-    dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, hitPos, &actor->shape_angle, &scale);
-    fopAcM_seStart(this, JA_SE_LK_LAST_HIT, 0);
-    return TRUE;
+    return FALSE;
 }
 
 /* 00000C8C-00000CB0       .text offsetZero__10daNpc_So_cFv */
