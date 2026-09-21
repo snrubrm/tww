@@ -1022,9 +1022,10 @@ void action_wakidasi(oq_class* i_this) {
                     i_this->m2E6 = (s16)(2.0f + REG12_F(4));
                     i_this->m2E6 += (s16)cM_rndF(1.99f + REG12_F(5));
                 }
+                int i;
                 fpc_ProcID packed[6];
-                int packedCount = 0;
-                for (int i = 0; i < 6; i++) {
+                int packedCount;
+                for (i = 0, packedCount = 0; i < 6; i++) {
                     packed[i] = fpcM_ERROR_PROCESS_ID_e;
                     if (i_this->mChildIds[i] != fpcM_ERROR_PROCESS_ID_e) {
                         fopAc_ac_c* child = fopAcM_SearchByID(i_this->mChildIds[i]);
@@ -1044,8 +1045,10 @@ void action_wakidasi(oq_class* i_this) {
         }
         break;
     case 0x35: {
-        s16 playerY = player->shape_angle.y;
-        mDoMtx_YrotS(*calc_mtx, playerY + (int)cM_rndFX(7000.0f + REG12_F(1)));
+        const s16 playerY = player->shape_angle.y;
+        s16 angle = playerY;
+        angle += (s16)cM_rndFX(7000.0f + REG12_F(1));
+        cMtx_YrotS(*calc_mtx, angle);
         cXyz offset;
         offset.x = 0.0f;
         offset.y = 0.0f;
@@ -1057,7 +1060,7 @@ void action_wakidasi(oq_class* i_this) {
         f32 dx = pos.x - actor->current.pos.x;
         f32 dz = pos.z - actor->current.pos.z;
         if (std::sqrtf(dx * dx + dz * dz) > i_this->mSearchRange) {
-            i_this->mTimers[1] = REG8_S(7) + 0x64;
+            i_this->mTimers[1] = REG8_S(3) + 0x64;
             i_this->mMode = 0x34;
         } else {
             int i;
@@ -1082,7 +1085,7 @@ void action_wakidasi(oq_class* i_this) {
                             i_this->mTimers[0] += (s16)cM_rndF(50.0f + REG12_F(8));
                         }
                     }
-                    i_this->mTimers[1] = REG8_S(7) + 0x64;
+                    i_this->mTimers[1] = REG8_S(3) + 0x64;
                     i_this->mMode = 0x34;
                     return;
                 }
@@ -1091,7 +1094,7 @@ void action_wakidasi(oq_class* i_this) {
             if (first != NULL) {
                 first->m2C8 = 1;
             }
-            i_this->mTimers[1] = REG8_S(7) + 0x64;
+            i_this->mTimers[1] = REG8_S(3) + 0x64;
             i_this->mMode = 0x34;
         }
         break;
