@@ -328,16 +328,16 @@ void daMgBoard_c::set_mtx() {
             }
         }
     }
-    const int count = mSeaFightGame.mAliveShipNum;
-    for (int i = 0; i < count; ++i) {
-        J3DModel* ship;
+    int i;
+    const u8 count = mSeaFightGame.mAliveShipNum;
+    for (i = 0; i < count; ++i) {
         switch (mSeaFightGame.mShips[i].field_0x8) {
-        case 2: ship = mpShip2Model[0]; break;
-        case 3: ship = mpShip3Model[0]; break;
-        case 4: ship = mpShip4Model[0]; break;
-        default: ship = NULL; break;
+        case 2: piece = mpShip2Model[0]; break;
+        case 3: piece = mpShip3Model[0]; break;
+        case 4: piece = mpShip4Model[0]; break;
+        default: piece = NULL; break;
         }
-        if (ship) {
+        if (piece) {
             u8 x = mSeaFightGame.mShips[i].field_0xb;
             u8 y = mSeaFightGame.mShips[i].field_0xc;
             mDoMtx_stack_c::transS(current.pos.x + m_cur_table[y][x].x, current.pos.y + m_cur_table[y][x].y, current.pos.z + m_cur_table[y][x].z);
@@ -348,7 +348,7 @@ void daMgBoard_c::set_mtx() {
             else {
                 mDoMtx_stack_c::ZrotM(-0x8000);
             }
-            ship->setBaseTRMtx(mDoMtx_stack_c::get());
+            piece->setBaseTRMtx(mDoMtx_stack_c::get());
         }
     }
 }
