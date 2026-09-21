@@ -476,13 +476,12 @@ void daBigelf_c::demoInitAppear() {
 
     fopAc_ac_c* fa1 = fopAcM_SearchByID(mFa1Id);
     if (fa1 != NULL) {
-        dComIfGp_event_setItemPartner(this);
+        dComIfGp_event_setTalkPartner(this);
         fopAcM_delete(fa1);
     }
     cXyz pos = current.pos;
     pos.y += 70.0f;
-    cXyz shock(0.0f, 1.0f, 0.0f);
-    dComIfGp_getVibration().StartShock(5, -0x21, shock);
+    dComIfGp_getVibration().StartShock(5, -0x21, cXyz(0.0f, 1.0f, 0.0f));
     dComIfGp_particle_set(p_name0[mPaNo], &pos, NULL, &scale);
     dComIfGp_particle_set(p_name1[mPaNo], &pos, NULL, &scale);
     if (getType() == 6) {
