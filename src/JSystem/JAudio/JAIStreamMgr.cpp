@@ -455,21 +455,19 @@ bool JAInter::StreamLib::deallocBuffer() {
 
 /* 8029CC50-8029CCA4       .text getNeedBufferSize__Q27JAInter9StreamLibFv */
 u32 JAInter::StreamLib::getNeedBufferSize() {
-    /* Nonmatching - regalloc */
-    u32 i = 0;
-    u32 size;
-    u32 r0 = ((LOOP_BLOCKS << 2) & ~0x1F) + 0x20;
-    for (size = 0x20; i < 2; i++) {
-        size += r0;
-        for (u32 j = 0; j < LOOP_BLOCKS; j++) {
-            size += 0x2820;
+    u32 size = 0;
+    size += (8 & ~0x1F) + 0x20;
+    for (u32 i = 0; i < 2; i++) {
+        size += ((LOOP_BLOCKS << 2) & ~0x1F) + 0x20;
+        for (int j = 0; j < LOOP_BLOCKS; j++) {
+            size += (0x2800 & ~0x1F) + 0x20;
         }
     }
-    size += 0x20;
+    size += (8 & ~0x1F) + 0x20;
     for (u32 i = 0; i < 2; i++) {
-        size += 0x5020;
+        size += (0x5000 & ~0x1F) + 0x20;
     }
-    size += 0x5020;
+    size += (0x5000 & ~0x1F) + 0x20;
     return size;
 }
 
