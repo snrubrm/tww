@@ -1086,10 +1086,13 @@ void daObj_Search::Act_c::set_mtx_light_A() {
 
 /* 801018A8-80101BAC       .text set_mtx_light_B__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::set_mtx_light_B() {
+    cXyz srcStart;
+    cXyz srcEnd;
+    cXyz n;
     cXyz unused0(0.0f, 0.0f, 0.0f);
-    cXyz srcStart(0.0f, 0.0f, 0.0f);
-    cXyz unused1(0.0f, 0.0f, m_attr.m04);
-    cXyz srcEnd(0.0f, 0.0f, m_attr.m04);
+    srcStart.set(0.0f, 0.0f, 0.0f);
+    cXyz tmpEnd(0.0f, 0.0f, m_attr.m04);
+    srcEnd = tmpEnd;
     mDoMtx_stack_c::copy(mpModel->getAnmMtx(S_SEARCH_JNT_LIGHTB_e));
     mDoMtx_stack_c::transM(742.0f, -402.0f, -1010.0f);
     mDoMtx_XYZrotM(mDoMtx_stack_c::now, -0x8000, 0xC8, 0);
@@ -1107,7 +1110,7 @@ void daObj_Search::Act_c::set_mtx_light_B() {
                 adj = -(1.02f + dot) * (REG12_F(0) + (6500.0f + m_attr.m10));
             }
             dist += adj;
-            cXyz n = (mBeamEnd[1] - mBeamStart[1]).normZP();
+            n = (mBeamEnd[1] - mBeamStart[1]).normZP();
             mBeamEnd[1] = mBeamEnd[1] + n * adj;
         }
         m660 = dist;
