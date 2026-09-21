@@ -1122,7 +1122,6 @@ void dPa_singleRippleEcallBack::draw(JPABaseEmitter* emitter) {
 
 /* 8007DE38-8007DE94       .text execute__19dPa_ripplePcallBackFP14JPABaseEmitterP15JPABaseParticle */
 void dPa_ripplePcallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* ptcl) {
-    /* Nonmatching - regalloc */
     JGeometry::TVec3<f32> local_18;
     ptcl->getGlobalPosition(local_18);
     cXyz pos(local_18.x, local_18.y, local_18.z);
@@ -1130,8 +1129,7 @@ void dPa_ripplePcallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* ptcl
     if (fopAcM_getWaterY(&pos, &height)) {
         JGeometry::TVec3<f32> offsetPos;
         ptcl->getOffsetPosition(offsetPos);
-        offsetPos.y = height;
-        ptcl->setOffsetPosition(offsetPos);
+        ptcl->setOffsetPosition(JGeometry::TVec3<f32>(offsetPos.x, height, offsetPos.z));
     }
 }
 
