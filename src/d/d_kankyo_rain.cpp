@@ -4262,7 +4262,6 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
 }
 
 /* 80097AD0-800987B8       .text dKyr_drawKazanbai__FPA4_fPPUc */
-// NONMATCHING - reg alloc and float math
 void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
     dKankyo_snow_Packet* snow_packet = g_env_light.mpSnowPacket;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
@@ -4297,6 +4296,8 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
     color1.a = 0xFF;
 
     f32 f26 = 3.0f;
+    f32 ratio = 0.4f;
+    f32 spd = 500.0f;
 
     if (dComIfGd_getView() != NULL) {
         MTXInverse(dComIfGd_getViewRotMtx(), camMtx);
@@ -4391,8 +4392,9 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                             color1.r = 0;
                             color1.g = 0;
                             color1.b = 0;
-                        } else if (temp_r4 < (int)(snow_packet->mEffCount * 0.4f)) {
-                            f32 temp_f2 = std::fabsf(cM_scos((f32)(temp_r4 * 4000) + (f32)(g_Counter.mCounter0 * 500.0f)));
+                        } else if (temp_r4 < (int)(snow_packet->mEffCount * ratio)) {
+                            f32 tmpk = temp_r4 * 4000;
+                            f32 temp_f2 = std::fabsf(cM_scos(tmpk + (f32)(g_Counter.mCounter0 * spd)));
                             u32 _69 = 0x45;
                             color0.r = (f32)_69 + (temp_f2 * ((f32)_255 - (f32)_69));
                             u32 _60 = 0x3C;
