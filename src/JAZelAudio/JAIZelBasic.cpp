@@ -2289,7 +2289,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         }
         f32 dist2 = position.x * position.x + position.y * position.y + position.z * position.z;
         f32 dist = std::sqrtf(dist2);
-        if (dist > JAIGlobalParameter::getParamDistanceMax() * 0.5f) {
+        if (dist > JAIGlobalParameter::getParamDistanceMax() / 2.0f) {
             return NULL;
         }
         break;
@@ -2483,10 +2483,10 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation == 0) {
             return NULL;
         }
-        f32 volVar = i_variation;
-        f32 pitchVar = i_variation;
-        i_volume = (volVar * volVar) / 10000.0f;
-        i_pitch = 0.75f + (pitchVar * pitchVar) / 40000.0f;
+        i_volume = i_variation;
+        i_pitch = i_variation;
+        i_volume = (i_volume * i_volume) / 10000.0f;
+        i_pitch = 0.75f + (i_pitch * i_pitch) / 40000.0f;
         break;
     }
     case JA_SE_CM_BGN_MECHA_ROTATE: {
@@ -2525,7 +2525,8 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         f32 volVar = i_variation;
         f32 pitchVar = i_variation;
         i_volume = (volVar * volVar) / 10000.0f;
-        i_pitch = 0.2f + pitchVar / 80.0f;
+        i_pitch = pitchVar;
+        i_pitch = 0.2f + i_pitch / 80.0f;
         if (i_pitch <= 0.5f) {
             i_pitch = 0.5f;
         }
@@ -2554,7 +2555,9 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         f32 pitchVar = i_variation;
         f32 volVar = i_variation;
         i_pitch = 0.75f + (pitchVar * pitchVar) / 40000.0f;
-        i_volume = (volVar / 100.0f) * 0.85f + 0.15f;
+        i_volume = volVar / 100.0f;
+        i_volume *= 0.85f;
+        i_volume += 0.15f;
         break;
     }
     case JA_SE_CM_PG_FLYING:
@@ -2568,7 +2571,9 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         f32 pitchVar = i_variation;
         f32 volVar = i_variation;
         i_pitch = 0.75f + (pitchVar * pitchVar) / 20000.0f;
-        i_volume = (volVar / 100.0f) * 0.7f + 0.3f;
+        i_volume = volVar / 100.0f;
+        i_volume *= 0.7f;
+        i_volume += 0.3f;
         break;
     }
     case JA_SE_ATM_ICEBERG_WIND: {
@@ -2578,13 +2583,16 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation == 0) {
             i_variation = 0;
         }
-        i_pitch = 0.75f + ((f32)i_variation * (f32)i_variation) / 20000.0f;
-        i_volume = ((f32)i_variation / 100.0f) * 0.6f + 0.4f;
+        f32 pitchVar = i_variation;
+        f32 volVar = i_variation;
+        i_pitch = 0.75f + (pitchVar * pitchVar) / 20000.0f;
+        i_volume = volVar / 100.0f;
+        i_volume *= 0.6f;
+        i_volume += 0.4f;
         if (matrix) {
             PSMTXMultVec(matrix, &position, &position);
         }
-        f32 dist2 = position.x * position.x + position.y * position.y + position.z * position.z;
-        f32 dist = std::sqrtf(dist2);
+        f32 dist = std::sqrtf(position.x * position.x + position.y * position.y + position.z * position.z);
         if (dist >= 4500.0f) {
             break;
         }
@@ -2673,21 +2681,21 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (matrix) {
             PSMTXMultVec(matrix, &position, &position);
         }
-        f32 dist2 = position.x * position.x + position.y * position.y + position.z * position.z;
-        if (std::sqrtf(dist2) > JAIGlobalParameter::getParamDistanceMax()) {
+        f32 dist = std::sqrtf(position.x * position.x + position.y * position.y + position.z * position.z);
+        if (dist > JAIGlobalParameter::getParamDistanceMax()) {
             return NULL;
         }
         break;
     case JA_SE_FIREBLAST_BLOW:
         if (i_sePos) {
-            Vec* stored = ((Vec*)field_0x1ED4) + field_0x1f34;
+            Vec* stored = (Vec*)&field_0x1ED4[field_0x1f34 * sizeof(Vec)];
             stored->x = i_sePos->x;
             stored->y = i_sePos->y;
             stored->z = i_sePos->z;
-            if (stored->y > mAudioCamera->field_0x0->y) {
-                stored->y = mAudioCamera->field_0x0->y;
+            if (((Vec*)field_0x1ED4)[field_0x1f34].y > mAudioCamera->field_0x0->y) {
+                ((Vec*)field_0x1ED4)[field_0x1f34].y = mAudioCamera->field_0x0->y;
             }
-            i_sePos = stored;
+            i_sePos = (Vec*)&field_0x1ED4[field_0x1f34 * sizeof(Vec)];
             field_0x1f34++;
         }
         break;
