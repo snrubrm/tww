@@ -515,7 +515,7 @@ config.libs = [
         "host": True,
         "objects": [
             Object(Matching,    "d/d_stage.cpp"),
-            Object(NonMatching, "d/d_map.cpp"),
+            Object(MatchingFor("GZLE01"), "d/d_map.cpp"),
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d/d_com_inf_game.cpp"),
             Object(Matching,    "d/d_com_lib_game.cpp"),
             Object(Matching,    "d/d_com_static.cpp"),
