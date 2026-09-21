@@ -1912,32 +1912,24 @@ void daNpc_Kk1_c::init_CMT_PCK() {
 }
 
 /* 00004A84-00004C34       .text move_CMT_PCK__11daNpc_Kk1_cFv */
-BOOL daNpc_Kk1_c::move_CMT_PCK() {
+void daNpc_Kk1_c::move_CMT_PCK() {
     if (m7A4 == 0) {
         cXyz pos = mPath.getPoint(mPath.getIdx());
         s16 target = cLib_targetAngleY(&current.pos, &pos);
         cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
         if (mOrder != 1 && mOrder < 3) {
-            BOOL started = startEvent_check();
-            if (started) {
+            if (startEvent_check()) {
                 mOrder = 9;
-                return started;
+            } else if (current.angle.y == target) {
+                m816 = 0;
+                setAnm_NUM(3, 1);
+                m7B6 = 1;
             }
-        }
-        if (current.angle.y == target) {
-            m816 = 0;
-            setAnm_NUM(3, 1);
-            m7B6 = 1;
         }
     } else if (!m7C3) {
-        if (mOrder != 1 && mOrder < 3) {
-            BOOL hit = chkHitPlayer();
-            if (hit) {
-                mOrder = 1;
-                return hit;
-            }
-        }
-        if (cLib_calcTimer(&m7A4) == 0) {
+        if (mOrder != 1 && mOrder < 3 && chkHitPlayer()) {
+            mOrder = 1;
+        } else if (cLib_calcTimer(&m7A4) == 0) {
             setAnm_NUM(0, 1);
             eventInfo.setEventId(-1);
             mOrder = 0;
@@ -1946,7 +1938,6 @@ BOOL daNpc_Kk1_c::move_CMT_PCK() {
             mOrder = 2;
         }
     }
-    return TRUE;
 }
 
 /* 00004C34-00004DD0       .text cmmt_1__11daNpc_Kk1_cFv */

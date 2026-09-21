@@ -114,7 +114,7 @@ public:
     void init_CMT_TRN();
     BOOL move_CMT_TRN();
     void init_CMT_PCK();
-    BOOL move_CMT_PCK();
+    void move_CMT_PCK();
     BOOL cmmt_1();
     BOOL wait_3();
     BOOL wait_4();
