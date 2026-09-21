@@ -90,7 +90,7 @@ static const int l_head_bmd_ix_tbl[] = {
     -1,
 };
 
-static const char l_photo_no[] = "dghijkklmn__";
+static const char l_photo_no[] = {'d', 'g', 'h', 'i', 'j', 'k', 'k', 'l', 'm', 'n', '_', '_'};
 
 static const int l_bck_ix_tbl[12][10] = {
     {0x42, 0x41, 0x3D, 0x3A, 0x3C, 0x3B, 0x42, 0x42, 0x46, 0x42},
