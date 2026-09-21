@@ -318,14 +318,14 @@ void daNpc_Kk1_c::play_eff_anm() {
     if (mBpkFrame >= 0x1E) {
         mBpkFrame = 0x1D;
     }
-    s16 btkMax = mBtkAnm.getBtkAnm()->getFrameMax();
+    int frameMax = mBtkAnm.getBtkAnm()->getFrameMax();
     mBtkFrame++;
-    if (mBtkFrame >= btkMax) {
-        mBtkFrame = btkMax - 1;
+    if (mBtkFrame >= (s16)frameMax) {
+        mBtkFrame = frameMax - 1;
     }
-    s16 bckMax = mBckAnm.getBckAnm()->getFrameMax();
+    frameMax = mBckAnm.getBckAnm()->getFrameMax();
     mBckFrame++;
-    if (mBckFrame >= bckMax) {
+    if (mBckFrame >= (s16)frameMax) {
         mBckFrame = 0x3B;
     }
 }
