@@ -323,12 +323,11 @@ void fly_angle_set(ph_class* i_this, unsigned char param) {
         f32 dx = actor->current.pos.x - player->current.pos.x;
         f32 dy = actor->current.pos.y - (player->current.pos.y + i_this->m0378);
         f32 dz = actor->current.pos.z - player->current.pos.z;
-        f32 distSq = dx * dx + dz * dz;
-        f32 distXZ = std::sqrtf(distSq);
+        f32 distXZ = std::sqrtf(dx * dx + dz * dz);
         s16 targetX = cM_atan2s(dy, distXZ);
         cLib_addCalcAngleS2(&actor->current.angle.x, targetX, 1, 0x200);
         dy = actor->current.pos.y - player->current.pos.y;
-        targetX = cM_atan2s(dy, std::sqrtf(distSq));
+        targetX = cM_atan2s(dy, std::sqrtf(dx * dx + dz * dz));
         cLib_addCalcAngleS2(&actor->shape_angle.x, targetX, 1, 0x200);
         maxStep = 0x500;
         break;
