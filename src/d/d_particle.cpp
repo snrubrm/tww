@@ -463,7 +463,7 @@ void dPa_smokePcallBack::execute(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
         dPa_setWindPower(ptcl);
 }
 
-// Some size products of the smoke and stripe callbacks have to be compiler
+// Some size products of the stripe callback have to be compiler
 // temporaries (created before the inlined vector math) rather than plain
 // assignments.
 static inline f32 mulf(f32 a, f32 b) {
@@ -478,14 +478,11 @@ void dPa_smokePcallBack::draw(JPABaseEmitter* emtr, JPABaseParticle* ptcl) {
     JPADrawParams* params = ptcl->getDrawParamPPtr();
     f32 sin = JMASSin(params->mRotateAngle);
     f32 cos = JMASCos(params->mRotateAngle);
-    f32 width = mulf(2.0f * params->mScaleX, JPADraw::cb.mGlobalScaleX);
-    f32 height = mulf(2.0f * params->mScaleY, JPADraw::cb.mGlobalScaleY);
-    f32 x0 = width * emtr->getPivotX();
-    x0 = -(0.5f * x0);
-    width += x0;
-    f32 y1 = mulf(height, emtr->getPivotY());
-    y1 = -(0.5f * y1);
-    f32 y0 = height + y1;
+    JGeometry::TVec3<f32> size(2.0f * params->mScaleX * JPADraw::cb.mGlobalScaleX, 2.0f * params->mScaleY * JPADraw::cb.mGlobalScaleY, 0.0f);
+    f32 x0 = -(0.5f * (size.x * emtr->getPivotX()));
+    f32 width = size.x + x0;
+    f32 y1 = -(0.5f * (size.y * emtr->getPivotY()));
+    f32 y0 = size.y + y1;
     u8 alpha = emtr->getGlobalAlpha();
     MtxP drawMtx = JPADraw::cb.mDrawMtxPtr;
     MTXMultVec(drawMtx, pos, pos);
