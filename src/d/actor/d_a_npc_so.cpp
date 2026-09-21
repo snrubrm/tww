@@ -155,12 +155,12 @@ void daNpc_So_c::_nodeControl(J3DNode* node, J3DModel* model) {
         cXyz offsetAtt(0.0f, 0.0f, 0.0f);
         cXyz offsetEye(24.0f, -16.0f, 0.0f);
         mDoMtx_stack_c::multVec(&offsetAtt, &mSoAttnPos);
-        mDoMtx_YrotM(mDoMtx_stack_c::now, m_jnt.getHead_y());
-        mDoMtx_ZrotM(mDoMtx_stack_c::now, m_jnt.getHead_x());
+        mDoMtx_stack_c::YrotM((int)m_jnt.getHead_y());
+        mDoMtx_stack_c::ZrotM((int)m_jnt.getHead_x());
         mDoMtx_stack_c::multVec(&offsetEye, &mSoEyePos);
     } else if (m_jnt.getBackboneJntNum() == jntNo) {
-        mDoMtx_XrotM(mDoMtx_stack_c::now, m_jnt.getBackbone_y());
-        mDoMtx_ZrotM(mDoMtx_stack_c::now, m_jnt.getBackbone_x());
+        mDoMtx_stack_c::XrotM((int)m_jnt.getBackbone_y());
+        mDoMtx_stack_c::ZrotM((int)m_jnt.getBackbone_x());
     }
 
     cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
