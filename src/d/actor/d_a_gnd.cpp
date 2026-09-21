@@ -448,6 +448,8 @@ static BOOL player_view_check(gnd_class* i_this, s16 param_2) {
 static void ke_control(gnd_class* i_this, gnd_ke_s* param_2, f32 param_3) {
     cXyz local_118;
     cXyz local_124;
+    s32 i;
+    f32 x;
     f32 ground_y = 3.0f + i_this->mAcch.GetGroundH();
     cXyz* pos = &param_2->mPos[1];
     cXyz* vel = &param_2->mVel[1];
@@ -461,8 +463,8 @@ static void ke_control(gnd_class* i_this, gnd_ke_s* param_2, f32 param_3) {
 
     f32 gravity = -5.0f + REG0_F(1);
     f32 damp = 0.73f + REG0_F(2);
-    for (s32 i = 1; i < 20; i++, pos++, vel++) {
-        f32 x = vel->x + (pos->x - pos[-1].x);
+    for (i = 1; i < 20; i++, pos++, vel++) {
+        x = vel->x + (pos->x - pos[-1].x);
         f32 y = pos->y + vel->y + gravity;
         if (y < ground_y) {
             y = ground_y;
