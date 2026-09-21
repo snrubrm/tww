@@ -541,7 +541,6 @@ void daObj_Search::Act_c::modeFind2nd() {
     offset = (offset + player->current.pos) - mBeamStart[m830];
     m7B0 = mLightAng[0].y;
     s16 yaw = cM_atan2s(offset.x, offset.z) - current.angle.y;
-    int angle = yaw;
     s16 pitch = (s16)cM_atan2s(offset.y, std::sqrtf(offset.x * offset.x + offset.z * offset.z));
     bool hit = false;
 
@@ -571,13 +570,13 @@ void daObj_Search::Act_c::modeFind2nd() {
     }
 
     if (m830 == 0) {
-        mLightAng[1].y = angle;
+        mLightAng[1].y = yaw;
     } else {
-        angle = yaw + 0x8000;
+        yaw += 0x8000;
         pitch = -pitch;
-        mLightAng[0].y = angle;
+        mLightAng[0].y = (s16)yaw; // fakematch: cast keeps the += lazy so its addi lands after the pitch negation
     }
-    cLib_addCalcAngleS2(&mLightAng[m830].y, angle, 10, 0x400);
+    cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
     cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
 }
 
