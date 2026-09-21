@@ -4752,7 +4752,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         switch (mWork.subject.m3C0) {
             case 1: {
                 cSGlobe g(camRel);
-                g.V(directionOf(mpPlayerActor) + g.U());
+                g.U(directionOf(mpPlayerActor) + g.U());
                 targetPos = eyePos(mpPlayerActor) + g.Xyz();
                 break;
             }
@@ -4775,12 +4775,12 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         desired.Val(p10, cSAngle::_0, baseYaw);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (desired.R() - mViewCache.mDirection.R()) * t);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * t);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * t);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * t);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * t);
 
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
-        if (!mCamParam.CheckFlag(dCamPrmFlg_UNK010)) {
+        if (!mCamParam.Flag(param_1, dCamPrmFlg_UNK010)) {
             mViewCache.mFovy += t * (p25 - mViewCache.mFovy);
         } else {
             if (m108 >= (u32)(end - 6)) {
@@ -4793,10 +4793,10 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
                 setComZoomScale(1.0f);
 
-                f32 x = (g_dComIfG_gameInfo.play.mItemScopeWipeScale - 1.0f) * 0.5f * 640.0f + 320.0f;
-                if (x < 640.0f &&
-                    g_dComIfG_gameInfo.play.mItemScopeWipeScale >= 1.0f &&
-                    g_dComIfG_gameInfo.play.mItemScopeWipeScale <= 3.0f) {
+                f32 scale = g_dComIfG_gameInfo.play.mItemScopeWipeScale;
+                f32 x = (scale - 1.0f) / 2;
+                x = 320.0f + 640.0f * x;
+                if (x < 640.0f && scale >= 1.0f && scale <= 3.0f) {
 
                     f32 s = (640.0f - x) / 320.0f;
 
@@ -4807,7 +4807,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
                     mViewCache.mFovy = mWork.subject.m39C + s * (mWork.subject.m3A0 - mWork.subject.m39C);
                 }
             } else {
-                if (m108 < (u32)(end - 7)) {
+                if (m108 >= (u32)(end - 7)) {
                     if (check_owner_action(mPadId, daPyStts0_TELESCOPE_LOOK_e)) {
                         setComStat(dCamAttnStts_TELESCOPE_LOOK_e);
                     }
@@ -4909,8 +4909,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p10 - mViewCache.mDirection.R()) * 0.04f);
 
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * 0.04f);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * 0.04f);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * 0.04f);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * 0.04f);
 
         cSAngle dy;
         cSAngle ax;
@@ -4923,13 +4923,14 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         mWork.subject.m37C = 0;
     } else if (mWork.subject.m3BC && (mEventFlags & 0x2000000)) {
         cSGlobe g;
-        g.Val(mViewCache.mCenter - mExtendedPos);
+        cXyz ext = mExtendedPos;
+        g.Val(mViewCache.mCenter - ext);
         g.R(p10);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p10 - mViewCache.mDirection.R()) * 0.05f);
 
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * 0.05f);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * 0.05f);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * 0.05f);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * 0.05f);
 
         cSAngle dy;
         cSAngle ax;
@@ -4946,8 +4947,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         g.Val(p10, angX, baseYaw + angY);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * p20);
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * p20);
-        mViewCache.mDirection.U(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * p20);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * p20);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * p20);
 
         if (mWork.subject.m3A8 < 10) {
             mWork.subject.m3A8++;
@@ -4957,7 +4958,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
-    if (mCamParam.CheckFlag(dCamPrmFlg_UNK010)) {
+    if (mCamParam.Flag(param_1, dCamPrmFlg_UNK010)) {
         // zoom control block
         f32 a = 0.0f;
         f32 b = 0.0f;
