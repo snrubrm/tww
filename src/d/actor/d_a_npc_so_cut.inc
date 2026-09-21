@@ -265,8 +265,9 @@ void daNpc_So_c::cutEatesaFirstProc() {
     daShip_c* ship = dComIfGp_getShipActor();
     cXyz pos = actor->current.pos;
     if (ship != NULL) {
-        int ang = ship->shape_angle.y + REG12_S(6);
-        ang -= 0x4000;
+        int tmp = ship->shape_angle.y + REG12_S(6);
+        tmp -= 0x4000;
+        s16 ang = tmp;
         pos = ship->current.pos;
         pos.x += 260.0f * cM_ssin(ang);
         pos.z += 260.0f * cM_scos(ang);
