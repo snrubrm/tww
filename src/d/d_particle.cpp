@@ -1289,6 +1289,20 @@ void dPa_waveEcallBack::executeAfter(JPABaseEmitter* emitter) {
     mVel = speed;
 }
 
+static inline Vec wScale(const Vec& v, f32 s) {
+    Vec r = v;
+    r.x *= s;
+    r.y *= s;
+    r.z *= s;
+    return r;
+}
+static inline Vec wAdd(Vec a, const Vec& b) {
+    a.x += b.x;
+    a.y += b.y;
+    a.z += b.z;
+    return a;
+}
+
 /* 8007E484-8007E804       .text draw__17dPa_waveEcallBackFP14JPABaseEmitter */
 void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
     u32 n = emitter->getParticleList()->getNumLinks();
@@ -1314,34 +1328,7 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
     Vec* collapse = mCollapsePos;
     for (int i = 0; i < 2; i++, collapse++) {
         u = 0.0f;
-        f32 z = collapse->z;
-        Vec vz = mRotMtx[2];
-        vz.x *= z;
-        vz.y *= z;
-        vz.z *= z;
-        Vec scaledZ = vz;
-        f32 y = collapse->y;
-        Vec vy = mRotMtx[1];
-        vy.x *= y;
-        vy.y *= y;
-        vy.z *= y;
-        Vec scaledY = vy;
-        f32 x = collapse->x;
-        Vec vx = mRotMtx[0];
-        vx.x *= x;
-        vx.y *= x;
-        vx.z *= x;
-        Vec unusedX = vx;
-        Vec xy = unusedX;
-        xy.x += scaledY.x;
-        xy.y += scaledY.y;
-        xy.z += scaledY.z;
-        Vec unusedXY = xy;
-        Vec out = unusedXY;
-        out.x += scaledZ.x;
-        out.y += scaledZ.y;
-        out.z += scaledZ.z;
-        Vec out2 = out;
+        const Vec& out2 = wAdd(wAdd(wScale(mRotMtx[0], collapse->x), wScale(mRotMtx[1], collapse->y)), wScale(mRotMtx[2], collapse->z));
 
         GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, n + 1);
         GXPosition3f32(trans.x + out2.x, trans.y + out2.y, trans.z + out2.z);
