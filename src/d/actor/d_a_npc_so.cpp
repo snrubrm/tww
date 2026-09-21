@@ -734,12 +734,10 @@ void daNpc_So_c::modeNearSwimInit() {
 void daNpc_So_c::modeNearSwim() {
     dCam_getBody()->SetTypeForce("BoatBattle", NULL);
     mB70 = 2;
-    daShip_c* ship = dComIfGp_getShipActor();
+    daShip_c* const ship = dComIfGp_getShipActor();
     if (ship != NULL) {
         fopAc_ac_c* actor = dComIfGp_getPlayer(0);
-        cXyz delta = actor->current.pos - mHidePos;
-        delta.y = 0.0f;
-        f32 distPlayer = delta.abs();
+        f32 distPlayer = (actor->current.pos - mHidePos).absXZ();
         cLib_addCalc2(&mCirclePath.mRadius, 400.0f, 0.1f, 10.0f);
         mCirclePath.mWobbleAmplitude = 50.0f;
         mCirclePath.mAngleSpeed = 0x100;
@@ -748,9 +746,7 @@ void daNpc_So_c::modeNearSwim() {
         dLib_setCirclePath(&mCirclePath);
         mCirclePath.mPos.y = dLib_getWaterY(mCirclePath.mPos, mAcch2);
         mCirclePath.mPos.y += mB34;
-        cXyz delta2 = current.pos - mCirclePath.mPos;
-        delta2.y = 0.0f;
-        f32 distPath = delta2.abs();
+        f32 distPath = (current.pos - mCirclePath.mPos).absXZ();
         if (distPath > 150.0f || ship->speedF > 10.0f) {
             mSpeed = 12.0f;
             s16 target = cLib_targetAngleY(&current.pos, &mCirclePath.mPos);
