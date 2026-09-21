@@ -5626,14 +5626,14 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
                 cXyz(240.0f, 160.0f, -80.0f),
             };
             cSGlobe globe(tornadoOff0[m07C & 1]);
-            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - yaw) > cSAngle::_0) {
+            cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
+            if ((target - yaw) >= cSAngle::_0) {
                 globe.U(yaw + globe.U());
             } else {
                 globe.U(yaw - globe.U());
             }
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, fopAcM_GetPosition_p(mpPlayerActor), 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
@@ -5644,14 +5644,14 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
                 cXyz(-120.0f, 20.0f, 280.0f),
             };
             cSGlobe globe(tornadoOff1[m07C & 1]);
-            cSAngle target(cLib_targetAngleY(&mpPlayerActor->current.pos, &work->m37C->current.pos));
-            if ((target - yaw) > cSAngle::_0) {
+            cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
+            if ((target - yaw) >= cSAngle::_0) {
                 globe.U(yaw + globe.U());
             } else {
                 globe.U(yaw - globe.U());
             }
             work->m38C = positionOf(work->m37C) + globe.Xyz();
-            if (!lineBGCheck(&work->m38C, &mpPlayerActor->current.pos, 0x7f)) {
+            if (!lineBGCheck(&work->m38C, fopAcM_GetPosition_p(mpPlayerActor), 0x7f)) {
                 work->m388 = 1;
             }
         } else if (check_owner_action(mPadId, daPyStts0_SHIP_RIDE_e | daPyStts0_UNK1000000_e)) {
@@ -5678,18 +5678,17 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     cSGlobe targetDir;
     if (work->m37C != NULL) {
         daShip_c* ship = (daShip_c*)work->m37C;
-        f32 mix = camRatio;
         cSAngle shipYaw;
         if (check_owner_action1(mPadId, daPyStts1_UNK2_e)) {
             s16 crane = ship->getCraneAngle();
             shipYaw.Val(crane);
-            mix = 1.0f;
+            camRatio = 1.0f;
         } else {
-            s16 sail = ship->mSailAngle;
+            s16 sail = ship->getSailAngle();
             shipYaw.Val(sail);
         }
-        posOffset.x -= (val1 * shipYaw.Sin()) * mix;
-        posOffset.y += val8 * mix;
+        posOffset.x -= (val1 * shipYaw.Sin()) * camRatio;
+        posOffset.y += val8 * camRatio;
 
         f32 rx = dCamMath::rationalBezierRatio(mStickCPosXLast, 1.0f);
         f32 ry;
@@ -5704,12 +5703,12 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         posOffset.y += work->m398.y;
 
         if (mCamParam.Flag(param_1, dCamPrmFlg_UNK004)) {
-            cSGlobe waveGlobe(100.0f, cSAngle::_0, yaw);
+            cSGlobe waveGlobe(200.0f, cSAngle::_0, yaw);
             cXyz wavePos = positionOf(work->m37C) + waveGlobe.Xyz();
             if (daSea_ChkArea(wavePos.x, wavePos.z)) {
                 wavePos.y = daSea_calcWave(wavePos.x, wavePos.z);
                 waveGlobe.Val(wavePos - positionOf(work->m37C));
-                targetVdeg += (mix * waveGlobe.V().Degree()) * 0.8f;
+                targetVdeg += (camRatio * waveGlobe.V().Degree()) * 0.8f;
             }
         }
         targetDir.Val(targetR, cAngle::d2s(targetVdeg), yaw.Inv());
@@ -5777,17 +5776,16 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
     targetDir.U(targetDir.V() + (curGlobe.V() - targetDir.V()) * (0.25f * latMix));
 
     cSAngle targetV = mViewCache.mDirection.V() + (targetDir.V() - mViewCache.mDirection.V()) * val21;
-    if (targetV.Val() < val16.Val()) {
+    if (targetV < val16) {
         targetV.Val(val16);
-    } else if (targetV.Val() > val17.Val()) {
+    } else if (targetV > val17) {
         targetV.Val(val17);
     }
     mViewCache.mDirection.Val(r, targetV, blendedU);
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += val21 * (targetFovy - mViewCache.mFovy);
 
-    cSAngle bankAdd = val29 * mStickMainPosXLast;
-    mViewCache.mBank += (bankAdd - mViewCache.mBank) * (0.01f * std::fabsf(camRatio));
+    mViewCache.mBank += (val29 * mStickMainPosXLast - mViewCache.mBank) * (0.01f * std::fabsf(camRatio));
     setFlag(0x400);
     return true;
 }
