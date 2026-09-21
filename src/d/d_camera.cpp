@@ -48,6 +48,14 @@ namespace {
         return fopAcM_GetName(actor) == fpcNm_PLAYER_e;
     }
 
+    inline static f32 get_actor_height(fopAc_ac_c* actor) {
+        if (is_player(actor)) {
+            return ((daPy_py_c*)actor)->getHeight();
+        } else {
+            return (actor->eyePos.y - actor->current.pos.y) * 1.1f;
+        }
+    }
+
     inline static bool isPlayerGuarding(u32 param_0) {
         return dComIfGp_checkPlayerStatus1(param_0, daPyStts1_UNK80000_e) || daNpc_Md_c::isMirror();
     }
@@ -6338,8 +6346,7 @@ bool dCamera_c::vomitCamera(s32 param_1) {
         work->m3A4 = val4;
         work->m38C = 0;
 
-        cXyz delta = mCenter - relationalPos(mpPlayerActor, &posOffset);
-        f32 dist = delta.abs();
+        f32 dist = cXyz(mCenter - relationalPos(mpPlayerActor, &posOffset)).abs();
         f32 f20;
         if (val10 > dist) {
             f20 = val10;
@@ -6347,19 +6354,10 @@ bool dCamera_c::vomitCamera(s32 param_1) {
             f20 = dist;
         }
 
-        f32 height;
-        if (is_player(mpPlayerActor)) {
-            height = ((daPy_py_c*)mpPlayerActor)->getHeight();
-        } else {
-            height = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
-        }
-        if (height < 10.0f) {
-            height = 10.0f;
-        }
-        f20 /= height;
+        f32 height = get_actor_height(mpPlayerActor);
+        f20 /= height < 10.0f ? 10.0f : height;
 
-        cSAngle ang = directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U();
-        f32 angFac = std::fabsf(2.0f * ang.Norm());
+        f32 angFac = std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
         f32 t = timerMul * std::sqrtf(f20);
         work->m37C = (int)(t * (1.0f + angFac)) + 1;
         work->m380 = work->m37C * (work->m37C + 1) >> 1;
@@ -6376,7 +6374,8 @@ bool dCamera_c::vomitCamera(s32 param_1) {
         work->m3B0 += (relationalPos(mpPlayerActor, &posOffset) - mViewCache.mCenter) * ratio;
         mViewCache.mCenter += (work->m3B0 - mViewCache.mCenter) * val3;
 
-        cSGlobe globe(val10, cSAngle(val15), cSAngle(directionOf(mpPlayerActor).Inv()));
+        cSAngle v(val15);
+        cSGlobe globe(val10, v, cSAngle(directionOf(mpPlayerActor).Inv()));
         mViewCache.mDirection.R(mViewCache.mDirection.R() + ratio * (globe.R() - mViewCache.mDirection.R()));
         mViewCache.mDirection.V(mViewCache.mDirection.V() + (globe.V() - mViewCache.mDirection.V()) * ratio);
         mViewCache.mDirection.U(mViewCache.mDirection.U() + (globe.U() - mViewCache.mDirection.U()) * ratio);
@@ -6414,10 +6413,7 @@ bool dCamera_c::vomitCamera(s32 param_1) {
 
     cSGlobe globe(mViewCache.mEye - mViewCache.mCenter);
     f32 r = globe.R();
-    if (r < val11) {
-    } else {
-        val11 = r;
-    }
+    val11 = r < val11 ? val11 : r;
     f32 targetR = val11;
     cSAngle targetV;
     targetV = globe.V();
