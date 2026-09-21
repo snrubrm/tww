@@ -2226,11 +2226,10 @@ void poison_init() {
 }
 
 /* 8009258C-800937BC       .text poison_move__Fv */
-// NONMATCHING - reg alloc
 void poison_move() {
     dKankyo_poison_Packet* poison_packet = g_env_light.mpPoisonPacket;
     camera_process_class* camera = (camera_process_class*)dComIfGp_getCamera(0);
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    daPy_py_c* player = daPy_getPlayerActorClass();
 
     cXyz spD0;
     cXyz spC4;
@@ -2372,9 +2371,10 @@ void poison_move() {
 
     f32 var_f17;
     f32 var_f16;
-    int var_r0;
-    int var_r5;
+    s16 var_r0;
+    s16 var_r5;
     f32 var_f15;
+    f32 var_f18;
     if (pattern >= 0) {
         var_f17 = unk_poison_data[pattern].x18;
 
@@ -2428,9 +2428,9 @@ void poison_move() {
                 int x = cM_rndFX(0x7FFF);
                 int z = cM_rndFX(0x7FFF);
 
-                poison_packet->mEff[i].mPos.x = spA0.x * cM_ssin(x);
-                poison_packet->mEff[i].mPos.z = spA0.x * cM_scos(z);
-                poison_packet->mEff[i].mPos.y = cM_rndF(spAC.x);
+                poison_packet->mEff[i].mPos.x = spAC.x * cM_ssin(x);
+                poison_packet->mEff[i].mPos.z = spAC.x * cM_scos(z);
+                poison_packet->mEff[i].mPos.y = cM_rndF(spAC.y);
             } else {
                 poison_packet->mEff[i].mPos.x = cM_rndFX(spAC.x);
                 poison_packet->mEff[i].mPos.y = cM_rndF(spAC.y);
@@ -2449,7 +2449,6 @@ void poison_move() {
             break;
         case 1:
         case 2:
-            f32 var_f18;
             f32 var_f0;
             if (poison_packet->mEff[i].mStatus == 1) {
                 var_f18 = 1.5f;
@@ -2618,7 +2617,7 @@ void poison_move() {
                         poison_packet->mEff[i].mPos.z = -spAC.z;
                         var_r18 = 1;
                     } else if (poison_packet->mEff[i].mPos.z < -spAC.z) {
-                        poison_packet->mEff[i].mPos.x = spAC.z;
+                        poison_packet->mEff[i].mPos.z = spAC.z;
                         var_r18 = 1;
                     }
                 }
@@ -2660,14 +2659,14 @@ void poison_move() {
             poison_packet->field_0xbb9c.z = sp94.z;
         }
 
-        f32 var_f18_2 = var_f1_2 / (spAC.x + spAC.z);
-        if (var_f18_2 > 1.0f) {
-            var_f18_2 = 1.0f;
+        var_f18 = var_f1_2 / (spAC.x + spAC.z);
+        if (var_f18 > 1.0f) {
+            var_f18 = 1.0f;
         }
 
         f32 temp_f2_9 = cM_fsin(poison_packet->mEff[i].field_0x1c);
         poison_packet->mEff[i].field_0x1c += 0.05f;
-        poison_packet->mEff[i].mSize = var_f17 + (var_f17 * var_f18_2) + ((0.2f * var_f17) * temp_f2_9);
+        poison_packet->mEff[i].mSize = var_f17 + (var_f17 * var_f18) + ((0.2f * var_f17) * temp_f2_9);
 
         f32 var_f14;
         if (poison_packet->mEff[i].mPos.y > spAC.y * 0.5f) {
@@ -2678,7 +2677,6 @@ void poison_move() {
             var_f14 = 1.0f;
         }
 
-        f32 var_f18_3;
         if (pattern == 2) {
             sp40 = sp94;
             sp40.y = poison_packet->mBasePos.y;
@@ -2688,33 +2686,30 @@ void poison_move() {
                 var_f1_4 = 1.0f;
             }
 
-            var_f1_4 *= var_f1_4;
-            var_f1_4 *= var_f1_4;
-            var_f1_4 *= var_f1_4;
-            var_f1_4 *= var_f1_4;
-            var_f18_3 = 1.0f - var_f1_4;
+            var_f1_4 = var_f1_4 * var_f1_4 * var_f1_4 * var_f1_4 * var_f1_4;
+            var_f18 = 1.0f - var_f1_4;
         } else {
-            var_f18_3 = 1.0f;
+            var_f18 = 1.0f;
 
             if (std::fabsf(poison_packet->mEff[i].mPos.x) > spAC.x - 100.0f) {
                 f32 temp_f3_5 = spAC.x - (spAC.x - 100.0f);
-                var_f18_3 = 0.0f;
-                if (temp_f3_5 > var_f18_3) {
-                    var_f18_3 = (spAC.x - std::fabsf(poison_packet->mEff[i].mPos.x)) / temp_f3_5;
+                var_f18 = 0.0f;
+                if (temp_f3_5 > var_f18) {
+                    var_f18 = (spAC.x - std::fabsf(poison_packet->mEff[i].mPos.x)) / temp_f3_5;
                 }
             }
 
             if (std::fabsf(poison_packet->mEff[i].mPos.z) > spAC.z - 100.0f) {
                 f32 temp_f3_5 = spAC.z - (spAC.z - 100.0f);
                 if (temp_f3_5 > 0.0f) {
-                    var_f18_3 *= (spAC.z - std::fabsf(poison_packet->mEff[i].mPos.z)) / temp_f3_5;
+                    var_f18 *= (spAC.z - std::fabsf(poison_packet->mEff[i].mPos.z)) / temp_f3_5;
                 } else {
-                    var_f18_3 = 0.0f;
+                    var_f18 = 0.0f;
                 }
             }
         }
 
-        poison_packet->mEff[i].mSize *= var_f18_3;
+        poison_packet->mEff[i].mSize *= var_f18;
 
         f32 temp_f0_17 = 1.0f - var_f14;
         f32 var_f14_2 = 1.0f - (temp_f0_17 * temp_f0_17);
@@ -2729,7 +2724,7 @@ void poison_move() {
             var_f14_2 = 0.0f;
         }
 
-        cLib_addCalc(&poison_packet->mEff[i].mAlpha, var_f18_3 * (0.2f * var_f14_2), 0.05f, 0.01f, 0.001f);
+        cLib_addCalc(&poison_packet->mEff[i].mAlpha, var_f18 * (0.2f * var_f14_2), 0.05f, 0.01f, 0.001f);
 
         f32 var_f14_3 = 200.0f;
         if (pattern == 0) {
