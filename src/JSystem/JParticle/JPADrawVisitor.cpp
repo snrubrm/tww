@@ -1137,6 +1137,10 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
     GXEnd();
 }
 
+// Loop 2 of JPADrawExecStripeCross::exec needs the cos products to be
+// compiler temporaries (allocated early) rather than plain assignments.
+static inline f32 mulf(f32 a, f32 b) { return a * b; }
+
 /* 80263A68-802643B0       .text exec__22JPADrawExecStripeCrossFPC14JPADrawContext */
 void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
     u32 numLinks = pDC->mpActiveParticles->getNumLinks();
@@ -1145,9 +1149,11 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
     typedef JSULink<JPABaseParticle>* (*NextFunc)(JSULink<JPABaseParticle>*);
 
+    JPABaseParticle* ptcl;
     f32 sx0;
     f32 sx1;
     f32 px, py, pz;
+    f32 texT2;
     f32 cx0;
     f32 cx1;
     JSULink<JPABaseParticle>* start;
@@ -1171,9 +1177,10 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
     // function, so loop 2's accesses go through memory as well.
     JGeometry::TVec3<f32> dir;
     JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33R<f32> > > mtx;
+    JGeometry::TVec3<f32> side;
     GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, numLinks * 2);
     for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT += texStep) {
-        JPABaseParticle* ptcl = link->getObject();
+        ptcl = (JPABaseParticle*)link->getObject();
         px = ptcl->mGlobalPosition.x;
         py = ptcl->mGlobalPosition.y;
         pz = ptcl->mGlobalPosition.z;
@@ -1195,7 +1202,6 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
         else
             dir.normalize();
 
-        JGeometry::TVec3<f32> side;
         side.cross(params->mAxis, dir);
         if (side.isZero())
             side.set(1.0f, 0.0f, 0.0f);
@@ -1221,12 +1227,13 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
     }
     GXEnd();
 
-    texT = texT0;
+    texT2 = texT0;
     GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, numLinks * 2);
-    for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT += texStep) {
-        JPABaseParticle* ptcl = link->getObject();
-        JGeometry::TVec3<f32> pos;
-        ptcl->getGlobalPosition(pos);
+    for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT2 += texStep) {
+        ptcl = (JPABaseParticle*)link->getObject();
+        px = ptcl->mGlobalPosition.x;
+        py = ptcl->mGlobalPosition.y;
+        pz = ptcl->mGlobalPosition.z;
 
         JPADrawParams* params = ptcl->getDrawParamPPtr();
         f32 cos = JMASCos(params->mRotateAngle);
@@ -1234,16 +1241,12 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
         // This stripe is the perpendicular one, so the width direction is
         // (-sin, 0, cos) instead of the first loop's (cos, 0, sin).
-        f32 cz1;
-        f32 sz0;
-        f32 sz1;
-        f32 cz0;
         f32 z0 = +params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY);
-        cz0 = z0 * cos;
-        sz0 = z0 * sin;
+        sx0 = mulf(z0, cos);
+        cx0 = z0 * sin;
         f32 z1 = -params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY - JPADrawContext::pcb->mPivotY);
-        cz1 = z1 * cos;
-        sz1 = z1 * sin;
+        sx1 = mulf(z1, cos);
+        cx1 = z1 * sin;
 
         ptcl->getVelVec(dir);
 
@@ -1252,7 +1255,6 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
         else
             dir.normalize();
 
-        JGeometry::TVec3<f32> side;
         side.cross(params->mAxis, dir);
         if (side.isZero())
             side.set(1.0f, 0.0f, 0.0f);
@@ -1264,17 +1266,15 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
         mtx.setXYZDir(side, dir, params->mAxis);
 
-        f32* hack2 = &mtx.mMtx[0][0];
-
-        JGeometry::TVec3<f32> v1(sz0, 0.0f, cz0);
-        JGeometry::TVec3<f32> v2(sz1, 0.0f, cz1);
+        JGeometry::TVec3<f32> v1(cx0, 0.0f, sx0);
+        JGeometry::TVec3<f32> v2(cx1, 0.0f, sx1);
         mtx.mult(v1);
         mtx.mult(v2);
 
-        GXPosition3f32(v1.x + pos.x, v1.y + pos.y, v1.z + pos.z);
-        GXTexCoord2f32(0.0f, texT);
-        GXPosition3f32(v2.x + pos.x, v2.y + pos.y, v2.z + pos.z);
-        GXTexCoord2f32(1.0f, texT);
+        GXPosition3f32(v1.x + px, v1.y + py, v1.z + pz);
+        GXTexCoord2f32(0.0f, texT2);
+        GXPosition3f32(v2.x + px, v2.y + py, v2.z + pz);
+        GXTexCoord2f32(1.0f, texT2);
     }
     GXEnd();
 }
