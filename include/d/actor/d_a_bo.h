@@ -14,6 +14,7 @@ class mDoExt_brkAnm;
 
 class yodare_ato_PcallBack_c : public JPACallBackBase2<JPABaseEmitter*, JPABaseParticle*> {
 public:
+    ~yodare_ato_PcallBack_c() {}
     void execute(JPABaseEmitter*, JPABaseParticle*);
 
 public:
