@@ -2119,16 +2119,16 @@ void dMenu_Item_c::_move() {
 
         if (mNowItem == 0x15) {
             itemnameMove();
-        } else if (recollectBossCheck() && (
+        } else if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e && !(recollectBossCheck() && (
             dComIfGs_getItem(mNowItem) == dItemNo_WATER_BOTTLE_e ||
             dComIfGs_getItem(mNowItem) == dItemNo_FIREFLY_BOTTLE_e ||
-            dComIfGs_getItem(mNowItem) == dItemNo_FOREST_WATER_e))
+            dComIfGs_getItem(mNowItem) == dItemNo_FOREST_WATER_e)))
         {
+            itemnameMove();
+        } else {
             fopMsgM_setNowAlphaZero(&m890[0]);
             fopMsgM_setNowAlphaZero(&m890[1]);
             fopMsgM_setNowAlphaZero(&m858);
-        } else {
-            itemnameMove();
         }
 
         outFontMove();
@@ -2141,13 +2141,14 @@ void dMenu_Item_c::_move() {
 
         checkMove();
 
-        u8 bottleSlot = bottleFwaterCheck();
+        int bottleSlot = bottleFwaterCheck();
         if (bottleSlot != 0) {
             for (int i = 0; i < 2; i++) {
                 if (m23B8[i] != NULL) {
                     f32 x = m1658[bottleSlot].mPosCenterOrig.x - 320.0f;
                     f32 y = m1658[bottleSlot].mPosCenterOrig.y - 240.0f;
-                    m23B8[i]->setGlobalTranslation(x, y, 0.0f);
+                    cXyz pos(x, y, 0.0f);
+                    m23B8[i]->setGlobalTranslation(pos);
                     m23B8[i]->playDrawParticle();
                     m23B8[i]->setGlobalAlpha(0xFF);
                 }
@@ -2180,13 +2181,15 @@ void dMenu_Item_c::_move() {
         dComIfGp_setAStatusForce(dActStts_RETURN_e);
     }
 
-    if (mNowItem == 0x15) {
-        dComIfGp_setDoStatusForce(dActStts_CHOOSE_e);
-    } else if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
-        dComIfGp_setDoStatusForce(dActStts_INFO_e);
+    if (mNowItem != 0x15) {
+        if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
+            dComIfGp_setDoStatusForce(dActStts_INFO_e);
+        } else {
+            dComIfGp_setDoStatusForce(dActStts_BLANK_e);
+            dComIfGp_setDoStatus(dActStts_BLANK_e);
+        }
     } else {
-        dComIfGp_setDoStatusForce(dActStts_BLANK_e);
-        dComIfGp_setDoStatus(dActStts_BLANK_e);
+        dComIfGp_setDoStatusForce(dActStts_CHOOSE_e);
     }
 }
 
