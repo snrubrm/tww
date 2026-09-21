@@ -1365,9 +1365,9 @@ void dMenu_Item_c::noteOpen() {
 
 /* 801CC4F8-801CC7D4       .text noteClose__12dMenu_Item_cFv */
 void dMenu_Item_c::noteClose() {
-    s16 angle_start = g_miHIO.field_0x30;
-    s16 angle_end = g_miHIO.field_0x44;
-    s16 threshold = g_miHIO.field_0x38 + g_miHIO.field_0x3A;
+    const s16 angle_start = g_miHIO.field_0x30;
+    const s16 angle_end = g_miHIO.field_0x44;
+    const s16 threshold = g_miHIO.field_0x38 + g_miHIO.field_0x3A;
     s16 close_frames = g_miHIO.field_0x3C;
     f32 cx = g_miHIO.field_0x40;
     f32 cy = g_miHIO.field_0x42;
@@ -1381,7 +1381,7 @@ void dMenu_Item_c::noteClose() {
     m820.pane->rotate(m820.mSize.x / 2.0f, m820.mSize.y / 2.0f, ROTATE_Z, angle_start + t * (angle_end - angle_start));
     m7B0.mUserArea++;
 
-    if (m7B0.mUserArea > threshold + 1 + close_frames) {
+    if (m7B0.mUserArea > (s16)(threshold + close_frames + 1)) {
         fopMsgM_setInitAlpha(&m7B0);
         fopMsgM_setInitAlpha(&m7E8);
         fopMsgM_setInitAlpha(&m820);
