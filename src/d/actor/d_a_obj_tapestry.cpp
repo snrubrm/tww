@@ -433,14 +433,13 @@ daObjTapestryDrawData_c::daObjTapestryDrawData_c() {
 
 /* 00000638-000006C8       .text ct_tex__23daObjTapestryDrawData_cFv */
 void daObjTapestryDrawData_c::ct_tex() {
-    f32* dst = &mTex[0][0][0];
-    int off = 0;
-    for (int y = 0; y < 8; y++) {
+    int y = 0;
+    int i = 0;
+    for (; y < 8; y++) {
         f32 ty = y * (1.0f / 7.0f);
-        for (int x = 0; x < 6; x++) {
-            dst[off] = x * 0.2f;
-            dst[off + 1] = ty;
-            off += 2;
+        for (int x = 0; x < 6; x++, i++) {
+            tex_coord()[i * 2 + 0] = x * 0.2f;
+            tex_coord()[i * 2 + 1] = ty;
         }
     }
 }
