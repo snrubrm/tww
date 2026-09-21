@@ -922,8 +922,8 @@ void ph_fly_move(ph_class* i_this) {
 /* 0000263C-00002E18       .text ph_fly_sea_move__FP8ph_class */
 void ph_fly_sea_move(ph_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
-    fopAc_ac_c* ship = (fopAc_ac_c*)dComIfGp_getShipActor();
+    fopAc_ac_c* player = (fopAc_ac_c*)dComIfGp_getPlayer(0);
+    daShip_c* ship = dComIfGp_getShipActor();
 
     if (REG8_S(3) != 0) {
         return;
@@ -931,10 +931,8 @@ void ph_fly_sea_move(ph_class* i_this) {
 
     switch (i_this->m0346) {
     case 0: {
-        s32 i = 0;
-        for (int n = 7; n != 0; n--) {
-            *(s16*)((char*)i_this + 0x356 + i) = 0;
-            i += 2;
+        for (int i = 0; i < 7; i++) {
+            (&i_this->m0356)[i] = 0;
         }
         actor->current.angle.z = 0;
         if (i_this->m0374 != dRes_INDEX_PH_BCK_PFLY_e) {
@@ -1002,7 +1000,7 @@ void ph_fly_sea_move(ph_class* i_this) {
         if (!dComIfGp_checkPlayerStatus0(0, daPyStts0_SHIP_RIDE_e)) {
             i_this->m0372 = 0x3C;
             i_this->m0346 = 0;
-            f32 dist = fopAcM_searchActorDistance(actor, ship);
+            f32 dist = fopAcM_searchActorDistance(actor, (fopAc_ac_c*)ship);
             if (dist < 200.0f + REG12_F(7)) {
                 i_this->m0346 = 7;
             }
@@ -1052,10 +1050,8 @@ void ph_fly_sea_move(ph_class* i_this) {
         break;
     }
     case 7: {
-        s32 i = 0;
-        for (int n = 7; n != 0; n--) {
-            *(s16*)((char*)i_this + 0x356 + i) = 0;
-            i += 2;
+        for (int i = 0; i < 7; i++) {
+            (&i_this->m0356)[i] = 0;
         }
         actor->current.angle.z = 0;
         if (i_this->m0374 != dRes_INDEX_PH_BCK_PFLY_e) {
@@ -1064,8 +1060,8 @@ void ph_fly_sea_move(ph_class* i_this) {
         }
         actor->speedF = 98.0f;
         {
-            f32 dx = i_this->m032C.x - ship->current.pos.x;
-            f32 dz = i_this->m032C.z - ship->current.pos.z;
+            f32 dx = i_this->m032C.x - ((fopAc_ac_c*)ship)->current.pos.x;
+            f32 dz = i_this->m032C.z - ((fopAc_ac_c*)ship)->current.pos.z;
             i_this->m0352 = cM_atan2s(dx, dz);
         }
         i_this->m0346++;
