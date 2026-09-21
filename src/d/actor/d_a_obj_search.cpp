@@ -121,7 +121,7 @@ BOOL daObj_Search::Act_c::_createHeap() {
 
 /* 800FDB8C-800FDCAC       .text searchCreateHeap__Q212daObj_Search5Act_cFv */
 BOOL daObj_Search::Act_c::searchCreateHeap() {
-    J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SEARCH_BDL_S_SEARCH_e);
+    J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SEARCH_BDL_S_SEARCH_e));
     JUT_ASSERT(0x39, modelData != 0);
     mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpModel == NULL) {
