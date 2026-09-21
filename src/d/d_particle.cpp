@@ -1636,7 +1636,9 @@ void dPa_trackEcallBack::execute(JPABaseEmitter* emitter) {
 
 /* 8007F3BC-8007F62C       .text draw__18dPa_trackEcallBackFP14JPABaseEmitter */
 void dPa_trackEcallBack::draw(JPABaseEmitter* emitter) {
-    /* Nonmatching - regalloc, instruction order */
+    f32 f27;
+    f32 f31;
+    f32 f30;
     u32 r28 = emitter->getParticleList()->getNumLinks();
     if (r28 < 6) {
         return;
@@ -1645,7 +1647,7 @@ void dPa_trackEcallBack::draw(JPABaseEmitter* emitter) {
         GXSetZMode(GX_DISABLE, GX_NEVER, GX_DISABLE);
     }
     r28 = r28 * (1.0f / 3.0f);
-    f32 f30 = 1.0f / (r28 - 1);
+    f30 = 1.0f / (r28 - 1);
     GXSetCullMode(GX_CULL_NONE);
     Mtx local_bc;
     MTXIdentity(local_bc);
@@ -1655,12 +1657,12 @@ void dPa_trackEcallBack::draw(JPABaseEmitter* emitter) {
     GXSetTexCoordGen(GX_TEXCOORD1, GX_TG_MTX2x4, GX_TG_TEX0, GX_TEXMTX1);
     JSULink<JPABaseParticle>* link = emitter->getParticleList()->getFirst();
     u32 i = 0;
-    f32 f31 = 0.0f;
+    f31 = 0.0f;
     for (; i < r28; i++) {
         if (i) {
             GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, 6);
             u32 j = 0;
-            f32 f27 = 0.0f;
+            f27 = 0.0f;
             for (; j < 3; j++) {
                 JPABaseParticle* particle = link->getObject();
                 JGeometry::TVec3<f32> local_c8;
