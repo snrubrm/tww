@@ -164,18 +164,18 @@ public:
     void checkUseRoom() {}
     void getStageMapInfoPE() {}
     void getStageMapInfoCmPDot() {}
-    void getStageMapInfoMap0_X0() {}
-    void getStageMapInfoMap0_X1() {}
-    void getStageMapInfoMap0_Z0() {}
-    void getStageMapInfoMap0_Z1() {}
-    void getStageMapInfoMap0_XC() {}
-    void getStageMapInfoMap0_ZC() {}
-    void getStageMapInfoMap1_X0() {}
-    void getStageMapInfoMap1_X1() {}
-    void getStageMapInfoMap1_Z0() {}
-    void getStageMapInfoMap1_Z1() {}
-    void getStageMapInfoMap1_ZC() {}
-    void getStageMapInfoMap1_XC() {}
+    f32 getStageMapInfoMap0_X0() { return getStageMapInfoP()->field_0x00; }
+    f32 getStageMapInfoMap0_X1() { return getStageMapInfoP()->field_0x08; }
+    f32 getStageMapInfoMap0_Z0() { return getStageMapInfoP()->field_0x04; }
+    f32 getStageMapInfoMap0_Z1() { return getStageMapInfoP()->field_0x0C; }
+    f32 getStageMapInfoMap0_XC() { return getStageMapInfoP()->field_0x10; }
+    f32 getStageMapInfoMap0_ZC() { return getStageMapInfoP()->field_0x14; }
+    f32 getStageMapInfoMap1_X0() { return getStageMapInfoP()->field_0x18; }
+    f32 getStageMapInfoMap1_X1() { return getStageMapInfoP()->field_0x20; }
+    f32 getStageMapInfoMap1_Z0() { return getStageMapInfoP()->field_0x1C; }
+    f32 getStageMapInfoMap1_Z1() { return getStageMapInfoP()->field_0x24; }
+    f32 getStageMapInfoMap1_ZC() { return getStageMapInfoP()->field_0x2c; }
+    f32 getStageMapInfoMap1_XC() { return getStageMapInfoP()->field_0x28; }
     void getStageMapInfoAlpha() {}
     void getMapDtP() {}
     u8 getNowDspFloorNo() { return field_0xc; }
