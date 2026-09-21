@@ -114,8 +114,8 @@ public:
     void setPos(s16, s16, s16, s16);
     void setScale(f32, f32);
 
-    void getMapDt() {}
-    void getMapDtSize() {}
+    map_dt_c* getMapDt() { return field_0x4; }
+    int getMapDtSize() { return field_0x38; }
     void setAlpha(u8 alpha) { mAlpha = alpha; }
     void setCenterPos(f32 p0, f32 p1) {
         field_0x44 = p0;
@@ -178,7 +178,7 @@ public:
     void getStageMapInfoMap1_XC() {}
     void getStageMapInfoAlpha() {}
     void getMapDtP() {}
-    void getNowDspFloorNo() {}
+    u8 getNowDspFloorNo() { return field_0xc; }
     void getMapDtSize() {}
     void getMap0ScaleX() {}
     void getMap0ScaleZ() {}

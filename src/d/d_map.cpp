@@ -1528,7 +1528,6 @@ void dMap_c::mapAGBSendStatInit() {
 
 /* 80049B64-80049F4C       .text mapAGBSendMapMain__6dMap_cFff */
 void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
-    /* Nonmatching */
     if (getKindMapType() == 1) {
         if (mPlayerStayAgbMapTypeNow == 2) {
             if (mPlayerStayAgbMapTypeOld != 2) {
@@ -1574,7 +1573,7 @@ void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
                             if (
                                 !strcmp(mAgbSendNowStageName, dComIfGp_getStartStageName()) &&
                                 mAgbSendNowRoomNo == mNowRoomInfoP->getRoomNo() &&
-                                mAgbSendNowDspFloorNo == mNowRoomInfoP->field_0xc &&
+                                mAgbSendNowDspFloorNo == mNowRoomInfoP->getNowDspFloorNo() &&
                                 mAgbSendNowAgbMapType == mPlayerStayAgbMapTypeNow
                             ) {
                                 mAGBMapSendStatus = 3;
@@ -1606,10 +1605,10 @@ void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
                     if (mDoGac_SendStatusCheck(2)) {
                         memcpy(mAgbSendNowStageName, dComIfGp_getStartStageName(), sizeof(mAgbSendNowStageName));
                         mAgbSendNowRoomNo = mNowRoomInfoP->getRoomNo();
-                        mAgbSendNowDspFloorNo = mNowRoomInfoP->field_0xc;
+                        mAgbSendNowDspFloorNo = mNowRoomInfoP->getNowDspFloorNo();
                         mAgbSendNowAgbMapType = mPlayerStayAgbMapTypeNow;
                         agbMapNoSetCall();
-                        if (mDoGac_SendDataSet((u32*)mNowRoomInfoP->field_0x8c.field_0x4, mNowRoomInfoP->field_0x8c.field_0x38, 2, 0)) {
+                        if (mDoGac_SendDataSet((u32*)mNowRoomInfoP->field_0x8c.getMapDt(), mNowRoomInfoP->field_0x8c.getMapDtSize(), 2, 0)) {
                             mAGBMapSendStatus = 3;
                             agbResetCursor();
                         }
