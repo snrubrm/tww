@@ -944,7 +944,7 @@ void daNpc_Kf1_c::cut_init_TLK_MSG(int staff) {
             break;
         case 0x1C2F:
         case 0x1C30:
-            mCurrMsgNo = mSavedRupees < mBrokenPots * 10 ? 0x1C2F : 0x1C30;
+            mCurrMsgNo = 0x1C30 + (mSavedRupees < mBrokenPots * 10 ? 0 : -1);
             break;
         case 0x1C39:
             dComIfGp_getVibration().StartShock(5, -33, cXyz(0, 1, 0));
