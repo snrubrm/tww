@@ -582,6 +582,10 @@ void body_control1(mt_class* i_this) {
 /* 000022D8-000028BC       .text body_control3__FP8mt_class */
 void body_control3(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
+    int i;
+    s16 angX;
+    s16 angY;
+    s16 extra;
     cXyz offset;
     cXyz step;
     cXyz wave_pos;
@@ -604,12 +608,12 @@ void body_control3(mt_class* i_this) {
     offset.z = i_this->m474 * -17.0f;
     MtxPosition(&offset, &world_off);
 
-    s16 extra = 0;
+    extra = 0;
     if (i_this->m18FC != 0) {
         extra = (s16)((i_this->m18FC & 2) * 500);
     }
 
-    for (int i = 0; i < 8; i++, p4A0++, p560++, p500++) {
+    for (i = 0; i < 8; i++, p4A0++, p560++, p500++) {
         if (i > 0) {
             ang_off -= (s16)(i_this->m48A + extra);
 
@@ -625,9 +629,9 @@ void body_control3(mt_class* i_this) {
             f32 dy = wave_pos.y + (p4A0->y - p4A0[-1].y);
             f32 dz = wave_pos.z + (p4A0->z - p4A0[-1].z);
 
-            int angY = (s16)cM_atan2s(dx, dz);
+            angY = (s16)cM_atan2s(dx, dz);
             f32 dist = std::sqrtf(dx * dx + dz * dz);
-            s16 angX = -cM_atan2s(dy, dist);
+            angX = -cM_atan2s(dy, dist);
 
             offset.x = 0.0f;
             offset.y = 0.0f;
