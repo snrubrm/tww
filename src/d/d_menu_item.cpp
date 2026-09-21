@@ -2511,8 +2511,8 @@ bool dMenu_Item_c::_close() {
 
 /* 801D1CD4-801D21A0       .text _open2__12dMenu_Item_cFv */
 bool dMenu_Item_c::_open2() {
-    s16 main_off = g_miHIO.field_0x26;
-    s16 frames = g_menuHIO.field_0x92;
+    const s16 main_off = g_miHIO.field_0x26;
+    const s16 frames = g_menuHIO.field_0x92;
     bool ret = false;
 
     if (mTimer == 0) {
