@@ -769,7 +769,7 @@ config.libs = [
             Object(Matching,    "JSystem/JParticle/JPAEmitter.cpp"),
             Object(Matching,    "JSystem/JParticle/JPAParticle.cpp"),
             Object(Matching,    "JSystem/JParticle/JPAEmitterManager.cpp"),
-            Object(NonMatching, "JSystem/JParticle/JPADrawVisitor.cpp"),
+            Object(MatchingFor("GZLE01"), "JSystem/JParticle/JPADrawVisitor.cpp"),
             Object(Matching,    "JSystem/JParticle/JPADraw.cpp"),
             Object(Matching,    "JSystem/JParticle/JPADrawSetupTev.cpp"),
         ],
