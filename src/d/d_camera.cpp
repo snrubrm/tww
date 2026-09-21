@@ -7757,14 +7757,12 @@ static void view_setup(camera_process_class* i_this) {
 
 /* 8017BFAC-8017C29C       .text store__FP20camera_process_class */
 static void store(camera_process_class* i_this) {
-    /* Nonmatching */
     camera_process_class* process = (camera_process_class*)i_this;
     camera_class* camera = (camera_class*)i_this;
     dCamera_c* body = &((camera_process_class*)i_this)->mCamera;
 
     int camera_id = get_camera_id(camera);
-    
-    dStage_dt_c* stage = &dComIfGp_getStage();
+    dDlst_window_c* window = get_window(camera_id);
 
     cXyz oldCenter = *fopCamM_GetCenter_p(camera);
     cXyz oldEye = *fopCamM_GetEye_p(camera);
@@ -7811,17 +7809,18 @@ static void store(camera_process_class* i_this) {
     fopCamM_SetBank(camera, bank);
     fopCamM_SetFovy(camera, fovy);
 
+    dStage_dt_c* stage = &dComIfGp_getStage();
     if (dComIfGp_checkCameraAttentionStatus(camera_id, dCamAttnStts_TELESCOPE_LOOK_e)) {
         fopCamM_SetNear(camera, 30.0f);
     }
     else {
         if (stage) {
-            fopCamM_SetNear(camera, dComIfGp_getStageStagInfo()->mNearPlane);
+            fopCamM_SetNear(camera, stage->getStagInfo()->mNearPlane);
         }
     }
 
     if (stage) {
-        fopCamM_SetFar(camera, dComIfGp_getStageStagInfo()->mFarPlane);
+        fopCamM_SetFar(camera, stage->getStagInfo()->mFarPlane);
     }
 
     fopCamM_SetAngleY(camera, body->mDirection.U().Inv());
