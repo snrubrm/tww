@@ -330,42 +330,24 @@ void JPADrawExecRotBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* p
     f32 x1 = +params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX - JPADrawContext::pcb->mPivotX);
     f32 y1 = -params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY - JPADrawContext::pcb->mPivotY);
 
-    JGeometry::TVec3<f32> pt;
-    ptcl->getGlobalPosition(pt);
-    MTXMultVec(JPADrawContext::pcb->mDrawMtxPtr, &pt, &pt);
+    JGeometry::TVec3<f32> pt[4];
+    pt[0].set(x0 * cos - y0 * sin, y0 * cos + x0 * sin, 0.0f);
+    pt[1].set(x1 * cos - y0 * sin, y0 * cos + x1 * sin, 0.0f);
+    pt[2].set(x1 * cos - y1 * sin, y1 * cos + x1 * sin, 0.0f);
+    pt[3].set(x0 * cos - y1 * sin, y1 * cos + x0 * sin, 0.0f);
+
+    JGeometry::TVec3<f32> pos;
+    ptcl->getGlobalPosition(pos);
+    MTXMultVec(JPADrawContext::pcb->mDrawMtxPtr, &pos, &pos);
 
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-    f32 x = x0 * cos - y0 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    f32 y = y0 * cos + x0 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[0].x + pos.x, pt[0].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[0].x, JPADrawContext::pcb->mTexCoordPt[0].y);
-    x = x1 * cos - y0 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    y = y0 * cos + x1 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[1].x + pos.x, pt[1].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[1].x, JPADrawContext::pcb->mTexCoordPt[1].y);
-    x = x1 * cos - y1 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    y = y1 * cos + x1 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[2].x + pos.x, pt[2].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[2].x, JPADrawContext::pcb->mTexCoordPt[2].y);
-    x = x0 * cos - y1 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    y = y1 * cos + x0 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[3].x + pos.x, pt[3].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[3].x, JPADrawContext::pcb->mTexCoordPt[3].y);
     GXEnd();
 }
