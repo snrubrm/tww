@@ -2058,14 +2058,17 @@ static void demo_camera(gnd_class* i_this) {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
     daPz_c* zelda = (daPz_c*)pz;
-    cXyz zero;
     cXyz offset;
     cXyz sp;
+    cXyz zero;
     s8 end_demo = 0;
-    f32 bank_extra = 0.0f;
+    f32 bank_extra;
     zero.setall(0.0f);
+    bank_extra = 0.0f;
 
     switch (i_this->m155E) {
+    case 0:
+        break;
     case 1:
         if (!actor->eventInfo.checkCommandDemoAccrpt()) {
             fopAcM_orderPotentialEvent(actor, dEvtCnd_UNK2_e, 0xFFFF, 0);
@@ -2090,9 +2093,9 @@ static void demo_camera(gnd_class* i_this) {
         // fallthrough
     case 2: {
         s16 ang = cM_atan2s(actor->current.pos.x - pz->current.pos.x, actor->current.pos.z - pz->current.pos.z);
-        actor->shape_angle.y = ang + REG0_S(0) + 0x4000;
+        actor->shape_angle.y = ang + (REG0_S(0) + 0x4000);
         actor->current.angle.y = actor->shape_angle.y;
-        if (i_this->m1560 > (s16)(REG0_S(1) + 0x19)) {
+        if (i_this->m1560 > REG0_S(1) + 0x19) {
             i_this->m155C = 0x82;
             cLib_addCalc2(&i_this->m157C.x, 130.0f + REG0_F(6), 0.6f, 270.0f * i_this->m15A0);
             cLib_addCalc2(&i_this->m157C.y, 230.0f + REG0_F(7), 0.6f, 80.0f * i_this->m15A0);
@@ -2111,7 +2114,7 @@ static void demo_camera(gnd_class* i_this) {
         mDoMtx_YrotM(*calc_mtx, actor->shape_angle.y);
         MtxPosition(&i_this->m157C, &i_this->m1564);
         MtxPosition(&i_this->m1588, &i_this->m1570);
-        if (i_this->m1560 > (s16)(REG0_S(2) + 0x3C)) {
+        if (i_this->m1560 > REG0_S(2) + 0x3C) {
             i_this->m155E++;
             i_this->m1560 = 0;
             i_this->m155C = 0x32;
@@ -2131,7 +2134,7 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m1570 = actor->current.pos;
         i_this->m1570.y += 150.0f + REG0_F(13);
         {
-            s16 pang = fopAcM_searchActorAngleY(actor, player) + 0x8000;
+            s16 pang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
             player->setPlayerPosAndAngle(&player->current.pos, pang);
         }
         break;
@@ -2187,7 +2190,7 @@ static void demo_camera(gnd_class* i_this) {
             i_this->m2CE = 0;
             i_this->m2D0 = 0;
             actor->current.angle.y = actor->shape_angle.y;
-            i_this->mAction = l_HIO.m68;
+            i_this->m302[1] = l_HIO.m68;
             i_this->m155E = 0x96;
             i_this->m3D8 = 1;
         }
@@ -2225,17 +2228,17 @@ static void demo_camera(gnd_class* i_this) {
         // fallthrough
     case 11: {
         cLib_addCalc2(&i_this->m1570.x, pz->eyePos.x, 0.1f, 20.0f);
-        f32 target_y = pz->eyePos.y + REG0_F(7) - 30.0f;
-        if (target_y < 40.0f) {
-            target_y = 40.0f;
+        sp.y = pz->eyePos.y + REG0_F(7) - 30.0f;
+        if (sp.y < 40.0f) {
+            sp.y = 40.0f;
         }
-        cLib_addCalc2(&i_this->m1570.y, target_y, 0.1f, 20.0f);
+        cLib_addCalc2(&i_this->m1570.y, sp.y, 0.1f, 20.0f);
         cLib_addCalc2(&i_this->m1570.z, pz->eyePos.z, 0.1f, 20.0f);
-        if (i_this->m1560 >= (s16)(REG0_S(0) + 0x64)) {
+        if (i_this->m1560 >= REG0_S(0) + 0x64) {
             i_this->m2CE = 0;
             i_this->m2D0 = 0;
             actor->current.angle.y = actor->shape_angle.y;
-            i_this->mAction = l_HIO.m68;
+            i_this->m302[1] = l_HIO.m68;
             i_this->m155E = 0x96;
             zelda->m0740 = 1;
             i_this->m3D8 = 2;
@@ -2279,7 +2282,7 @@ static void demo_camera(gnd_class* i_this) {
     case 0x16:
         cLib_addCalc2(&i_this->m1570.x, actor->current.pos.x, 0.5f, 70.0f + REG8_F(6));
         cLib_addCalc2(&i_this->m1570.y, actor->eyePos.y + REG8_F(4), 0.1f, 50.0f);
-        cLib_addCalc2(&i_this->m1570.z, actor->current.pos.z, 0.5f, 70.0f + REG8_F(6));
+        cLib_addCalc2(&i_this->m1570.z, actor->current.pos.z + REG8_F(5), 0.5f, 70.0f + REG8_F(6));
         cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
         offset.x = -300.0f + REG8_F(7);
         offset.y = 100.0f + REG8_F(8);
@@ -2292,7 +2295,7 @@ static void demo_camera(gnd_class* i_this) {
                 i_this->m2CE = 0;
                 i_this->m2D0 = 0;
                 actor->current.angle.y = actor->shape_angle.y;
-                i_this->mAction = l_HIO.m68;
+                i_this->m302[1] = l_HIO.m68;
             }
             i_this->m155E = 0x96;
         }
@@ -2312,7 +2315,7 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m15A0 = 0.0f;
         i_this->m1560 = 0;
         player->changeOriginalDemo();
-        i_this->mBodyCyl.OffAtSetBit();
+        i_this->mBodyCyl.OffCoSetBit();
         anm_init(i_this, dRes_INDEX_GND_BCK_COMBO_GANON_e, 1.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
         player->changeDemoMode(daPy_demo_c::DEMO_UNK_070_e);
         zelda->m073F = 1;
@@ -2368,7 +2371,7 @@ static void demo_camera(gnd_class* i_this) {
             i_this->m1564 = f_eye[i_this->m1562];
             i_this->m15A4 = f_fovy[i_this->m1562];
         } else {
-            i_this->m15A0 = 90.0f + REG0_F(0);
+            i_this->m15A0 = 0.1f + REG0_F(0);
             f32 rate = 0.4f + REG0_F(1);
             cLib_addCalc2(&i_this->m1570.x, f_ctr[i_this->m1562].x, rate, i_this->m1588.x * i_this->m15A0);
             cLib_addCalc2(&i_this->m1570.y, f_ctr[i_this->m1562].y, rate, i_this->m1588.y * i_this->m15A0);
@@ -2406,9 +2409,15 @@ static void demo_camera(gnd_class* i_this) {
     if (i_this->m155E != 0) {
         f32 shake_x = i_this->m15AC * cM_ssin(i_this->m1560 * 0x3500);
         f32 shake_y = i_this->m15AC * cM_scos(i_this->m1560 * 0x3900);
-        cXyz eye(i_this->m1564.x + shake_x, i_this->m1564.y + shake_y, i_this->m1564.z);
-        cXyz center(i_this->m1570.x + shake_x, i_this->m1570.y + shake_y, i_this->m1570.z);
-        s16 bank = (s16)(bank_extra + i_this->m15AC * 7.5f * cM_scos(i_this->m2CC * 0x1C00));
+        cXyz eye;
+        eye.x = i_this->m1564.x + shake_x;
+        eye.y = i_this->m1564.y + shake_y;
+        eye.z = i_this->m1564.z;
+        cXyz center;
+        center.x = i_this->m1570.x + shake_x;
+        center.y = i_this->m1570.y + shake_y;
+        center.z = i_this->m1570.z;
+        s16 bank = (s16)(bank_extra + 7.5f * (i_this->m15AC * cM_scos(i_this->m2CC * 0x1C00)));
         camera->mCamera.Set(center, eye, bank, i_this->m15A4);
         cLib_addCalc0(&i_this->m15AC, 1.0f, 1.0f + REG0_F(16));
         JUTReport(0x19A, 0x1AE, "K SUB  COUNT  %d", i_this->m1560);
