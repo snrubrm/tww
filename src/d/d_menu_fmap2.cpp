@@ -2327,7 +2327,7 @@ BOOL dMenu_Fmap2_c::cmapPlayerPosDispCheck(f32* outX, f32* outY) {
 
 /* 801C50FC-801C5350       .text paneTransBase__13dMenu_Fmap2_cFsUcffUcUci */
 BOOL dMenu_Fmap2_c::paneTransBase(s16 param_1, u8 param_2, f32 param_3, f32 param_4, u8 param_5, u8 param_6, int param_7) {
-    /* Nonmatching */
+    int i;
     if (param_1 < 0) {
         return false;
     }
@@ -2342,13 +2342,13 @@ BOOL dMenu_Fmap2_c::paneTransBase(s16 param_1, u8 param_2, f32 param_3, f32 para
         }
         if (field_0x27a8) {
             if (getCtCmapSelNo() != -1 && field_0x1aa4[param_6][0].pane->isVisible()) {
-                for (int i = 0; i < 10; i++) {
+                for (i = 0; i < 10; i++) {
                     fopMsgM_setNowAlpha(&field_0x1aa4[param_6][i], f31);
                     fopMsgM_setAlpha(&field_0x1aa4[param_6][i]);
                 }
             }
         }
-        for (int i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             fopMsgM_setNowAlpha(&field_0x124c[field_0x2813][i], f31);
             fopMsgM_setAlpha(&field_0x124c[field_0x2813][i]);
         }
