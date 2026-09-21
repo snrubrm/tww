@@ -909,7 +909,7 @@ config.libs = [
             Object(NonMatching, "JSystem/JAudio/JAISequenceMgr.cpp"),
             Object(MatchingFor("GZLE01"), "JSystem/JAudio/JAISound.cpp"),
             Object(Matching,    "JSystem/JAudio/JAISoundTable.cpp"),
-            Object(NonMatching, "JSystem/JAudio/JAIStreamMgr.cpp"),
+            Object(MatchingFor("GZLE01"), "JSystem/JAudio/JAIStreamMgr.cpp"),
             Object(Matching,    "JSystem/JAudio/JAISystemInterface.cpp"),
         ],
     ),
