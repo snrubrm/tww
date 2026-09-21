@@ -481,9 +481,10 @@ void daObjTapestryDrawData_c::ct_dl() {
 
 /* 00000878-00000C44       .text __ct__21daObjTapestryPacket_cFv */
 daObjTapestryPacket_c::daObjTapestryPacket_c() {
+    daObjTapestryDrawVtx_c* vtx;
     int buf, row, col;
     for (buf = 0; buf < 2; buf++) {
-        daObjTapestryDrawVtx_c* vtx = &mDraw[buf];
+        vtx = &mDraw[buf];
         for (row = 0; row < 8; row++) {
             for (col = 0; col < 6; col++) {
                 vtx->pos[row][col] = cXyz::Zero;
