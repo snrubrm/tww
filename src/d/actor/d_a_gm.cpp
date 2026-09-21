@@ -989,21 +989,23 @@ void action_uchiwa_dousa(gm_class* i_this) {
 
 /* 000030FC-00003E54       .text action_totugeki__FP8gm_class */
 void action_totugeki(gm_class* i_this) {
+    fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
     dBgS_LinChk linChk;
     cXyz offset;
     cXyz pos;
     cXyz base;
+    int i;
     base.x = 0.0f;
     base.y = 0.0f;
     base.z = 0.0f;
 
     switch (i_this->mAction) {
     case 30: {
-        for (int i = 0; i < 23; i++) {
+        for (i = 0; i < 23; i++) {
             i_this->mTimers[i] = 0;
         }
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             i_this->m360[i].x = 0.0f;
             i_this->m360[i].y = 0.0f;
             i_this->m360[i].z = 0.0f;
@@ -1011,7 +1013,7 @@ void action_totugeki(gm_class* i_this) {
         i_this->mpBrkAtack->setFrame(0.0f);
         i_this->mBrkMode = 2;
         i_this->m322 = 0;
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             i_this->m360[i].x = 0.0f;
             i_this->m360[i].y = 0.0f;
             i_this->m360[i].z = 0.0f;
@@ -1127,7 +1129,7 @@ void action_totugeki(gm_class* i_this) {
         static f32 check_x[] = {-1.0f, 1.0f, 0.0f};
         static f32 check_y[] = {30.0f, 30.0f, 30.0f};
         static f32 check_z[] = {400.0f, 400.0f, 410.0f};
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             i_this->m384[i].x = 0.0f;
             i_this->m384[i].y = 0.0f;
             i_this->m384[i].z = 0.0f;
@@ -1139,7 +1141,7 @@ void action_totugeki(gm_class* i_this) {
             i_this->m360[i] += i_this->current.pos;
             i_this->m360[i] += i_this->mDrawOffset;
             base = i_this->current.pos + i_this->mDrawOffset;
-            linChk.Set(&base, &i_this->m360[i], i_this);
+            linChk.Set(&base, &i_this->m360[i], actor);
             if (dComIfG_Bgsp()->LineCross(&linChk)) {
                 i_this->m384[i] = linChk.GetCross();
             }
@@ -1177,7 +1179,7 @@ void action_totugeki(gm_class* i_this) {
         break;
     }
     case 37: {
-        for (int i = 0; i < 3; i++) {
+        for (i = 0; i < 3; i++) {
             i_this->m360[i].x = 0.0f;
             i_this->m360[i].y = 0.0f;
             i_this->m360[i].z = 0.0f;
