@@ -338,6 +338,22 @@ static GXColor l_color = {0x9D, 0x9D, 0x9D, 0xFF};
 
 daObjTapestryDrawData_c daObjTapestryPacket_c::m_draw_data;
 
+class daObjTapestry_HIO_c : public JORReflexible {
+public:
+    daObjTapestry_HIO_c();
+    virtual ~daObjTapestry_HIO_c() {}
+
+public:
+    /* 0x04 */ s8 mNo;
+    /* 0x05 */ u8 m05;
+    /* 0x06 */ u8 m06;
+    /* 0x08 */ s32 m08;
+    /* 0x0C */ daObjTapestry_Attr_c mAttr;
+    /* 0x68 */ u8 m68;
+};  // Size: 0x6C
+
+STATIC_ASSERT(sizeof(daObjTapestry_HIO_c) == 0x6C);
+
 namespace {
 static daObjTapestry_HIO_c l_HIO;
 

@@ -44,22 +44,6 @@ struct daObjTapestry_Attr_c {
 
 STATIC_ASSERT(sizeof(daObjTapestry_Attr_c) == 0x5C);
 
-class daObjTapestry_HIO_c : public JORReflexible {
-public:
-    daObjTapestry_HIO_c();
-    virtual ~daObjTapestry_HIO_c() {}
-
-public:
-    /* 0x04 */ s8 mNo;
-    /* 0x05 */ u8 m05;
-    /* 0x06 */ u8 m06;
-    /* 0x08 */ s32 m08;
-    /* 0x0C */ daObjTapestry_Attr_c mAttr;
-    /* 0x68 */ u8 m68;
-};  // Size: 0x6C
-
-STATIC_ASSERT(sizeof(daObjTapestry_HIO_c) == 0x6C);
-
 class daObjTapestryPLight_c {
 public:
     void plight_delete();
@@ -82,6 +66,7 @@ public:
         mPos = cXyz::Zero;
         mSpd = cXyz::Zero;
     }
+    virtual ~daObjTapestryFireEff_c() {}
 
     cXyz* get_pos() { return &mPos; }
     void set_pos(const cXyz& pos) { mPos = pos; }
@@ -145,6 +130,7 @@ class daObjTapestryPacket_c : public J3DPacket {
 public:
     daObjTapestryPacket_c();
     virtual void draw();
+    virtual ~daObjTapestryPacket_c() {}
 
     void set_wind_fun(const cXyz& v) { m13C8 = v; }
 
