@@ -759,8 +759,9 @@ void daNpc_So_c::cutMiniGamePlTurnProc() {
     daShip_c* ship = dComIfGp_getShipActor();
     player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
     player->changeDemoParam0(1);
-    s16 ang = ship->shape_angle.y + REG12_S(6);
-    ang -= 0x4000;
+    int tmp = ship->shape_angle.y + REG12_S(6);
+    tmp -= 0x4000;
+    s16 ang = tmp;
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
