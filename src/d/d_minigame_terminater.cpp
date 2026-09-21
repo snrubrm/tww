@@ -192,27 +192,26 @@ void dDlst_TerminaterScrnDraw_c::setScrnFailed() {
         '\0rkr',
     };
 
-    int i;
-    for (i = 0; i < dMgtem_perfect_tex; i++) {
+    for (int i = 0; i < dMgtem_perfect_tex; i++) {
         mpScrn->search(perfect[i])->hide();
     }
 
-    for (i = 0; i < dMgtem_failed_tex; i++) {
+    for (int i = 0; i < dMgtem_failed_tex; i++) {
         fopMsgM_setPaneData(&mFailed[i], mpScrn, failed[i]);
         getRotate(&mFailed[i]);
         mRemain[i].mUserArea = 0;
         mRemainK[i].mUserArea = 0;
     }
 
-    for (i = 0; i < dMgtem_remain_tex + 1; i++) {
+    for (int i = 0; i < dMgtem_remain_tex + 1; i++) {
         mpScrn->search(remaintime[i])->hide();
     }
 
-    for (i = 0; i < dMgtem_remain_tex; i++) {
+    for (int i = 0; i < dMgtem_remain_tex; i++) {
         mpScrn->search(remaintimek[i])->hide();
     }
 
-    for (i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         mpScrn->search(perfect_nt[i])->hide();
         mpScrn->search(perfect_nk[i])->hide();
     }
