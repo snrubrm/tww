@@ -49,7 +49,7 @@ namespace {
 
     inline const Attr_c& attr() { return L_attr; }
 
-    f32 L_r_in = (125.0f / 3.0f) * (f32)sqrt(3.0);
+    f32 L_r_in = (125.0f / 3.0f) * std::sqrtf(3.0f);
     f32 L_r_out = 2.0f * L_r_in;
 }
 }
