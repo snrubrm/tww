@@ -6643,7 +6643,8 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 height = work->m398;
-    if (!limited_range_addition(&height, (stickCY = -stickCY) * val9, val6, val7)) {
+    // fakematch: the self-assignment of val9 fixes the fmuls operand order
+    if (!limited_range_addition(&height, (stickCY = -stickCY) * (val9 = val9), val6, val7)) {
         cush = val20;
     }
     if (chkFlag(0x1000) && mpLockonTarget != NULL && (m784 || m785)) {
