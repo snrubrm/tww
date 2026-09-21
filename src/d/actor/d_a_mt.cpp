@@ -304,7 +304,7 @@ void body_control2(mt_class* i_this) {
             offset.z = 0.0f;
             MtxPosition(&offset, &end[0]);
             end[0] += *p4A0;
-            linChk.Set(&start, &end[0], i_this);
+            linChk.Set(&start, &end[0], actor);
             if (dComIfG_Bgsp()->LineCross(&linChk)) {
                 end[0] = linChk.GetCross();
                 hit = 1;
@@ -313,7 +313,7 @@ void body_control2(mt_class* i_this) {
             offset.x *= -1.0f;
             MtxPosition(&offset, &end[1]);
             end[1] += *p4A0;
-            linChk.Set(&start, &end[1], i_this);
+            linChk.Set(&start, &end[1], actor);
             if (dComIfG_Bgsp()->LineCross(&linChk)) {
                 end[1] = linChk.GetCross();
                 hit += 1;
