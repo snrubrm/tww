@@ -1011,6 +1011,7 @@ void dMenu_Item_c::itemnameMove() {
     }
 
     int timer = m858.mUserArea;
+    int temp;
 
     if (timer <= 10) {
         f32 t = fopMsgM_valueIncrease(10, timer, 0);
@@ -1021,14 +1022,16 @@ void dMenu_Item_c::itemnameMove() {
         fopMsgM_setInitAlpha(&m890[0]);
         fopMsgM_setNowAlphaZero(&m858);
     } else if (timer <= 70) {
-        f32 t = fopMsgM_valueIncrease(10, timer - 60, 0);
+        temp = timer - 60;
+        f32 t = fopMsgM_valueIncrease(10, temp, 0);
         fopMsgM_setNowAlpha(&m890[0], 1.0f - t);
         fopMsgM_setNowAlpha(&m858, t);
     } else if (timer <= 120) {
         fopMsgM_setNowAlphaZero(&m890[0]);
         fopMsgM_setInitAlpha(&m858);
     } else if (timer <= 130) {
-        f32 t = fopMsgM_valueIncrease(10, timer - 120, 0);
+        temp = timer - 120;
+        f32 t = fopMsgM_valueIncrease(10, temp, 0);
         fopMsgM_setNowAlpha(&m890[0], t);
         fopMsgM_setNowAlpha(&m858, 1.0f - t);
     }
