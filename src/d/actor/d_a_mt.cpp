@@ -747,11 +747,13 @@ void body_control5(mt_class* i_this) {
     i_this->m4A0[0] = actor->current.pos;
     i_this->m560[0] = actor->shape_angle;
 
+    int i;
+    f32 dy;
     cXyz* p4A0 = i_this->m4A0;
     csXyz* p560 = i_this->m560;
     f32 ground_y = l_HIO.m18 + i_this->mAcch.GetGroundH();
 
-    for (int i = 0; i < 8; i++, p4A0++, p560++) {
+    for (i = 0; i < 8; i++, p4A0++, p560++) {
         cXyz vec;
         cXyz step;
         cXyz wave_pos;
@@ -769,7 +771,7 @@ void body_control5(mt_class* i_this) {
             }
 
             f32 dx = wave_pos.x + (p4A0->x - p4A0[-1].x);
-            f32 dy = y - p4A0[-1].y;
+            dy = y - p4A0[-1].y;
             f32 dz = wave_pos.z + (p4A0->z - p4A0[-1].z);
 
             int angY = (s16)cM_atan2s(dx, dz);
