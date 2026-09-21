@@ -250,6 +250,7 @@ static BOOL nodeControl_CB(J3DNode* i_node, int i_calcTiming) {
 /* 0000049C-00000888       .text _nodeControl__6daGy_cFP7J3DNodeP8J3DModel */
 void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
     int jntNo = ((J3DJoint*)i_node)->getJntNo();
+    fopAc_ac_c* actor = this;
 
     if (jntNo == GY_JNT_J_GY_ATAMA1_e) {
         mDoMtx_stack_c::copy(i_model->getAnmMtx(jntNo));
@@ -270,8 +271,8 @@ void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
 
     if (jntNo == GY_JNT_J_GY_ATAMA1_e) {
         fopAc_ac_c* player = dComIfGp_getPlayer(0);
-        f32 dist = (current.pos - player->current.pos).absXZ();
-        int angDiff = cLib_distanceAngleS(shape_angle.y, fopAcM_searchActorAngleY(this, player));
+        f32 dist = (actor->current.pos - player->current.pos).absXZ();
+        int angDiff = cLib_distanceAngleS(actor->shape_angle.y, fopAcM_searchActorAngleY(actor, player));
         if (angDiff < l_HIO.m180 && dist < l_HIO.m184 && mPrmIdx != 8 && mPrmIdx != 9 && mPrmIdx != 6 && mPrmIdx != 0xB && mPrmIdx != 3) {
             mCEC = player->current.pos;
             if (m2B0 == 2) {
