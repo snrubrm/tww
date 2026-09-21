@@ -1089,7 +1089,6 @@ void dKyr_rain_move() {
 
 /* 8008E79C-8008F0BC       .text dKyr_housi_move__Fv */
 void dKyr_housi_move() {
-    /* Nonmatching */
     dKankyo_housi_Packet* housi_packet = g_env_light.mpHousiPacket;
     HOUSI_EFF* effect;
     camera_process_class* camera = (camera_process_class*)dComIfGp_getCamera(0);
@@ -1166,10 +1165,10 @@ void dKyr_housi_move() {
 
                 f32 temp_f1 = temp_f3 * sp78.x;
                 effect->mPos.x += temp_f1 * effect->field_0x34;
-                temp_f1 = temp_f3 * sp78.y;
-                effect->mPos.y += temp_f1 * effect->field_0x34;
-                temp_f1 = temp_f3 * sp78.z;
-                effect->mPos.z += temp_f1 * effect->field_0x34;
+                f32 temp_f2 = temp_f3 * sp78.y;
+                effect->mPos.y += temp_f2 * effect->field_0x34;
+                f32 temp_f4 = temp_f3 * sp78.z;
+                effect->mPos.z += temp_f4 * effect->field_0x34;
                 effect->mPos.y -= effect->field_0x34 * 0.6f;
 
                 effect->mPos.x += temp_f0_5 * effect->field_0x34;
