@@ -1429,7 +1429,6 @@ void dKyr_snow_move() {
 }
 
 /* 8008F9FC-8009065C       .text dKyr_kazanbai_move__Fv */
-// NONMATCHING - close
 void dKyr_kazanbai_move() {
     dKankyo_snow_Packet* snow_packet = g_env_light.mpSnowPacket;
     camera_class* camera = (camera_class*)dComIfGp_getCamera(0);
@@ -1437,10 +1436,10 @@ void dKyr_kazanbai_move() {
     DOUBLE_POS sp78;
     cXyz sp6C;
     cXyz sp68;
+    cXyz sp18 = dKyw_get_wind_vecpow();
     cXyz sp48;
     cXyz sp3C;
     cXyz sp30;
-    cXyz sp18 = dKyw_get_wind_vecpow();
 
     dBgS_ObjGndChk_All sp90;
     int var_r16 = 0;
@@ -1494,9 +1493,9 @@ void dKyr_kazanbai_move() {
             snow_packet->mEff[i].mWindSpeed = speed;
             snow_packet->mEff[i].mGravity = gravity;
             snow_packet->mEff[i].mTimer = 0;
-            snow_packet->mEff[i].mBasePos.x = sp24.x;
-            snow_packet->mEff[i].mBasePos.y = sp24.y;
-            snow_packet->mEff[i].mBasePos.z = sp24.z;
+            snow_packet->mEff[i].mBasePos.x = sp6C.x;
+            snow_packet->mEff[i].mBasePos.y = sp6C.y;
+            snow_packet->mEff[i].mBasePos.z = sp6C.z;
             snow_packet->mEff[i].mPos.x = cM_rndFX(800.0f);
             snow_packet->mEff[i].mPos.y = 800.0f;
             snow_packet->mEff[i].mPos.z = cM_rndFX(800.0f);
@@ -1587,7 +1586,7 @@ void dKyr_kazanbai_move() {
         sp48.z = snow_packet->mEff[i].mBasePos.z + snow_packet->mEff[i].mPos.z;
 
         f32 var_f26;
-        f32 var_f1_11 = sp48.abs(camera->view.mLookat.mEye);
+        f32 var_f1_11 = sp48.abs(sp6C);
         var_f26 = var_f1_11 + 30.0f;
         if (var_f26 < 0.0f) {
             var_f26 = 0.0f;
