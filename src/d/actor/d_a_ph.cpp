@@ -1331,8 +1331,7 @@ void ph_fujyou_move(ph_class* i_this) {
         // fallthrough
     case 0x1F:
         cLib_addCalc2(&i_this->m02FC.x, 1.0f + i_this->m03A0, 1.0f, 0.3f + (0.3f + i_this->m03A0));
-        i_this->m02FC.z = i_this->m02FC.x;
-        i_this->m02FC.y = i_this->m02FC.x;
+        i_this->m02FC.y = i_this->m02FC.z = i_this->m02FC.x;
         if (i_this->m02FC.x > 0.8f + i_this->m03A0) {
             f32 scl = 1.0f + i_this->m03A0;
             i_this->m02FC.x = scl;
@@ -1343,10 +1342,8 @@ void ph_fujyou_move(ph_class* i_this) {
             i_this->m034A = 0x1000;
             i_this->m034C = 0;
             i_this->m0384 = 0.0f;
-            s32 i = 0;
-            for (int n = 7; n != 0; n--) {
-                *(s16*)((char*)i_this + 0x356 + i) = 0;
-                i += 2;
+            for (int i = 0; i < 7; i++) {
+                (&i_this->m0356)[i] = 0;
             }
             actor->gravity = -3.0f;
             i_this->m0346++;
@@ -1358,7 +1355,7 @@ void ph_fujyou_move(ph_class* i_this) {
         cLib_addCalc2(&i_this->m0384, 4.0f, 0.03f, 0.05f);
         i_this->m035E += (s16)(200.0f * i_this->m0384);
         {
-            s16 targetZ = 7000.0f * cM_ssin(i_this->m035E);
+            s16 targetZ = 4000.0f * cM_ssin(i_this->m035E);
             cLib_addCalcAngleS2(&actor->current.angle.z, targetZ, 1, 0x1000);
         }
         actor->shape_angle.z = actor->current.angle.z;
@@ -1372,10 +1369,8 @@ void ph_fujyou_move(ph_class* i_this) {
         if (actor->current.pos.y > i_this->m0388) {
             i_this->mAtCyl.OnAtSetBit();
             i_this->mAtCyl.OnAtHitBit();
-            s32 i = 0;
-            for (int n = 7; n != 0; n--) {
-                *(s16*)((char*)i_this + 0x356 + i) = 0;
-                i += 2;
+            for (int i = 0; i < 7; i++) {
+                (&i_this->m0356)[i] = 0;
             }
             actor->current.angle.z = 0;
             i_this->m033F = 0;
@@ -1396,8 +1391,7 @@ void ph_fujyou_move(ph_class* i_this) {
         // fallthrough
     case 0x22:
         cLib_addCalc2(&i_this->m02FC.x, 1.0f + i_this->m03A0, 1.0f, 0.3f + (0.3f + i_this->m03A0));
-        i_this->m02FC.z = i_this->m02FC.x;
-        i_this->m02FC.y = i_this->m02FC.x;
+        i_this->m02FC.y = i_this->m02FC.z = i_this->m02FC.x;
         if (i_this->m02FC.x > 0.8f + i_this->m03A0) {
             f32 scl = 1.0f + i_this->m03A0;
             i_this->m02FC.x = scl;
@@ -1408,10 +1402,8 @@ void ph_fujyou_move(ph_class* i_this) {
             i_this->m034A = 0x1000;
             i_this->m034C = 0;
             i_this->m0384 = 0.0f;
-            s32 i = 0;
-            for (int n = 7; n != 0; n--) {
-                *(s16*)((char*)i_this + 0x356 + i) = 0;
-                i += 2;
+            for (int i = 0; i < 7; i++) {
+                (&i_this->m0356)[i] = 0;
             }
             actor->gravity = -3.0f;
             i_this->m0346++;
@@ -1423,7 +1415,7 @@ void ph_fujyou_move(ph_class* i_this) {
         cLib_addCalc2(&i_this->m0384, 6.0f, 0.3f, 0.5f);
         i_this->m035E += (s16)(200.0f * i_this->m0384);
         {
-            s16 targetZ = 7000.0f * cM_ssin(i_this->m035E);
+            s16 targetZ = 4000.0f * cM_ssin(i_this->m035E);
             cLib_addCalcAngleS2(&actor->current.angle.z, targetZ, 1, 0x1000);
         }
         actor->shape_angle.z = actor->current.angle.z;
