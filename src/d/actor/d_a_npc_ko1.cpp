@@ -1258,16 +1258,13 @@ void daNpc_Ko1_c::ko_nMove() {
     case 1:
     case 2: {
         ko_clcMovSpd();
-        f32 maxSpeed;
         f32 playSpeed;
         if (m898 == 1) {
             playSpeed = speedF * l_HIO.mChild[mType].mPrm.m20;
-            maxSpeed = l_HIO.mChild[mType].mPrm.m24 * l_HIO.mChild[mType].mPrm.m20;
-            playSpeed = (playSpeed > maxSpeed) ? maxSpeed : playSpeed;
+            playSpeed = (playSpeed > l_HIO.mChild[mType].mPrm.m24 * l_HIO.mChild[mType].mPrm.m20) ? l_HIO.mChild[mType].mPrm.m24 * l_HIO.mChild[mType].mPrm.m20 : playSpeed;
         } else {
             playSpeed = speedF * l_HIO.mChild[mType].mPrm.m30;
-            maxSpeed = l_HIO.mChild[mType].mPrm.m34 * l_HIO.mChild[mType].mPrm.m30;
-            playSpeed = (playSpeed > maxSpeed) ? maxSpeed : playSpeed;
+            playSpeed = (playSpeed > l_HIO.mChild[mType].mPrm.m34 * l_HIO.mChild[mType].mPrm.m30) ? l_HIO.mChild[mType].mPrm.m34 * l_HIO.mChild[mType].mPrm.m30 : playSpeed;
         }
         if (playSpeed < 0.5f) {
             playSpeed = 0.5f;
