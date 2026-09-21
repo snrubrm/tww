@@ -3317,10 +3317,11 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
 }
 
 /* 8009514C-80095E8C       .text dKyr_drawLenzflare__FPA4_fP4cXyzR8_GXColorPPUc */
-// NONMATCHING - close
 void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
     dKankyo_sunlenz_Packet* lenz_packet = g_env_light.mpSunlenzPacket;
     dKankyo_sun_Packet* sun_packet = g_env_light.mpSunPacket;
+    s16 spC = 0;
+    s16 spA = 0;
     camera_process_class* camera = (camera_process_class*)dComIfGp_getCamera(0);
 
     Mtx camMtx;
@@ -3332,8 +3333,6 @@ void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
 
     Vec spE4, spD8;
 
-    s16 spC = 0;
-    s16 spA = 0;
     f32 spC4;
 
     f32 sun_visibility = sun_packet->mVisibility;
