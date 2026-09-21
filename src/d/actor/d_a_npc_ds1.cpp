@@ -1264,7 +1264,8 @@ void daNpc_Ds1_c::RoomEffectSet() {
 
 /* 00003EE4-00003F20       .text RoomEffectDelete__11daNpc_Ds1_cFv */
 void daNpc_Ds1_c::RoomEffectDelete() {
-    for (int i = 1; i < 8; i++) {
+    int i = 0;
+    while (i++ < 7) {
         if (mpEmitters[i + 2]) {
             mpEmitters[i + 2]->becomeInvalidEmitter();
         }
