@@ -1959,6 +1959,10 @@ BOOL daNpc_Kk1_c::cmmt_1() {
     case 5:
         move_CMT_PCK();
         return TRUE;
+    case 0:
+    case 2:
+    case 3:
+        break;
     }
 
     if (mOrder != 1 && mOrder < 3 && mAnmNo != 1) {
