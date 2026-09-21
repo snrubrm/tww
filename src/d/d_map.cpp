@@ -815,16 +815,13 @@ bool dMap_RoomInfo_c::enlagementSizeTextureCordCalc(f32* param_1, f32* param_2, 
 
 /* 800470CC-800475B8       .text roomDrawRoomEnlargementSize__15dMap_RoomInfo_cFiiiiffffUc */
 void dMap_RoomInfo_c::roomDrawRoomEnlargementSize(int param_1, int param_2, int param_3, int param_4, f32 param_5, f32 param_6, f32 param_7, f32 param_8, u8 param_9) {
-    /* Nonmatching */
     if (field_0x1 & 2) {
         f32 f30;
         f32 f29;
-        f32 f27 = getStageMapInfoP()->field_0x00;
-        f32 f28 = getStageMapInfoP()->field_0x08 - f27;
-        f27 = getStageMapInfoP()->field_0x04;
-        f27 = getStageMapInfoP()->field_0x0C - f27;
-        f32 f22 = field_0x18;
-        f32 f31 = field_0x1c;
+        f32 f28 = getStageMapInfoMap0_X1() - getStageMapInfoMap0_X0();
+        f32 f27 = getStageMapInfoMap0_Z1() - getStageMapInfoMap0_Z0();
+        f32 f22 = getMap0ScaleX();
+        f32 f31 = getMap0ScaleZ();
         field_0x44->field_0x0 = 0;
         f32 local_e8 = 176.0f;
         f32 local_ec;
@@ -838,10 +835,10 @@ void dMap_RoomInfo_c::roomDrawRoomEnlargementSize(int param_1, int param_2, int 
         f29 = param_4 * 0.5f;
         f32 local_104 = -f29;
         f32 local_108 = f29;
-        if (!enlagementSizeTextureCordCalc(&local_ec, &local_f0, &local_fc, &local_100, getStageMapInfoP()->field_0x10, f28, f22, param_5, param_7, param_3)) {
+        if (!enlagementSizeTextureCordCalc(&local_ec, &local_f0, &local_fc, &local_100, getStageMapInfoMap0_XC(), f28, f22, param_5, param_7, param_3)) {
             return;
         }
-        if (!enlagementSizeTextureCordCalc(&local_f4, &local_f8, &local_104, &local_108, getStageMapInfoP()->field_0x14, f27, f31, param_6, param_8, param_4)) {
+        if (!enlagementSizeTextureCordCalc(&local_f4, &local_f8, &local_104, &local_108, getStageMapInfoMap0_ZC(), f27, f31, param_6, param_8, param_4)) {
             return;
         }
         if (local_ec > 1.0f || local_f0 < 0.0f || local_f4 > 1.0f || local_f8 < 0.0f) {

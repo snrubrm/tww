@@ -180,8 +180,8 @@ public:
     void getMapDtP() {}
     u8 getNowDspFloorNo() { return field_0xc; }
     void getMapDtSize() {}
-    void getMap0ScaleX() {}
-    void getMap0ScaleZ() {}
+    f32 getMap0ScaleX() { return field_0x18; }
+    f32 getMap0ScaleZ() { return field_0x1c; }
     f32 getMap1ScaleX() { return field_0x20; }
     f32 getMap1ScaleZ() { return field_0x24; }
     f32 getMap1Width() { return field_0x28; }
