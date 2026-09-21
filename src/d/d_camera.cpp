@@ -4663,7 +4663,6 @@ bool dCamera_c::CalcSubjectAngle(s16* param_1, s16* param_2) {
 
 /* 801708E0-801719C4       .text subjectCamera__9dCamera_cFl */
 bool dCamera_c::subjectCamera(s32 param_1) {
-    // Non-matching
     f32 p1  = mCamParam.Val(param_1, 1);
     f32 p5  = mCamParam.Val(param_1, 5);
     f32 p0  = mCamParam.Val(param_1, 0);
@@ -4676,6 +4675,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
     cSAngle baseYaw = directionOf(mpPlayerActor).Inv();
     cXyz camRel;
+    cSGlobe desired;
 
     if (m108 == 0) {
         mWork.subject.m378 = 'SUBJ';
@@ -4747,8 +4747,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
             }
             case 2: {
                 targetPos = mExtendedPos;
-                cSAngle ang = m0FA;
-                baseYaw.Val(ang.Inv());
+                baseYaw.Val(cSAngle(m0FA).Inv());
                 break;
             }
             default: {
@@ -4760,7 +4759,6 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         cXyz delta = targetPos - mViewCache.mCenter;
         mViewCache.mCenter += delta * t;
 
-        cSGlobe desired;
         desired.Val(p10, cSAngle::_0, baseYaw);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (desired.R() - mViewCache.mDirection.R()) * t);
@@ -4787,13 +4785,13 @@ bool dCamera_c::subjectCamera(s32 param_1) {
                 x = 320.0f + 640.0f * x;
                 if (x < 640.0f && scale >= 1.0f && scale <= 3.0f) {
 
-                    f32 s = (640.0f - x) / 320.0f;
+                    p1 = (640.0f - x) / 320.0f;
 
                     if (check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e) || dComIfGp_getScopeType()) {
-                        setView(s * 160.0f, s * 35.0f, x, (s * -160.0f) + 480.0f);
+                        setView(p1 * 160.0f, p1 * 35.0f, x, (p1 * -160.0f) + 480.0f);
                     }
 
-                    mViewCache.mFovy = mWork.subject.m39C + s * (mWork.subject.m3A0 - mWork.subject.m39C);
+                    mViewCache.mFovy = mWork.subject.m3A0 + p1 * (mWork.subject.m39C - mWork.subject.m3A0);
                 }
             } else {
                 if (m108 >= (u32)(end - 7)) {
@@ -4808,24 +4806,24 @@ bool dCamera_c::subjectCamera(s32 param_1) {
                 } else {
                     if (m108 == 0) {
                         mWork.subject.m3A0 = mViewCache.mFovy;
-                        mWork.subject.m39C = mViewCache.mFovy * 0.666667f;
+                        mWork.subject.m39C = mViewCache.mFovy * 0.6666667f;
                     }
                 }
             }
+        }
 
-            if (m108 == end - 1) {
-                m100 = 1;
-                m101 = 1;
-                m102 = 1;
+        if (m108 == end - 1) {
+            m100 = 1;
+            m101 = 1;
+            m102 = 1;
 
-                mWork.subject.m384 = 0.0f;
-                mWork.subject.m388 = 0.0f;
-                mWork.subject.m38C = 0.0f;
+            mWork.subject.m384 = 0.0f;
+            mWork.subject.m388 = 0.0f;
+            mWork.subject.m38C = 0.0f;
 
-                mWork.subject.m39C = mViewCache.mFovy;
-                *(int*)&mWork.subject.m398 = 0;
-                mWork.subject.m390 = 0.0f;
-            }
+            mWork.subject.m39C = mViewCache.mFovy;
+            *(int*)&mWork.subject.m398 = 0;
+            mWork.subject.m390 = 0.0f;
         }
 
         return TRUE;
@@ -4842,16 +4840,14 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         setView(0.0f, 0.0f, 640.0f, 480.0f);
     }
 
-    cSAngle angX, angY;
+    cSAngle angY, angX;
     s16 tmpX, tmpY;
-    cSGlobe desired;
 
     if (mWork.subject.m37D) {
         mWork.subject.m37C = 1;
         CalcSubjectAngle(&tmpX, &tmpY);
         angX = tmpX;
-        cSAngle tmpAngY(tmpY);
-        angY = tmpAngY - mWork.subject.m3BA;
+        angY = cSAngle(tmpY) - mWork.subject.m3BA;
     } else {
         // actor-angle path
         if (is_player(mpPlayerActor)) {
@@ -4878,8 +4874,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         }
         case 2: {
             mViewCache.mCenter = mExtendedPos;
-            cSAngle ang(m0FA);
-            baseYaw.Val(ang.Inv());
+            baseYaw.Val(cSAngle(m0FA).Inv());
             break;
         }
         default: {
@@ -4901,43 +4896,38 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         mViewCache.mDirection.V(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * 0.04f);
         mViewCache.mDirection.U(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * 0.04f);
 
-        cSAngle dy;
-        cSAngle ax;
-        dy = mViewCache.mDirection.U() - baseYaw;
-        ax = mViewCache.mDirection.V();
+        angY = mViewCache.mDirection.U() - baseYaw;
+        angX = mViewCache.mDirection.V();
 
-        mWork.subject.m384 = dy.Degree() / p24;
-        mWork.subject.m388 = ax.Degree() / p19;
+        mWork.subject.m384 = angY.Degree() / p24;
+        mWork.subject.m388 = angX.Degree() / p19;
         mWork.subject.m3A8 = 0;
         mWork.subject.m37C = 0;
     } else if (mWork.subject.m3BC && (mEventFlags & 0x2000000)) {
-        cSGlobe g;
         cXyz ext = mExtendedPos;
-        g.Val(mViewCache.mCenter - ext);
-        g.R(p10);
+        desired.Val(mViewCache.mCenter - ext);
+        desired.R(p10);
 
         mViewCache.mDirection.R(mViewCache.mDirection.R() + (p10 - mViewCache.mDirection.R()) * 0.05f);
 
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * 0.05f);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * 0.05f);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (desired.V() - mViewCache.mDirection.V()) * 0.05f);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (desired.U() - mViewCache.mDirection.U()) * 0.05f);
 
-        cSAngle dy;
-        cSAngle ax;
-        dy = mViewCache.mDirection.U() - baseYaw;
-        ax = mViewCache.mDirection.V();
+        angY = mViewCache.mDirection.U() - baseYaw;
+        angX = mViewCache.mDirection.V();
 
-        mWork.subject.m384 = dy.Degree() / p24;
-        mWork.subject.m388 = ax.Degree() / p19;
+        mWork.subject.m384 = angY.Degree() / p24;
+        mWork.subject.m388 = angX.Degree() / p19;
 
         mWork.subject.m3A8 = 0;
         mWork.subject.m37C = 0;
     } else {
-        cSGlobe g;
-        g.Val(p10, angX, baseYaw + angY);
+        desired.Val(p10, angX, baseYaw + angY);
 
-        mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * p20);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * p20);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * p20);
+        cSGlobe* dir = &mViewCache.mDirection;
+        dir->R(dir->R() + (desired.R() - dir->R()) * p20);
+        dir->V(dir->V() + (desired.V() - dir->V()) * p20);
+        dir->U(dir->U() + (desired.U() - dir->U()) * p20);
 
         if (mWork.subject.m3A8 < 10) {
             mWork.subject.m3A8++;
@@ -4951,13 +4941,13 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         // zoom control block
         f32 a = 0.0f;
         f32 b = 0.0f;
-        f32 stick = mStickCPosYLast;
-        bool stickPos = stick > 0.0f;
+        p1 = mStickCPosYLast;
+        bool stickPos = p1 > 0.0f;
         if (stickPos) {
-            a = dCamMath::rationalBezierRatio(stick, mCamSetup.mCurveWeight);
+            a = dCamMath::rationalBezierRatio(p1, mCamSetup.mCurveWeight);
         }
         if (!stickPos) {
-            b = dCamMath::rationalBezierRatio(-stick, mCamSetup.mCurveWeight);
+            b = dCamMath::rationalBezierRatio(-p1, mCamSetup.mCurveWeight);
         }
 
         f32 next = mWork.subject.m38C + p26 * (a - b) * 0.1f;
@@ -4971,13 +4961,12 @@ bool dCamera_c::subjectCamera(s32 param_1) {
             mWork.subject.m38C = next;
         }
 
-        f32 z = mWork.subject.m38C;
-        if (z == 0.0f || z == 0.5f || z == 1.0f) {
+        if (mWork.subject.m38C == 0.0f || mWork.subject.m38C == 0.5f || mWork.subject.m38C == 1.0f) {
             a = 0.0f;
             b = 0.0f;
         }
 
-        f32 scale = z * 8.0f + 1.0f;
+        f32 scale = mWork.subject.m38C * 8.0f + 1.0f;
         mViewCache.mFovy += p20 * ((dCamMath::zoomFovy(mWork.subject.m39C * 0.5f, scale) * 2.0f) - mViewCache.mFovy);
 
         setComZoomScale(scale);
@@ -4989,7 +4978,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
             setComStat(dCamAttnStts_PICTO_BOX_AIM_e);
         }
 
-        f32 focus = 1.0f - (std::fabsf(a - b) * 511.0f);
+        f32 focus = 1.0f - (std::fabsf(a - b) * -511.0f);
         setComZoomForcus(focus);
 
         mDoGph_gInf_c::mAutoForcus = 0;
@@ -5001,8 +4990,10 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 
     // "C-stick down" behavior block
     if (check_owner_action(mPadId, daPyStts0_SUBJECT_e)) {
-        if (mWork.subject.m3C4 == 2 && mStickCPosYLast >= -0.001f) {
-            mWork.subject.m3C4 = 0;
+        if (mWork.subject.m3C4 == 2) {
+            if (mStickCPosYLast >= -0.001f) {
+                mWork.subject.m3C4 = 0;
+            }
         }
         else if (mWork.subject.m3C4 == 1 && mStickCPosYLast < -0.74f) {
             mWork.subject.m3C4 = 2;
