@@ -278,18 +278,16 @@ void body_control2(mt_class* i_this) {
     cXyz* p590 = i_this->m590;
 
     dBgS_LinChk linChk;
-    cXyz wave;
-    cXyz start;
+    cXyz end[2];
     cXyz offset;
-    cXyz end;
-    cXyz end2;
     cXyz step;
-    cXyz* pEnd2 = &end2;
+    cXyz start;
+    cXyz wave;
     wave.x = 0.0f;
     wave.y = 0.0f;
     wave.z = 0.0f;
 
-    for (int i = 0; i < 8; i++, p4A0++, p500++, p560++, p590++) {
+    for (int i = 0; i < 8; i++, p4A0++, p560++, p590++, p500++) {
         if (i > 0) {
             u8 hit = 0;
             start = *p4A0;
@@ -299,20 +297,20 @@ void body_control2(mt_class* i_this) {
             offset.x = 3.0f;
             offset.y = -200.0f;
             offset.z = 0.0f;
-            MtxPosition(&offset, &end);
-            end += *p4A0;
-            linChk.Set(&start, &end, i_this);
+            MtxPosition(&offset, &end[0]);
+            end[0] += *p4A0;
+            linChk.Set(&start, &end[0], i_this);
             if (dComIfG_Bgsp()->LineCross(&linChk)) {
-                end = linChk.GetCross();
+                end[0] = linChk.GetCross();
                 hit = 1;
             }
 
             offset.x *= -1.0f;
-            MtxPosition(&offset, pEnd2);
-            *pEnd2 += *p4A0;
-            linChk.Set(&start, pEnd2, i_this);
+            MtxPosition(&offset, &end[1]);
+            end[1] += *p4A0;
+            linChk.Set(&start, &end[1], i_this);
             if (dComIfG_Bgsp()->LineCross(&linChk)) {
-                *pEnd2 = linChk.GetCross();
+                end[1] = linChk.GetCross();
                 hit += 1;
             }
 
@@ -320,12 +318,12 @@ void body_control2(mt_class* i_this) {
             f32 y;
             if (hit == 2) {
                 y = p4A0->y - 10.0f;
-                f32 ground_y = end.y + l_HIO.m18;
+                f32 ground_y = end[0].y + l_HIO.m18;
                 if (y < ground_y) {
                     y = ground_y;
-                    offset = end - *pEnd2;
+                    offset = end[0] - end[1];
                     f32 dist = std::sqrtf(offset.x * offset.x + offset.z * offset.z);
-                    wall_z = cM_atan2s(offset.y, dist);
+                    wall_z = (s16)cM_atan2s(offset.y, dist);
                 }
             }
             cLib_addCalcAngleS2(&p560->z, wall_z, 2, 0x400);
@@ -408,8 +406,8 @@ void body_control2(mt_class* i_this) {
 
             if (i_this->mC04 == 1) {
                 i_this->mSph[0].OffAtSetBit();
-                i_this->mSph[0].OffTgSetBit();
                 i_this->mSph[0].OffCoSetBit();
+                i_this->mSph[0].OffTgSetBit();
                 i_this->mEyeSph.SetR(40.0f);
             } else {
                 if (i_this->mC04 == 2) {
@@ -417,8 +415,8 @@ void body_control2(mt_class* i_this) {
                 } else {
                     i_this->mSph[0].OffAtSetBit();
                 }
-                i_this->mSph[0].OnTgSetBit();
                 i_this->mSph[0].OnCoSetBit();
+                i_this->mSph[0].OnTgSetBit();
                 i_this->mSph[0].SetR(l_HIO.m40);
                 i_this->mEyeSph.SetR(l_HIO.m44);
             }
