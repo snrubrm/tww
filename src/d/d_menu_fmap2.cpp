@@ -530,19 +530,19 @@ void dMenu_Fmap2_c::cmapPaneInit() {
 
 /* 801BD710-801BDB38       .text collectMapCheck__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::collectMapCheck() {
-    /* Nonmatching */
+    int i;
     if (field_0x27a8 == 0) {
         field_0x43c[0].pane->show();
         cSelCursorHide();
         cCursorHide();
         mCnd0Pane.pane->hide();
-        for (int i = 0; i < 8; i++) {
+        for (i = 0; i < 8; i++) {
             field_0x1484[i].pane->hide();
         }
-        for (int i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             field_0x124c[field_0x2813][i].pane->hide();
         }
-        for (int i = 0; i < 2; i++) {
+        for (i = 0; i < 2; i++) {
             field_0x1244[field_0x2814][i].pane->hide();
         }
         field_0x1aa4[field_0x2815][0].pane->hide();
@@ -556,10 +556,10 @@ void dMenu_Fmap2_c::collectMapCheck() {
 #if VERSION > VERSION_DEMO
         field_0x1aa4[field_0x2815 ^ 1][0].pane->hide();
         field_0xcc4[field_0x2816 ^ 1][0].pane->hide();
-        for (int i = 0; i < 2; i++) {
+        for (i = 0; i < 2; i++) {
             field_0x1244[field_0x2814 ^ 1][i].pane->hide();
         }
-        for (int i = 0; i < 5; i++) {
+        for (i = 0; i < 5; i++) {
             field_0x124c[field_0x2813 ^ 1][i].pane->hide();
         }
 #endif
