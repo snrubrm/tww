@@ -471,7 +471,7 @@ void JAInter::SeMgr::sendSeAllParameter(JAISound* sound) {
     seTrackUpdate_s* update;
     update = &seTrackUpdate[sound->field_0x4];
     parameter = sound->getSeParameter();
-    sequence = SequenceMgr::getPlayTrackInfo(seHandle->field_0x4);
+    sequence = SequenceMgr::getPlayTrackInfo(seHandle->getTrack());
     checkPlayingSeUpdateMultiplication(sound, sequence, parameter->field_0x424, parameter->field_0x124,
                                       seCategoryVolume[sound->getSeCategoryNumber()], 2, &update->field_0x4);
     checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x428, parameter->field_0x1a4,
@@ -482,12 +482,9 @@ void JAInter::SeMgr::sendSeAllParameter(JAISound* sound) {
                                 5, &update->field_0xc, 0.0f);
     checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x438, parameter->field_0x3a4,
                                 6, &update->field_0x14, JAIGlobalParameter::getParamSeDolbyCenterValue() / 127.0f);
-    {
-        u32 flags = sequence->trackupdate[sound->field_0x4];
-        if (flags != 0) {
-            SystemInterface::setSeqPortargsU32(SequenceMgr::getPlayTrackInfo(seHandle->field_0x4), sound->field_0x4, 1, flags);
-            sequence->systemTrackParameter[sound->field_0x4].mCommand.addPortCmdOnce();
-        }
+    if (sequence->trackupdate[sound->field_0x4] != 0) {
+        SystemInterface::setSeqPortargsU32(SequenceMgr::getPlayTrackInfo(seHandle->getTrack()), sound->field_0x4, 1, sequence->trackupdate[sound->field_0x4]);
+        sequence->systemTrackParameter[sound->field_0x4].mCommand.addPortCmdOnce();
     }
 }
 
