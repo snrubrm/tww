@@ -1232,12 +1232,11 @@ void ph_bunri_move(ph_class* i_this) {
                 if (angDist < 0x2000) {
                     actor->current.angle.y = cM_atan2s(dx, dz);
                 } else {
+                    s16 dMinus;
                     s16 plus = actor->current.angle.y + 0x2000;
                     s16 minus = actor->current.angle.y - 0x2000;
-                    s16 yaw2 = cM_atan2s(dx, dz);
-                    s16 dMinus = cLib_distanceAngleS(minus, yaw2);
-                    s16 yaw3 = cM_atan2s(dx, dz);
-                    s16 dPlus = cLib_distanceAngleS(plus, yaw3);
+                    dMinus = cLib_distanceAngleS(minus, (s16)cM_atan2s(dx, dz));
+                    s16 dPlus = cLib_distanceAngleS(plus, (s16)cM_atan2s(dx, dz));
                     if (dPlus < dMinus) {
                         actor->current.angle.y = plus;
                     } else {
