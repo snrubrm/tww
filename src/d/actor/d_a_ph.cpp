@@ -1487,9 +1487,8 @@ void dead_item(ph_class* i_this) {
         fopAcM_createDisappear(i_this, &pos, scale, daDisItem_IBALL_e, 0xFF);
         dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
         int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
-        u8 val = cLib_maxLimit<int>(n, 0xFF);
-        u16 flag = dSv_event_flag_c::UNK_7EFF;
-        pEvent->setEventReg(flag, val);
+        n = cLib_maxLimit<int>(n, 0xFF) & 0xFF;
+        pEvent->setEventReg(dSv_event_flag_c::UNK_7EFF, n);
     }
 
     fopAcM_onActor(i_this);
