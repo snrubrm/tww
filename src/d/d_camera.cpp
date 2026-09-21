@@ -5028,8 +5028,8 @@ bool dCamera_c::towerCamera(s32 param_1) {
     cSAngle val16(mCamParam.Val(param_1, 16));
     cSAngle val17(mCamParam.Val(param_1, 17));
     f32 val19 = mCamParam.Val(param_1, 19);
-    f32 val27 = mCamParam.Val(param_1, 27);
-    f32 val25 = mCamParam.Val(param_1, 25);
+    f32 val25 = dCamParam_c::styles[param_1].styleParam[25];
+    f32 val27 = dCamParam_c::styles[param_1].styleParam[27];
     f32 val29 = mCamParam.Val(param_1, 29);
     cSAngle val23(mCamParam.Val(param_1, 23));
     cSAngle val24(mCamParam.Val(param_1, 24));
