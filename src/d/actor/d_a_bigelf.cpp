@@ -748,18 +748,18 @@ u16 daBigelf_c::next_msgStatus(unsigned long* pMsgNo) {
             break;
         case 2:
         case 3:
-            if (dComIfGs_getBombMax() > 30) {
-                mGivenItem = dItemNo_MAX_BOMB_UP2_e;
-            } else {
+            if (dComIfGs_getBombMax() <= 30) {
                 mGivenItem = dItemNo_MAX_BOMB_UP1_e;
+            } else {
+                mGivenItem = dItemNo_MAX_BOMB_UP2_e;
             }
             break;
         case 4:
         case 5:
-            if (dComIfGs_getArrowMax() > 30) {
-                mGivenItem = dItemNo_MAX_ARROW_UP2_e;
-            } else {
+            if (dComIfGs_getArrowMax() <= 30) {
                 mGivenItem = dItemNo_MAX_ARROW_UP1_e;
+            } else {
+                mGivenItem = dItemNo_MAX_ARROW_UP2_e;
             }
             break;
         default:
