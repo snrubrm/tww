@@ -495,15 +495,15 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
     u16 r30 = 0;
     switch (param_2) {
     case 0:
-        for (int i = 0; i < JAIGlobalParameter::seqPlayTrackMax; i++) {
+        for (u32 i = 0; i < JAIGlobalParameter::seqPlayTrackMax; i++) {
             if (!JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48) {
                 continue;
             }
             JAInter::SeqParameter* seqParam = JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->getSeqParameter();
             JASystem::TTrack* track = &seqParam->mTrack;
-            if (track == (JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID & 0x800 ? param_1->mParent->mParent : param_1->mParent)) {
+            if (track == (JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID & 0x800 ? param_1->getParent()->getParent() : param_1->getParent())) {
                 u32 r28 = JAInter::routeToTrack(param_1->field_0x36c);
-                r30 = JAInter::SoundTable::getInfoPointer(JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID)->mFlag >> 8;
+                r30 = JAInter::SoundTable::getInfoPointer(JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID)->mFlag >> 8 & 0xffff;
                 JAInter::SystemInterface::outerInit(JAInter::SequenceMgr::getPlayTrackInfo(i), param_1, r28, r30, param_2 & 1);
                 JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x4 |= 1 << r28;
                 r30 = 0;
@@ -514,7 +514,7 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
     case 1: {
         u8 tmp = param_1->field_0x36c;
         JAInter::SeMgr::seTrackUpdate_s* r31 = JAInter::SeMgr::seTrackUpdate;
-        JASystem::TTrack::TOuterParam* r28 = param_1->mOuterParam;
+        JASystem::TTrack::TOuterParam* r28 = param_1->getOuterParam();
         r28->setParam(OUTERPARAM_Volume, r31[tmp].field_0x4);
         r28->setParam(OUTERPARAM_Pan, r31[tmp].field_0x10);
         r28->setParam(OUTERPARAM_Pitch, r31[tmp].field_0x8);
