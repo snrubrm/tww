@@ -181,7 +181,9 @@ BOOL shock_damage_check(bl_class* i_this) {
     }
 
     if (player->checkHammerQuake()) {
-        cXyz swordTopPos = player->getSwordTopPos();
+        cXyz swordTopPos;
+        const cXyz& swordTopPosRef = player->getSwordTopPos();
+        swordTopPos = swordTopPosRef;
         swordTopPos.x -= actor->current.pos.x;
         swordTopPos.z -= actor->current.pos.z;
         f32 distXZ = std::sqrtf(SQUARE(swordTopPos.x) + SQUARE(swordTopPos.z));
@@ -217,6 +219,7 @@ void anm_init(bl_class* i_this, int bckFileIdx, f32 morf, u8 loopMode, f32 speed
 BOOL skull_atari_check(bl_class* i_this) {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     fopAc_ac_c* actor = i_this;
+    CcAtInfo atInfo;
 
     i_this->mStts.Move();
 
