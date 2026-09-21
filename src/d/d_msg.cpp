@@ -3006,7 +3006,6 @@ static BOOL dMsg_Delete(sub_msg_class* i_Msg) {
 
 /* 80215698-80215CD0       .text dMsg_Create__FP9msg_class */
 static cPhs_State dMsg_Create(msg_class* i_this) {
-    /* Nonmatching */
     sub_msg_class* i_Msg = (sub_msg_class*)i_this;
     JKRHeap* pJVar2;
 
@@ -3016,10 +3015,10 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     i_Msg->mpHeap = dComIfGp_getExpHeap2D();
     dComIfGp_setHeapLockFlag(7);
     pJVar2 = mDoExt_setCurrentHeap(i_Msg->mpHeap);
-    if ((i_Msg->mMsgNo >= 0xc6) && (i_Msg->mMsgNo <= 0xcd)) {
+    if ((i_this->mMsgNo >= 0xc6) && (i_this->mMsgNo <= 0xcd)) {
         i_Msg->head_p = i_Msg->mMsgGet.getMesgHeader(dComIfGs_getTriforceNum() + 0xC6);
     } else {
-        i_Msg->head_p = i_Msg->mMsgGet.getMesgHeader(i_Msg->mMsgNo);
+        i_Msg->head_p = i_Msg->mMsgGet.getMesgHeader(i_this->mMsgNo);
     }
     JUT_ASSERT(5416, i_Msg->head_p);
     i_Msg->mpMesgStr = (char*)i_Msg->mMsgGet.getMessage(i_Msg->head_p);
@@ -3057,7 +3056,7 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     JUT_ASSERT(5465, i_Msg->select_rubSdw != NULL);
     agb_work_area = i_Msg->mpHeap;
     JUT_ASSERT(5468, agb_work_area != NULL);
-    i_Msg->mStatus = fopMsgStts_MSG_PREPARING_e;
+    i_this->mStatus = fopMsgStts_MSG_PREPARING_e;
     i_Msg->m1164 = -1;
     dMsg_value_init(i_Msg);
     dMsg_setString(i_Msg);
@@ -3066,7 +3065,7 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     dComIfGp_setMesgCancelButton(0);
     mDoExt_setCurrentHeap(pJVar2);
     message.setActorP(i_Msg);
-    dComIfGp_setMesgStatus(i_Msg->mStatus);
+    dComIfGp_setMesgStatus(i_this->mStatus);
     return cPhs_COMPLEATE_e;
 }
 
