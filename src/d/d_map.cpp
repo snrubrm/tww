@@ -1087,7 +1087,8 @@ void dMap_c::create() {
     mIconFreePosX = 85;
     mIconFreePosY = 324;
     ResTIMG* timg;
-    for (int i = 0; i < 8; i++) {
+    int i;
+    for (i = 0; i < 8; i++) {
         timg = (ResTIMG*)dComIfG_getObjectRes("Always", frameArcIdx[i]);
         JUT_ASSERT(VERSION_SELECT(3450, 3450, 3450, 3450), timg != NULL);
         mFrameTexture[i].init(timg, i + 2, (GXColor){255, 255, 255, 255});
@@ -1112,11 +1113,11 @@ void dMap_c::create() {
     mShip.init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0, 1.0f, 1.0f, 0);
     timg = (ResTIMG*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_TREASUREBOX_e);
     JUT_ASSERT(VERSION_SELECT(3511, 3511, 3511, 3511), timg != NULL);
-    for (int i = 0; i < 8; i++) {
+    for (i = 0; i < 8; i++) {
         mTbox[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
     timg = (ResTIMG*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_BLACK_WHITE_2_e);
-    for (int i = 0; i < 16; i++) {
+    for (i = 0; i < 16; i++) {
         mDoor[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
     initPoint();
