@@ -1193,9 +1193,7 @@ void dMenu_Fmap2_c::gsShipAnime() {
     c2.g = g_mf2HIO.field_0x8b + tmp * (color_0x2828.g - g_mf2HIO.field_0x8b);
     c2.b = g_mf2HIO.field_0x8c + tmp * (color_0x2828.b - g_mf2HIO.field_0x8c);
     c2.a = g_mf2HIO.field_0x8d + tmp * (color_0x2828.a - g_mf2HIO.field_0x8d);
-    J2DPicture* picture = (J2DPicture*)mGsKz01PaneAlpha.pane;
-    picture->setBlack(c2);
-    picture->setWhite(c1);
+    ((J2DPicture*)mGsKz01PaneAlpha.pane)->setBlackWhite(c2, c1);
     if (field_0x281c == 0) {
         field_0x281c = 0xff;
     } else {
