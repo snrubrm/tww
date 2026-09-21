@@ -92,7 +92,6 @@ void J3DMtxCalcBasic::calc(u16 jnt_no) {
 
 /* 802F52BC-802F5508       .text calcTransform__19J3DMtxCalcSoftimageFUsRC16J3DTransformInfo */
 void J3DMtxCalcSoftimage::calcTransform(u16 jnt_no, const J3DTransformInfo& info) {
-    /* Nonmatching */
     Mtx mtx;
     J3DGetTranslateRotateMtx(
         info.mRotation.x,
@@ -116,20 +115,21 @@ void J3DMtxCalcSoftimage::calcTransform(u16 jnt_no, const J3DTransformInfo& info
         var2 = 0;
     }
     if (!var2) {
-        mtx[0][0] = J3DSys::mCurrentMtx[0][0] * J3DSys::mCurrentS.x;
-        mtx[0][1] = J3DSys::mCurrentMtx[0][1] * J3DSys::mCurrentS.y;
-        mtx[0][2] = J3DSys::mCurrentMtx[0][2] * J3DSys::mCurrentS.z;
-        mtx[0][3] = J3DSys::mCurrentMtx[0][3];
-        mtx[1][0] = J3DSys::mCurrentMtx[1][0] * J3DSys::mCurrentS.x;
-        mtx[1][1] = J3DSys::mCurrentMtx[1][1] * J3DSys::mCurrentS.y;
-        mtx[1][2] = J3DSys::mCurrentMtx[1][2] * J3DSys::mCurrentS.z;
-        mtx[1][3] = J3DSys::mCurrentMtx[1][3];
-        mtx[2][0] = J3DSys::mCurrentMtx[2][0] * J3DSys::mCurrentS.x;
-        mtx[2][1] = J3DSys::mCurrentMtx[2][1] * J3DSys::mCurrentS.y;
-        mtx[2][2] = J3DSys::mCurrentMtx[2][2] * J3DSys::mCurrentS.z;
-        mtx[2][3] = J3DSys::mCurrentMtx[2][3];
+        MtxP const p = mtx;
+        p[0][0] = J3DSys::mCurrentMtx[0][0] * J3DSys::mCurrentS.x;
+        p[0][1] = J3DSys::mCurrentMtx[0][1] * J3DSys::mCurrentS.y;
+        p[0][2] = J3DSys::mCurrentMtx[0][2] * J3DSys::mCurrentS.z;
+        p[0][3] = J3DSys::mCurrentMtx[0][3];
+        p[1][0] = J3DSys::mCurrentMtx[1][0] * J3DSys::mCurrentS.x;
+        p[1][1] = J3DSys::mCurrentMtx[1][1] * J3DSys::mCurrentS.y;
+        p[1][2] = J3DSys::mCurrentMtx[1][2] * J3DSys::mCurrentS.z;
+        p[1][3] = J3DSys::mCurrentMtx[1][3];
+        p[2][0] = J3DSys::mCurrentMtx[2][0] * J3DSys::mCurrentS.x;
+        p[2][1] = J3DSys::mCurrentMtx[2][1] * J3DSys::mCurrentS.y;
+        p[2][2] = J3DSys::mCurrentMtx[2][2] * J3DSys::mCurrentS.z;
+        p[2][3] = J3DSys::mCurrentMtx[2][3];
         J3DModel* model = j3dSys.getModel();
-        model->setAnmMtx(jnt_no, mtx);
+        model->setAnmMtx(jnt_no, p);
     } else {
         J3DModel* model = j3dSys.getModel();
         model->setAnmMtx(jnt_no, J3DSys::mCurrentMtx);
