@@ -354,8 +354,13 @@ static BOOL daGrid_Draw(daGrid_c* i_this) {
     return ((daGrid_c*)i_this)->_draw();
 }
 
+inline int calcRelAngle(s16 a, s16 b, s16 c) {
+    int r = (s16)(a + b);
+    r -= c;
+    return r;
+}
+
 /* 800E9C0C-800EA928       .text ho_move__FP8daGrid_c */
-// NONMATCHING - some small reg alloc
 void ho_move(daGrid_c* i_this) {
     if (l_HIO.field_0x38) {
         return;
@@ -393,8 +398,7 @@ void ho_move(daGrid_c* i_this) {
     s16 sail_angle = l_ship->getSailAngle();
 
     s16 windAngle = cM_atan2s(windVec->x, windVec->z);
-    int var_r28 = (s16)(i_this->current.angle.y + sail_angle);
-    var_r28 -= windAngle;
+    int var_r28 = calcRelAngle(i_this->current.angle.y, sail_angle, windAngle);
 
     s16 temp_r3 = var_r28 + 0x8000;
     if (temp_r3 > 0) {
