@@ -531,7 +531,7 @@ BOOL daMozo_c::checkRange(int param) {
 
     cXyz dir(cM_ssin(current.angle.y), 0.0f, cM_scos(current.angle.y));
     f32 inprod = delta.inprod(dir);
-    if (cLib_distanceAngleS(fopAcM_searchActorAngleY(this, player), current.angle.y) < maxAngle &&
+    if (cLib_distanceAngleS(fopAcM_searchActorAngleY(this, dComIfGp_getPlayer(0)), current.angle.y) < maxAngle &&
         dist < range && inprod > 200.0f)
     {
         return TRUE;
