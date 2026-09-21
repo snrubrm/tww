@@ -455,12 +455,11 @@ void daObj_Search::Act_c::modeFindInit() {
 
 /* 800FEF80-800FF44C       .text modeFind__Q212daObj_Search5Act_cFv */
 void daObj_Search::Act_c::modeFind() {
-    dEvent_manager_c* evtMgr = dComIfGp_getPEvtManager();
-    evtMgr->getEventIdx("Search_Light_Find", 0xFF);
-    evtMgr->getEventIdx("Search_Light_Find_With_Barrel", 0xFF);
-    evtMgr->getEventIdx("Search_Light_Find_Wall", 0xFF);
+    dComIfGp_evmng_getEventIdx("Search_Light_Find");
+    dComIfGp_evmng_getEventIdx("Search_Light_Find_With_Barrel");
+    dComIfGp_evmng_getEventIdx("Search_Light_Find_Wall");
 
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    daPy_py_c* player = daPy_getPlayerActorClass();
     player_check();
     mLightInf.mColor.r = attr()->m5C;
     mLightInf.mColor.g = attr()->m5C;
@@ -482,9 +481,9 @@ void daObj_Search::Act_c::modeFind() {
     cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
 
     if (eventInfo.checkCommandDemoAccrpt()) {
-        int staffId = evtMgr->getMyStaffId("Search", NULL, 0);
-        if (evtMgr->endCheckOld("Search_Light_Find") || evtMgr->endCheckOld("Search_Light_Find_With_Barrel") ||
-            evtMgr->endCheckOld("Search_Light_Find_Wall"))
+        int staffId = dComIfGp_evmng_getMyStaffId("Search");
+        if (dComIfGp_evmng_endCheck("Search_Light_Find") || dComIfGp_evmng_endCheck("Search_Light_Find_With_Barrel") ||
+            dComIfGp_evmng_endCheck("Search_Light_Find_Wall"))
         {
             mDoAud_seStop(JA_SE_MAJUTOU_ALERM, 0x14);
             if (attr()->m43 != 0) {
@@ -509,7 +508,7 @@ void daObj_Search::Act_c::modeFind() {
                     player->cancelOriginalDemo();
                 }
             }
-            evtMgr->cutEnd(staffId);
+            dComIfGp_evmng_cutEnd(staffId);
         }
     } else {
         if (!player->checkPlayerFly()) {
