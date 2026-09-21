@@ -749,9 +749,9 @@ void dMenu_Item_c::itemScale() {
                 fopMsgM_paneScaleXY(&m1070[i], 1.0f);
             }
         } else if (mNowItem >= 0x15) {
-            int sub = mNowItem - m2400;
+            slot = mNowItem - m2400;
             for (int i = 0; i < 8; i++) {
-                if (i == sub && m2404 == 3) {
+                if (i == slot && m2404 == 3) {
                     fopMsgM_paneScaleXY(&mE78[i], g_menuHIO.field_0x8);
                     fopMsgM_paneScaleXY(&m1070[i], g_menuHIO.field_0x8);
                 } else {
