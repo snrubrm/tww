@@ -830,7 +830,7 @@ BOOL hani_check(pw_class* i_this) {
 /* 0000289C-000029C8       .text next_dousa_check__FP8pw_class */
 void next_dousa_check(pw_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    fopAc_ac_c* const player = dComIfGp_getPlayer(0);
     i_this->mCyl.SetTgType(AT_TYPE_LIGHT | AT_TYPE_LIGHT_ARROW);
     ((pw_cyl_access_c*)&i_this->mCyl)->OffTgNoConHit();
     if (!Line_check(i_this, player->current.pos, 1) && !hani_check(i_this) &&
