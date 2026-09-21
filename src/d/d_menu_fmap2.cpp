@@ -2214,35 +2214,11 @@ void dMenu_Fmap2_c::changeCmapName() {
         msgNo = cmapNo + 0x36eb;
     }
     if (cmapNo <= 8) {
-        JUtility::TColor white(0xF4, 0x2F, 0x00, 0xFF);
-        JUtility::TColor whiteArg = white;
-        JUtility::TColor black(0xD6, 0x00, 0x00, 0x00);
-        JUtility::TColor blackArg = black;
-        J2DTextBox* box = (J2DTextBox*)field_0x1484[field_0x2814 ^ 1].pane;
-        box->setBlack(blackArg);
-        box->setWhite(whiteArg);
-        JUtility::TColor white2(0xAB, 0x00, 0x00, 0xFF);
-        JUtility::TColor white2Arg = white2;
-        JUtility::TColor black2(0x65, 0x10, 0x00, 0x00);
-        JUtility::TColor black2Arg = black2;
-        J2DTextBox* box2 = (J2DTextBox*)field_0x1484[(field_0x2814 ^ 1) + 2].pane;
-        box2->setBlack(black2Arg);
-        box2->setWhite(white2Arg);
+        ((J2DTextBox*)field_0x1484[field_0x2814 ^ 1].pane)->setBlackWhite(JUtility::TColor(0xD6, 0x00, 0x00, 0x00), JUtility::TColor(0xF4, 0x2F, 0x00, 0xFF));
+        ((J2DTextBox*)field_0x1484[(field_0x2814 ^ 1) + 2].pane)->setBlackWhite(JUtility::TColor(0x65, 0x10, 0x00, 0x00), JUtility::TColor(0xAB, 0x00, 0x00, 0xFF));
     } else {
-        JUtility::TColor white(0x00, 0x00, 0xFF, 0xFF);
-        JUtility::TColor whiteArg = white;
-        JUtility::TColor black(0x00, 0x00, 0x4A, 0x00);
-        JUtility::TColor blackArg = black;
-        J2DTextBox* box = (J2DTextBox*)field_0x1484[field_0x2814 ^ 1].pane;
-        box->setBlack(blackArg);
-        box->setWhite(whiteArg);
-        JUtility::TColor white2(0x00, 0x00, 0x00, 0xFF);
-        JUtility::TColor white2Arg = white2;
-        JUtility::TColor black2(0x00, 0x00, 0x00, 0x00);
-        JUtility::TColor black2Arg = black2;
-        J2DTextBox* box2 = (J2DTextBox*)field_0x1484[(field_0x2814 ^ 1) + 2].pane;
-        box2->setBlack(black2Arg);
-        box2->setWhite(white2Arg);
+        ((J2DTextBox*)field_0x1484[field_0x2814 ^ 1].pane)->setBlackWhite(JUtility::TColor(0x00, 0x00, 0x4A, 0x00), JUtility::TColor(0x00, 0x00, 0xFF, 0xFF));
+        ((J2DTextBox*)field_0x1484[(field_0x2814 ^ 1) + 2].pane)->setBlackWhite(JUtility::TColor(0x00, 0x00, 0x00, 0x00), JUtility::TColor(0x00, 0x00, 0x00, 0xFF));
     }
     fopMsgM_messageGet(field_0x27c8[field_0x2814 ^ 1], msgNo);
     fopMsgM_messageGet(field_0x27c8[(field_0x2814 ^ 1) + 2], msgNo);
