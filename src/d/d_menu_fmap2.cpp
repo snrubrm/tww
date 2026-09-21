@@ -1164,8 +1164,7 @@ void dMenu_Fmap2_c::gsMoonAnime() {
         field_0x2818--;
     }
     int moonType = dKy_moon_type_chk();
-    ((J2DPicture*)mGsTk0xPaneAlpha[moonType].pane)->setBlack(c2);
-    ((J2DPicture*)mGsTk0xPaneAlpha[moonType].pane)->setWhite(c1);
+    ((J2DPicture*)mGsTk0xPaneAlpha[moonType].pane)->setBlackWhite(c2, c1);
 }
 
 /* 801C002C-801C0378       .text gsShipAnime__13dMenu_Fmap2_cFv */
