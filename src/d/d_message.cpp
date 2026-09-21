@@ -61,19 +61,19 @@ void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     const u32 color = colorTable[i_Msg->colorNo];
     int i = i_index;
 
-    u8 a = i_Msg->msgDataProc[i].getCharAlpha();
-    u8 b = i_Msg->msgDataProc[i].getGradAlpha();
-    u8 c = i_Msg->msgDataProc[i].getRCharAlpha();
-    u8 d = i_Msg->msgDataProc[i].getRGradAlpha();
+    u32 ca = i_Msg->msgDataProc[i].getCharAlpha();
+    u32 cb = i_Msg->msgDataProc[i].getGradAlpha();
+    u32 cc = i_Msg->msgDataProc[i].getRCharAlpha();
+    u32 cd = i_Msg->msgDataProc[i].getRGradAlpha();
 
-    u32 ca = color;
-    ca |= a;
-    u32 cb = color;
-    cb |= b;
-    u32 cc = color;
-    cc |= c;
-    u32 cd = color;
-    cd |= d;
+    u32 a = ca;
+    ca = color | ca;
+    u32 b = cb;
+    cb = color | cb;
+    u32 c = cc;
+    cc = color | cc;
+    u32 d = cd;
+    cd = color | cd;
 
     sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", ca, cb);
     sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", cc, cd);
