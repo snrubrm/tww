@@ -317,7 +317,7 @@ void JAInter::SeMgr::checkPlayingSe() {
     u8 track = 0;
     u8 category;
     for (category = 0; category < JAIGlobalParameter::getParamSeCategoryMax(); category++) {
-        for (slot = 0; slot < categoryInfoTable[seScene][category * 2]; track++, slot++) {
+        for (slot = 0; slot < categoryInfoTable[seScene][(u32)category * 2]; track++, slot++) {
             sound = (JAISound*)sePlaySound[category][slot];
             if (sound != NULL) {
                 sound->field_0x18++;
@@ -350,8 +350,7 @@ void JAInter::SeMgr::checkPlayingSe() {
                     for (u8 i = 0; parameter->field_0x0[16] != 0; i++) {
                         u32 bit = 1 << i;
                         if (parameter->field_0x0[16] & bit) {
-                            u8 channel = sound->field_0x4;
-                            seHandle->setTrackPortData(channel, i, sound->getSeParameter()->field_0x0[i]);
+                            seHandle->setTrackPortData(sound->getTrack(), i, sound->getSeParameter()->field_0x0[i]);
                             parameter->field_0x0[16] ^= bit;
                         }
                     }
@@ -369,12 +368,12 @@ void JAInter::SeMgr::checkPlayingSe() {
                     }
                     u16 wait;
                     if (JAIGlobalParameter::getParamAudioCameraMax() == 1 && sound->checkSwBit(0x1000)) {
-                        JAISound::PositionInfo_t* position = sound->mPositionInfo;
-                        if (position[0].field_0x18 < JAIGlobalParameter::getParamDistanceMax()) {
+                        positions = sound->mPositionInfo;
+                        if (positions[0].field_0x18 < JAIGlobalParameter::getParamDistanceMax()) {
                             u32 maximum = (u32)JAIGlobalParameter::getParamDistanceMax();
                             u32 distance = (u32)sound->mPositionInfo[0].field_0x18;
-                            wait = JAIGlobalParameter::getParamSeDistanceWaitMax() * distance /
-                                   maximum;
+                            u32 waitMax = JAIGlobalParameter::getParamSeDistanceWaitMax();
+                            wait = waitMax * distance / maximum;
                         } else {
                             wait = JAIGlobalParameter::getParamSeDistanceWaitMax();
                         }
