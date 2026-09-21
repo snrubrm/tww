@@ -968,9 +968,8 @@ void action_itai(oq_class* i_this) {
             if (i_this->mType == 1 || i_this->mType == 5) {
                 dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
                 int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
-                n = cLib_maxLimit<int>(n, 0xFF);
-                u8 val = n;
-                pEvent->setEventReg(dSv_event_flag_c::UNK_7EFF, val);
+                n = cLib_maxLimit<int>(n, 0xFF) & 0xFF;
+                pEvent->setEventReg(dSv_event_flag_c::UNK_7EFF, n);
             }
             fopAcM_createDisappear(actor, &actor->eyePos, 5, 0, 0xFF);
             fopAcM_delete(actor);
