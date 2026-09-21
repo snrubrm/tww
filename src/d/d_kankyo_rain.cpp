@@ -3332,6 +3332,7 @@ void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
 
     s16 spC = 0;
     s16 spA = 0;
+    f32 spC4;
 
     f32 sun_visibility = sun_packet->mVisibility;
     f32 spAC = 1.0f - lenz_packet->mDistFalloff;
@@ -3410,7 +3411,7 @@ void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
 
     for (int i = 0; i < 8; i++) {
         if (!g_env_light.mpSunlenzPacket->mbDrawLenzInSky || i == 0) {
-            f32 spC4 = spA8;
+            spC4 = spA8;
             if (i < 2) {
                 color_reg0.a = spC4 * col_dat[i];
             } else {
@@ -3607,7 +3608,6 @@ void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
                 break;
             }
 
-            f32 spC4 = spA8;
             sp98 *= sun_visibility * (spC4 + sp80);
             sp94 *= sun_visibility * (spC4 + sp80);
 
