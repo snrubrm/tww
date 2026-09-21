@@ -1133,8 +1133,8 @@ void daNpc_Kk1_c::cut_init_RUNAWAY_START(int staff) {
     daPy_getPlayerLinkActorClass()->mDemo.setDemoMode(daPy_demo_c::DEMO_INIT_WAIT_e);
     s16 angle = cLib_targetAngleY(&daPy_getPlayerLinkActorClass()->current.pos, &current.pos);
     daPy_getPlayerLinkActorClass()->setPlayerPosAndAngle(&daPy_getPlayerLinkActorClass()->current.pos, angle);
-    int playerAngle = cLib_targetAngleY(&current.pos, &daPy_getPlayerLinkActorClass()->current.pos);
-    int shapeY = (s16)playerAngle + 0x8000;
+    s16 playerAngle = cLib_targetAngleY(&current.pos, &daPy_getPlayerLinkActorClass()->current.pos);
+    int shapeY = playerAngle + 0x8000;
     shape_angle.y = shapeY;
     m7BF = 1;
     speedF = 0.0f;
@@ -1143,7 +1143,7 @@ void daNpc_Kk1_c::cut_init_RUNAWAY_START(int staff) {
     m_jnt.setBackBone_y(0);
     m_jnt.setBackBone_x(0);
     m81E = 0;
-    s16 angDiff = (s16)playerAngle - current.angle.y;
+    s16 angDiff = playerAngle - current.angle.y;
     if (abs(angDiff) > 0x3800) {
         current.angle.y = shapeY;
         setAnm_NUM(8, 1);
