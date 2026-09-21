@@ -83,7 +83,7 @@ public:
     int bottleFwaterCheck();
     int recollectBossCheck();
     void cornerMove();
-    u8 equipBeastItem(int);
+    int equipBeastItem(int);
     virtual void _create();
     virtual void _delete();
     virtual void _move();

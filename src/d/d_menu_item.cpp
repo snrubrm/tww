@@ -773,11 +773,10 @@ void dMenu_Item_c::subWindowInit() {
         mNowItem = m2400;
 
         for (int i = 0; i < 8; i++) {
-            u8 itemNo = dComIfGs_getItemBeast(i);
-            if (itemNo != 0xFF) {
+            if (dComIfGs_getItemBeast((u8)i) != 0xFF) {
                 mE78[i].mUserArea = 1;
                 JKRArchive* archive = dComIfGp_getItemIconArchive();
-                JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(itemNo), archive);
+                JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(dComIfGs_getItemBeast((u8)i)), archive);
                 DCStoreRangeNoSync(mSubItemTexBuffer[i], 0xc00);
                 ((J2DPicture*)mE78[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 ((J2DPicture*)m1070[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
@@ -819,17 +818,16 @@ void dMenu_Item_c::subWindowInit() {
 
         for (int i = 0; i < 8; i++) {
             mCB8[i].pane->hide();
-            u8 itemNo = dComIfGs_getItemBait(i);
-            if (itemNo != 0xFF) {
+            if (dComIfGs_getItemBait((u8)i) != 0xFF) {
                 mE78[i].mUserArea = 1;
                 JKRArchive* archive = dComIfGp_getItemIconArchive();
-                JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(itemNo), archive);
+                JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(dComIfGs_getItemBait((u8)i)), archive);
                 DCStoreRangeNoSync(mSubItemTexBuffer[i], 0xc00);
                 ((J2DPicture*)mE78[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 ((J2DPicture*)m1070[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 mE78[i].pane->show();
                 m1070[i].pane->show();
-                if (itemNo == dItemNo_BIRD_BAIT_5_e) {
+                if (dComIfGs_getItemBait((u8)i) == dItemNo_BIRD_BAIT_5_e) {
                     mAF8[i].pane->show();
                 } else {
                     mAF8[i].pane->hide();
@@ -862,11 +860,10 @@ void dMenu_Item_c::subWindowInit() {
         for (int i = 0; i < 8; i++) {
             mCB8[i].pane->hide();
             mAF8[i].pane->hide();
-            u8 itemNo = dComIfGs_getItemReserve(i);
-            if (itemNo != 0xFF) {
+            if (dComIfGs_getItemReserve((u8)i) != 0xFF) {
                 mE78[i].mUserArea = 1;
                 JKRArchive* archive = dComIfGp_getItemIconArchive();
-                JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(itemNo), archive);
+                JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(dComIfGs_getItemReserve((u8)i)), archive);
                 DCStoreRangeNoSync(mSubItemTexBuffer[i], 0xc00);
                 ((J2DPicture*)mE78[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 ((J2DPicture*)m1070[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
@@ -1919,7 +1916,7 @@ void dMenu_Item_c::cornerMove() {
 }
 
 /* 801CF08C-801CF12C       .text equipBeastItem__12dMenu_Item_cFi */
-u8 dMenu_Item_c::equipBeastItem(int i_idx) {
+int dMenu_Item_c::equipBeastItem(int i_idx) {
     u8 itemNo = dComIfGs_getItemBeast(i_idx);
     int ret = 0;
 
@@ -1950,7 +1947,7 @@ u8 dMenu_Item_c::equipBeastItem(int i_idx) {
         break;
     }
 
-    return ret;
+    return (u8)ret;
 }
 
 /* 801CF12C-801CF510       .text _create__12dMenu_Item_cFv */
