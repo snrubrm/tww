@@ -1710,7 +1710,7 @@ static BOOL daBL_Execute(bl_class* i_this) {
     }
 
     if (i_this->m306 != 0) {
-        s8 roomNo = actor->current.roomNo;
+        s8 roomNo = fopAcM_GetRoomNo(actor);
         u32 mtrlSndId;
         if (i_this->mAcch.ChkGroundHit()) {
             mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd);
@@ -1751,7 +1751,7 @@ static BOOL daBL_Execute(bl_class* i_this) {
 
     BG_check(i_this);
 
-    if (i_this->m2D1 == 0 || actor->gravity != 0.0f) {
+    if (i_this->m2D1 == 0 || actor->gravity) {
         if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF &&
             dComIfG_Bgsp()->ChkPolySafe(i_this->mAcch.m_gnd) &&
             dComIfG_Bgsp()->GetGroundCode(i_this->mAcch.m_gnd) == 4 &&
