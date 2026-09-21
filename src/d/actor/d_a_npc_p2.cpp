@@ -2066,18 +2066,18 @@ int daNpc_P2_c::wait_action(void*) {
         case 1:
             wait01();
             break;
-        case 2:
-            talk01();
-            break;
         case 0x10:
             moccowait();
             break;
         case 0x11:
             zukotelescope();
             break;
+        case 2:
+            talk01();
+            break;
         }
         lookBack();
-        setAnm();
+        setAttention();
     }
     return TRUE;
 }
