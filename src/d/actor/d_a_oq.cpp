@@ -868,7 +868,7 @@ void action_tama_shoot(oq_class* i_this) {
         break;
     case 0x2A:
         cLib_addCalc0(&actor->scale.x, 1.0f, 0.1f);
-        actor->scale.z = actor->scale.y = actor->scale.x;
+        actor->scale.y = actor->scale.z = actor->scale.x;
         if (actor->scale.x < 0.1f) {
             fopAcM_delete(actor);
         }
