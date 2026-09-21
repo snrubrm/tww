@@ -1242,11 +1242,7 @@ BOOL daObj_Search::Act_c::_draw() {
         return TRUE;
     }
 
-    if (mMode != MODE_TO_STOP_e) {
-    } else if (mMode == MODE_FIND_e) {
-    }
-
-    if (mMode != MODE_TO_STOP_e) {
+    if (mMode != MODE_TO_STOP_e || mMode != MODE_FIND_e) {
         mDoLib_clipper::changeFar(1000000.0f);
         if (m_attr.m44 == 0) {
             mCullBase = fopAcM_checkCullingBox(mpModel->getBaseTRMtx(), -1000.0f, 0.0f, -1000.0f, 1000.0f, 1500.0f, 1000.0f);
@@ -1278,11 +1274,7 @@ BOOL daObj_Search::Act_c::_draw() {
         mDoExt_modelUpdateDL(mpBeamModel[0]);
         if (m77E > 0x80) {
             dComIfGd_setAlphaModel(dDlst_alphaModel_c::TYPE_SEARCHLIGHT, mAlphaMtx[0], 0x20);
-            static GXColor l_colorA;
-            GXColor color = l_colorA;
-            color.r = m82C;
-            color.g = m82D;
-            dComIfGd_setAlphaModelColor(color);
+            dComIfGd_setAlphaModelColor((GXColor){m82C, m82D});
         }
     }
 
@@ -1290,19 +1282,16 @@ BOOL daObj_Search::Act_c::_draw() {
         mDoExt_modelUpdateDL(mpBeamModel[1]);
         if (m77E > 0x80) {
             dComIfGd_setAlphaModel(dDlst_alphaModel_c::TYPE_SEARCHLIGHT, mAlphaMtx[1], 0x20);
-            static GXColor l_colorB;
-            GXColor color = l_colorB;
-            color.r = m82C;
-            color.g = m82D;
-            dComIfGd_setAlphaModelColor(color);
+            dComIfGd_setAlphaModelColor((GXColor){m82C, m82D});
         }
     }
 
-    mpBeamModel[0]->getModelData()->getMaterialNodePointer(0)->getTevBlock()->getTevColor(0)->mColor.a = m77E;
+    J3DGXColor* kcolor = mpBeamModel[0]->getModelData()->getMaterialNodePointer(0)->getTevBlock()->getTevKColor(0);
+    kcolor->mColor.a = m77E;
 
     if (m_attr.m47 != 0) {
-        static GXColor color_ok = {0x00, 0xFF, 0x00, 0x80};
-        static GXColor color_ng = {0xFF, 0x00, 0x00, 0x80};
+        static const GXColor color_ok = {0x00, 0xFF, 0x00, 0x80};
+        static const GXColor color_ng = {0xFF, 0x00, 0x00, 0x80};
         GXColor color = color_ng;
         if (mDebugFanOk != 0) {
             color = color_ok;
