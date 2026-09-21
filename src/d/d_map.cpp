@@ -817,8 +817,12 @@ bool dMap_RoomInfo_c::enlagementSizeTextureCordCalc(f32* param_1, f32* param_2, 
 void dMap_RoomInfo_c::roomDrawRoomEnlargementSize(int param_1, int param_2, int param_3, int param_4, f32 param_5, f32 param_6, f32 param_7, f32 param_8, u8 param_9) {
     /* Nonmatching */
     if (field_0x1 & 2) {
-        f32 f28 = getStageMapInfoP()->field_0x08 - getStageMapInfoP()->field_0x00;
-        f32 f27 = getStageMapInfoP()->field_0x0C - getStageMapInfoP()->field_0x04;
+        f32 f30;
+        f32 f29;
+        f32 f27 = getStageMapInfoP()->field_0x00;
+        f32 f28 = getStageMapInfoP()->field_0x08 - f27;
+        f27 = getStageMapInfoP()->field_0x04;
+        f27 = getStageMapInfoP()->field_0x0C - f27;
         f32 f22 = field_0x18;
         f32 f31 = field_0x1c;
         field_0x44->field_0x0 = 0;
@@ -827,14 +831,13 @@ void dMap_RoomInfo_c::roomDrawRoomEnlargementSize(int param_1, int param_2, int 
         f32 local_f0;
         f32 local_f4;
         f32 local_f8;
-        f32 f30 = param_3 * 0.5f;
+        f30 = param_3 * 0.5f;
         f32 local_fc = -f30;
+        f32 local_100 = f30;
         f32 local_e0 = 176.0f;
-        f32 f29 = param_4 * 0.5f;
-        f32 local_100;
+        f29 = param_4 * 0.5f;
         f32 local_104 = -f29;
         f32 local_108 = f29;
-        local_100 = f30;
         if (!enlagementSizeTextureCordCalc(&local_ec, &local_f0, &local_fc, &local_100, getStageMapInfoP()->field_0x10, f28, f22, param_5, param_7, param_3)) {
             return;
         }
@@ -851,7 +854,9 @@ void dMap_RoomInfo_c::roomDrawRoomEnlargementSize(int param_1, int param_2, int 
         field_0x44->mColor.g = 255;
         field_0x44->mColor.b = 255;
         field_0x44->mColor.a = param_9;
-        field_0x30.setPos(param_1 + f30 + local_fc, param_2 + f29 + local_104, param_1 + f30 + local_100, param_2 + f29 + local_108);
+        f32 cx = param_1 + f30;
+        f32 cy = param_2 + f29;
+        field_0x30.setPos(cx + local_fc, cy + local_104, cx + local_100, cy + local_108);
         field_0x30.field_0x5 = 1;
         dComIfGd_set2DOpa(&field_0x30);
     }
