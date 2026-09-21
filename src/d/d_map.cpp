@@ -1634,13 +1634,11 @@ void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
 
 /* 80049F4C-8004A3A4       .text calcEnlargementSizeParameter__6dMap_cFff */
 void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
-    /* Nonmatching */
     if ((u8)isEnableEnlargementScroll() && mNowRoomInfoP->getEnableFlg() & 2) {
         f32 signX;
         f32 limitZ;
         f32 limitX;
         f32 dz;
-        f32 signZ;
         limitX = std::fabsf(mNowRoomInfoP->getStageMapInfoMap0_X1() - mNowRoomInfoP->getStageMapInfoMap0_XC()) * 0.9f;
         limitZ = std::fabsf(mNowRoomInfoP->getStageMapInfoMap0_Z1() - mNowRoomInfoP->getStageMapInfoMap0_ZC()) * 0.9f;
         param_1 -= mNowRoomInfoP->getStageMapInfoMap0_XC();
@@ -1651,9 +1649,9 @@ void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
             signX = -1.0f;
         }
         if (dz >= 0.0f) {
-            signZ = 1.0f;
+            param_2 = 1.0f;
         } else {
-            signZ = -1.0f;
+            param_2 = -1.0f;
         }
         if (std::fabsf(param_1) > limitX) {
             limitX = (std::fabsf(param_1) - limitX) * 2.0f;
@@ -1679,7 +1677,7 @@ void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
             }
         }
         mEnlargementSizeCenterX = mNowRoomInfoP->getStageMapInfoMap0_XC() + signX * limitX;
-        mEnlargementSizeCenterZ = mNowRoomInfoP->getStageMapInfoMap0_ZC() + signZ * limitZ;
+        mEnlargementSizeCenterZ = mNowRoomInfoP->getStageMapInfoMap0_ZC() + param_2 * limitZ;
         mEnlargementSizeScaleX = mNowRoomInfoP->field_0x18;
         mEnlargementSizeScaleZ = mNowRoomInfoP->field_0x1c;
     }
