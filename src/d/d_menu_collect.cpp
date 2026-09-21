@@ -2684,7 +2684,6 @@ void dMenu_Collect_c::itemnameMove() {
 
 /* 801A2CA4-801A36AC       .text itemnameSet__15dMenu_Collect_cFv */
 void dMenu_Collect_c::itemnameSet() {
-    /* Nonmatching */
     fopMsgM_itemMsgGet_c msgGet;
     u32 msgNo = 0;
     int i = 0;
@@ -2931,10 +2930,6 @@ void dMenu_Collect_c::itemnameSet() {
         return;
     }
 
-    JUTFont::TWidth width;
-    JUTFont::TWidth firstWidth;
-    u8 characterWidth;
-
     mesg_header* head_p = msgGet.getMesgHeader(msgNo);
     JUT_ASSERT(VERSION_SELECT(0xBD1, 0xBD1, 0xBD1, 0xBD1), head_p);
 
@@ -2983,20 +2978,15 @@ void dMenu_Collect_c::itemnameSet() {
             appendBuf[1] = '\0';
         }
 
-        mpFont->getWidthEntry(c, &width);
-
-        characterWidth = width.field_0x1;
+        int characterWidth = mpFont->getWidth(c);
 
         strcat(name[0], appendBuf);
 
         if (!firstCharacter) {
-            mpFont->getWidthEntry(c, &firstWidth);
-
-            measuredWidth = fontScale * (characterWidth + firstWidth.field_0x0);
-
+            measuredWidth = fontScale * (characterWidth + mpFont->getOffset(c));
             firstCharacter = true;
         } else {
-            measuredWidth += (s16)characterWidth * fontScale;
+            measuredWidth += characterWidth * fontScale;
         }
     }
 
