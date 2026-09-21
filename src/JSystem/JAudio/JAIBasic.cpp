@@ -418,20 +418,19 @@ void JAIBasic::stopAllSound(u32 soundID, void* param_2) {
 
 /* 80290C74-80290D94       .text deleteObject__8JAIBasicFPv */
 void JAIBasic::deleteObject(void* param_1) {
-    /* Nonmatching */
     JAInter::DummyVec* r30 = NULL;
-    bool r29;
+    u8 r29;
     for (int i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); i++) {
         JAISound* sound = JAInter::SeMgr::seRegist[i].field_0x4;
         while (sound) {
             JAISound* nextSound = sound->field_0x34;
             if (sound->field_0x24 == param_1) {
-                r29 = false;
+                r29 = 0;
                 if (sound->checkSwBit(0x8000)) {
+                    r29++;
                     if (!r30) {
                         r30 = JAInter::DummyObjectMgr::getPointer(JAIGlobalParameter::dummyObjectLifeTime, false);
                     }
-                    r29 = true;
                 }
 
                 if (r29 && r30) {
