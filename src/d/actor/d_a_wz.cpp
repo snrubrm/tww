@@ -1663,14 +1663,14 @@ void summon_call_sub(wz_class* i_this) {
     if (enemy_name_dt[nextIndex] == 0x7FFF) {
         return;
     }
-    birthNum = birth_dt[nextIndex];
+    spawned = birth_dt[nextIndex];
     angle.x = 0;
     angle.y = 0;
     angle.z = 0;
     angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
     pos = actor->current.pos;
 
-    for (i = 0, spawned = 0; i < 20 && spawned < birthNum; i++) {
+    for (i = 0, birthNum = 0; i < 20 && birthNum < spawned; i++) {
         if (i_this->mChildIds[i] == fpcM_ERROR_PROCESS_ID_e) {
             arg = enemy_arg_dt[nextIndex];
             if (tableIndex + 1 == fpcNm_CC_e) {
@@ -1691,7 +1691,7 @@ void summon_call_sub(wz_class* i_this) {
             if (i_this->mChildIds[i] != fpcM_ERROR_PROCESS_ID_e) {
                 i_this->mChildAlive[i] = 1;
                 pos = actor->current.pos;
-                spawned++;
+                birthNum++;
                 pos.x += cM_rndFX(100.0f);
                 pos.y += cM_rndFX(100.0f);
                 pos.z += cM_rndFX(100.0f);
