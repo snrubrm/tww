@@ -3415,7 +3415,6 @@ static void spin_blur_set(tn_class* i_this) {
 
 /* 0000AEA8-0000BCE4       .text daTn_Execute__FP8tn_class */
 static BOOL daTn_Execute(tn_class* i_this) {
-    /* Nonmatching - retail-only regalloc */
     fopEn_enemy_c* actor = (fopEn_enemy_c*)&i_this->actor;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     mant_class* mant_actor;
@@ -3612,7 +3611,7 @@ static BOOL daTn_Execute(tn_class* i_this) {
     i_this->mpBodyMorf->calc();
     enemy_fire(&i_this->mEnemyFire);
     MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, false);
-    cMtx_YrotM(*calc_mtx, actor->current.angle.y);
+    cMtx_YrotM(*calc_mtx, (int)actor->current.angle.y);
     cXyz local_a8;
     local_a8.x = 0.0f;
     local_a8.y = 0.0f;
@@ -3712,8 +3711,8 @@ static BOOL daTn_Execute(tn_class* i_this) {
         if (boko_actor != NULL) {
             if (fopAcM_checkCarryNow(boko_actor)) {
                 MTXCopy(i_this->mpBodyMorf->getModel()->getAnmMtx(TN_MAIN_JNT_J_TN_ITEM_R1_e), *calc_mtx);
-                cMtx_YrotM(*calc_mtx, REG8_S(1));
-                cMtx_XrotM(*calc_mtx, REG8_S(2));
+                cMtx_YrotM(*calc_mtx, (int)REG8_S(1));
+                cMtx_XrotM(*calc_mtx, (int)REG8_S(2));
                 cMtx_ZrotM(*calc_mtx, REG8_S(3) + 0x8000);
                 MtxTrans(REG8_F(9), REG8_F(10), REG8_F(11) + 85.0f, true);
                 boko_actor->setMatrix(*calc_mtx);
