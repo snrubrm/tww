@@ -531,38 +531,40 @@ static u8 __THPReadScaneHeader() {
 }
 
 /* 00000B48-00000EFC       .text __THPReadQuantizationTable */
+#pragma push
+#pragma optimization_level 4
 static u8 __THPReadQuantizationTable() {
-    /* Nonmatching - regalloc */
+    u16 length, id, i, row, col;
     f32 q_temp[64];
 
-    u16 length = (u16)((__THPInfo->c)[0] << 8 | (__THPInfo->c)[1]);
+    length = (u16)((__THPInfo->c)[0] << 8 | (__THPInfo->c)[1]);
     __THPInfo->c += 2;
     length -= 2;
 
-    do {
-        u16 i;
-        u16 id = (*(__THPInfo->c)++);
+    for (;;) {
+        id = (*(__THPInfo->c)++);
 
         for (i = 0; i < 64; i++) {
             q_temp[__THPJpegNaturalOrder[i]] = (f32)(*(__THPInfo->c)++);
         }
 
-        u16 row;
-        u16 col;
-        u16 j;
-        j = 0;
+        i = 0;
         for (row = 0; row < 8; row++) {
             for (col = 0; col < 8; col++) {
-                __THPInfo->quantTabs[id][j] = (f32)((f64)q_temp[j] * __THPAANScaleFactor[row] * __THPAANScaleFactor[col]);
-                j++;
+                __THPInfo->quantTabs[id][i] = (f32)((f64)q_temp[i] * __THPAANScaleFactor[row] * __THPAANScaleFactor[col]);
+                i++;
             }
         }
 
         length -= 65;
-    } while (length != 0);
+        if (!length) {
+            break;
+        }
+    }
 
     return 0;
 }
+#pragma pop
 
 /* 00000EFC-000010E4       .text __THPReadHuffmanTableSpecification */
 static u8 __THPReadHuffmanTableSpecification() {
