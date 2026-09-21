@@ -1927,7 +1927,6 @@ void dMap_c::initPoint() {
 
 /* 8004AE28-8004B148       .text setGbaPoint_ocean__6dMap_cFUcffsUcUcUcUc */
 void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm6, u8 prm7, u8 prm8) {
-    /* Nonmatching */
     s32 sx = (s32)(((50000.0f + x) + 300000.0f) * (256.0f / 100000.0f));
     s32 sz = (s32)(((50000.0f + z) + 300000.0f) * (256.0f / 100000.0f));
     s16 scrX = (s16)sx - agbScrollX();
@@ -1962,32 +1961,28 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
         }
     }
 
-    if (type > 0x15) {
-        return;
-    }
-
     switch (type) {
     case 1: {
-        u8* buf = mAgbSendBuf;
-        *(u16*)(buf + 2) = mDoLib_cnvind16((u16)sx);
-        *(u16*)(buf + 4) = mDoLib_cnvind16((u16)sz);
-        buf[6] = (s16)angle >> 8;
-        buf[7] = type;
-        buf[8] = prm5;
-        buf[9] = prm6;
+        u8* buf = mAgbSendBuf + 2;
+        *(u16*)(buf + 0) = mDoLib_cnvind16((u16)sx);
+        *(u16*)(buf + 2) = mDoLib_cnvind16((u16)sz);
+        buf[4] = (s16)angle >> 8;
+        buf[5] = type;
+        buf[6] = prm5;
+        buf[7] = prm6;
         mSetCursorFlg |= 1;
         mAGBPointValueC++;
         mAGBPointValueAll++;
         break;
     }
     case 3: {
-        u8* buf = mAgbSendBuf;
-        *(u16*)(buf + 0xA) = mDoLib_cnvind16((u16)sx);
-        *(u16*)(buf + 0xC) = mDoLib_cnvind16((u16)sz);
-        buf[0xE] = (s16)angle >> 8;
-        buf[0xF] = type;
-        buf[0x10] = prm5;
-        buf[0x11] = prm6;
+        u8* buf = mAgbSendBuf + 0xA;
+        *(u16*)(buf + 0) = mDoLib_cnvind16((u16)sx);
+        *(u16*)(buf + 2) = mDoLib_cnvind16((u16)sz);
+        buf[4] = (s16)angle >> 8;
+        buf[5] = type;
+        buf[6] = prm5;
+        buf[7] = prm6;
         mSetCursorFlg |= 2;
         mAGBPointValueC++;
         mAGBPointValueAll++;
@@ -2024,7 +2019,7 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
             *(u16*)(ptr + 2) = mDoLib_cnvind16((u16)sz);
             ptr[4] = (s16)angle >> 8;
             if (type == 2) {
-                type = (type & 0x3F) | ((prm7 & 3) << 6);
+                type |= (type & 0x3F) | ((prm7 & 3) << 6);
             }
             ptr[5] = type;
             ptr[6] = prm5;
