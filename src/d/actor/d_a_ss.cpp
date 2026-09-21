@@ -54,9 +54,9 @@ static void anm_init(ss_class* i_this, int anm, float morph, unsigned char mode,
 static void hand_1_set(ss_class* i_this, ss_s* hand) {
     // Nonmatching: Register allocation differs.
     cXyz step, world, end, start, delta;
-    fopAc_ac_c* actor = i_this;
     ss_s_s* segment;
     s16 angle;
+    fopAc_ac_c* actor = i_this;
     int i;
     dBgS_LinChk line;
     segment = hand->segments;
