@@ -945,7 +945,7 @@ config.libs = [
             Object(MatchingFor("GZLE01"), "JAZelAudio/JAIZelAtmos.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelInst.cpp"),
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "JAZelAudio/JAIZelParam.cpp"),
-            Object(NonMatching, "JAZelAudio/JAIZelCharVoiceTable.cpp"),
+            Object(MatchingFor("GZLE01"), "JAZelAudio/JAIZelCharVoiceTable.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelScene.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelSound.cpp"),
         ],
