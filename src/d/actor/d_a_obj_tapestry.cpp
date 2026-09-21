@@ -1081,6 +1081,10 @@ void daObjTapestryPacket_c::eff_end() {
     mPLight.plight_delete();
 }
 
+static inline u8 get_alpha(daObjTapestryWork_c* work, int row, int col) {
+    return work->alpha[row][col];
+}
+
 /* 000039C0-00003CC0       .text eff_pos__21daObjTapestryPacket_cFv */
 void daObjTapestryPacket_c::eff_pos() {
     if (mFireCount > 0) {
@@ -1088,8 +1092,8 @@ void daObjTapestryPacket_c::eff_pos() {
         daObjTapestryDrawVtx_c now = mDraw[mBuffer];
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 6; col++) {
-                u8 idx = mWork.alpha[row][col];
-                if (idx != 0xFF) {
+                if (mWork.alpha[row][col] != 0xFF) {
+                    u8 idx = get_alpha(&mWork, row, col);
                     cXyz world;
                     mDoMtx_multVec(mMtx, &now.pos[row][col], &world);
                     mFire[idx].set_pos(world);
