@@ -52,11 +52,10 @@ static void anm_init(ss_class* i_this, int anm, float morph, unsigned char mode,
 }
 
 static void hand_1_set(ss_class* i_this, ss_s* hand) {
-    // Nonmatching: Register allocation differs.
     cXyz step, world, end, start, delta;
+    fopAc_ac_c* actor = i_this;
     ss_s_s* segment;
     s16 angle;
-    fopAc_ac_c* actor = i_this;
     int i;
     dBgS_LinChk line;
     segment = hand->segments;
@@ -75,7 +74,8 @@ static void hand_1_set(ss_class* i_this, ss_s* hand) {
             segment->pos = line.GetCross();
             delta = start - segment->pos;
             MtxPush();
-            mDoMtx_YrotS(*calc_mtx, cM_atan2s(delta.x, delta.z));
+            s16 yaw = cM_atan2s(delta.x, delta.z);
+            mDoMtx_YrotS(*calc_mtx, yaw);
             mDoMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
             delta.x = 0.0f;
             delta.y = 0.0f;
