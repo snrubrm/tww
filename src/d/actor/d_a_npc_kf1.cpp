@@ -812,10 +812,9 @@ void daNpc_Kf1_c::cut_init_PLYER_MOV(int) {
         dComIfGp_evmng_setGoal(&dComIfGp_getPlayer(0)->current.pos);
     } else {
         cXyz pos, offset(0, 0, 0);
-        s16 side;
-        side = angle > 0 ? 0x2800 : -0x2800;
+        angle = angle > 0 ? 0x2800 : -0x2800;
         mDoMtx_stack_c::transS(current.pos);
-        mDoMtx_stack_c::YrotM(current.angle.y + side);
+        mDoMtx_stack_c::YrotM(current.angle.y + angle);
         offset.z = 150;
         mDoMtx_stack_c::multVec(&offset, &pos);
         dComIfGp_evmng_setGoal(&pos);
