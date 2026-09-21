@@ -1595,7 +1595,6 @@ void dPa_trackEcallBack::remove() {
 
 /* 8007F1F4-8007F3BC       .text execute__18dPa_trackEcallBackFP14JPABaseEmitter */
 void dPa_trackEcallBack::execute(JPABaseEmitter* emitter) {
-    /* Nonmatching - regalloc */
     GXColor local_30;
     GXColor local_34;
     dKy_get_seacolor(&local_30, &local_34);
@@ -1613,7 +1612,8 @@ void dPa_trackEcallBack::execute(JPABaseEmitter* emitter) {
         }
     } else {
         emitter->setGlobalTranslation(mpPos->x, mpPos->y, mpPos->z);
-        JGeometry::TVec3<s16> rot(0, mVel >= 0.0f ? mpRot->y : mpRot->y + 0x8000, 0);
+        s16 y = mVel >= 0.0f ? mpRot->y : (s16)(mpRot->y + 0x8000);
+        JGeometry::TVec3<s16> rot(0, (int)y, 0);
         emitter->setGlobalRotation(rot);
         s16 local_38 = emitter->getGlobalAlpha();
         if (std::fabsf(mVel) > mMinVel) {
