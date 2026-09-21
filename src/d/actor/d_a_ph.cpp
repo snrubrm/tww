@@ -2120,13 +2120,10 @@ static BOOL daPH_Execute(ph_class* i_this) {
     actor->eyePos.y -= 30.0f;
     actor->eyePos.y -= 50.0f * i_this->m039C;
 
-    s32 i = 0;
-    for (int n = 5; n != 0; n--) {
-        s16* timer = (s16*)((char*)i_this + 0x364 + i);
-        if (*timer != 0) {
-            *timer -= 1;
+    for (int i = 0; i < 5; i++) {
+        if ((&i_this->m0364)[i] != 0) {
+            (&i_this->m0364)[i]--;
         }
-        i += 2;
     }
 
     {
@@ -2281,15 +2278,15 @@ static BOOL daPH_Execute(ph_class* i_this) {
             i_this->mBodySph.SetR(40.0f);
             dComIfG_Ccsp()->Set(&i_this->mBodySph);
         } else {
-            pos = i_this->m02CC;
-            pos.y -= 150.0f + REG8_F(10);
-            i_this->mTgCyl.SetC(pos);
+            offset = i_this->m02CC;
+            offset.y -= 150.0f + REG8_F(10);
+            i_this->mTgCyl.SetC(offset);
             i_this->mTgCyl.SetH(500.0f + REG8_F(12));
             i_this->mTgCyl.SetR(500.0f + REG8_F(13));
             dComIfG_Ccsp()->Set(&i_this->mTgCyl);
-            pos = i_this->m02CC;
-            pos.y -= 150.0f + REG8_F(10);
-            i_this->mAtCyl.SetC(pos);
+            offset = i_this->m02CC;
+            offset.y -= 150.0f + REG8_F(10);
+            i_this->mAtCyl.SetC(offset);
             i_this->mAtCyl.SetH(350.0f + REG8_F(14));
             i_this->mAtCyl.SetR(250.0f + REG8_F(15));
             dComIfG_Ccsp()->Set(&i_this->mAtCyl);
