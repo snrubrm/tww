@@ -930,9 +930,8 @@ void daNpcAuction_c::setMtx() {
 
 /* 00002118-00002488       .text lookBack__14daNpcAuction_cFv */
 void daNpcAuction_c::lookBack() {
-    daNpc_Auction2_HIO_c* dat = &l_npc_dat[mNpcNo];
-    f32 attnY = dat->m04;
-    s16 maxVel = dat->mMaxHeadTurnVel;
+    f32 attnY = l_npc_dat[mNpcNo].m04;
+    s16 maxVel = l_npc_dat[mNpcNo].mMaxHeadTurnVel;
     s16 defaultY = current.angle.y;
     cXyz* dstPosP = NULL;
     cXyz dstPos;
@@ -956,10 +955,10 @@ void daNpcAuction_c::lookBack() {
             m73D = 1;
         }
     } else {
-        fopAc_ac_c* player = dComIfGp_getPlayer(0);
+        fopAc_ac_c* player = dComIfGp_getLinkPlayer();
         f32 maxDist = mMaxAttnDistXZ;
-        s16 maxAng = dat->mMaxAttnAngleY;
-        s16 lim0 = 0x4000;
+        int maxAng = l_npc_dat[mNpcNo].mMaxAttnAngleY;
+        int lim0 = 0x4000;
         f32 dist;
         s16 ang;
         dNpc_calc_DisXZ_AngY(current.pos, player->current.pos, &dist, &ang);
