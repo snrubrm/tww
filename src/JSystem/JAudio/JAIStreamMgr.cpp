@@ -489,7 +489,6 @@ void JAInter::StreamLib::sync(s32 param_1) {
 
 /* 8029CCD0-8029CD8C       .text __DecodePCM__Q27JAInter9StreamLibFv */
 void JAInter::StreamLib::__DecodePCM() {
-    /* Nonmatching */
     int i;
     s16* dst1 = loop_buffer[0][playside];
     s16* dst2 = loop_buffer[1][playside];
@@ -498,7 +497,7 @@ void JAInter::StreamLib::__DecodePCM() {
         dst1[0] = src[0];
         dst2[0] = src[1];
     }
-    loadup_samples += loadsize >> 2;
+    loadup_samples += (loadsize >> 1) / 2;
     DCStoreRange(loop_buffer[0][playside], loadsize >> 1);
     DCStoreRange(loop_buffer[1][playside], loadsize >> 1);
 }
