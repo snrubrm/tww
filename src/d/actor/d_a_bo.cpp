@@ -1594,7 +1594,7 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
     J3DModel* model;
     a_this->mpMorfUP->getModel()->setUserArea((u32)a_this);
     for (u16 i = 0; i < (model = a_this->mpMorfUP->getModel())->getModelData()->getJointNum(); i++) {
-        model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_UP);
+        a_this->mpMorfUP->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_UP);
     }
 
     if (a_this->m2C0 == 2) {
@@ -1625,7 +1625,7 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
 
         a_this->mpMorfDW->getModel()->setUserArea((u32)a_this);
         for (u16 i = 0; i < (model = a_this->mpMorfDW->getModel())->getModelData()->getJointNum(); i++) {
-            model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_DW);
+            a_this->mpMorfDW->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_DW);
         }
     }
 
