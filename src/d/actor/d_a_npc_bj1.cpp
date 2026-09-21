@@ -1254,11 +1254,7 @@ void daNpc_Bj1_c::setCollision_SP_() {
 /* 000027B0-00002840       .text set_pthPoint__11daNpc_Bj1_cFUc */
 void daNpc_Bj1_c::set_pthPoint(unsigned char i_idx) {
     if (mPathRun.isPath()) {
-        u8 max = mPathRun.maxPoint();
-        unsigned int idx = i_idx;
-        if (idx > max) {
-            idx = max;
-        }
+        u8 idx = cLib_maxLimit<u8>(i_idx, mPathRun.maxPoint());
         mPathRun.setIdx(idx);
         current.pos = mPathRun.getPoint(idx);
         mPathRun.nextIdxAuto();
