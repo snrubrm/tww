@@ -309,12 +309,12 @@ void daNpc_So_c::cutEatesaFirstProc() {
         step = 20.0f + REG12_F(10);
     }
 
-    if (step != 0.0f) {
+    if (step) {
         s16 target = cLib_targetAngleY(&mSoEyePos, &path);
         cLib_addCalcAngleS2(&shape_angle.y, target, 3, 0x1200);
-        cLib_addCalcPos2(&current.pos, path, 0.1f, step);
-        current.pos.y = dLib_getWaterY(current.pos, mAcch2) - 100.0f;
     }
+    cLib_addCalcPos2(&current.pos, path, 0.1f, step);
+    current.pos.y = dLib_getWaterY(current.pos, mAcch2) - 100.0f;
 }
 
 /* 000060FC-00006148       .text cutJumpMapopenStart__10daNpc_So_cFv */
