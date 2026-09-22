@@ -485,6 +485,21 @@ static cPhs_State daPirate_Flag_Create(fopAc_ac_c* i_this) {
     pirate_flag_class* a_this = static_cast<pirate_flag_class*>(i_this);
     fopAcM_ct(i_this, pirate_flag_class);
 
+#if VERSION == VERSION_DEMO
+    cPhs_State cloth_result = dComIfG_resLoad(&a_this->mPhs1, "Cloth");
+    cPhs_State ship_result = dComIfG_resLoad(&a_this->mPhs2, "Kaizokusen");
+    if (cloth_result == cPhs_ERROR_e || ship_result == cPhs_ERROR_e) {
+        return cPhs_ERROR_e;
+    }
+    if (cloth_result != cPhs_COMPLEATE_e) {
+        return cloth_result;
+    }
+    if (ship_result != cPhs_COMPLEATE_e) {
+        return ship_result;
+    }
+    cPhs_State result = cPhs_COMPLEATE_e;
+    if (result == cPhs_COMPLEATE_e)
+#else
     cPhs_State result = dComIfG_resLoad(&a_this->mPhs1, "Cloth");
     if (result != cPhs_COMPLEATE_e) {
         return result;
@@ -494,19 +509,21 @@ static cPhs_State daPirate_Flag_Create(fopAc_ac_c* i_this) {
     if (result != cPhs_COMPLEATE_e) {
         return result;
     }
+#endif
+    {
+        cXyz* pos = a_this->mPacket.getPos();
 
-    cXyz* pos = a_this->mPacket.getPos();
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                cXyz tmp(l_pos[i * 5 + j].x, l_pos[i * 5 + j].y, l_pos[i * 5 + j].z);
 
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            cXyz tmp = l_pos[i * 5 + j];
-
-            *pos++ = tmp;
+                *pos++ = tmp;
+            }
         }
-    }
 
-    l_p_ship = static_cast<daObjPirateship::Act_c*>(fopAcM_SearchByID(a_this->parentActorID));
-    pirate_flag_move(a_this);
+        l_p_ship = static_cast<daObjPirateship::Act_c*>(fopAcM_SearchByID(a_this->parentActorID));
+        pirate_flag_move(a_this);
+    }
 
     return cPhs_COMPLEATE_e;
 }
