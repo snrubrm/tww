@@ -952,8 +952,13 @@ BOOL daNpc_Btsw_c::_execute() {
 
 /* 00002AF4-00002B90       .text _delete__12daNpc_Btsw_cFv */
 BOOL daNpc_Btsw_c::_delete() {
-    dComIfG_resDelete(&mPhs, "Btsw");
+    dComIfG_resDeleteDemo(&mPhs, "Btsw");
 
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+#else
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
@@ -961,6 +966,7 @@ BOOL daNpc_Btsw_c::_delete() {
     mSwMail0.SeDelete();
     mSwMail1.SeDelete();
     mSwMail2.SeDelete();
+#endif
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
         l_HIO.mNo = -1;
