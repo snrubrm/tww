@@ -85,7 +85,7 @@ static BOOL daKantera_Draw(kantera_class* i_this) {
         MtxScale(fVar2, fVar2, fVar2, true);
         cMtx_YrotM(*calc_mtx, i_this->mBonRot);
         cMtx_XrotM(*calc_mtx, i_this->mBonRot / 2);
-        MTXCopy(*calc_mtx, i_this->mAlphaModelMtx);
+        cMtx_copy(*calc_mtx, i_this->mAlphaModelMtx);
 
         GXColor color;
         color.r = REG0_S(4) + 0xEB;
