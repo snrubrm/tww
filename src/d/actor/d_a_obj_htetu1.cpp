@@ -201,7 +201,7 @@ bool daObjHtetu1_c::_execute() {
         unlock();
         if (mShakeTimer != 0) {
             mShakeTimer--;
-            mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         } else {
             dComIfGp_getVibration().StartQuake(6, 3, cXyz(0.0f, 1.0f, 0.0f));
             mMoveState = 2;
@@ -211,7 +211,7 @@ bool daObjHtetu1_c::_execute() {
         break;
     case 2:
         mNextPos.y -= 5.0f;
-        mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+        mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         if (mNextPos.y <= mBottomY) {
             for (i = 0; i < 2; i++) mSplash[i].delete_s();
             mNextPos.y = mBottomY;
@@ -229,7 +229,11 @@ bool daObjHtetu1_c::_execute() {
     } else if (timer > 0) {
         mQuakeTimer--;
     }
+#if VERSION == VERSION_DEMO
+    if (mpBgW != NULL && mpBgW->ChkUsed()) mpBgW->Move();
+#else
     if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) mpBgW->Move();
+#endif
     return true;
 }
 
