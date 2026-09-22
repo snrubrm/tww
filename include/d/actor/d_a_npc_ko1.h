@@ -146,7 +146,7 @@ public:
     J3DModelData* create_Anm();
     J3DModelData* create_hed_Anm();
     J3DModelData* create_bln_Anm();
-    BOOL create_itm_Mdl();
+    bool create_itm_Mdl();
     BOOL CreateHeap();
 
 public:

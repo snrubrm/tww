@@ -2974,17 +2974,17 @@ J3DModelData* daNpc_Ko1_c::create_bln_Anm() {
 }
 
 /* 000082A4-00008380       .text create_itm_Mdl__11daNpc_Ko1_cFv */
-BOOL daNpc_Ko1_c::create_itm_Mdl() {
+bool daNpc_Ko1_c::create_itm_Mdl() {
     if (mType != 1) {
-        return TRUE;
+        return true;
     }
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Ko", dRes_ID_KO_BDL_KOEDA_e);
     JUT_ASSERT(DEMO_SELECT(0x10FE, 0x1126), a_mdl_dat != 0);
     mpItemModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     if (mpItemModel == NULL) {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /* 00008380-00008604       .text CreateHeap__11daNpc_Ko1_cFv */
@@ -3012,7 +3012,7 @@ BOOL daNpc_Ko1_c::CreateHeap() {
             return FALSE;
         }
     }
-    if ((u8)create_itm_Mdl()) {
+    if (create_itm_Mdl()) {
         if (mType == 0) {
             for (u16 i = 0; i < a_hed_dat->getJointNum(); i++) {
                 if (i == m_bln_loc_jnt_num) {
