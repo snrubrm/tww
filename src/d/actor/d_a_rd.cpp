@@ -13,7 +13,9 @@
 #include "d/d_material.h"
 #include "d/d_snap.h"
 #include "d/actor/d_a_player.h"
+#if VERSION > VERSION_DEMO
 #include "d/actor/d_a_player_main.h"
+#endif
 #include "d/d_cc_uty.h"
 #include "d/d_s_play.h"
 #include "d/d_item_data.h"
