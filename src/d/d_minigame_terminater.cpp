@@ -165,7 +165,7 @@ BOOL dMinigame_Terminater_c::_delete() {
         mDoExt_destroySolidHeap(mHeap);
     }
 
-    dComIfG_resDelete(&mPhs, "Mgtem");
+    dComIfG_resDeleteDemo(&mPhs, "Mgtem");
     return TRUE;
 }
 
@@ -1526,10 +1526,9 @@ void dDlst_TerminaterScrnDraw_c::getRotate(fopMsgM_pane_class* i_pane) {
 
 /* 80208230-802082D0       .text setRotate__26dDlst_TerminaterScrnDraw_cFP18fopMsgM_pane_classf */
 void dDlst_TerminaterScrnDraw_c::setRotate(fopMsgM_pane_class* i_pane, f32 i_angle) {
-    f32 half = 0.5f;
-    f32 y = i_pane->mSize.y * half;
+    f32 y = i_pane->mSize.y / 2;
     y = (int)y;
-    i_pane->pane->rotate((int)(i_pane->mSize.x * half), y, ROTATE_Z, i_angle);
+    i_pane->pane->rotate((int)(i_pane->mSize.x / 2), y, ROTATE_Z, i_angle);
 }
 
 /* 802082D0-80208324       .text setScale__26dDlst_TerminaterScrnDraw_cFP18fopMsgM_pane_classf */
@@ -1547,7 +1546,7 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF1(int i_no) {
 
     if (mRemain[i_no].mUserArea < 26) {
         mRemain[i_no].mUserArea++;
-        f32 t = SQUARE((f32)mRemain[i_no].mUserArea) / 676.0f;
+        f32 t = acc(26, mRemain[i_no].mUserArea, 0);
         f32 rot = 720.0f * (1.0f - t) + (f32)mFailed[i_no].mUserArea;
         fopMsgM_paneTrans(&mFailed[i_no], -150.0f * (1.0f - t), 0.0f);
         setRotate(&mFailed[i_no], rot);
@@ -1576,7 +1575,7 @@ BOOL dDlst_TerminaterScrnDraw_c::animeF2(int i_no) {
         f32 r;
 
         if (timer <= animeFrame[0]) {
-            t = SQUARE((f32)timer) / SQUARE((f32)animeFrame[0]);
+            t = acc(animeFrame[0], timer, 0);
             x = transX[1] + (1.0f - t) * (f32)(transX[0] - transX[1]);
             y = transY[1] + (1.0f - t) * (f32)(transY[0] - transY[1]);
             r = 710.0f * (1.0f - t) + (f32)rot[1];
@@ -1746,7 +1745,7 @@ BOOL dDlst_TerminaterScrnDraw_c::animeS3() {
         f32 y;
         f32 r;
         if (mDummy.mUserArea <= animeFrame[0]) {
-            t = SQUARE((f32)mDummy.mUserArea) / SQUARE((f32)animeFrame[0]);
+            t = acc(animeFrame[0], mDummy.mUserArea, 0);
             y = (f32)transY[1];
             y += (1.0f - t) * (f32)(transY[0] - transY[1]);
             fopMsgM_paneTrans(&mDummy, 0.0f, y);
