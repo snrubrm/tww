@@ -3384,11 +3384,15 @@ void dMeter_rInit(sub_meter_class* i_Meter) {
     i_Meter->field_0x301c = 0;
     dComIfGp_setRStatus(dActStts_BLANK_e);
     JKRArchive* archive;
+#if VERSION == VERSION_PAL
+    archive = dComIfGp_getActionIconArchive();
+#else
     if (dComIfGp_getRStatus() == dActStts_RETURN_e || dComIfGp_getRStatus() == dActStts_RETURN_e) {
         archive = dComIfGp_getMenuArchive();
     } else {
         archive = dComIfGp_getActionIconArchive();
     }
+#endif
     const char* filename = dMeter_actionTex(dActStts_BLANK_e);
     JKRReadTypeResource(i_Meter->actionTex[2], 0xc00, 'TIMG', filename, archive);
     DCStoreRangeNoSync(i_Meter->actionTex[2], 0xc00);
