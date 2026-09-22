@@ -4083,8 +4083,8 @@ void drawPoison(Mtx drawMtx, u8** pImg) {
         GXEnd();
     }
 
-#if VERSION > VERSION_JPN
     GXSetClipMode(GX_CLIP_ENABLE);
+#if VERSION > VERSION_JPN
     J3DShape::resetVcdVatCache();
 #endif
 }
