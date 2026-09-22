@@ -65,6 +65,7 @@ static void control1(sitem_class* i_this) {
     static f32 g_d[10] = {50.0f, 50.0f, 35.0f, 25.0f, 15.0f, 9.0f, 6.0f, 6.0f, 6.0f, 6.0f};
     int i;
     f32 x, y, z;
+    f32 influence;
     cXyz offset, wave, extension, worldWave;
     i_this->mSegments[0].pos = i_this->current.pos;
     sitem_s* segment = &i_this->mSegments[1];
@@ -81,7 +82,7 @@ static void control1(sitem_class* i_this) {
         wave.y = g_d[i];
         wave.z = amplitude * cM_scos(i_this->mFrame * (REG0_S(7) + 800) + i * (REG0_S(8) + 4000));
         MtxPosition(&wave, &worldWave);
-        f32 influence = 1.0f;
+        influence = 1.0f;
         x = worldWave.x * influence + (segment->pos.x - segment[-1].pos.x + extension.x * influence);
         y = worldWave.y * influence + (segment->pos.y - segment[-1].pos.y + extension.y * influence);
         z = worldWave.z * influence + (segment->pos.z - segment[-1].pos.z + extension.z * influence);
@@ -269,6 +270,9 @@ static f32 max_d[4] = {100.0f, 250.0f, 400.0f, 600.0f};
 /* 000015C0-00002304       .text hand_move__FP11sitem_class */
 static void hand_move(sitem_class* i_this) {
     fopAc_ac_c* actor = i_this;
+#if VERSION == VERSION_DEMO
+    dComIfG_inf_c* info = &g_dComIfG_gameInfo;
+#endif
     f32 approach, maxSpeed, extension, length, lengthStep, wave;
     cXyz offset, direction, target, center;
     dBgS_GndChk ground;
@@ -308,7 +312,13 @@ static void hand_move(sitem_class* i_this) {
         i_this->mHitTimer = 5;
         if (actor->speed.y < 0.0f) {
 #if VERSION == VERSION_DEMO
-            ground.m_pos.set(i_this->mPos.x, i_this->mPos.y + 100.0f, i_this->mPos.z);
+            {
+                f32 x = i_this->mPos.x;
+                f32 y = i_this->mPos.y;
+                f32 z = i_this->mPos.z;
+                y += 100.0f;
+                ground.m_pos.set(x, y, z);
+            }
 #else
             {
                 f32 y = i_this->mPos.y;
@@ -357,7 +367,7 @@ static void hand_move(sitem_class* i_this) {
         cLib_addCalc2(&i_this->mPos.z, target.z, approach, actor->speedF);
 #if VERSION == VERSION_DEMO
         if (cut) {
-            cLib_addCalcAngleS2(&actor->current.angle.y, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)), 0x10, 0x800);
+            cLib_addCalcAngleS2(&actor->current.angle.y, fopAcM_searchActorAngleY(actor, info->play.getPlayer(0)), 0x10, 0x800);
         }
 #endif
         control1(i_this);
@@ -428,7 +438,11 @@ static void hand_move(sitem_class* i_this) {
                     at_power_check(&atInfo);
                     if (atInfo.mResultingAttackType == 8) {
                         i_this->mHitSpeed = 300.0f + REG6_F(6);
+#if VERSION == VERSION_DEMO
+                        i_this->mHitAngle = fopAcM_searchActorAngleY(actor, info->play.getPlayer(0)) + 0x8000;
+#else
                         i_this->mHitAngle = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
+#endif
                         return;
                     }
                 }
