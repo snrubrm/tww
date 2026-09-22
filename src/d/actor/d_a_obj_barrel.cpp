@@ -690,7 +690,7 @@ bool daObjBarrel::Act_c::damage_bg_proc_directly() {
 bool daObjBarrel::Act_c::_execute() {
     cull_set_move();
 
-    if (mForceExec || mMode != MODE_WAIT || !mAcch.ChkGroundHit() || mAcch.ChkGroundLanding() || prm_get_cull() == 0 || !fopAcM_cullingCheck(this)) {
+    if (mForceExec || mMode != MODE_WAIT || mAcch.ChkGroundHit() == false || mAcch.ChkGroundLanding() || prm_get_cull() == 0 || !fopAcM_cullingCheck(this)) {
         mForceExec = false;
         BOOL broken = TRUE;
         if (!damage_cc_proc() && !damage_bg_proc()) {
