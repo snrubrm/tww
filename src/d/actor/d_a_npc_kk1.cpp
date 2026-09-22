@@ -967,16 +967,21 @@ void daNpc_Kk1_c::cut_init_TRN(int) {
             return;
         }
 
+        u8 selfIdx;
+        int maxPt;
+        s16 half;
+        s16 diff;
+        u8 playerIdx;
         mPath.setNearPathIndx(&dComIfGp_getLinkPlayer()->current.pos, 100.0f);
-        u8 playerIdx = mPath.getIdx();
+        playerIdx = mPath.getIdx();
         mPath.setNearPathIndx(&current.pos, 100.0f);
-        u8 selfIdx = mPath.getIdx();
-        int maxPt = mPath.maxPoint();
-        s16 half = 0.5f + maxPt / 2.0f;
+        selfIdx = mPath.getIdx();
+        maxPt = mPath.maxPoint();
+        half = 0.5f + maxPt / 2.0f;
         if (selfIdx > playerIdx) {
             playerIdx += mPath.maxPoint();
         }
-        s16 diff = (s16)(playerIdx - selfIdx);
+        diff = (s16)(playerIdx - selfIdx);
         if (diff > half) {
             diff -= maxPt;
         }
