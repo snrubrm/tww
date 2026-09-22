@@ -723,9 +723,15 @@ cPhs_State daGrid_c::_create() {
         f32 pos_y = l_pos[i].y;
 
         f32 temp_f26;
+#if VERSION == VERSION_DEMO
+        f32 temp_f0_2;
         f32 temp_f1_3;
         f32 temp_f1_4;
-        f32 temp_f0_2; // TODO: needs to be moved up to match demo, but this breaks retail?
+#else
+        f32 temp_f1_3;
+        f32 temp_f1_4;
+        f32 temp_f0_2;
+#endif
         f32 temp_f2_2;
         if (pos_y < l_pos[var_r29].y) {
             temp_f0_2 = std::fabsf(l_pos[0].y - pos_y);
