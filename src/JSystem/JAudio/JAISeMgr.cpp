@@ -121,6 +121,7 @@ void JAInter::SeMgr::processGFrameSe() {
 }
 
 /* 80293530-80293C94       .text checkNextFrameSe__Q27JAInter5SeMgrFv */
+// NONMATCHING - the target loads field_0x10 earlier (before getParamAudioCameraMax, and first in the candidate loop)
 void JAInter::SeMgr::checkNextFrameSe() {
     u8 slot;
     u8 slotMax;
@@ -203,8 +204,7 @@ void JAInter::SeMgr::checkNextFrameSe() {
                     }
                 }
                 if (sound->field_0x8 == 4) {
-                    u32 priority = sound->field_0x10;
-                    sound->field_0x10 = priority / JAIGlobalParameter::getParamAudioCameraMax();
+                    sound->field_0x10 /= JAIGlobalParameter::getParamAudioCameraMax();
                 }
                 f32 limit = (sound->getSwBit() & 0x20) ? maxDistance : 10000000000.0f;
                 if (nearest > limit) {
@@ -226,10 +226,9 @@ void JAInter::SeMgr::checkNextFrameSe() {
                     max = categoryInfoTable[seScene][sound->getSeCategoryNumber() * 2];
                     i = 0;
                     for (; i < max; i++) {
-                        u32 priority = sound->field_0x10;
                         Candidate* candidate = &candidates[i];
-                        if (priority < candidate->priority ||
-                            (candidate->priority == priority && candidate->state >= sound->mState)) {
+                        if (sound->field_0x10 < candidate->priority ||
+                            (candidate->priority == sound->field_0x10 && candidate->state >= sound->mState)) {
                             if (count < max) {
                                 count++;
                             }
