@@ -522,10 +522,6 @@ public:
     static void drawTest(f32, f32, int, f32);
 #endif
     static void draw(f32, f32, int, f32);
-#if VERSION == VERSION_DEMO
-    static void drawTest_dummy(f32, f32, int, f32);
-    static void drawTest(f32, f32, int, f32);
-#endif
     static void point2Grid(f32, f32, s8*, s8*);
     static void point2GridAndLocal(f32, f32, s8*, s8*, s16*, s16*);
     static int getCheckPointUseGrid(s8, s8);
