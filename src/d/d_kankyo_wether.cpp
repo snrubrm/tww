@@ -1399,7 +1399,8 @@ void dKyw_evt_wind_set(s16 i_windX, s16 i_windY) {
 
 /* 8008A958-8008A96C       .text dKyw_evt_wind_set_go__Fv */
 void dKyw_evt_wind_set_go() {
-    g_env_light.mWind.mEvtWindSet = 1;
+    dScnKy_env_light_c& env_light = dKy_getEnvlight();
+    env_light.mWind.mEvtWindSet = 1;
 }
 
 /* 8008A96C-8008A9F8       .text dKyw_gbwind_use_check__Fv */
