@@ -21,6 +21,34 @@ namespace {
 static const char l_arcname[] = "Gryw00";
 }
 
+#if VERSION == VERSION_DEMO
+class daObjGryw00_HIO_c : public JORReflexible {
+public:
+    daObjGryw00_HIO_c();
+    virtual ~daObjGryw00_HIO_c() {}
+
+public:
+    /* 0x04 */ s8 mNo;
+    /* 0x08 */ f32 field_0x08;
+    /* 0x0C */ f32 mGeyserSeLen;
+    /* 0x10 */ u8 mPlayGeyserSe;
+    /* 0x11 */ u8 mPlayWOutSe;
+    /* 0x12 */ u8 mPlayWUpSe;
+};
+
+static daObjGryw00_HIO_c l_HIO;
+
+/* 000000EC-0000012C       .text __ct__17daObjGryw00_HIO_cFv */
+daObjGryw00_HIO_c::daObjGryw00_HIO_c() {
+    mNo = -1;
+    field_0x08 = 0.0f;
+    mGeyserSeLen = GEYSER_SOUND_LEN;
+    mPlayGeyserSe = 1;
+    mPlayWOutSe = 1;
+    mPlayWUpSe = 1;
+}
+#endif
+
 /* 00000078-00000090       .text get_draw_water_lv__13daObjGryw00_cFPv */
 f32 daObjGryw00_c::get_draw_water_lv(void* p) {
     daObjGryw00_c* actr = static_cast<daObjGryw00_c*>(p);
@@ -29,9 +57,10 @@ f32 daObjGryw00_c::get_draw_water_lv(void* p) {
 
 /* 00000090-00000168       .text setup_high_water_level_btk_anm__13daObjGryw00_cFv */
 BOOL daObjGryw00_c::setup_high_water_level_btk_anm() {
+    J3DAnmTextureSRTKey* btk_anm_p;
     BOOL ret = TRUE;
-    J3DAnmTextureSRTKey* btk_anm_p = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_GRYW00_BTK_GRYW00_e));
-    JUT_ASSERT(223, btk_anm_p != NULL);
+    btk_anm_p = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_GRYW00_BTK_GRYW00_e));
+    JUT_ASSERT(DEMO_SELECT(219, 223), btk_anm_p != NULL);
     if (!mBtk.init(mpModel->getModelData(), btk_anm_p, 1, J3DFrameCtrl::EMode_LOOP, 1.0f, 0x191, -1, -1, 0)) {
         ret = FALSE;
     }
@@ -83,9 +112,18 @@ void daObjGryw00_c::set_se() {
     }
     if (mGeyserSeRemaining > 0) {
         mGeyserSeRemaining--;
+#if VERSION == VERSION_DEMO
+        if (l_HIO.mPlayGeyserSe == 1)
+#endif
         fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_GEYSER, 0);
     }
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mPlayWOutSe == 1)
+#endif
     fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_W_OUT, 0);
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mPlayWUpSe == 1)
+#endif
     fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_W_UP, 0);
 }
 
@@ -96,7 +134,7 @@ BOOL daObjGryw00_c::CreateHeap() {
     J3DAnmTextureSRTKey* pbtk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_GRYW00_BTK_GRYW00_e));
     J3DAnmTransform* pbck = static_cast<J3DAnmTransform*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_GRYW00_BCK_GRYW00_e));
     if (!mdlData || !pbtk || !pbck) {
-        JUT_ASSERT(409, FALSE);
+        JUT_ASSERT(DEMO_SELECT(404, 409), FALSE);
         ret = FALSE;
     } else {
         mpModel = mDoExt_J3DModel__create(mdlData, 0x80000U, 0x11000222U);
@@ -145,6 +183,11 @@ BOOL daObjGryw00_c::Create() {
                            this->home.pos.z);
     mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
     fopAcM_SetMtx(this, mpModel->getBaseTRMtx());
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mNo < 0) {
+        l_HIO.mNo = mDoHIO_createChild("竜の山ダンジョン前の水", &l_HIO); // "Water in front of Dragon Roost dungeon"
+    }
+#endif
     return TRUE;
 }
 
@@ -155,7 +198,7 @@ cPhs_State daObjGryw00_c::Mthd_Create() {
     cPhs_State phase_state = dComIfG_resLoad(&mPhs, l_arcname);
     if (phase_state == cPhs_COMPLEATE_e) {
         phase_state = MoveBGCreate(l_arcname, dRes_INDEX_GRYW00_DZB_EWATER_e, dBgS_MoveBGProc_Trans, 0x9a0);
-        JUT_ASSERT(519, (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
+        JUT_ASSERT(DEMO_SELECT(514, 519), (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
     }
     return phase_state;
 }
@@ -163,6 +206,12 @@ cPhs_State daObjGryw00_c::Mthd_Create() {
 /* 00000A0C-00000A30       .text Delete__13daObjGryw00_cFv */
 BOOL daObjGryw00_c::Delete() {
     particle_delete();
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mNo >= 0) {
+        mDoHIO_deleteChild(l_HIO.mNo);
+        l_HIO.mNo = -1;
+    }
+#endif
     return TRUE;
 }
 
@@ -189,7 +238,11 @@ void daObjGryw00_c::switch_wait_act_proc() {
     mWaterLvIncrement = WATER_WAVE_GROWTH_SPEED;
     mWaterMaxLv = 5;
     particle_set();
+#if VERSION == VERSION_DEMO
+    mGeyserSeRemaining = l_HIO.mGeyserSeLen;
+#else
     mGeyserSeRemaining = GEYSER_SOUND_LEN;
+#endif
     mShouldPlaySe = TRUE;
     mIsHidden = FALSE;
     modeFunc = &daObjGryw00_c::spread_water_face_act_proc;
