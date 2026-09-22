@@ -2597,10 +2597,12 @@ BOOL dMenu_Fmap2_c::paneAlphaGostShipMap(s16 param_1, u8 param_2, u8 param_3, in
         for (int i = 0; i < 7; i++) {
             fopMsgM_setNowAlpha(&mGsTk0xPaneAlpha[i], f31);
             fopMsgM_setAlpha(&mGsTk0xPaneAlpha[i]);
+#if VERSION > VERSION_JPN
             if (mGsGsixPaneAlpha[i].pane->isVisible()) {
                 fopMsgM_setNowAlpha(&mGsGsixPaneAlpha[i], f31);
                 fopMsgM_setAlpha(&mGsGsixPaneAlpha[i]);
             }
+#endif
         }
     }
     return false;
@@ -2627,12 +2629,14 @@ BOOL dMenu_Fmap2_c::paneAlphaTingleMap(s16 param_1, u8 param_2, u8 param_3, int 
         fopMsgM_setAlpha(&mTnHk01PaneAlpha);
         fopMsgM_setAlpha(&mTnHn19PaneAlpha);
         fopMsgM_setAlpha(&mTnHk29PaneAlpha);
+#if VERSION > VERSION_JPN
         fopMsgM_setNowAlpha(&mTnGddmPane, f31);
         fopMsgM_setAlpha(&mTnGddmPane);
         fopMsgM_setNowAlpha(&mTnLnkPane, f31);
         fopMsgM_setAlpha(&mTnLnkPane);
         fopMsgM_setNowAlpha(&mTnGdgtPane, f31);
         fopMsgM_setAlpha(&mTnGdgtPane);
+#endif
         for (int i = 0; i < ARRAY_SSIZE(field_0x1bcc); i++) {
             fopMsgM_setNowAlpha(&field_0x1bcc[i], f31);
             fopMsgM_setAlpha(&field_0x1bcc[i]);
