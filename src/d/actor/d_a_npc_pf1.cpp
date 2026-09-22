@@ -439,8 +439,17 @@ void daNpc_Pf1_c::privateCut(int staff) {
         dComIfGp_evmng_cutEnd(staff);
         return;
     }
-    dComIfGp_evmng_getIsAddvance(staff);
-    dComIfGp_evmng_cutEnd(staff);
+    if (dComIfGp_evmng_getIsAddvance(staff)) {
+        switch (mCut) {
+        case 0: break;
+        }
+    }
+    bool done;
+    switch (mCut) {
+    case 0:
+    default: done = true; break;
+    }
+    if (done) dComIfGp_evmng_cutEnd(staff);
 }
 
 void daNpc_Pf1_c::endEvent() {
@@ -837,14 +846,14 @@ BOOL daNpc_Pf1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) staff = isEventEntry();
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) staff = isEventEntry();
         if (staff >= 0) event_proc(staff);
         else (this->*mAction)(NULL);
         field_0x6ba = 0;
         lookBack();
         fopAcM_posMoveF(this, mStts.GetCCMoveP());
         mObjAcch.CrrPos(*dComIfG_Bgsp());
-        if (mObjAcch.GetGroundH() != -1000000000.0f) {
+        if (mObjAcch.GetGroundH() != DEMO_SELECT(-G_CM3D_F_INF, -1000000000.0f)) {
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd);
             if (plane != NULL) mGroundNormal = *plane->GetNP();
         }
@@ -863,14 +872,43 @@ BOOL daNpc_Pf1_c::_execute() {
 }
 
 BOOL daNpc_Pf1_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mLoaded) {
+        l_HIO.removeHIO();
+        dComIfG_resDelete(&mPhs, mArcName);
+        cDyl_Unlink(fpcNm_TAMA_e);
+        delBikon();
+        if (mpMorf != NULL) mpMorf->stopZelAnime();
+    }
+    return TRUE;
+#else
     cDyl_Unlink(fpcNm_TAMA_e);
     dComIfG_resDelete(&mPhs, mArcName);
     delBikon();
     if (heap != NULL && mpMorf != NULL) mpMorf->stopZelAnime();
     return TRUE;
+#endif
 }
 
 cPhs_State daNpc_Pf1_c::_create() {
+#if VERSION == VERSION_DEMO
+    if (!decideType(fopAcM_GetParam(this) & 0xFF)) return cPhs_ERROR_e;
+    cPhs_State phase = dComIfG_resLoad(&mPhs, mArcName);
+    mLoaded = phase == cPhs_COMPLEATE_e;
+    if (!mLoaded) return phase;
+    l_HIO.entryHIO("貧乏マギ−の父");
+    fopAcM_SetupActor(this, daNpc_Pf1_c);
+    static u32 a_siz_tbl[] = {0, 0};
+    if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_siz_tbl[mType])) {
+        mLoaded = false;
+        return cPhs_ERROR_e;
+    }
+    fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
+    fopAcM_setCullSizeBox(this, -100.0f, -20.0f, -80.0f, 100.0f, 180.0f, 140.0f);
+    if (!createInit()) return cPhs_ERROR_e;
+    cDyl_Link(fpcNm_TAMA_e);
+    return phase;
+#else
     fopAcM_SetupActor(this, daNpc_Pf1_c);
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) return cPhs_ERROR_e;
     cPhs_State phase = dComIfG_resLoad(&mPhs, mArcName);
@@ -884,11 +922,12 @@ cPhs_State daNpc_Pf1_c::_create() {
     fopAcM_setCullSizeBox(this, -100.0f, -20.0f, -80.0f, 100.0f, 180.0f, 140.0f);
     if (!createInit()) return cPhs_ERROR_e;
     return phase;
+#endif
 }
 
 BOOL daNpc_Pf1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_PF_BDL_PF_e);
-    JUT_ASSERT(0x803, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x7F8, 0x803), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, 1, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) return FALSE;
     if (mpMorf->getModel() == NULL) {
@@ -900,9 +939,9 @@ BOOL daNpc_Pf1_c::bodyCreateHeap() {
         return FALSE;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0x817, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x80C, 0x817), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone1");
-    JUT_ASSERT(0x819, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x80E, 0x819), m_bbone_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->setUserArea((u32)this);
@@ -912,7 +951,10 @@ BOOL daNpc_Pf1_c::bodyCreateHeap() {
 BOOL daNpc_Pf1_c::CreateHeap() {
     if (!bodyCreateHeap()) return FALSE;
     mAcchCir.SetWall(30.0f, 100.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    cXyz* speed_p = &speed;
+    cXyz* old_pos_p = &old.pos;
+    cXyz* current_pos_p = &current.pos;
+    mObjAcch.Set(current_pos_p, old_pos_p, this, 1, &mAcchCir, speed_p, NULL, NULL);
     return TRUE;
 }
 
