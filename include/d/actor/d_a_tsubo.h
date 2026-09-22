@@ -11,6 +11,8 @@
 #include "SSystem/SComponent/c_angle.h"
 #include "SSystem/SComponent/c_phase.h"
 #include "m_Do/m_Do_mtx.h"
+#include "f_op/f_op_actor_mng.h"
+#include "JSystem/JUtility/JUTAssert.h"
 
 namespace daTsubo {
     enum DataFlag_e {
@@ -212,7 +214,12 @@ namespace daTsubo {
         void prm_off_moveBg() { fopAcM_SetParam(this, fopAcM_GetParam(this) | 0xC000); }
         void prm_off_stick() { fopAcM_SetParam(this, fopAcM_GetParam(this) & ~0x80000000); }
         void prm_set_cull_non() { fopAcM_SetParam(this, fopAcM_GetParam(this) & ~0x70000000); }
-        void prm_set_itemNo(int) {}
+        void prm_set_itemNo(int i_item_no) {
+            JUT_ASSERT(756, (i_item_no)!= -1);
+            JUT_ASSERT(757, (i_item_no & 0x3f) != 0);
+            u32 prm = fopAcM_GetParam(this);
+            fopAcM_SetParam(this, (prm & ~0x3F) | ((u32)i_item_no & 0x3F));
+        }
         void set_drop_spd_y0(f32 drop_speed) { speed.y = drop_speed; }
         bool spec_chk_prm_boko() const { return prm_get_spec() != 0x3F; }
     

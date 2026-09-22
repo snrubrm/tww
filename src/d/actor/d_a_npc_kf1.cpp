@@ -131,8 +131,8 @@ bool daNpc_Kf1_c::createInit() {
     int weight = 0xFF;
     u8 path = (fopAcM_GetParam(this) >> 16) & 0xFF;
     if (path != 0xFF) {
-        mPath.setInf(path, current.roomNo, 1);
-        if (mPath.getPath()) {
+        mPath.setInf(path, fopAcM_GetRoomNo(this), 1);
+        if (mPath.isPath()) {
             fopAcM_OffStatus(this, 0x80);
             weight = 0xD9;
             set_pthPoint(0);
@@ -140,7 +140,7 @@ bool daNpc_Kf1_c::createInit() {
             return false;
         }
     }
-    if (!mPath.getPath()) {
+    if (mPath.isPath() == false) {
         return false;
     }
     attention_info.flags = 0xA;
@@ -186,7 +186,7 @@ void daNpc_Kf1_c::play_animation() {
     if (mObjAcch.ChkGroundHit()) {
         sound = dComIfG_Bgsp()->GetMtrlSndId(mObjAcch.m_gnd);
     }
-    mAnmEnded = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(current.roomNo));
+    mAnmEnded = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     if (mpMorf->getFrame() < mLastFrame) {
         mAnmEnded = 1;
     }
@@ -561,10 +561,15 @@ void daNpc_Kf1_c::create_rupee(cXyz pos, int count) {
     counter = g_Counter.mCounter0;
     for (i = 0; i < count; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
+#if VERSION == VERSION_DEMO
+        random = offsets[counter % 3] + (cM_rndF(30.0f) - 15.0f);
+        s16 scaled = (s16)((s16)random * (0x7FFF / 180.0f));
+#else
         random = cM_rndF(30.0f) - 15.0f;
         f32 off = offsets[counter % 3];
         random = off + random;
         s16 scaled = cM_deg2s((s16)random);
+#endif
         angle.y = current.angle.y + scaled;
         room = current.roomNo;
         a_actor_p = fopAcM_createItemForKP2(&pos, 4, room, NULL, NULL, 13.0f + cM_rndFX(2.0f), 31.0f + cM_rndFX(4.0f), -2.0f, 1);
@@ -596,7 +601,7 @@ void daNpc_Kf1_c::ready_kutaniCamera(int index, int create) {
         angle.y = a_actor->current.angle.y;
         cXyz pos = a_actor->current.pos;
         pos.y = 180.0f+pos.y;
-        a_actor = fopAcM_createItemForKP2(&pos, 4, current.roomNo, NULL, NULL, 0.0f, 0.0f, -4.0f, 1);
+        a_actor = fopAcM_createItemForKP2(&pos, 4, fopAcM_GetRoomNo(this), NULL, NULL, 0.0f, 0.0f, -4.0f, 1);
         JUT_ASSERT(1086, 0 != a_actor);
         fopAcM_OnStatus(a_actor, 0x4000);
         fopAcM_OffStatus(a_actor, 0x80);
@@ -647,10 +652,11 @@ void daNpc_Kf1_c::lookBack() {
 
 /* 00001BD0-00001C50       .text chkAttention__11daNpc_Kf1_cFv */
 bool daNpc_Kf1_c::chkAttention() {
-    if (dComIfGp_getAttention().LockonTruth()) {
-        return this == dComIfGp_getAttention().LockonTarget(0);
+    dAttention_c& attention = dComIfGp_getAttention();
+    if (attention.LockonTruth()) {
+        return this == attention.LockonTarget(0);
     }
-    return this == dComIfGp_getAttention().ActionTarget(0);
+    return this == attention.ActionTarget(0);
 }
 
 /* 00001C50-00001CA8       .text setAttention__11daNpc_Kf1_cFb */
@@ -828,6 +834,26 @@ bool daNpc_Kf1_c::cut_move_PLYER_MOV() {
 
 /* 0000228C-000023E8       .text cut_init_RUPEE_SET__11daNpc_Kf1_cFi */
 void daNpc_Kf1_c::cut_init_RUPEE_SET(int) {
+#if VERSION == VERSION_DEMO
+    int item_no;
+    fopAc_ac_c* a_tsubo_actor;
+    int index;
+    int i;
+    if (mPotCount == 8) {
+        u8 selected[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+        for (i = 0; i < 3; i++) {
+            do {
+                index = cM_rndF(32.0f) / 4.0f;
+            } while (selected[index]);
+            a_tsubo_actor = fopAcM_SearchByID(mPotIDs[index]);
+            JUT_ASSERT(1475, 0 != a_tsubo_actor);
+            ((daTsubo::Act_c*)a_tsubo_actor)->prm_set_itemNo(item_no = dItemNo_RED_RUPEE_e);
+            dComIfGp_event_setItemPartner(a_tsubo_actor);
+            mAttentionPotIDs[i] = mPotIDs[index];
+            selected[index] = 1;
+        }
+    }
+#else
     if (mPotCount == 8) {
         u8 selected[8] = {0, 0, 0, 0, 0, 0, 0, 0};
         int index;
@@ -843,6 +869,7 @@ void daNpc_Kf1_c::cut_init_RUPEE_SET(int) {
             selected[index] = 1;
         }
     }
+#endif
     setAnm_NUM(8, 1);
 }
 
@@ -853,7 +880,7 @@ bool daNpc_Kf1_c::cut_move_RUPEE_SET() {
     if (!mAnmEnded) {
         if (mpMorf->checkFrame(68.0f)) {
             cXyz offset(0, 40, 40), pos;
-            mDoAud_seStart(JA_SE_OBJ_LUPY_OUT, NULL, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_LUPY_OUT, NULL, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
             mDoMtx_stack_c::transS(current.pos);
             mDoMtx_stack_c::YrotM(current.angle.y);
             mDoMtx_stack_c::multVec(&offset, &pos);
@@ -918,7 +945,7 @@ bool daNpc_Kf1_c::cut_move_TSUBO_ATN() {
         }
         return true;
     }
-    if (mCutTimer == 20)mDoAud_seStart(JA_SE_OBJ_LUPY_IN_POT, NULL, 0, dComIfGp_getReverb(current.roomNo));
+    if (mCutTimer == 20)mDoAud_seStart(JA_SE_OBJ_LUPY_IN_POT, NULL, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     return false;
 }
 
@@ -1170,7 +1197,7 @@ void daNpc_Kf1_c::setStt(s8 state) {
 
 /* 00002F88-00003030       .text set_pthPoint__11daNpc_Kf1_cFUc */
 void daNpc_Kf1_c::set_pthPoint(u8 point) {
-    if (mPath.getPath()) {
+    if (mPath.isPath() != false) {
         mPath.setIdx(point);
         current.pos = mPath.getPoint(mPath.getIdx());
         if (mPath.nextIdx()) {
@@ -1204,7 +1231,7 @@ BOOL daNpc_Kf1_c::orderTsuboEvent() {
             return TRUE;
         }
     }
-    else if (mSwitch != 0xFF && dComIfGs_isSwitch(mSwitch, current.roomNo)) {
+    else if (mSwitch != 0xFF && dComIfGs_isSwitch(mSwitch, fopAcM_GetRoomNo(this))) {
         if (mPotCount>chk_tsubo()) {
             mEventOrder = 5;
             return TRUE;
@@ -1247,7 +1274,7 @@ BOOL daNpc_Kf1_c::wait_1() {
 
 /* 0000327C-000034C4       .text walk_1__11daNpc_Kf1_cFv */
 BOOL daNpc_Kf1_c::walk_1() {
-    if (!mPath.getPath()) {
+    if (mPath.isPath() == false) {
         return TRUE;
     }
     if (dPath_ChkClose(mPath.getPath())) {
@@ -1428,7 +1455,7 @@ BOOL daNpc_Kf1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) {
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) {
             staff = isEventEntry();
         }
         if (staff >= 0 || mEventActive) {
@@ -1439,7 +1466,7 @@ BOOL daNpc_Kf1_c::_execute() {
         lookBack();
         fopAcM_posMoveF(this, mStts.GetCCMoveP());
         mWasGrounded = mObjAcch.ChkGroundHit() != 0;
-        mWasWaterIn = mObjAcch.ChkWaterIn();
+        mWasWaterIn = mObjAcch.ChkWaterIn() != 0;
         mObjAcch.CrrPos(*dComIfG_Bgsp());
         play_animation();
     } else mHidden = 0;
@@ -1459,16 +1486,28 @@ BOOL daNpc_Kf1_c::_execute() {
 
 /* 00003BC4-00003C18       .text _delete__11daNpc_Kf1_cFv */
 BOOL daNpc_Kf1_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mLoaded) {
+        l_HIO.removeHIO();
+        dComIfG_resDelete(&mPhase, mArcName);
+        if (mpMorf != NULL) {
+            mpMorf->stopZelAnime();
+        }
+    }
+#else
     dComIfG_resDelete(&mPhase, mArcName);
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return TRUE;
 }
 
 /* 00003C18-00003E64       .text _create__11daNpc_Kf1_cFv */
 cPhs_State daNpc_Kf1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Kf1_c);
+#endif
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
     }
@@ -1477,8 +1516,15 @@ cPhs_State daNpc_Kf1_c::_create() {
     if (!mLoaded) {
         return phase;
     }
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("金持ちム−ルの父");
+    fopAcM_SetupActor(this, daNpc_Kf1_c);
+#endif
     static u32 a_siz_tbl[] = {0, 0};
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_siz_tbl[mType])) {
+#if VERSION == VERSION_DEMO
+        mLoaded = false;
+#endif
         return cPhs_ERROR_e;
     }
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -1492,7 +1538,7 @@ cPhs_State daNpc_Kf1_c::_create() {
 /* 00004130-0000442C       .text bodyCreateHeap__11daNpc_Kf1_cFv */
 BOOL daNpc_Kf1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KF_BDL_KF_e);
-    JUT_ASSERT(2431, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(2427, 2431), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, TRUE, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) {
         return FALSE;
@@ -1506,11 +1552,11 @@ BOOL daNpc_Kf1_c::bodyCreateHeap() {
         return FALSE;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(2451, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(2447, 2451), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(2453, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(2449, 2453), m_bbone_jnt_num >= 0);
     m_nck_jnt_num = a_mdl_dat->getJointName()->getIndex("neck");
-    JUT_ASSERT(2455, m_nck_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(2451, 2455), m_nck_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_nck_jnt_num)->setCallBack(nodeCB_Neck);
@@ -1521,7 +1567,7 @@ BOOL daNpc_Kf1_c::bodyCreateHeap() {
 /* 0000442C-000044EC       .text itemCreateHeap__11daNpc_Kf1_cFv */
 BOOL daNpc_Kf1_c::itemCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KF_BDL_KF_HAIR_e);
-    JUT_ASSERT(2476, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(2472, 2476), a_mdl_dat != 0);
     mpItemModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     if (mpItemModel == NULL) {
         return FALSE;
@@ -1539,7 +1585,10 @@ BOOL daNpc_Kf1_c::CreateHeap() {
         return FALSE;
     }
     mAcchCir.SetWall(30.0f, 90.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    cXyz* speed_p = &speed;
+    cXyz* old_pos_p = &old.pos;
+    cXyz* current_pos_p = &current.pos;
+    mObjAcch.Set(current_pos_p, old_pos_p, this, 1, &mAcchCir, speed_p, NULL, NULL);
     return TRUE;
 }
 
