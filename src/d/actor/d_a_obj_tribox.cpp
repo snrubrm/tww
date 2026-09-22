@@ -287,9 +287,15 @@ cPhs_State daObjTribox::Act_c::_create() {
 bool daObjTribox::Act_c::_delete() {
     sound_pos_delete();
     controll_clear();
+#if VERSION > VERSION_DEMO
     eff_smoke_remove();
     eff_sink_smoke_remove();
+#endif
     if (mState == State_BLOCK_BEFORE_e || mState == State_CORRECT_AFTER_e) {
+#if VERSION == VERSION_DEMO
+        eff_smoke_remove();
+        eff_sink_smoke_remove();
+#endif
         if (mpBgW != NULL) {
             mpBgW->SetPushPullCallback(NULL);
         }
