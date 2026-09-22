@@ -22,7 +22,8 @@ public:
     /* 0x100 */ JKRExpHeap* field_0x100;
     /* 0x104 */ dMesg_outFont_c* outfont[18];
     /* 0x14C */ dMesg_screenData_c* screen;
-    /* 0x150 */ u8 field_0x150[0x154 - 0x150];
+    /* 0x150 */ u16 field_0x150;
+    /* 0x152 */ u8 field_0x152[0x154 - 0x152];
     /* 0x154 */ char* text[4];
     /* 0x164 */ u8 field_0x164;
 };
@@ -215,7 +216,9 @@ public:
     virtual ~dMesg_screenData_c() {}
     virtual void draw() {}
     virtual void createScreen() {}
+#if VERSION > VERSION_JPN
     virtual void changeFont(JUTFont*) {}
+#endif
     virtual void move() {}
     virtual bool openAnime() = 0;
     virtual bool closeAnime() = 0;
@@ -251,7 +254,9 @@ class dMesg_screenDataTalk_c : public dMesg_screenData_c {
 public:
     virtual ~dMesg_screenDataTalk_c() {}
     virtual void createScreen();
+#if VERSION > VERSION_JPN
     virtual void changeFont(JUTFont*);
+#endif
     virtual bool openAnime();
     virtual bool closeAnime();
     virtual void setTextPosition(u8);
@@ -265,7 +270,9 @@ class dMesg_screenDataItem_c : public dMesg_screenData_c {
 public:
     virtual ~dMesg_screenDataItem_c() {}
     virtual void createScreen();
+#if VERSION > VERSION_JPN
     virtual void changeFont(JUTFont*);
+#endif
     virtual void deleteScreen();
     virtual bool openAnime();
     virtual bool closeAnime();
