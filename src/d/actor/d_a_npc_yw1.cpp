@@ -284,7 +284,8 @@ int daNpc_Yw1_c::btpResID(int index) {
 bool daNpc_Yw1_c::init_texPttrnAnm(s8 index, bool modify) {
     J3DModel* model = mpHeadModel;
     if (index < 0) return false;
-    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Yw", btpResID(index));
+    int res = btpResID(index);
+    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Yw", res);
     JUT_ASSERT(VERSION_SELECT(0x25E, 0x25F, 0x28A, 0x28A), a_btp != 0);
     mBtpNo = index;
     mTexFrame = 0;
