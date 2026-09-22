@@ -2136,37 +2136,19 @@ void action_summon_dousa(wz_class* i_this) {
         }
         for (int i = 0; i < 5; i++) {
             JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZSUMMONWIND00, &actor->current.pos);
-#if VERSION == VERSION_DEMO
-            f32 sx, sy, sz;
-            sz = actor->scale.z;
-            sy = actor->scale.y;
-            sx = actor->scale.x;
-#else
-            f32 sx = actor->scale.x;
-            f32 sy = actor->scale.y;
-            f32 sz = actor->scale.z;
-#endif
+            JGeometry::TVec3<f32> scale(actor->scale.x, actor->scale.y, actor->scale.z);
             if (emitter != NULL) {
-                emitter->setGlobalDynamicsScale(sx, sy, sz);
-                emitter->setGlobalParticleScale(JGeometry::TVec3<f32>(sx, sy, sz));
+                emitter->setGlobalDynamicsScale(scale);
+                emitter->setGlobalParticleScale(scale);
             }
         }
         fopAcM_seStart(actor, JA_SE_OBJ_WZ_SUMMON_B_SMN, 0);
         {
             JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZSUMMONSMOKE00, &actor->current.pos);
-#if VERSION == VERSION_DEMO
-            f32 sx, sy, sz;
-            sz = actor->scale.z;
-            sy = actor->scale.y;
-            sx = actor->scale.x;
-#else
-            f32 sx = actor->scale.x;
-            f32 sy = actor->scale.y;
-            f32 sz = actor->scale.z;
-#endif
+            JGeometry::TVec3<f32> scale(actor->scale.x, actor->scale.y, actor->scale.z);
             if (emitter != NULL) {
-                emitter->setGlobalDynamicsScale(sx, sy, sz);
-                emitter->setGlobalParticleScale(JGeometry::TVec3<f32>(sx, sy, sz));
+                emitter->setGlobalDynamicsScale(scale);
+                emitter->setGlobalParticleScale(scale);
             }
         }
         i_this->mTimers[0] = 0x28;
