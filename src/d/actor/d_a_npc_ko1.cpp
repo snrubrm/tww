@@ -814,7 +814,7 @@ bool daNpc_Ko1_c::chk_talk() {
 bool daNpc_Ko1_c::chk_manzai_1() {
     int ready = 0;
     for (int i = 0; i < mPartnerNum; i++) {
-        fopAc_ac_c* a_actor = searchByID((&mPartnerId)[i]);
+        fopAc_ac_c* a_actor = searchByID(mPartnerId[i]);
         JUT_ASSERT(0x582, 0 != a_actor);
         daNpc_Ko1_c* npc = (daNpc_Ko1_c*)a_actor;
         if (npc->field_0x6bc[0] == 2) {
@@ -827,19 +827,19 @@ bool daNpc_Ko1_c::chk_manzai_1() {
     }
     bool result = ready == mPartnerNum;
     if (result) {
-        fopAc_ac_c* partner = searchByID(mPartnerId);
+        fopAc_ac_c* partner = searchByID(mPartnerId[0]);
         switch (mStaff) {
         case 1:
             dComIfGp_setMesgCameraInfoActor(partner, this, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             break;
         case 3:
-            dComIfGp_setMesgCameraInfoActor(partner, searchByID(mObId), this, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+            dComIfGp_setMesgCameraInfoActor(partner, searchByID(mPartnerId[1]), this, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             break;
         case 6:
             dComIfGp_setMesgCameraInfoActor(this, partner, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             break;
         case 7:
-            dComIfGp_setMesgCameraInfoActor(this, searchByID(mObId), partner, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+            dComIfGp_setMesgCameraInfoActor(this, searchByID(mPartnerId[1]), partner, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
             break;
         }
         field_0x6bc[0] = 2;
@@ -1137,26 +1137,26 @@ void daNpc_Ko1_c::partner_srch() {
         case 0:
             break;
         case 1:
-            mPartnerId = partner_srch_sub(searchActor_Ko_Bou);
+            mPartnerId[0] = partner_srch_sub(searchActor_Ko_Bou);
             mPartnerNum = 1;
             break;
         case 2:
             break;
         case 3:
-            mPartnerId = partner_srch_sub(searchActor_Ko_Bou);
-            mObId = partner_srch_sub(searchActor_Ob);
+            mPartnerId[0] = partner_srch_sub(searchActor_Ko_Bou);
+            mPartnerId[1] = partner_srch_sub(searchActor_Ob);
             mPartnerNum = 2;
             break;
         case 4:
         case 5:
             break;
         case 6:
-            mPartnerId = partner_srch_sub(searchActor_Ko_Hna);
+            mPartnerId[0] = partner_srch_sub(searchActor_Ko_Hna);
             mPartnerNum = 1;
             break;
         case 7:
-            mPartnerId = partner_srch_sub(searchActor_Ko_Hna);
-            mObId = partner_srch_sub(searchActor_Ob);
+            mPartnerId[0] = partner_srch_sub(searchActor_Ko_Hna);
+            mPartnerId[1] = partner_srch_sub(searchActor_Ob);
             mPartnerNum = 2;
             break;
         case 8:
@@ -1592,7 +1592,7 @@ void daNpc_Ko1_c::clrSpd() {
 
 /* 000044E8-00004B18       .text setStt__11daNpc_Ko1_cFSc */
 void daNpc_Ko1_c::setStt(signed char state) {
-    fopAc_ac_c* a_partner = searchByID(mPartnerId);
+    fopAc_ac_c* a_partner = searchByID(mPartnerId[0]);
     s8 prev = mState;
     m84E = 0;
     mState = state;
@@ -1918,7 +1918,7 @@ BOOL daNpc_Ko1_c::wait_6() {
 
 /* 00005088-000052D4       .text wait_7__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::wait_7() {
-    fopAc_ac_c* a_partner = searchByID(mPartnerId);
+    fopAc_ac_c* a_partner = searchByID(mPartnerId[0]);
     JUT_ASSERT(DEMO_SELECT(0xB5E, 0xB6B), a_partner != 0);
     if (mTalking) {
         if (chk_talk()) {
@@ -1978,7 +1978,7 @@ BOOL daNpc_Ko1_c::wait_9() {
 
 /* 000053F8-00005524       .text wait_a__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::wait_a() {
-    fopAc_ac_c* a_partner = searchByID(mPartnerId);
+    fopAc_ac_c* a_partner = searchByID(mPartnerId[0]);
     JUT_ASSERT(DEMO_SELECT(0xBAF, 0xBC3), a_partner != 0);
     if (mTalking) {
         if (chk_talk()) {
@@ -2159,7 +2159,7 @@ BOOL daNpc_Ko1_c::attk_2(signed char param_0, signed char param_1) {
 
 /* 00005C94-00005DEC       .text attk_3__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::attk_3() {
-    fopAc_ac_c* a_partner = searchByID(mPartnerId);
+    fopAc_ac_c* a_partner = searchByID(mPartnerId[0]);
     JUT_ASSERT(DEMO_SELECT(0xCB7, 0xCD2), a_partner != 0);
     mArrived = 0;
     if (field_0x6bc[0] == 1) {
@@ -2263,7 +2263,7 @@ BOOL daNpc_Ko1_c::talk_1() {
 BOOL daNpc_Ko1_c::talk_2() {
     int ready = 0;
     for (int i = 0; i < mPartnerNum; i++) {
-        fopAc_ac_c* a_actor = searchByID((&mPartnerId)[i]);
+        fopAc_ac_c* a_actor = searchByID(mPartnerId[i]);
         JUT_ASSERT(DEMO_SELECT(0xD3E, 0xD59), 0 != a_actor);
         daNpc_Ko1_c* npc = (daNpc_Ko1_c*)a_actor;
         if (npc->field_0x6bc[0] != 0) {

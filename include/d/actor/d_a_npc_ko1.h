@@ -172,8 +172,7 @@ public:
     /* 0x73C */ dNpc_PathRun_c mPath;
     /* 0x744 */ dPath* mpSavedPath;
     /* 0x748 */ dNpc_EventCut_c mCut;
-    /* 0x7B4 */ fpc_ProcID mPartnerId;
-    /* 0x7B8 */ fpc_ProcID mObId;
+    /* 0x7B4 */ fpc_ProcID mPartnerId[2];
     /* 0x7BC */ u8 mPartnerNum;
     /* 0x7BD */ u8 m7BD[0x7C0 - 0x7BD];
     /* 0x7C0 */ fpc_ProcID mCrsActorId;
