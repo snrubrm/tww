@@ -176,7 +176,7 @@ BOOL daWarpmj_c::actWarp(int) {
 /* 00000C38-00000C94       .text initWarpArrive__10daWarpmj_cFi */
 void daWarpmj_c::initWarpArrive(int) {
     setEndAnm();
-    mDoAud_seStart(JA_SE_LK_GN_WAPR_U_OUT);
+    mDoAud_seStart(VERSION_SELECT(JA_SE_LK_GN_WAPR_D_OUT, JA_SE_LK_GN_WAPR_D_OUT, JA_SE_LK_GN_WAPR_U_OUT, JA_SE_LK_GN_WAPR_U_OUT));
 }
 
 /* 00000C94-00000CB8       .text actWarpArrive__10daWarpmj_cFi */
