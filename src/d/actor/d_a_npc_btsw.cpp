@@ -1319,6 +1319,7 @@ void SwMail2_c::Wait() {
     field_0x24 += diff;
 
     field_0x24.y -= 40.0f + REG10_F(1);
+    // The redundant (s16) adds a coalesced conversion temp that swaps r0/r3 below; no other form found.
     field_0x48.set((s16)field_0x4E.x, field_0x4E.y + new_y + REG10_S(1), field_0x4E.z + REG10_S(2));
 #else
     diff = diff * 120.0f;
