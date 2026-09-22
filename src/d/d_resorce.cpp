@@ -715,9 +715,13 @@ int dRes_control_c::setStageRes(char const* pArcName, JKRHeap* pHeap) {
 void dRes_control_c::dump() {
     JUTReportConsole_f("\ndRes_control_c::dump mObjectInfo\n");
     dRes_info_c::dump(&mObjectInfo[0], ARRAY_SIZE(mObjectInfo));
+#if VERSION > VERSION_DEMO
     dRes_info_c::dump_long(&mObjectInfo[0], ARRAY_SIZE(mObjectInfo));
+#endif
 
     JUTReportConsole_f("\ndRes_control_c::dump mStageInfo\n");
     dRes_info_c::dump(&mStageInfo[0], ARRAY_SIZE(mStageInfo));
+#if VERSION > VERSION_DEMO
     dRes_info_c::dump_long(&mStageInfo[0], ARRAY_SIZE(mStageInfo));
+#endif
 }
