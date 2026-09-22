@@ -1504,7 +1504,6 @@ void daPz_c::modeAttack() {
     }
 
     cXyz aimOff(m0F44, m0F44, m0F44);
-    (void)aimOff;
 
     if (m0F48 == 0) {
         if (mbHasGanondorf) {
