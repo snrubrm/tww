@@ -5,9 +5,9 @@
 
 char* __GXVersion = "<< Dolphin SDK - GX\trelease build: Sep  5 2002 05:33:28 (0x2301) >>";
 
-GXData gxData;
+static GXData gxData;
 
-GXFifoObj FifoObj;
+static GXFifoObj FifoObj;
 
 GXData* const gx = &gxData;
 
@@ -31,14 +31,6 @@ GXTlutRegion* __GXDefaultTlutRegionCallback(u32 tlut) {
     }
 }
 
-u32 resetFuncRegistered;
-
-u32 calledOnce;
-
-OSTime time;
-
-u32 peCount;
-
 vu16* __memReg;
 
 u16* __peReg;
@@ -47,11 +39,6 @@ u16* __cpReg;
 
 /* ############################################################################################## */
 u32* __piReg;
-
-static u16 DefaultTexData[] ALIGN_DECL(32) = {
-    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
-    0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF,
-};
 
 static GXVtxAttrFmtList GXDefaultVATList[] = {
     {GX_VA_POS, GX_POS_XYZ, GX_F32, 0},
@@ -71,15 +58,7 @@ static GXVtxAttrFmtList GXDefaultVATList[] = {
 
 static f32 GXDefaultProjData[] = {1.0f, 0.0f, 1.0f, 0.0f, -1.0f, -2.0f, 0.0f};
 
-static u32 GXTexRegionAddrTable[] = {
-    0x00000, 0x10000, 0x20000, 0x30000, 0x40000, 0x50000, 0x60000, 0x70000, 0x08000, 0x18000,
-    0x28000, 0x38000, 0x48000, 0x58000, 0x68000, 0x78000, 0x00000, 0x90000, 0x20000, 0xB0000,
-    0x40000, 0x98000, 0x60000, 0xB8000, 0x80000, 0x10000, 0xA0000, 0x30000, 0x88000, 0x50000,
-    0xA8000, 0x70000, 0x00000, 0x90000, 0x20000, 0xB0000, 0x40000, 0x90000, 0x60000, 0xB0000,
-    0x80000, 0x10000, 0xA0000, 0x30000, 0x80000, 0x50000, 0xA0000, 0x70000,
-};
-
-static void EnableWriteGatherPipe(void) {
+static inline void EnableWriteGatherPipe(void) {
     u32 hid2 = PPCMfhid2();
     PPCMtwpar(OSUncachedToPhysical((void*)GXFIFO_ADDR));
     hid2 |= 0x40000000;
@@ -91,7 +70,6 @@ GXFifoObj* GXInit(void* base, u32 size) {
     u32 reg;
     u32 freqBase;
     u8 padding[16];
-    GXData* data = &gxData;
 
     OSRegisterVersion(__GXVersion);
     gx->inDispList = GX_FALSE;
@@ -109,9 +87,9 @@ GXFifoObj* GXInit(void* base, u32 size) {
 
     __GXFifoInit();
 
-    GXInitFifoBase((GXFifoObj*)(data + 1), base, size);
-    GXSetCPUFifo((GXFifoObj*)(data + 1));
-    GXSetGPFifo((GXFifoObj*)(data + 1));
+    GXInitFifoBase(&FifoObj, base, size);
+    GXSetCPUFifo(&FifoObj);
+    GXSetGPFifo(&FifoObj);
 
     __GXPEInit();
     EnableWriteGatherPipe();
@@ -243,7 +221,7 @@ GXFifoObj* GXInit(void* base, u32 size) {
     __GXSetTmemConfig(0);
     __GXInitGX();
 
-    return (GXFifoObj*)(data + 1);
+    return &FifoObj;
 }
 
 void __GXInitGX(void) {
