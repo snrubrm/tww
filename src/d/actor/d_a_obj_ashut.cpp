@@ -71,7 +71,7 @@ cPhs_State daObjAshut::Act_c::Mthd_Create() {
     fopAcM_SetupActor(this, Act_c);
     cPhs_State phase_state = dComIfG_resLoad(&mPhs, M_arcname);
     if (phase_state == cPhs_COMPLEATE_e) {
-        phase_state = MoveBGCreate(M_arcname, dRes_INDEX_ASHUT_DZB_ASHUT_e, NULL, 0x760);
+        phase_state = MoveBGCreate(M_arcname, dRes_INDEX_ASHUT_DZB_ASHUT_e, NULL, DEMO_SELECT(0x8000, 0x760));
         JUT_ASSERT(312, (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
         if (is_switch() && mpBgW->ChkUsed()) dComIfG_Bgsp()->Release(mpBgW);
     }
