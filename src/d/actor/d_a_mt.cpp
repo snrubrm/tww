@@ -186,6 +186,7 @@ static BOOL nodeCallBack_head(J3DNode* node, int calcTiming) {
         mt_class* i_this = (mt_class*)model->getUserArea();
 
         if (i_this != NULL) {
+            cXyz unused;
             MTXCopy(model->getAnmMtx(jntNo), *calc_mtx);
             if (jntNo == 2) {
                 cMtx_YrotM(*calc_mtx, -i_this->mJntRot[0].x);
@@ -201,12 +202,6 @@ static BOOL nodeCallBack_head(J3DNode* node, int calcTiming) {
         }
     }
     return TRUE;
-}
-
-// Fakematch? Fixes ~cXyz dtor ordering.
-static void dummy() {
-    cXyz temp;
-    temp.~cXyz();
 }
 
 /* 0000075C-0000098C       .text nodeCallBack_body__FP7J3DNodei */

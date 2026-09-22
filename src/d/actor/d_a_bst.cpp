@@ -127,6 +127,7 @@ static BOOL nodeCallBackHead(J3DNode* node, int calcTiming) {
         J3DModel* model = j3dSys.getModel();
         bst_class* i_this = (bst_class*)model->getUserArea();
         if (i_this != NULL) {
+            cXyz unused;
             MtxP mtx = model->getAnmMtx(jnt_no);
             cMtx_copy(mtx, *calc_mtx);
             if (jnt_no == BST_JNT_MABURTAR1_e) {
@@ -143,12 +144,6 @@ static BOOL nodeCallBackHead(J3DNode* node, int calcTiming) {
         }
     }
     return TRUE;
-}
-
-// Fakematch? Fixes ~cXyz dtor ordering.
-static void dummy() {
-    cXyz temp;
-    temp.~cXyz();
 }
 
 /* 00000550-000005B4       .text beam_draw__FP9bst_class */
