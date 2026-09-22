@@ -1289,7 +1289,7 @@ u8 daNpc_Ym1_c::demo() {
             mBtpNo = 1;
             mTexFrame = 0;
         }
-        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName, 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName);
     }
     return m8A6;
 }

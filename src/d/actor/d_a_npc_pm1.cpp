@@ -549,7 +549,7 @@ u8 daNpc_Pm1_c::demo() {
     } else {
         mDemo = 1;
         dComIfGp_demo_getActor(demoActorID);
-        dDemo_setDemoData(this, 0x6A, mpMorf, "Pm", 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, "Pm");
     }
     return mDemo;
 }

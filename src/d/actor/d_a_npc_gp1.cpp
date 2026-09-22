@@ -1080,7 +1080,7 @@ u8 daNpc_Gp1_c::demo() {
                 mBtpFrame = 0;
             }
         }
-        dDemo_setDemoData(this, 0x6A, mpMorf, "Gp", 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, "Gp");
     }
     return mDemo;
 }

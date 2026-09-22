@@ -697,7 +697,7 @@ u8 daNpc_Gk1_c::demo() {
             mTexIndex = 1;
             mBtpFrame = 0;
         }
-        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName, 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName);
     }
     return mDemo;
 }

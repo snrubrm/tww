@@ -1378,7 +1378,7 @@ u8 daNpc_Kf1_c::demo() {
             mTexIndex = 2;
             mBtpFrame = 0;
         }
-        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName, 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName);
     }
     return mDemo;
 }

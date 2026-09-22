@@ -214,7 +214,7 @@ static BOOL j_demo(gnd_class* i_this) {
             i_this->mpBrkAnm->init(i_this->mpMorf->getModel()->getModelData(), brk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, true, 0);
         }
 
-        dDemo_setDemoData(i_this, 0x6A, i_this->mpMorf, "Gnd", 0, NULL, 0, 0);
+        dDemo_setDemoData(i_this, 0x6A, i_this->mpMorf, "Gnd");
     }
     return i_this->m15B0;
 }

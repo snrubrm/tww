@@ -1281,7 +1281,7 @@ u8 daNpc_Ob1_c::demo() {
                 mBtpFrame = 0;
             }
         }
-        dDemo_setDemoData(this, 0x6A, mpMorf, "Ob", 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, "Ob");
     }
     return mDemo;
 }
