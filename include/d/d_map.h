@@ -166,7 +166,7 @@ public:
     void setUseRoom() {}
     void checkUseRoom() {}
     void getStageMapInfoPE() {}
-    void getStageMapInfoCmPDot() {}
+    f32 getStageMapInfoCmPDot() { return getStageMapInfoP()->field_0x30; }
     f32 getStageMapInfoMap0_X0() { return getStageMapInfoP()->field_0x00; }
     f32 getStageMapInfoMap0_X1() { return getStageMapInfoP()->field_0x08; }
     f32 getStageMapInfoMap0_Z0() { return getStageMapInfoP()->field_0x04; }

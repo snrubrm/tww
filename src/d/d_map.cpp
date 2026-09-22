@@ -454,10 +454,6 @@ static inline f32 getMapInfo_map1_ZC(stage_map_info_class* i_mapInfoP) {
     return i_mapInfoP->field_0x2c;
 }
 
-static inline f32 getMapInfo_scale(stage_map_info_class* i_mapInfoP) {
-    return i_mapInfoP->field_0x30;
-}
-
 static inline int gridPos2GridNo(int i_gridX, int i_gridY) {
     JUT_ASSERT(VERSION_SELECT(1258, 1184, 1188, 1188), (i_gridX >= -3) && (i_gridX <= 3) && (i_gridY >= -3) && (i_gridY <= 3));
     return i_gridX + 3 + (i_gridY + 3) * 7;
@@ -1124,8 +1120,8 @@ void dMap_RoomInfo_c::roomDrawRoomRealSize(int param_1, int param_2, int param_3
         f32 f27 = getStageMapInfoP()->field_0x30 / param_10;
 #if VERSION == VERSION_DEMO
         field_0x8c.setCenterPos(
-            field_0x28 * 0.5f + (param_5 - param_7) / getMapInfo_scale(getStageMapInfoP()),
-            field_0x2c * 0.5f + (param_6 - param_8) / getMapInfo_scale(getStageMapInfoP())
+            field_0x28 * 0.5f + (param_5 - param_7) / getStageMapInfoCmPDot(),
+            field_0x2c * 0.5f + (param_6 - param_8) / getStageMapInfoCmPDot()
         );
 #else
         field_0x8c.setCenterPos(
@@ -1652,8 +1648,8 @@ void dMap_c::mapDrawRealSize(f32 param_1, f32 param_2, u8 i_alpha) {
                 param_1, param_2,
                 getMapInfo_map1_XC(mNowRoomInfoP->getStageMapInfoP()),
                 getMapInfo_map1_ZC(mNowRoomInfoP->getStageMapInfoP()),
-                getMapInfo_scale(mNowRoomInfoP->getStageMapInfoP()),
-                getMapInfo_scale(mNowRoomInfoP->getStageMapInfoP()),
+                mNowRoomInfoP->getStageMapInfoCmPDot(),
+                mNowRoomInfoP->getStageMapInfoCmPDot(),
                 i_alpha
             );
         }
