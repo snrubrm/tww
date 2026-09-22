@@ -221,6 +221,11 @@ void dMs_item_create(sub_ms_screen_class* i_Ms) {
         dMi_c->setSubItemTexBuffer(i, i_Ms->buffer_p[i + 24]);
     }
 
+#if VERSION == VERSION_PAL
+    dMi_c->setWordSaveTexBuffer(i_Ms->buffer_p[21]);
+    dMi_c->setTitleTexBuffer(i_Ms->title_p);
+#endif
+
     dMi_c->setArchive(i_Ms->arc);
     dMi_c->setFont(fonttype, rfonttype);
     dMi_c->setTextArea(i_Ms->name[0], i_Ms->name[1], i_Ms->note[0], i_Ms->note[1], i_Ms->dummy[0], i_Ms->dummy[1]);
@@ -261,6 +266,13 @@ void dMs_item_delete(sub_ms_screen_class* i_Ms) {
             i_Ms->buffer_p[i] = NULL;
         }
     }
+
+#if VERSION == VERSION_PAL
+    if (i_Ms->title_p != NULL) {
+        i_Ms->childHeap->free(i_Ms->title_p);
+        i_Ms->title_p = NULL;
+    }
+#endif
 
     if (dMi_c != NULL) {
         dComIfGp_setButtonInfo(0, dMi_c->getNowItem());

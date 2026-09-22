@@ -256,6 +256,18 @@ void dMenu_Item_c::screenSet() {
     fopMsgM_setPaneData(&m2298, scrn, 'cc11');
     fopMsgM_setPaneData(&m22D0, scrn, 'cc00');
 
+#if VERSION == VERSION_PAL
+    if (dComIfGs_getPalLanguage() != 0) {
+        char buf[20];
+        sprintf(buf, "title_item_%d.bti", dComIfGs_getPalLanguage());
+        JKRReadTypeResource(mTitleTexBuffer, 0x1000, 'TIMG', buf, mpArc);
+        ((J2DPicture*)scrn->search('tlit'))->changeTexture((ResTIMG*)mTitleTexBuffer, 0);
+        sprintf(buf, "word_save2_%d.bti", dComIfGs_getPalLanguage());
+        JKRReadTypeResource(mWordSaveTexBuffer, 0xc00, 'TIMG', buf, mpArc);
+        ((J2DPicture*)scrn->search('wdsv'))->changeTexture((ResTIMG*)mWordSaveTexBuffer, 0);
+    }
+#endif
+
     for (int i = 0; i < 21; i++) {
         u8 itemNo = dComIfGs_getItem(i);
         if (itemNo == 0xFF) {
@@ -294,8 +306,20 @@ void dMenu_Item_c::screenSet() {
     }
 
     {
+#if VERSION == VERSION_PAL
+        if (dComIfGs_getPalLanguage() != 0) {
+            char buf[20];
+            sprintf(buf, "cover_return_%d.bti", dComIfGs_getPalLanguage());
+            JKRArchive* archive = dComIfGp_getItemIconArchive();
+            JKRReadTypeResource(mSubItemTexBuffer[8], 0xc00, 'TIMG', buf, archive);
+        } else {
+            JKRArchive* archive = dComIfGp_getItemIconArchive();
+            JKRReadTypeResource(mSubItemTexBuffer[8], 0xc00, 'TIMG', "cover_return.bti", archive);
+        }
+#else
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(mSubItemTexBuffer[8], 0xc00, 'TIMG', "cover_return.bti", archive);
+#endif
         DCStoreRangeNoSync(mSubItemTexBuffer[8], 0xc00);
         ((J2DPicture*)m1038.pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[8], 0);
         ((J2DPicture*)m1230.pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[8], 0);
