@@ -168,11 +168,19 @@ void dMCloth_c::cloth_init() {
         int x = 0;
         s16 yAngle = -y * 3500;
         for (; x < INNER_SIZE; x++) {
+#if VERSION == VERSION_DEMO
+            pPosArr[x + y * INNER_SIZE].x = -1500.0f + 954.9299f * (1.0f + REG10_F(3)) * cM_ssin(x * 3276.8f) + x * (10.0f + REG10_F(8)) * cM_ssin(yAngle);
+            pPosArr[x + y * INNER_SIZE].y = -1500.0f + 300.0f * y;
+            pPosArr[x + y * INNER_SIZE].z = -3400.0f + 954.9299f * (0.75f + REG10_F(4)) * (1.0f - cM_scos(x * 3276.8f)) + x * (-5.0f + REG10_F(9)) * cM_scos(yAngle);
+
+            pOffArr[x + y * INNER_SIZE].set(-(320.0f + 1000.0f * REG10_F(20)) * cM_scos(x * 3276.8f + REG10_S(8) - 1000.0f), 0.0f, -(270.0f + 1000.0f * REG10_F(21)) * cM_ssin(x * 3276.8f + REG10_S(8) - 1000.0f));
+#else
             pPosArr[x + y * INNER_SIZE].x = cM_ssin(x * 3276.8f) * 954.9299f + -1500.0f + x * 10.0f * cM_ssin(yAngle);
             pPosArr[x + y * INNER_SIZE].y = y * 300.0f + -1500.0f;
             pPosArr[x + y * INNER_SIZE].z = (1.0f - cM_scos(x * 3276.8f)) * 716.1974f + -3400.0f + x * -5.0f * cM_scos(yAngle);
 
             pOffArr[x + y * INNER_SIZE].set(cM_scos(x * 3276.8f - 1000.0f) * -320.0f, 0.0f, cM_ssin(x * 3276.8f - 1000.0f) * -270.0f);
+#endif
         }
     }
 
@@ -233,7 +241,7 @@ void dMCloth_c::cloth_init() {
     case MENU_CLOTH_TYPE_CLOTH_ONLY: {
         mScale = HIO_CHILD.scale;
         mRot = HIO_CHILD.rot;
-        mRot.z += cM_deg2s(cM_rndFX(20.0f));
+        mRot.z += cM_deg2s(cM_rndFX(20.0f + DEMO_SELECT(REG10_F(10), 0.0f)));
         s32 n = HIO_CHILD.wavePreSteps;
         while (n--) {
             cloth_move_sin();
