@@ -45,17 +45,21 @@ public:
     /* 0x2D8 */ s16 mInitialSpawnDelay;
     /* 0x2DA */ u8 m2DA[0x2E8 - 0x2DA];
     /* 0x2E8 */ cXyz mNextPos;
+#if VERSION > VERSION_DEMO
     /* 0x2F4 */ u32 mShadowId;
     /* 0x2F8 */ cXyz* mpEsaPos;
     /* 0x2FC */ s16 m2FC;
     /* 0x2FE */ u8 m2FE[0x300 - 0x2FE];
     /* 0x300 */ f32 m300;
     /* 0x304 */ f32 m304;
+#endif
     /* 0x308 */ s16 m308;
     /* 0x30A */ s16 m30A;
     /* 0x30C */ s16 m30C;
     /* 0x30E */ s16 m30E;
+#if VERSION > VERSION_DEMO
     /* 0x310 */ s16 m310;
+#endif
     /* 0x314 */ f32 m314;
     /* 0x318 */ f32 m318;
     /* 0x31C */ f32 m31C;
@@ -77,6 +81,6 @@ public:
     /* 0xDC5 */ u8 mDC5[0xDC8 - 0xDC5];
 };
 
-STATIC_ASSERT(sizeof(pt_class) == 0xDC8);
+STATIC_ASSERT(sizeof(pt_class) == DEMO_SELECT(0xDB0, 0xDC8));
 
 #endif /* D_A_PT_H */
