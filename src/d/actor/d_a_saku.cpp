@@ -98,9 +98,14 @@ BOOL daSaku_c::saku_draw_sub(int id) {
 BOOL daSaku_c::mode_break_none(int id) {
     u32 fire = 0, brokenHit = 0;
     for (int i = 0; i < 3; i++) {
+#if VERSION > VERSION_JPN
         dCcD_Cyl* const cyl = &mCyl[id][i];
         if (cyl->ChkTgHit()) {
             cCcD_Obj* const hit = cyl->GetTgHitObj();
+#else
+        if (mCyl[id][i].ChkTgHit()) {
+            cCcD_Obj* const hit = mCyl[id][i].GetTgHitObj();
+#endif
             if (hit) {
                 if (mSturdinessType == 0) {
                     brokenHit |= bool(hit->ChkAtType(AT_TYPE_SWORD) ||
