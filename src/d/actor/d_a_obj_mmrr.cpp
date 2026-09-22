@@ -197,7 +197,7 @@ cPhs_State daObjMmrr::Act_c::_create() {
     fopAcM_SetupActor(this, Act_c);
     cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
     if (phase == cPhs_COMPLEATE_e) {
-        if (fopAcM_entrySolidHeap(this, solidHeapCB, 0x1a80)) {
+        if (fopAcM_entrySolidHeap(this, solidHeapCB, DEMO_SELECT(0x8000, 0x1a80))) {
             fopAcM_SetMtx(this, mpMirrorModel->getBaseTRMtx());
             init_mtx();
             init_cc();
@@ -213,7 +213,7 @@ cPhs_State daObjMmrr::Act_c::_create() {
 /* 0000122C-0000126C       .text _delete__Q29daObjMmrr5Act_cFv */
 bool daObjMmrr::Act_c::_delete() {
     eff_remove();
-    dComIfG_resDelete(&mPhase, M_arcname);
+    dComIfG_resDeleteDemo(&mPhase, M_arcname);
     return true;
 }
 
