@@ -6813,7 +6813,7 @@ bool dCamera_c::nonOwnerCamera(s32 param_1) {
 
     if (m11C == 0) {
         mViewCache.mCenter = relationalPos(mpLockonTarget, &local_90);
-        mViewCache.mDirection.Val(f27, DEG2S(f26), directionOf(mpLockonTarget).Inv());
+        mViewCache.mDirection.Val(f27, cAngle::d2s(f26), directionOf(mpLockonTarget).Inv());
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = f31;
         m100 = 1;
