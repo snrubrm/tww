@@ -200,7 +200,9 @@ void daObjBuoyflag::Packet_c::draw_hata(Act_c* actor) {
     DrawVtx_c* draw = &mDraw[mBuffer];
     u8* texture = &Khata::l_k_hata01TEX[actor->prm_get_texture() * 0x800];
     j3dSys.reinitGX();
+#if VERSION > VERSION_JPN
     GXSetNumIndStages(0);
+#endif
     dKy_GxFog_tevstr_set(tev);
     dKy_setLight_mine(tev);
     GXClearVtxDesc();
@@ -277,7 +279,9 @@ void daObjBuoyflag::Packet_c::draw_hata(Act_c* actor) {
 void daObjBuoyflag::Packet_c::draw_hasi(Act_c* actor) {
     dKy_tevstr_c* tev = &actor->tevStr;
     j3dSys.reinitGX();
+#if VERSION > VERSION_JPN
     GXSetNumIndStages(0);
+#endif
     dKy_GxFog_tevstr_set(tev);
     dKy_setLight_mine(tev);
     GXClearVtxDesc();
@@ -352,7 +356,9 @@ void daObjBuoyflag::Packet_c::draw() {
     Act_c* actor = (Act_c*)getUserArea();
     if (actor->attr_type().flag) draw_hata(actor);
     draw_hasi(actor);
+#if VERSION > VERSION_JPN
     J3DShape::resetVcdVatCache();
+#endif
 }
 
 /* 00000CB8-00000F7C       .text init__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
