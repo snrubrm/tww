@@ -607,7 +607,7 @@ void kankyou_hendou(bpw_class* i_this) {
 
     switch (i_this->mKankyouHendouState) {
     case 0:
-        for (int i = 0; i < 1; i++) {}
+        fVar1 = 0.0f;
         break;
     case 1:
         fVar1 = 1.0f;
