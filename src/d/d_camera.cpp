@@ -1877,7 +1877,7 @@ bool dCamera_c::pointInSight(cXyz* i_point) {
 
 /* 80165800-80165830       .text radiusActorInSight__9dCamera_cFP10fopAc_ac_cP10fopAc_ac_c */
 f32 dCamera_c::radiusActorInSight(fopAc_ac_c* i_actor1, fopAc_ac_c* i_actor2) {
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
     return radiusActorInSight(i_actor1, i_actor2, &mCenter, &mViewCache.mEye , mFovy, mBank.Val());
 #else
     return radiusActorInSight(i_actor1, i_actor2, &mViewCache.mCenter, &mViewCache.mEye , mFovy, mBank.Val());
