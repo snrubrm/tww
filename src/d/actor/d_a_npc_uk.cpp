@@ -108,6 +108,17 @@ BOOL daNpc_Uk_c::chkPositioning(f32 distance, f32 minY, f32 maxY, s16 minAngle, 
 /* 0000045C-000008B0       .text nextVisitMode__10daNpc_Uk_cFv */
 u8 daNpc_Uk_c::nextVisitMode() {
     cXyz delta;
+#if VERSION == VERSION_DEMO
+    daNpc_Mk_c* leader = (daNpc_Mk_c*)fopAcM_SearchByID(mLeaderID);
+    daPy_lk_c* player = daPy_getPlayerLinkActorClass();
+    u8 mode;
+
+    if (leader == NULL) {
+        mVisitMode = 0;
+    } else {
+        mode = leader->mVisitMode;
+    }
+#else
     fopAc_ac_c* actor = fopAcM_SearchByID(mLeaderID);
     daNpc_Mk_c* leader = (daNpc_Mk_c*)actor;
     daPy_lk_c* player = daPy_getPlayerLinkActorClass();
@@ -118,6 +129,7 @@ u8 daNpc_Uk_c::nextVisitMode() {
     } else {
         mode = ((daNpc_Mk_c*)actor)->mVisitMode;
     }
+#endif
 
     if (mVisitMode == 10 && mWaitTimer != 0) {
         mWaitTimer--;
@@ -409,7 +421,11 @@ BOOL daNpc_Uk_c::initTexPatternAnm(bool i_modify) {
     J3DModelData* modelData = mpHeadModel->getModelData();
 
     if (getShapeType() != 1) {
+#if VERSION == VERSION_DEMO
+        return FALSE;
+#else
         return TRUE;
+#endif
     }
 
     m_maba_tex_pattern = (J3DAnmTexPattern*)dComIfG_getObjectRes("Uk", l_btp_ix_tbl[mTexPatternIdx]);
@@ -585,9 +601,11 @@ u32 daNpc_Uk_c::getMsg() {
 void daNpc_Uk_c::setCollision() {
     cXyz center = current.pos;
 
+    f32 r = 40.0f;
+    f32 h = 80.0f;
     mCyl.SetC(center);
-    mCyl.SetR(40.0f);
-    mCyl.SetH(80.0f);
+    mCyl.SetR(r);
+    mCyl.SetH(h);
 
     dComIfG_Ccsp()->Set(&mCyl);
 }
@@ -1944,10 +1962,10 @@ BOOL daNpc_Uk_c::_execute() {
 
     if(!chkFlag(0x10)) {
         if (chkFlag(8)) {
-            speed.y += gravity;
+            speed.y += fopAcM_GetGravity(this);
 
-            if (speed.y < maxFallSpeed) {
-                speed.y = maxFallSpeed;
+            if (speed.y < fopAcM_GetMaxFallSpeed(this)) {
+                speed.y = fopAcM_GetMaxFallSpeed(this);
             }
 
             fopAcM_posMove(this, mStts.GetCCMoveP());
@@ -2013,11 +2031,19 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 
 /* 00004D54-00005028       .text _create__10daNpc_Uk_cFv */
 cPhs_State daNpc_Uk_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase = dComIfG_resLoad(&mPhs, "Uk");
+
+    if (phase == cPhs_COMPLEATE_e) {
+        fopAcM_SetupActor(this, daNpc_Uk_c);
+
+#else
     fopAcM_SetupActor(this, daNpc_Uk_c);
 
     cPhs_State phase = dComIfG_resLoad(&mPhs, "Uk");
 
     if (phase == cPhs_COMPLEATE_e) {
+#endif
         switch (fopAcM_GetName(this)) {
         case fpcNm_NPC_UK_e:
             switch (getType()) {
@@ -2054,7 +2080,9 @@ cPhs_State daNpc_Uk_c::_create() {
         }
 
         if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0xB7B0)) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
 
@@ -2065,7 +2093,9 @@ cPhs_State daNpc_Uk_c::_create() {
         fopAcM_setCullSizeBox(this, -35.0f, -10.0f, -35.0f, 35.0f, 100.0f, 35.0f);
 
         if (!init()) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
     }
@@ -2087,18 +2117,18 @@ BOOL daNpc_Uk_c::CreateHeap() {
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
 
-    JUT_ASSERT(2772, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(2770, 2772), m_jnt.getHeadJntNum() >= 0);
 
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
 
-    JUT_ASSERT(2777, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(2775, 2777), m_jnt.getBackboneJntNum() >= 0);
 
     static int head_bdl_table[] = {
         dRes_INDEX_UK_BDL_UKHEAD_B_e, dRes_INDEX_UK_BDL_UKHEAD_C_e, dRes_INDEX_UK_BDL_UKHEAD_D_e };
 
     J3DModelData* headModelData = (J3DModelData*)dComIfG_getObjectRes("Uk", head_bdl_table[getShapeType()]);
 
-    JUT_ASSERT(2790, headModelData);
+    JUT_ASSERT(DEMO_SELECT(2788, 2790), headModelData);
 
     mpHeadModel = mDoExt_J3DModel__create(headModelData, 0x80000, 0x11020022);
 
@@ -2108,9 +2138,13 @@ BOOL daNpc_Uk_c::CreateHeap() {
 
     mTexPatternIdx = 0;
 
+#if VERSION == VERSION_DEMO
+    initTexPatternAnm(false);
+#else
     if (!initTexPatternAnm(false)) {
         return FALSE;
     }
+#endif
 
     for (u16 i = 0; i < modelData->getJointNum(); i++) {
         if (i == getHeadJntNum() || i == getBackboneJntNum()) {
