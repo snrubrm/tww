@@ -901,7 +901,7 @@ BOOL daNpc_Gk1_c::CreateHeap() {
         return FALSE;
     }
     mAcchCir.SetWall(30.0f, 90.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
     return TRUE;
 }
 
