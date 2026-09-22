@@ -62,7 +62,7 @@ namespace daObjVyasi {
         /* 0x04B4 */ request_of_phase_process_class mPhs;
         /* 0x04BC */ Mtx m04BC;
         /* 0x04EC */ mDoExt_McaMorf* mpMorf;
-        /* 0x04F0 */ J3DAnmTransformKey* mpBckData;
+        /* 0x04F0 */ J3DAnmTransformKey* M_bck_data;
         /* 0x04F4 */ cXyz mEkszsPos;
         /* 0x0500 */ s16 mEkszsRotY;
         /* 0x0502 */ u8 m0502[0x0504 - 0x0502];
