@@ -92,8 +92,13 @@ BOOL daObjBarrel::Act_c::solidHeapCB(fopAc_ac_c* i_this) {
 
 /* 0000009C-00000160       .text create_heap__Q211daObjBarrel5Act_cFv */
 bool daObjBarrel::Act_c::create_heap() {
+#if VERSION == VERSION_DEMO
+    bool ret = false;
+    J3DModelData* mdl_data;
+#else
     J3DModelData* mdl_data;
     bool ret = false;
+#endif
 
     mdl_data = (J3DModelData *)dComIfG_getObjectRes(M_arcname, attr().mBdlIdx);
     JUT_ASSERT(0x17A, mdl_data != NULL);
