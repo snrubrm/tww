@@ -13,6 +13,7 @@
 #include "m_Do/m_Do_controller_pad.h"
 #include "m_Do/m_Do_ext.h"
 #include "d/d_cc_d.h"
+#include "d/d_s_play.h"
 
 class daNpc_Btsw_HIO_c : public JORReflexible {
 public:
@@ -1380,7 +1381,7 @@ void SwMail2_c::End() {
             s16 target;
             if (field_0x24.y > 720.0f) {
                 target = -0x4000;
-                field_0x30.y -= 3.0f;
+                field_0x30.y -= 3.0f + DEMO_SELECT(REG10_F(11), 0.0f);
             } else {
                 target = 0;
                 field_0x30.y *= 0.6f;
@@ -1393,7 +1394,7 @@ void SwMail2_c::End() {
                 field_0x24.y = 700.0f;
             }
 
-            cLib_addCalcAngleS2(&field_0x48.x, target, 2, 0x800);
+            cLib_addCalcAngleS2(&field_0x48.x, target, 2, DEMO_SELECT(REG10_S(3), 0) + 0x800);
         }
         field_0x30 *= 0.9f;
         field_0x24 += field_0x30;
