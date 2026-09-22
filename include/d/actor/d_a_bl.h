@@ -39,11 +39,19 @@ public:
     /* 0x2F2 */ s16 m2F2;
     /* 0x2F4 */ s16 mHitTimer;
     /* 0x2F6 */ s16 m2F6;
+#if VERSION <= VERSION_JPN
+    /* 0x2F8 */ s16 m2F8[3];
+    /* 0x2FE */ s16 m300;
+    /* 0x300 */ s16 m302;
+    /* 0x302 */ s16 m304;
+    /* 0x304 */ s16 m306;
+#else
     /* 0x2F8 */ s16 m2F8[4];
     /* 0x300 */ s16 m300;
     /* 0x302 */ s16 m302;
     /* 0x304 */ s16 m304;
     /* 0x306 */ s16 m306;
+#endif
     /* 0x308 */ int mCurrBckIdx;
     /* 0x30C */ u8 m30C[0x310 - 0x30C];
     /* 0x310 */ f32 m310;

@@ -1079,7 +1079,7 @@ void action_kougeki(bl_class* i_this) {
     switch (i_this->m306) {
     case 0xA: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         i_this->mSph.OnAtSetBit();
@@ -1232,7 +1232,7 @@ void action_kaze_move(bl_class* i_this) {
     switch (i_this->m306) {
     case 0x1E: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
@@ -1301,7 +1301,7 @@ void action_kaze_move(bl_class* i_this) {
         break;
     case 0x24: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         actor->speed.y = 15.0f;
@@ -1384,7 +1384,7 @@ void action_itaiyo_ne_san(bl_class* i_this) {
     case 0x28: {
         i_this->m31C = 1.0f;
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         actor->gravity = -3.0f;
@@ -1511,7 +1511,7 @@ void action_hook_atari(bl_class* i_this) {
     switch (i_this->m306) {
     case 0x3C: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
 
@@ -1628,7 +1628,7 @@ void action_normal_skull(bl_class* i_this) {
         i_this->mSph.ClrTgHit();
         i_this->m31C = 0.0f;
         actor->scale.setall(0.0f);
-        i_this->m2F8[3] = 0xB4;
+        i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1] = 0xB4;
         i_this->m2EE = 0xA;
         i_this->m306++;
         break;
@@ -1636,9 +1636,9 @@ void action_normal_skull(bl_class* i_this) {
     case 0x69:
         if (i_this->mSmokeCb.getEmitter() != NULL) {
             if (i_this->m2EE == 0) {
-                i_this->mSmokeCb.getEmitter()->setGlobalAlpha(i_this->m2F8[3]);
-                i_this->m2F8[3] -= 4;
-                if (i_this->m2F8[3] < 0) {
+                i_this->mSmokeCb.getEmitter()->setGlobalAlpha(i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1]);
+                i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1] -= 4;
+                if (i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1] < 0) {
                     i_this->mSmokeCb.remove();
                 }
             }
