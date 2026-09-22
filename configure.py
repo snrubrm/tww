@@ -940,7 +940,7 @@ config.libs = [
         "progress_category": "game",
         "host": True,
         "objects": [
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "JAZelAudio/JAIZelBasic.cpp"),
+            Object(NonMatching, "JAZelAudio/JAIZelBasic.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JAZelAudio/JAIZelAnime.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JAZelAudio/JAIZelAtmos.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelInst.cpp"),
