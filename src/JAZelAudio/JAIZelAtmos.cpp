@@ -362,6 +362,11 @@ void JAIZelBasic::waterfallSePlay(u8 type, Vec* pos, s8 reverb) {
     dst->x = pos->x;
     dst->y = pos->y;
     dst->z = pos->z;
+#if VERSION == VERSION_DEMO
+    if (checkPlayingStreamBgmFlag() != 0xC000003C) {
+        seStart(id, &mWaterfallPos[field_0x1e98], 0, reverb);
+    }
+#else
     if ((int)field_0x0207 != 0) {
         if (field_0x1e98 < 15) {
             field_0x1e98++;
@@ -371,6 +376,7 @@ void JAIZelBasic::waterfallSePlay(u8 type, Vec* pos, s8 reverb) {
     if (checkPlayingStreamBgmFlag() != 0xC000003C && (int)field_0x0207 == 0) {
         seStart(id, &mWaterfallPos[field_0x1e98], 0, reverb);
     }
+#endif
     if (field_0x1e98 < 15) {
         field_0x1e98++;
     }
