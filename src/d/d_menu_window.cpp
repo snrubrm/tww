@@ -308,6 +308,11 @@ void dMs_collect_create(sub_ms_screen_class* i_Ms) {
         i_Ms->field_0x1B2++;
     }
 
+#if VERSION == VERSION_PAL
+    i_Ms->title_p = (char*)i_Ms->childHeap->alloc(0x1000, 0x20);
+    JUT_ASSERT(2107, i_Ms->title_p != NULL);
+#endif
+
     dMc_c = new dMenu_Collect_c();
     JUT_ASSERT(2112, dMc_c != NULL);
 
@@ -326,6 +331,11 @@ void dMs_collect_create(sub_ms_screen_class* i_Ms) {
     }
 
     dMc_c->setMapTexBuffer(i_Ms->buffer_p[17]);
+#if VERSION == VERSION_PAL
+    dMc_c->setWordSaveTexBuffer(i_Ms->buffer_p[18]);
+    dMc_c->setWordOptionTexBuffer(i_Ms->buffer_p[19]);
+    dMc_c->setTitleCollectTexBuffer(i_Ms->title_p);
+#endif
 
     dMc_c->setArchive(dComIfGp_getCollectResArchive());
     dMc_c->setOptionArchive(dComIfGp_getOptionResArchive());
@@ -371,6 +381,11 @@ void dMs_collect_create2(sub_ms_screen_class* i_Ms) {
         i_Ms->field_0x1B2++;
     }
 
+#if VERSION == VERSION_PAL
+    i_Ms->title_p = (char*)i_Ms->childHeap->alloc(0x1000, 0x20);
+    JUT_ASSERT(2200, i_Ms->title_p != NULL);
+#endif
+
     dMc_c = new dMenu_Collect_c();
     JUT_ASSERT(2205, dMc_c != NULL);
 
@@ -389,6 +404,11 @@ void dMs_collect_create2(sub_ms_screen_class* i_Ms) {
     }
 
     dMc_c->setMapTexBuffer(i_Ms->buffer_p[17]);
+#if VERSION == VERSION_PAL
+    dMc_c->setWordSaveTexBuffer(i_Ms->buffer_p[18]);
+    dMc_c->setWordOptionTexBuffer(i_Ms->buffer_p[19]);
+    dMc_c->setTitleCollectTexBuffer(i_Ms->title_p);
+#endif
 
     dMc_c->setArchive(dComIfGp_getCollectResArchive());
     dMc_c->setOptionArchive(dComIfGp_getOptionResArchive());
@@ -434,6 +454,13 @@ void dMs_collect_delete(sub_ms_screen_class* i_Ms) {
             i_Ms->buffer_p[i] = NULL;
         }
     }
+
+#if VERSION == VERSION_PAL
+    if (i_Ms->title_p != NULL) {
+        i_Ms->childHeap->free(i_Ms->title_p);
+        i_Ms->title_p = NULL;
+    }
+#endif
 
     if (dMc_c != NULL) {
         dComIfGp_setButtonInfo(1, dMc_c->getNowItem());
@@ -1530,10 +1557,10 @@ static cPhs_State dMs_Create(msg_class* i_this) {
     i_Ms->parentHeap_0xfc = dComIfGp_getExpHeap2D();
 
     fonttype = mDoExt_getMesgFont();
-    JUT_ASSERT(4097, fonttype != NULL);
+    JUT_ASSERT(VERSION_SELECT(4097, 4097, 4097, 4098), fonttype != NULL);
 
     rfonttype = mDoExt_getRubyFont();
-    JUT_ASSERT(4100, rfonttype != NULL);
+    JUT_ASSERT(VERSION_SELECT(4100, 4100, 4100, 4101), rfonttype != NULL);
 
     event_wait_frame = 0;
 

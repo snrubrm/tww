@@ -44,6 +44,11 @@ public:
     void setTriforceTexBuffer(int idx, void* ptr) { mTriforceTexBuffer[idx] = (ResTIMG*)ptr; }
     void setSymbolTexBuffer(int idx, void* ptr) { mSymbolTexBuffer[idx] = (ResTIMG*)ptr; }
     void setItemTexBuffer(int idx, void* ptr) { mItemTexBuffer[idx] = (ResTIMG*)ptr; }
+#if VERSION == VERSION_PAL
+    void setWordSaveTexBuffer(void* ptr) { mWordSaveTexBuffer = (ResTIMG*)ptr; }
+    void setWordOptionTexBuffer(void* ptr) { mWordOptionTexBuffer = (ResTIMG*)ptr; }
+    void setTitleCollectTexBuffer(void* ptr) { mTitleCollectTexBuffer = (ResTIMG*)ptr; }
+#endif
 
     void setTextArea(char* name0, char* name1, char* note0, char* note1, char* dummy0, char* dummy1) {
         name[0] = name0;
