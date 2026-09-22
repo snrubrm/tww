@@ -1317,7 +1317,11 @@ void SwMail2_c::Throw() {
         s16 y_angle = cLib_targetAngleY(field_0x58, field_0x5C);
 
         cXyz multVec;
+#if VERSION == VERSION_DEMO
+        cXyz vec(REG10_F(2) - 40.0f, REG10_F(3) - 50.0f, REG10_F(4) * 100.0f);
+#else
         cXyz vec(-40.0f, -50.0f, 0.0f);
+#endif
         mDoMtx_stack_c::ZXYrotS(x_angle, y_angle, 0);
         mDoMtx_stack_c::multVec(&vec, &multVec);
         multVec += *field_0x5C;
@@ -1333,14 +1337,23 @@ void SwMail2_c::Throw() {
     } else {
         s16 x_angle = cLib_targetAngleX(&field_0x30, field_0x5C);
         field_0x48.x = -x_angle;
+#if VERSION == VERSION_DEMO
+        field_0x48.y += (s16)((field_0x54 * 0x80) + 0x1000);
+#else
         s16 new_y = (field_0x54 * 0x80) + 0x1000;
         field_0x48.y += new_y;
+#endif
         field_0x48.z = 0;
 
         f32 pos_step = cLib_addCalcPos(&field_0x24, field_0x30, 0.5f, l_HIO.field_0x44, 1.0f);
 
+#if VERSION == VERSION_DEMO
+        field_0x4E.x += REG10_S(0) + 4000;
+        field_0x3C.y = (1.0f - cM_scos(field_0x4E.x)) * (20.0f + REG10_F(10));
+#else
         field_0x4E.x += 4000;
         field_0x3C.y = (1.0f - cM_scos(field_0x4E.x)) * 20.0f;
+#endif
 
         if (pos_step < 1.0f) {
             mDoAud_seStart(JA_SE_LETTER_IN_BOX, &field_0x24);
