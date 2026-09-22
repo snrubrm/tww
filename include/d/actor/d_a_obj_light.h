@@ -9,6 +9,11 @@
 namespace daObjLight {
     class Act_c : public fopAc_ac_c {
     public:
+        enum {
+            LIGHT_LIGHT_BASE,
+            LIGHT_BGW_NUM,
+        };
+
         static BOOL solidHeapCB(fopAc_ac_c*);
         bool create_heap();
         void init_collision();
@@ -45,7 +50,7 @@ public:
         static const dCcD_SrcCyl M_cyl_src;
         /* 0x290 */ request_of_phase_process_class mPhase;
         /* 0x298 */ J3DModel* mpModel[3];
-        /* 0x2A4 */ dBgW* mpBgW;
+        /* 0x2A4 */ dBgW* M_bgw[LIGHT_BGW_NUM];
         /* 0x2A8 */ Mtx mBgMtx;
         /* 0x2D8 */ s16 mLightAngle;
         /* 0x2DA */ s16 mLightTimer;
