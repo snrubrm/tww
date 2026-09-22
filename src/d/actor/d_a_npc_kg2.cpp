@@ -111,10 +111,10 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
             if (joint == actor->m_jnt.getHeadJntNum()) {
                 cXyz offset(24.0f + REG10_F(0), 5.0f + REG10_F(1), REG10_F(2));
                 static cXyz l_offsetEyePos(24.0f, -16.0f, 0.0f);
-                mDoMtx_stack_c::multVec(&offset, &actor->mAttentionBasePos);
+                mDoMtx_stack_c::multVec(&offset, &actor->getAttentionBasePos());
                 mDoMtx_stack_c::XrotM((s16)actor->m_jnt.getHead_y());
                 mDoMtx_stack_c::ZrotM(-actor->m_jnt.getHead_x());
-                mDoMtx_stack_c::multVec(&l_offsetEyePos, &actor->mEyePos);
+                mDoMtx_stack_c::multVec(&l_offsetEyePos, &actor->getEyePos());
                 mDoMtx_stack_c::multVec(&offset, &actor->attention_info.position);
                 actor->attention_info.position.y += l_HIO.mNpc.mAttnYOffset;
             } else if (joint == actor->m_jnt.getBackboneJntNum()) {
@@ -122,7 +122,7 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
                 mDoMtx_stack_c::ZrotM(-actor->m_jnt.getBackbone_x());
             }
             MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
-            MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+            model->setAnmMtx(joint, mDoMtx_stack_c::get());
         }
     }
     return TRUE;
@@ -133,7 +133,9 @@ void daNpc_Kg2_c::set_mtx() {
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::YrotM(current.angle.y);
     model->setBaseTRMtx(mDoMtx_stack_c::get());
+#if VERSION > VERSION_DEMO
     mpMorf->calc();
+#endif
     if (mDrawPlate) {
         mDoMtx_stack_c::copy(model->getAnmMtx(m_handL_num));
         mDoMtx_stack_c::transM(23.46f, -22.26f, -47.05f);
@@ -145,7 +147,7 @@ void daNpc_Kg2_c::set_mtx() {
 BOOL daNpc_Kg2_c::initTexPatternAnm(bool modify) {
     J3DModelData* data = mpMorf->getModel()->getModelData();
     m_btp = (J3DAnmTexPattern*)dComIfG_getObjectRes("Kg", l_btp_ix_tbl[mBtpNo]);
-    JUT_ASSERT(0x12B, m_btp != 0);
+    JUT_ASSERT(DEMO_SELECT(0x12A, 0x12B), m_btp != 0);
     if (!mBtpAnm.init(data, m_btp, true, 2, 1.0f, 0, -1, modify, 0)) return FALSE;
     mBtpFrame = 0; mBtpTimer = 0;
     return TRUE;
@@ -159,8 +161,13 @@ void daNpc_Kg2_c::playTexPatternAnm() {
             if (mBtpFrame == 0) { mBtpFrame = 1; mBtpTimer = 150.0f + cM_rndF(150.0f); }
             else { mBtpFrame = 0; mBtpTimer = (s16)(150.0f + cM_rndF(150.0f)) * 2; }
         } else {
+#if VERSION == VERSION_DEMO
+            s16 end = m_btp->getFrameMax();
+            if (mBtpFrame >= end) {
+#else
             int end = m_btp->getFrameMax();
             if (mBtpFrame >= (s16)end) {
+#endif
                 mBtpFrame -= end;
                 mBtpTimer = 30.0f + cM_rndF(100.0f);
             } else mBtpFrame++;
@@ -271,8 +278,9 @@ u16 daNpc_Kg2_c::next_msgStatus(u32* msg) {
     case 0x313A: case 0x313B: case 0x313C: case 0x313D: case 0x313E: *msg = 0x313F; break;
     case 0x313F: case 0x314F:
         if (mpCurrMsg->mSelectNum == 0) {
-            if (dComIfGs_getRupee() < 50) *msg = 0x3143;
-            else { dComIfGp_setItemRupeeCount(-50); dComIfGp_setAStatusForce(25); *msg = 0x3144; }
+            int cost = 50;
+            if (dComIfGs_getRupee() < cost) *msg = 0x3143;
+            else { dComIfGp_setItemRupeeCount(-cost); dComIfGp_setAStatusForce(25); *msg = 0x3144; }
         } else *msg = 0x3142;
         break;
     case 0x3141:
@@ -336,17 +344,17 @@ BOOL daNpc_Kg2_c::CreateHeap() {
     J3DAnmTexPattern* plateBtp;
     J3DModelData* data;
     modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BDL_KG_e));
-    JUT_ASSERT(0x391, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x390, 0x391), modelData != 0);
     mpMorf = new mDoExt_McaMorf(modelData, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectRes("Kg", dRes_INDEX_KG_BCK_KG_WAIT02_e),
         2, 1.0f, 0, -1, 1, NULL, 0, 0x11020203);
     if (mpMorf == NULL || mpMorf->getModel() == NULL) return FALSE;
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(0x3A1, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3A0, 0x3A1), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone2"));
-    JUT_ASSERT(0x3A6, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3A5, 0x3A6), m_jnt.getBackboneJntNum() >= 0);
     m_handL_num = modelData->getJointName()->getIndex("handL");
-    JUT_ASSERT(0x3AA, m_handL_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3A9, 0x3AA), m_handL_num >= 0);
     mBtpNo = 0;
     if (!initTexPatternAnm(false)) return FALSE;
     // The plate has its own texture animation for the faces Salvatore holds up.
@@ -362,7 +370,7 @@ BOOL daNpc_Kg2_c::CreateHeap() {
     data->getJointNodePointer(m_jnt.getBackboneJntNum())->setCallBack(nodeCallBack);
     mpMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 0.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
     return TRUE;
 }
 
@@ -464,7 +472,7 @@ BOOL daNpc_Kg2_c::evn_createItem_init(int staff) {
         item = 6;
         break;
     }
-    fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item, 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
+    fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item, 0, -1, DEMO_SELECT(-1, fopAcM_GetRoomNo(this)), NULL, NULL);
     if (id != fpcM_ERROR_PROCESS_ID_e) dComIfGp_event_setItemPartnerId(id);
     return TRUE;
 }
@@ -525,8 +533,7 @@ int daNpc_Kg2_c::event_wait_action(void* arg) {
             } else if (mEventNo == 1) {
                 mOrder = 3; mEventNo = 2;
                 int wins = dComIfGs_getEventReg(0xB703) + 1;
-                wins = cLib_maxLimit(wins, 3);
-                dComIfGs_setEventReg(0xB703, wins);
+                dComIfGs_setEventReg(0xB703, cLib_maxLimit(wins, 3));
             } else if (mEventNo == 2) { mOrder = 1; mNextMsg = 0x315A; }
             else mEventNo = 4;
             dComIfGp_event_reset();
@@ -537,9 +544,15 @@ int daNpc_Kg2_c::event_wait_action(void* arg) {
 }
 
 cPhs_State daNpc_Kg2_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase = dComIfG_resLoad(&mPhs, "Kg");
+    if (phase == cPhs_COMPLEATE_e) {
+        fopAcM_SetupActor(this, daNpc_Kg2_c);
+#else
     fopAcM_SetupActor(this, daNpc_Kg2_c);
     cPhs_State phase = dComIfG_resLoad(&mPhs, "Kg");
     if (phase == cPhs_COMPLEATE_e) {
+#endif
         if (!fopAcM_entrySolidHeap(this, CallbackCreateHeap, 0x2D00)) return cPhs_ERROR_e;
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
         if (l_HIO.mChild < 0) l_HIO.mChild = mDoHIO_createChild("海戦ゲーム親父２", &l_HIO);
@@ -548,8 +561,12 @@ cPhs_State daNpc_Kg2_c::_create() {
     return phase;
 }
 BOOL daNpc_Kg2_c::_delete() {
-    dComIfG_resDelete(&mPhs, "Kg");
+    dComIfG_resDeleteDemo(&mPhs, "Kg");
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) mpMorf->stopZelAnime();
+#else
     if (heap != NULL && mpMorf != NULL) mpMorf->stopZelAnime();
+#endif
     l_kg2_pointer = NULL;
     if (l_HIO.mChild >= 0) { mDoHIO_deleteChild(l_HIO.mChild); l_HIO.mChild = -1; }
     return TRUE;
@@ -574,9 +591,9 @@ BOOL daNpc_Kg2_c::_draw() {
     g_env_light.setLightTevColorType(model, &tevStr);
     mBtpAnm.entry(data, mBtpFrame); mpMorf->entryDL(); mBtpAnm.remove(data);
     if (mDrawPlate) {
-        data = mpPlateModel->getModelData();
+        J3DModelData* plateData = mpPlateModel->getModelData();
         g_env_light.setLightTevColorType(mpPlateModel, &tevStr);
-        mPlateBtp.entry(data, mPlateFrame); mDoExt_modelUpdateDL(mpPlateModel); mPlateBtp.remove(data);
+        mPlateBtp.entry(plateData, mPlateFrame); mDoExt_modelUpdateDL(mpPlateModel); mPlateBtp.remove(plateData);
     }
     cXyz pos(current.pos.x, 150.0f + current.pos.y, current.pos.z);
     mShadowId = dComIfGd_setShadow(mShadowId, 1, mpMorf->getModel(), &pos, 800.0f, 20.0f,
