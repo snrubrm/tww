@@ -91,6 +91,17 @@ static BOOL daNpc_Mn_nodeCallBack(J3DNode* node, int phase) {
         J3DModel* model = j3dSys.getModel();
         daNpcMn_c* npc = (daNpcMn_c*)model->getUserArea();
         int joint = ((J3DJoint*)node)->getJntNo();
+#if VERSION == VERSION_DEMO
+        PSMTXCopy(model->getAnmMtx(joint), *calc_mtx);
+        if (joint == npc->m_jnt.getHeadJntNum()) {
+            cMtx_XrotM(*calc_mtx, npc->m_jnt.getHead_y());
+            cMtx_ZrotM(*calc_mtx, -npc->m_jnt.getHead_x());
+        }
+        if (joint == npc->m_jnt.getBackboneJntNum()) {
+            cMtx_XrotM(*calc_mtx, npc->m_jnt.getBackbone_y());
+            cMtx_ZrotM(*calc_mtx, -npc->m_jnt.getBackbone_x());
+        }
+#else
         cMtx_copy(model->getAnmMtx(joint), *calc_mtx);
         if (joint == npc->m_jnt.getHeadJntNum()) {
             mDoMtx_XrotM(*calc_mtx, npc->m_jnt.getHead_y());
@@ -100,6 +111,7 @@ static BOOL daNpc_Mn_nodeCallBack(J3DNode* node, int phase) {
             mDoMtx_XrotM(*calc_mtx, npc->m_jnt.getBackbone_y());
             mDoMtx_ZrotM(*calc_mtx, -npc->m_jnt.getBackbone_x());
         }
+#endif
         MtxP mtx = *calc_mtx;
         model->setAnmMtx(joint, mtx);
         cMtx_copy(*calc_mtx, J3DSys::mCurrentMtx);
@@ -120,7 +132,7 @@ static cPhs_State phase_1(daNpcMn_c* npc) {
         {
             dComIfGs_setEventReg(0x870F, 0);
             int sw = npc->getPrmSwitchBit();
-            if (dComIfGs_isSwitch(sw, npc->home.roomNo)) {
+            if (dComIfGs_isSwitch(sw, DEMO_SELECT(fopAcM_GetHomeRoomNo(npc), npc->home.roomNo))) {
                 return cPhs_STOP_e;
             }
             break;
@@ -155,7 +167,9 @@ static cPhs_State phase_2(daNpcMn_c* npc) {
         if (fopAcM_entrySolidHeap(npc, CheckCreateHeap, 0)) {
             phase = npc->createInit();
         } else {
+#if VERSION > VERSION_DEMO
             npc->mpMorf = NULL;
+#endif
             phase = cPhs_ERROR_e;
         }
     }
@@ -173,9 +187,9 @@ BOOL daNpcMn_c::createHeap() {
     J3DModelData* data = (J3DModelData*)dComIfG_getObjectIDRes(l_arcname_tbl[0], l_bmd_ix_tbl[0]);
     mpMorf = new mDoExt_McaMorf(data, NULL, NULL, (J3DAnmTransform*)dComIfG_getObjectIDRes(l_arcname_tbl[0], l_bck_ix_tbl[mAnmIndex]), 2, 1.0f, 0, -1, TRUE, NULL, 0x80000, 0x15021222);
     m_jnt.setHeadJntNum(data->getJointName()->getIndex("head"));
-    JUT_ASSERT(996, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(995, 996), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(data->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(1000, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(999, 1000), m_jnt.getBackboneJntNum() >= 0);
     if (!initTexPatternAnm(false)) {
         return FALSE;
     }
@@ -186,7 +200,11 @@ BOOL daNpcMn_c::createHeap() {
     }
     mpMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 30.0f);
+#if VERSION == VERSION_DEMO
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), fopAcM_GetAngle_p(this), fopAcM_GetShapeAngle_p(this));
+#else
     mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, &current.angle, &shape_angle);
+#endif
     mpBagModel = mDoExt_J3DModel__create((J3DModelData*)dComIfG_getObjectIDRes(l_arcname_tbl[0], l_etc_bmd_ix_tbl[0]), 0x80000, 0x11000002);
     if (mpBagModel == NULL) {
         return FALSE;
@@ -205,7 +223,7 @@ cPhs_State daNpcMn_c::createInit() {
     int weight = 0xFF;
     u8 rail = getPrmRailID();
     if (rail != 0xFF) {
-        mPath.setInf(rail, current.roomNo, 1);
+        mPath.setInf(rail, DEMO_SELECT(fopAcM_GetRoomNo(this), current.roomNo), 1);
         if (!mPath.isPath()) {
             return cPhs_ERROR_e;
         }
@@ -227,6 +245,12 @@ cPhs_State daNpcMn_c::createInit() {
         mWaitTimer = 1;
         weight = 0xFE;
     }
+#if VERSION == VERSION_DEMO
+    mStts.Init(weight, 0xFF, this);
+    mCyl.Set(dNpc_cyl_src);
+    mCyl.SetStts(&mStts);
+    setCollision(&mCyl, current.pos, l_npc_dat[mNpcNo].collisionRadius, 150.0f);
+#endif
     gravity = -9.0f;
     setAnmTbl(l_npc_anm_wait);
     mEventId = dComIfGp_evmng_getEventIdx("FIGURE_HATCH_OPEN");
@@ -247,6 +271,10 @@ cPhs_State daNpcMn_c::createInit() {
     mAttentionDistance = l_npc_dat[mNpcNo].attentionDistance;
     mAttentionAngle = l_npc_dat[mNpcNo].attentionAngle;
     mObjAcch.CrrPos(*dComIfG_Bgsp());
+#if VERSION == VERSION_DEMO
+    current.pos.y = home.pos.y = mObjAcch.GetGroundH();
+    setMtx();
+#else
     if (mObjAcch.GetGroundH() != -1000000000.0f) {
         current.pos.y = home.pos.y = mObjAcch.GetGroundH();
     }
@@ -256,15 +284,25 @@ cPhs_State daNpcMn_c::createInit() {
     mCyl.Set(dNpc_cyl_src);
     mCyl.SetStts(&mStts);
     setCollision(&mCyl, current.pos, l_npc_dat[mNpcNo].collisionRadius, 150.0f);
+#endif
     return cPhs_COMPLEATE_e;
 }
 
 /* 00000F3C-00000FE4       .text _delete__9daNpcMn_cFv */
 bool daNpcMn_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mResFlag) {
+        dComIfG_deleteObjectRes(l_arcname_tbl[0]);
+    }
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+#else
     dComIfG_resDelete(&mResPhase, l_arcname_tbl[0]);
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     if (dComIfGp_isEnableNextStage() && !strcmp(dComIfGp_getNextStageName(), "sea")) {
         dComIfGs_setEventReg(0x870F, 0);
     }
@@ -283,8 +321,13 @@ bool daNpcMn_c::_draw() {
     mBtp.entry(data, mBtpFrame);
     mpMorf->updateDL();
     mBtp.remove(data);
+#if VERSION == VERSION_DEMO
+    J3DModel* bagModel = mpBagModel;
+    g_env_light.setLightTevColorType(bagModel, &tevStr);
+#else
     J3DModel* bagModel = mpBagModel;
     g_env_light.setLightTevColorType((bagModel, bagModel), &tevStr);
+#endif
     MtxP mtx = model->getAnmMtx(mBagJoint);
     MTXCopy(mtx, mpBagModel->getBaseTRMtx());
     mDoExt_modelUpdateDL(mpBagModel);
@@ -377,9 +420,9 @@ void daNpcMn_c::executeWait() {
             }
             if (!(mEventFlags & 1)) {
                 int sw = getPrmSwitchBit();
-                if (dComIfGs_isSwitch(sw, home.roomNo)) {
+                if (dComIfGs_isSwitch(sw, DEMO_SELECT(fopAcM_GetHomeRoomNo(this), home.roomNo))) {
                     sw = getPrmSwitchBit();
-                    dComIfGs_onSwitch(sw, home.roomNo);
+                    dComIfGs_onSwitch(sw, DEMO_SELECT(fopAcM_GetHomeRoomNo(this), home.roomNo));
                     mEventFlags |= 1;
                     mCanTurn = 0;
                     mCanLook = 0;
@@ -495,7 +538,7 @@ void daNpcMn_c::executeWalk() {
             s16 angle;
             dNpc_calc_DisXZ_AngY(current.pos, pos, NULL, &angle);
             mTargetAngle = angle;
-            mPath.setInf(0xFF, current.roomNo, 1);
+            mPath.setInf(0xFF, DEMO_SELECT(fopAcM_GetRoomNo(this), current.roomNo), 1);
             executeSetMode(0);
         }
     }
@@ -704,7 +747,7 @@ bool daNpcMn_c::eventWait(int staff) {
     int* sw = dComIfGp_evmng_getMyIntegerP(staff, "SwOn");
     if (sw != NULL) {
         int bit = getPrmSwitchBit2();
-        dComIfGs_onSwitch(bit, home.roomNo);
+        dComIfGs_onSwitch(bit, DEMO_SELECT(fopAcM_GetHomeRoomNo(this), home.roomNo));
     }
     return true;
 }
@@ -725,7 +768,7 @@ bool daNpcMn_c::eventSwOn() {
         return false;
     }
     int bit = getPrmSwitchBit2();
-    dComIfGs_onSwitch(bit, home.roomNo);
+    dComIfGs_onSwitch(bit, DEMO_SELECT(fopAcM_GetHomeRoomNo(this), home.roomNo));
     return true;
 }
 
@@ -1188,7 +1231,7 @@ void daNpcMn_c::lookBack() {
 BOOL daNpcMn_c::initTexPatternAnm(bool modify) {
     J3DModelData* data = mpMorf->getModel()->getModelData();
     m_head_tex_pattern = (J3DAnmTexPattern*)dComIfG_getObjectIDRes(l_arcname_tbl[0], l_btp_ix_tbl[0]);
-    JUT_ASSERT(2585, m_head_tex_pattern != 0);
+    JUT_ASSERT(DEMO_SELECT(2574, 2585), m_head_tex_pattern != 0);
     if (!mBtp.init(data, m_head_tex_pattern, TRUE, 2, 1.0f, 0, -1, modify, FALSE)) {
         return FALSE;
     }
@@ -1200,8 +1243,13 @@ BOOL daNpcMn_c::initTexPatternAnm(bool modify) {
 /* 000036D0-0000373C       .text playTexPatternAnm__9daNpcMn_cFv */
 void daNpcMn_c::playTexPatternAnm() {
     if (cLib_calcTimer(&mBlinkTimer) == 0) {
+#if VERSION == VERSION_DEMO
+        s16 max = m_head_tex_pattern->getFrameMax();
+        if (mBtpFrame >= max) {
+#else
         int max = m_head_tex_pattern->getFrameMax();
         if (mBtpFrame >= (s16)max) {
+#endif
             mBtpFrame -= max;
             mBlinkTimer = 120;
         } else {
@@ -1310,8 +1358,9 @@ u8 daNpcMn_c::getPosNo() {
     }
     for (int i = 0; i < 134; i++) {
         if (i / 8 < 17) {
+            int bit = i % 8;
             u8 flags = dComIfGs_getEventReg(l_figure_comp[i / 8]);
-            if (flags & (1 << (i % 8))) {
+            if (flags & (1 << bit)) {
                 int room = dSnap_GetFigRoomId(i);
                 if (room != 0xFF && room < 8) {
                     count[room]++;
