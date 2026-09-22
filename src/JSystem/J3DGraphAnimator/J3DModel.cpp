@@ -816,7 +816,7 @@ void J3DModel::viewCalc() {
     swapDrawMtx();
     swapNrmMtx();
 
-    if (mModelData->checkFlag(J3DMdlDataFlag_NoUseDrawMtx)) {
+    if (getModelData()->checkFlag(J3DMdlDataFlag_NoUseDrawMtx)) {
         if (getMtxCalcMode() == 2)
             calcViewBaseMtx(j3dSys.getViewMtx(), mBaseScale, mBaseTransformMtx, (MtxP)&mViewBaseMtx);
 
