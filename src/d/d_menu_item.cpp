@@ -1329,8 +1329,8 @@ void dMenu_Item_c::outFontDraw() {
                 (J2DPicture*)m3F8[i].pane,
                 (int)m3F8[i].mPosTopLeft.x,
                 (int)m3F8[i].mPosTopLeft.y,
-                g_msgHIO.field_0x70,
-                g_msgHIO.field_0x70,
+                VERSION_SELECT(29, 29, g_msgHIO.field_0x70, g_msgHIO.field_0x70),
+                VERSION_SELECT(29, 29, g_msgHIO.field_0x70, g_msgHIO.field_0x70),
                 &m0B0[i].mUserArea,
                 m0B0[i].mNowAlpha,
                 m0B0[i].mPosTopLeftOrig.y
