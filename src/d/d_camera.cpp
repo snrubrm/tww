@@ -7082,7 +7082,6 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
 
 /* 8017A80C-8017B144       .text eventCamera__9dCamera_cFl */
 bool dCamera_c::eventCamera(s32) {
-    /* Nonmatching */
     typedef bool (dCamera_c::*func)();
     func l_func[] = {
         &dCamera_c::pauseEvCamera,
@@ -7114,6 +7113,8 @@ bool dCamera_c::eventCamera(s32) {
         &dCamera_c::uniformAcceleEvCamera,
         &dCamera_c::maptoolIdEvCamera,
     };
+
+    int func_num = ARRAY_SIZE(l_func);
 
     static char* ActionNames[28] = {
         "PAUSE",
@@ -7198,7 +7199,7 @@ bool dCamera_c::eventCamera(s32) {
         lVar12 = mEventData.field_0x18;
     }
 
-    if (lVar12 < 0 || lVar12 >= 0x1c) {
+    if (lVar12 < 0 || lVar12 >= func_num) {
         dComIfGp_evmng_cutEnd(mEventData.mStaffIdx);
         return false;
     }
@@ -7252,7 +7253,9 @@ bool dCamera_c::eventCamera(s32) {
             m068 = 0x3f;
             break;
         case 3:
+#if VERSION > VERSION_DEMO
         case 4:
+#endif
             m068 = 0;
             break;
         default:
