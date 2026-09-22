@@ -569,9 +569,8 @@ void JAInter::SequenceMgr::stopSeq(JAISound* sound) {
     seqTrackInfo[sound->field_0x4].field_0x48 = NULL;
 }
 
-#pragma push
-#pragma inline_depth(0)
 /* 80297F14-80297FD0       .text checkDvdLoadArc__Q27JAInter11SequenceMgrFUlUl */
+// NONMATCHING - the target calls the out-of-line weak JAIBasic::getInterface() here instead of inlining it
 void JAInter::SequenceMgr::checkDvdLoadArc(u32, u32 data) {
     u32 track = data & 0xFF;
     u32 soundID = (data >> 16) & 0x3FF;
@@ -593,8 +592,6 @@ void JAInter::SequenceMgr::checkDvdLoadArc(u32, u32 data) {
         HeapMgr::releaseAutoHeapPointer(heap);
     }
 }
-
-#pragma pop
 
 /* 80297FD0-80298208       .text storeSeqBuffer__Q27JAInter11SequenceMgrFPP8JAISoundPQ27JAInter5ActorUlUlUcPv */
 void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 soundID, u32 fadeTime, u8 priority, void* info) {
