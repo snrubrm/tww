@@ -5,7 +5,9 @@ The Legend of Zelda: The Wind Waker
 [Build Status]: https://github.com/snrubrm/tww/actions/workflows/build.yml/badge.svg
 [actions]: https://github.com/snrubrm/tww/actions/workflows/build.yml
 
-This is a fork of [zeldaret/tww](https://github.com/zeldaret/tww) that accepts AI-assisted decompilation (see [Contributing](#contributing)). Work here is not submitted upstream.
+This is a personal fork of [zeldaret/tww](https://github.com/zeldaret/tww). Almost all of the decompilation here is the great work of the zeldaret contributors, and full credit goes to them. I was curious how far AI-assisted decompilation could take the remaining functions, so this fork is where I've been trying that out. Nothing here is submitted upstream.
+
+Feel free to use this repository, or not; if you'd rather work only from human-written code, use [zeldaret/tww](https://github.com/zeldaret/tww) instead.
 
 A work-in-progress decompilation of The Legend of Zelda: The Wind Waker for GameCube.
 
