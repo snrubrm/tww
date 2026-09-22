@@ -95,7 +95,7 @@ BOOL daObjMsdan::Act_c::Mthd_Execute() {
 
 /* 000005C0-000005F0       .text Mthd_Delete__Q210daObjMsdan5Act_cFv */
 BOOL daObjMsdan::Act_c::Mthd_Delete() {
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return TRUE;
 }
 
