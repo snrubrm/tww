@@ -95,7 +95,9 @@ static BOOL daPW_Draw(pw_class* i_this) {
     dComIfGd_setListMaskOff();
     if (i_this->mEnemyIce.mFreezeTimer > 20) {
         dMat_control_c::iceEntryDL(i_this->mpMorf, -1, &i_this->mInvisibleModel);
+#if VERSION > VERSION_JPN
         dComIfGd_setList();
+#endif
         return TRUE;
     }
 
@@ -223,7 +225,6 @@ BOOL Big_pow_down_check(pw_class* i_this) {
 
 /* 000008B0-0000121C       .text body_atari_check__FP8pw_class */
 BOOL body_atari_check(pw_class* i_this) {
-    /* Nonmatching */
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     i_this->mStts.Move();
     i_this->mHitByWhat = 0;
@@ -383,7 +384,9 @@ BOOL body_atari_check(pw_class* i_this) {
                 i_this->mHitByWhat = 6;
                 break;
             case AT_TYPE_ICE_ARROW:
+#if VERSION > VERSION_JPN
                 skipAtCheck = 1;
+#endif
                 i_this->mEnemyIce.mFreezeDuration = 200;
                 enemy_fire_remove(&i_this->mEnemyFire);
                 i_this->mHitByWhat = 5;
@@ -397,7 +400,9 @@ BOOL body_atari_check(pw_class* i_this) {
                 }
                 break;
             case AT_TYPE_LIGHT_ARROW:
+#if VERSION > VERSION_JPN
                 skipAtCheck = 1;
+#endif
                 i_this->mEnemyIce.mLightShrinkTimer = 1;
                 i_this->mEnemyIce.mParticleScale = 1.0f;
                 i_this->mEnemyIce.mYOffset = 80.0f;
