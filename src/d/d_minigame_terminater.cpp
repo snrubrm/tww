@@ -1526,9 +1526,7 @@ void dDlst_TerminaterScrnDraw_c::getRotate(fopMsgM_pane_class* i_pane) {
 
 /* 80208230-802082D0       .text setRotate__26dDlst_TerminaterScrnDraw_cFP18fopMsgM_pane_classf */
 void dDlst_TerminaterScrnDraw_c::setRotate(fopMsgM_pane_class* i_pane, f32 i_angle) {
-    f32 y = i_pane->mSize.y / 2;
-    y = (int)y;
-    i_pane->pane->rotate((int)(i_pane->mSize.x / 2), y, ROTATE_Z, i_angle);
+    i_pane->pane->rotate((int)(i_pane->mSize.x / 2), (int)(i_pane->mSize.y / 2), ROTATE_Z, i_angle);
 }
 
 /* 802082D0-80208324       .text setScale__26dDlst_TerminaterScrnDraw_cFP18fopMsgM_pane_classf */
