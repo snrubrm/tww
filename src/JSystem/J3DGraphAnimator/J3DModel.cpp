@@ -678,6 +678,8 @@ void J3DModel::calcWeightEnvelopeMtx() {
 }
 
 #if VERSION <= VERSION_JPN
+// The demo/JPN target has these functions unoptimized (flag tests materialised as li 1/li 0 + cmpwi, no CSE/copy
+// propagation); optimization_level 0 reproduces update, calc, entry, calcViewBaseMtx, viewCalc and calcBBoard exactly.
 #pragma push
 #pragma optimization_level 0
 #endif
