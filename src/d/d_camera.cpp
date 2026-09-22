@@ -1242,24 +1242,28 @@ int dCamera_c::nextMode(s32 i_curMode) {
                     m144 = 1;
                     m184 = 0;
                 }
-                else if (mStickCPosYLast <= 0.0f && mStickCValueLast > mCamSetup.m09C) {
+                else if (mStickCPosYLast <= 0.0f && mStickCValueLast > mCamSetup.CStickReleaseThreshold()) {
                     m144 = 0;
                 }
                 else if (i_curMode == 0 || i_curMode == 0x13) {
                     positionOf(mpPlayerActor);
                     if (
                         !(
+#if VERSION == VERSION_DEMO
+                            mStickMainValueLast > 0.01f ||
+#else
                             mStickMainValueLast >= 0.5f ||
-                            attn.LockonTruth() ||
+#endif
+                            dComIfGp_getAttention().LockonTruth() ||
                             check_owner_action(mPadId, daPyStts0_SWIM_e)
                         )
                     ) {
                         if (m184 == 1) {
-                            if (mStickCPosYLast < mCamSetup.mCstick.m00) {
+                            if (mStickCPosYLast < mCamSetup.mCstick.ThresholdLow()) {
                                 m184 = 0;
                             }
                         }
-                        else if (mStickCPosYLast > mCamSetup.mCstick.m04) {
+                        else if (mStickCPosYLast > mCamSetup.mCstick.ThresholdHigh()) {
                             // C-stick up.
                             setComStat(dCamAttnStts_00001000_e);
                             m184 = 1;
@@ -1272,7 +1276,7 @@ int dCamera_c::nextMode(s32 i_curMode) {
                 }
                 break;
             case 12:
-                if ((mStickCValueLast < 0.01f && mDirection.R() < mCamSetup.m098) || chkFlag(0x80000000)) {
+                if ((mStickCValueLast < 0.01f && mDirection.R() < mCamSetup.CrawlEndDistance()) || chkFlag(0x80000000)) {
                     m144 = 1;
                     m184 = 0;
                 }
@@ -1304,7 +1308,7 @@ int dCamera_c::nextMode(s32 i_curMode) {
         if (i_curMode == 12 && m144 != 0) {
             next_mode = 0;
         }
-        else if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_TELESCOPE_LOOK_e) != 0 || dComIfGp_checkPlayerStatus1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
+        else if (dComIfGp_checkPlayerStatus0(mPadId, daPyStts0_TELESCOPE_LOOK_e) || dComIfGp_checkPlayerStatus1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
             next_mode = 0xe;
         }
         else if (check_owner_action(mPadId, daPyStts0_UNK80000000_e | daPyStts0_UNK80_e)) {
@@ -2719,7 +2723,7 @@ void dCamera_c::checkGroundInfo() {
                 m338 = m33A - angle;
 
                 if (fopAcM_GetName(m33C) == fpcNm_Obj_Pirateship_e) {
-                    mViewCache.mCenter.y += m320.y * mCamSetup.mManualStartCThreshold;
+                    mViewCache.mCenter.y += m320.y * mCamSetup.ManualStartCThreshold();
                 }
             }
 

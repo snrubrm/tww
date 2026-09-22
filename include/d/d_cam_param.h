@@ -227,6 +227,9 @@ public:
     virtual ~dCstick_c() {}
 
     s32 Shift(u32);
+    // names are guesses
+    f32 ThresholdLow() { return m00; }
+    f32 ThresholdHigh() { return m04; }
 };
 
 class dCamBGChk_c {
@@ -349,6 +352,8 @@ public:
     // names are guesses
     f32 TriggerThreshold() { return m0A0; }
     f32 SubjectDistance() { return m048; }
+    f32 CStickReleaseThreshold() { return m09C; }
+    f32 CrawlEndDistance() { return m098; }
     f32 CinemaScopeTrimHeight() { return mTrimCineScopeHeight; }
     f32 VistaTrimHeight() { return mTrimVistaHeight; }
     f32 ForceLockOffTimer() { return mForceLockOffTimer; }
