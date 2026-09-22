@@ -1858,15 +1858,7 @@ BOOL dDlst_TerminaterScrnDraw_c::animeSuccess() {
 BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
     static const s16 rot[] = {0, 7, 0, 5, 2, 7};
 
-    s32 flags[8];
-    flags[0] = -1;
-    flags[1] = -1;
-    flags[2] = -1;
-    flags[3] = -1;
-    flags[4] = -1;
-    flags[5] = -1;
-    flags[6] = -1;
-    flags[7] = -1;
+    JUtility::TColor color[8];
 
     s16 f0;
     s16 f1;
@@ -1958,11 +1950,8 @@ BOOL dDlst_TerminaterScrnDraw_c::animePerfect() {
                 val = 200.0f - val;
             }
 
-            ((u8*)&flags[i])[0] = 0xFF;
-            ((u8*)&flags[i])[1] = (u8)(s32)val;
-            ((u8*)&flags[i])[2] = 0;
-            ((u8*)&flags[i])[3] = 0xFF;
-            ((J2DPicture*)mPerfect[i].pane)->setWhite(*(JUtility::TColor*)&flags[i]);
+            color[i].set(0xFF, (u8)val, 0, 0xFF);
+            ((J2DPicture*)mPerfect[i].pane)->setWhite(color[i]);
         }
     }
 
