@@ -191,7 +191,7 @@ daGnd_HIO_c::daGnd_HIO_c() {
 }
 
 /* 0000023C-000003CC       .text j_demo__FP9gnd_class */
-static BOOL j_demo(gnd_class* i_this) {
+static u8 j_demo(gnd_class* i_this) {
     if (i_this->demoActorID == 0) {
         if (i_this->m15B0 != 0) {
             i_this->m15B0 = 0;
@@ -2566,7 +2566,7 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
         i_this->m2CE = 20;
     }
 
-    if ((u8)j_demo(i_this)) {
+    if (j_demo(i_this)) {
         i_this->mpMorf->calc();
         i_this->mpBrkAnm->play();
         i_this->mpBtkAnm->play();
