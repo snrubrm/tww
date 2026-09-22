@@ -3,7 +3,9 @@
 // Translation Unit: d_resorce.cpp
 //
 
+#if VERSION > VERSION_DEMO
 #include "d/dolzel.h" // IWYU pragma: keep
+#endif
 #include "d/d_resorce.h"
 #include "JSystem/JKernel/JKRMemArchive.h"
 #include "d/d_com_inf_game.h"
