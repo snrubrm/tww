@@ -565,8 +565,7 @@ BOOL daKddoor_c::CreateHeap() {
     mStop.calcMtx(this);
     return mpBgW->Set(dzb, 1, &mpModel->getBaseTRMtx()) == 1 ? FALSE : TRUE;
 }
-// Retained unused distance constant from the original actor.
-extern const f32 l_kddoorUnusedDistance = 10000.0f;
+// NONMATCHING - .rodata: the original has an unreferenced 10000.0f literal here (probably from a stripped function)
 const char daKddoor_c::M_arcname[] = "Ssk";
 /* 00001B74-00001CD0       .text setEventPrm__10daKddoor_cFv */
 void daKddoor_c::setEventPrm() {
