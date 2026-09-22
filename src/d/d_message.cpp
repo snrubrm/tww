@@ -38,7 +38,7 @@ static u8 dMsg2_tex_i4_color[] = {
     0x7c, 0x72, 0x68, 0x5e, 0x54, 0x4a, 0x41, 0x3a, 0x32, 0x2a, 0x22, 0x1d, 0x15, 0x12, 0x0f, 0x0d, 0x0b, 0x09, 0x07, 0x05, 0x04, 0x04, 0x03, 0x02,
 };
 
-static inline u32 dMsg2_mkColor(u32 color, u8 alpha) { return alpha | color; }
+static inline u32 dMsg2_mkColor(u32 color, u8 alpha) { return color | alpha; }
 
 /* 801E73B4-801E74F4       .text dMsg2_value_init__FP14sub_msg2_classUc */
 // NONMATCHING - weird stuff with color OR'ing

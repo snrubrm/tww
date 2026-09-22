@@ -448,10 +448,10 @@ public:
     void setBmgData(char* i_data) { bmgData = i_data; }
     void setCenterLineWidth(int i_width) { centerLineWidth = i_width; }
 
-    u8 getCharAlpha() { return field_0x290; }
-    u8 getGradAlpha() { return field_0x291; }
-    u8 getRCharAlpha() { return field_0x292; }
-    u8 getRGradAlpha() { return field_0x293; }
+    u8 getCharAlpha() const { return field_0x290; }
+    u8 getGradAlpha() const { return field_0x291; }
+    u8 getRCharAlpha() const { return field_0x292; }
+    u8 getRGradAlpha() const { return field_0x293; }
     void setCharAlpha(u8 param_0, u8 param_1, u8 param_2, u8 param_3) {
         field_0x290 = param_0;
         field_0x291 = param_1;
