@@ -651,7 +651,7 @@ cPhs_State daObjFlame::Act_c::_create() {
 }
 
 bool daObjFlame::Act_c::_delete() {
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return true;
 }
 bool daObjFlame::Act_c::_execute() {
