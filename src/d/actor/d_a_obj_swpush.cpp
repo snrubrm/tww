@@ -785,7 +785,7 @@ BOOL daObjSwpush::Act_c::Mthd_Execute() {
     int i_max = mpBgW->GetVtxNum();
 
     for (int i = 0; i < 4; i++) {
-        JUT_ASSERT(0x578, M_op_vtx[i] < i_max)
+        JUT_ASSERT(DEMO_SELECT(0x55F, 0x578), M_op_vtx[i] < i_max)
         vtx_tbl[M_op_vtx[i]].y = m2D4 + mTopPos;
     }
     mpBgW->Move();
