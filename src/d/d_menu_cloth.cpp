@@ -363,7 +363,12 @@ void dMCloth_c::setNrmVtx(cXyz* pDst, int x, int y) {
 
     MtxPush();
 
+#if VERSION == VERSION_DEMO
+    s16 ang = cM_ssin(x * (REG10_S(3) - 800)) * (REG10_S(2) + 900);
+    mDoMtx_YrotM(*calc_mtx, ang);
+#else
     mDoMtx_YrotM(*calc_mtx, cM_ssin(x * -800) * 900.0f);
+#endif
     MtxPosition(&total, pDst);
     if (!pDst->normalizeRS()) {
         pDst->set(0.0f, 0.0f, 1.0f);
