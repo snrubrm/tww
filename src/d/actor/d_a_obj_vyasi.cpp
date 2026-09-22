@@ -478,7 +478,7 @@ void daObjVyasi::Act_c::calc_dif_angle() {
                 rate = 1;
             }
         } else if (mState == 3 && m19C4 == 0) {
-            if ((u32)i <= 1 || i == 6) {
+            if (i == 0 || i == 1 || i == 6) {
                 angle.z = m19CC * cM_ssin(m19D0);
             }
         }
