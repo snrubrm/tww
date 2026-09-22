@@ -694,7 +694,7 @@ void daBigelf_c::makeFa1() {
     angle.y = current.angle.y;
     angle.z = current.angle.z;
     pos.y += 100.0f;
-    mFa1Id = fopAcM_create(fpcNm_NPC_FA1_e, 6, &pos, current.roomNo, &angle, NULL, -1, NULL);
+    mFa1Id = fopAcM_create(fpcNm_NPC_FA1_e, 6, &pos, fopAcM_GetRoomNo(this), &angle, NULL, -1, NULL);
 }
 
 /* 00001EB4-0000200C       .text setAnm__10daBigelf_cFSc */
