@@ -100,12 +100,6 @@ BOOL daSaku_c::saku_draw_sub(int id) {
     return TRUE;
 }
 
-#if VERSION == VERSION_DEMO
-static inline u32 chkAtType(cCcD_Obj* hit, u32 type) {
-    return hit->GetAtType() & type;
-}
-#endif
-
 /* 000003A8-00000590       .text mode_break_none__8daSaku_cFi */
 BOOL daSaku_c::mode_break_none(int id) {
     u32 fire = 0, brokenHit = 0;
@@ -121,24 +115,24 @@ BOOL daSaku_c::mode_break_none(int id) {
             if (hit) {
 #if VERSION == VERSION_DEMO
                 if (mSturdinessType == 0) {
-                    brokenHit |= (chkAtType(hit, AT_TYPE_SWORD) ||
-                                  chkAtType(hit, AT_TYPE_UNK8) ||
-                                  chkAtType(hit, AT_TYPE_BOMB) ||
-                                  chkAtType(hit, AT_TYPE_MACHETE) ||
-                                  chkAtType(hit, AT_TYPE_UNK800) ||
-                                  chkAtType(hit, AT_TYPE_DARKNUT_SWORD) ||
-                                  chkAtType(hit, AT_TYPE_MOBLIN_SPEAR) ||
-                                  chkAtType(hit, AT_TYPE_SKULL_HAMMER));
+                    brokenHit |= (hit->ChkAtType(AT_TYPE_SWORD) ||
+                                  hit->ChkAtType(AT_TYPE_UNK8) ||
+                                  hit->ChkAtType(AT_TYPE_BOMB) ||
+                                  hit->ChkAtType(AT_TYPE_MACHETE) ||
+                                  hit->ChkAtType(AT_TYPE_UNK800) ||
+                                  hit->ChkAtType(AT_TYPE_DARKNUT_SWORD) ||
+                                  hit->ChkAtType(AT_TYPE_MOBLIN_SPEAR) ||
+                                  hit->ChkAtType(AT_TYPE_SKULL_HAMMER));
                 } else if (mSturdinessType == 1) {
-                    brokenHit |= (chkAtType(hit, AT_TYPE_MACHETE) ||
-                                  chkAtType(hit, AT_TYPE_BOMB) ||
-                                  chkAtType(hit, AT_TYPE_UNK800) ||
-                                  chkAtType(hit, AT_TYPE_DARKNUT_SWORD));
+                    brokenHit |= (hit->ChkAtType(AT_TYPE_MACHETE) ||
+                                  hit->ChkAtType(AT_TYPE_BOMB) ||
+                                  hit->ChkAtType(AT_TYPE_UNK800) ||
+                                  hit->ChkAtType(AT_TYPE_DARKNUT_SWORD));
                 }
                 if (brokenHit) {
                     dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
                 }
-                fire |= (chkAtType(hit, AT_TYPE_FIRE) || chkAtType(hit, AT_TYPE_UNK20000) || chkAtType(hit, AT_TYPE_FIRE_ARROW));
+                fire |= (hit->ChkAtType(AT_TYPE_FIRE) || hit->ChkAtType(AT_TYPE_UNK20000) || hit->ChkAtType(AT_TYPE_FIRE_ARROW));
 #else
                 if (mSturdinessType == 0) {
                     brokenHit |= bool(hit->ChkAtType(AT_TYPE_SWORD) ||

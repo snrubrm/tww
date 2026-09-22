@@ -530,7 +530,11 @@ public:
     void SetAtHit(cCcD_Obj* obj) { mObjAt.SetHit(obj); }
     void SetTgHit(cCcD_Obj* obj) { mObjTg.SetHit(obj); }
     void SetCoHit(cCcD_Obj* obj) { mObjCo.SetHit(obj); }
+#if VERSION == VERSION_DEMO
+    u32 ChkAtType(u32 type) const { return mObjAt.MskType(type); }
+#else
     bool ChkAtType(u32 type) const { return mObjAt.MskType(type); }
+#endif
     u32 ChkCoNoCrr() const { return mObjCo.ChkNoCrr(); }
     u32 ChkCoSph3DCrr() const { return mObjCo.ChkSph3DCrr(); }
     void OnAtSPrmBit(u32 flag) { mObjAt.OnSPrmBit(flag); }
