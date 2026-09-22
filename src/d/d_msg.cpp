@@ -1743,6 +1743,13 @@ void dMsg_arrowMove(sub_msg_class* i_Msg) {
     s32 temp_r12;
     s32 temp_r30;
 
+#if VERSION == VERSION_DEMO
+    temp_r9 = time[1];
+    temp_r10 = temp_r9 + time[2];
+    temp_r11 = temp_r10 + time[3];
+    temp_r12 = temp_r11 + time[4];
+    temp_r30 = temp_r12 + time[5];
+#else
     temp_r9 = time[1];
     temp_r8 = time[2];
     temp_r10 = temp_r9 + temp_r8;
@@ -1752,6 +1759,7 @@ void dMsg_arrowMove(sub_msg_class* i_Msg) {
     temp_r12 = temp_r11 + temp_r6;
     temp_r5 = time[5];
     temp_r30 = temp_r12 + temp_r5;
+#endif
     i_Msg->m1100++;
     if ((i_Msg->mPane_Arrow).mNowAlpha < (i_Msg->mPane_Arrow).mInitAlpha) {
         dVar4 = fopMsgM_valueIncrease(10, i_Msg->m1100, 0);
