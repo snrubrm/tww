@@ -2875,7 +2875,7 @@ BOOL daShip_c::procWhirlDown_init() {
 BOOL daShip_c::procWhirlDown() {  
     shape_angle.y += (m0408 / (2*M_PI)) * 0x10000;
     if (mWhirlActor) {
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
         if (cLib_addCalcPosXZ(&current.pos, mWhirlActor->current.pos, 1.0f, speedF, 10.0f) < 10.0f)
 #else
         speedF = 40.0f;
