@@ -1570,10 +1570,7 @@ BOOL daNpc_Kf1_c::CreateHeap() {
         return FALSE;
     }
     mAcchCir.SetWall(30.0f, 90.0f);
-    cXyz* speed_p = &speed;
-    cXyz* old_pos_p = &old.pos;
-    cXyz* current_pos_p = &current.pos;
-    mObjAcch.Set(current_pos_p, old_pos_p, this, 1, &mAcchCir, speed_p, NULL, NULL);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
     return TRUE;
 }
 
