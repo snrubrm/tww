@@ -1249,8 +1249,8 @@ void dMenu_Fmap2_c::gsIconAnimeInit() {
 
 /* 801C039C-801C04CC       .text gsIconAnime__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::gsIconAnime() {
-    JUtility::TColor dummy1;
-    JUtility::TColor dummy2;
+    JUtility::TColor c1;
+    JUtility::TColor c2;
     if (field_0x2811 != 0) {
         return;
     }
