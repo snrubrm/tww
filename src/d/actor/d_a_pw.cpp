@@ -409,14 +409,13 @@ BOOL body_atari_check(pw_class* i_this) {
             case AT_TYPE_LIGHT:
                 skipAtCheck = 1;
                 break;
-            case AT_TYPE_BOKO_STICK:
-            case AT_TYPE_STALFOS_MACE:
-                goto wep_hit_se;
             case AT_TYPE_BOOMERANG:
                 skipAtCheck = 1;
                 i_this->mHitByWhat = 4;
                 dComIfGp_particle_set(dPa_name::ID_IT_JN_PIYOHIT00, &i_this->attention_info.position);
-            wep_hit_se:
+                // fallthrough
+            case AT_TYPE_BOKO_STICK:
+            case AT_TYPE_STALFOS_MACE:
                 fopAcM_seStart(i_this, JA_SE_LK_W_WEP_HIT, 0x20);
                 break;
             case AT_TYPE_SKULL_HAMMER:
@@ -488,35 +487,28 @@ BOOL body_atari_check(pw_class* i_this) {
             }
             cc_at_check(i_this, &atInfo);
             cXyz scale;
-            if (i_this->mHitByWhat == 1 || i_this->mHitByWhat == 7 || i_this->mHitByWhat == 8) {
-                goto critical_hit;
-            }
-            if (i_this->health > 0) {
-                goto ok_hit;
-            }
-        critical_hit:
+            if (i_this->mHitByWhat == 1 || i_this->mHitByWhat == 7 || i_this->mHitByWhat == 8 || i_this->health <= 0) {
 #if VERSION == VERSION_DEMO
-            Big_pow_down_check(i_this);
+                Big_pow_down_check(i_this);
 #else
-            if (Big_pow_down_check(i_this)) {
-                return FALSE;
-            }
+                if (Big_pow_down_check(i_this)) {
+                    return FALSE;
+                }
 #endif
-            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos);
-            scale.setall(2.0f);
-            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
-            if (i_this->mHitByWhat == 7) {
-                i_this->mAction = 2;
-                i_this->mMode = 0x3E;
-                i_this->speedF = 0.0f;
-                i_this->gravity = -3.0f;
-                anm_init(i_this, dRes_INDEX_PW_BCK_PRESS1_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
-                return TRUE;
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos);
+                scale.setall(2.0f);
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
+                if (i_this->mHitByWhat == 7) {
+                    i_this->mAction = 2;
+                    i_this->mMode = 0x3E;
+                    i_this->speedF = 0.0f;
+                    i_this->gravity = -3.0f;
+                    anm_init(i_this, dRes_INDEX_PW_BCK_PRESS1_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+                    return TRUE;
+                }
+            } else {
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle);
             }
-            goto after_hit;
-        ok_hit:
-            dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle);
-        after_hit:
             if (i_this->mMode != 0x37) {
                 i_this->mAction = 2;
                 i_this->mMode = 0x36;
