@@ -2936,7 +2936,7 @@ void dMenu_Collect_c::itemnameSet() {
     }
 
     mesg_header* head_p = msgGet.getMesgHeader(msgNo);
-    JUT_ASSERT(VERSION_SELECT(0xBD1, 0xBD1, 0xBD1, 0xBD1), head_p);
+    JUT_ASSERT(VERSION_SELECT(0xbb0, 0xbb0, 0xBD1, 0xBD1), head_p);
 
     ((J2DTextBox*)m890[0].pane)->getFontSize(nameFontSize);
     nameFontSize.mSizeX = nameFontSize.mSizeY;
@@ -3216,7 +3216,7 @@ void dMenu_Collect_c::itemnoteSet() {
     }
 
     mesg_header* head_p = msgGet.getMesgHeader(msgNo);
-    JUT_ASSERT(VERSION_SELECT(0xCD3, 0xCD3, 0xCD3, 0xCD3), head_p);
+    JUT_ASSERT(VERSION_SELECT(0xcab, 0xcab, 0xCD3, 0xCD3), head_p);
 
     const char* bmgData = msgGet.getMessage(head_p);
 
@@ -3537,26 +3537,26 @@ bool dMenu_Collect_c::collectItemGetCheck(unsigned char param_1) {
 /* 801A4A28-801A4F18       .text _create__15dMenu_Collect_cFv */
 void dMenu_Collect_c::_create() {
     scrn = new MyScreen();
-    JUT_ASSERT(VERSION_SELECT(0xe4a, 0xe4a, 0xe4a, 0xe4a), scrn != NULL); 
+    JUT_ASSERT(VERSION_SELECT(0xdf2, 0xdff, 0xe4a, 0xe4a), scrn != NULL); 
     scrn->set("menu_collect_01.blo", mpArc);
 
     stick = new STControl(5, 2, 3, 2);
-    JUT_ASSERT(VERSION_SELECT(0xe4e, 0xe4e, 0xe4e, 0xe4e), stick != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xdf6, 0xe03, 0xe4e, 0xe4e), stick != NULL);
 
     cstick = new CSTControl(5, 2, 3, 2);
-    JUT_ASSERT(VERSION_SELECT(0xe51, 0xe51, 0xe51, 0xe51), cstick != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xdf9, 0xe06, 0xe51, 0xe51), cstick != NULL);
 
     stick->setWaitParm(5, 2, 3, 2, 0.9f, 0.5f, 0, 0x800);
 
     outFont = new dDlst_2DOutFont_c();
-    JUT_ASSERT(VERSION_SELECT(0xe55, 0xe55, 0xe55, 0xe55), outFont != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xdfd, 0xe0a, 0xe55, 0xe55), outFont != NULL);
 
 #if VERSION > VERSION_JPN
     outFont->m74 = 1;
 #endif
 
     dMo_c = new dMenu_Option_c();
-    JUT_ASSERT(VERSION_SELECT(0xe59, 0xe59, 0xe59, 0xe59), dMo_c != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xe00, 0xe0d, 0xe59, 0xe59), dMo_c != NULL);
 
     dMo_c->setArchive(mpOptArc);
     dMo_c->setFont(mpFont, mpRubyFont);
@@ -3564,7 +3564,7 @@ void dMenu_Collect_c::_create() {
     dMo_c->_create();
 
     dMs_c = new dMenu_save_c();
-    JUT_ASSERT(VERSION_SELECT(0xe63, 0xe63, 0xe63, 0xe63), dMs_c != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xe0a, 0xe17, 0xe63, 0xe63), dMs_c != NULL);
 
     dMs_c->setUseType(1);
     dMs_c->_create();
@@ -3608,10 +3608,10 @@ void dMenu_Collect_c::_create3() {
     stick->setWaitParm(5, 2, 3, 2, 0.9f, 0.5f, 0, 0x800);
 
     outFont = new dDlst_2DOutFont_c();
-    JUT_ASSERT(VERSION_SELECT(0xE9A, 0xE9A, 0xE9A, 0xE9A), outFont != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xe41, 0xe4e, 0xE9A, 0xE9A), outFont != NULL);
 
     dMo_c = new dMenu_Option_c();
-    JUT_ASSERT(VERSION_SELECT(0xE9D, 0xE9D, 0xE9D, 0xE9D), dMo_c != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xe44, 0xe51, 0xE9D, 0xE9D), dMo_c != NULL);
 
     dMo_c->setArchive(mpOptArc);
     dMo_c->setFont(mpFont, mpRubyFont);
@@ -3619,7 +3619,7 @@ void dMenu_Collect_c::_create3() {
     dMo_c->_create();
 
     dMs_c = new dMenu_save_c();
-    JUT_ASSERT(VERSION_SELECT(0xEA6, 0xEA6, 0xEA6, 0xEA6), dMs_c != NULL);
+    JUT_ASSERT(VERSION_SELECT(0xe4d, 0xe5a, 0xEA6, 0xEA6), dMs_c != NULL);
 
     dMs_c->setUseType(1);
     dMs_c->_create();
