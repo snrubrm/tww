@@ -220,7 +220,8 @@ BOOL daMbdoor_c::CreateInit() {
     int swbit = getSwbit();
     int type = getType();
     
-    if (dComIfG_Bgsp()->Regist(mpBgW, this)) {
+    int rt = dComIfG_Bgsp()->Regist(mpBgW, this);
+    if (rt) {
         JUT_ASSERT(334, FALSE);
     }
     field_0x2ac = true;
@@ -230,8 +231,8 @@ BOOL daMbdoor_c::CreateInit() {
         setAction(1);
         field_0x2b0 = 0;
         field_0x2b2 = 0;
-    } else if ((type == 0 && (swbit != 0xFF && !dComIfGs_isSwitch(swbit, current.roomNo))) ||
-               (type == 1 && (swbit == 0xFF || dComIfGs_isSwitch(swbit, current.roomNo)))) {
+    } else if ((type == 0 && (swbit != 0xFF && !dComIfGs_isSwitch(swbit, fopAcM_GetRoomNo(this)))) ||
+               (type == 1 && (swbit == 0xFF || dComIfGs_isSwitch(swbit, fopAcM_GetRoomNo(this))))) {
         setAction(1);
         field_0x2b0 = 0;
         field_0x2b2 = 0;
