@@ -114,10 +114,10 @@ bool JMessage::TParse::parseHeader_next(const void** ppData, u32* pOutSize, u32 
 bool JMessage::TParse::parseBlock_next(const void** ppData, u32* pOutSize, u32 flag) {
     const void* pData = *ppData;
     data::TParse_TBlock oBlock(pData);
-    *ppData = (char*)pData + ((JUTDataBlockHeader*)pData)->mSize;
-    *pOutSize = ((JUTDataBlockHeader*)pData)->mSize;
+    *ppData = oBlock.getNext();
+    *pOutSize = oBlock.get_size();
 
-    switch (((JUTDataBlockHeader*)pData)->mType) {
+    switch (oBlock.get_type()) {
     case 'INF1':
         mResource->setData_block_info(pData);
         break;

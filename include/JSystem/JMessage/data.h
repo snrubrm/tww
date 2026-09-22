@@ -23,6 +23,11 @@ struct TParse_THeader : public JGadget::binary::TParseData_aligned<4> {
 
 struct TParse_TBlock : public JGadget::binary::TParseData_aligned<4> {
     TParse_TBlock(const void* data) : TParseData_aligned(data) {}
+
+    const char* get() const { return (char*)getRaw(); }
+    u32 get_size() const { return *(u32*)(get() + 0x4); }
+    const void* getNext() const { return (char*)getRaw() + get_size(); }
+    u32 get_type() const { return *(u32*)(get() + 0x0); }
 };
 
 // INF1
