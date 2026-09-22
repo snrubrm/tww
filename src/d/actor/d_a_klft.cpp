@@ -41,12 +41,7 @@ static void ride_call_back(dBgW*, fopAc_ac_c* base, fopAc_ac_c* rider) {
     }
     actor->mSinkTarget = -50.0f;
     f32 distance = std::sqrtf(pos.x * pos.x + pos.z * pos.z);
-#if VERSION == VERSION_DEMO
     cLib_addCalcAngleS2(&actor->mRideTilt, distance * ((30.0f + REG0_F(0)) / base->scale.z), 10, 0x800);
-#else
-    s16 tilt_target = distance * ((30.0f + REG0_F(0)) / base->scale.z);
-    cLib_addCalcAngleS2(&actor->mRideTilt, tilt_target, 10, 0x800);
-#endif
     s16 angle_target = cM_atan2s(pos.x, pos.z);
     cLib_addCalcAngleS2(&actor->mRideAngle, angle_target, 2, 0x2000);
     f32 stickX = CPad_GET_STICK_POS_X(0);
@@ -115,13 +110,7 @@ static BOOL nodeCallBack(J3DNode* node, int phase) {
 
 /* 00000520-000005A0       .text himo_Draw__FP10klft_class */
 void himo_Draw(klft_class* actor) {
-    GXColor color = {150, 150, 150, 255};
-#if VERSION == VERSION_DEMO
-    GXColor& c = color;
-    actor->mRope.update(20, c, &actor->tevStr);
-#else
-    actor->mRope.update(20, color, &actor->tevStr);
-#endif
+    actor->mRope.update(20, (GXColor){150, 150, 150, 255}, &actor->tevStr);
     dComIfGd_set3DlineMat(&actor->mRope);
 }
 
