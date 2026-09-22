@@ -1505,55 +1505,10 @@ void dMsg_frame_close(sub_msg_class* i_Msg) {
 }
 
 /* 8020F324-8020F3F8       .text dMsg_textPosition__FP13sub_msg_class */
-#if VERSION == VERSION_DEMO
+// NONMATCHING - demo only: the shift value is converted before each pane is loaded in the target
 void dMsg_textPosition(sub_msg_class* i_Msg) {
     int uVar2;
-    J2DTextBox* pJVar6;
-    J2DTextBox* pJVar3;
-    J2DTextBox* pJVar4;
-    J2DTextBox* pJVar5;
-    f32 y;
-
-    switch (i_Msg->mMesgEntry.mTextboxType) {
-    case 5:
-        if (g_msgDHIO.field_0x08 == 0) {
-            uVar2 = i_Msg->m1104 * (1 - i_Msg->m1108);
-        } else {
-            uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
-        }
-        break;
-    case 0xE:
-        uVar2 = 0;
-        break;
-    default:
-        if (g_msgDHIO.field_0x08 == 0) {
-            uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
-        } else {
-            uVar2 = i_Msg->m1104 * (3 - i_Msg->m1108);
-        }
-        break;
-    }
-    int uVar1 = 0;
-    y = uVar2;
-    pJVar3 = (J2DTextBox*)i_Msg->m0544[0].pane;
-    pJVar3->field_0xd8 = uVar1;
-    pJVar3->field_0xdc = y;
-    y = uVar2;
-    pJVar4 = (J2DTextBox*)i_Msg->m0544[1].pane;
-    pJVar4->field_0xd8 = uVar1;
-    pJVar4->field_0xdc = y;
-    y = uVar2;
-    pJVar5 = (J2DTextBox*)i_Msg->m0544[2].pane;
-    pJVar5->field_0xd8 = uVar1;
-    pJVar5->field_0xdc = y;
-    y = uVar2;
-    pJVar6 = (J2DTextBox*)i_Msg->m0544[3].pane;
-    pJVar6->field_0xd8 = uVar1;
-    pJVar6->field_0xdc = y;
-}
-#else
-void dMsg_textPosition(sub_msg_class* i_Msg) {
-    int uVar2;
+    int x = 0;
     J2DTextBox* pJVar6;
     J2DTextBox* pJVar3;
     J2DTextBox* pJVar4;
@@ -1591,19 +1546,18 @@ void dMsg_textPosition(sub_msg_class* i_Msg) {
         break;
     }
     pJVar3 = (J2DTextBox*)i_Msg->m0544[0].pane;
-    pJVar3->field_0xd8 = 0.0f;
+    pJVar3->field_0xd8 = x;
     pJVar3->field_0xdc = uVar2;
     pJVar4 = (J2DTextBox*)i_Msg->m0544[1].pane;
-    pJVar4->field_0xd8 = 0.0f;
+    pJVar4->field_0xd8 = x;
     pJVar4->field_0xdc = uVar2;
     pJVar5 = (J2DTextBox*)i_Msg->m0544[2].pane;
-    pJVar5->field_0xd8 = 0.0f;
+    pJVar5->field_0xd8 = x;
     pJVar5->field_0xdc = uVar2;
     pJVar6 = (J2DTextBox*)i_Msg->m0544[3].pane;
-    pJVar6->field_0xd8 = 0.0f;
+    pJVar6->field_0xd8 = x;
     pJVar6->field_0xdc = uVar2;
 }
-#endif
 
 /* 8020F3F8-8020F4E0       .text dMsg_rubySet__FP13sub_msg_class */
 void dMsg_rubySet(sub_msg_class* i_Msg) {
