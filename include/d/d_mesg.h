@@ -19,7 +19,9 @@ class dMesg_screenData_c;
 class sub_mesg_class : public msg_class {
 public:
     /* 0x0FC */ JKRExpHeap* heap;
+#if VERSION > VERSION_DEMO
     /* 0x100 */ JKRExpHeap* field_0x100;
+#endif
     /* 0x104 */ dMesg_outFont_c* outfont[18];
     /* 0x14C */ dMesg_screenData_c* screen;
     /* 0x150 */ u16 field_0x150;
@@ -110,11 +112,7 @@ public:
     void resetWaitRest() { mWaitRest = 0; }
     void setWaitRest() {} // TODO
     int decWaitRest() {
-        if (mWaitRest > 0) {
-            return mWaitRest--;
-        } else {
-            return 0;
-        }
+        return mWaitRest > 0 ? mWaitRest-- : 0;
     }
     u32 getNowColor() { return mNowColor; }
     void setNowColor(u32 col) { mNowColor = col; }
@@ -163,10 +161,12 @@ protected:
     /* 0x094 */ char field_0x94;
     /* 0x095 */ u8 field_0x95;
     /* 0x096 */ u8 field_0x96;
-    /* 0x097 */ char field_0x97[100];
-    /* 0x0FB */ char field_0xfb[100];
+    /* 0x097 */ char field_0x97[DEMO_SELECT(30, 100)];
+    /* 0x0FB */ char field_0xfb[DEMO_SELECT(30, 100)];
     /* 0x15F */ u8 mStopFlag;
+#if VERSION > VERSION_DEMO
     /* 0x160 */ u8 field_0x160;
+#endif
     /* 0x161 */ u8 mShortCutFlag;
     /* 0x162 */ u8 field_0x162;
     /* 0x163 */ u8 field_0x163;

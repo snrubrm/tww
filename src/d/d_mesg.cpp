@@ -63,9 +63,9 @@ void dMesg_fontsizeCenter(sub_mesg_class*, int, int, int, int);
 /* 801DFEE4-801E000C       .text _create__15dMesg_outFont_cFv */
 void dMesg_outFont_c::_create() {
     icon = new J2DPicture("font_07_02.bti");
-    JUT_ASSERT(VERSION_SELECT(117, 95, 117, 118), icon != NULL);
+    JUT_ASSERT(VERSION_SELECT(93, 95, 117, 118), icon != NULL);
     kage = new J2DPicture("font_07_02.bti");
-    JUT_ASSERT(VERSION_SELECT(119, 97, 119, 120), kage != NULL);
+    JUT_ASSERT(VERSION_SELECT(95, 97, 119, 120), kage != NULL);
 
     fopMsgM_blendInit(icon,"font_00.bti");
     fopMsgM_blendInit(kage,"font_00.bti");
@@ -170,7 +170,9 @@ dMesg_tSequenceProcessor::dMesg_tSequenceProcessor(JMessage::TControl* param_1) 
     field_0x8c = 1;
     mWaitRest = 0;
     mStopFlag = 0;
+#if VERSION > VERSION_DEMO
     field_0x160 = 0;
+#endif
     mShortCutFlag = 0;
     field_0x162 = 0;
     field_0x163 = 0;
@@ -244,7 +246,9 @@ void dMesg_tSequenceProcessor::initialize(int param_1) {
     field_0x70 = 0;
     mShortCutFlag = 0;
     mStopFlag = 0;
+#if VERSION > VERSION_DEMO
     field_0x160 = 0;
+#endif
     field_0x162 = 0;
     field_0x163 = 0;
     field_0x68 = 0;
@@ -255,7 +259,12 @@ void dMesg_tSequenceProcessor::initialize(int param_1) {
         retFlag--;
     }
 #if VERSION <= VERSION_JPN
+#if VERSION == VERSION_DEMO
+    int shift = (3 - (mesgControl->getLineCount() - retFlag)) * 42 / 2;
+    mMesg->screen->shiftSet(0, shift);
+#else
     mMesg->screen->shiftSet(0, (3 - (mesgControl->getLineCount() - retFlag)) * 42 / 2);
+#endif
 #else
     mMesg->screen->shiftSet(0, g_msgHIO.field_0x5e * (4 - (mesgControl->getLineCount() - retFlag)) / 2);
 #endif
@@ -296,7 +305,7 @@ bool dMesg_tSequenceProcessor::do_isReady() {
             #endif
         }
         if (CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0)) {
-            if (stack_2c.mDrawType != 2 && field_0x160 == 0) {
+            if (stack_2c.mDrawType != 2 && DEMO_SELECT(TRUE, field_0x160 == 0)) {
                 mShortCutFlag = 1;
             }
         }
@@ -430,7 +439,12 @@ void dMesg_tSequenceProcessor::do_character(int param_1) {
     if (field_0x74 > 0) {
         field_0x74--;
         if (field_0x74 == 0) {
+#if VERSION == VERSION_DEMO
+            f31 = (field_0x44 - field_0x48);
+            f31 = (field_0x48 + f31 / 2.0f) - field_0x54 / 2.0f;
+#else
             f31 = (field_0x48 + (field_0x44 - field_0x48) / 2.0f) - field_0x54 / 2.0f;
+#endif
             char buffer[16];
             buffer[0] = 0;
             if (field_0x163) {
@@ -515,6 +529,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
     dMesg_tControl* mesgControl = (dMesg_tControl*)getControl();
     int r30 = param_1 & 0xFF0000;
     bool r29 = false;
+#if VERSION > VERSION_DEMO
     if (field_0x162) {
         mMesg->text[0][field_0x5c] = 0;
         mMesg->text[2][field_0x64] = 0;
@@ -525,6 +540,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
         field_0x95 = 0;
         field_0x94 = 0;
     }
+#endif
 
     switch (r30) {
     case 0:
@@ -553,6 +569,13 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
 
                 f32 f29 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
                 int width = mesgControl->getMainFont()->getWidth(char_code);
+#if VERSION == VERSION_DEMO
+                if (field_0x44 == 0.0f) {
+                    field_0x44 = width * f29;
+                } else {
+                    field_0x44 += width * f29 + mesgControl->getCharSpace();
+                }
+#else
                 if (field_0x44 == 0.0f) {
                     f32 temp2 = width * f29;
                     field_0x44 = temp2;
@@ -560,6 +583,19 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
                     f32 temp2 = width * f29;
                     field_0x44 += temp2 + mesgControl->getCharSpace();
                 }
+#endif
+#if VERSION == VERSION_DEMO
+                if (field_0x162) {
+                    mMesg->text[0][field_0x5c] = 0;
+                    mMesg->text[2][field_0x64] = 0;
+                    field_0x162 = 0;
+                    strcat(mMesg->text[0], &field_0x94);
+                    strcat(mMesg->text[2], &field_0x94);
+                    field_0x96 = 0;
+                    field_0x95 = 0;
+                    field_0x94 = 0;
+                }
+#endif
                 strcat(mMesg->text[0], sp14);
                 strcat(mMesg->text[2], sp14);
                 field_0x5c = strlen(mMesg->text[0]);
@@ -670,7 +706,9 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
         case 4:
             r29 = true;
             mWaitRest = *(u16*)param_2;
+#if VERSION > VERSION_DEMO
             field_0x160 = 1;
+#endif
             mStopFlag = 2;
             break;
         case 5:
@@ -680,7 +718,9 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
         case 7:
             r29 = true;
             mWaitRest = *(u16*)param_2;
+#if VERSION > VERSION_DEMO
             field_0x160 = 1;
+#endif
             break;
         case 8:
         case 9:
@@ -735,7 +775,11 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
             int char_code;
             int r30 = 0;
             char sp28[17];
+#if VERSION == VERSION_DEMO
+            fopMsgM_passwordGet(sp28, g_dComIfG_gameInfo.save.getEvent().getEventReg(dSv_event_flag_c::UNK_BA0F) + 0x1B37);
+#else
             fopMsgM_passwordGet(sp28, dComIfGs_getEventReg(dSv_event_flag_c::UNK_BA0F) + 0x1B37);
+#endif
             char sp10[3];
             while (sp28[r30]) {
 #if VERSION == VERSION_PAL
@@ -774,14 +818,30 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
                 }
 #endif
 
+#if VERSION == VERSION_DEMO
+                f32 f29 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
+#else
                 int r25 = mesgControl->getNowFontSize();
                 f32 f29 = f32(r25) / f32(mesgControl->getMainFont()->getCellWidth());
+#endif
                 int width = mesgControl->getMainFont()->getWidth(char_code);
                 if (field_0x44 == 0.0f) {
                     field_0x44 = width * f29;
                 } else {
                     field_0x44 += width * f29 + mesgControl->getCharSpace();
                 }
+#if VERSION == VERSION_DEMO
+                if (field_0x162) {
+                    mMesg->text[0][field_0x5c] = 0;
+                    mMesg->text[2][field_0x64] = 0;
+                    field_0x162 = 0;
+                    strcat(mMesg->text[0], &field_0x94);
+                    strcat(mMesg->text[2], &field_0x94);
+                    field_0x96 = 0;
+                    field_0x95 = 0;
+                    field_0x94 = 0;
+                }
+#endif
                 strcat(mMesg->text[0], sp10);
                 strcat(mMesg->text[2], sp10);
 #if VERSION <= VERSION_JPN
@@ -893,6 +953,13 @@ bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2
             mNowColor = colorTable[u8(*(u8*)param_2)];
             char buffer[32];
             sprintf(buffer, "\x1b" "CC[%08x]" "\x1b" "GM[0]", mNowColor);
+#if VERSION == VERSION_DEMO
+            if (field_0x162) {
+                mMesg->text[0][field_0x5c] = 0;
+                mMesg->text[2][field_0x64] = 0;
+                field_0x162 = 0;
+            }
+#endif
 #if VERSION <= VERSION_JPN
             if (mesgControl->isHeader()) {
                 strcat(mMesg->text[0], &field_0x94);
@@ -944,7 +1011,7 @@ bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2
         field_0x54 = 0.0f;
         strcpy(field_0x97, "");
         field_0x74 = *(u8*)param_2;
-        for (int i = 1; i < int(param_3); i += 2) {
+        for (int i = 1; i < DEMO_SELECT(param_3, int(param_3)); i += 2) {
             strcat(field_0x97, ruby_character((char*)param_2, i));
         }
 #endif
@@ -1133,8 +1200,12 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
                 }
 #endif
 
+#if VERSION == VERSION_DEMO
+                f32 f30 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
+#else
                 int r23 = mesgControl->getNowFontSize();
                 f32 f30 = f32(r23) / f32(mesgControl->getMainFont()->getCellWidth());
+#endif
                 int width = mesgControl->getMainFont()->getWidth(char_code);
                 if (r27 >= 0 && r27 <= linemax) {
                     if (field_0x38[r27] == 0.0f) {
@@ -1338,8 +1409,9 @@ void dMesg_tRenderingProcessor::do_character(int) {
 
 /* 801E28F0-801E2970       .text do_tag__25dMesg_tRenderingProcessorFUlPCvUl */
 bool dMesg_tRenderingProcessor::do_tag(u32 param_1, const void*, u32) {
+    u32 tag = param_1 & 0xff0000;
     bool ret = false;
-    switch (param_1 & 0xff0000) {
+    switch (tag) {
     case 0:
         switch(param_1) {
         case 0:
@@ -1576,8 +1648,9 @@ void dMesg_screenData_c::dotAnime() {
     black.a = field_0x1b0.a;
     white.a = field_0x1ac.a;
     if (field_0x18.mNowAlpha < field_0x18.mInitAlpha) {
-        fopMsgM_setNowAlpha(&field_0x18, fopMsgM_valueIncrease(10, mTimer, 0));
-        if (mTimer == 10) {
+        int max = 10;
+        fopMsgM_setNowAlpha(&field_0x18, fopMsgM_valueIncrease(max, mTimer, 0));
+        if (max == mTimer) {
             resetTimer();
         }
     } else {
@@ -1615,9 +1688,9 @@ void dMesg_screenDataTalk_c::createScreen() {
     JUtility::TColor white(30, 30, 30, 215);
     JUtility::TColor black(30, 30, 75, 0);
     scrn = new J2DScreen();
-    JUT_ASSERT(VERSION_SELECT(2145, 1962, 2145, 2259), scrn != NULL);
+    JUT_ASSERT(VERSION_SELECT(1933, 1962, 2145, 2259), scrn != NULL);
 #if VERSION == VERSION_DEMO
-    scrn->set("hukidashi_d00.blo", dComIfGp_getMsgArchive());
+    scrn->set("hukidashi_00.blo", dComIfGp_getMsgArchive());
 #else
     scrn->set("hukidashi_d00.blo", dComIfGp_getDmsgArchive());
 #endif
@@ -1637,6 +1710,24 @@ void dMesg_screenDataTalk_c::createScreen() {
         field_0x88[3].pane->show();
         messageOffsetY = 0;
     }
+#if VERSION == VERSION_DEMO
+    scrn->search('tec3')->hide();
+    scrn->search('txc2')->hide();
+    scrn->search('txc1')->hide();
+    scrn->search('txc0')->hide();
+    scrn->search('cur2')->hide();
+    scrn->search('cur1')->hide();
+    scrn->search('mc09')->hide();
+    scrn->search('mc08')->hide();
+    scrn->search('mc07')->hide();
+    scrn->search('mc06')->hide();
+    scrn->search('mc05')->hide();
+    scrn->search('mc04')->hide();
+    scrn->search('mc03')->hide();
+    scrn->search('mc02')->hide();
+    scrn->search('mc01')->hide();
+    scrn->search('mc00')->hide();
+#endif
     ((J2DPicture*)field_0x168.pane)->setWhite(white);
     ((J2DPicture*)field_0x168.pane)->setBlack(black);
     setCommonData();
@@ -1777,14 +1868,14 @@ void dMesg_screenDataTalk_c::draw() {
 /* 801E40CC-801E48D0       .text createScreen__22dMesg_screenDataItem_cFv */
 void dMesg_screenDataItem_c::createScreen() {
     scrn = new J2DScreen();
-    JUT_ASSERT(VERSION_SELECT(2421, 2219, 2421, 2535), scrn != NULL);
+    JUT_ASSERT(VERSION_SELECT(2188, 2219, 2421, 2535), scrn != NULL);
 
     texBuffer = (ResTIMG*)mHeap->alloc(0xc00, 0x20);
-    JUT_ASSERT(VERSION_SELECT(2424, 2222, 2424, 2538), texBuffer != NULL);
+    JUT_ASSERT(VERSION_SELECT(2191, 2222, 2424, 2538), texBuffer != NULL);
 
     field_0x3e4 = NULL;
 #if VERSION == VERSION_DEMO
-    scrn->set("hukidashi_d09.blo", dComIfGp_getMsgArchive());
+    scrn->set("hukidashi_09.blo", dComIfGp_getMsgArchive());
 #else
     scrn->set("hukidashi_d09.blo", dComIfGp_getDmsgArchive());
 #endif
@@ -2027,7 +2118,8 @@ void dMesg_screenDataItem_c::cornerMove() {
     if (field_0x168.mUserArea >= r4) {
         field_0x168.mUserArea = 0;
     }
-    f32 tmp = fopMsgM_valueIncrease(g_msgHIO.field_0x7f, field_0x168.mUserArea % g_msgHIO.field_0x7f, 2);
+    int t = field_0x168.mUserArea % g_msgHIO.field_0x7f;
+    f32 tmp = fopMsgM_valueIncrease(g_msgHIO.field_0x7f, t, 2);
     GXColor local_68[4];
     for (int i = 0; i < 4; i++) {
         int r9 = i + 1;
@@ -2053,14 +2145,14 @@ void dMesg_screenDataItem_c::cornerMove() {
 /* 801E5938-801E5ADC       .text dMesg_initialize__FP14sub_mesg_class */
 void dMesg_initialize(sub_mesg_class* i_Msg) {
     dMesg_gpResourceContainer = new JMessage::TResourceContainer();
-    JUT_ASSERT(VERSION_SELECT(2901, 2680, 2901, 3015), dMesg_gpResourceContainer != NULL);
+    JUT_ASSERT(VERSION_SELECT(2649, 2680, 2901, 3015), dMesg_gpResourceContainer != NULL);
 
     dMesg_gpControl = dComIfGp_demo_get()->getMesgControl();
     dMesg_gpSequenceProcessor = new dMesg_tSequenceProcessor(dMesg_gpControl);
-    JUT_ASSERT(VERSION_SELECT(2906, 2685, 2906, 3020), dMesg_gpSequenceProcessor != NULL);
+    JUT_ASSERT(VERSION_SELECT(2654, 2685, 2906, 3020), dMesg_gpSequenceProcessor != NULL);
 
     dMesg_gpRenderingProcessor = new dMesg_tRenderingProcessor(dMesg_gpControl);
-    JUT_ASSERT(VERSION_SELECT(2909, 2688, 2909, 3023), dMesg_gpRenderingProcessor != NULL);
+    JUT_ASSERT(VERSION_SELECT(2657, 2688, 2909, 3023), dMesg_gpRenderingProcessor != NULL);
 
     dMesg_gpControl->mResourceContainer = dMesg_gpResourceContainer;
     dMesg_gpControl->setSequenceProcessor(dMesg_gpSequenceProcessor);
@@ -2092,13 +2184,13 @@ bool dMesg_parse() {
     headerFlag = false;
 #endif
     header = JKRGetResource('ROOT', "zel_00.bmg", dComIfGp_getMsgDtArchive());
-    JUT_ASSERT(VERSION_SELECT(2956, 2732, 2956, 3070), header != NULL);
+    JUT_ASSERT(VERSION_SELECT(2701, 2732, 2956, 3070), header != NULL);
 #if VERSION > VERSION_JPN
     header2 = JKRGetResource('ROOT', "zel_01.bmg", dComIfGp_getMsgDt2Archive());
     JUT_ASSERT(VERSION_SELECT(2961, 2961, 2961, 3075), header2 != NULL);
 #endif
     oParse = new JMessage::TParse(dMesg_gpResourceContainer);
-    JUT_ASSERT(VERSION_SELECT(2964, 2735, 2964, 3078), oParse != NULL);
+    JUT_ASSERT(VERSION_SELECT(2704, 2735, 2964, 3078), oParse != NULL);
 
 #if VERSION > VERSION_JPN
     oParse->parse(header, 0);
@@ -2278,7 +2370,9 @@ void dMesg_fontsizeCenter(sub_mesg_class* i_Msg, int param_2, int param_3, int p
 void dMesg_waitProc(sub_mesg_class* i_Msg) {
 #if VERSION <= VERSION_JPN
     if (i_Msg->field_0x150 != dMesg_gpControl->getMessageCode()) {
+#if VERSION > VERSION_DEMO
         i_Msg->field_0x100 = JKRCreateExpHeap(0x9f2d, i_Msg->heap, false);
+#endif
 #else
     nowMesgCode = dMesg_gpControl->getMessageCode();
     zenkaku = 0;
@@ -2298,6 +2392,7 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
         }
         i_Msg->field_0x100 = JKRCreateExpHeap(0xa32d, i_Msg->heap, false);
 #endif
+#if VERSION > VERSION_DEMO
         JKRHeap* heap = mDoExt_setCurrentHeap(i_Msg->field_0x100);
         for (int i = 0; i < 4; i++) {
             if (!i_Msg->text[i]) {
@@ -2305,6 +2400,7 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
                 JUT_ASSERT(VERSION_SELECT(3304, 2945, 3304, 3423), i_Msg->text[i] != NULL);
             }
         }
+#endif
         if (!i_Msg->screen) {
             JMSMesgEntry_c stack_3c = *(JMSMesgEntry_c*)dMesg_gpControl->getMessageEntry(dMesg_nowMesgCode);
             if (stack_3c.mTextboxType == 9) {
@@ -2312,9 +2408,9 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
             } else {
                 i_Msg->screen = new dMesg_screenDataTalk_c();
             }
-            JUT_ASSERT(VERSION_SELECT(3317, 2958, 3317, 3436), i_Msg->screen != NULL);
+            JUT_ASSERT(VERSION_SELECT(2931, 2958, 3317, 3436), i_Msg->screen != NULL);
             i_Msg->screen->setMesg(i_Msg);
-            i_Msg->screen->setHeap(i_Msg->field_0x100);
+            i_Msg->screen->setHeap(DEMO_SELECT(i_Msg->heap, i_Msg->field_0x100));
 #if VERSION > VERSION_JPN
             if (headerFlag) {
                 i_Msg->screen->setFont(dMesg_gpRFont, dMesg_gpRFont);
@@ -2341,7 +2437,7 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
         for (int i = 0; i < 18; i++) {
             if (!i_Msg->outfont[i]) {
                 i_Msg->outfont[i] = new dMesg_outFont_c();
-                JUT_ASSERT(VERSION_SELECT(3360, 2982, 3360, 3479), i_Msg->outfont[i]);
+                JUT_ASSERT(VERSION_SELECT(2955, 2982, 3360, 3479), i_Msg->outfont[i]);
                 i_Msg->outfont[i]->_create();
             }
         }
@@ -2350,13 +2446,17 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
 #else
         i_Msg->field_0x150 = dMesg_gpControl->getMessageCode();
 #endif
+#if VERSION > VERSION_DEMO
         mDoExt_setCurrentHeap(heap);
+#endif
     }
 }
 
 /* 801E67C8-801E6908       .text dMesg_openProc__FP14sub_mesg_class */
 void dMesg_openProc(sub_mesg_class* i_Msg) {
+#if VERSION > VERSION_DEMO
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->field_0x100);
+#endif
     if (i_Msg->screen->openAnime()) {
         for (int i = 0; i < 4; i++) {
             i_Msg->screen->initString(i_Msg->text[i], i);
@@ -2368,12 +2468,16 @@ void dMesg_openProc(sub_mesg_class* i_Msg) {
             mDoAud_messageSePlay(stack_3c.mInitialSound, NULL, dComIfGp_getReverb(dComIfGp_roomControl_getStayNo()));
         }
     }
+#if VERSION > VERSION_DEMO
     mDoExt_setCurrentHeap(oldHeap);
+#endif
 }
 
 /* 801E6908-801E69D4       .text dMesg_outnowProc__FP14sub_mesg_class */
 void dMesg_outnowProc(sub_mesg_class* i_Msg) {
+#if VERSION > VERSION_DEMO
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->field_0x100);
+#endif
     dMesg_update();
     dMesg_render();
     for (int i = 0; i < 4; i++) {
@@ -2388,12 +2492,16 @@ void dMesg_outnowProc(sub_mesg_class* i_Msg) {
         i_Msg->screen->dotAnimeInit();
         i_Msg->field_0x164 = 10;
     }
+#if VERSION > VERSION_DEMO
     mDoExt_setCurrentHeap(oldHeap);
+#endif
 }
 
 /* 801E69D4-801E6B10       .text dMesg_outwaitProc__FP14sub_mesg_class */
 void dMesg_outwaitProc(sub_mesg_class* i_Msg) {
+#if VERSION > VERSION_DEMO
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->field_0x100);
+#endif
     if (CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0)) {
         for (int i = 0; i < 4; i++) {
             i_Msg->screen->initString(i_Msg->text[i], i);
@@ -2412,23 +2520,31 @@ void dMesg_outwaitProc(sub_mesg_class* i_Msg) {
     } else {
         i_Msg->screen->arwAnime();
     }
+#if VERSION > VERSION_DEMO
     mDoExt_setCurrentHeap(oldHeap);
+#endif
 }
 
 /* 801E6B10-801E6BB8       .text dMesg_stopProc__FP14sub_mesg_class */
 void dMesg_stopProc(sub_mesg_class* i_Msg) {
+#if VERSION > VERSION_DEMO
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->field_0x100);
+#endif
     if (dMesg_gpSequenceProcessor->decWaitRest() == 0) {
         i_Msg->field_0x164 = 18;
         mDoAud_talkOut();
         mDoAud_seStart(JA_SE_TALK_WIN_CLOSE);
     }
+#if VERSION > VERSION_DEMO
     mDoExt_setCurrentHeap(oldHeap);
+#endif
 }
 
 /* 801E6BB8-801E6C6C       .text dMesg_closewaitProc__FP14sub_mesg_class */
 void dMesg_closewaitProc(sub_mesg_class* i_Msg) {
+#if VERSION > VERSION_DEMO
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->field_0x100);
+#endif
     if (CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0)) {
         i_Msg->screen->dotAnimeInit();
         i_Msg->field_0x164 = 18;
@@ -2437,12 +2553,16 @@ void dMesg_closewaitProc(sub_mesg_class* i_Msg) {
     } else {
         i_Msg->screen->dotAnime();
     }
+#if VERSION > VERSION_DEMO
     mDoExt_setCurrentHeap(oldHeap);
+#endif
 }
 
 /* 801E6C6C-801E6E00       .text dMesg_closeProc__FP14sub_mesg_class */
 void dMesg_closeProc(sub_mesg_class* i_Msg) {
+#if VERSION > VERSION_DEMO
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->field_0x100);
+#endif
     if (i_Msg->screen->closeAnime()) {
         i_Msg->screen->deleteScreen();
 #if VERSION == VERSION_DEMO
@@ -2460,6 +2580,7 @@ void dMesg_closeProc(sub_mesg_class* i_Msg) {
                 i_Msg->outfont[i] = NULL;
             }
         }
+#if VERSION > VERSION_DEMO
         for (int i = 0; i < 4; i++) {
             i_Msg->field_0x100->free(i_Msg->text[i]);
             i_Msg->text[i] = NULL;
@@ -2468,6 +2589,7 @@ void dMesg_closeProc(sub_mesg_class* i_Msg) {
         i_Msg->field_0x100->freeAll();
         i_Msg->field_0x100->destroy();
         i_Msg->field_0x100 = NULL;
+#endif
         i_Msg->field_0x164 = 0;
         dComIfGp_demo_get()->getControl()->unsuspend(1);
     } else {
@@ -2476,7 +2598,9 @@ void dMesg_closeProc(sub_mesg_class* i_Msg) {
                 i_Msg->outfont[i]->_setAlpha(0);
             }
         }
+#if VERSION > VERSION_DEMO
         mDoExt_setCurrentHeap(oldHeap);
+#endif
     }
 }
 
@@ -2523,8 +2647,10 @@ static BOOL dMsg_Delete(sub_mesg_class* i_Msg) {
     JKRHeap* heap = mDoExt_setCurrentHeap(i_Msg->heap);
     mDoExt_removeMesgFont();
     mDoExt_removeRubyFont();
+#if VERSION > VERSION_DEMO
     if (i_Msg->field_0x100) {
         mDoExt_setCurrentHeap(i_Msg->field_0x100);
+#endif
         if (i_Msg->screen) {
             i_Msg->screen->deleteScreen();
 #if VERSION == VERSION_DEMO
@@ -2542,6 +2668,11 @@ static BOOL dMsg_Delete(sub_mesg_class* i_Msg) {
                 i_Msg->outfont[i] = NULL;
             }
         }
+#if VERSION == VERSION_DEMO
+        for (int i = 0; i < 4; i++) {
+            i_Msg->heap->free(i_Msg->text[i]);
+        }
+#else
         for (int i = 0; i < 4; i++) {
             i_Msg->field_0x100->free(i_Msg->text[i]);
             i_Msg->text[i] = NULL;
@@ -2552,6 +2683,7 @@ static BOOL dMsg_Delete(sub_mesg_class* i_Msg) {
             i_Msg->field_0x100 = NULL;
         }
     }
+#endif
 
     dMesg_gpResourceContainer->Clear_destroy();
 
@@ -2576,20 +2708,29 @@ static BOOL dMsg_Delete(sub_mesg_class* i_Msg) {
 static cPhs_State dMsg_Create(msg_class* i_this) {
     sub_mesg_class* i_Msg = (sub_mesg_class*)i_this;
     i_Msg->heap = fopMsgM_createExpHeap(VERSION_SELECT(0xb20c, 0xb2b5, 0xb6b5, 0xb6b5));
-    JUT_ASSERT(VERSION_SELECT(3864, 3474, 3864, 3983), i_Msg->heap != NULL);
+    JUT_ASSERT(VERSION_SELECT(3401, 3474, 3864, 3983), i_Msg->heap != NULL);
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->heap);
 
     dMesg_gpFont = mDoExt_getMesgFont();
-    JUT_ASSERT(VERSION_SELECT(3869, 3479, 3869, 3988), dMesg_gpFont != NULL);
+    JUT_ASSERT(VERSION_SELECT(3406, 3479, 3869, 3988), dMesg_gpFont != NULL);
 
     dMesg_gpRFont = mDoExt_getRubyFont();
-    JUT_ASSERT(VERSION_SELECT(3872, 3481, 3872, 3991), dMesg_gpRFont != NULL);
+    JUT_ASSERT(VERSION_SELECT(3408, 3481, 3872, 3991), dMesg_gpRFont != NULL);
+
+#if VERSION == VERSION_DEMO
+    for (int i = 0; i < 4; i++) {
+        i_Msg->text[i] = (char*)i_Msg->heap->alloc(1001, 4);
+        JUT_ASSERT(3413, i_Msg->text[i] != NULL);
+    }
+#endif
 
     dMesg_initialize(i_Msg);
     dMesg_parse();
+#if VERSION > VERSION_DEMO
     for (int i = 0; i < 4; i++) {
         i_Msg->text[i] = NULL;
     }
+#endif
     i_Msg->field_0x164 = 0;
     mDoExt_setCurrentHeap(oldHeap);
     return cPhs_COMPLEATE_e;
