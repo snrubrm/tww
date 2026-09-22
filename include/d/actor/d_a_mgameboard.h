@@ -33,7 +33,11 @@ public:
     BOOL MinigameMain();
     void CursorMove();
 
+#if VERSION > VERSION_JPN
     static char m_arcname[9];
+#else
+    static char m_arcname[7];
+#endif
     static u8 m_bullet_num;
     static cXyz m_cur_table[8][8];
     static cXyz m_sink_table[3];

@@ -23,7 +23,11 @@
 #include <string.h>
 
 
+#if VERSION > VERSION_JPN
 char daMgBoard_c::m_arcname[9] = "";
+#else
+char daMgBoard_c::m_arcname[] = "Kaisen";
+#endif
 u8 daMgBoard_c::m_bullet_num = 24;
 cXyz daMgBoard_c::m_cur_table[8][8] = {
     {
@@ -148,19 +152,19 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 BOOL daMgBoard_c::CreateHeap() {
     J3DModelData* modelData;
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKBOD));
-    JUT_ASSERT(0x133, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x126, 0x12D, 0x133, 0x133), modelData != 0);
     mpBoardModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpBoardModel == NULL) {
         return FALSE;
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKCSR));
-    JUT_ASSERT(0x143, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x136, 0x13D, 0x143, 0x143), modelData != 0);
     mpCursorModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpCursorModel == NULL) {
         return FALSE;
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKATR));
-    JUT_ASSERT(0x153, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x146, 0x14D, 0x153, 0x153), modelData != 0);
     for (int i = 0; i < 20; ++i) {
         mpHitModel[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpHitModel[i] == NULL) {
@@ -168,7 +172,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKHZR));
-    JUT_ASSERT(0x165, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x158, 0x15F, 0x165, 0x165), modelData != 0);
     for (int i = 0; i < 32; ++i) {
         mpMissModel[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpMissModel[i] == NULL) {
@@ -176,7 +180,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AK2SH));
-    JUT_ASSERT(0x177, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x16A, 0x171, 0x177, 0x177), modelData != 0);
     for (int i = 0; i < 2; ++i) {
         mpShip2Model[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpShip2Model[i] == NULL) {
@@ -184,7 +188,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AK3SH));
-    JUT_ASSERT(0x189, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x17C, 0x183, 0x189, 0x189), modelData != 0);
     for (int i = 0; i < 2; ++i) {
         mpShip3Model[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpShip3Model[i] == NULL) {
@@ -192,7 +196,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AK4SH));
-    JUT_ASSERT(0x19B, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x18E, 0x195, 0x19B, 0x19B), modelData != 0);
     for (int i = 0; i < 2; ++i) {
         mpShip4Model[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpShip4Model[i] == NULL) {
@@ -505,8 +509,8 @@ cPhs_State daMgBoard_c::_create() {
     fopAcM_SetupActor(this, daMgBoard_c);
 #if VERSION == VERSION_PAL
     sprintf(m_arcname, "Kaisen_%d", dComIfGs_getPalLanguage());
-#else
-    strcpy(m_arcname, VERSION_SELECT("Kaisen", "Kaisen", "Kaisen_e", "Kaisen_e"));
+#elif VERSION > VERSION_JPN
+    strcpy(m_arcname, "Kaisen_e");
 #endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, m_arcname);
     if (phase == cPhs_COMPLEATE_e) {
