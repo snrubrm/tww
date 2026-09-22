@@ -504,7 +504,11 @@ void daNpc_Btsw_c::set_mtx() {
         cXyz vec;
         csXyz angle;
 
+#if VERSION == VERSION_DEMO
+        if (mpMorf->getFrame() < 19.0f + REG10_F(5)) {
+#else
         if (mpMorf->getFrame() < 19.0f) {
+#endif
             if (field_0x9C5 == 9) {
                 vec.set(28.68f, 4.68f, -8.45f);
                 angle.set(-0x43A2, 0x9CA, -0x233);
