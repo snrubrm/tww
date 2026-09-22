@@ -1164,10 +1164,6 @@ void dMenu_Fmap2_c::gsMoonAnimeInit() {
     field_0x281c = g_mf2HIO.field_0x85;
 }
 
-static inline u8 dMf2_blendU8(u8 base, u8 target, f32 rate) {
-    return base + rate * (target - base);
-}
-
 /* 801BFCEC-801C002C       .text gsMoonAnime__13dMenu_Fmap2_cFv */
 void dMenu_Fmap2_c::gsMoonAnime() {
     JUtility::TColor c1;
@@ -1182,13 +1178,13 @@ void dMenu_Fmap2_c::gsMoonAnime() {
     if (field_0x281a == 0) {
         tmp = 1.0f - tmp;
     }
-    c1.r = dMf2_blendU8(g_mf2HIO.field_0x7c, color_0x2824.r, tmp);
-    c1.g = dMf2_blendU8(g_mf2HIO.field_0x7d, color_0x2824.g, tmp);
-    c1.b = dMf2_blendU8(g_mf2HIO.field_0x7e, color_0x2824.b, tmp);
+    c1.r = g_mf2HIO.field_0x7c + tmp * (color_0x2824.r - g_mf2HIO.field_0x7c);
+    c1.g = g_mf2HIO.field_0x7d + tmp * (color_0x2824.g - g_mf2HIO.field_0x7d);
+    c1.b = g_mf2HIO.field_0x7e + tmp * (color_0x2824.b - g_mf2HIO.field_0x7e);
     c1.a = color_0x2824.a;
-    c2.r = dMf2_blendU8(g_mf2HIO.field_0x80, color_0x2820.r, tmp);
-    c2.g = dMf2_blendU8(g_mf2HIO.field_0x81, color_0x2820.g, tmp);
-    c2.b = dMf2_blendU8(g_mf2HIO.field_0x82, color_0x2820.b, tmp);
+    c2.r = g_mf2HIO.field_0x80 + tmp * (color_0x2820.r - g_mf2HIO.field_0x80);
+    c2.g = g_mf2HIO.field_0x81 + tmp * (color_0x2820.g - g_mf2HIO.field_0x81);
+    c2.b = g_mf2HIO.field_0x82 + tmp * (color_0x2820.b - g_mf2HIO.field_0x82);
     c2.a = color_0x2820.a;
     if (field_0x2818 == 0) {
         if (field_0x2819 == 0) {
@@ -1209,6 +1205,7 @@ void dMenu_Fmap2_c::gsMoonAnime() {
 }
 
 /* 801C002C-801C0378       .text gsShipAnime__13dMenu_Fmap2_cFv */
+// NONMATCHING - regalloc: g_mf2HIO base/0x4330 constant in r3/r0 instead of r4/r3 (colour byte loads get later vreg ids)
 void dMenu_Fmap2_c::gsShipAnime() {
     JUtility::TColor c1;
     JUtility::TColor c2;
@@ -1226,14 +1223,14 @@ void dMenu_Fmap2_c::gsShipAnime() {
         return;
     }
     f32 tmp = fopMsgM_valueIncrease(g_mf2HIO.field_0x85, field_0x281c, 2);
-    c1.r = dMf2_blendU8(g_mf2HIO.field_0x86, color_0x282C.r, tmp);
-    c1.g = dMf2_blendU8(g_mf2HIO.field_0x87, color_0x282C.g, tmp);
-    c1.b = dMf2_blendU8(g_mf2HIO.field_0x88, color_0x282C.b, tmp);
-    c1.a = dMf2_blendU8(g_mf2HIO.field_0x89, color_0x282C.a, tmp);
-    c2.r = dMf2_blendU8(g_mf2HIO.field_0x8a, color_0x2828.r, tmp);
-    c2.g = dMf2_blendU8(g_mf2HIO.field_0x8b, color_0x2828.g, tmp);
-    c2.b = dMf2_blendU8(g_mf2HIO.field_0x8c, color_0x2828.b, tmp);
-    c2.a = dMf2_blendU8(g_mf2HIO.field_0x8d, color_0x2828.a, tmp);
+    c1.r = g_mf2HIO.field_0x86 + tmp * (color_0x282C.r - g_mf2HIO.field_0x86);
+    c1.g = g_mf2HIO.field_0x87 + tmp * (color_0x282C.g - g_mf2HIO.field_0x87);
+    c1.b = g_mf2HIO.field_0x88 + tmp * (color_0x282C.b - g_mf2HIO.field_0x88);
+    c1.a = g_mf2HIO.field_0x89 + tmp * (color_0x282C.a - g_mf2HIO.field_0x89);
+    c2.r = g_mf2HIO.field_0x8a + tmp * (color_0x2828.r - g_mf2HIO.field_0x8a);
+    c2.g = g_mf2HIO.field_0x8b + tmp * (color_0x2828.g - g_mf2HIO.field_0x8b);
+    c2.b = g_mf2HIO.field_0x8c + tmp * (color_0x2828.b - g_mf2HIO.field_0x8c);
+    c2.a = g_mf2HIO.field_0x8d + tmp * (color_0x2828.a - g_mf2HIO.field_0x8d);
     ((J2DPicture*)mGsKz01PaneAlpha.pane)->setBlackWhite(c2, c1);
     if (field_0x281c == 0) {
         field_0x281c = 0xff;
