@@ -1301,14 +1301,26 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
     Vec* collapse = mCollapsePos;
     for (int i = 0; i < 2; i++, collapse++) {
         u = 0.0f;
+#if VERSION == VERSION_DEMO
+        dPa_waveVec out2;
+        out2 = rot[0] * collapse->x + rot[1] * collapse->y + rot[2] * collapse->z;
+#else
         dPa_waveVec out2 = rot[0] * collapse->x + rot[1] * collapse->y + rot[2] * collapse->z;
+#endif
 
         GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, n + 1);
         GXPosition3f32(trans.x + out2.x, trans.y + out2.y, trans.z + out2.z);
         GXTexCoord2f32(0.5f, 0.0f);
         for (JSULink<JPABaseParticle>* link = emitter->getParticleList()->getFirst(); link != NULL; link = link->getNext(), u += step) {
             JPABaseParticle* ptcl = link->getObject();
+#if VERSION == VERSION_DEMO
+            f32 px = ptcl->mGlobalPosition.x;
+            f32 py = ptcl->mGlobalPosition.y;
+            f32 pz = ptcl->mGlobalPosition.z;
+            GXPosition3f32(px, py, pz);
+#else
             GXPosition3f32(ptcl->mGlobalPosition.x, ptcl->mGlobalPosition.y, ptcl->mGlobalPosition.z);
+#endif
             GXTexCoord2f32(u, 1.0f);
         }
     }
