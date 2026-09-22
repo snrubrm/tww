@@ -333,14 +333,13 @@ void daNpc_P2_c::setAnm() {
 
 /* 00000A90-00000AFC       .text setTexAnm__10daNpc_P2_cFv */
 void daNpc_P2_c::setTexAnm() {
-    static s8 a_tex_pattern_num_tbl[0x2E] = {
-        -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        -1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    static s8 a_tex_pattern_num_tbl[2][0x17] = {
+        {-1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+        {-1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     };
 
-    s8 next;
-    if (m7D0 != (next = *(a_tex_pattern_num_tbl + mType * 0x17 + m7D1)) && next != -1 && mType != 2) {
-        m7D0 = next;
+    if (m7D0 != a_tex_pattern_num_tbl[mType][m7D1] && a_tex_pattern_num_tbl[mType][m7D1] != -1 && mType != 2) {
+        m7D0 = a_tex_pattern_num_tbl[mType][m7D1];
         initTexPatternAnm(true);
     }
 }
@@ -644,7 +643,7 @@ void daNpc_P2_c::talkInit() {
 
 /* 000016D8-000017AC       .text anmAtr__10daNpc_P2_cFUs */
 void daNpc_P2_c::anmAtr(unsigned short status) {
-    static const u8 anm_atr[] = {
+    static const s8 anm_atr[] = {
         0x01, 0x02, 0x03, 0x0F, 0x0E, 0x0D, 0x10, 0x11, 0x12, 0x13, 0x14,
         0x01, 0x02, 0x0D, 0x0E, 0x01, 0x16, 0x0D, 0x17, 0x07, 0x06,
     };
@@ -652,19 +651,18 @@ void daNpc_P2_c::anmAtr(unsigned short status) {
     if (status == 6) {
         u8 attr = dComIfGp_getMesgAnimeAttrInfo();
         if (attr < 0x15) {
-            if (mType == 0 && mAnmNo == 0x0D && (s8)anm_atr[attr] == 0x17) {
+            if (mType == 0 && mAnmNo == 0x0D && anm_atr[attr] == 0x17) {
                 return;
             }
-            if (mType == 1 && (s8)anm_atr[attr] == 7) {
+            if (mType == 1 && anm_atr[attr] == 7) {
                 if (m751 == 0) {
                     m751 = 1;
                     mAnmNo = anm_atr[attr];
                 }
                 return;
             }
-            u8 next;
-            if (mAnmNo != (s8)(next = anm_atr[attr])) {
-                mAnmNo = next;
+            if (mAnmNo != anm_atr[attr]) {
+                mAnmNo = anm_atr[attr];
             }
         } else {
             mAnmNo = 1;
