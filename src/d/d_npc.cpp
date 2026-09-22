@@ -940,12 +940,7 @@ bool dNpc_chkAttn(fopAc_ac_c* i_this, cXyz destPos, f32 param_3, f32 param_4, f3
         temp += param_4;
     }
 
-    bool ret = false;
-    if(dist <= temp && abs(angle_diff) <= cM_deg2s(param_5)) {
-        ret = true;
-    }
-
-    return ret;
+    return dist <= temp && abs(angle_diff) <= cM_deg2s(param_5);
 }
 
 static void dummyfunc(dStage_dPath_c* i_pathInf) {
