@@ -149,7 +149,8 @@ inline void daObjBuoyflag::Packet_c::calc_pos_spring(int y, int x) {
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_gravity(int y, int x) {
     f32 ratio = 0.25f * (4 - y) + (1.0f / 6.0f) * x;
-    mForce += mGravity * (0.5f * (ratio * L_attr.gravity));
+    f32 g = 0.5f * (ratio * L_attr.gravity);
+    mForce += mGravity * g;
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
@@ -160,10 +161,14 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     s16 angle1 = 32768.0f * distance + mPhase[9];
     s16 angle2 = 32768.0f * distance + mPhase[10];
     s16 angle3 = 32768.0f * distance + mPhase[11];
+#if VERSION == VERSION_DEMO
+    f32 wave = 1.0f + (1.0f / 3.0f) * (cM_ssin(angle1) + cM_ssin(angle2) + cM_ssin(angle3));
+#else
     f32 wave = 1.0f + (1.0f / 3.0f) * (
         jmaSinTable[(u16)angle1 >> jmaSinShift] +
         jmaSinTable[(u16)angle2 >> jmaSinShift] +
         jmaSinTable[(u16)angle3 >> jmaSinShift]);
+#endif
     f32 dot = normal->inprod(mWind);
     f32 w = wave * L_attr.wave;
     mForce += *normal * (dot * (w * (1.0f / L_attr.windScale)));
@@ -429,7 +434,7 @@ void daObjBuoyflag::Packet_c::calc_wind_base(Act_c* actor) {
     cXyz motion(0.2f * (actor->m10C0[0][3] - actor->m1090[0][3]), 0.2f * (actor->m10C0[1][3] - actor->m1090[1][3]), 0.2f * (actor->m10C0[2][3] - actor->m1090[2][3]));
     f32 mag2 = motion.abs2();
     if (mag2 > 625.0f) {
-        motion *= 1.0f / std::sqrtf(mag2);
+        motion /= mag2;
         motion *= 25.0f;
     }
     wind += motion;
@@ -656,7 +661,7 @@ cPhs_State daObjBuoyflag::Act_c::_create() {
     return phase;
 }
 bool daObjBuoyflag::Act_c::_delete() {
-    dComIfG_resDelete(&mPhase, L_arcname);
+    dComIfG_resDeleteDemo(&mPhase, L_arcname);
     return true;
 }
 bool daObjBuoyflag::Act_c::_execute() {
