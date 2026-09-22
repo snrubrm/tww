@@ -1805,7 +1805,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_obj_vmsdz"),
     ActorRel(Matching,    "d_a_obj_vmsms"),
     ActorRel(Matching,    "d_a_obj_volcano"),
-    ActorRel(Matching, "d_a_obj_vtil"),
+    ActorRel(NonMatching, "d_a_obj_vtil"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_obj_vyasi"),
     ActorRel(Matching,    "d_a_obj_xfuta"),
     ActorRel(Matching,    "d_a_obj_zouK"),
