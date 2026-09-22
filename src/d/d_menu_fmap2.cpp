@@ -2363,8 +2363,8 @@ BOOL dMenu_Fmap2_c::cmapPlayerPosDispCheck(f32* outX, f32* outY) {
     aramCmapDatPnt_t* pnt = getCmapDatPnt4(field_0x27a9);
     const s16 sx = pnt->salvagePnt[idx].field_0x0;
     const s16 sy = pnt->salvagePnt[idx].field_0x2;
-    const s8 gx = ((s8*)pnt)[4];
-    const s8 gy = ((s8*)pnt)[5];
+    const s8 gx = pnt->gridX;
+    const s8 gy = pnt->gridY;
     int chk1 = dMap_getCheckPointUseGrid(field_0x27bc, field_0x27bd);
     int chk2 = dMap_c::getCheckPointUseGrid(gx, gy);
     if (chk1 == -1 || chk1 != chk2) {

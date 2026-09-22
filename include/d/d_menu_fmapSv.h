@@ -22,7 +22,8 @@ struct aramCmapDatPnt_t {
     /* 0x01 */ s8 collectMapNo;
     /* 0x02 */ s8 cmapNo;
     /* 0x03 */ s8 mapType;
-    /* 0x04 */ s16 field_0x4;
+    /* 0x04 */ s8 gridX;
+    /* 0x05 */ s8 gridY;
     /* 0x06 */ aramCmapSalvagePnt_t salvagePnt[4];
 }; // Size: 0x26
 STATIC_ASSERT(sizeof(aramCmapDatPnt_t) == 0x26);
