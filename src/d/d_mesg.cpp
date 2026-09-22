@@ -1785,13 +1785,13 @@ int dMesg_parse() {
     headerFlag = false;
 #endif
     header = JKRGetResource('ROOT', "zel_00.bmg", dComIfGp_getMsgDtArchive());
-    JUT_ASSERT(2956, header != NULL);
+    JUT_ASSERT(VERSION_SELECT(2956, 2956, 2956, 3070), header != NULL);
 #if VERSION > VERSION_JPN
     header2 = JKRGetResource('ROOT', "zel_01.bmg", dComIfGp_getMsgDt2Archive());
-    JUT_ASSERT(2961, header2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(2961, 2961, 2961, 3075), header2 != NULL);
 #endif
     oParse = new JMessage::TParse(dMesg_gpResourceContainer);
-    JUT_ASSERT(2964, oParse != NULL);
+    JUT_ASSERT(VERSION_SELECT(2964, 2964, 2964, 3078), oParse != NULL);
 
     oParse->parse(header, 0);
 #if VERSION > VERSION_JPN
