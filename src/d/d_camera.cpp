@@ -7812,11 +7812,18 @@ static void store(camera_process_class* i_this) {
         }
     }
     
-    fopCamM_SetCenter(camera, oldCenter.x, oldCenter.y, oldCenter.z);
-    fopCamM_SetEye(camera, oldEye.x, oldEye.y, oldEye.z);
-    fopCamM_SetUp(camera, oldUp.x, oldUp.y, oldUp.z);
-    fopCamM_SetBank(camera, bank);
-    fopCamM_SetFovy(camera, fovy);
+#if VERSION == VERSION_DEMO
+    // Always false here; presumably set by debug-only code stripped from this build.
+    bool skipSet = false;
+    if (!skipSet)
+#endif
+    {
+        fopCamM_SetCenter(camera, oldCenter.x, oldCenter.y, oldCenter.z);
+        fopCamM_SetEye(camera, oldEye.x, oldEye.y, oldEye.z);
+        fopCamM_SetUp(camera, oldUp.x, oldUp.y, oldUp.z);
+        fopCamM_SetBank(camera, bank);
+        fopCamM_SetFovy(camera, fovy);
+    }
 
     dStage_dt_c* stage = &dComIfGp_getStage();
     if (dComIfGp_checkCameraAttentionStatus(camera_id, dCamAttnStts_TELESCOPE_LOOK_e)) {
