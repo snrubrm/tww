@@ -185,7 +185,8 @@ void daIlift_c::lift_wave() {
             mTargetQuat.z = axis.z * sine;
             mTargetQuat.w = cM_scos(mTiltAngle);
         }
-        if (mWaveTimer > 120) mTiltTarget = 0;
+        s16 maxWaveTimer = 120;
+        if (mWaveTimer > maxWaveTimer) mTiltTarget = 0;
     }
 }
 
