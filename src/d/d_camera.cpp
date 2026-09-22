@@ -5881,6 +5881,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
     f32 val25 = mCamParam.Val(param_1, 25);
     f32 val28 = mCamParam.Val(param_1, 28);
     cSAngle val29(mCamParam.Val(param_1, 29));
+    f32 cush = 0.08f;
     if (chkFlag(0x100000)) {
         val20 = 1.0f;
     }
@@ -6003,12 +6004,14 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
     f32 speedRatio = mMonitor.field_0x0C.y / val14;
     if (mMonitor.field_0x0C.z > 25.0f &&
+#if VERSION > VERSION_DEMO
         check_owner_action1(mPadId, daPyStts1_SAIL_e) &&
+#endif
         !check_owner_action(mPadId, daPyStts0_UNK1000000_e) &&
         !check_owner_action1(mPadId, daPyStts1_UNK80_e))
     {
         if (work->m385) {
-        ResetBlure(0);
+        ResetBlure(DEMO_SELECT(REG5_S(9), 0));
         f32 t = mMonitor.field_0x0C.z / 90.0f;
         if (t > 1.0f) {
             t = 1.0f;
@@ -6029,10 +6032,10 @@ bool dCamera_c::rideCamera(s32 param_1) {
         speedRatio = 1.0f;
     }
 
-    work->m3B4 += 0.08f * (val10 - work->m3B4);
-    work->m3B8 += 0.08f * (val13 - work->m3B8);
-    work->m3BC += 0.08f * (val15 - work->m3BC);
-    work->m3C0 += 0.08f * (val18 - work->m3C0);
+    work->m3B4 += cush * (val10 - work->m3B4);
+    work->m3B8 += cush * (val13 - work->m3B8);
+    work->m3BC += cush * (val15 - work->m3BC);
+    work->m3C0 += cush * (val18 - work->m3C0);
     f32 targetR = work->m3B4 + work->m3B8 * speedRatio * speedRatio;
     f32 targetVdeg = work->m3BC + work->m3C0 * speedRatio * speedRatio;
     f32 targetFovy = val25 + val28 * speedRatio;
@@ -6045,8 +6048,7 @@ bool dCamera_c::rideCamera(s32 param_1) {
             work->m3C4 += 0.05f * (1.0f - work->m3C4);
         } else if (check_owner_action1(mPadId, daPyStts1_UNK4_e)) {
             shipAng.Val(directionOf(work->m37C) - ((daShip_c*)work->m37C)->getCannonAngleY() + cSAngle::_90);
-            f32 side = work->m384 ? -1.0f : 1.0f;
-            work->m3C4 += 0.05f * (side - work->m3C4);
+            work->m3C4 += 0.05f * ((work->m384 ? -1.0f : 1.0f) - work->m3C4);
         } else {
             s16 sail = ((daShip_c*)work->m37C)->getSailAngle();
             shipAng.Val(sail);
