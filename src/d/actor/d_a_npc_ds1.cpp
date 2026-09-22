@@ -179,14 +179,8 @@ BOOL daNpc_Ds1_c::initTexPatternAnm(bool modify) {
 /* 00000824-000008B0       .text playTexPatternAnm__11daNpc_Ds1_cFv */
 void daNpc_Ds1_c::playTexPatternAnm() {
     if (!cLib_calcTimer(&mBlinkTimer)) {
-#if VERSION == VERSION_DEMO
-        s16 end = m_head_tex_pattern->getFrameMax();
-        if (mTexFrame >= end) {
-#else
-        int end = m_head_tex_pattern->getFrameMax();
-        if (mTexFrame >= (s16)end) {
-#endif
-            mTexFrame -= end;
+        if (mTexFrame >= m_head_tex_pattern->getFrameMax()) {
+            mTexFrame -= m_head_tex_pattern->getFrameMax();
             mBlinkTimer = 30.0f + cM_rndF(100.0f);
         } else {
             mTexFrame++;
