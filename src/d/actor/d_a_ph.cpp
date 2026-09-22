@@ -511,17 +511,9 @@ BOOL body_atari_check(ph_class* i_this) {
     case AT_TYPE_FIRE:
     case AT_TYPE_FIRE_ARROW:
         i_this->mBodyEnemyFire.mFireDuration = 100;
-#if VERSION == VERSION_DEMO
         if (i_this->m02FC.x) {
             i_this->mPropellerEnemyFire.mFireDuration = 100;
         }
-#else
-        {
-            if (i_this->m02FC.x) {
-                i_this->mPropellerEnemyFire.mFireDuration = 100;
-            }
-        }
-#endif
         i_this->m0340 = 1;
         i_this->m033F = 4;
         i_this->m0346 = 0x2B;
@@ -906,15 +898,8 @@ void ph_fly_move(ph_class* i_this) {
         f32 speed = 16.0f;
         cLib_addCalc2(&actor->speedF, speed, 1.0f, 2.0f);
         fly_angle_set(i_this, 2);
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m0352, 1, 0x500);
         cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x500);
-#else
-        s16 targetY = i_this->m0352;
-        cLib_addCalcAngleS2(&actor->current.angle.y, targetY, 1, 0x500);
-        s16 shapeY = actor->current.angle.y;
-        cLib_addCalcAngleS2(&actor->shape_angle.y, shapeY, 1, 0x500);
-#endif
         if (i_this->m0364[0] == 0) {
             i_this->m034A = 0x1000;
             i_this->m034C = 0;
@@ -997,9 +982,7 @@ void ph_fly_sea_move(ph_class* i_this) {
             }
         }
         cLib_addCalc0(&actor->speedF, 1.0f, 5.0f + REG12_F(6));
-        {
-            cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x200);
-        }
+        cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x200);
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 0x200);
         fuwafuwa_set(i_this);
         i_this->m0352 = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
@@ -1057,9 +1040,7 @@ void ph_fly_sea_move(ph_class* i_this) {
         i_this->m0346++;
         // fallthrough
     case 5:
-        {
-            cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x200);
-        }
+        cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x200);
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 0x200);
         cLib_addCalc0(&actor->speedF, 1.0f, 5.0f + REG12_F(6));
         i_this->m0352 = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
@@ -1125,10 +1106,8 @@ void ph_fly_sea_move(ph_class* i_this) {
     }
 
     puropera_kaiten(i_this);
-    {
-        cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m0352, 1, 0x500);
-        cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x500);
-    }
+    cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m0352, 1, 0x500);
+    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x500);
     sea_water_check(i_this, 1);
     f32 targetY = 500.0f + i_this->m05BC.y + REG12_F(8);
     if (i_this->m0346 == 3) {
@@ -1278,12 +1257,7 @@ void ph_bunri_move(ph_class* i_this) {
         // fallthrough
     case 0x19:
         if (i_this->mpBodyMorf->getFrame() < 7.0f) {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x1000);
-#else
-            s16 shapeY = actor->current.angle.y;
-            cLib_addCalcAngleS2(&actor->shape_angle.y, shapeY, 1, 0x1000);
-#endif
         }
         if (i_this->mpBodyMorf->checkFrame(7.0f)) {
             actor->speedF = 5.0f;
@@ -1309,13 +1283,9 @@ void ph_bunri_move(ph_class* i_this) {
     }
 
     cLib_addCalcAngleS2(&actor->current.angle.x, 0, 1, 0x500);
-    {
-        cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x500);
-    }
+    cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x500);
     cLib_addCalcAngleS2(&actor->current.angle.z, 0, 1, 0x500);
-    {
-        cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x500);
-    }
+    cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x500);
 
     if (body_atari_check(i_this)) {
         s16 oldMode = i_this->m0346;
@@ -1382,9 +1352,7 @@ void ph_fujyou_move(ph_class* i_this) {
         puropera_sound(i_this);
         cLib_addCalc2(&i_this->m0384, 4.0f, 0.03f, 0.05f);
         i_this->m0356[4] += (s16)(200.0f * i_this->m0384);
-        {
-            cLib_addCalcAngleS2(&actor->current.angle.z, 4000.0f * cM_ssin(i_this->m0356[4]), 1, 0x1000);
-        }
+        cLib_addCalcAngleS2(&actor->current.angle.z, 4000.0f * cM_ssin(i_this->m0356[4]), 1, 0x1000);
         actor->shape_angle.z = actor->current.angle.z;
         actor->speed.y = i_this->m0384;
         i_this->m0356[0] += 0x7D0;
@@ -1441,9 +1409,7 @@ void ph_fujyou_move(ph_class* i_this) {
         puropera_sound(i_this);
         cLib_addCalc2(&i_this->m0384, 6.0f, 0.3f, 0.5f);
         i_this->m0356[4] += (s16)(200.0f * i_this->m0384);
-        {
-            cLib_addCalcAngleS2(&actor->current.angle.z, 4000.0f * cM_ssin(i_this->m0356[4]), 1, 0x1000);
-        }
+        cLib_addCalcAngleS2(&actor->current.angle.z, 4000.0f * cM_ssin(i_this->m0356[4]), 1, 0x1000);
         actor->shape_angle.z = actor->current.angle.z;
         actor->speed.y = i_this->m0384;
         i_this->m0356[0] += 0x7D0;
@@ -1537,10 +1503,8 @@ void ph_damage_dead_move(ph_class* i_this) {
             fopAcM_monsSeStart(actor, JA_SE_CV_SH_DIE, 0);
         }
         i_this->m0364[0] = 0;
-        {
-            if (i_this->m02FC.x) {
-                anm_init(i_this, PH_BCK_PUCHI_CHAKU, 1.0f, 0, 1.0f, -1, 0);
-            }
+        if (i_this->m02FC.x) {
+            anm_init(i_this, PH_BCK_PUCHI_CHAKU, 1.0f, 0, 1.0f, -1, 0);
         }
         anm_init(i_this, dRes_INDEX_PH_BCK_BDAMAGE_e, 1.0f, 0, 1.0f, -1, 1);
         i_this->m0346++;
@@ -1702,12 +1666,10 @@ void ph_damage_dead_move(ph_class* i_this) {
     case 0x30:
         cLib_addCalc2(&actor->scale.y, 0.1f, 1.0f, 0.5f);
         cLib_addCalc2(&actor->scale.x, 1.7f, 1.0f, 0.7f);
-        {
-            if (i_this->m02FC.x) {
-                i_this->m02FC.x = actor->scale.x;
-                i_this->m02FC.y = actor->scale.y;
-                i_this->m02FC.z = actor->scale.z;
-            }
+        if (i_this->m02FC.x) {
+            i_this->m02FC.x = actor->scale.x;
+            i_this->m02FC.y = actor->scale.y;
+            i_this->m02FC.z = actor->scale.z;
         }
         if (actor->scale.y < 0.1f) {
             actor->scale.y = 0.1f;
@@ -1725,10 +1687,8 @@ void ph_damage_dead_move(ph_class* i_this) {
 
     actor->current.angle.x = 0;
     actor->current.angle.z = 0;
-    {
-        cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x500);
-        cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x500);
-    }
+    cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x500);
+    cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x500);
     if (actor->health > 0) {
         u8 prevWater = i_this->m0341;
         body_atari_check(i_this);
@@ -1793,12 +1753,8 @@ void ph_wind_move(ph_class* i_this) {
         // fallthrough
     case 0x33:
         i_this->m0356[4] += i_this->m0356[5];
-        {
-            cLib_addCalcAngleS2(&actor->shape_angle.z, 20000.0f * cM_ssin(i_this->m0356[4]), 1, 0x500);
-        }
-        {
-            cLib_addCalcAngleS2(&actor->shape_angle.x, 20000.0f * cM_ssin(i_this->m0356[4]), 1, 0x500);
-        }
+        cLib_addCalcAngleS2(&actor->shape_angle.z, 20000.0f * cM_ssin(i_this->m0356[4]), 1, 0x500);
+        cLib_addCalcAngleS2(&actor->shape_angle.x, 20000.0f * cM_ssin(i_this->m0356[4]), 1, 0x500);
         actor->shape_angle.y += i_this->m0356[6];
         cLib_addCalc0(&actor->speedF, 0.3f, 1.0f);
         cLib_addCalc0(&actor->speed.y, 0.3f, 1.0f);
@@ -1999,12 +1955,10 @@ void ph_water_move(ph_class* i_this) {
         }
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
-        {
-            if (!i_this->m02FC.x) {
-                i_this->m0364[1] = (s16)(200.0f + cM_rndF(200.0f));
-            } else {
-                i_this->m0364[1] = (s16)(100.0f + cM_rndF(100.0f));
-            }
+        if (!i_this->m02FC.x) {
+            i_this->m0364[1] = (s16)(200.0f + cM_rndF(200.0f));
+        } else {
+            i_this->m0364[1] = (s16)(100.0f + cM_rndF(100.0f));
         }
         anm_init(i_this, PH_BCK_PUCHIWA, 1.0f, 0, 1.0f, -1, 0);
         anm_init(i_this, PH_BCK_BUCHIWA, 1.0f, 0, 1.0f, -1, 1);
