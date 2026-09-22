@@ -139,19 +139,29 @@ static BOOL nodeCallBack_Bms(J3DNode* node, int timing) {
             MTXCopy(model->getAnmMtx(joint), *calc_mtx);
             if (joint == actor->getHeadJntNum()) {
                 cXyz offset(0.0f, 0.0f, 0.0f), pos;
+#if VERSION == VERSION_DEMO
+                cMtx_YrotM(*calc_mtx, -actor->getHead_y() - actor->mHeadAnm.field_0x02);
+                cMtx_ZrotM(*calc_mtx, -actor->getHead_x() - actor->mHeadAnm.field_0x00);
+#else
                 mDoMtx_YrotM(*calc_mtx, -actor->getHead_y() - actor->mHeadAnm.field_0x02);
                 mDoMtx_ZrotM(*calc_mtx, -actor->getHead_x() - actor->mHeadAnm.field_0x00);
+#endif
                 MtxPosition(&offset, &pos);
                 actor->setAttentionBasePos(pos);
                 offset.set(28.0f, -20.0f, 0.0f);
                 MtxPosition(&offset, &pos);
                 actor->setEyePos(pos);
             } else if (joint == actor->getBackboneJntNum()) {
+#if VERSION == VERSION_DEMO
+                cMtx_XrotM(*calc_mtx, actor->getBackbone_y());
+                cMtx_ZrotM(*calc_mtx, actor->getBackbone_x());
+#else
                 mDoMtx_XrotM(*calc_mtx, actor->getBackbone_y());
                 mDoMtx_ZrotM(*calc_mtx, actor->getBackbone_x());
+#endif
             }
             MTXCopy(*calc_mtx, j3dSys.mCurrentMtx);
-            MTXCopy(*calc_mtx, model->getAnmMtx(joint));
+            model->setAnmMtx(joint, *calc_mtx);
         }
     }
     return TRUE;
@@ -174,14 +184,16 @@ static BOOL nodeCallBack_BmsHead(J3DNode* node, int timing) {
                 scale.x *= actor->mHairStretchL;
                 mDoMtx_stack_c::scaleM(scale.x, scale.y, scale.z);
                 MTXCopy(mDoMtx_stack_c::get(), matrix);
-                trans.set(matrix[0][3], matrix[1][3], matrix[2][3]);
+                trans.x = matrix[0][3];
+                trans.y = matrix[1][3];
+                trans.z = matrix[2][3];
                 matrix[0][3] = matrix[1][3] = matrix[2][3] = 0.0f;
                 mDoMtx_stack_c::transS(trans);
                 mDoMtx_stack_c::quatM(&actor->mHairQuatL);
                 mDoMtx_stack_c::concat(matrix);
                 mDoMtx_stack_c::multVec(&tip, &end);
                 mDoMtx_stack_c::multVec(&zero, &origin);
-                MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+                model->setAnmMtx(joint, mDoMtx_stack_c::get());
                 if (actor->mHairPosL.isZero()) actor->mHairPosL = end;
                 cXyz acceleration = (end - actor->mHairPosL) * l_HIO.mChild[0].mSpring;
                 actor->mHairVelocityL += acceleration;
@@ -191,7 +203,8 @@ static BOOL nodeCallBack_BmsHead(J3DNode* node, int timing) {
                 end -= origin;
                 previous -= origin;
                 daObj::quat_rotVec(&rotation, end, previous);
-                C_QUATSlerp(&actor->mHairQuatL, &rotation, &actor->mHairQuatL, l_HIO.mChild[0].mBlend);
+                f32 blend = l_HIO.mChild[0].mBlend;
+                C_QUATSlerp(&actor->mHairQuatL, &rotation, &actor->mHairQuatL, blend);
                 actor->mHairStretchL = 1.0f - l_HIO.mChild[0].mStretch * previous.inprod(actor->mHairVelocityL);
                 actor->mHairStretchL = cLib_minMaxLimit(actor->mHairStretchL, 0.5f, 1.5f);
             } else if (joint == actor->getHairRJntNum()) {
@@ -199,14 +212,16 @@ static BOOL nodeCallBack_BmsHead(J3DNode* node, int timing) {
                 scale.y *= actor->mHairStretchR;
                 mDoMtx_stack_c::scaleM(scale.x, scale.y, scale.z);
                 MTXCopy(mDoMtx_stack_c::get(), matrix);
-                trans.set(matrix[0][3], matrix[1][3], matrix[2][3]);
+                trans.x = matrix[0][3];
+                trans.y = matrix[1][3];
+                trans.z = matrix[2][3];
                 matrix[0][3] = matrix[1][3] = matrix[2][3] = 0.0f;
                 mDoMtx_stack_c::transS(trans);
                 mDoMtx_stack_c::quatM(&actor->mHairQuatR);
                 mDoMtx_stack_c::concat(matrix);
                 mDoMtx_stack_c::multVec(&tip, &end);
                 mDoMtx_stack_c::multVec(&zero, &origin);
-                MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+                model->setAnmMtx(joint, mDoMtx_stack_c::get());
                 if (actor->mHairPosR.isZero()) actor->mHairPosR = end;
                 cXyz acceleration = (end - actor->mHairPosR) * l_HIO.mChild[0].mSpring;
                 actor->mHairVelocityR += acceleration;
@@ -216,7 +231,8 @@ static BOOL nodeCallBack_BmsHead(J3DNode* node, int timing) {
                 end -= origin;
                 previous -= origin;
                 daObj::quat_rotVec(&rotation, end, previous);
-                C_QUATSlerp(&actor->mHairQuatR, &rotation, &actor->mHairQuatR, l_HIO.mChild[0].mBlend);
+                f32 blend = l_HIO.mChild[0].mBlend;
+                C_QUATSlerp(&actor->mHairQuatR, &rotation, &actor->mHairQuatR, blend);
                 actor->mHairStretchR = 1.0f - l_HIO.mChild[0].mStretch * previous.inprod(actor->mHairVelocityR);
                 actor->mHairStretchR = cLib_minMaxLimit(actor->mHairStretchR, 0.5f, 1.5f);
             }
@@ -270,8 +286,13 @@ BOOL daNpc_Bms1_c::initTexPatternAnm(bool modify) {
 
 void daNpc_Bms1_c::playTexPatternAnm() {
     if (cLib_calcTimer(&mBtpTimer) == 0) {
+#if VERSION == VERSION_DEMO
+        s16 end = m_head_tex_pattern->getFrameMax();
+        if (mBtpFrame >= end) {
+#else
         int end = m_head_tex_pattern->getFrameMax();
         if (mBtpFrame >= (s16) end) {
+#endif
             mBtpFrame -= end;
             mBtpTimer = 30.0f + cM_rndF(100.0f);
         } else mBtpFrame++;
@@ -722,7 +743,7 @@ int daNpc_Bms1_c::getdemo_action(void*) {
         daPy_getPlayerActorClass()->offPlayerNoDraw();
         mState = mPreviousState;
         mShopCam.Reset();
-        fpc_ProcID item = fopAcM_createItemForPresentDemo(&current.pos, mShopItems.getSelectItemNo(), 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
+        fpc_ProcID item = fopAcM_createItemForPresentDemo(&current.pos, mShopItems.getSelectItemNo(), 0, -1, DEMO_SELECT(-1, fopAcM_GetRoomNo(this)), NULL, NULL);
         if (item != fpcM_ERROR_PROCESS_ID_e) dComIfGp_event_setItemPartnerId(item);
         dComIfGp_evmng_cutEnd(staff);
         mActionState++;
@@ -956,7 +977,11 @@ BOOL daNpc_Bms1_c::_draw() {
     if (mShopItems.mSelectedItemIdx >= 0) mpShopCursor->draw();
     cXyz pos = current.pos;
     if (mType == 1) pos.y -= 90.0f;
+#if VERSION == VERSION_DEMO
+    dSnap_RegistFig(0x5C, this, pos.y, current.angle.y, 1.0f);
+#else
     dSnap_RegistFig(0x5C, this, pos, current.angle.y, 1.0f, 1.0f, 1.0f);
+#endif
     return TRUE;
 }
 
@@ -1050,7 +1075,9 @@ BOOL daNpc_Bms1_c::CreateHeap() {
     }
     mpMorf = new mDoExt_McaMorf(body, NULL, NULL, bck, 2, 1.0f, 0, -1, 1, NULL, 0, 0x11020203);
     if (!mpMorf || !mpMorf->getModel()) {
+#if VERSION > VERSION_DEMO
         mpMorf = NULL;
+#endif
         return FALSE;
     }
     m_head_jnt_num = body->getJointName()->getIndex("head");
@@ -1069,7 +1096,11 @@ BOOL daNpc_Bms1_c::CreateHeap() {
     m_hairR_jnt_num = head->getJointName()->getIndex("hairR");
     JUT_ASSERT(DEMO_SELECT(0x83E, 0x841), m_hairR_jnt_num >= 0);
     mBtpNo = 1;
+#if VERSION == VERSION_DEMO
+    initTexPatternAnm(false);
+#else
     if (!initTexPatternAnm(false)) return FALSE;
+#endif
     switch (mType) {
     case 0:
         if (dComIfGs_isEventBit(0xA02)) setTexAnm(1);
@@ -1096,7 +1127,7 @@ BOOL daNpc_Bms1_c::CreateHeap() {
     for (u16 i = 0; i < mpHeadModel->getModelData()->getJointNum(); i++) if (i == m_hairL_jnt_num || i == m_hairR_jnt_num) mpHeadModel->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_BmsHead);
     mpHeadModel->setUserArea((u32) this);
     mAcchCir.SetWall(30.0f, 0.0f);
-    mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
     J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*) dComIfG_getObjectRes(m_arcname, dRes_INDEX_BMS_BRK_SHOP_CURSOR01_e);
     mpShopCursor = ShopCursor_create((J3DModelData*) dComIfG_getObjectRes(m_arcname, dRes_INDEX_BMS_BMD_SHOP_CURSOR01_e), brk, l_HIO.mChild[0].mCursorScale);
     return mpShopCursor ? TRUE : FALSE;
