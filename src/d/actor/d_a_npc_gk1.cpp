@@ -787,10 +787,20 @@ BOOL daNpc_Gk1_c::_execute() {
 
 /* 00002280-000022D4       .text _delete__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mLoaded) {
+        l_HIO.removeHIO();
+        dComIfG_resDelete(&mPhase, mArcName);
+        if (mpMorf != NULL) {
+            mpMorf->stopZelAnime();
+        }
+    }
+#else
     dComIfG_resDelete(&mPhase, mArcName);
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return TRUE;
 }
 
