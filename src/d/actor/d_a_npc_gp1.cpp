@@ -374,19 +374,7 @@ bool daNpc_Gp1_c::chk_talk() {
 
 /* 00001008-00001048       .text chk_partsNotMove__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::chk_partsNotMove() {
-    bool result = false;
-#if VERSION == VERSION_DEMO
-    bool jnt = false;
-    if (mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y()) jnt = true;
-    if (jnt && mOldActorY == current.angle.y) {
-        result = true;
-    }
-#else
-    if (mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y() && mOldActorY == current.angle.y) {
-        result = true;
-    }
-#endif
-    return result;
+    return mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y() && mOldActorY == current.angle.y;
 }
 // Pin DEG2S at this .rodata slot so create_rupee can reuse it from the literal pool.
 extern const f32 l_gp1AngleScale = 0x8000 / 180.0f;
