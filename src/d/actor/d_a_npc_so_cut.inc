@@ -252,12 +252,58 @@ void daNpc_So_c::cutEatesaFirstStart() {
     daShip_c* ship = dComIfGp_getShipActor();
     mCirclePath.mRadius = 650.0f + REG8_F(11);
     mCirclePath.mAngle = ship->shape_angle.y;
+#if VERSION > VERSION_DEMO
     mBDA = 1;
     mSpeed = 0.0f;
     speedF = 0.0f;
+#endif
 }
 
 /* 00005C6C-000060FC       .text cutEatesaFirstProc__10daNpc_So_cFv */
+#if VERSION == VERSION_DEMO
+void daNpc_So_c::cutEatesaFirstProc() {
+    fopAc_ac_c* actor = dComIfGp_getLinkPlayer();
+    daShip_c* ship = dComIfGp_getShipActor();
+    cXyz pos = actor->current.pos;
+    if (ship != NULL) {
+        int tmp = ship->shape_angle.y + REG12_S(6);
+        int ang = tmp - 0x4000;
+        pos = ship->current.pos;
+        f32 r = 260.0f;
+        pos.x += r * cM_ssin(ang);
+        pos.z += r * cM_scos(ang);
+    }
+
+    f32 dist = (current.pos - pos).absXZ();
+    if (dist < 700.0f + REG8_F(11)) {
+        cLib_addCalc2(&mCirclePath.mRadius, 30.0f, 0.05f, 8.0f + REG8_F(10));
+    }
+    mCirclePath.mAngleSpeed = 0x300;
+    mCirclePath.mTranslation = pos;
+    mCirclePath.mTranslation.y = dLib_getWaterY(mCirclePath.mTranslation, mAcch2);
+    dLib_setCirclePath(&mCirclePath);
+    mCirclePath.mPos.y = dLib_getWaterY(mCirclePath.mPos, mAcch2);
+    cXyz path = mCirclePath.mPos;
+    f32 step = (current.pos - path).absXZ();
+    s16 target = cLib_targetAngleY(&mSoEyePos, &path);
+    cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
+    if (step < 100.0f + REG12_F(7)) {
+        mSpeed = 0.0f;
+        if (speedF < 1.0f) {
+            esa_class* esa = (esa_class*)fopAcIt_Judge(searchEsa_CB, this);
+            if (esa != NULL) {
+                esa->field_0x298 = 1;
+            } else {
+                dComIfGp_evmng_cutEnd(mStaffIdx);
+            }
+        }
+    } else if (step < 200.0f + REG12_F(7)) {
+        mSpeed = 12.0f;
+    } else {
+        mSpeed = 20.0f + REG12_F(10);
+    }
+}
+#else
 void daNpc_So_c::cutEatesaFirstProc() {
     fopAc_ac_c* actor = dComIfGp_getLinkPlayer();
     daShip_c* ship = dComIfGp_getShipActor();
@@ -316,6 +362,7 @@ void daNpc_So_c::cutEatesaFirstProc() {
     cLib_addCalcPos2(&current.pos, path, 0.1f, step);
     current.pos.y = dLib_getWaterY(current.pos, mAcch2) - 100.0f;
 }
+#endif
 
 /* 000060FC-00006148       .text cutJumpMapopenStart__10daNpc_So_cFv */
 void daNpc_So_c::cutJumpMapopenStart() {

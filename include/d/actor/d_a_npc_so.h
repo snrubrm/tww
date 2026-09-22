@@ -173,9 +173,11 @@ public:
     /* 0x84C */ mDoExt_McaMorf* mpMorf2;
     /* 0x850 */ J3DModel* mpHudeModel;
     /* 0x854 */ mDoExt_btpAnm mBtpAnm;
+#if VERSION > VERSION_DEMO
     /* 0x868 */ int mBtpTimer;
     /* 0x86C */ s16 mBtpFrame;
     /* 0x86E */ u8 m86E[0x870 - 0x86E];
+#endif
     /* 0x870 */ dBgS_ObjAcch mAcch2;
     /* 0xA34 */ dBgS_AcchCir mAcchCir2;
     /* 0xA74 */ u32 mShadowId;
@@ -236,9 +238,11 @@ public:
     /* 0xBDC */ s16 mEventIdx;
     /* 0xBDE */ u8 mBDE;
     /* 0xBDF */ u8 mBDF;
+#if VERSION > VERSION_DEMO
     /* 0xBE0 */ int mBE0;
+#endif
 };  // Size: 0xBE4
 
-STATIC_ASSERT(sizeof(daNpc_So_c) == 0xBE4);
+STATIC_ASSERT(sizeof(daNpc_So_c) == DEMO_SELECT(0xBD8, 0xBE4));
 
 #endif /* D_A_NPC_SO_H */

@@ -81,7 +81,7 @@ STATIC_ASSERT(sizeof(daNpc_So_HIO_c) == DEMO_SELECT(0xC8, 0xC4));
 
 static daNpc_So_HIO_c l_HIO;
 
-const u32 daNpc_So_c::m_heapsize = 0x1C00;
+const u32 daNpc_So_c::m_heapsize = DEMO_SELECT(0x1CC0, 0x1C00);
 const char daNpc_So_c::m_arc_name[] = "So";
 
 const dCcD_SrcSph daNpc_So_c::m_sph_src = {
@@ -294,7 +294,7 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 /* 0000070C-00000A20       .text _createHeap__10daNpc_So_cFv */
 BOOL daNpc_So_c::_createHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SO_BDL_SO_e));
-    JUT_ASSERT(0x1FD, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x219, 0x1FD), modelData != 0);
 
     mpMorf2 = new mDoExt_McaMorf(
         modelData,
@@ -309,24 +309,26 @@ BOOL daNpc_So_c::_createHeap() {
     }
     mpMorf2->getModel()->setUserArea((u32)this);
 
+#if VERSION > VERSION_DEMO
     J3DAnmTexPattern* btp = static_cast<J3DAnmTexPattern*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SO_BTP_SO_e));
     JUT_ASSERT(0x210, btp != 0);
 
     if (!mBtpAnm.init(modelData, btp, TRUE, 0, 1.0f, 0, -1, false, 0)) {
         return FALSE;
     }
+#endif
 
     m_jnt.setHeadJntNum(SO_JNT_HEAD_e);
-    JUT_ASSERT(0x215, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x22C, 0x215), m_jnt.getHeadJntNum() >= 0);
 
     m_jnt.setBackboneJntNum(SO_JNT_BACKBONE_e);
-    JUT_ASSERT(0x217, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x22E, 0x217), m_jnt.getBackboneJntNum() >= 0);
 
     modelData->getJointNodePointer(SO_JNT_HEAD_e)->setCallBack(nodeControl_CB);
     modelData->getJointNodePointer(SO_JNT_BACKBONE_e)->setCallBack(nodeControl_CB);
 
     modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SO_BDL_SO_FUDE_e));
-    JUT_ASSERT(0x221, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x238, 0x221), modelData != 0);
 
     mpHudeModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpHudeModel == NULL) {
@@ -416,7 +418,11 @@ void daNpc_So_c::offsetSwim() {
 void daNpc_So_c::offsetAppear() {
     mOffset.z = 0.4f;
     mOffset.y = 22.0f;
+#if VERSION == VERSION_DEMO
+    mOffset.x = 110.0f + REG12_F(0);
+#else
     mOffset.x = 110.0f;
+#endif
 }
 
 /* 00000D1C-00000E40       .text getMsg__10daNpc_So_cFv */
@@ -693,9 +699,13 @@ void daNpc_So_c::modeWait() {}
 
 /* 0000171C-0000175C       .text modeHideInit__10daNpc_So_cFv */
 void daNpc_So_c::modeHideInit() {
+#if VERSION == VERSION_DEMO
+    offsetDive();
+#else
     mBDB = 1;
     offsetDive();
     mTagRadius = 0.0f;
+#endif
 }
 
 /* 0000175C-00001778       .text modeHide__10daNpc_So_cFv */
@@ -724,20 +734,29 @@ void daNpc_So_c::modeJump() {
     if (current.pos.y < waterY) {
         fopAcM_seStart(this, JA_SE_CM_SO_LANDING_L, 0);
         fopKyM_createWpillar(&current.pos, 1.4f * scale.x, 1.4f, 0);
+#if VERSION > VERSION_DEMO
         if ((mHidePos - current.pos).absXZ() > mTagRadius) {
             current.pos = mHidePos;
         }
+#endif
         modeProcInit(MODE_SWIM_e);
     }
 }
 
 /* 000019F0-00001A6C       .text modeSwimInit__10daNpc_So_cFv */
 void daNpc_So_c::modeSwimInit() {
+#if VERSION == VERSION_DEMO
+    mA90 = REG12_F(1) + (cM_rndF(90.0f) + 30.0f);
+    setAnm(2, false);
+    offsetSwim();
+    m_jnt.onBackBoneLock();
+#else
     attention_info.flags = fopAc_Attn_TALKFLAG_NOTALK_e | fopAc_Attn_ACTION_SPEAK_e | fopAc_Attn_LOCKON_TALK_e;
     mA90 = cM_rndF(90.0f) + 30.0f;
     setAnm(2, false);
     m_jnt.onBackBoneLock();
     offsetDive();
+#endif
 }
 
 /* 00001A6C-00001DB8       .text modeSwim__10daNpc_So_cFv */
@@ -1229,12 +1248,16 @@ bool daNpc_So_c::_execute() {
         } else {
             modeProcInit(MODE_SWIM_e);
         }
-    } else {
+    }
+#if VERSION > VERSION_DEMO
+    else {
         if (mTagRadius == 0.0f) {
             fopAcIt_Judge(searchTagSo_CB, this);
         }
     }
+#endif
 
+#if VERSION > VERSION_DEMO
     if (cLib_calcTimer(&mBtpTimer) == 0) {
         mBtpFrame++;
         if ((f32)mBtpFrame > (f32)mBtpAnm.getFrameCtrl()->getEnd()) {
@@ -1242,6 +1265,7 @@ bool daNpc_So_c::_execute() {
             mBtpFrame = 0;
         }
     }
+#endif
 
     setScale();
     setAttention();
@@ -1285,7 +1309,11 @@ bool daNpc_So_c::_execute() {
     }
     cLib_addCalcAngleS2(&shape_angle.x, targetX, 4, 0x800);
 
-    if (mCurMode != MODE_HIDE_e && mCurMode != MODE_EVENT_FIRST_WAIT_e && mBDB == 0 && cLib_calcTimer(&mBE0) == 0) {
+    if (mCurMode != MODE_HIDE_e && mCurMode != MODE_EVENT_FIRST_WAIT_e && mBDB == 0
+#if VERSION > VERSION_DEMO
+        && cLib_calcTimer(&mBE0) == 0
+#endif
+    ) {
         fopAcM_posMoveF(this, NULL);
         mAcch2.CrrPos(*dComIfG_Bgsp());
     }
@@ -1308,6 +1336,10 @@ void daNpc_So_c::debugDraw() {
         {0xFF, 0x00, 0x00, 0x80},
         {0x00, 0xFF, 0x00, 0x80},
         {0xFF, 0x00, 0x00, 0x80},
+#if VERSION == VERSION_DEMO
+        {0x00, 0xFF, 0x00, 0x80},
+        {0xFF, 0x00, 0x00, 0x80},
+#endif
         {0x00, 0xFF, 0xFF, 0x80},
         {0xFF, 0xFF, 0x00, 0x80},
         {0xFF, 0xFF, 0x00, 0x80},
@@ -1347,9 +1379,13 @@ bool daNpc_So_c::_draw() {
         J3DModelData* modelData = model->getModelData();
         g_env_light.settingTevStruct(0, &current.pos, &tevStr);
         g_env_light.setLightTevColorType(model, &tevStr);
+#if VERSION > VERSION_DEMO
         mBtpAnm.entry(modelData, mBtpFrame);
+#endif
         mpMorf2->entryDL();
+#if VERSION > VERSION_DEMO
         modelData->getMaterialTable().removeTexNoAnimator(mBtpAnm.getBtpAnm());
+#endif
         if (mHudeFlag != 0 || l_HIO.m2C != 0) {
             hudeDraw();
         }
@@ -1379,13 +1415,15 @@ bool daNpc_So_c::_draw() {
 /* 00003B00-00003DF8       .text createInit__10daNpc_So_cFv */
 void daNpc_So_c::createInit() {
     mBDA = false;
-    mStts.Init(0xFF, 0xFF, this);
+    mStts.Init(DEMO_SELECT(100, 0xFF), DEMO_SELECT(100, 0xFF), this);
     mCyl.Set(dNpc_cyl_src);
     mCyl.SetStts(&mStts);
-    mStts2.Init(0xFF, 0xFF, this);
+    mStts2.Init(DEMO_SELECT(200, 0xFF), DEMO_SELECT(0, 0xFF), this);
     mSph.Set(m_sph_src);
     mSph.SetStts(&mStts2);
+#if VERSION > VERSION_DEMO
     current.pos.y -= 500.0f;
+#endif
     setMtx();
     mpMorf2->calc();
     mAAC = current.pos;
@@ -1406,7 +1444,9 @@ void daNpc_So_c::createInit() {
         attention_info.flags = fopAc_Attn_TALKFLAG_NOTALK_e | fopAc_Attn_ACTION_SPEAK_e | fopAc_Attn_LOCKON_TALK_e;
         modeProcInit(MODE_HIDE_e);
     }
+#if VERSION > VERSION_DEMO
     mBE0 = 0x1E;
+#endif
     mAcchCir2.SetWall(30.0f, 30.0f);
     mAcch2.Set(
         fopAcM_GetPosition_p(this),
