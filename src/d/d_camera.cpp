@@ -2657,7 +2657,7 @@ void dCamera_c::checkGroundInfo() {
         gnd_chk_pos.y = roof_y;
     }
 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
     dBgS_CamGndChk gnd_chk;
     gnd_chk.ClrCam();
     gnd_chk.SetObj();
@@ -2665,7 +2665,7 @@ void dCamera_c::checkGroundInfo() {
     f32 ground_y = dComIfG_Bgsp()->GroundCross(&gnd_chk);
 #endif
 
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
     if (m787 != 0) {
         mBG.m5C.m04.ClrCam();
         mBG.m5C.m04.SetObj();
@@ -2682,7 +2682,7 @@ void dCamera_c::checkGroundInfo() {
     
     mBG.m5C.m58 = dComIfG_Bgsp()->GroundCross(&mBG.m5C.m04);
 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
     if (mBG.m5C.m58 < ground_y) {
         mBG.m5C.m58 = ground_y;
         mBG.m5C.m04 = gnd_chk;
