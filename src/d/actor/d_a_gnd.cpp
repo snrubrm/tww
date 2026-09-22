@@ -255,7 +255,7 @@ static void splash_set(gnd_class* i_this) {
 
     JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDLANDINGSPLASH00, &actor->current.pos);
     if (emitter != NULL) {
-        emitter->setGlobalPrmColor(i_this->mPrmColorR, i_this->mPrmColorG, i_this->mPrmColorB);
+        emitter->setGlobalPrmColor(i_this->mTevStr2.mColorC0.r, i_this->mTevStr2.mColorC0.g, i_this->mTevStr2.mColorC0.b);
     }
 }
 
@@ -267,7 +267,7 @@ static void attack_eff_set(gnd_class* i_this, int param_2) {
         if (attack_eff_id[param_2 * 6 + i] != 0) {
             i_this->mpAttackEff[i] = dComIfGp_particle_set(attack_eff_id[param_2 * 6 + i], &actor->current.pos);
             if (i <= 3) {
-                i_this->mpAttackEff[i]->setGlobalPrmColor(i_this->mPrmColorR, i_this->mPrmColorG, i_this->mPrmColorB);
+                i_this->mpAttackEff[i]->setGlobalPrmColor(i_this->mTevStr2.mColorC0.r, i_this->mTevStr2.mColorC0.g, i_this->mTevStr2.mColorC0.b);
             }
         }
     }
@@ -1299,7 +1299,7 @@ static void attackPZ(gnd_class* i_this) {
             fopAcM_monsSeStart(actor, JA_SE_CV_GN_ATTACK_ZELDA, 0);
             i_this->mp13EC = dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDBINTASPLASH00, &actor->current.pos);
             if (i_this->mp13EC != NULL) {
-                i_this->mp13EC->setGlobalPrmColor(i_this->mPrmColorR, i_this->mPrmColorG, i_this->mPrmColorB);
+                i_this->mp13EC->setGlobalPrmColor(i_this->mTevStr2.mColorC0.r, i_this->mTevStr2.mColorC0.g, i_this->mTevStr2.mColorC0.b);
             }
         }
         break;
@@ -1904,7 +1904,7 @@ static void damage_check(gnd_class* i_this) {
     } else {
         JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDHITOK00, atInfo.pParticlePos, &actor->shape_angle, NULL);
         if (emitter != NULL) {
-            emitter->setGlobalPrmColor(i_this->mPrmColorR, i_this->mPrmColorG, i_this->mPrmColorB);
+            emitter->setGlobalPrmColor(i_this->mTevStr2.mColorC0.r, i_this->mTevStr2.mColorC0.g, i_this->mTevStr2.mColorC0.b);
         }
     }
 
@@ -2686,7 +2686,7 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
     if (l_HIO.m05 == 0) {
         gnd_move(i_this);
         i_this->mAcch.CrrPos(*dComIfG_Bgsp());
-        g_env_light.settingTevStruct(2, &actor->current.pos, (dKy_tevstr_c*)&i_this->mLightObj);
+        g_env_light.settingTevStruct(2, &actor->current.pos, &i_this->mTevStr2);
         i_this->mpMorf->play(&actor->eyePos, 0, 0);
         if (i_this->mpMorf->isStop()) {
             attack_eff_remove(i_this);

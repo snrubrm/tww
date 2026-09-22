@@ -4,6 +4,7 @@
 #include "f_op/f_op_actor.h"
 #include "d/d_bg_s_acch.h"
 #include "d/d_cc_d.h"
+#include "d/d_kankyo.h"
 #include "d/d_particle.h"
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_hostIO.h"
@@ -47,12 +48,8 @@ public:
     /* 0x031A */ s16 m31A;
     /* 0x031C */ s8 m31C;
     /* 0x031D */ u8 m31D[0x0320 - 0x031D];
-    /* 0x0320 */ J3DLightObj mLightObj;
-    /* 0x0394 */ u8 m394[0x03A0 - 0x0394];
-    /* 0x03A0 */ s16 mPrmColorR;
-    /* 0x03A2 */ s16 mPrmColorG;
-    /* 0x03A4 */ s16 mPrmColorB;
-    /* 0x03A6 */ u8 m3A6[0x03D4 - 0x03A6];
+    /* 0x0320 */ dKy_tevstr_c mTevStr2;
+    /* 0x03D0 */ u8 m3D0[0x03D4 - 0x03D0];
     /* 0x03D4 */ s8 m3D4;
     /* 0x03D5 */ s8 m3D5;
     /* 0x03D6 */ s8 m3D6;
