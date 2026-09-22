@@ -419,11 +419,7 @@ bool daNpc_Gk1_c::chk_talk() {
 
 /* 00001164-000011A4       .text chk_parts_notMov__11daNpc_Gk1_cFv */
 bool daNpc_Gk1_c::chk_parts_notMov() {
-    bool result = false;
-    if (mOldHeadY != m_jnt.getHead_y() || mOldBackY != m_jnt.getBackbone_y() || mOldActorY != current.angle.y) {
-        result = true;
-    }
-    return result;
+    return mOldHeadY != m_jnt.getHead_y() || mOldBackY != m_jnt.getBackbone_y() || mOldActorY != current.angle.y;
 }
 
 /* 000011A4-000011F8       .text searchByID__11daNpc_Gk1_cFUiPi */
