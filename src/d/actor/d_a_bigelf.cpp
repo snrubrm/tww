@@ -534,7 +534,8 @@ void daBigelf_c::demoInitFa1() {
 BOOL daBigelf_c::demoProcFa1() {
     fopAc_ac_c* fa1 = fopAcM_SearchByID(mFa1Id);
     if (fa1 != NULL) {
-        cLib_addCalc2(&fa1->current.pos.y, current.pos.y + 70.0f, 0.2f, 100.0f);
+        f32 target = current.pos.y + 70.0f;
+        cLib_addCalc2(&fa1->current.pos.y, target, 0.2f, 100.0f);
     }
     dComIfGp_evmng_cutEnd(mStaffId);
     return TRUE;
