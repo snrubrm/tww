@@ -242,6 +242,9 @@ cPhs_State daObjSwpush::Act_c::Mthd_Create() {
         scale.x *= attr().mScale;
         scale.z *= attr().mScale;
         if (fopAcM_entrySolidHeap(this, solidHeapCB, attr().mHeapSize)) {
+#if VERSION == VERSION_DEMO
+            {
+#else
             if (dComIfG_Bgsp()->Regist(mpBgW, this)) {
                 phase_state = cPhs_ERROR_e;
             } else {
@@ -256,6 +259,7 @@ cPhs_State daObjSwpush::Act_c::Mthd_Create() {
                 mpBgW->SetNoCalcVtx();
 
                 m2D4 = mpBgW->GetVtxTbl()[M_op_vtx[0]].y;
+#endif
                 mpBgW->SetRideCallback(rideCB);
                 fopAcM_SetMtx(this, mpModel->getBaseTRMtx());
                 init_mtx();
