@@ -400,9 +400,11 @@ BOOL body_atari_check(ph_class* i_this) {
             f32 zero = 0.0f;
             if (x != zero && i_this->m037C == zero) {
                 actor->stealItemLeft = i_this->m0344;
+#if VERSION > VERSION_JPN
                 if (i_this->m0374 != dRes_INDEX_PH_BCK_PFLY_e) {
                     anm_init(i_this, dRes_INDEX_PH_BCK_PFLY_e, 5.0f, 2, 1.0f, -1, 0);
                 }
+#endif
                 if (actor->stealItemLeft > 0) {
                     s8 oldHealth = actor->health;
                     actor->health = 10;
