@@ -5373,9 +5373,7 @@ bool dCamera_c::crawlCamera(s32 param_1) {
         sp128 = relationalPos(mpPlayerActor, &sp134);
         mViewCache.mCenter += (sp128 - mViewCache.mCenter) * f28;
 
-        if (mCamParam.Flag(param_1, dCamPrmFlg_UNK080)) {
-            f30 = 2.0f;
-        }
+        f30 = mCamParam.Flag(param_1, dCamPrmFlg_UNK080) ? 2.0f : f30;
 
         f1 = mViewCache.mDirection.R();
         f32 f29 = f1 + f28 * (f30 - f1);
