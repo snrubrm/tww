@@ -2659,7 +2659,7 @@ u8 daNpc_Bj1_c::demo() {
     } else {
         m857 = 1;
         dComIfGp_demo_getActor(demoActorID);
-        dDemo_setDemoData(this, 0x6A, mpMorf, "Bj", 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, "Bj");
     }
     return m857;
 }
