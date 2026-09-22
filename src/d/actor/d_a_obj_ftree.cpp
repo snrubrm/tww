@@ -135,7 +135,7 @@ BOOL daObjFtree::Act_c::launch_heart_part() {
     angle.y += 0x2328;
     pos.y += 860.0f;
     fopAc_ac_c* item = (fopAc_ac_c*)fopAcM_fastCreateItem(
-        &pos, dItemNo_HEART_PIECE_e, current.roomNo, &angle, &scale, 1.75f, 30.0f, -2.1f, -1, NULL);
+        &pos, dItemNo_HEART_PIECE_e, fopAcM_GetRoomNo(this), &angle, &scale, 1.75f, 30.0f, -2.1f, -1, NULL);
     if (item != NULL) {
         mSpawnedHeartPieceProcessId = fopAcM_GetID(item);
         dComIfGs_setEventReg(dSv_event_flag_c::UNK_9B07, param_get_tree_idx());
@@ -163,7 +163,7 @@ BOOL daObjFtree::Act_c::place_heart_part() {
         cXyz scale(1.0f, 1.0f, 1.0f);
         csXyz angle(0, 0, 0);
         fopAc_ac_c* item = (fopAc_ac_c*)fopAcM_fastCreateItem(
-            &dest, dItemNo_HEART_PIECE_e, current.roomNo, &angle, &scale, 0.0f, 0.0f, -2.1f, -1, NULL);
+            &dest, dItemNo_HEART_PIECE_e, fopAcM_GetRoomNo(this), &angle, &scale, 0.0f, 0.0f, -2.1f, -1, NULL);
         if (item != NULL) {
             mSpawnedHeartPieceProcessId = fopAcM_GetID(item);
             dComIfGs_setEventReg(dSv_event_flag_c::UNK_9B07, param_get_tree_idx());
@@ -191,7 +191,11 @@ BOOL daObjFtree::Act_c::estimate_water() {
     Ftree_get_water_pos(&pos, &current.pos);
     f32 dist2 = PSVECSquareDistance(&pos, &current.pos);
     f32 r = 20.0f + mCrashRadius;
+#if VERSION == VERSION_DEMO
+    return dist2 <= r * r ? TRUE : FALSE;
+#else
     return dist2 <= r * r;
+#endif
 }
 
 /* 000004B8-000004DC       .text Ftree_checkXyEventCallBack__10daObjFtreeFPvi */
@@ -289,12 +293,12 @@ int daObjFtree::Act_c::param_get_tree_idx() const {
 /* 000007A8-000008D8       .text SetJointAnimation__Q210daObjFtree5Act_cFiffi */
 BOOL daObjFtree::Act_c::SetJointAnimation(int resIdx, float speed, float morf, int param) {
     J3DAnmTransform* anm = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, resIdx);
-    int frameParam = param > 0 ? 0 : param;
+    param = param > 0 ? 0 : param;
     if (anm != NULL) {
-        if (frameParam == 0) {
+        if (param == 0) {
             mpMorf->setAnm(anm, 0, morf, speed, 0.0f, -1.0f, NULL);
         } else {
-            mpMorf->setAnm(anm, 0, morf, speed, 0.0f, frameParam + (f32)anm->getFrameMax(), NULL);
+            mpMorf->setAnm(anm, 0, morf, speed, 0.0f, param + (f32)anm->getFrameMax(), NULL);
         }
         return TRUE;
     }
@@ -456,7 +460,8 @@ void daObjFtree::Act_c::set_tev_color(J3DModelData* mdl, unsigned long idx, s16 
 
 /* 00001070-000010F0       .text is_broughtID__10daObjFtreeFi */
 BOOL daObjFtree::is_broughtID(int id) {
-    bool ret = ((dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) >> (id & 7)) & 1) ||
+    int bit = id & 7;
+    bool ret = ((dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) >> bit) & 1) ||
                dComIfGs_isEventBit(dSv_event_flag_c::UNK_0102);
     return ret;
 }
@@ -469,11 +474,20 @@ BOOL daObjFtree::Act_c::is_brought() {
 
 /* 00001138-000011FC       .text set_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::set_broughtID(int id) {
+#if VERSION == VERSION_DEMO
+    int bit = id & 7;
+    u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
+    val |= (1 << bit);
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
+    val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF);
+    val |= (1 << bit);
+#else
     u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
     val |= (1 << (id & 7));
     dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
     val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF);
     val |= (1 << (id & 7));
+#endif
     dComIfGs_setEventReg(dSv_event_flag_c::UNK_9AFF, val);
     _ftree_seach_info_ info;
     get_ftree_info(&info);
@@ -485,21 +499,24 @@ void daObjFtree::Act_c::set_broughtID(int id) {
 /* 000011FC-00001260       .text set_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::set_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    set_broughtID(idx < 10 ? ret_tree_no[idx] : 0xF);
+    int no = idx < 10 ? ret_tree_no[idx] : 0xF;
+    set_broughtID(no);
     mBroughtSession = 1;
 }
 
 /* 00001260-000012D0       .text unset_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::unset_broughtID(int id) {
+    int bit = id & 7;
     u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
-    val &= ~(1 << (id & 7));
+    val &= ~(1 << bit);
     dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
 }
 
 /* 000012D0-00001334       .text unset_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::unset_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    unset_broughtID(idx < 10 ? ret_tree_no[idx] : 0xF);
+    int no = idx < 10 ? ret_tree_no[idx] : 0xF;
+    unset_broughtID(no);
     mBroughtSession = 0;
 }
 
@@ -934,8 +951,7 @@ BOOL daObjFtree::Act_c::NodeCallBack_Effect(J3DNode* node, int timing) {
     if (mEffectFlag == 1 && timing == 0) {
         J3DJoint* joint = (J3DJoint*)node;
         cXyz offset(0.0f, 0.0f, 0.0f);
-        J3DModel* model = j3dSys.getModel();
-        mDoMtx_stack_c::copy(model->getAnmMtx(joint->getJntNo()));
+        mDoMtx_stack_c::copy(j3dSys.getModel()->getAnmMtx(joint->getJntNo()));
         Mtx mtx;
         mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
         cXyz pos;
@@ -1009,6 +1025,36 @@ BOOL daObjFtree::Ftree_NodeCallBack_L(J3DNode* node, int timing) {
 }
 
 /* 00002F5C-00003354       .text create_heap__Q210daObjFtree5Act_cFv */
+#if VERSION == VERSION_DEMO
+bool daObjFtree::Act_c::create_heap() {
+    J3DAnmTransform* tmp_bck_data = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BCK_VMRTY_e);
+    JUT_ASSERT(2100, tmp_bck_data != 0);
+    J3DModelData* mdl_dataS = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BDL_VMRTY_e);
+    JUT_ASSERT(2106, mdl_dataS != 0);
+    mpMorf = new mDoExt_McaMorf(mdl_dataS, NULL, NULL, tmp_bck_data, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11020203);
+    J3DModel* modelS = mpMorf->getModel();
+    modelS->setUserArea((u32)this);
+    mdl_dataS->getJointNodePointer(2)->setCallBack(Ftree_NodeCallBack_Effect);
+    mdl_dataS->getJointNodePointer(3)->setCallBack(Ftree_NodeCallBack_M);
+    mdl_dataS->getJointNodePointer(4)->setCallBack(Ftree_NodeCallBack_M);
+    mdl_dataS->getJointNodePointer(5)->setCallBack(Ftree_NodeCallBack_M);
+
+    J3DModelData* mdl_dataL = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BDL_VMRTO_e);
+    JUT_ASSERT(2130, mdl_dataL != 0);
+    mpModel = mDoExt_J3DModel__create(mdl_dataL, 0, 0x11020203);
+    mpModel->setUserArea((u32)this);
+    mdl_dataL->getJointNodePointer(1)->setCallBack(Ftree_NodeCallBack_L);
+
+    J3DAnmTevRegKey* brk_data = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BRK_VMRMZ_e);
+    JUT_ASSERT(2140, brk_data != 0);
+    mBrkAnm.init(mdl_dataS, brk_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+    get_tev_material0_color(mpMorf->getModel()->getModelData(), 2, &mColorS.r, &mColorS.g, &mColorS.b);
+    mColorSBase = mColorS;
+    get_tev_material0_color(mpModel->getModelData(), 2, &mColorL.r, &mColorL.g, &mColorL.b);
+    mColorLBase = mColorL;
+    return bool(mpMorf && mpMorf->getModel()) && mdl_dataL && brk_data;
+}
+#else
 bool daObjFtree::Act_c::create_heap() {
     J3DAnmTransform* tmp_bck_data = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BCK_VMRTY_e);
     JUT_ASSERT(2102, tmp_bck_data != 0);
@@ -1052,6 +1098,7 @@ bool daObjFtree::Act_c::create_heap() {
     mColorLBase = mColorL;
     return bool(mdl_dataS && mpMorf) && mpMorf->getModel() && mdl_dataL && brk_data && brk;
 }
+#endif
 
 /* 00003354-000035F4       .text _create__Q210daObjFtree5Act_cFv */
 cPhs_State daObjFtree::Act_c::_create() {
@@ -1192,8 +1239,9 @@ bool daObjFtree::Act_c::_draw() {
         mDoExt_modelUpdateDL(mpModel);
         dComIfGd_setList();
         f32 ratio = mScaleMul <= 0.2f ? 0.0f : (mScaleMul >= 1.0f ? 1.0f : (mScaleMul - 0.2f) / 0.8f);
+        f32 size = 1.0f + 2.5f * ratio;
         cXyz pos(current.pos.x, current.pos.y, current.pos.z);
-        dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f * (1.0f + 2.5f * ratio), mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
+        dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f * size, mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
     return true;
 }
