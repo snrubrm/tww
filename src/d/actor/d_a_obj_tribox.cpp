@@ -66,6 +66,15 @@ cXyz Act_c::M_post[3] = {
 
 dBgS_ObjLinChk daObjTribox::Act_c::M_lin;
 
+#if VERSION == VERSION_DEMO
+int daObjTribox::Act_c::M_correct_cnt;
+bool daObjTribox::Act_c::M_correct_flag;
+int daObjTribox::Act_c::M_b_cont_cnt;
+int daObjTribox::Act_c::M_c_cont_cnt;
+u8 daObjTribox::Act_c::M_sink_start;
+cXyz daObjTribox::Act_c::M_sound_pos = cXyz::Zero;
+#endif
+
 /* 000000EC-000001A4       .text set_state__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::set_state() {
     int type = prm_get_type();
