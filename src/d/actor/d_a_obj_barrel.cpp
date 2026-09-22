@@ -461,7 +461,9 @@ void daObjBarrel::Act_c::set_walk_rot() {
     if (mag > l_min_move_dir || (mMode == MODE_WAIT && mag > l_min_move_dir / 2)) {
         cLib_chaseAngleS(&shape_angle.y, targetAngle, 0x600);
     }
-    float fVar2 = mag / ((cM_scos(shape_angle.z) * 5.0f + l_s_radius) * 6.28f) * 0xFFFF;
+    float radius = cM_scos(shape_angle.z) * 5.0f + l_s_radius;
+    float ratio = mag / (radius * 6.28f);
+    float fVar2 = ratio * 0xFFFF;
     if (!negAngle) {
         m612 -= (short)(fVar2 * 3.0f);
         m630 -= (short)fVar2;
