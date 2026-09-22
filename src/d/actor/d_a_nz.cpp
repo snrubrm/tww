@@ -89,7 +89,7 @@ public:
     /* 0x14 */ f32 m14;
 };
 
-STATIC_ASSERT(sizeof(daNZ_HIO_c) == 0x18);
+STATIC_ASSERT(sizeof(daNZ_HIO_c) == DEMO_SELECT(0x1C, 0x18));
 
 static daNZ_HIO_c l_HIO;
 static fopAc_ac_c* check_info[100];
