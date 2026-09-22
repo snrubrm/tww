@@ -57,34 +57,16 @@ public:
     /* 0x054 */ s16 m54;
     /* 0x056 */ u8 m56[0x058 - 0x056];
     /* 0x058 */ f32 m58;
-    /* 0x05C */ f32 m5C;
-    /* 0x060 */ u8 m60[0x064 - 0x060];
-    /* 0x064 */ f32 m64;
-    /* 0x068 */ f32 m68;
-    /* 0x06C */ u8 m6C[0x070 - 0x06C];
-    /* 0x070 */ f32 m70;
-    /* 0x074 */ f32 m74;
-    /* 0x078 */ u8 m78[0x07C - 0x078];
-    /* 0x07C */ f32 m7C;
-    /* 0x080 */ s16 m80;
-    /* 0x082 */ u8 m82[0x084 - 0x082];
-    /* 0x084 */ s16 m84;
-    /* 0x086 */ s16 m86;
-    /* 0x088 */ u8 m88[0x08A - 0x088];
-    /* 0x08A */ s16 m8A;
-    /* 0x08C */ s16 m8C;
-    /* 0x08E */ u8 m8E[0x090 - 0x08E];
-    /* 0x090 */ s16 m90;
-    /* 0x092 */ s16 m92;
-    /* 0x094 */ u8 m94[0x096 - 0x094];
-    /* 0x096 */ s16 m96;
-    /* 0x098 */ s16 m98;
-    /* 0x09A */ u8 m9A[0x09C - 0x09A];
-    /* 0x09C */ s16 m9C;
+    /* 0x05C */ f32 m5C[3];
+    /* 0x068 */ f32 m68[3];
+    /* 0x074 */ f32 m74[3];
+    /* 0x080 */ s16 m80[3];
+    /* 0x086 */ s16 m86[3];
+    /* 0x08C */ s16 m8C[3];
+    /* 0x092 */ s16 m92[3];
+    /* 0x098 */ s16 m98[3];
     /* 0x09E */ u8 m9E[0x0A0 - 0x09E];
-    /* 0x0A0 */ f32 mA0;
-    /* 0x0A4 */ u8 mA4[0x0A8 - 0x0A4];
-    /* 0x0A8 */ f32 mA8;
+    /* 0x0A0 */ f32 mA0[3];
     /* 0x0AC */ f32 mAC;
     /* 0x0B0 */ f32 mB0;
     /* 0x0B4 */ f32 mB4;
@@ -110,13 +92,9 @@ public:
     /* 0x0F0 */ f32 mF0;
     /* 0x0F4 */ f32 mF4;
 #if VERSION > VERSION_DEMO
-    /* 0x0F8 */ s16 mF8;
-    /* 0x0FA */ u8 mFA[0x0FC - 0x0FA];
-    /* 0x0FC */ s16 mFC;
+    /* 0x0F8 */ s16 mF8[3];
     /* 0x0FE */ u8 mFE[0x100 - 0x0FE];
-    /* 0x100 */ f32 m100;
-    /* 0x104 */ u8 m104[0x108 - 0x104];
-    /* 0x108 */ f32 m108;
+    /* 0x100 */ f32 m100[3];
 #endif
 };
 
@@ -197,31 +175,31 @@ daPz_HIO_c::daPz_HIO_c() {
     m48 = 2.0f;
     m50 = 10.0f;
     m31 = 0;
-    m5C = 100.0f;
-    m68 = 0.0f;
-    m74 = 100.0f;
-    m80 = 0x1E;
-    m86 = 0x12C;
-    m8C = 0;
-    m92 = 0x1E;
-    m98 = 0;
-    mA0 = 1000.0f;
+    m5C[0] = 100.0f;
+    m68[0] = 0.0f;
+    m74[0] = 100.0f;
+    m80[0] = 0x1E;
+    m86[0] = 0x12C;
+    m8C[0] = 0;
+    m92[0] = 0x1E;
+    m98[0] = 0;
+    mA0[0] = 1000.0f;
 #if VERSION > VERSION_DEMO
-    mF8 = 0x3C;
-    m100 = 3000.0f;
+    mF8[0] = 0x3C;
+    m100[0] = 3000.0f;
 #endif
-    m64 = 100.0f;
-    m70 = 100.0f;
-    m7C = 80.0f;
-    m84 = 0x1E;
-    m8A = 0x64;
-    m90 = 0x64;
-    m96 = 0x1E;
-    m9C = 0x3C;
-    mA8 = 1000.0f;
+    m5C[2] = 100.0f;
+    m68[2] = 100.0f;
+    m74[2] = 80.0f;
+    m80[2] = 0x1E;
+    m86[2] = 0x64;
+    m8C[2] = 0x64;
+    m92[2] = 0x1E;
+    m98[2] = 0x3C;
+    mA0[2] = 1000.0f;
 #if VERSION > VERSION_DEMO
-    mFC = 0x258;
-    m108 = 800.0f;
+    mF8[2] = 0x258;
+    m100[2] = 800.0f;
 #endif
     mAC = 100.0f;
     mE2 = 4;
@@ -1262,7 +1240,7 @@ void daPz_c::modeWait() {
 void daPz_c::modeMoveInit() {
     cLib_onBit<u32>(attention_info.flags, fopAc_Attn_ACTION_SPEAK_e);
     cLib_onBit<u32>(attention_info.flags, fopAc_Attn_LOCKON_TALK_e);
-    m08EC = (&l_HIO.m86)[mTalkState] + cM_rndF((&l_HIO.m8C)[mTalkState]);
+    m08EC = l_HIO.m86[mTalkState] + cM_rndF(l_HIO.m8C[mTalkState]);
     m08F0 = 0xA;
     m08F4 = 0x78;
     setAnm(3, false, 0xF);
@@ -1280,7 +1258,7 @@ void daPz_c::modeMoveInit() {
     } else {
         mLookPos = dNpc_playerEyePos(l_HIO.mNpc.m04);
     }
-    mCirclePath.mRadius = (&l_HIO.mA0)[mTalkState];
+    mCirclePath.mRadius = l_HIO.mA0[mTalkState];
     mCirclePath.mWobbleAmplitude = l_HIO.mAC;
     mCirclePath.mAngleSpeed = (REG12_S(0) + 0x150) * m0920;
     mCirclePath.mTranslation = mLookPos;
@@ -1344,7 +1322,7 @@ void daPz_c::modeMove() {
 
     m_jnt.clrTrn();
 
-    cLib_addCalc2(&mCirclePath.mRadius, (&l_HIO.mA0)[mTalkState], 0.1f, 10.0f);
+    cLib_addCalc2(&mCirclePath.mRadius, l_HIO.mA0[mTalkState], 0.1f, 10.0f);
 
     f32 distToPath = (current.pos - mCirclePath.mPos).absXZ();
     f32 unusedLookDist = (current.pos - mLookPos).absXZ();
@@ -1357,7 +1335,7 @@ void daPz_c::modeMove() {
     }
 
     if (blocked || distToPath <= 200.0f ||
-        distLookToPath >= 2.0f * ((&l_HIO.mA0)[mTalkState]) || mbEyesFollowGanondorf) {
+        distLookToPath >= 2.0f * l_HIO.mA0[mTalkState] || mbEyesFollowGanondorf) {
         mCirclePath.mWobbleAmplitude = l_HIO.mAC;
         mCirclePath.mAngleSpeed = (s16)((REG12_S(0) + 0x150) * m0920);
         mCirclePath.mTranslation = mLookPos;
@@ -1500,18 +1478,18 @@ void daPz_c::modeAttackInit() {
         talkState = 0;
     }
     if (mAnmPrmIdx != 4 && mAnmPrmIdx != 5) {
-        m08EC = (&l_HIO.m92)[talkState] + cM_rndF((&l_HIO.m98)[talkState]);
-        m08F0 = (&l_HIO.m80)[talkState];
+        m08EC = l_HIO.m92[talkState] + cM_rndF(l_HIO.m98[talkState]);
+        m08F0 = l_HIO.m80[talkState];
         setAnm(4, false, 0xF);
     }
-    if (cM_rndF(100.0f) < (&l_HIO.m68)[talkState]) {
+    if (cM_rndF(100.0f) < l_HIO.m68[talkState]) {
         m0F48 = 1;
     } else {
         m0F48 = 0;
-        if (cM_rndF(100.0f) < (&l_HIO.m74)[talkState]) {
+        if (cM_rndF(100.0f) < l_HIO.m74[talkState]) {
             m0F44 = 0.0f;
         } else {
-            m0F44 = cM_rndF((&l_HIO.m5C)[talkState]);
+            m0F44 = cM_rndF(l_HIO.m5C[talkState]);
         }
     }
     m08EA = 0;
@@ -1758,7 +1736,7 @@ void daPz_c::modeDown() {
     } else if (m0740 != 0) {
         m0740 = 0;
 #if VERSION > VERSION_DEMO
-        m0F7C = l_HIO.mFC;
+        m0F7C = l_HIO.mF8[2];
         m0F80 = 0;
         m075C = 0;
         m0768 = 0;
@@ -1924,7 +1902,7 @@ void daPz_c::modeTalkInit() {
     if (mTalkState == 0) {
         m0F80 = 1;
     } else {
-        m0F7C = (&l_HIO.mF8)[mTalkState];
+        m0F7C = l_HIO.mF8[mTalkState];
     }
 #endif
 }
@@ -1943,7 +1921,7 @@ void daPz_c::modeTalk() {
 void daPz_c::modeFollowInit() {
     cLib_onBit<u32>(attention_info.flags, fopAc_Attn_ACTION_SPEAK_e);
     cLib_onBit<u32>(attention_info.flags, fopAc_Attn_LOCKON_TALK_e);
-    m08EC = (&l_HIO.m86)[mTalkState] + cM_rndF((&l_HIO.m8C)[mTalkState]);
+    m08EC = l_HIO.m86[mTalkState] + cM_rndF(l_HIO.m8C[mTalkState]);
     m08F0 = 0xA;
     m08F4 = 0x78;
     setAnm(3, false, 0xF);
@@ -2118,7 +2096,7 @@ bool daPz_c::_execute() {
         if (fopAcM_SearchByName(fpcNm_GND_e, &gnd)) {
             gnd_class* ganon = (gnd_class*)gnd;
             f32 dist = fopAcM_searchActorDistanceXZ(this, dComIfGp_getPlayer(0));
-            if (dist < (&l_HIO.m100)[mTalkState] && ganon->m2CE == 0) {
+            if (dist < l_HIO.m100[mTalkState] && ganon->m2CE == 0) {
                 mEventOrder = 1;
                 modeProc(PROC_INIT_e, MODE_TALK);
             }
@@ -2398,7 +2376,7 @@ void daPz_c::createInit() {
 
     mTalkState = 0;
 #if VERSION > VERSION_DEMO
-    m0F7C = l_HIO.mF8;
+    m0F7C = l_HIO.mF8[0];
     m0F80 = 0;
 #endif
     bodyCreateInit();
