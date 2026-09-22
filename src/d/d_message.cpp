@@ -451,7 +451,7 @@ void dMsg2_yose_select(sub_msg2_class* i_Msg, u8 i_index) {
 }
 
 inline int dMsg2_getShiftY(sub_msg2_class* i_Msg, u8 i_index) {
-    return i_Msg->field_0xeb0 * (3 - i_Msg->field_0xecc[i_index]);
+    return i_Msg->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - i_Msg->field_0xecc[i_index]);
 }
 
 /* 801E86E8-801E8798       .text dMsg2_textPosition__FP14sub_msg2_classUc */
@@ -1003,14 +1003,14 @@ void dDlst_2DMSG2_c::outFontDraw() {
 #else
                 if (scale > actorP->field_0xeb4) {
                     if (actorP->field_0xecc[i] > 1) {
-                        f32 temp = (actorP->field_0xeb0 * (DEMO_SELECT(2, 3) - posY));
+                        f32 temp = (actorP->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - posY));
                         r17 = temp + b.i.y - (f32)(int)(scale / 2);
                     } else {
-                        f32 temp = actorP->field_0xeb0 * DEMO_SELECT(3, 4);
+                        f32 temp = actorP->field_0xeb0 * VERSION_SELECT(3, 3, 4, 4);
                         r17 = (temp + b.i.y - (f32)(int)(scale / 2));
                     }
                 } else {
-                    f32 temp = (actorP->field_0xeb0 * (DEMO_SELECT(2, 3) - actorP->field_0xecc[i] + (posY * 2)));
+                    f32 temp = (actorP->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - actorP->field_0xecc[i] + (posY * 2)));
                     r17 = (temp + b.i.y);
                 }
 #endif
