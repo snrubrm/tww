@@ -214,7 +214,11 @@ BOOL daMgBoard_c::CreateHeap() {
         if (!mpSquidIcon[i]) {
             return FALSE;
         }
+#if VERSION >= VERSION_USA
         mpSquidIcon[i]->init((ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_KAISEN_IKA_01)), (ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_KAISEN_IKA_02)));
+#else
+        mpSquidIcon[i]->init((ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_GAME_SHIP_NODAMAGE)), (ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_GAME_HUNE_DAMAGE)));
+#endif
     }
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 8; ++j) {
