@@ -567,11 +567,10 @@ void daNpc_Ac1_c::shadowDraw() {
     }
 }
 
-// Retain the unused debug drawing colors present in the original actor.
-extern const GXColor l_ac1DebugRed = {255, 0, 0, 128};
-extern const GXColor l_ac1DebugBlue = {0, 0, 255, 128};
-
 BOOL daNpc_Ac1_c::_draw() {
+    // Unused colors, needed for the .rodata section to match.
+    GXColor red = {0xFF, 0x00, 0x00, 0x80};
+    GXColor blue = {0x00, 0x00, 0xFF, 0x80};
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     if (mHidden || mNoDraw) return TRUE;
