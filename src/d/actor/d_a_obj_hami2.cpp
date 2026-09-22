@@ -98,11 +98,15 @@ BOOL daObjHami2::Act_c::Delete() {
 
 /* 00000548-000005E8       .text Mthd_Delete__Q210daObjHami25Act_cFv */
 BOOL daObjHami2::Act_c::Mthd_Delete() {
+#if VERSION == VERSION_DEMO
+    dComIfG_Bgsp()->Release(mStaticBg);
+#else
     if (heap != NULL && mStaticBg != NULL && mStaticBg->ChkUsed()) {
         dComIfG_Bgsp()->Release(mStaticBg);
     }
+#endif
     BOOL result = MoveBGDelete();
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return result;
 }
 
