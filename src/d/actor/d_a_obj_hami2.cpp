@@ -86,7 +86,7 @@ cPhs_State daObjHami2::Act_c::Mthd_Create() {
     if (phase_state == cPhs_COMPLEATE_e) {
         phase_state = MoveBGCreate(M_arcname, dRes_INDEX_HAMI2_DZB_HAMI2B_e, dBgS_MoveBGProc_TypicalRotY, 0x34E0);
         dComIfG_Bgsp()->Regist(mStaticBg, this);
-        JUT_ASSERT(200, (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
+        JUT_ASSERT(DEMO_SELECT(199, 200), (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
     }
     return phase_state;
 }
