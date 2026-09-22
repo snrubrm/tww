@@ -1375,19 +1375,6 @@ void dPa_waveEcallBack::executeAfter(JPABaseEmitter* emitter) {
     mVel = speed;
 }
 
-struct dPa_waveVec : public JGeometry::TVec3<f32> {
-    dPa_waveVec operator*(f32 s) const {
-        dPa_waveVec r(*this);
-        r.scale(s);
-        return r;
-    }
-    dPa_waveVec operator+(const JGeometry::TVec3<f32>& b) const {
-        dPa_waveVec r(*this);
-        r += b;
-        return r;
-    }
-};
-
 /* 8007E484-8007E804       .text draw__17dPa_waveEcallBackFP14JPABaseEmitter */
 void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
     u32 n = emitter->getParticleList()->getNumLinks();
@@ -1410,15 +1397,14 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
     GXSetTevColor(GX_TEVREG0, amb);
     GXSetTevColor(GX_TEVREG1, dif);
 
-    const dPa_waveVec* rot = (const dPa_waveVec*)mRotMtx;
     Vec* collapse = mCollapsePos;
     for (int i = 0; i < 2; i++, collapse++) {
         u = 0.0f;
 #if VERSION == VERSION_DEMO
-        dPa_waveVec out2;
-        out2 = rot[0] * collapse->x + rot[1] * collapse->y + rot[2] * collapse->z;
+        JGeometry::TVec3<f32> out2;
+        out2 = reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[0]) * collapse->x + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[1]) * collapse->y + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[2]) * collapse->z;
 #else
-        dPa_waveVec out2 = rot[0] * collapse->x + rot[1] * collapse->y + rot[2] * collapse->z;
+        JGeometry::TVec3<f32> out2 = reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[0]) * collapse->x + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[1]) * collapse->y + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[2]) * collapse->z;
 #endif
 
         GXBegin(GX_TRIANGLEFAN, GX_VTXFMT0, n + 1);

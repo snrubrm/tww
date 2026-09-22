@@ -252,6 +252,18 @@ struct TVec3<f32> : public Vec {
         return *this;
     }
 
+    TVec3<f32> operator+(const TVec3<f32>& b) const {
+        TVec3<f32> res(*this);
+        res += b;
+        return res;
+    }
+
+    TVec3<f32> operator*(f32 b) const {
+        TVec3<f32> res(*this);
+        res.scale(b);
+        return res;
+    }
+
     inline TVec3<f32>& operator*=(const TVec3<f32>& b) {
         mul(b);
         return *this;
