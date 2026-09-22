@@ -23,9 +23,11 @@
 class J2DTextBox;
 struct fopMsgM_pane_class;
 
-J2DPicture* button_icon[8];
-J2DPicture* button_kage[8];
-s16 buttonTimer[8];
+#define dMsg_OUTFONT_MAX VERSION_SELECT(8, 8, 8, 15)
+
+J2DPicture* button_icon[dMsg_OUTFONT_MAX];
+J2DPicture* button_kage[dMsg_OUTFONT_MAX];
+s16 buttonTimer[dMsg_OUTFONT_MAX];
 J2DTextBox* numberPane[3];
 
 MyScreen* sScreen;
@@ -102,7 +104,7 @@ void dDlst_2DMSG_c::draw() {
 
 /* 8020A950-8020AC40       .text outFontDraw__13dDlst_2DMSG_cFv */
 void dDlst_2DMSG_c::outFontDraw() {
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < dMsg_OUTFONT_MAX; i++) {
         u8 iconNum = mpMsg->mMsgDataProc.getIconNum(i);
         int posX = mpMsg->mMsgDataProc.getIconPosX(i);
         int posY = mpMsg->mMsgDataProc.getIconPosY(i);
@@ -307,7 +309,7 @@ void dMsg_screenDataSetItem(sub_msg_class* i_Msg) {
     fopMsgM_setPaneData(&i_Msg->m0624[6], sScreen->search('lig7'));
     fopMsgM_setPaneData(&i_Msg->m0624[7], sScreen->search('lig8'));
     i_Msg->buffer_p = (ResTIMG*)i_Msg->mpHeap->alloc(0xc00, 0x20);
-    JUT_ASSERT(661, i_Msg->buffer_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(661, 661, 661, 673), i_Msg->buffer_p != NULL);
     if ((i_Msg->mMesgEntry.mTextboxType == 9) && (dItem_data::getTexture(i_Msg->mMsgNo - 101) != NULL)) {
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(i_Msg->buffer_p, 0xc00, 'TIMG', dItem_data::getTexture(i_Msg->mMsgNo - 101), archive);
@@ -574,7 +576,7 @@ void dMsg_screenDataSetTact(sub_msg_class* i_Msg) {
         sScreen->search('b141')->hide();
     }
     if ((i_Msg->mMsgNo == 0x5b3) || (i_Msg->mMsgNo == 0x5b4)) {
-        JUT_ASSERT(1036, dComIfGp_getMelodyNum() <= 7);
+        JUT_ASSERT(VERSION_SELECT(1036, 1036, 1036, 1048), dComIfGp_getMelodyNum() <= 7);
         sScreen2 = new J2DScreen();
         sScreen2->set(mLayout[dComIfGp_getMelodyNum()], dComIfGp_getMsgArchive());
         for (s32 i = 0; i < mBeatNum[dComIfGp_getMelodyNum()]; i++) {
@@ -593,7 +595,14 @@ void dMsg_screenDataSetTact(sub_msg_class* i_Msg) {
     for (s32 i = 0; i < 3; i++) {
         numberPane[i]->setFont(textFont);
     }
-    textOffsetY = 2;
+#if VERSION == VERSION_PAL
+    if (i_Msg->mMsgNo == 0x5b3 || i_Msg->mMsgNo == 0x5b4) {
+        textOffsetY = 8;
+    } else
+#endif
+    {
+        textOffsetY = 2;
+    }
     J2DTextBox::TFontSize fontSize;
     fontSize.mSizeX = g_msgHIO.field_0x70;
     fontSize.mSizeY = g_msgHIO.field_0x70;
@@ -627,7 +636,7 @@ void dMsg_screenDataSetTact(sub_msg_class* i_Msg) {
     i_Msg->m1168 = mDoAud_tact_getBeat();
     i_Msg->m1144 = 0;
     i_Msg->buffer_p = (ResTIMG*)i_Msg->mpHeap->alloc(0x1a280, 0x20);
-    JUT_ASSERT(1128, i_Msg->buffer_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(1128, 1128, 1128, 1145), i_Msg->buffer_p != NULL);
 }
 
 /* 8020DAC0-8020DC78       .text dMsg_screenDataSet__FP13sub_msg_class */
@@ -636,11 +645,11 @@ void dMsg_screenDataSet(sub_msg_class* i_Msg) {
 #if VERSION >= VERSION_USA
     if (fopMsgM_hyrule_language_check(i_Msg->mMsgNo)) {
         textFont = mDoExt_getRubyFont();
-        JUT_ASSERT(1162, textFont != NULL);
+        JUT_ASSERT(VERSION_SELECT(1162, 1162, 1162, 1179), textFont != NULL);
         dMsg_font_flag = 1;
     } else {
         textFont = mDoExt_getMesgFont();
-        JUT_ASSERT(1167, textFont != NULL);
+        JUT_ASSERT(VERSION_SELECT(1167, 1167, 1167, 1184), textFont != NULL);
         dMsg_font_flag = 0;
     }
     rubyFont = textFont;
@@ -652,8 +661,14 @@ void dMsg_screenDataSet(sub_msg_class* i_Msg) {
 #endif
     for (s32 i = 0; i < 3; i++) {
         numberPane[i] = new J2DTextBox("rock_24_20_4i_usa.bfn", "0");
+#if VERSION == VERSION_PAL
+        JUT_ASSERT(1202, numberPane[i] != NULL);
+#endif
     }
     maskPane = new J2DPicture("black.bti");
+#if VERSION == VERSION_PAL
+    JUT_ASSERT(1208, maskPane != NULL);
+#endif
     switch (i_Msg->mMesgEntry.mTextboxType) {
     case 5:
         dMsg_screenDataSetDemo(i_Msg);
@@ -707,7 +722,7 @@ void dMsg_messagePaneHide(sub_msg_class* i_Msg) {
 
 /* 8020DE1C-8020DEDC       .text dMsg_outFontHide__FP13sub_msg_class */
 void dMsg_outFontHide(sub_msg_class*) {
-    for (s32 i = 0; i < 8; i++) {
+    for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
         button_icon[i]->hide();
         button_kage[i]->hide();
         button_icon[i]->rotate(0.0f);
@@ -1481,7 +1496,7 @@ void dMsg_tactGuideShow(sub_msg_class* i_Msg, u8 param_2) {
 void dMsg_numberInput(sub_msg_class* i_Msg) {
     static const char* num_str[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
-    for (s32 i = 0; i < 8; i++) {
+    for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
         if (i_Msg->mMsgDataProc.getIconNum(i) == fopMsgM_Icon_INPUT_e) {
             i_Msg->m10EC = ((i_Msg->m0544[0].pane)->getBounds().i.x + i_Msg->mMsgDataProc.getIconPosX(i));
             i_Msg->m10F0 = ((i_Msg->m0544[0].pane)->getBounds().i.y + (i_Msg->m1104 * (s32)((3 - i_Msg->m1108) + (i_Msg->mMsgDataProc.getIconPosY(i)) * 2)));
@@ -1818,7 +1833,7 @@ void dMsg_messageShow(sub_msg_class* i_Msg) {
     }
     i_Msg->mMsgDataProc.field_0x299 = 1;
     i_Msg->mMsgDataProc.stringSet();
-    for (s32 i = 0; i < 8; i++) {
+    for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
         u8 iconNum = i_Msg->mMsgDataProc.getIconNum(i);
         u32 iconColor = i_Msg->mMsgDataProc.getIconColor(i);
         if (
@@ -2033,7 +2048,7 @@ s32 dMsg_selectProc(sub_msg_class* i_Msg) {
         s32 var_r5 = 0;
         s32 var_r6 = 0;
         s32 var_r11 = 0;
-        for (s32 i = 0; i < 8; i++) {
+        for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
             u8 iconNum = i_Msg->mMsgDataProc.getIconNum(i);
             if (iconNum == fopMsgM_Icon_SELECT_YOKO_LEFT_e) {
                 var_r5 = i_Msg->m0544[0].pane->getBounds().i.x + i_Msg->mMsgDataProc.getIconPosX(i);
@@ -2158,7 +2173,7 @@ s32 dMsg_demoProc(sub_msg_class* i_Msg) {
                         }
                         i_Msg->mMsgDataProc.field_0x299 = 1;
                         i_Msg->mMsgDataProc.stringSet();
-                        for (int j = 0; j < 8; j++) {
+                        for (int j = 0; j < dMsg_OUTFONT_MAX; j++) {
                             u8 iconNum = i_Msg->mMsgDataProc.getIconNum(j);
                             u32 iconColor = i_Msg->mMsgDataProc.getIconColor(j);
                             if (
@@ -2259,7 +2274,7 @@ s32 dMsg_continueProc(sub_msg_class* i_Msg) {
             i_Msg->m1169 = 0;
         }
         i_Msg->head_p = i_Msg->mMsgGet.getMesgHeader(i_Msg->mMsgNo);
-        JUT_ASSERT(4002, i_Msg->head_p);
+        JUT_ASSERT(VERSION_SELECT(4002, 4002, 4002, 4028), i_Msg->head_p);
         pcVar9 = (char*)i_Msg->mMsgGet.getMessage(i_Msg->head_p);
         i_Msg->mpMesgStr = (char*)pcVar9;
         i_Msg->mMesgEntry = i_Msg->mMsgGet.getMesgEntry(i_Msg->head_p);
@@ -2548,7 +2563,7 @@ s32 dMsg_openTactProc(sub_msg_class* i_Msg) {
         }
         i_Msg->mMsgDataProc.field_0x299 = 1;
         i_Msg->mMsgDataProc.stringSet();
-        for (s32 i = 0; i < 8; i++) {
+        for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
             u8 iconNum = i_Msg->mMsgDataProc.getIconNum(i);
             u32 iconColor = i_Msg->mMsgDataProc.getIconColor(i);
             if (
@@ -2696,7 +2711,7 @@ s32 dMsg_outnowProc(sub_msg_class* i_Msg) {
         i_Msg->mMsgDataProc.stringSet();
         i_Msg->m1164 = i_Msg->mMsgDataProc.getStringColor();
         i_Msg->mStatus = (u16)i_Msg->mMsgDataProc.mesgStatus;
-        for (s32 i = 0; i < 8; i++) {
+        for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
             u8 iconNum = i_Msg->mMsgDataProc.getIconNum(i);
             u32 iconColor = i_Msg->mMsgDataProc.getIconColor(i);
             if (
@@ -2980,7 +2995,7 @@ static BOOL dMsg_Delete(sub_msg_class* i_Msg) {
     mDoExt_removeMesgFont();
     mDoExt_removeRubyFont();
 #endif
-    for (s32 i = 0; i < 8; i++) {
+    for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
         delete (J2DPicture*)button_icon[i];
         delete (J2DPicture*)button_kage[i];
     }
@@ -3024,13 +3039,13 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     } else {
         i_Msg->head_p = i_Msg->mMsgGet.getMesgHeader(i_this->mMsgNo);
     }
-    JUT_ASSERT(5416, i_Msg->head_p);
+    JUT_ASSERT(VERSION_SELECT(5416, 5416, 5416, 5450), i_Msg->head_p);
     i_Msg->mpMesgStr = (char*)i_Msg->mMsgGet.getMessage(i_Msg->head_p);
     i_Msg->mMesgEntry = i_Msg->mMsgGet.getMesgEntry(i_Msg->head_p);
     i_Msg->mMsgID = i_Msg->mMsgGet.mGroupID << 8 | i_Msg->mMsgGet.mResMsgNo;
     i_Msg->mMesgCameraTagInfo = dComIfGp_getMesgCameraTagInfo();
     dMsg_screenDataSet(i_Msg);
-    for (s32 i = 0; i < 8; i++) {
+    for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
         button_icon[i] = new J2DPicture("font_07_02.bti");
         button_kage[i] = new J2DPicture("font_07_02.bti");
         fopMsgM_blendInit(button_icon[i], "font_00.bti");
@@ -3043,23 +3058,23 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     }
     arrowPane = new J2DPicture("font_10.bti");
     i_Msg->output_text = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(5444, i_Msg->output_text != NULL);
+    JUT_ASSERT(VERSION_SELECT(5444, 5444, 5444, 5481), i_Msg->output_text != NULL);
     i_Msg->output_rub = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(5447, i_Msg->output_rub != NULL);
+    JUT_ASSERT(VERSION_SELECT(5447, 5447, 5447, 5484), i_Msg->output_rub != NULL);
     i_Msg->output_textSdw = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(5450, i_Msg->output_textSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5450, 5450, 5450, 5487), i_Msg->output_textSdw != NULL);
     i_Msg->output_rubSdw = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(5453, i_Msg->output_rubSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5453, 5453, 5453, 5490), i_Msg->output_rubSdw != NULL);
     i_Msg->select_text = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(5456, i_Msg->select_text != NULL);
+    JUT_ASSERT(VERSION_SELECT(5456, 5456, 5456, 5493), i_Msg->select_text != NULL);
     i_Msg->select_rub = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(5459, i_Msg->select_rub != NULL);
+    JUT_ASSERT(VERSION_SELECT(5459, 5459, 5459, 5496), i_Msg->select_rub != NULL);
     i_Msg->select_textSdw = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(5462, i_Msg->select_textSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5462, 5462, 5462, 5499), i_Msg->select_textSdw != NULL);
     i_Msg->select_rubSdw = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(5465, i_Msg->select_rubSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5465, 5465, 5465, 5502), i_Msg->select_rubSdw != NULL);
     agb_work_area = i_Msg->mpHeap;
-    JUT_ASSERT(5468, agb_work_area != NULL);
+    JUT_ASSERT(VERSION_SELECT(5468, 5468, 5468, 5505), agb_work_area != NULL);
     i_this->mStatus = fopMsgStts_MSG_PREPARING_e;
     i_Msg->m1164 = -1;
     dMsg_value_init(i_Msg);
