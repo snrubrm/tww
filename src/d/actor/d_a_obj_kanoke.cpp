@@ -181,7 +181,7 @@ cPhs_State daObjKanoke_c::createInit() {
         return cPhs_ERROR_e;
     }
     if (mSwitch != 0xff) {
-        if (dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+        if (dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this))) {
             mMode = 7;
             if (mType == 0) {
                 if (dComIfG_Bgsp()->Regist(mpLidBgW, this)) {
