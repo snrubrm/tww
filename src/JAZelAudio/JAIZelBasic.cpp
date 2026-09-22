@@ -152,6 +152,7 @@ JAIZelBasic::JAIZelBasic() {
 
 /* 802A1EB4-802A2F48       .text zeldaGFrameWork__11JAIZelBasicFv */
 void JAIZelBasic::zeldaGFrameWork() {
+#if VERSION > VERSION_JPN
     if (field_0x022d != 0) {
         if (field_0x0028 < 0xFFFFFFFF) {
             field_0x0028++;
@@ -161,6 +162,7 @@ void JAIZelBasic::zeldaGFrameWork() {
     } else {
         field_0x0028 = 0;
     }
+#endif
 
     processLevObjSE();
     cbPracticeProcess();
@@ -412,9 +414,13 @@ void JAIZelBasic::zeldaGFrameWork() {
                 if ((mMainBgmNum + 0x80000000) == 0xA) {
                     vol90 = 1.0f;
                 }
+#if VERSION > VERSION_DEMO
                 if (field_0x0205 == 0) {
                     field_0x0090 = vol90;
                 }
+#else
+                field_0x0090 = vol90;
+#endif
                 if (mpMainBgmSound) {
                     mpMainBgmSound->setVolume(field_0x00ac * (field_0x009c * (field_0x0098 * (field_0x0094 * (field_0x0090 * (field_0x008c * (field_0x0088 * (field_0x0080 * field_0x0084))))))), 0, SOUNDPARAM_Unk0);
                 }
@@ -1828,6 +1834,18 @@ void JAIZelBasic::cbPracticePlay(Vec* pos) {
     f32 volume = calcPosVolume(&position, 2.0f);
     f32 pan = calcPosPanLR(&position);
     f32 dolby = calcPosPanSR(&position, 1.0f);
+#if VERSION == VERSION_DEMO
+    volume *= field_0x00a0;
+    if (mpSubBgmSound) {
+        mpSubBgmSound->setVolume(volume, 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setPan(pan, 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setDolby(dolby, 0, SOUNDPARAM_Unk0);
+    }
+    field_0x009c = 1.0f - volume;
+    if (mpMainBgmSound) {
+        mpMainBgmSound->setVolume(calcMainBgmVol(), 0, SOUNDPARAM_Unk0);
+    }
+#else
     field_0x00a8 = volume;
     if (mpSubBgmSound) {
         mpSubBgmSound->setVolume(calcSubBgmVol(), 0, SOUNDPARAM_Unk0);
@@ -1842,6 +1860,7 @@ void JAIZelBasic::cbPracticePlay(Vec* pos) {
     if (mpMainBgmSound) {
         mpMainBgmSound->setVolume(calcMainBgmVol(), 30, SOUNDPARAM_Unk0);
     }
+#endif
 }
 
 /* 802A61AC-802A6434       .text cbPracticeProcess__11JAIZelBasicFv */
@@ -1879,6 +1898,18 @@ void JAIZelBasic::cbPracticeProcess() {
     f32 volume = calcPosVolume(&position, 2.0f);
     f32 pan = calcPosPanLR(&position);
     f32 dolby = calcPosPanSR(&position, 1.0f);
+#if VERSION == VERSION_DEMO
+    volume *= field_0x00a0;
+    if (mpSubBgmSound) {
+        mpSubBgmSound->setVolume(volume, 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setPan(pan, 0, SOUNDPARAM_Unk0);
+        mpSubBgmSound->setDolby(dolby, 0, SOUNDPARAM_Unk0);
+    }
+    field_0x009c = 1.0f - volume;
+    if (mpMainBgmSound) {
+        mpMainBgmSound->setVolume(calcMainBgmVol(), 90, SOUNDPARAM_Unk0);
+    }
+#else
     field_0x00a8 = volume;
     if (mpSubBgmSound) {
         mpSubBgmSound->setVolume(calcSubBgmVol(), 0, SOUNDPARAM_Unk0);
@@ -1893,6 +1924,7 @@ void JAIZelBasic::cbPracticeProcess() {
     if (mpMainBgmSound) {
         mpMainBgmSound->setVolume(calcMainBgmVol(), 0, SOUNDPARAM_Unk0);
     }
+#endif
 }
 
 /* 802A6434-802A6508       .text cbPracticeStop__11JAIZelBasicFv */
@@ -2062,9 +2094,11 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
             return NULL;
         }
         field_0x01f9 = 1;
+#if VERSION > VERSION_JPN
         if (field_0x0224 == 0x12 && mIslandRoomNo == 0x2C && field_0x0239 == 9 && field_0x0028 < 0x1E) {
             return NULL;
         }
+#endif
     }
     if (i_seNum == JA_SE_OBJ_COL_BRK_WRAILING) {
         if (field_0x01fc == 1) {
@@ -2159,7 +2193,9 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         }
         break;
     case JA_SE_FORCE_BACK:
+#if VERSION > VERSION_DEMO
         field_0x0205 = 1;
+#endif
         stopBattleBgm();
         field_0x008c = 1.0f;
         if (mpMainBgmSound) {
