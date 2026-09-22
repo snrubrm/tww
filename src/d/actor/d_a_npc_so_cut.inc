@@ -442,6 +442,18 @@ void daNpc_So_c::cutMiniGameStart() {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getLinkPlayer();
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
     if (REG8_S(1) == 0) {
+#if VERSION == VERSION_DEMO
+        f32 centerDist = 100.0f;
+        f32 eyeDist = -200.0f;
+        mBCC = player->current.pos;
+        mBCC.x += centerDist * cM_ssin(player->shape_angle.y);
+        mBCC.z += centerDist * cM_scos(player->shape_angle.y);
+        mBCC.y += 50.0f;
+        mBC0 = player->current.pos;
+        mBC0.x += eyeDist * cM_ssin(player->shape_angle.y);
+        mBC0.z += eyeDist * cM_scos(player->shape_angle.y);
+        mBC0.y += 100.0f;
+#else
         mBCC = player->current.pos;
         mBCC.x += 100.0f * cM_ssin(player->shape_angle.y);
         mBCC.z += 100.0f * cM_scos(player->shape_angle.y);
@@ -450,6 +462,7 @@ void daNpc_So_c::cutMiniGameStart() {
         mBC0.x += -200.0f * cM_ssin(player->shape_angle.y);
         mBC0.z += -200.0f * cM_scos(player->shape_angle.y);
         mBC0.y += 100.0f;
+#endif
         camera->mCamera.Reset(mBCC, mBC0);
         camera->mCamera.Start();
     }
@@ -799,8 +812,14 @@ void daNpc_So_c::cutTurnProc() {
 
     s16 ang = ship->shape_angle.y + 0x4000;
     cXyz pos = ship->current.pos;
+#if VERSION == VERSION_DEMO
+    f32 r = -300.0f;
+    pos.x += r * cM_ssin(ang);
+    pos.z += r * cM_scos(ang);
+#else
     pos.x += -300.0f * cM_ssin(ang);
     pos.z += -300.0f * cM_scos(ang);
+#endif
     s16 target = cLib_targetAngleY(&current.pos, &pos);
     cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
     int dist = cLib_distanceAngleS(shape_angle.y, target);
@@ -810,6 +829,32 @@ void daNpc_So_c::cutTurnProc() {
 }
 
 /* 00007114-00007324       .text cutMiniGameWarpStart__10daNpc_So_cFv */
+#if VERSION == VERSION_DEMO
+void daNpc_So_c::cutMiniGameWarpStart() {
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getLinkPlayer();
+    player->changeOriginalDemo();
+    daShip_c* ship = dComIfGp_getShipActor();
+    mBA0 = ship->current.pos;
+    mBAC = ship->shape_angle.y;
+    ship->initStartPos(&mMinigamePos, mMinigameAngle + 0x4000);
+    csXyz shipShape = ship->shape_angle;
+    s16 playerAng = mMinigameAngle + REG8_S(6);
+    player->setPlayerPosAndAngle(&mMinigamePos, playerAng);
+    mSpeed = 0.0f;
+    speedF = mSpeed;
+    int tmp = ship->shape_angle.y + REG12_S(6);
+    int ang = tmp - 0x4000;
+    f32 r = 300.0f;
+    current.pos = mMinigamePos;
+    current.pos.x += r * cM_ssin(ang);
+    current.pos.z += r * cM_scos(ang);
+    mBDB = 1;
+    mTimer = REG12_S(1) + 0xA;
+    camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
+    camera->mCamera.Reset(mBCC, mBC0);
+    camera->mCamera.Start();
+}
+#else
 void daNpc_So_c::cutMiniGameWarpStart() {
 #if VERSION > VERSION_JPN
     JAIZelBasic::getInterface()->field_0x00bf = 1;
@@ -839,6 +884,7 @@ void daNpc_So_c::cutMiniGameWarpStart() {
     camera->mCamera.Reset(mBCC, mBC0);
     camera->mCamera.Start();
 }
+#endif
 
 /* 00007324-00007438       .text cutMiniGameWarpProc__10daNpc_So_cFv */
 void daNpc_So_c::cutMiniGameWarpProc() {
@@ -847,12 +893,21 @@ void daNpc_So_c::cutMiniGameWarpProc() {
     daShip_c* ship = dComIfGp_getShipActor();
     player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
     player->changeDemoParam0(1);
+#if VERSION == VERSION_DEMO
+    int tmp = ship->shape_angle.y + REG12_S(6);
+    int ang = tmp - 0x4000;
+    f32 r = 300.0f;
+    current.pos = ship->current.pos;
+    current.pos.x += r * cM_ssin(ang);
+    current.pos.z += r * cM_scos(ang);
+#else
     int tmp = ship->shape_angle.y + REG12_S(6);
     tmp -= 0x4000;
     s16 ang = tmp;
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
+#endif
     if (cLib_calcTimer(&mTimer) == 0) {
         dComIfGp_evmng_cutEnd(mStaffIdx);
     }
@@ -879,12 +934,21 @@ void daNpc_So_c::cutMiniGameReturnStart() {
 /* 00007524-0000781C       .text cutMiniGameReturnProc__10daNpc_So_cFv */
 void daNpc_So_c::cutMiniGameReturnProc() {
     daShip_c* ship = dComIfGp_getShipActor();
+#if VERSION == VERSION_DEMO
+    int tmp = ship->shape_angle.y + REG12_S(6);
+    int ang = tmp - 0x4000;
+    f32 r = 300.0f;
+    current.pos = ship->current.pos;
+    current.pos.x += r * cM_ssin(ang);
+    current.pos.z += r * cM_scos(ang);
+#else
     int tmp = ship->shape_angle.y + REG12_S(6);
     tmp -= 0x4000;
     s16 ang = tmp;
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
+#endif
     shape_angle.x = 0;
     f32 dist = (mBA0 - current.pos).absXZ();
     if (dist < 400.0f) {
@@ -896,10 +960,15 @@ void daNpc_So_c::cutMiniGameReturnProc() {
         offset.setall(0.0f);
         cXyz pos;
         pos.setall(0.0f);
+#if VERSION == VERSION_DEMO
+        cMtx_YrotS(*calc_mtx, player->shape_angle.y);
+        offset.set(-50.0f + REG0_F(4), 50.0f + REG0_F(5), 100.0f + REG0_F(6));
+#else
         mDoMtx_YrotS(*calc_mtx, player->shape_angle.y);
         offset.x = -50.0f + REG0_F(4);
         offset.y = 50.0f + REG0_F(5);
         offset.z = 100.0f + REG0_F(6);
+#endif
         MtxPosition(&offset, &pos);
         mBC0 = player->current.pos + pos;
         mBCC = player->current.pos;
@@ -963,12 +1032,21 @@ void daNpc_So_c::cutMiniGamePlTurnProc() {
     daShip_c* ship = dComIfGp_getShipActor();
     player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
     player->changeDemoParam0(1);
+#if VERSION == VERSION_DEMO
+    int tmp = ship->shape_angle.y + REG12_S(6);
+    int ang = tmp - 0x4000;
+    f32 r = 300.0f;
+    current.pos = ship->current.pos;
+    current.pos.x += r * cM_ssin(ang);
+    current.pos.z += r * cM_scos(ang);
+#else
     int tmp = ship->shape_angle.y + REG12_S(6);
     tmp -= 0x4000;
     s16 ang = tmp;
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
+#endif
     if (cLib_calcTimer(&mTimer) == 0) {
         dComIfGp_evmng_cutEnd(mStaffIdx);
     }
@@ -990,10 +1068,15 @@ void daNpc_So_c::cutMiniGamePlUpProc() {
     offset.setall(0.0f);
     cXyz pos;
     pos.setall(0.0f);
+#if VERSION == VERSION_DEMO
+    cMtx_YrotS(*calc_mtx, player->shape_angle.y);
+    offset.set(-50.0f + REG0_F(4), 50.0f + REG0_F(5), 100.0f + REG0_F(6));
+#else
     mDoMtx_YrotS(*calc_mtx, player->shape_angle.y);
     offset.x = -50.0f + REG0_F(4);
     offset.y = 50.0f + REG0_F(5);
     offset.z = 100.0f + REG0_F(6);
+#endif
     MtxPosition(&offset, &pos);
     mBC0 = player->current.pos + pos;
     mBCC = player->current.pos;
@@ -1016,6 +1099,18 @@ void daNpc_So_c::initCam() {
         camera->mCamera.Stop();
         camera->mCamera.SetTrimSize(1);
         fopAc_ac_c* actor = dComIfGp_getLinkPlayer();
+#if VERSION == VERSION_DEMO
+        f32 centerDist = 100.0f;
+        f32 eyeDist = -200.0f;
+        mBCC = actor->current.pos;
+        mBCC.x += centerDist * cM_ssin(actor->shape_angle.y);
+        mBCC.z += centerDist * cM_scos(actor->shape_angle.y);
+        mBCC.y += 50.0f;
+        mBC0 = actor->current.pos;
+        mBC0.x += eyeDist * cM_ssin(actor->shape_angle.y);
+        mBC0.z += eyeDist * cM_scos(actor->shape_angle.y);
+        mBC0.y += 100.0f;
+#else
         mBCC = actor->current.pos;
         mBCC.x += 100.0f * cM_ssin(actor->shape_angle.y);
         mBCC.z += 100.0f * cM_scos(actor->shape_angle.y);
@@ -1024,6 +1119,7 @@ void daNpc_So_c::initCam() {
         mBC0.x += -200.0f * cM_ssin(actor->shape_angle.y);
         mBC0.z += -200.0f * cM_scos(actor->shape_angle.y);
         mBC0.y += 100.0f;
+#endif
     }
 }
 
@@ -1035,6 +1131,18 @@ void daNpc_So_c::moveCam() {
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
     fopAc_ac_c* actor = dComIfGp_getLinkPlayer();
     cXyz eye;
+#if VERSION == VERSION_DEMO
+    f32 centerDist = 150.0f;
+    f32 eyeDist = -400.0f;
+    cXyz center = actor->current.pos;
+    center.x += centerDist * cM_ssin(actor->shape_angle.y);
+    center.z += centerDist * cM_scos(actor->shape_angle.y);
+    center.y += 100.0f;
+    eye = actor->current.pos;
+    eye.x += eyeDist * cM_ssin(actor->shape_angle.y);
+    eye.z += eyeDist * cM_scos(actor->shape_angle.y);
+    eye.y += 300.0f;
+#else
     cXyz center = actor->current.pos;
     center.x += 150.0f * cM_ssin(actor->shape_angle.y);
     center.z += 150.0f * cM_scos(actor->shape_angle.y);
@@ -1043,6 +1151,7 @@ void daNpc_So_c::moveCam() {
     eye.x += -400.0f * cM_ssin(actor->shape_angle.y);
     eye.z += -400.0f * cM_scos(actor->shape_angle.y);
     eye.y += 300.0f;
+#endif
     cLib_addCalcPos2(&mBC0, eye, 0.05f, 5.0f);
     cLib_addCalcPos2(&mBCC, center, 0.05f, 5.0f);
     camera->mCamera.Set(mBCC, mBC0);

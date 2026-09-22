@@ -249,7 +249,12 @@ static void* searchTagSo_CB(void* i_actor, void* i_this) {
 fopAc_ac_c* daNpc_So_c::_searchTagSo(fopAc_ac_c* actor) {
     if (fopAcM_GetName(actor) == fpcNm_TAG_SO_e) {
         daTag_So_c* tag = static_cast<daTag_So_c*>(actor);
+#if VERSION == VERSION_DEMO
+        u8 id = tag->m290;
+        if (mTagId == id && tag->m298 != 1) {
+#else
         if (mTagId == tag->m290 && tag->m298 != 1) {
+#endif
             mTagRadius = tag->mRadius;
             mHidePos = tag->current.pos;
             current.pos = mHidePos;
@@ -476,7 +481,11 @@ void daNpc_So_c::offsetAppear() {
 /* 00000D1C-00000E40       .text getMsg__10daNpc_So_cFv */
 u32 daNpc_So_c::getMsg() {
     if (mB0C != 0) {
+#if VERSION == VERSION_DEMO
+        if (l_HIO.m2E != 0 || mB7C == 10) {
+#else
         if (l_HIO.m2E != 0 || mB7C >= 10) {
+#endif
             if (mBD9 != 0) {
                 return 0x32E2;
             }
@@ -559,11 +568,15 @@ u16 daNpc_So_c::next_msgStatus(u32* pMsgNo) {
         fopAcIt_Judge(searchMinigameTagSo_CB, this);
         if (l_HIO.m30 != 0 || mMinigameTagFound != 0) {
             if (dComIfGs_getItem(dInvSlot_BOW_e) != 0xFF && dComIfG_getTimerPtr() == NULL) {
+#if VERSION == VERSION_DEMO
+                *pMsgNo = dLib_setFirstMsg(dSv_event_flag_c::UNK_3A10, 0x32D8, 0x32DC);
+#else
                 if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3A10)) {
                     *pMsgNo = 0x32D8;
                 } else {
                     *pMsgNo = 0x32DC;
                 }
+#endif
             } else {
                 *pMsgNo = 0x32D7;
             }
@@ -1070,7 +1083,9 @@ void daNpc_So_c::modeEventBow() {
             mB0C = 1;
             dComIfGp_event_onEventFlag(dEvtFlag_UNK8_e);
             mBDB = 0;
+#if VERSION > VERSION_DEMO
             dComIfGs_onEventBit(dSv_event_flag_c::UNK_3A10);
+#endif
             camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
             camera->mCamera.Reset(mBCC, mBC0);
             camera->mCamera.Start();
@@ -1145,6 +1160,9 @@ void daNpc_So_c::modeDisappear() {
         mBD8 = 0;
         mBDB = 1;
         modeProcInit(MODE_HIDE_e);
+#if VERSION == VERSION_DEMO
+        modeProcInit(MODE_SWIM_e);
+#endif
 #if VERSION > VERSION_JPN
         gravity = -2.5f;
 #endif
