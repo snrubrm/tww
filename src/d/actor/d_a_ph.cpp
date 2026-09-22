@@ -1149,13 +1149,10 @@ void ph_hane_move(ph_class* i_this) {
     case 10:
         i_this->m0378 = 100.0f;
         i_this->m034A = 0x1000;
-        {
-            s16 zero = 0;
-            i_this->m034C = zero;
-            i_this->m036E = zero;
-            i_this->m0364[0] = 0xF;
-            i_this->m0356[4] = zero;
-        }
+        i_this->m034C = 0;
+        i_this->m036E = 0;
+        i_this->m0364[0] = 0xF;
+        i_this->m0356[4] = 0;
         i_this->m0346++;
         // fallthrough
     case 11:
@@ -1676,20 +1673,19 @@ void ph_damage_dead_move(ph_class* i_this) {
         }
         break;
     case 0x2F: {
-        int zero = 0;
-        actor->shape_angle.x = zero;
-        actor->shape_angle.z = zero;
-        actor->current.angle.x = zero;
-        actor->current.angle.z = zero;
+        actor->shape_angle.x = 0;
+        actor->shape_angle.z = 0;
+        actor->current.angle.x = 0;
+        actor->current.angle.z = 0;
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
         i_this->mBodySph.OffCoSetBit();
         i_this->mBodySph.OffTgSetBit();
         actor->speedF = 0.0f;
         actor->gravity = -3.0f;
-        actor->attention_info.flags = DEMO_SELECT(zero, 0);
-        actor->health = zero;
-        i_this->m0356[4] = zero;
+        actor->attention_info.flags = 0;
+        actor->health = 0;
+        i_this->m0356[4] = 0;
         if (i_this->m02FC.x) {
             anm_init(i_this, PH_BCK_PUCHI_CHAKU, 1.0f, 0, 1.0f, -1, 0);
         }
@@ -1994,15 +1990,12 @@ void ph_water_move(ph_class* i_this) {
     case 0x46:
         i_this->mBodySph.OnCoSetBit();
         i_this->mBodySph.SetTgType(0xFF3DFEFF);
-        {
-            s16 zero = 0;
-            actor->shape_angle.x = zero;
-            actor->shape_angle.z = zero;
-            actor->current.angle.x = zero;
-            actor->current.angle.z = zero;
-            for (int i = 0; i < 7; i++) {
-                i_this->m0356[i] = zero;
-            }
+        actor->shape_angle.x = 0;
+        actor->shape_angle.z = 0;
+        actor->current.angle.x = 0;
+        actor->current.angle.z = 0;
+        for (int i = 0; i < 7; i++) {
+            i_this->m0356[i] = 0;
         }
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
@@ -2146,21 +2139,12 @@ static BOOL daPH_Execute(ph_class* i_this) {
         }
     }
 
-    {
-        f32 x = REG8_F(0);
-        f32 zero = 0.0f;
-        if (x != zero) {
-            i_this->m039C = 8.0f + x;
-            f32 scl = 1.0f + i_this->m039C;
-            actor->scale.setall(scl);
-        }
+    if (REG8_F(0)) {
+        i_this->m039C = 8.0f + REG8_F(0);
+        actor->scale.setall(1.0f + i_this->m039C);
     }
-    {
-        f32 x = REG8_F(1);
-        f32 zero = 0.0f;
-        if (x != zero) {
-            i_this->m03A0 = 5.0f + x;
-        }
+    if (REG8_F(1)) {
+        i_this->m03A0 = 5.0f + REG8_F(1);
     }
 
     switch (i_this->m033F) {
@@ -2210,10 +2194,8 @@ static BOOL daPH_Execute(ph_class* i_this) {
     cMtx_XrotM(*calc_mtx, actor->current.angle.x);
 
     {
-        f32 yOff = i_this->m037C;
-        f32 zero = 0.0f;
-        if (yOff != zero) {
-            if (i_this->m02FC.x != zero) {
+        if (i_this->m037C) {
+            if (i_this->m02FC.x) {
                 f32 lim = 1000.0f;
                 puropera_kaiten(i_this);
                 cLib_addCalc2(&i_this->m037C, 10.0f, 0.5f, 1.0f);
