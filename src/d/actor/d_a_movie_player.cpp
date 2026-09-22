@@ -531,6 +531,8 @@ static u8 __THPReadScaneHeader() {
 }
 
 /* 00000B48-00000EFC       .text __THPReadQuantizationTable */
+// TP's matched d_a_movie_player.cpp (same THP decoder lineage) builds this code with optimization_level 4,
+// switching single functions to another level with push/pop; the TWW unit itself is -O3,p.
 #pragma push
 #pragma optimization_level 4
 #if VERSION == VERSION_DEMO
