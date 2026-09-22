@@ -128,11 +128,15 @@ void hontai_draw(wz_class* i_this) {
                 return;
             }
         }
+#if VERSION <= VERSION_JPN
+        dSnap_RegistFig(DSNAP_TYPE_UNKC4, i_this, 1.0f, 1.0f, 1.0f);
+#else
         if (!i_this->mIsMiniBoss) {
             if (i_this->mAlpha >= 0x80) {
                 dSnap_RegistFig(DSNAP_TYPE_UNKC4, i_this, 1.0f, 1.0f, 1.0f);
             }
         }
+#endif
     }
 
     g_env_light.setLightTevColorType(model, &i_this->tevStr);
@@ -149,9 +153,13 @@ void hontai_draw(wz_class* i_this) {
         for (u16 i = 0; i < miniModelData->getMaterialNum(); i++) {
             miniModelData->getMaterialNodePointer(i)->getTevKColor(3)->mColor.a = i_this->mAlpha;
         }
+#if VERSION <= VERSION_JPN
+        dSnap_RegistFig(DSNAP_TYPE_UNKC5, i_this, 1.0f, 1.0f, 1.0f);
+#else
         if (i_this->mAlpha >= 0x80) {
             dSnap_RegistFig(DSNAP_TYPE_UNKC5, i_this, 1.0f, 1.0f, 1.0f);
         }
+#endif
     }
 
     if (i_this->mEnemyIce.mFreezeTimer > 20) {
@@ -169,6 +177,13 @@ void hontai_draw(wz_class* i_this) {
     }
     i_this->mpBrk->setFrame(frame);
     i_this->mpMorf->entryDL();
+#if VERSION <= VERSION_JPN
+    if (REG8_S(1) != 0 && i_this->mMode == 0x32) {
+        GXColor color = {0xFF, 0x00, 0xFF, 0xFF};
+        cXyz pos = i_this->current.pos;
+        pos.y += 20.0f;
+    }
+#endif
     if (i_this->mIsMiniBoss) {
         i_this->mpMiniMorf->entryDL();
         i_this->mMiniInvisibleModel.entry();
