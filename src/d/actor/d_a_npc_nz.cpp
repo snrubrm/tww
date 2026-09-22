@@ -9,6 +9,7 @@
 #include "d/d_com_inf_game.h"
 #include "d/d_lib.h"
 #include "d/d_item.h"
+#include "d/d_s_play.h"
 
 #include "res/Object/Npcnz.h"
 #include "res/Object/Nz.h"
@@ -101,6 +102,10 @@ BOOL daNpc_Nz_c::TailNodeCallBack(J3DNode* node, int calcTiming) {
 
 /* 000003A4-00000978       .text TailControl__10daNpc_Nz_cFv */
 void daNpc_Nz_c::TailControl() {
+#if VERSION == VERSION_DEMO
+    s16 temp9;
+    int temp7;
+#endif
     cXyz sp64;
     cXyz sp58;
     cXyz sp4C;
@@ -116,8 +121,10 @@ void daNpc_Nz_c::TailControl() {
     mDoMtx_stack_c::multVec(&sp58, &sp40);
 
     int i;
+#if VERSION > VERSION_DEMO
     s16 temp9;
     int temp7;
+#endif
     cXyz* r19 = &field_0x974[1];
     cXyz* r18 = &field_0x9EC[1];
     cXyz* r17 = field_0x934.getPos(0);
@@ -167,7 +174,7 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 /* 00000D18-00000F98       .text _createHeap__10daNpc_Nz_cFv */
 BOOL daNpc_Nz_c::_createHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_bdl_arc_name, dRes_INDEX_NPCNZ_BDL_NZ_e));
-    JUT_ASSERT(0xD0, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(0xD1, 0xD0), modelData != NULL);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
@@ -186,10 +193,10 @@ BOOL daNpc_Nz_c::_createHeap() {
     mpMorf->getModel()->setUserArea((u32)this);
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(0xDA, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0xDB, 0xDA), m_jnt.getHeadJntNum() >= 0);
 
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("mune"));
-    JUT_ASSERT(0xDD, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0xDE, 0xDD), m_jnt.getBackboneJntNum() >= 0);
 
     for(u16 i = 0; i < modelData->getJointNum(); i++) {
         if(i == m_jnt.getHeadJntNum() || i == m_jnt.getBackboneJntNum()) {
@@ -286,7 +293,11 @@ void daNpc_Nz_c::checkOrder() {
 /* 000012D0-000012F4       .text setAttention__10daNpc_Nz_cFv */
 void daNpc_Nz_c::setAttention() {
     attention_info.position = current.pos;
+#if VERSION == VERSION_DEMO
+    attention_info.position.y = eyePos.y + REG10_F(9);
+#else
     attention_info.position.y = eyePos.y;
+#endif
 }
 
 /* 000012F4-000013E8       .text LookBack__10daNpc_Nz_cFv */
@@ -372,6 +383,85 @@ void daNpc_Nz_c::setMtx() {
         return;
     }
 
+#if VERSION == VERSION_DEMO
+    daShopItem_c* item = getShopItem(field_0x909);
+    if(item) {
+        cXyz* pScale = item->getScaleP();
+        field_0xA90 = cLib_maxLimit<int>(field_0xA90 + 1, REG10_S(2) + 20);
+        s16 frame1 = REG10_S(0) + 12;
+        s16 frame2 = REG10_S(1) + 16;
+        s16 frame3 = REG10_S(2) + 18;
+
+        f32 scaleX;
+        f32 scaleY;
+        f32 multX1 = 0.85f + REG10_F(0);
+        f32 multY1 = 1.4f + REG10_F(1);
+        f32 multX2 = 1.1f + REG10_F(2);
+        f32 multY2 = 0.8f + REG10_F(3);
+        f32 multX3 = 1.0f + REG10_F(4);
+        f32 multY3 = 1.0f + REG10_F(5);
+        f32 temp4 = 0.0f;
+        if(field_0xA90 < frame1) {
+            scaleX = field_0xA90 / (f32)frame1;
+            scaleY = field_0xA90 / (f32)frame1;
+            scaleX *= multX1;
+            scaleY *= multY1;
+        }
+        else if(field_0xA90 < frame2) {
+            scaleX = (field_0xA90 - frame1) / (f32)(frame2 - frame1);
+            scaleY = (field_0xA90 - frame1) / (f32)(frame2 - frame1);
+            scaleX = (scaleX * multX2) + (1.0f - scaleX) * multX1;
+            scaleY = (scaleY * multY2) + (1.0f - scaleY) * multY1;
+        }
+        else {
+            scaleX = (field_0xA90 - frame2) / (f32)(frame3 - frame2);
+            scaleY = (field_0xA90 - frame2) / (f32)(frame3 - frame2);
+            scaleX = (scaleX * multX3) + (1.0f - scaleX) * multX2;
+            scaleY = (scaleY * multY3) + (1.0f - scaleY) * multY2;
+        }
+
+        pScale->z = scaleX;
+        pScale->x = scaleX;
+        pScale->y = scaleY;
+
+        J3DModel* pModel = mpMorf->getModel();
+        mDoMtx_stack_c::copy(pModel->getAnmMtx(NPCNZ_NZ_JNT_UDEL3_e));
+        cXyz temp;
+        mDoMtx_stack_c::multVec(&cXyz::Zero, &temp);
+        mDoMtx_stack_c::copy(pModel->getAnmMtx(NPCNZ_NZ_JNT_UDER3_e));
+        cXyz temp2;
+        mDoMtx_stack_c::multVec(&cXyz::Zero, &temp2);
+        cXyz temp3 = temp + temp2;
+
+        switch(field_0x908) {
+            case dItemNo_BIRD_BAIT_5_e:
+                temp4 = -15.0f;
+                break;
+            case dItemNo_HYOI_PEAR_e:
+                temp4 = -5.0f;
+                break;
+            case dItemNo_RED_POTION_e:
+            case dItemNo_BLUE_POTION_e:
+                temp4 = -5.0f;
+                break;
+            case dItemNo_BOMB_10_e:
+            case dItemNo_BOMB_30_e:
+                temp4 = -15.0f;
+                break;
+            case dItemNo_ARROW_10_e:
+            case dItemNo_ARROW_30_e:
+                temp4 = -10.0f;
+                break;
+        }
+
+        temp3 *= 0.5f;
+        temp3.x += REG10_F(10);
+        temp3.y += scaleY * (20.0f + REG10_F(13)) + (-20.0f + REG10_F(11));
+        temp3.z += REG10_F(12);
+        temp3.y += temp4;
+        item->getPosP()->set(temp3);
+    }
+#else
     daShopItem_c* item = getShopItem(field_0x909);
     if(item) {
         cXyz* pScale = item->getScaleP();
@@ -444,6 +534,7 @@ void daNpc_Nz_c::setMtx() {
         temp3.y += temp4;
         item->getPosP()->set(temp3);
     }
+#endif
 }
 
 /* 000017E0-000017E4       .text modeWaitInit__10daNpc_Nz_cFv */
@@ -696,7 +787,12 @@ u16 daNpc_Nz_c::next_msgStatus(u32* pMsgNo) {
                     }
 
                     setAnm(0, false);
+#if VERSION == VERSION_DEMO
+                    int rupee = dComIfGp_getMessageRupee();
+                    dComIfGp_setItemRupeeCount(-rupee);
+#else
                     dComIfGp_setItemRupeeCount(-dComIfGp_getMessageRupee());
+#endif
                     field_0x8F8 = 3;
                     field_0x8FA = dComIfGp_evmng_getEventIdx("DEFAULT_NPC_NZ_GETITEM");
                     dComIfGp_event_setGtItm(field_0x908);
@@ -858,7 +954,8 @@ bool daNpc_Nz_c::_draw() {
         GXColor unusedColor_5609 = {255, 255, 0, 128};
         GXColor unusedColor_5611 = {255, 0, 0, 128};
         GXColor color = {200, 200, 200, 255};
-        field_0x934.update(10, scale.x * 5.0f, color, 6, &tevStr);
+        GXColor& c = color;
+        field_0x934.update(10, scale.x * 5.0f, c, 6, &tevStr);
         dComIfGd_set3DlineMat(&field_0x934);
     }
 
@@ -872,7 +969,9 @@ BOOL daNpc_Nz_c::createInit() {
 
     mAcchCir.SetWall(30.0f, 10.0f);
     mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this),  this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
+#if VERSION > VERSION_DEMO
     mAcch.OnLineCheckNone();
+#endif
     mAcch.SetWallNone();
     mAcch.SetRoofNone();
     gravity = 0.0f;
@@ -897,6 +996,9 @@ BOOL daNpc_Nz_c::createInit() {
     home.pos.x -= cM_ssin(home.angle.y) * 50.0f;
     home.pos.z -= cM_scos(home.angle.y) * 50.0f;
     current.pos = home.pos;
+#if VERSION == VERSION_DEMO
+    mpSmokeEmitter = NULL;
+#endif
     field_0xA88 = -1;
     field_0xA8C = -1;
 
@@ -905,6 +1007,22 @@ BOOL daNpc_Nz_c::createInit() {
 
 /* 00002768-0000282C       .text setSmokeParticle__10daNpc_Nz_cFv */
 void daNpc_Nz_c::setSmokeParticle() {
+#if VERSION == VERSION_DEMO
+    if(mpSmokeEmitter != NULL) {
+        field_0x914.remove();
+        mpSmokeEmitter = NULL;
+    }
+
+    if(mpSmokeEmitter == NULL) {
+        mpSmokeEmitter = dComIfGp_particle_setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &current.pos, &current.angle, 0, 0xB9, &field_0x914, fopAcM_GetRoomNo(this));
+        if(mpSmokeEmitter) {
+            mpSmokeEmitter->setRate(3.0f);
+            mpSmokeEmitter->setSpread(0.2f);
+            mpSmokeEmitter->setAwayFromAxisSpeed(0.2f);
+            mpSmokeEmitter->setMaxFrame(3);
+        }
+    }
+#else
     if(field_0x914.getEmitter() != NULL) {
         field_0x914.remove();
     }
@@ -918,6 +1036,7 @@ void daNpc_Nz_c::setSmokeParticle() {
             emitter->setMaxFrame(3);
         }
     }
+#endif
 }
 
 /* 0000282C-00002830       .text getArg__10daNpc_Nz_cFv */
@@ -927,6 +1046,36 @@ void daNpc_Nz_c::getArg() {
 
 /* 00002830-000028FC       .text _create__10daNpc_Nz_cFv */
 cPhs_State daNpc_Nz_c::_create() {
+#if VERSION == VERSION_DEMO
+    getArg();
+
+    cPhs_State phase1 = dComIfG_resLoad(&mPhs1, m_arc_name);
+    cPhs_State phase2 = dComIfG_resLoad(&mPhs2, m_bdl_arc_name);
+    if(phase1 == cPhs_ERROR_e || phase2 == cPhs_ERROR_e) {
+        return cPhs_ERROR_e;
+    }
+    if(phase1 != cPhs_COMPLEATE_e) {
+        return phase1;
+    }
+    if(phase2 != cPhs_COMPLEATE_e) {
+        return phase2;
+    }
+
+    cPhs_State result = cPhs_COMPLEATE_e;
+    if(result == cPhs_COMPLEATE_e) {
+        fopAcM_SetupActor(this, daNpc_Nz_c);
+
+        if(!fopAcM_entrySolidHeap(this, createHeap_CB, 0x2FE0)) {
+            return cPhs_ERROR_e;
+        }
+
+        if(!createInit()) {
+            return cPhs_ERROR_e;
+        }
+    }
+
+    return result;
+#else
     fopAcM_ct(this, daNpc_Nz_c);
 
     getArg();
@@ -956,6 +1105,7 @@ cPhs_State daNpc_Nz_c::_create() {
     } else {
         return cPhs_COMPLEATE_e;
     }
+#endif
 }
 
 /* 000028FC-00002AF0       .text __ct__10daNpc_Nz_cFv */
@@ -964,12 +1114,19 @@ daNpc_Nz_c::daNpc_Nz_c() {
 
 /* 00002E00-00002E6C       .text _delete__10daNpc_Nz_cFv */
 bool daNpc_Nz_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if(mpSmokeEmitter) {
+        field_0x914.remove();
+        mpSmokeEmitter = NULL;
+    }
+#else
     if(field_0x914.getEmitter()) {
         field_0x914.remove();
     }
+#endif
 
-    dComIfG_resDelete(&mPhs1, m_arc_name);
-    dComIfG_resDelete(&mPhs2, m_bdl_arc_name);
+    dComIfG_resDeleteDemo(&mPhs1, m_arc_name);
+    dComIfG_resDeleteDemo(&mPhs2, m_bdl_arc_name);
 
     return true;
 }
