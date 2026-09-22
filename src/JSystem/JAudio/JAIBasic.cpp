@@ -531,13 +531,13 @@ void JAIBasic::setSeExtParameter(JAISound* sound) {
     if (sound != NULL) {
         u8 format = JAInter::SoundTable::getInfoFormat(sound->mSoundID);
         if (format & 4) {
-            sound->setVolume(((u8*)sound->field_0x40)[12] / 127.0f, 0, 1);
+            sound->setVolume(((SoundInfo*)sound->field_0x40)->mVolume.byteView[0] / 127.0f, 0, 1);
         }
         if (format & 8) {
-            sound->setFxmix(((u8*)sound->field_0x40)[13] / 127.0f, 0, 1);
+            sound->setFxmix(((SoundInfo*)sound->field_0x40)->mVolume.byteView[1] / 127.0f, 0, 1);
         }
         if (format & 2) {
-            sound->setPitch(((f32*)sound->field_0x40)[2], 0, 1);
+            sound->setPitch(((SoundInfo*)sound->field_0x40)->mPitch, 0, 1);
         }
     }
 }
