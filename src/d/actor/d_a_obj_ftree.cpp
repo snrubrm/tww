@@ -281,7 +281,7 @@ u32 message_table[] = {
 };
 } // namespace daObjFtree
 
-int daObjFtree::Act_c::param_get_tree_idx() const {
+inline int daObjFtree::Act_c::param_get_tree_idx() const {
     static const u8 ret_num = 10;
     int idx = daObj::PrmAbstract(this, 4, 0);
     if (idx < ret_num) {
@@ -468,8 +468,7 @@ BOOL daObjFtree::is_broughtID(int id) {
 
 /* 000010F0-00001138       .text is_brought__Q210daObjFtree5Act_cFv */
 BOOL daObjFtree::Act_c::is_brought() {
-    int idx = daObj::PrmAbstract(this, 4, 0);
-    return is_broughtID(idx < 10 ? ret_tree_no[idx] : 0xF);
+    return is_broughtID(param_get_tree_idx());
 }
 
 /* 00001138-000011FC       .text set_broughtID__Q210daObjFtree5Act_cFi */
@@ -498,8 +497,7 @@ void daObjFtree::Act_c::set_broughtID(int id) {
 
 /* 000011FC-00001260       .text set_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::set_brought() {
-    int idx = daObj::PrmAbstract(this, 4, 0);
-    int no = idx < 10 ? ret_tree_no[idx] : 0xF;
+    int no = param_get_tree_idx();
     set_broughtID(no);
     mBroughtSession = 1;
 }
@@ -514,8 +512,7 @@ void daObjFtree::Act_c::unset_broughtID(int id) {
 
 /* 000012D0-00001334       .text unset_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::unset_brought() {
-    int idx = daObj::PrmAbstract(this, 4, 0);
-    int no = idx < 10 ? ret_tree_no[idx] : 0xF;
+    int no = param_get_tree_idx();
     unset_broughtID(no);
     mBroughtSession = 0;
 }
@@ -1106,8 +1103,7 @@ cPhs_State daObjFtree::Act_c::_create() {
     cPhs_State phase = dComIfG_resLoad(&mPhs, M_arcname);
     if (phase == cPhs_COMPLEATE_e) {
         if (fopAcM_entrySolidHeap(this, solidHeapCB, 0)) {
-            int idx = daObj::PrmAbstract(this, 4, 0);
-            mTreeIdx = idx < 10 ? ret_tree_no[idx] : 0xF;
+            mTreeIdx = param_get_tree_idx();
             mHeartPlaced = 0;
             mSpawnedHeartPieceProcessId = fpcM_ERROR_PROCESS_ID_e;
             set_first_stat();

@@ -19,8 +19,6 @@ namespace daObjFtree {
         /* 0x4 */ int mBrought;
     };
 
-    extern const u8 ret_tree_no[10];
-
     static void Ftree_get_water_pos(cXyz*, cXyz*);
     static s16 Ftree_checkXyEventCallBack(void*, int);
     static s16 Ftree_XyEventCallBack(void*, int);
