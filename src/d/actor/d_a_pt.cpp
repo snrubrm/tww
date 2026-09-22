@@ -611,8 +611,7 @@ void pt_attack(pt_class* i_this) {
     cLib_addCalcAngleS2(&actor->current.angle.x, 0, 2, 0x1000);
     cLib_addCalcAngleS2(&actor->current.angle.z, 0, 2, 0x1000);
 
-    u32 ground_hit = i_this->mAcch.m_flags & dBgS_Acch::GROUND_HIT;
-    if (ground_hit && i_this->m314 < -100.0f) {
+    if (i_this->mAcch.ChkGroundHit() && i_this->m314 < -100.0f) {
         i_this->m2D2 = 3;
         if (cM_rndF(1.0f) < 0.5f) {
             i_this->mMode = 1;
@@ -632,7 +631,7 @@ void pt_attack(pt_class* i_this) {
         actor->speed.setall(0.0f);
         break;
     case 1:
-        if (ground_hit) {
+        if (i_this->mAcch.ChkGroundHit()) {
             if (cM_rndF(1.0f) < 0.02f) {
                 i_this->m2D2 = 3;
                 i_this->mMode = 0;
@@ -740,7 +739,7 @@ switch_fail:
     return;
 
 do_wait:
-    if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 100.0f * (f32)(u32)i_this->mNoticeRange) {
+    if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 100.0f * i_this->mNoticeRange) {
         pos = actor->current.pos;
         pos.y += 100.0f;
         lin_chk.Set(&camera->view.mLookat.mEye, &pos, actor);
