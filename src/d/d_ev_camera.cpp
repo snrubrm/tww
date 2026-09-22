@@ -2663,12 +2663,8 @@ bool dCamera_c::tornadoWarpEvCamera() {
     cXyz eye;
 
     switch (work->mState) {
-    case 2:
-        goto case_2;
     case 3:
         break;
-    case 1:
-        goto case_1;
     case 0:
     default: {
         work->mShip = fopAcM_SearchByName(fpcNm_SHIP_e);
@@ -2702,7 +2698,7 @@ bool dCamera_c::tornadoWarpEvCamera() {
         }
         work->mEyeTarget = eye;
     }
-    case_1: {
+    case 1: {
         mViewCache.mCenter +=
             (relationalPos(mpPlayerActor, &centerOff0) - mViewCache.mCenter) * 0.25f;
         f32 t = 1.0f / (f32)work->mCounter;
@@ -2720,7 +2716,7 @@ bool dCamera_c::tornadoWarpEvCamera() {
         work->mState = 2;
         work->mCounter = timer2;
     }
-    case_2: {
+    case 2: {
         mViewCache.mCenter +=
             (relationalPos(mpPlayerActor, &centerOff1) - mViewCache.mCenter) * 0.25f;
         eye = work->mEyeTarget;
