@@ -1666,7 +1666,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_mmusic"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01"), "d_a_mo2"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_mozo"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_mt"),
+    ActorRel(NonMatching, "d_a_mt"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_ac1"),
     ActorRel(Matching,    "d_a_npc_ah"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_aj1"),
