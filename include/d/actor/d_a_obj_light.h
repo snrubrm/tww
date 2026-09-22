@@ -38,7 +38,7 @@ namespace daObjLight {
         static s16 get_light_angle();
         static s16 get_light_dif_angle();
         static BOOL set_light_dif_angle_LOD(s16);
-        static BOOL set_light_dif_angle_FRRS(s16);
+        static bool set_light_dif_angle_FRRS(s16);
 
         static s16 M_S_light_angle;
         static u32 M_S_pre_set_frame_LOD;
@@ -51,7 +51,7 @@ public:
         /* 0x290 */ request_of_phase_process_class mPhase;
         /* 0x298 */ J3DModel* mpModel[3];
         /* 0x2A4 */ dBgW* M_bgw[LIGHT_BGW_NUM];
-        /* 0x2A8 */ Mtx mBgMtx;
+        /* 0x2A8 */ Mtx mBgMtx[LIGHT_BGW_NUM];
         /* 0x2D8 */ s16 mLightAngle;
         /* 0x2DA */ s16 mLightTimer;
         /* 0x2DC */ s16 mLit;

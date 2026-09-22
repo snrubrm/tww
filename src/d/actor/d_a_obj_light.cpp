@@ -55,7 +55,7 @@ bool daObjLight::Act_c::create_heap() {
     M_bgw[LIGHT_LIGHT_BASE] = new dBgW;
     JUT_ASSERT(283, M_bgw[LIGHT_LIGHT_BASE] != 0);
     if (M_bgw[LIGHT_LIGHT_BASE] != NULL) {
-        M_bgw[LIGHT_LIGHT_BASE]->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx);
+        M_bgw[LIGHT_LIGHT_BASE]->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx[LIGHT_LIGHT_BASE]);
     }
     return mdl_data_lighthouse != NULL && mdl_data_light != NULL && M_bgw[LIGHT_LIGHT_BASE] != NULL;
 #else
@@ -75,7 +75,7 @@ bool daObjLight::Act_c::create_heap() {
     JUT_ASSERT(284, bgw_data != 0);
     if (bgw_data != NULL) {
         M_bgw[LIGHT_LIGHT_BASE] = new dBgW;
-        if (M_bgw[LIGHT_LIGHT_BASE] != NULL && M_bgw[LIGHT_LIGHT_BASE]->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx) == 1) {
+        if (M_bgw[LIGHT_LIGHT_BASE] != NULL && M_bgw[LIGHT_LIGHT_BASE]->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx[LIGHT_LIGHT_BASE]) == 1) {
             return false;
         }
     }
@@ -269,7 +269,7 @@ void daObjLight::Act_c::set_mtx() {
             mDoMtx_stack_c::transS(pos);
             mDoMtx_stack_c::YrotM(shape_angle.y + mLightAngle);
             mpModel[i]->setBaseTRMtx(mDoMtx_stack_c::get());
-            MTXCopy(mDoMtx_stack_c::get(), (&mBgMtx)[i]);
+            MTXCopy(mDoMtx_stack_c::get(), mBgMtx[i]);
         } else if (i == 1) {
             cXyz pos = offset[i];
             mDoMtx_stack_c::transS(current.pos);
@@ -298,7 +298,7 @@ void daObjLight::Act_c::renew_angle() {
     } else if (dKy_daynight_check() == 1) {
         if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_1C02)) {
             mLightAngle += 0x40;
-            if (!(u8)set_light_dif_angle_FRRS(mLightAngle)) mLightAngle = get_light_dif_angle();
+            if (!set_light_dif_angle_FRRS(mLightAngle)) mLightAngle = get_light_dif_angle();
         } else mLightAngle += 0x80;
         mDoAud_seStart(JA_SE_OBJ_L_HOUSE_ROUND, &current.pos);
     } else mLightAngle = 0x4000;
