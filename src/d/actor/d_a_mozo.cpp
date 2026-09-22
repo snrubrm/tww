@@ -699,7 +699,7 @@ cPhs_State daMozo_c::_create() {
 
 /* 000023B0-0000242C       .text _delete__8daMozo_cFv */
 bool daMozo_c::_delete() {
-    dComIfG_resDelete(&mPhs, "Mozo");
+    dComIfG_resDeleteDemo(&mPhs, "Mozo");
     mDoAud_seDeleteObject(&mSePos);
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
