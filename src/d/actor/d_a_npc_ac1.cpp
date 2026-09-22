@@ -91,7 +91,7 @@ void daNpc_Ac1_c::nodeAc1Control(J3DNode* node, J3DModel* model) {
     if (joint == m_arm_L_jnt_num) MTXCopy(mDoMtx_stack_c::get(), mLeftShoulder);
     if (joint == m_arm_R_jnt_num) MTXCopy(mDoMtx_stack_c::get(), mRightShoulder);
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 bool daNpc_Ac1_c::init_AC1_0() {
