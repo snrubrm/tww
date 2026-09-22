@@ -356,6 +356,7 @@ public:
     f32 CrawlEndDistance() { return m098; }
     f32 UnkAngle0A4() { return m0A4; }
     int UnkTimer0A8() { return m0A8; }
+    f32 UnkCushion028() { return m028; }
     f32 CinemaScopeTrimHeight() { return mTrimCineScopeHeight; }
     f32 VistaTrimHeight() { return mTrimVistaHeight; }
     f32 ForceLockOffTimer() { return mForceLockOffTimer; }

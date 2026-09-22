@@ -3582,9 +3582,10 @@ bool dCamera_c::lockonCamera(s32 param_1) {
     f32 f30 = 0.05f;
     int iVar15 = mCamSetup.ChargeTimer();
     f32 fVar22 = mCamSetup.ChargeBRatio();
-    cSAngle local_250 = cSAngle(mCamSetup.m0A4);
-    int iVar16 = mCamSetup.m0A8;
+    cSAngle local_250 = cSAngle(mCamSetup.UnkAngle0A4());
+    s32 iVar16 = mCamSetup.UnkTimer0A8();
     f32 fVar1 = mCamSetup.ChargeLatitude();
+    f32 f29 = 0.05f;
     f32 fVar2 = mCamParam.Val(param_1 ,dCamStyleParam_UNK4);
     f32 fVar21 = mCamParam.Val(param_1 ,dCamStyleParam_UNK3);
     dAttention_c& attn = dComIfGp_getAttention();
@@ -3711,7 +3712,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
 
     if (lineBGCheckBack(&mViewCache.mCenter, &local_108, 0x7f) && lineBGCheck(&mViewCache.mEye, &mViewCache.mCenter, 0x7f)) {
         bVar6 = true;
-        work->m388 = 0x3c;
+        work->m388 = r28;
     }
 
     if (work->m388) {
@@ -3722,7 +3723,11 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         bVar6 = true;
     }
 
+#if VERSION == VERSION_DEMO
+    f32 fVar5 = 1.0f - std::fabsf(mStickCPosYLast);
+#else
     f32 fVar5 = 1.0f - (f32)fabs(mStickCPosYLast);
+#endif
     dCamMath::customRBRatio(mCamParam.RadiusRatio(mViewCache.mDirection.R()), fVar3);
 
     if (chkFlag(0x10)) {
@@ -3800,7 +3805,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         else {
             acStack_278.Val(-15.0f);
         }
-        acStack_26c += (local_230.U().Inv() + acStack_278 - acStack_26c) * 0.05f;
+        acStack_26c += (local_230.U().Inv() + acStack_278 - acStack_26c) * f30;
     }
     else {
         if (!mpLockonTarget) {
@@ -3813,7 +3818,8 @@ bool dCamera_c::lockonCamera(s32 param_1) {
             }
             else {
                 f32 fVar7 = (f32)m11C / (f32)iVar15;
-                f32 base = mCamParam.Val(param_1, dCamStyleParam_UNK21) * dCamMath::customRBRatio(-((f32)local_274.Val() / (f32)iVar10), fVar21);
+                f32 r = (f32)local_274.Val() / (f32)iVar10;
+                f32 base = mCamParam.Val(param_1, dCamStyleParam_UNK21) * dCamMath::customRBRatio(-r, fVar21);
                 dVar17 = (base + (1.0f - fVar7) * (fVar22 - base));
             }
         }
@@ -3877,10 +3883,10 @@ bool dCamera_c::lockonCamera(s32 param_1) {
                     playerActor = NULL;
                 }
                 if (mpLockonTarget == playerActor && m784) {
-                    local_270 -= local_270 * mCamSetup.m028;
+                    local_270 -= local_270 * mCamSetup.UnkCushion028();
                 }
                 else {
-                    local_270 += (mCamParam.LockonLatitude(fVar4) - local_270) * mCamSetup.m028;
+                    local_270 += (mCamParam.LockonLatitude(fVar4) - local_270) * mCamSetup.UnkCushion028();
                 }
                 if (mpLockonTarget && check_owner_action(mPadId, daPyStts0_UNK400_e)) {
                     cXyz local_12c = attentionPos(mpLockonTarget);
@@ -3920,7 +3926,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         if (radiusOk) {
             fVar22 = local_244;
         } else {
-            fVar22 = fVar2 + (local_244 - fVar2) * 0.05f;
+            fVar22 = fVar2 + f29 * (local_244 - fVar2);
         }
     }
 
