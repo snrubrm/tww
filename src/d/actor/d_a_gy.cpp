@@ -31,6 +31,10 @@ const char daGy_c::m_arc_name[] = "Gy";
 
 static daGy_HIO_c l_HIO;
 
+#if VERSION == VERSION_DEMO
+#define mHeadSph mSph[5]
+#endif
+
 static dCcD_SrcSph l_sph_head_src = {
     // dCcD_SrcGObjInf
     {
@@ -153,11 +157,11 @@ daGy_HIO_c::daGy_HIO_c() {
     m198 = 1;
     m40 = 60.0f;
     m44 = 2500.0f;
-    m74 = 70.0f;
-    m78 = 70.0f;
-    m7C = 80.0f;
-    m80 = 70.0f;
-    m84 = 70.0f;
+    m74[0] = 70.0f;
+    m74[1] = 70.0f;
+    m74[2] = 80.0f;
+    m74[3] = 70.0f;
+    m74[4] = 70.0f;
     m88 = 110.0f;
     m8C = 100.0f;
     m90 = 1.0f;
@@ -503,6 +507,78 @@ void daGy_c::setAnm() {
     dLib_setAnm(m_arc_name, mpMorf, &mAnmIdx, &mPrmIdx, &mOldPrmIdx, a_anm_idx_tbl, a_anm_prm_tbl, false);
 }
 
+#if VERSION == VERSION_DEMO
+/* 00000C7C-00000F3C       .text setCollision__6daGy_cFv */
+void daGy_c::setCollision() {
+    for (int i = 0; i < 5; i++) {
+        int jnt;
+        switch (i) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            jnt = 10;
+            break;
+        }
+        mSph[i].SetR(l_HIO.m74[i] * l_HIO.m90);
+        mSph[i].SetC(m11C4[jnt]);
+        dComIfG_Ccsp()->Set(&mSph[i]);
+    }
+    mHeadSph.SetR(l_HIO.m88 * l_HIO.m90);
+    mHeadSph.SetC(mD08);
+    mCps.SetStartEnd(m89C, m11C4[5]);
+    mCps.SetR(l_HIO.m8C * l_HIO.m90);
+    dComIfG_Ccsp()->Set(&mCps);
+
+    if (m2B0 == 3) {
+        int frame = mpMorf->getFrame();
+        if (mPrmIdx == 0xB && frame < 0x12) {
+            mHeadSph.OnAtSetBit();
+            mHeadSph.OnAtHitBit();
+            mHeadSph.SetAtAtp(2);
+            mHeadSph.SetAtSpl(dCcG_At_Spl_UNK1);
+            mHeadSph.SetAtSe(6);
+            mHeadSph.OffCoSetBit();
+        } else {
+            mHeadSph.OffAtSetBit();
+            mHeadSph.OffAtHitBit();
+            mHeadSph.SetAtAtp(0);
+            mHeadSph.OnCoSetBit();
+        }
+    } else if (m2B0 == 2 || m2B0 == 5) {
+        if (mpCtrl->m320 == 1) {
+            if (mHeadSph.ChkCoHit()) {
+                fopAc_ac_c* ac = mHeadSph.GetCoHitAc();
+                if (fopAcM_GetName(ac) == fpcNm_SHIP_e) {
+                    mHeadSph.OnAtSetBit();
+                    mHeadSph.OnAtHitBit();
+                    mHeadSph.SetAtAtp(2);
+                    mHeadSph.SetAtSpl(dCcG_At_Spl_UNK1);
+                    mHeadSph.SetAtSe(6);
+                }
+            } else {
+                mHeadSph.OffAtSetBit();
+                mHeadSph.OffAtHitBit();
+                mHeadSph.SetAtAtp(0);
+            }
+            mHeadSph.OnCoSetBit();
+        }
+    } else {
+        mHeadSph.OffAtSetBit();
+        mHeadSph.OffAtHitBit();
+        mHeadSph.SetAtAtp(0);
+        mHeadSph.OnCoSetBit();
+        if (mHeadSph.ChkCoHit()) {
+            if (m2B0 != 9 && m2B0 != 8) {
+                modeDiveInit();
+            }
+        }
+    }
+
+    dComIfG_Ccsp()->Set(&mHeadSph);
+}
+#else
 /* 00000C7C-00000E74       .text setAtCollision__6daGy_cFv */
 void daGy_c::setAtCollision() {
     mHeadSph.SetR(l_HIO.m88 * l_HIO.m90);
@@ -565,6 +641,7 @@ void daGy_c::setCollision() {
     mCps.SetR(l_HIO.m8C * l_HIO.m90);
     dComIfG_Ccsp()->Set(&mCps);
 }
+#endif
 
 /* 00000F3C-00000FC4       .text setAimSpeedF__6daGy_cFv */
 void daGy_c::setAimSpeedF() {
@@ -1141,6 +1218,7 @@ void daGy_c::modeProcCall() {
     (this->*mode_proc[m2B0])();
 }
 
+#if VERSION > VERSION_DEMO
 /* 00002E24-00003004       .text createWave__6daGy_cFv */
 void daGy_c::createWave() {
     static JGeometry::TVec3<f32> wave_l_direction(0.5f, 1.0f, -0.3f);
@@ -1164,6 +1242,7 @@ void daGy_c::createWave() {
         dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPSPLASH00, &mDFC, &mE08, NULL, 0xFF, &mDE0);
     }
 }
+#endif
 
 /* 00003004-00003268       .text setWave__6daGy_cFv */
 void daGy_c::setWave() {
@@ -1262,6 +1341,17 @@ void daGy_c::checkTgHit() {
 
     cCcD_Obj* hit_obj = mCps.GetTgHitObj();
     cXyz hit_pos = *mCps.GetTgHitPosP();
+#if VERSION == VERSION_DEMO
+    if (hit_obj == NULL) {
+        for (int i = 0; i < 6; i++) {
+            hit_obj = mSph[i].GetTgHitObj();
+            hit_pos = *mSph[i].GetTgHitPosP();
+            if (hit_obj != NULL) {
+                break;
+            }
+        }
+    }
+#else
     if (hit_obj == NULL) {
         hit_obj = mHeadSph.GetTgHitObj();
         hit_pos = *mHeadSph.GetTgHitPosP();
@@ -1270,6 +1360,7 @@ void daGy_c::checkTgHit() {
         hit_obj = mSph.GetTgHitObj();
         hit_pos = *mSph.GetTgHitPosP();
     }
+#endif
     if (hit_obj == NULL) {
         return;
     }
@@ -1289,9 +1380,11 @@ void daGy_c::checkTgHit() {
         mCE8 = 9;
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
         m4FC = 10;
+#if VERSION > VERSION_DEMO
         mDE0.remove();
         mD18.remove();
         mD7C.remove();
+#endif
         damaged = 0;
     } else if (atType & AT_TYPE_FIRE_ARROW) {
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
@@ -1302,9 +1395,11 @@ void daGy_c::checkTgHit() {
         mCE8 = 0xB;
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
         m500 = 10;
+#if VERSION > VERSION_DEMO
         mDE0.remove();
         mD18.remove();
         mD7C.remove();
+#endif
         damaged = 0;
     } else if (atType & AT_TYPE_HOOKSHOT) {
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
@@ -1378,6 +1473,40 @@ f32 daGy_c::getWaterY() {
 
 /* 000039AC-00004264       .text _execute__6daGy_cFv */
 bool daGy_c::_execute() {
+#if VERSION == VERSION_DEMO
+    shape_angle = current.angle;
+    if (enemy_ice(&mEnemyIce)) {
+        J3DModel* model = mpMorf->getModel();
+        model->setBaseTRMtx(mDoMtx_stack_c::get());
+        mpMorf->calc();
+        return true;
+    }
+
+    lineCheck(&current.pos, &mE84);
+    daGy_Ctrl_c* ctrl = mpCtrl;
+    if (ctrl == NULL) {
+        fopAcM_delete(this);
+        return true;
+    }
+    if (mE80 != 0) {
+        modeDiveInit();
+    }
+    if (m2B0 != 0 && ctrl->m324 == 3) {
+        modeDiveInit();
+    }
+    m2BC = ctrl->m290[m2AC];
+
+    mpMorf->play(NULL, 0, 0);
+    mpMorf->calc();
+    checkTgHit();
+
+    if (gravity == 0.0f) {
+        cLib_addCalc2(&m4E4, m4E8, m918, m4EC);
+    }
+    cLib_addCalc2(&speedF, mAimSpeedF, 0.3f, 4.0f);
+    setCollision();
+    setAnm();
+#else
     mpCtrl = NULL;
     fpc_ProcID parent_id = fopAcM_GetLinkId(this);
     if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
@@ -1442,6 +1571,7 @@ bool daGy_c::_execute() {
     }
     cLib_addCalc2(&speedF, mAimSpeedF, 0.3f, 4.0f);
     setAnm();
+#endif
 
     if (l_HIO.m97 != 0) {
         cXyz pos = current.pos;
@@ -1651,6 +1781,77 @@ bool daGy_c::_draw() {
 }
 
 /* 000046C8-00004920       .text createInit__6daGy_cFv */
+#if VERSION == VERSION_DEMO
+void daGy_c::createInit() {
+    mCF8 = ZeroQuat;
+    gbaName = 0x1D;
+    scale.setall(l_HIO.m90);
+    m4FC = -1;
+    m500 = -1;
+    mEnemyIce.mpActor = this;
+    mEnemyIce.m00C = 1;
+    mEnemyIce.mWallRadius = 0.0f;
+    mEnemyIce.mCylHeight = 0.0f;
+    itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("GyCtrl", 0);
+    attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+    attention_info.distances[fopAc_Attn_TYPE_BATTLE_e] = 0x22;
+    mPrmIdx = 1;
+    m918 = l_HIO.m174;
+    m8EC = -1;
+
+    static JGeometry::TVec3<f32> wave_l_direction(0.5f, 1.0f, -0.3f);
+    static JGeometry::TVec3<f32> wave_r_direction(-0.5f, 1.0f, -0.3f);
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPWAVE00, &mDFC, &mE08, NULL, 0xFF, &mD18);
+    if (mD18.getEmitter() != NULL) {
+        mD18.getEmitter()->setDirection(wave_l_direction);
+    }
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPWAVE00, &mDFC, &mE08, NULL, 0xFF, &mD7C);
+    if (mD7C.getEmitter() != NULL) {
+        mD7C.getEmitter()->setDirection(wave_r_direction);
+    }
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPSPLASH00, &mDFC, &mE08, NULL, 0xFF, &mDE0);
+
+    m4E4 = l_HIO.mA0;
+    modeDiveInit();
+    m2BC = current.pos;
+
+    for (int i = 0; i < mpMorf->getModel()->getModelData()->getJointNum(); i++) {
+    }
+
+    setMtx();
+    mpMorf->calc();
+    mAcchCir.SetWall(30.0f, 30.0f);
+    mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mAcch.SetWallNone();
+    mAcch.SetRoofNone();
+    gravity = -2.5f;
+    fopAcM_posMoveF(this, NULL);
+    fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
+
+    fpc_ProcID parent_id = fopAcM_GetLinkId(this);
+    if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
+        fopAc_ac_c* actor = fopAcM_SearchByID(parent_id);
+        if ((actor != NULL && fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_GY_CTRL_e) ||
+            fopAcM_GetName(actor) == fpcNm_GY_CTRLB_e)
+        {
+            mpCtrl = (daGy_Ctrl_c*)actor;
+            m2AC = mpCtrl->m31C;
+            mpCtrl->m31C++;
+        }
+    }
+
+    mStts.Init(0x64, 0x64, this);
+    for (int i = 0; i < 6; i++) {
+        mSph[i].Set(l_sph_src);
+        mSph[i].SetStts(&mStts);
+    }
+    mCps.Set(l_cps_src);
+    mCps.SetStts(&mStts);
+    fopAcM_setStageLayer(this);
+    max_health = 4;
+    health = max_health;
+}
+#else
 void daGy_c::createInit() {
     mCF8 = ZeroQuat;
     gbaName = 0x1D;
@@ -1696,6 +1897,7 @@ void daGy_c::createInit() {
     health = max_health;
     createWave();
 }
+#endif
 
 /* 00004920-00004A80       .text _create__6daGy_cFv */
 cPhs_State daGy_c::_create() {
@@ -1707,6 +1909,7 @@ cPhs_State daGy_c::_create() {
             return cPhs_ERROR_e;
         }
 
+#if VERSION > VERSION_DEMO
         fpc_ProcID parent_id = fopAcM_GetLinkId(this);
         if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
             fopAc_ac_c* actor;
@@ -1738,6 +1941,7 @@ cPhs_State daGy_c::_create() {
         } else {
             return cPhs_ERROR_e;
         }
+#endif
 
         if (!fopAcM_entrySolidHeap(this, createHeap_CB, 0x3FA0)) {
             return cPhs_ERROR_e;

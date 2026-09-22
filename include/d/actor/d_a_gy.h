@@ -16,13 +16,19 @@ class JntHit_c;
 class J3DNode;
 class J3DModel;
 
+#if VERSION == VERSION_DEMO
+class daGy_c : public fopAc_ac_c {
+#else
 class daGy_c : public fopEn_enemy_c {
+#endif
 public:
     void _nodeControl(J3DNode*, J3DModel*);
     BOOL _createHeap();
     void setMtx();
     void setAnm();
+#if VERSION > VERSION_DEMO
     void setAtCollision();
+#endif
     void setCollision();
     void setAimSpeedF();
     void modeDiveInit();
@@ -46,7 +52,9 @@ public:
     void modeDeleteBombInit();
     void modeDeleteBomb();
     void modeProcCall();
+#if VERSION > VERSION_DEMO
     void createWave();
+#endif
     void setWave();
     void lineCheck(cXyz*, cXyz*);
     void checkTgHit();
@@ -84,15 +92,24 @@ public:
     /* 0x504 */ u8 m504;
     /* 0x505 */ u8 m505[0x508 - 0x505];
     /* 0x508 */ f32 m508;
+#if VERSION == VERSION_DEMO
+    /* 0x4F0 */ dCcD_Sph mSph[6];
+#else
     /* 0x50C */ dCcD_Sph mHeadSph;
     /* 0x638 */ dCcD_Sph mSph;
+#endif
     /* 0x764 */ dCcD_Cps mCps;
     /* 0x89C */ cXyz m89C;
     /* 0x8A8 */ dCcD_Stts mStts;
+#if VERSION == VERSION_DEMO
+    /* 0xD78 */ cXyz mD78[6];
+#endif
     /* 0x8E4 */ u32 m8E4;
     /* 0x8E8 */ u8 m8E8[0x8EC - 0x8E8];
     /* 0x8EC */ int m8EC;
+#if VERSION > VERSION_DEMO
     /* 0x8F0 */ int m8F0;
+#endif
     /* 0x8F4 */ s16 m8F4;
     /* 0x8F6 */ u8 m8F6[0x8F8 - 0x8F6];
     /* 0x8F8 */ cXyz m8F8;
@@ -108,6 +125,9 @@ public:
     /* 0xCE4 */ JntHit_c* mpJntHit;
     /* 0xCE8 */ u8 mCE8;
     /* 0xCE9 */ u8 mCE9[0xCEC - 0xCE9];
+#if VERSION == VERSION_DEMO
+    /* 0x11C4 */ cXyz m11C4[15];
+#endif
     /* 0xCEC */ cXyz mCEC;
     /* 0xCF8 */ Quaternion mCF8;
     /* 0xD08 */ cXyz mD08;
@@ -162,11 +182,7 @@ public:
     /* 0x068 */ f32 m68;
     /* 0x06C */ f32 m6C;
     /* 0x070 */ f32 m70;
-    /* 0x074 */ f32 m74;
-    /* 0x078 */ f32 m78;
-    /* 0x07C */ f32 m7C;
-    /* 0x080 */ f32 m80;
-    /* 0x084 */ f32 m84;
+    /* 0x074 */ f32 m74[5];
     /* 0x088 */ f32 m88;
     /* 0x08C */ f32 m8C;
     /* 0x090 */ f32 m90;
@@ -246,7 +262,7 @@ public:
     /* 0x19A */ u8 m19A[0x19C - 0x19A];
 }; // size = 0x19C
 
-STATIC_ASSERT(sizeof(daGy_c) == 0xE90);
+STATIC_ASSERT(sizeof(daGy_c) == DEMO_SELECT(0x141C, 0xE90));
 STATIC_ASSERT(sizeof(daGy_HIO_c) == DEMO_SELECT(0x1A0, 0x19C));
 
 #endif /* D_A_GY_H */
