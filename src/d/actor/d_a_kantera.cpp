@@ -74,7 +74,11 @@ static BOOL daKantera_Draw(kantera_class* i_this) {
         J3DModel* pModel2 = i_this->mpModel1;
         g_env_light.setLightTevColorType(pModel2, &i_this->actor.tevStr);
         i_this->mpBrkAnm1->entry(pModel2->getModelData());
+#if VERSION == VERSION_DEMO
+        mDoExt_modelUpdateDL(pModel2);
+#else
         mDoExt_modelEntryDL(pModel2);
+#endif
 
         MtxTrans(i_this->mBonPos.x, i_this->mBonPos.y, i_this->mBonPos.z, 0);
         f32 fVar2 = i_this->mBonScale * 4.06f * 0.25f;
@@ -342,8 +346,14 @@ void kantera_move(kantera_class* i_this) {
             }
 
             static cXyz e_scale(1.0f, 1.0f, 1.0f);
+#if VERSION == VERSION_DEMO
+            i_this->mpEmitter0 =
+#endif
             dComIfGp_particle_set(dPa_name::ID_IT_JT_KTR_SMOKE, &i_this->actor.current.pos, NULL, &e_scale, 0xC8,
                                   &i_this->mPtclCallBack0);
+#if VERSION == VERSION_DEMO
+            i_this->mpEmitter1 =
+#endif
             dComIfGp_particle_set(dPa_name::ID_IT_JN_KTR_FIRE, &i_this->actor.current.pos, NULL, &e_scale, 0xC8,
                                   &i_this->mPtclCallBack1);
             fopAcM_seStart(&i_this->actor, JA_SE_OBJ_KANTERA_BREAK, 0);
@@ -356,7 +366,11 @@ void kantera_move(kantera_class* i_this) {
         }
         // fallthrough
     case 10:
+#if VERSION == VERSION_DEMO
+        if (i_this->mpEmitter0 != NULL && i_this->mpEmitter1 != NULL) {
+#else
         if (i_this->mPtclCallBack0.getEmitter() != NULL && i_this->mPtclCallBack1.getEmitter() != NULL) {
+#endif
             if (i_this->m35C > 40) {
                 i_this->mSph.SetR(30.0f * i_this->mParticleScale.x);
                 i_this->mSph.SetC(i_this->actor.current.pos);
@@ -366,8 +380,13 @@ void kantera_move(kantera_class* i_this) {
 
                 i_this->mBonScale = i_this->mParticleScale.x;
                 JGeometry::TVec3<f32>* pScale = (JGeometry::TVec3<f32>*)&i_this->mParticleScale;
+#if VERSION == VERSION_DEMO
+                i_this->mpEmitter0->setEmitterScale(*pScale);
+                i_this->mpEmitter1->setEmitterScale(*pScale);
+#else
                 i_this->mPtclCallBack0.getEmitter()->setEmitterScale(*pScale);
                 i_this->mPtclCallBack1.getEmitter()->setEmitterScale(*pScale);
+#endif
 
                 i_this->mPlight.mPos = i_this->actor.current.pos;
                 i_this->mPlight.mColor.r = 600;
@@ -430,7 +449,9 @@ static BOOL daKantera_Execute(kantera_class* i_this) {
     kantera_move(i_this);
 
     if (i_this->mState < 10) {
+#if VERSION > VERSION_DEMO
         i_this->mpModel1->calc();
+#endif
         MtxTrans(i_this->actor.current.pos.x, i_this->actor.current.pos.y, i_this->actor.current.pos.z, 0);
         cMtx_YrotM(*calc_mtx, i_this->actor.current.angle.y);
         cMtx_XrotM(*calc_mtx, i_this->actor.current.angle.x);
@@ -464,7 +485,7 @@ static BOOL daKantera_IsDelete(kantera_class*) {
 static BOOL daKantera_Delete(kantera_class* i_this) {
     i_this->mPtclCallBack0.remove();
     i_this->mPtclCallBack1.remove();
-    dComIfG_resDelete(&i_this->mPhase, "Kantera");
+    dComIfG_resDeleteDemo(&i_this->mPhase, "Kantera");
     dKy_plight_cut(&i_this->mPlight);
     return TRUE;
 }
@@ -474,7 +495,7 @@ static BOOL daKantera_CreateHeap(fopAc_ac_c* a_this) {
     kantera_class* i_this = (kantera_class*)a_this;
 
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Kantera", dRes_INDEX_KANTERA_BMD_MK_KANTERA_e));
-    JUT_ASSERT(1014, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(986, 1014), modelData != NULL);
 
     i_this->mpModel1 = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     if (i_this->mpModel1 == NULL) {
@@ -482,7 +503,7 @@ static BOOL daKantera_CreateHeap(fopAc_ac_c* a_this) {
     }
 
     J3DAnmTevRegKey* anm_res_brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes("Kantera", dRes_INDEX_KANTERA_BRK_MK_KANTERA_e));
-    JUT_ASSERT(1036, anm_res_brk != NULL);
+    JUT_ASSERT(DEMO_SELECT(1008, 1036), anm_res_brk != NULL);
 
     i_this->mpBrkAnm1 = new mDoExt_brkAnm();
     if (i_this->mpBrkAnm1 == NULL) {
@@ -494,7 +515,7 @@ static BOOL daKantera_CreateHeap(fopAc_ac_c* a_this) {
     }
 
     modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Kantera", dRes_INDEX_KANTERA_BMD_LF_e));
-    JUT_ASSERT(1048, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(1020, 1048), modelData != NULL);
 
     i_this->mpModel2 = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     if (i_this->mpModel2 == NULL) {
@@ -502,7 +523,7 @@ static BOOL daKantera_CreateHeap(fopAc_ac_c* a_this) {
     }
 
     anm_res_brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes("Kantera", dRes_INDEX_KANTERA_BRK_LF_e));
-    JUT_ASSERT(1058, anm_res_brk != NULL);
+    JUT_ASSERT(DEMO_SELECT(1030, 1058), anm_res_brk != NULL);
 
     i_this->mpBrkAnm2 = new mDoExt_brkAnm();
     if (i_this->mpBrkAnm2 == NULL) {
@@ -514,7 +535,7 @@ static BOOL daKantera_CreateHeap(fopAc_ac_c* a_this) {
     }
 
     modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Kantera", dRes_INDEX_KANTERA_BMD_GA_e));
-    JUT_ASSERT(1125, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(1097, 1125), modelData != NULL);
 
     for (s32 i = 0; i < ARRAY_SSIZE(i_this->mGa); i++) {
         i_this->mGa[i].mpModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
@@ -565,7 +586,7 @@ static cPhs_State daKantera_Create(fopAc_ac_c* a_this) {
 
     kantera_class* i_this = (kantera_class*)a_this;
 
-    fopAcM_ct(a_this, kantera_class);
+    fopAcM_ct_Retail(a_this, kantera_class);
 
     i_this->mParam0 = fopAcM_GetParam(a_this);
     i_this->mParam1 = fopAcM_GetParam(a_this) >> 8;
@@ -573,6 +594,7 @@ static cPhs_State daKantera_Create(fopAc_ac_c* a_this) {
 
     cPhs_State PVar1 = dComIfG_resLoad(&i_this->mPhase, "Kantera");
     if (PVar1 == cPhs_COMPLEATE_e) {
+        fopAcM_ct_Demo(a_this, kantera_class);
         if (!fopAcM_entrySolidHeap(a_this, daKantera_CreateHeap, 0x10000)) {
             return cPhs_ERROR_e;
         }
