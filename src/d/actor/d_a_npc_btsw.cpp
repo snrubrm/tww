@@ -998,7 +998,7 @@ cPhs_State daNpc_Btsw_c::_create() {
 /* 00003304-0000372C       .text CreateHeap__12daNpc_Btsw_cFv */
 BOOL daNpc_Btsw_c::CreateHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectIDRes("Btsw", dRes_ID_BTSW_BDL_BN_e));
-    JUT_ASSERT(1424, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(1420, 1424), modelData != NULL);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
@@ -1019,9 +1019,9 @@ BOOL daNpc_Btsw_c::CreateHeap() {
     }
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(1440, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(1436, 1440), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(1442, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(1438, 1442), m_jnt.getBackboneJntNum() >= 0);
 
     m_handL = modelData->getJointName()->getIndex("handL");
     m_handR = modelData->getJointName()->getIndex("handR");
