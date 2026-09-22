@@ -294,8 +294,8 @@ bool daNpc_Ko1_c::createInit() {
     int weight = 0xFF;
     u8 pathIdx = (fopAcM_GetParam(this) >> 16) & 0xFF;
     if (pathIdx != 0xFF) {
-        mPath.setInf(pathIdx, current.roomNo, 1);
-        if (mPath.getPath() == NULL) {
+        mPath.setInf(pathIdx, fopAcM_GetRoomNo(this), 1);
+        if (mPath.isPath() == false) {
             return false;
         }
         fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
@@ -518,8 +518,13 @@ bool daNpc_Ko1_c::iniTexPttrnAnm(bool modify) {
 void daNpc_Ko1_c::plyTexPttrnAnm() {
     if (mTexIndex != 0 || cLib_calcTimer(&mBlinkTimer) == 0) {
         mBtpFrame++;
+#if VERSION == VERSION_DEMO
+        s16 max = m_hed_tex_pttrn->getFrameMax();
+        if (mBtpFrame >= max) {
+#else
         int max = m_hed_tex_pttrn->getFrameMax();
         if (mBtpFrame >= (s16)max) {
+#endif
             if (mTexIndex != 0) {
                 mBtpFrame = max;
             } else {
@@ -845,7 +850,11 @@ bool daNpc_Ko1_c::chk_manzai_1() {
 /* 00001E0C-00001E4C       .text chk_partsNotMove__11daNpc_Ko1_cFv */
 bool daNpc_Ko1_c::chk_partsNotMove() {
     bool result = false;
-    if (mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y() && mOldActorY == current.angle.y) {
+    bool jnt = false;
+    if (mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y()) {
+        jnt = true;
+    }
+    if (jnt && mOldActorY == current.angle.y) {
         result = true;
     }
     return result;
@@ -1101,11 +1110,8 @@ bool daNpc_Ko1_c::chkAttention() {
 
 /* 000025A8-00002610       .text setAttention__11daNpc_Ko1_cFb */
 void daNpc_Ko1_c::setAttention(bool force) {
-    attention_info.position.set(
-        current.pos.x,
-        current.pos.y + l_HIO.mChild[mType].mPrm.mAttentionOffsetY,
-        current.pos.z
-    );
+    f32 ofs = l_HIO.mChild[mType].mPrm.mAttentionOffsetY;
+    attention_info.position.set(current.pos.x, current.pos.y + ofs, current.pos.z);
     if (mUpdateEye != 0 || force) {
         eyePos.set(mEyePos.x, mEyePos.y, mEyePos.z);
     }
@@ -1873,6 +1879,7 @@ BOOL daNpc_Ko1_c::wait_4() {
 
 /* 00004E64-00004F30       .text wait_5__11daNpc_Ko1_cFSc */
 BOOL daNpc_Ko1_c::wait_5(signed char stt) {
+#if VERSION > VERSION_DEMO
     if (field_0x6bc[0] == 1) {
         field_0x6bc[0] = 2;
         setStt(0x14);
@@ -1883,6 +1890,7 @@ BOOL daNpc_Ko1_c::wait_5(signed char stt) {
         clrSpd();
         return TRUE;
     }
+#endif
     if (chk_areaIn(l_HIO.mChild[mType].mPrm.m44, mTargetPos)) {
         setStt(stt);
     }
@@ -1931,11 +1939,13 @@ BOOL daNpc_Ko1_c::wait_7() {
     if (field_0x6bc[0] == 1) {
         field_0x6bc[0] = 2;
         setStt(0x14);
+#if VERSION > VERSION_DEMO
         mLookMode = 1;
         mNoTurn = false;
         mEventOrder = 0;
         m898 = 0;
         clrSpd();
+#endif
         return TRUE;
     }
     if (chk_areaIn(l_HIO.mChild[mType].mPrm.m4C, current.pos)) {
@@ -1945,7 +1955,8 @@ BOOL daNpc_Ko1_c::wait_7() {
         mLookPos = a_partner->current.pos;
         mLookPos.y = a_partner->eyePos.y;
     }
-    if ((a_partner->current.pos - current.pos).absXZ() < l_HIO.mChild[mType].mPrm.m4C) {
+    f32 dist = (a_partner->current.pos - current.pos).absXZ();
+    if (dist < l_HIO.mChild[mType].mPrm.m4C) {
         mEventOrder = 2;
     } else {
         setStt(0x11);
@@ -2024,10 +2035,12 @@ BOOL daNpc_Ko1_c::walk_2(signed char stt1, signed char stt2) {
         setStt(stt1);
         return TRUE;
     }
+#if VERSION > VERSION_DEMO
     if (field_0x6bc[0] == 1) {
         setStt(0xE);
         return TRUE;
     }
+#endif
     if (chk_areaIn(l_HIO.mChild[mType].mPrm.m44, mTargetPos)) {
         setStt(stt2);
         return TRUE;
@@ -2267,7 +2280,8 @@ BOOL daNpc_Ko1_c::talk_2() {
             ready++;
         }
     }
-    if (ready == mPartnerNum) {
+    bool all = ready == mPartnerNum;
+    if (all) {
         field_0x6bc[0] = 0;
         setStt(*reinterpret_cast<s8*>(&m8A4));
         endEvent();
@@ -3030,7 +3044,7 @@ BOOL daNpc_Ko1_c::CreateHeap() {
         }
         mpMorf->getModel()->setUserArea((u32)this);
         mAcchCir.SetWall(30.0f, 30.0f);
-        mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+        mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
         return TRUE;
     }
     mpMorf = NULL;
