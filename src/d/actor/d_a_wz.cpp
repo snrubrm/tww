@@ -2448,8 +2448,8 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
     }
 
     model->setUserArea((u32)a_this);
-    for (u16 i = 0; i < (model = a_this->mpMorf->getModel())->getModelData()->getJointNum(); i++) {
-        (model = a_this->mpMorf->getModel())->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
+    for (u16 i = 0; i < a_this->mpMorf->getModel()->getModelData()->getJointNum(); i++) {
+        a_this->mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
     }
 
     if (a_this->mBehaviorType > WZ_TYPE_DAMAGE_BALL_FIRE) {
@@ -2490,8 +2490,8 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
     }
 
     rodModel->setUserArea((u32)a_this);
-    for (u16 i = 0; i < (rodModel = a_this->mpRodMorf->getModel())->getModelData()->getJointNum(); i++) {
-        (rodModel = a_this->mpRodMorf->getModel())->getModelData()->getJointNodePointer(i)->setCallBack(rod_nodeCallBack);
+    for (u16 i = 0; i < a_this->mpRodMorf->getModel()->getModelData()->getJointNum(); i++) {
+        a_this->mpRodMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(rod_nodeCallBack);
     }
 
     J3DModel* brkModel = a_this->mpMorf->getModel();
