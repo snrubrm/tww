@@ -2050,8 +2050,20 @@ void dMsg_subTextScale(sub_msg_class* i_Msg, f32 param_2) {
     }
 }
 
+// Name unknown; mwcc-instr shows an inline call here (the selection height is a multi-def inline-local @temp with an id
+// above the named locals, which swaps f0/f1 against local_78; a named local in any scope gets a declared-local id).
+static inline f32 dMsg_subTextSelHeight(sub_msg_class* i_Msg) {
+    f32 height;
+    int lineSpace = (int)((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace();
+    if (i_Msg->mStatus == fopMsgStts_SELECT_2_e) {
+        height = lineSpace + i_Msg->m110C;
+    } else if (i_Msg->mStatus == fopMsgStts_SELECT_3_e) {
+        height = i_Msg->m110C + lineSpace * 2;
+    }
+    return height;
+}
+
 /* 80210FF8-8021172C       .text dMsg_subTextSizeSet__FP13sub_msg_class */
-// NONMATCHING - f0/f1 swap: in the target the selection height is a multi-def compiler temp (inlined helper), not a named local
 void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
     f32 fVar1;
     f32 fVar2;
@@ -2063,12 +2075,7 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
     f32 local_68;
     f32 posY;
 
-    int iVar7 = (int)((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace();
-    if (i_Msg->mStatus == fopMsgStts_SELECT_2_e) {
-        local_78 = iVar7 + i_Msg->m110C;
-    } else if (i_Msg->mStatus == fopMsgStts_SELECT_3_e) {
-        local_78 = i_Msg->m110C + iVar7 * 2;
-    }
+    local_78 = dMsg_subTextSelHeight(i_Msg);
     posY = i_Msg->m049C.mPosCenter.y;
     if (posY >= 240.0f) {
         posY = (int)g_msgHIO.field_0x7c + (posY - i_Msg->m049C.mSize.y / 2.0f);

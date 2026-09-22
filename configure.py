@@ -654,7 +654,7 @@ config.libs = [
             Object(Matching, "d/d_meter.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/d_minigame_starter.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/d_minigame_terminater.cpp"),
-            Object(NonMatching, "d/d_msg.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d/d_msg.cpp"),
             Object(Matching,    "d/d_name.cpp"),
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d/d_npc.cpp"),
             Object(Matching,    "d/d_operate_wind.cpp"),
