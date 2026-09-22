@@ -16,7 +16,7 @@ const char daObjSwpush::Act_c::M_arcname_hhbot[] = "Hhbot";
 
 const daObjSwpush::Attr_c daObjSwpush::Act_c::M_attr[] = {
     {
-        /* mHeapSize        */ 0xAE0,
+        /* mHeapSize        */ DEMO_SELECT(0x1A00, 0xAE0),
         /* mFlags           */ static_cast<AttrFlag_e>(FLAG_STAY_PRESSED | FLAG_OBEY_SAVE),
         /* mScale           */ 1.0f,
         /* mKbotaResName    */ daObjSwpush::Act_c::M_arcname_kbota,
@@ -40,7 +40,7 @@ const daObjSwpush::Attr_c daObjSwpush::Act_c::M_attr[] = {
         /* mPauseDuration   */ 10
     },
     {
-        /* mHeapSize        */ 0xAE0,
+        /* mHeapSize        */ DEMO_SELECT(0x1A00, 0xAE0),
         /* mFlags           */ static_cast<AttrFlag_e>(FLAG_UNK20),
         /* mScale           */ 1.0f,
         /* mKbotaResName    */ daObjSwpush::Act_c::M_arcname_kbota,
@@ -64,7 +64,7 @@ const daObjSwpush::Attr_c daObjSwpush::Act_c::M_attr[] = {
         /* mPauseDuration   */ 10
     },
     {
-        /* mHeapSize        */ 0xAE0,
+        /* mHeapSize        */ DEMO_SELECT(0x1A00, 0xAE0),
         /* mFlags           */ static_cast<AttrFlag_e>(FLAG_ON_IS_UP | FLAG_STAY_PRESSED | FLAG_OBEY_SAVE),
         /* mScale           */ 1.0f,
         /* mKbotaResName    */ daObjSwpush::Act_c::M_arcname_kbota,
