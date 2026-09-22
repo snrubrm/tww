@@ -1264,12 +1264,21 @@ void SwMail2_c::Appear() {
     }
 
     cXyz vec = *field_0x5C;
+#if VERSION == VERSION_DEMO
+    diff = diff * (120.0f + REG10_F(0));
+    vec += diff;
+
+    vec.y -= 40.0f + REG10_F(1);
+    field_0x48.x = field_0x4E.x;
+    field_0x48.y = field_0x4E.y + new_y + REG10_S(1);
+#else
     diff = diff * 120.0f;
     vec += diff;
 
     vec.y -= 40.0f;
     field_0x48.x = field_0x4E.x;
     field_0x48.y = field_0x4E.y + new_y;
+#endif
     cLib_addCalcAngleS2(&field_0x48.z, field_0x4E.z, 4, 0x1000);
 
     if (std::abs(cLib_addCalcPos(&field_0x24, vec, 0.25f, 30.0f, 2.5f)) < 2.5f) {
