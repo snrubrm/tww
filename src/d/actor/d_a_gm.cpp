@@ -211,13 +211,26 @@ static BOOL daGM_Draw(gm_class* i_this) {
     }
 
     J3DModelData* modelData = model->getModelData();
+#if VERSION == VERSION_DEMO
+    J3DModel* shadowModel = i_this->mpShadowModel;
+    int i;
+#else
     int i;
     J3DModel* shadowModel = i_this->mpShadowModel;
+#endif
     for (i = 0; i < modelData->getJointNum(); i++) {
+#if VERSION == VERSION_DEMO
+        shadowModel->setAnmMtx(i, model->getAnmMtx(i));
+#else
         MTXCopy(model->getAnmMtx(i), shadowModel->getAnmMtx(i));
+#endif
     }
     for (i = 0; i < modelData->getWEvlpMtxNum(); i++) {
+#if VERSION == VERSION_DEMO
+        shadowModel->setWeightAnmMtx(i, model->getWeightAnmMtx(i));
+#else
         MTXCopy(model->getWeightAnmMtx(i), shadowModel->getWeightAnmMtx(i));
+#endif
     }
 
     f32 posZ = actor->current.pos.z + i_this->mDrawOffset.z;
@@ -1171,7 +1184,7 @@ void action_totugeki(gm_class* i_this) {
             offset.y = check_y[i];
             offset.z = check_z[i];
             MtxPosition(&offset, &i_this->m360[i]);
-            i_this->m360[i] += i_this->current.pos;
+            i_this->m360[i] += DEMO_SELECT(actor, i_this)->current.pos;
             i_this->m360[i] += i_this->mDrawOffset;
             base = i_this->current.pos + i_this->mDrawOffset;
             linChk.Set(&base, &i_this->m360[i], actor);
@@ -1204,10 +1217,14 @@ void action_totugeki(gm_class* i_this) {
                 offset = i_this->m384[0] - i_this->current.pos;
             }
             i_this->shape_angle.y = cM_atan2s(offset.x, offset.z) + 0x4000;
+#if VERSION == VERSION_DEMO
+            cLib_addCalcAngleS2(&i_this->shape_angle.y, i_this->current.angle.y, 1, 0x1000);
+#else
             {
                 s16 shapeTarget = i_this->current.angle.y;
                 cLib_addCalcAngleS2(&i_this->shape_angle.y, shapeTarget, 1, 0x1000);
             }
+#endif
         }
         break;
     }
