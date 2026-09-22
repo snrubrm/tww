@@ -53,9 +53,7 @@ public:
     /* 0x300 */ f32 m300;
     /* 0x304 */ f32 m304;
 #endif
-    /* 0x308 */ s16 m308;
-    /* 0x30A */ s16 m30A;
-    /* 0x30C */ s16 m30C;
+    /* 0x308 */ s16 mTimers[3];
     /* 0x30E */ s16 m30E;
 #if VERSION > VERSION_DEMO
     /* 0x310 */ s16 m310;

@@ -168,7 +168,7 @@ void damage_check(pt_class* i_this) {
             if (delta.abs() < 350.0f) {
                 i_this->m2D2 = 3;
                 i_this->mMode = 0;
-                i_this->m30A = (s16)(20.0f + cM_rndF(30.0f));
+                i_this->mTimers[1] = (s16)(20.0f + cM_rndF(30.0f));
                 smoke_set(i_this, 3);
                 i_this->m30E = 10;
                 actor->speed.y = 350.0f;
@@ -233,9 +233,9 @@ void damage_check(pt_class* i_this) {
                 i_this->m30E = 50;
                 fopAcM_monsSeStart(actor, JA_SE_CV_PT_DAMAGE, 0);
 #if VERSION == VERSION_DEMO
-                i_this->m30A = (s16)(REG0_F(5) + (60.0f + cM_rndF(60.0f)));
+                i_this->mTimers[1] = (s16)(REG0_F(5) + (60.0f + cM_rndF(60.0f)));
 #else
-                i_this->m30A = (s16)(60.0f + cM_rndF(60.0f));
+                i_this->mTimers[1] = (s16)(60.0f + cM_rndF(60.0f));
 #endif
                 i_this->m320 = 80.0f;
             } else {
@@ -303,7 +303,7 @@ BOOL next_pos_set(pt_class* i_this) {
 #else
         s16 ang = i_this->m2FC;
 #endif
-        if (i_this->m30A == 0) {
+        if (i_this->mTimers[1] == 0) {
             if (i_this->mEnableSpawnSwitch != 0xFF) {
                 if (!dComIfGs_isSwitch(i_this->mEnableSpawnSwitch, dStage_roomControl_c::getStayNo())) {
                     goto flip_ang;
@@ -441,9 +441,9 @@ void pt_move(pt_class* i_this) {
             } else {
                 i_this->mMode = 2;
 #if VERSION == VERSION_DEMO
-                i_this->m308 = (s16)(REG0_F(3) + (2.0f + cM_rndF(5.0f)));
+                i_this->mTimers[0] = (s16)(REG0_F(3) + (2.0f + cM_rndF(5.0f)));
 #else
-                i_this->m308 = (s16)(2.0f + cM_rndF(5.0f));
+                i_this->mTimers[0] = (s16)(2.0f + cM_rndF(5.0f));
 #endif
                 anm_init(i_this, dRes_INDEX_PT_BCK_WAIT_e, 3.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
                 fopAcM_seStart(actor, JA_SE_CM_PT_JUMP, 0);
@@ -464,7 +464,7 @@ void pt_move(pt_class* i_this) {
         if (z != 0xdcf) {
             actor->current.angle.z = z;
         }
-        if (i_this->m308 == 0) {
+        if (i_this->mTimers[0] == 0) {
             i_this->mMode = 0;
             anm_init(i_this, dRes_INDEX_PT_BCK_JUMP_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
             fopAcM_monsSeStart(actor, JA_SE_CV_PT_JUMP, 0);
@@ -511,7 +511,7 @@ void pt_attack(pt_class* i_this) {
     cXyz offset;
     cXyz move;
 
-    if (i_this->m30A != 0) {
+    if (i_this->mTimers[1] != 0) {
         angle += 0x8000;
     }
     cLib_addCalcAngleS2(&actor->current.angle.y, angle, 4, 0x800);
@@ -531,7 +531,7 @@ void pt_attack(pt_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        if (i_this->m308 == 0) {
+        if (i_this->mTimers[0] == 0) {
             i_this->mMode = 1;
             if (i_this->mAcch.ChkGroundHit()) {
                 anm_init(i_this, dRes_INDEX_PT_BCK_JUMP_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
@@ -569,23 +569,23 @@ void pt_attack(pt_class* i_this) {
         actor->speed.x = move.x;
         actor->speed.z = move.z;
         if (dist < 300.0f + REG0_F(10) && !view_check(i_this)) {
-            i_this->m30C = i_this->m2CC * 3 + 10;
+            i_this->mTimers[2] = i_this->m2CC * 3 + 10;
             i_this->mMode = 3;
         } else if (dist > 450.0f + REG0_F(11)) {
             i_this->mMode = 0;
-            i_this->m308 = (s16)(REG0_F(3) + (2.0f + cM_rndF(10.0f)));
+            i_this->mTimers[0] = (s16)(REG0_F(3) + (2.0f + cM_rndF(10.0f)));
             anm_init(i_this, dRes_INDEX_PT_BCK_WAIT_e, 3.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
         }
         break;
     case 3:
-        if (i_this->m30C == 1) {
+        if (i_this->mTimers[2] == 1) {
             anm_init(i_this, dRes_INDEX_PT_BCK_ATACK_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
             fopAcM_monsSeStart(actor, JA_SE_CV_PT_ATTACK, 0);
             fopAcM_seStart(actor, JA_SE_CM_PT_ATTACK, 0);
         }
         actor->speed.x *= 0.8f + REG0_F(14);
         actor->speed.z *= 0.8f + REG0_F(14);
-        if (i_this->m30C == 0) {
+        if (i_this->mTimers[2] == 0) {
             f32 frame = i_this->mpMorf->getFrame();
             if (frame >= 11.0f && frame <= 14.0f) {
                 i_this->m327 = 1;
@@ -614,7 +614,7 @@ void pt_attack(pt_class* i_this) {
     s16 angle = i_this->m2FC;
     f32 dist = i_this->m300;
 
-    if (i_this->m30A != 0) {
+    if (i_this->mTimers[1] != 0) {
         angle += 0x8000;
     }
     cLib_addCalcAngleS2(&actor->current.angle.y, angle, 4, 0x800);
@@ -635,7 +635,7 @@ void pt_attack(pt_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        if (i_this->m308 == 0) {
+        if (i_this->mTimers[0] == 0) {
             i_this->mMode = 1;
             break;
         }
@@ -671,21 +671,21 @@ void pt_attack(pt_class* i_this) {
         }
         if (dist < 300.0f) {
             if (!view_check(i_this)) {
-                i_this->m30C = i_this->m2CC * 3 + 10;
+                i_this->mTimers[2] = i_this->m2CC * 3 + 10;
                 i_this->mMode = 3;
                 anm_init(i_this, dRes_INDEX_PT_BCK_WAIT_e, 3.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
             }
         }
         break;
     case 3:
-        if (i_this->m30C == 1) {
+        if (i_this->mTimers[2] == 1) {
             anm_init(i_this, dRes_INDEX_PT_BCK_ATACK_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
             fopAcM_monsSeStart(actor, JA_SE_CV_PT_ATTACK, 0);
             fopAcM_seStart(actor, JA_SE_CM_PT_ATTACK, 0);
         }
         actor->speed.x *= 0.8f;
         actor->speed.z *= 0.8f;
-        if (i_this->m30C == 0) {
+        if (i_this->mTimers[2] == 0) {
             f32 frame = i_this->mpMorf->getFrame();
             if (frame >= 11.0f && frame <= 14.0f) {
                 i_this->m327 = 1;
@@ -788,20 +788,20 @@ void pt_koke(pt_class* i_this) {
     case 0:
         i_this->mMode = 4;
         anm_init(i_this, dRes_INDEX_PT_BCK_KOKE_e, 2.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
-        i_this->m308 = 0;
+        i_this->mTimers[0] = 0;
         fopAcM_monsSeStart(actor, JA_SE_CV_PT_TUMBLE, 0);
         break;
     case 1:
         i_this->mMode = 5;
         anm_init(i_this, dRes_INDEX_PT_BCK_SIRIMOTI_e, 2.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
-        i_this->m308 = 0;
+        i_this->mTimers[0] = 0;
         fopAcM_monsSeStart(actor, JA_SE_CV_PT_TUMBLE, 0);
         fopAcM_seStart(actor, JA_SE_CM_PT_TUMBLE, 0);
         break;
     case 2:
         i_this->mMode = 5;
         anm_init(i_this, dRes_INDEX_PT_BCK_HAPPY_e, 2.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
-        i_this->m308 = 20.0f + cM_rndF(20.0f);
+        i_this->mTimers[0] = 20.0f + cM_rndF(20.0f);
         fopAcM_monsSeStart(actor, JA_SE_CV_PT_HAPPY, 0);
         break;
     case 4:
@@ -811,15 +811,15 @@ void pt_koke(pt_class* i_this) {
         // fallthrough
     case 5:
 #if VERSION == VERSION_DEMO
-        if (i_this->mpMorf->isStop() || i_this->m308 == 1) {
+        if (i_this->mpMorf->isStop() || i_this->mTimers[0] == 1) {
             i_this->m2D2 = 1;
             i_this->mMode = 0;
             anm_init(i_this, dRes_INDEX_PT_BCK_JUMP_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
         }
         break;
 #else
-        if (i_this->m30A == 0) {
-            if (i_this->mpMorf->isStop() || i_this->m308 == 1) {
+        if (i_this->mTimers[1] == 0) {
+            if (i_this->mpMorf->isStop() || i_this->mTimers[0] == 1) {
                 i_this->m2D2 = 1;
                 i_this->mMode = 0;
                 anm_init(i_this, dRes_INDEX_PT_BCK_JUMP_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
@@ -838,11 +838,11 @@ void pt_koke(pt_class* i_this) {
         }
         if (i_this->m320 < 0.05f) {
             i_this->mMode = 12;
-            i_this->m308 = cM_rndF(30.0f);
+            i_this->mTimers[0] = cM_rndF(30.0f);
         }
         break;
     case 12:
-        if (i_this->m308 == 0) {
+        if (i_this->mTimers[0] == 0) {
             i_this->m2D2 = 1;
             i_this->mMode = 0;
             anm_init(i_this, dRes_INDEX_PT_BCK_JUMP_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
@@ -866,14 +866,14 @@ BOOL pt_ples(pt_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        i_this->m308 = 0x23;
+        i_this->mTimers[0] = 0x23;
         i_this->mMode = 1;
         anm_init(i_this, dRes_INDEX_PT_BCK_WAIT_e, 1.0f, J3DFrameCtrl::EMode_NONE, 5.0f, -1);
         // fallthrough
     case 1:
         cLib_addCalc2(&i_this->scale.y, 0.1f, 1.0f, 0.5f);
         cLib_addCalc2(&i_this->scale.x, 1.3f, 0.8f, 0.5f);
-        if (i_this->m308 == 0) {
+        if (i_this->mTimers[0] == 0) {
             return TRUE;
         }
         break;
@@ -894,7 +894,7 @@ BOOL pt_bat(pt_class* i_this) {
 
     switch (i_this->mMode) {
     case 0:
-        i_this->m308 = 0x96;
+        i_this->mTimers[0] = 0x96;
         i_this->mMode = 1;
         anm_init(i_this, dRes_INDEX_PT_BCK_WAIT_e, 1.0f, J3DFrameCtrl::EMode_NONE, 5.0f, -1);
         {
@@ -913,7 +913,7 @@ BOOL pt_bat(pt_class* i_this) {
     case 1:
         actor->current.angle.y += 0x400;
         actor->current.angle.x += 0x300;
-        if (i_this->m308 == 0) {
+        if (i_this->mTimers[0] == 0) {
             return TRUE;
         }
         break;
@@ -1119,8 +1119,8 @@ static BOOL daPt_Execute(pt_class* i_this) {
     }
 
     for (int i = 0; i < 3; i++) {
-        if ((&i_this->m308)[i] != 0) {
-            (&i_this->m308)[i]--;
+        if (i_this->mTimers[i] != 0) {
+            i_this->mTimers[i]--;
         }
     }
     if (i_this->m30E != 0) {
