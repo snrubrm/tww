@@ -979,6 +979,28 @@ void dDlst_2DMSG2_c::outFontDraw() {
                 int r18 = (f32)posX + b.i.x;
 
                 int r17;
+#if VERSION == VERSION_PAL
+                if (scale > actorP->field_0xeb4) {
+                    if (actorP->field_0xecc[i] > 1) {
+                        if (posY == 0) {
+                            posY = 1;
+                        }
+                        f32 lineSpace = scrn->getLineSpace();
+                        f32 temp = actorP->field_0xeb0 * (3 - actorP->field_0xecc[i]);
+                        r17 = (f32)actorP->field_0xeb4 + (temp + b.i.y) - (f32)scale + (f32)posY * lineSpace;
+                    } else {
+                        if (posY == 0) {
+                            posY = 1;
+                        }
+                        f32 lineSpace = scrn->getLineSpace();
+                        f32 temp = actorP->field_0xeb0 * (3 - actorP->field_0xecc[i]);
+                        r17 = (f32)actorP->field_0xeb4 + (temp + b.i.y) - (f32)scale + (f32)posY * lineSpace;
+                    }
+                } else {
+                    f32 temp = (actorP->field_0xeb0 * (3 - actorP->field_0xecc[i] + (posY * 2)));
+                    r17 = (temp + b.i.y);
+                }
+#else
                 if (scale > actorP->field_0xeb4) {
                     if (actorP->field_0xecc[i] > 1) {
                         f32 temp = (actorP->field_0xeb0 * (DEMO_SELECT(2, 3) - posY));
@@ -991,6 +1013,7 @@ void dDlst_2DMSG2_c::outFontDraw() {
                     f32 temp = (actorP->field_0xeb0 * (DEMO_SELECT(2, 3) - actorP->field_0xecc[i] + (posY * 2)));
                     r17 = (temp + b.i.y);
                 }
+#endif
 
                 r14 = actorP->field_0xeac;
                 JKRHeap* heap = mDoExt_setCurrentHeap(actorP->Heap);
