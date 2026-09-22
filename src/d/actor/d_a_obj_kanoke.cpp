@@ -291,7 +291,7 @@ BOOL daObjKanoke_c::_execute() {
 /* 00000E7C-0000122C       .text executeNormal__13daObjKanoke_cFv */
 void daObjKanoke_c::executeNormal() {
     bool open = false;
-    if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+    if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this))) {
         open = true;
     } else if (dComIfGp_getDetect().chk_light(&current.pos) || mBodyCps.ChkTgHit()) {
         ++mLightTimer;
@@ -312,7 +312,7 @@ void daObjKanoke_c::executeNormal() {
     if (open) {
         mBodyCps.ClrTgHit();
         if (mSwitch != 0xff) {
-            dComIfGs_onSwitch(mSwitch, home.roomNo);
+            dComIfGs_onSwitch(mSwitch, fopAcM_GetHomeRoomNo(this));
         }
         mAngularSpeed = 0;
         if (getPrmYure()) {
