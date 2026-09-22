@@ -2373,7 +2373,7 @@ void action_bunri_dousa(bpw_class* i_this) {
         }
         for (i = 0; i < actor->max_health; i++) {
             childPoe = (pw_class*)fopAcM_SearchByID(i_this->mChildPoeIds[i]);
-            if ((childPoe != NULL) && (DEMO_SELECT(childPoe->m345, childPoe->m344) != 0)) {
+            if ((childPoe != NULL) && (childPoe->m344 != 0)) {
                 childPoe->actor_status |= fopAcStts_UNK4000_e;
                 i_this->m462 = i;
                 i_this->m424 = childPoe->current.pos;
