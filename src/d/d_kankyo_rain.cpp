@@ -4314,7 +4314,6 @@ void drawPoison(Mtx drawMtx, u8** pImg) {
 
         f32 cosR = std::fabsf(cM_scos(envLight.mpPoisonPacket->mCount * 500.0f + i * 4000));
         cosR *= cosR;
-#if VERSION == VERSION_DEMO
         u8 from, to;
         from = 95;
         to = 45;
@@ -4334,20 +4333,6 @@ void drawPoison(Mtx drawMtx, u8** pImg) {
         from = 255;
         to = 205;
         reg1.b = from + cosR * ((f32)to - (f32)from);
-#else
-        f32 t50 = -50.0f;
-        f32 t56 = -56.0f;
-        f32 t6 = -6.0f;
-        f32 t146 = -146.0f;
-
-        reg0.r = 95.0f + cosR * t50;
-        reg0.g = 186.0f + cosR * t50;
-        reg0.b = 226.0f + cosR * t56;
-
-        reg1.r = 115.0f + cosR * t6;
-        reg1.g = 206.0f + cosR * t146;
-        reg1.b = 255.0f + cosR * t50;
-#endif
 
         reg0.a = pPkt->mEff[i].mAlpha * 255.0f;
 
