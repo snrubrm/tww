@@ -156,11 +156,7 @@ f32 dMap_c::mNowCenterX;
 f32 dMap_c::mNowCenterZ;
 f32 dMap_c::mNowScaleX;
 f32 dMap_c::mNowScaleZ;
-// PCH (dolzel.mch) still has the old dMap_c layout, so this class static
-// cannot be added to the header. Emit the original mangled sbss symbol here.
-extern "C" {
-u8 mGbaSendMapOceanDt__6dMap_c[8];
-}
+u8 dMap_c::mGbaSendMapOceanDt[8];
 dMap_RoomInfoCtrl_c dMap_c::mRoomInfoCtrl;
 dMap_RoomInfo_c* dMap_c::mNowRoomInfoP;
 
@@ -3555,17 +3551,17 @@ void dMap_c::mapBufferSendAGB_ocean() {
     mapBufferSendAGB_commonCursor();
     if (mDoGaC_GbaLink() && mDoGac_SendStatusCheck(0xB)) {
         for (int i = 0; i < 7; i++) {
-            mGbaSendMapOceanDt__6dMap_c[i] = 0;
+            mGbaSendMapOceanDt[i] = 0;
         }
         for (int y = -3; y < 4; y++) {
             for (int x = -3; x < 4; x++) {
                 int gridNo = gridPos2GridNo(x, y);
                 int byteIdx = gridNo / 8;
                 int bitIdx = gridNo % 8;
-                mGbaSendMapOceanDt__6dMap_c[byteIdx] |= (isSaveArriveGridForAgbUseGridPos(x, y) ? 1 : 0) << bitIdx;
+                mGbaSendMapOceanDt[byteIdx] |= (isSaveArriveGridForAgbUseGridPos(x, y) ? 1 : 0) << bitIdx;
             }
         }
-        mDoGac_SendDataSet((u32*)mGbaSendMapOceanDt__6dMap_c, 8, 0xB, 0);
+        mDoGac_SendDataSet((u32*)mGbaSendMapOceanDt, 8, 0xB, 0);
     }
 }
 

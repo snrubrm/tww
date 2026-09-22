@@ -634,7 +634,7 @@ public:
     static f32 mNowCenterZ;
     static f32 mNowScaleX;
     static f32 mNowScaleZ;
-    // static ? mGbaSendMapOceanDt;
+    static u8 mGbaSendMapOceanDt[8];
     static dMap_RoomInfoCtrl_c mRoomInfoCtrl;
     static dMap_RoomInfo_c* mNowRoomInfoP;
 };
