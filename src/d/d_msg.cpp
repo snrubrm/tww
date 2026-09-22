@@ -104,6 +104,9 @@ void dDlst_2DMSG_c::draw() {
 
 /* 8020A950-8020AC40       .text outFontDraw__13dDlst_2DMSG_cFv */
 void dDlst_2DMSG_c::outFontDraw() {
+#if VERSION == VERSION_PAL
+    sub_msg_class* msg = mpMsg;
+#endif
     for (int i = 0; i < dMsg_OUTFONT_MAX; i++) {
         u8 iconNum = mpMsg->mMsgDataProc.getIconNum(i);
         int posX = mpMsg->mMsgDataProc.getIconPosX(i);
@@ -126,9 +129,19 @@ void dDlst_2DMSG_c::outFontDraw() {
                 r6 = (int)(local_38 + b.i.y + local_30);
                 alpha = mpMsg->m0544[0].mNowAlpha;
             } else if (mpMsg->mMesgEntry.mTextboxType == 0xe) {
-                f32 local_28 = g_msgHIO.field_0x5e * posY;
-                f32 local_30 = mpMsg->m1104;
-                r6 = (int)(local_30 + b.i.y + local_28);
+#if VERSION == VERSION_PAL
+                if (msg->mMsgNo == 0x5b3 || msg->mMsgNo == 0x5b4) {
+#endif
+                    f32 local_28 = g_msgHIO.field_0x5e * posY;
+                    f32 local_30 = mpMsg->m1104;
+                    r6 = (int)(local_30 + b.i.y + local_28);
+#if VERSION == VERSION_PAL
+                } else {
+                    f32 lineSpace = ((J2DTextBox*)scrn)->getLineSpace();
+                    f32 local_28 = g_msgHIO.field_0x5e * posY;
+                    r6 = (int)(local_28 + (b.i.y - mpMsg->m1108 * (lineSpace / 2.0f)));
+                }
+#endif
                 alpha = mpMsg->m0544[0].mNowAlpha;
             } else {
                 if (scale > mpMsg->m110C) {
@@ -1117,6 +1130,12 @@ void dMsg_textPosition(sub_msg_class* i_Msg) {
         uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
         break;
     case 0xE:
+#if VERSION == VERSION_PAL
+        if (i_Msg->mMsgNo != 0x5b3 && i_Msg->mMsgNo != 0x5b4) {
+            uVar2 = -(int)(((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace() / 2.0f) * i_Msg->m1108;
+            break;
+        }
+#endif
         uVar2 = 0;
         break;
     default:
@@ -2766,11 +2785,19 @@ static BOOL dMsg_Draw(sub_msg_class* i_Msg) {
     } else if (i_Msg->mMesgEntry.mTextboxType == 0xe) {
         if ((i_Msg->mMsgNo == 0x5b3) || (i_Msg->mMsgNo == 0x5b4)) {
             for (s32 i = 0; i < mBeatNum[dComIfGp_getMelodyNum()]; i++) {
+#if VERSION == VERSION_PAL
+                fopMsgM_paneTrans(&i_Msg->m08C4[i], 0.0f, g_msgHIO.field_0x64 + 6);
+                fopMsgM_paneTrans(&i_Msg->m0A14[i], 0.0f, g_msgHIO.field_0x64 + 6);
+                fopMsgM_paneTrans(&i_Msg->m0B64[i], 0.0f, g_msgHIO.field_0x64 + 6);
+#endif
                 fopMsgM_setAlpha(&i_Msg->m08C4[i]);
                 fopMsgM_setAlpha(&i_Msg->m0A14[i]);
                 fopMsgM_setAlpha(&i_Msg->m0B64[i]);
                 if (dComIfGp_getMelodyNum() >= 5) {
                     fopMsgM_setAlpha(&i_Msg->m0CB4[i]);
+#if VERSION == VERSION_PAL
+                    fopMsgM_paneTrans(&i_Msg->m0CB4[i], 0.0f, g_msgHIO.field_0x64 + 6);
+#endif
                 }
             }
         }
