@@ -77,9 +77,7 @@ public:
     /* 0x0434 */ s16 m434;
     /* 0x0436 */ s16 m436;
     /* 0x0438 */ csXyz mMuneRot;
-    /* 0x043E */ s16 m43E;
-    /* 0x0440 */ s16 m440;
-    /* 0x0442 */ s16 m442;
+    /* 0x043E */ csXyz m43E;
     /* 0x0444 */ J3DModel* mpShadowModel;
     /* 0x0448 */ u32 mShadowId;
     /* 0x044C */ s16 m44C;

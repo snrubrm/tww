@@ -103,8 +103,8 @@ void draw_SUB(gm_class* i_this) {
         i_this->current.pos.y + i_this->mDrawOffset.y,
         i_this->current.pos.z + i_this->mDrawOffset.z
     );
-    mDoMtx_stack_c::XrotM(i_this->m43E);
-    mDoMtx_stack_c::ZrotM(i_this->m442);
+    mDoMtx_stack_c::XrotM(i_this->m43E.x);
+    mDoMtx_stack_c::ZrotM(i_this->m43E.z);
     mDoMtx_stack_c::YrotM(i_this->shape_angle.y);
     mDoMtx_stack_c::XrotM(i_this->shape_angle.x);
     mDoMtx_stack_c::YrotM(i_this->m320);
@@ -603,8 +603,8 @@ BOOL Line_check(gm_class* i_this, cXyz destPos) {
     fopAc_ac_c* actor = i_this;
     dBgS_LinChk linChk;
 
-    cMtx_XrotS(*calc_mtx, i_this->m43E);
-    cMtx_ZrotM(*calc_mtx, i_this->m442);
+    cMtx_XrotS(*calc_mtx, i_this->m43E.x);
+    cMtx_ZrotM(*calc_mtx, i_this->m43E.z);
     cXyz offset;
     offset.x = 0.0f;
     offset.y = 100.0f;
@@ -1551,8 +1551,8 @@ void action_ground_attack(gm_class* i_this) {
     case 72: {
         i_this->mTimers[7] = 20.0f + cM_rndF(2.0f * (fopAcM_GetID(actor) & 7));
         i_this->mTimers[2] = 0;
-        cMtx_XrotS(*calc_mtx, i_this->m43E);
-        cMtx_ZrotM(*calc_mtx, i_this->m442);
+        cMtx_XrotS(*calc_mtx, i_this->m43E.x);
+        cMtx_ZrotM(*calc_mtx, i_this->m43E.z);
         offset.x = 0.0f;
         offset.y = 100.0f;
         offset.z = 0.0f;
@@ -1596,8 +1596,8 @@ void action_ground_attack(gm_class* i_this) {
             }
             if (i_this->m2CE != 1) {
                 cMtx_YrotS(*calc_mtx, actor->current.angle.y);
-                cMtx_XrotM(*calc_mtx, i_this->m43E);
-                cMtx_ZrotM(*calc_mtx, i_this->m442);
+                cMtx_XrotM(*calc_mtx, i_this->m43E.x);
+                cMtx_ZrotM(*calc_mtx, i_this->m43E.z);
                 offset.x = 0.0f;
                 offset.y = 100.0f;
                 offset.z = 200.0f;
@@ -1619,8 +1619,8 @@ void action_ground_attack(gm_class* i_this) {
         }
         if (i_this->m2CE == 1) {
             cMtx_YrotS(*calc_mtx, actor->current.angle.y);
-            cMtx_XrotM(*calc_mtx, i_this->m43E);
-            cMtx_ZrotM(*calc_mtx, i_this->m442);
+            cMtx_XrotM(*calc_mtx, i_this->m43E.x);
+            cMtx_ZrotM(*calc_mtx, i_this->m43E.z);
             offset.x = 0.0f;
             offset.y = 100.0f;
             offset.z = 200.0f;
@@ -1785,9 +1785,9 @@ void action_ground_attack(gm_class* i_this) {
         }
         actor->speed.y = 0.0f;
         actor->gravity = 0.0f;
-        i_this->m43E = 0;
-        i_this->m440 = 0;
-        i_this->m442 = 0;
+        i_this->m43E.x = 0;
+        i_this->m43E.y = 0;
+        i_this->m43E.z = 0;
         i_this->mWeaponSph.SetAtSpl(dCcG_At_Spl_UNK5);
         i_this->initBt(200.0f + REG8_F(4), 100.0f + REG8_F(5));
         i_this->setBtAttackData(0.0f, 10.0f, 880.0f + REG8_F(6), 1);
@@ -1934,7 +1934,7 @@ void action_ground_attack(gm_class* i_this) {
         }
     }
     if (i_this->m2D0 == 10 && i_this->mAcch.ChkGroundHit()) {
-        fopAcM_getGroundAngle(actor, (csXyz*)&i_this->m43E);
+        fopAcM_getGroundAngle(actor, &i_this->m43E);
     }
 }
 
