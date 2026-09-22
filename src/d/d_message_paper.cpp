@@ -163,6 +163,9 @@ void dmsg3_3d_c::draw() {
 }
 
 /* 801EB8DC-801EBA18       .text dMsg3_value_init__FP14sub_msg3_classUc */
+// NONMATCHING - regalloc only: `color` and the first alpha are swapped (r7/r8) on retail; matches D44J01; same as dMsg2_value_init (non-const getters).
+// Retail needs `color` created as a compiler temp before the four alpha temps; only register-steering forms (inline helpers or
+// `const u32&` reference locals) achieve that, so they are intentionally not used.
 void dMsg3_value_init(sub_msg3_class* i_Msg, u8 i_index) {
     static const u32 colorTable[] = {
         0x00000000,

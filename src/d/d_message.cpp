@@ -39,7 +39,9 @@ static u8 dMsg2_tex_i4_color[] = {
 };
 
 /* 801E73B4-801E74F4       .text dMsg2_value_init__FP14sub_msg2_classUc */
-// NONMATCHING - weird stuff with color OR'ing
+// NONMATCHING - regalloc only: `color` and the first alpha are swapped (r7/r8) on retail; matches D44J01 (non-const getters).
+// Retail needs `color` created as a compiler temp before the four alpha temps; only register-steering forms (inline helpers or
+// `const u32&` reference locals) achieve that, so they are intentionally not used.
 void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     static const u32 colorTable[] = {
         0x00000000,

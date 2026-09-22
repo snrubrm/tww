@@ -43,6 +43,9 @@ inline void JAInter::SeqUpdateData::init() {
 /* 80295684-802960A0       .text init__Q27JAInter11SequenceMgrFv */
 void JAInter::SequenceMgr::init() {
     /* Nonmatching */
+    // NONMATCHING - regalloc: `i` and `_para` are swapped (r29/r31). The target needs the `new` result for _para to survive as a
+    // separate register copy, which MWCC GC/1.3.2's copy propagation always folds for every spelling tried; the only form that
+    // keeps it (`_para = t ? t : t`) adds a cmplwi. Code is otherwise identical in all versions.
     JAIBasic* basic = JAIBasic::getInterface();
     JAISound* soundObjects = basic->makeSound(JAIGlobalParameter::getParamSeqControlBufferMax());
     JUT_ASSERT_MSG(41, soundObjects, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
