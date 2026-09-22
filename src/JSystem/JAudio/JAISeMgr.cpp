@@ -275,7 +275,11 @@ void JAInter::SeMgr::checkNextFrameSe() {
                     playing->field_0x6 = 0;
                 }
                 available = 1;
+#if VERSION == VERSION_DEMO
+            } else if (playing->mState == 0) {
+#else
             } else if (playing->mState == 0 || playing->mState == 5) {
+#endif
                 sePlaySound[category][slot] = 0;
                 available = 1;
             } else {
