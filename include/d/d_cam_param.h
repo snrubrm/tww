@@ -345,6 +345,10 @@ public:
     f32 ChargeLatitude() { return mChargeLatitude; }
 
     f32 ManualEndVal() { return mManualEndVal; }
+    f32 ManualStartCThreshold() { return mManualStartCThreshold; }
+    // names are guesses
+    f32 TriggerThreshold() { return m0A0; }
+    f32 SubjectDistance() { return m048; }
     f32 CinemaScopeTrimHeight() { return mTrimCineScopeHeight; }
     f32 VistaTrimHeight() { return mTrimVistaHeight; }
     f32 ForceLockOffTimer() { return mForceLockOffTimer; }

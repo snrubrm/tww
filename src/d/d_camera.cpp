@@ -711,7 +711,7 @@ void dCamera_c::updatePad() {
     mHoldLockL = mDoCPd_L_LOCK_BUTTON(mPadId);
     mTrigLockL = mDoCPd_L_LOCK_TRIGGER(mPadId);
 
-    if (mTriggerLeftLast > mCamSetup.m0A0) {
+    if (mTriggerLeftLast > mCamSetup.TriggerThreshold()) {
         if (m19A == 0) {
             m19B = 1;
         }
@@ -733,7 +733,7 @@ void dCamera_c::updatePad() {
     mHoldLockR = mDoCPd_R_LOCK_BUTTON(mPadId);
     mTrigLockR = mDoCPd_R_LOCK_TRIGGER(mPadId);
 
-    if (mTriggerRightLast > mCamSetup.m0A0) {
+    if (mTriggerRightLast > mCamSetup.TriggerThreshold()) {
         if (m1A6 == 0) {
             m1A7 = 1;
         }
@@ -919,7 +919,7 @@ bool dCamera_c::Run() {
             }
             m53C = fVar3;
             m538 = fVar2;
-            mViewCache.mCenter.y -= m53C * mCamSetup.mManualStartCThreshold;
+            mViewCache.mCenter.y -= m53C * mCamSetup.ManualStartCThreshold();
         }
     }
 
@@ -1110,7 +1110,7 @@ bool dCamera_c::Run() {
     if (chkFlag(0x40000)) {
         setComStat(dCamAttnStts_SUBJECT_e);
     }
-    else if (mDirection.R() < mCamSetup.m048) {
+    else if (mDirection.R() < mCamSetup.SubjectDistance()) {
         if (chkFlag(0x800)) {
             setComStat(dCamAttnStts_SUBJECT_e);
         }
