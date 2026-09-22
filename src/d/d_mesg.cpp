@@ -14,7 +14,7 @@
 #include "JSystem/JUtility/JUTAssert.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_meter.h"
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
 #include "d/d_s_play.h"
 #endif
 #include "f_op/f_op_msg.h"
@@ -220,6 +220,12 @@ void dMesg_tSequenceProcessor::initialize(int param_1) {
         } else {
             field_0x7c[i] = mesgControl->getLineLength(i);
         }
+#elif VERSION <= VERSION_JPN
+        if (stack_8c.mTextAlignment == 1) {
+            field_0x7c[i] = 0;
+        } else {
+            field_0x7c[i] = mesgControl->getLineLength(i);
+        }
 #else
         if (stack_8c.mTextAlignment != 3) {
             field_0x7c[i] = 0;
@@ -248,7 +254,11 @@ void dMesg_tSequenceProcessor::initialize(int param_1) {
     if (m_strSizeFlag) {
         retFlag--;
     }
+#if VERSION <= VERSION_JPN
+    mMesg->screen->shiftSet(0, (3 - (mesgControl->getLineCount() - retFlag)) * 42 / 2);
+#else
     mMesg->screen->shiftSet(0, g_msgHIO.field_0x5e * (4 - (mesgControl->getLineCount() - retFlag)) / 2);
+#endif
     char buffer[16];
     sprintf(buffer, "\x1b" "CR[%d]", field_0x7c[field_0x70]);
     strcat(mMesg->text[0], buffer);
@@ -519,6 +529,45 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
     switch (r30) {
     case 0:
         switch (param_1) {
+#if VERSION <= VERSION_JPN
+        case 0: {
+            r29 = true;
+            int char_code;
+            int r30 = 0;
+            const char* name = dComIfGs_getPlayerName();
+            char sp14[3];
+            while (name[r30]) {
+                u8 byte = name[r30];
+                if (byte >> 4 == 8 || byte >> 4 == 9) {
+                    sp14[0] = name[r30++];
+                    char_code = ((byte << 8) & ~0xFF);
+                    byte = name[r30];
+                    char_code |= (byte & 0xFF);
+                    sp14[1] = name[r30++];
+                    sp14[2] = 0;
+                } else {
+                    char_code = byte;
+                    sp14[0] = name[r30++];
+                    sp14[1] = 0;
+                }
+
+                f32 f29 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
+                int width = mesgControl->getMainFont()->getWidth(char_code);
+                if (field_0x44 == 0.0f) {
+                    f32 temp2 = width * f29;
+                    field_0x44 = temp2;
+                } else {
+                    f32 temp2 = width * f29;
+                    field_0x44 += temp2 + mesgControl->getCharSpace();
+                }
+                strcat(mMesg->text[0], sp14);
+                strcat(mMesg->text[2], sp14);
+                field_0x5c = strlen(mMesg->text[0]);
+                field_0x64 = strlen(mMesg->text[2]);
+            };
+            break;
+        }
+#else
         case 0: {
             r29 = true;
             int char_code;
@@ -606,6 +655,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
             };
             break;
         }
+#endif
         case 1:
             field_0x8c = 0;
             r29 = true;
@@ -659,7 +709,11 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
         case 29: {
             u8 r29_2 = param_1 - 10;
             s16 r30 = field_0x44 + mMesg->screen->getTextPosX(0) + 0.5f;
+#if VERSION <= VERSION_JPN
+            s16 r24 = field_0x70 * 42 + (mMesg->screen->getTextPosY(0) + ((3 - mesgControl->getLineCount()) * 42) / 2);
+#else
             s16 r24 = field_0x70 * g_msgHIO.field_0x5e + (mMesg->screen->getTextPosY(0) + (g_msgHIO.field_0x5e * (4 - VERSION_SELECT(mesgControl->getLineCount(), mesgControl->getLineCount(), mesgControl->getLineCount(), (mesgControl->getLineCount() - retFlag)))) / 2);
+#endif
             setCharacter();
             for (int i = 0; i < 18; i++) {
                 if (mMesg->outfont[i]->_set(r30, r24, mesgControl->getNowFontSize(), mNowColor, r29_2)) {
@@ -730,6 +784,10 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
                 }
                 strcat(mMesg->text[0], sp10);
                 strcat(mMesg->text[2], sp10);
+#if VERSION <= VERSION_JPN
+                field_0x5c = strlen(mMesg->text[0]);
+                field_0x64 = strlen(mMesg->text[2]);
+#endif
             }
         }
         }
@@ -835,7 +893,20 @@ bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2
             mNowColor = colorTable[u8(*(u8*)param_2)];
             char buffer[32];
             sprintf(buffer, "\x1b" "CC[%08x]" "\x1b" "GM[0]", mNowColor);
+#if VERSION <= VERSION_JPN
+            if (mesgControl->isHeader()) {
+                strcat(mMesg->text[0], &field_0x94);
+                strcat(mMesg->text[2], &field_0x94);
+                field_0x96 = 0;
+                field_0x95 = 0;
+                field_0x94 = 0;
+            }
+#endif
             strcat(mMesg->text[0], buffer);
+#if VERSION <= VERSION_JPN
+            field_0x5c = strlen(mMesg->text[0]);
+            field_0x64 = strlen(mMesg->text[2]);
+#endif
         }
         return true;
     case 1:
@@ -859,7 +930,7 @@ bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2
                     strcat(mMesg->text[2], buffer);
                     s_strSizeFlag = true;
                 }
-                dMesg_fontsizeCenter(mMesg, r31, r29, mesgControl->getInitFontSize(), g_msgHIO.field_0x5e);
+                dMesg_fontsizeCenter(mMesg, r31, r29, mesgControl->getInitFontSize(), VERSION_SELECT(42, 42, g_msgHIO.field_0x5e, g_msgHIO.field_0x5e));
             }
         }
         return true;
@@ -994,8 +1065,10 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
         case 0: {
             r26 = true;
             r25 = 0;
+#if VERSION <= VERSION_JPN
+            const char* sp44 = dComIfGs_getPlayerName();
+#else
             char sp44[17];
-#if VERSION > VERSION_DEMO
             JMSMesgEntry_c stack_98 = *(JMSMesgEntry_c*)dMesg_gpControl->getMessageEntry(dMesg_nowMesgCode);
 
             strcpy(sp44, dComIfGs_getPlayerName());
@@ -1116,7 +1189,7 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
         case 8:
             field_0x54 = 2;
             for (int i = 0; i < 2; i++) {
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
                 // 0x8267: 'Ｈ' (Fullwidth capital H)
                 int char_code = g_msgDHIO.field_0x08 == 0 ? 0x8267 : 'H';
 #else
@@ -1136,7 +1209,7 @@ bool dMesg_tMeasureProcessor::do_tag(u32 param_1, const void* param_2, u32 param
         case 9:
             field_0x54 = 3;
             for (int i = 0; i < 2; i++) {
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
                 // 0x8267: 'Ｈ' (Fullwidth capital H)
                 int char_code = g_msgDHIO.field_0x08 == 0 ? 0x8267 : 'H';
 #else
@@ -1337,6 +1410,40 @@ void dMesg_screenData_c::setCommonData() {
     ((J2DTextBox*)field_0x88[2].pane)->setFont(field_0x10);
     ((J2DTextBox*)field_0x88[3].pane)->setFont(field_0x14);
 
+#if VERSION <= VERSION_JPN
+    J2DTextBox::TFontSize fontSize;
+    if (g_msgDHIO.field_0x08 == 0) {
+        J2DTextBox::TFontSize rubySize;
+        fontSize.mSizeX = (int)g_msgHIO.field_0x58;
+        fontSize.mSizeY = (int)g_msgHIO.field_0x58;
+        rubySize.mSizeX = g_msgHIO.field_0x68;
+        rubySize.mSizeY = g_msgHIO.field_0x68;
+        ((J2DTextBox*)field_0x88[0].pane)->setFontSize(fontSize);
+        ((J2DTextBox*)field_0x88[1].pane)->setFontSize(rubySize);
+        ((J2DTextBox*)field_0x88[2].pane)->setFontSize(fontSize);
+        ((J2DTextBox*)field_0x88[3].pane)->setFontSize(rubySize);
+    } else {
+        fontSize.mSizeX = g_msgHIO.field_0x70;
+        fontSize.mSizeY = g_msgHIO.field_0x70;
+        ((J2DTextBox*)field_0x88[0].pane)->setFontSize(fontSize);
+        ((J2DTextBox*)field_0x88[2].pane)->setFontSize(fontSize);
+    }
+
+    ((J2DTextBox*)field_0x88[0].pane)->setCharSpace(g_msgHIO.field_0x5a);
+    ((J2DTextBox*)field_0x88[1].pane)->setCharSpace(g_msgHIO.field_0x5c);
+    ((J2DTextBox*)field_0x88[2].pane)->setCharSpace(g_msgHIO.field_0x5a);
+    ((J2DTextBox*)field_0x88[3].pane)->setCharSpace(g_msgHIO.field_0x5c);
+
+    if (g_msgDHIO.field_0x08 == 0) {
+        ((J2DTextBox*)field_0x88[0].pane)->setLineSpace(42.0f);
+        ((J2DTextBox*)field_0x88[1].pane)->setLineSpace(42.0f);
+        ((J2DTextBox*)field_0x88[2].pane)->setLineSpace(42.0f);
+        ((J2DTextBox*)field_0x88[3].pane)->setLineSpace(42.0f);
+    } else {
+        ((J2DTextBox*)field_0x88[0].pane)->setLineSpace(g_msgHIO.field_0x5e);
+        ((J2DTextBox*)field_0x88[2].pane)->setLineSpace(g_msgHIO.field_0x5e);
+    }
+#else
     J2DTextBox::TFontSize fontSize;
     fontSize.mSizeX = g_msgHIO.field_0x70;
     fontSize.mSizeY = g_msgHIO.field_0x70;
@@ -1350,6 +1457,7 @@ void dMesg_screenData_c::setCommonData() {
 
     ((J2DTextBox*)field_0x88[0].pane)->setLineSpace(g_msgHIO.field_0x5e);
     ((J2DTextBox*)field_0x88[2].pane)->setLineSpace(g_msgHIO.field_0x5e);
+#endif
     mTimer = 0;
     field_0x1b0.set(((J2DPicture*)field_0x18.pane)->getBlack());
     field_0x1ac.set(((J2DPicture*)field_0x18.pane)->getWhite());
