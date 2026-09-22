@@ -737,7 +737,7 @@ bool daPz_c::checkTgHit() {
                 return false;
             }
 
-            switch (((cCcD_ObjAt*)hitObj)->GetType()) {
+            switch (hitObj->GetAtType()) {
             case AT_TYPE_SWORD:
             case AT_TYPE_MACHETE:
             case AT_TYPE_UNK800:
