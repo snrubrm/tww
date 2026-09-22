@@ -1320,7 +1320,7 @@ void dMesg_screenDataTalk_c::createScreen() {
     JUtility::TColor white(30, 30, 30, 215);
     JUtility::TColor black(30, 30, 75, 0);
     scrn = new J2DScreen();
-    JUT_ASSERT(2145, scrn != NULL);
+    JUT_ASSERT(VERSION_SELECT(2145, 2145, 2145, 2259), scrn != NULL);
 #if VERSION == VERSION_DEMO
     scrn->set("hukidashi_d00.blo", dComIfGp_getMsgArchive());
 #else
