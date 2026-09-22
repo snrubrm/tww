@@ -429,8 +429,9 @@ BOOL daObjSwpush::Act_c::jnodeCB(J3DNode* node, int calcTiming) {
 
 /* 0000105C-00001170       .text calc_top_pos__Q211daObjSwpush5Act_cFv */
 void daObjSwpush::Act_c::calc_top_pos() {
+    f32 diff = mCurHFrac - mTargetHFrac;
     f32 decay = attr().mSpeedDecay;
-    mSpeed -= (mCurHFrac - mTargetHFrac) * attr().mSpring;
+    mSpeed -= diff * attr().mSpring;
     mSpeed -= mSpeed * decay;
     mCurHFrac += mSpeed;
     m31C = (1.0f - mCurHFrac) * -35.5f;
