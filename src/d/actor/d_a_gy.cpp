@@ -1263,41 +1263,25 @@ void daGy_c::createWave() {
 #endif
 
 /* 00003004-00003268       .text setWave__6daGy_cFv */
+// NONMATCHING - target multiplies m18 by a 1.0f local and reloads l_HIO.m24 in case 1 instead of reusing it
 void daGy_c::setWave() {
     f32 splash_target;
     f32 wave_speed;
     f32 max_speed = l_HIO.m24;
-    f32 one = 1.0f;
-    s8 prm = mPrmIdx;
 
-    /* Keep orig cmpwi 5/8/9/6 chain; last compare is bne to the non-zero path. */
-    if (prm == 5) {
-        goto wave_zero;
+    if (mPrmIdx == 5 || mPrmIdx == 8 || mPrmIdx == 9 || mPrmIdx == 6) {
+        wave_speed = 0.0f;
+        splash_target = 0.0f;
+    } else {
+        wave_speed = l_HIO.m18;
+        splash_target = l_HIO.m10;
     }
-    if (prm == 8) {
-        goto wave_zero;
-    }
-    if (prm == 9) {
-        goto wave_zero;
-    }
-    if (prm != 6) {
-        goto wave_nz;
-    }
-wave_zero:
-    wave_speed = 0.0f;
-    splash_target = 0.0f;
-    goto wave_ready;
-wave_nz:
-    wave_speed = l_HIO.m18 * one;
-    splash_target = l_HIO.m10;
-wave_ready:
 
     switch (m2B0) {
-    case 1: {
-        max_speed = *(volatile f32*)&l_HIO.m24 * (0.6f + REG12_F(13));
+    case 1:
+        max_speed = l_HIO.m24 * (0.6f + REG12_F(13));
         wave_speed = wave_speed * (0.7f + REG12_F(13));
         break;
-    }
     case 0:
         wave_speed = 0.0f;
         splash_target = 0.0f;
@@ -1308,8 +1292,7 @@ wave_ready:
         break;
     }
 
-    /* Empty then + else body keeps orig beq; b (MWCC inverts a plain == into bne). */
-    switch (prm) {
+    switch (mPrmIdx) {
     case 0xA:
         wave_speed = 0.0f;
         splash_target = 0.0f;
