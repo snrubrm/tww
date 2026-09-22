@@ -299,7 +299,7 @@ BOOL next_pos_set(pt_class* i_this) {
 
     if (actor->current.angle.x < 0x2000 && actor->current.angle.x > -0x2000) {
 #if VERSION == VERSION_DEMO
-        s16 ang = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+        s16 ang = fopAcM_searchPlayerAngleY(actor);
 #else
         s16 ang = i_this->m2FC;
 #endif
@@ -760,7 +760,7 @@ do_wait:
             delta = camera->view.mLookat.mCenter - camera->view.mLookat.mEye;
             s16 ang = cM_atan2s(delta.x, delta.z);
             delta = pos - camera->view.mLookat.mEye;
-            mDoMtx_YrotS(*calc_mtx, -ang);
+            cMtx_YrotS(*calc_mtx, -ang);
             MtxPosition(&delta, &pos);
             if (pos.z < 0.0f) {
                 unseen = 1;
