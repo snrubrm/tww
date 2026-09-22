@@ -1089,7 +1089,12 @@ void ph_fly_sea_move(ph_class* i_this) {
             i_this->m0346 = 0;
             break;
         }
+#if VERSION == VERSION_DEMO
+        f32 speed = 98.0f;
+        cLib_addCalc2(&actor->speedF, speed, 1.0f, 10.0f);
+#else
         cLib_addCalc2(&actor->speedF, 98.0f, 1.0f, 10.0f);
+#endif
         if (i_this->m0366 == 0) {
             i_this->m0366 = 0xF;
             i_this->m0341 = 0;
@@ -1761,7 +1766,11 @@ void ph_damage_dead_move(ph_class* i_this) {
         }
         break;
     case 0x2F: {
+#if VERSION == VERSION_DEMO
+        int zero = 0;
+#else
         s16 zero = 0;
+#endif
         actor->shape_angle.x = zero;
         actor->shape_angle.z = zero;
         actor->current.angle.x = zero;
@@ -1772,7 +1781,7 @@ void ph_damage_dead_move(ph_class* i_this) {
         i_this->mBodySph.OffTgSetBit();
         actor->speedF = 0.0f;
         actor->gravity = -3.0f;
-        actor->attention_info.flags = 0;
+        actor->attention_info.flags = DEMO_SELECT(zero, 0);
         actor->health = zero;
         i_this->m035E = zero;
         if (i_this->m02FC.x) {
@@ -2032,6 +2041,15 @@ void ph_water_move(ph_class* i_this) {
     case 0x3C:
         i_this->mBodySph.OnCoSetBit();
         i_this->mBodySph.SetTgType(0xFF3DFEFF);
+#if VERSION == VERSION_DEMO
+        actor->shape_angle.x = 0;
+        actor->shape_angle.z = 0;
+        actor->current.angle.x = 0;
+        actor->current.angle.z = 0;
+        for (int i = 0; i < 7; i++) {
+            (&i_this->m0356)[i] = 0;
+        }
+#else
         {
             s16 zero = 0;
             actor->shape_angle.x = zero;
@@ -2042,6 +2060,7 @@ void ph_water_move(ph_class* i_this) {
                 (&i_this->m0356)[i] = 0;
             }
         }
+#endif
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
         if (i_this->mType != 1) {
@@ -2079,7 +2098,12 @@ void ph_water_move(ph_class* i_this) {
             cLib_addCalcAngleS2(&actor->shape_angle.y, targetY, 1, 0x700);
 #endif
         }
+#if VERSION == VERSION_DEMO
+        f32 speed = 30.0f;
+        cLib_addCalc2(&actor->speedF, speed, 1.0f, 10.0f);
+#else
         cLib_addCalc2(&actor->speedF, 30.0f, 1.0f, 10.0f);
+#endif
         {
             u32 vol = (u32)(3.4f * actor->speedF);
             if (vol > 100) {
@@ -2110,6 +2134,18 @@ void ph_water_move(ph_class* i_this) {
     case 0x46:
         i_this->mBodySph.OnCoSetBit();
         i_this->mBodySph.SetTgType(0xFF3DFEFF);
+#if VERSION == VERSION_DEMO
+        {
+            s16 zero = 0;
+            actor->shape_angle.x = zero;
+            actor->shape_angle.z = zero;
+            actor->current.angle.x = zero;
+            actor->current.angle.z = zero;
+            for (int i = 0; i < 7; i++) {
+                (&i_this->m0356)[i] = zero;
+            }
+        }
+#else
         {
             s16 zero = 0;
             actor->shape_angle.x = zero;
@@ -2120,6 +2156,7 @@ void ph_water_move(ph_class* i_this) {
                 (&i_this->m0356)[i] = 0;
             }
         }
+#endif
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
         {
@@ -2233,8 +2270,7 @@ static BOOL daPH_Execute(ph_class* i_this) {
     }
 
     if (enemy_ice(&i_this->mEnemyIce)) {
-        J3DModel* model = i_this->mpBodyMorf->getModel();
-        MTXCopy(mDoMtx_stack_c::now, model->getBaseTRMtx());
+        i_this->mpBodyMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::now);
         i_this->mpBodyMorf->calc();
         f32 x = i_this->m02FC.x;
         f32 zero = 0.0f;
@@ -2327,12 +2363,17 @@ static BOOL daPH_Execute(ph_class* i_this) {
         break;
     }
 
-    mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
+    cMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    cMtx_XrotM(*calc_mtx, actor->current.angle.x);
 
     {
+#if VERSION == VERSION_DEMO
+        f32 yOff = i_this->m037C;
+        f32 zero = 0.0f;
+#else
         f32 zero = 0.0f;
         f32 yOff = i_this->m037C;
+#endif
         if (yOff != zero) {
             if (i_this->m02FC.x != zero) {
                 f32 lim = 1000.0f;
@@ -2706,7 +2747,7 @@ static cPhs_State daPH_Create(fopAc_ac_c* a_this) {
         phase = dComIfG_resLoad(&i_this->mPhs, "PH");
     } else {
         phase = dComIfG_resLoad(&i_this->mPhs, "SH");
-        heapSize = 0x3E40;
+        heapSize = DEMO_SELECT(0, 0x3E40);
     }
 
     if (phase == cPhs_COMPLEATE_e) {
@@ -2808,8 +2849,12 @@ static cPhs_State daPH_Create(fopAc_ac_c* a_this) {
 
     if (i_this->mType == 1) {
         i_this->mAtCyl.SetAtSpl(dCcG_At_Spl_UNK9);
+#if VERSION == VERSION_DEMO
+        fopAcM_setCullSizeBox(a_this, -500.0f, -500.0f, -500.0f, 500.0f, 500.0f, 500.0f);
+#else
         fopAcM_setCullSizeBox(a_this, -200.0f, -200.0f, -200.0f, 200.0f, 200.0f, 200.0f);
         a_this->cullSizeFar = 10000.0f + REG8_F(8) / mDoLib_clipper::mSystemFar;
+#endif
         i_this->m033F = 0;
         i_this->m0346 = 0;
         a_this->actor_status &= ~fopAcStts_UNK80000_e;
