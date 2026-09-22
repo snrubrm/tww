@@ -200,7 +200,9 @@ void daObjTribox::Act_c::controll_set() {
                 mControll = 1;
                 M_sink_start = 0;
                 M_correct_flag = false;
+#if VERSION > VERSION_JPN
                 M_correct_cnt = 0;
+#endif
             } else {
                 mControll = 0;
             }
@@ -221,10 +223,10 @@ void daObjTribox::Act_c::controll_set() {
 void daObjTribox::Act_c::controll_clear() {
     if (prm_get_type() == 1) {
         --M_c_cont_cnt;
-        JUT_ASSERT(0x214, M_c_cont_cnt >= 0);
+        JUT_ASSERT(VERSION_SELECT(0x21D, 0x213, 0x214, 0x214), M_c_cont_cnt >= 0);
     } else {
         --M_b_cont_cnt;
-        JUT_ASSERT(0x217, M_b_cont_cnt >= 0);
+        JUT_ASSERT(VERSION_SELECT(0x220, 0x216, 0x217, 0x217), M_b_cont_cnt >= 0);
     }
 }
 
@@ -321,7 +323,7 @@ fopAc_ac_c* daObjTribox::Act_c::push_pullCB(fopAc_ac_c* actor, fopAc_ac_c* other
     dBgW::PushPullLabel pp_label = cLib_checkBit(i_pp_label, (dBgW::PushPullLabel)(dBgW::PPLABEL_PUSH | dBgW::PPLABEL_PULL));
     if (pp_label) {
         const int pp_field = dBgW::PPLABEL_PUSH | dBgW::PPLABEL_PULL;
-        JUT_ASSERT(0x2B0, pp_label != pp_field);
+        JUT_ASSERT(VERSION_SELECT(0x2B9, 0x2AF, 0x2B0, 0x2B0), pp_label != pp_field);
 
         if (cLib_checkBit(pp_label, dBgW::PPLABEL_PUSH)) {
             i_this->mPushPull = 0;
@@ -361,7 +363,7 @@ bool daObjTribox::Act_c::line_cross(const cXyz* p0, const cXyz* p1) const {
 
 /* 00000FF4-000012A0       .text chk_wall__Q211daObjTribox5Act_cCFi */
 bool daObjTribox::Act_c::chk_wall(int num) const {
-    JUT_ASSERT(0x30C, (num == 1) || (num == 2));
+    JUT_ASSERT(VERSION_SELECT(0x315, 0x30B, 0x30C, 0x30C), (num == 1) || (num == 2));
 
     int idx;
     if (mSign >= 0) {
