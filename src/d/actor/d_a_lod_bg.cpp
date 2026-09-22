@@ -14,6 +14,166 @@
 #include "JSystem/J3DGraphLoader/J3DModelLoader.h"
 #include <stdio.h>
 
+#if VERSION == VERSION_DEMO
+inline daLodbg_c::daLodbg_c() {
+    setExecute(&daLodbg_c::execCreateWait);
+    scale.x *= 20000.0f;
+    scale.z = scale.x + 20000.0f;
+    dKy_tevstr_init(&tevStr, fopAcM_GetParam(this), 0xFF);
+}
+
+inline daLodbg_c::~daLodbg_c() {
+    dComIfG_deleteStageRes(getArcName());
+}
+
+s32 daLodbg_c::getRoomNo() {
+    return fopAcM_GetParam(this);
+}
+
+/* 00000078-000000B8       .text getArcName__9daLodbg_cFv */
+const char* daLodbg_c::getArcName() {
+    static char arcName[32];
+    sprintf(arcName, "LOD%02d", fopAcM_GetParam(this));
+    return arcName;
+}
+
+inline BOOL daLodbg_c::createHeap() {
+    J3DModelData* modelData = (J3DModelData*)dComIfG_getStageRes(getArcName(), "model.bdl");
+    JUT_ASSERT(129, modelData != NULL);
+    mModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
+    if (mModel == NULL)
+        return FALSE;
+    if (getRoomNo() == dIsleRoom_WindfallIsland_e) {
+        modelData = (J3DModelData*)dComIfG_getStageRes(getArcName(), "shikari.bdl");
+        JUT_ASSERT(142, modelData != NULL);
+        for (s32 i = 0; i < 2; i++) {
+            mModel2[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
+            if (mModel2[i] == NULL)
+                return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+/* 000000B8-00000238       .text createHeapCallBack__FP10fopAc_ac_c */
+static BOOL createHeapCallBack(fopAc_ac_c* i_ac) {
+    return ((daLodbg_c*)i_ac)->createHeap();
+}
+
+/* 00000238-00000318       .text execCreateWait__9daLodbg_cFv */
+BOOL daLodbg_c::execCreateWait() {
+    f32 dist = fopAcM_searchPlayerDistanceXZ(this);
+    if (dist > scale.x)
+        return TRUE;
+
+    if (!dComIfG_setStageRes(getArcName(), NULL)) {
+        JUT_WARN(180, "LOD model nothing !! <%s.arc>", getArcName());
+        return FALSE;
+    }
+
+    setExecute(&daLodbg_c::execReadWait);
+    return TRUE;
+}
+
+/* 00000318-00000428       .text execReadWait__9daLodbg_cFv */
+BOOL daLodbg_c::execReadWait() {
+    int rt = dComIfG_syncStageRes(getArcName());
+    if (rt < 0) {
+        setExecute(&daLodbg_c::execDeleteWait);
+        return TRUE;
+    }
+    if (rt > 0)
+        return TRUE;
+
+    if (!fopAcM_entrySolidHeap(this, createHeapCallBack, 0)) {
+        setExecute(&daLodbg_c::execDeleteWait);
+        return TRUE;
+    }
+
+    fopAcM_SetMtx(this, mModel->getBaseTRMtx());
+    setExecute(&daLodbg_c::execDeleteWait);
+    return TRUE;
+}
+
+/* 00000428-00000688       .text execDeleteWait__9daLodbg_cFv */
+BOOL daLodbg_c::execDeleteWait() {
+    if (heap != NULL) {
+        f32 dist = fopAcM_searchPlayerDistanceXZ(this);
+        if (dist < scale.z) {
+            s32 roomNo = getRoomNo();
+            bool disp = dist > scale.x || (dComIfGp_roomControl_checkStatusFlag(roomNo, 0x01) && !dComIfGp_roomControl_checkStatusFlag(roomNo, 0x04));
+            u8 target = disp ? 0 : 255;
+            cLib_chaseUC(&mAlpha, target, 16);
+            if (mAlpha != 0) {
+                f32 y = (150000.0f - dist);
+
+                if (y >= 0.0f)
+                    y = 0.0f;
+                else
+                    y *= 0.1f;
+
+                mDoMtx_stack_c::transS(current.pos.x, current.pos.y + y, current.pos.z);
+                mDoMtx_stack_c::YrotM(shape_angle.y);
+                mModel->setBaseTRMtx(mDoMtx_stack_c::get());
+                mModel->setBaseTRMtx(mDoMtx_stack_c::get());
+                if (mModel2[0] != NULL) {
+                    mDrawModel2 = daObjLight::Act_c::renew_light_angle();
+                    if (mDrawModel2) {
+                        mDoMtx_stack_c::transS(630.46338f, 4044.508f - y, -202724.0f);
+                        mDoMtx_stack_c::YrotM(daObjLight::Act_c::get_light_angle());
+                        mModel2[0]->setBaseTRMtx(mDoMtx_stack_c::get());
+                        mDoMtx_stack_c::YrotM(-0x8000);
+                        mModel2[1]->setBaseTRMtx(mDoMtx_stack_c::get());
+                    }
+                }
+            }
+
+            return TRUE;
+        }
+    }
+
+    fopAcM_DeleteHeap(this);
+    mModel2[0] = NULL;
+    mAlpha = 0;
+    dComIfG_deleteStageRes(getArcName());
+    setExecute(&daLodbg_c::execCreateWait);
+    return TRUE;
+}
+
+inline BOOL daLodbg_c::draw() {
+    if (heap == NULL || mAlpha == 0)
+        return TRUE;
+
+    s32 roomNo = getRoomNo();
+    if (roomNo == dIsleRoom_ToweroftheGods_e && !dComIfGs_isEventBit(dSv_event_flag_c::UNK_1E40))
+        return TRUE;
+
+    g_env_light.settingTevStruct(TEV_TYPE_BG0, NULL, &tevStr);
+    g_env_light.setLightTevColorType(mModel, &tevStr);
+    J3DModelData* modelData = mModel->getModelData();
+    for (u16 i = 0; i < modelData->getMaterialNum(); i++)
+        modelData->getMaterialNodePointer(i)->getTevKColor(3)->mColor.a = mAlpha;
+    mDoLib_clipper::changeFar(500000.0f);
+    mModel->calc();
+    mDoLib_clipper::clip(mModel);
+    mDoExt_modelEntryDL(mModel);
+
+    if (mModel2[0] != NULL && mDrawModel2) {
+        J3DModelData* modelData = mModel2[0]->getModelData();
+        for (u16 i = 0; i < modelData->getMaterialNum(); i++)
+            modelData->getMaterialNodePointer(i)->getTevKColor(3)->mColor.a = mAlpha;
+
+        for (s32 i = 0; i < 2; i++) {
+            mModel2[i]->calc();
+            mDoLib_clipper::clip(mModel2[i]);
+            mDoExt_modelEntryDL(mModel2[i]);
+        }
+    }
+
+    mDoLib_clipper::resetFar();
+    return TRUE;
+}
+#else
 const char daLodbg_c::LodAllPath[] = "/res/Stage/sea/LODALL.arc";
 
 daLodbg_c::daLodbg_c() {
@@ -381,6 +541,8 @@ BOOL daLodbg_c::draw() {
     mDoLib_clipper::resetFar();
     return TRUE;
 }
+
+#endif
 
 BOOL daLodbg_c::execute() {
     return (this->*this->mExecuteFunc)();
