@@ -281,18 +281,18 @@ void daNpc_P2_c::cutJumpToLiftProc(int staffIdx) {
         speedF = m7FC;
         mAnmNo = 8;
     } else {
-        if (mAcch.ChkGroundHit() && ((s8)mAnmNo == 9 || (s8)mAnmNo == 10)) {
+        if (mAcch.ChkGroundHit() && (mAnmNo == 9 || mAnmNo == 10)) {
             speedF = 0.0f;
             m7DC.set(0.0f, -100.0f, 0.0f);
             mAnmNo = 10;
         } else {
-            if (speed.y <= 0.0f && (s8)mAnmNo == 8) {
+            if (speed.y <= 0.0f && mAnmNo == 8) {
                 m7DC.set(0.0f, -50.0f, 0.0f);
                 mAnmNo = 9;
             }
         }
     }
-    if ((s8)mAnmNo == 5) {
+    if (mAnmNo == 5) {
         smoke_set();
     } else if (mAcch.ChkGroundLanding()) {
         fopAcM_monsSeStart(this, JA_SE_CV_NK_LANDING, 0);
@@ -303,13 +303,13 @@ void daNpc_P2_c::cutJumpToLiftProc(int staffIdx) {
     }
     mSavedPos = current.pos;
     mSavedAngle = current.angle;
-    if (mAcch.ChkGroundHit() && (s8)mAnmNo == 5) {
+    if (mAcch.ChkGroundHit() && mAnmNo == 5) {
         speedF = maxSpeed * 2.0f;
-    } else if (mAcch.ChkGroundHit() && ((s8)mAnmNo != 10 && (s8)mAnmNo != 1)) {
+    } else if (mAcch.ChkGroundHit() && (mAnmNo != 10 && mAnmNo != 1)) {
         cLib_addCalc2(&current.pos.x, local_2c.x, 0.1f, maxSpeed);
         cLib_addCalc2(&current.pos.z, local_2c.z, 0.1f, maxSpeed);
     } else {
-        if (!cLib_calcTimer(&m7F4) && (s8)mAnmNo == 10) {
+        if (!cLib_calcTimer(&m7F4) && mAnmNo == 10) {
             mAnmNo = 1;
             m7DC.setall(0.0f);
             mClosestPos.setall(0.0f);

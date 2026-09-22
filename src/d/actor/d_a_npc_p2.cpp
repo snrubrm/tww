@@ -289,7 +289,7 @@ void daNpc_P2_c::setAnm() {
         a_morf_frame_tbl[i] = l_HIO.mChild[mType].m74[i];
     }
 
-    if ((s8)m7D4 != (s8)mAnmNo) {
+    if (m7D4 != mAnmNo) {
         s8 num = a_anm_num_tbl[mType][mAnmNo];
         if (num != -1) {
             m7D2 = num;
@@ -320,13 +320,13 @@ void daNpc_P2_c::setAnm() {
 
     m7D4 = mAnmNo;
 
-    if (mpMorf->isStop() && (s32)mAnmNo == 0x13) {
+    if (mpMorf->isStop() && mAnmNo == 0x13) {
         mAnmNo = 3;
     }
-    if ((s32)mAnmNo == 7 && mpMorf->isStop()) {
+    if (mAnmNo == 7 && mpMorf->isStop()) {
         mAnmNo = 1;
     }
-    if (mType == 0 && mpMorf->isStop() && (s32)mAnmNo == 0x17) {
+    if (mType == 0 && mpMorf->isStop() && mAnmNo == 0x17) {
         mAnmNo = 0x0D;
     }
 }

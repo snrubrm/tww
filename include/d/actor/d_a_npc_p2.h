@@ -205,7 +205,7 @@ public:
     /* 0x7D1 */ s8 m7D1;
     /* 0x7D2 */ u8 m7D2;
     /* 0x7D3 */ s8 mAnmNo;
-    /* 0x7D4 */ u8 m7D4;
+    /* 0x7D4 */ s8 m7D4;
     /* 0x7D5 */ s8 m7D5;
     /* 0x7D6 */ s8 m7D6;
     /* 0x7D7 */ u8 m7D7;
