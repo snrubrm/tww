@@ -10,7 +10,15 @@
 #undef LR
 
 #define EXCEPTIONMASK_ADDR 0x80000044
+#if VERSION == VERSION_DEMO
+#define DB_STACK_ADDR 0x80402dc0
+#elif VERSION == VERSION_JPN
+#define DB_STACK_ADDR 0x80402488
+#elif VERSION == VERSION_USA
 #define DB_STACK_ADDR 0x8040efa8
+#else
+#define DB_STACK_ADDR 0x80416808
+#endif
 
 static u32 lc_base;
 
