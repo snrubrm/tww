@@ -2695,12 +2695,14 @@ void dMenu_Collect_c::itemnameSet() {
 
     J2DTextBox::TFontSize copiedFontSize;
     J2DTextBox::TFontSize nameFontSize;
+#if VERSION > VERSION_JPN
     J2DTextBox::TFontSize initialFontSize;
 
     initialFontSize.mSizeY = 29.0f;
     initialFontSize.mSizeX = 29.0f;
 
     ((J2DTextBox*)m858.pane)->setFontSize(initialFontSize);
+#endif
 
     ((J2DTextBox*)m890[0].pane)->getFontSize(copiedFontSize);
     ((J2DTextBox*)m890[1].pane)->setFontSize(copiedFontSize);
