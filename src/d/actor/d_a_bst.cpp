@@ -291,7 +291,7 @@ static void stay(bst_class* i_this) {
         if (i_this->mBstPartType != bst_class::Type_HEAD_e && i_this->m10FC[3] != 0) {
             for (s32 i = 2; i <= 16; i++) {
                 MtxP mtx = i_this->m02B8->getModel()->getAnmMtx(i);
-                cMtx_copy(mtx, *calc_mtx);
+                MTXCopy(mtx, *calc_mtx);
                 cXyz pos_vec;
                 cXyz vec(0.0f, 0.0f, 0.0f);
                 MtxPosition(&vec, &pos_vec);
@@ -1046,10 +1046,8 @@ static void damage(bst_class* i_this) {
         if (i_this->mBstPartType != bst_class::Type_HEAD_e) {
             anm_init(i_this, damage_bck_d[i_this->mBstPartType], 1.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
         }
-        J3DAnmTevRegKey* reg_key = (J3DAnmTevRegKey*)dComIfG_getObjectRes("Bst", damage_brk_d[i_this->mBstPartType]);
-        i_this->mpTevRegAnimator->init(i_this->m02B8->getModel()->getModelData(), reg_key, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, FALSE);
-        J3DAnmTextureSRTKey* srt_key = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Bst", damage_btk_d[i_this->mBstPartType]);
-        i_this->mpTexMtxAnimator->init(i_this->m02B8->getModel()->getModelData(), srt_key, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, FALSE);
+        i_this->mpTevRegAnimator->init(i_this->m02B8->getModel()->getModelData(), (J3DAnmTevRegKey*)dComIfG_getObjectRes("Bst", damage_brk_d[i_this->mBstPartType]), TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, FALSE);
+        i_this->mpTexMtxAnimator->init(i_this->m02B8->getModel()->getModelData(), (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Bst", damage_btk_d[i_this->mBstPartType]), TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, FALSE);
         i_this->mDamage++;
         i_this->m10FC[0] = 30;
         break;
@@ -1310,7 +1308,7 @@ static void col_set(bst_class* i_this) {
     cXyz pos_vec;
     if (i_this->mBstPartType == bst_class::Type_HEAD_e) {
         MtxP mtx = i_this->m02B8->getModel()->getAnmMtx(BST_JNT_KUTI_e);
-        cMtx_copy(mtx, *calc_mtx);
+        MTXCopy(mtx, *calc_mtx);
         vec.x = REG0_F(0) + (-30.0f);
         vec.y = REG0_F(1);
         vec.z = REG0_F(2) + (-100.0f);
@@ -1333,7 +1331,7 @@ static void col_set(bst_class* i_this) {
         vec.setall(0.0f);
         for (s32 i = 0; i < 2; i++) {
             MtxP mtx = i_this->m02B8->getModel()->getAnmMtx(i + BST_JNT_EYEL_e);
-            cMtx_copy(mtx, *calc_mtx);
+            MTXCopy(mtx, *calc_mtx);
             MtxPosition(&vec, &pos_vec);
             if (i_this->m2E74[i] != 0 || i_this->mEyeHealth[i] <= 0) {
                 if (i_this->m2E74[i] != 0) {
@@ -1356,14 +1354,14 @@ static void col_set(bst_class* i_this) {
         }
         for (s32 i = 0; i < 15; i++) {
             MtxP mtx = i_this->m02B8->getModel()->getAnmMtx(i + 2);
-            cMtx_copy(mtx, *calc_mtx);
+            MTXCopy(mtx, *calc_mtx);
             MtxPosition(&vec, &pos_vec);
             i_this->mFingerSphs[i].SetC(pos_vec);
             i_this->mFingerSphs[i].SetR(REG0_F(14) + 50.0f + radius);
             dComIfG_Ccsp()->Set(&i_this->mFingerSphs[i]);
         }
         MtxP mtx = i_this->m02B8->getModel()->getAnmMtx(17);
-        cMtx_copy(mtx, *calc_mtx);
+        MTXCopy(mtx, *calc_mtx);
         static f32 te_x[4] = {70.0f, 70.0f, 70.0f, 70.0f};
         static f32 te_y[4] = {70.0f, -70.0f, 70.0f, -70.0f};
         static f32 te_z[4] = {90.0f, 90.0f, -30.0f, -30.0f};
