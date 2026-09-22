@@ -162,7 +162,7 @@ static void demo_camera(kui_class* i_this) {
                 }
                 cLib_addCalc2(&i_this->field_0x30C, -70.0f, 1.0f, 10.0f);
             } else if (uVar3 < 42) {
-                f32 sin_result = cM_ssin(uVar3 * 0x3A00);
+                f32 sin_result = cM_ssin(i_this->field_0x2EA * 0x3A00);
                 i_this->field_0x30C = sin_result * 5.0f + (-70.0f);
             }
 
