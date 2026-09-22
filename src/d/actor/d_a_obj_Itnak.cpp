@@ -54,9 +54,8 @@ static const Attr_c L_attr = {
 
 const char daObjItnak::Act_c::M_arcname[6] = "Itnak";
 
-inline bool daObjItnak::Act_c::is_switch() const {
-    s32 swbit = param_get_swbit();
-    return dComIfGs_isSwitch(swbit, home.roomNo);
+inline bool daObjItnak::Act_c::is_switch() {
+    return fopAcM_isSwitch(this, param_get_swbit());
 }
 
 
@@ -69,6 +68,11 @@ BOOL daObjItnak::Act_c::solidHeapCB(fopAc_ac_c* i_this) {
 bool daObjItnak::Act_c::create_heap() {
     J3DModelData* mdl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_ITNAK_BDL_ITNAK_e);
     JUT_ASSERT(321, mdl_data != NULL);
+#if VERSION == VERSION_DEMO
+    mModel = mDoExt_J3DModel__create(mdl_data, 0, 0x11000002);
+    set_mtx();
+    return mdl_data;
+#else
     if (mdl_data != NULL) {
         mModel = mDoExt_J3DModel__create(mdl_data, 0, 0x11000002);
     }
@@ -76,6 +80,7 @@ bool daObjItnak::Act_c::create_heap() {
     bool ret = false;
     if (mdl_data != NULL && mModel != NULL) ret = true;
     return ret;
+#endif
 }
 
 /* 0000016C-000003A0       .text _create__Q210daObjItnak5Act_cFv */
@@ -133,7 +138,7 @@ void daObjItnak::Act_c::set_mtx() {
 /* 00000DEC-00000EB0       .text set_co_se__Q210daObjItnak5Act_cFP8dCcD_Cyl */
 BOOL daObjItnak::Act_c::set_co_se(dCcD_Cyl* cyl) {
     if (cyl->ChkTgHit()) {
-        daObj::HitSeStart(&current.pos, current.roomNo, cyl, 0xD);
+        daObj::HitSeStart(&current.pos, fopAcM_GetRoomNo(this), cyl, 0xD);
         dKy_Sound_set(current.pos, 4, fopAcM_GetID(this), 100);
         daObj::HitEff_hibana(this, cyl);
         cyl->ClrTgHit();

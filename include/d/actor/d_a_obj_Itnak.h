@@ -13,7 +13,7 @@ namespace daObjItnak {
     class Act_c : public fopAc_ac_c {
     public:
         virtual ~Act_c() {}
-        bool is_switch() const;
+        bool is_switch();
         s32 param_get_arg0() const { return daObj::PrmAbstract<int>(this, 8, 0); }
         s32 param_get_swbit() const { return daObj::PrmAbstract<int>(this, 8, 8); }
     
