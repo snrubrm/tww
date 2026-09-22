@@ -124,17 +124,33 @@ void dDlst_2DMSG_c::outFontDraw() {
             int r6;
             u8 alpha;
             if (mpMsg->mMesgEntry.mTextboxType == 5) {
+#if VERSION <= VERSION_JPN
+                if (g_msgDHIO.field_0x08 == 0) {
+                    f32 local_38 = mpMsg->m1104 * ((1 - mpMsg->m1108) + posY * 2);
+                    r6 = (int)(local_38 + b.i.y);
+                } else
+#endif
+                {
                 f32 local_30 = g_msgHIO.field_0x5e * posY;
                 f32 local_38 = mpMsg->m1104 * (2 - mpMsg->m1108);
                 r6 = (int)(local_38 + b.i.y + local_30);
+                }
                 alpha = mpMsg->m0544[0].mNowAlpha;
             } else if (mpMsg->mMesgEntry.mTextboxType == 0xe) {
 #if VERSION == VERSION_PAL
                 if (msg->mMsgNo == 0x5b3 || msg->mMsgNo == 0x5b4) {
 #endif
+#if VERSION <= VERSION_JPN
+                if (g_msgDHIO.field_0x08 == 0) {
+                    f32 local_30 = mpMsg->m1104;
+                    r6 = (int)(local_30 + b.i.y);
+                } else
+#endif
+                {
                     f32 local_28 = g_msgHIO.field_0x5e * posY;
                     f32 local_30 = mpMsg->m1104;
                     r6 = (int)(local_30 + b.i.y + local_28);
+                }
 #if VERSION == VERSION_PAL
                 } else {
                     f32 lineSpace = ((J2DTextBox*)scrn)->getLineSpace();
@@ -144,6 +160,26 @@ void dDlst_2DMSG_c::outFontDraw() {
 #endif
                 alpha = mpMsg->m0544[0].mNowAlpha;
             } else {
+#if VERSION <= VERSION_JPN
+                if (g_msgDHIO.field_0x08 == 0) {
+                    if (scale > mpMsg->m110C) {
+                        if (mpMsg->m1108 > 1) {
+                            f32 local_30 = mpMsg->m1104 * (2 - posY);
+                            r6 = (int)((local_30 + b.i.y) - (f32)(int)(scale / 2));
+                        } else {
+                            f32 local_30 = mpMsg->m1104 * 3;
+                            r6 = (int)((local_30 + b.i.y) - (f32)(int)(scale / 2));
+                        }
+                    } else {
+                        f32 local_30 = mpMsg->m1104 * ((2 - mpMsg->m1108) + posY * 2);
+                        r6 = (int)(local_30 + b.i.y);
+                    }
+                } else {
+                    f32 local_28 = g_msgHIO.field_0x5e * posY;
+                    f32 local_30 = mpMsg->m1104 * (3 - mpMsg->m1108);
+                    r6 = (int)(local_30 + b.i.y + local_28);
+                }
+#else
                 if (scale > mpMsg->m110C) {
                     if (mpMsg->m1108 > 1) {
                         int temp1 = (mpMsg->m1104 * ((3 - posY) - (mpMsg->m1108 + -2)));
@@ -156,6 +192,7 @@ void dDlst_2DMSG_c::outFontDraw() {
                     f32 local_30 = mpMsg->m1104 * (3 - mpMsg->m1108);
                     r6 = (int)(local_30 + b.i.y + local_28);
                 }
+#endif
                 alpha = mpMsg->m0544[0].mNowAlpha;
             }
             fopMsgM_outFontDraw(button_icon[i], button_kage[i], r5, r6, scale, &buttonTimer[i], alpha, iconNum);
@@ -1131,7 +1168,14 @@ void dMsg_textPosition(sub_msg_class* i_Msg) {
 
     switch (i_Msg->mMesgEntry.mTextboxType) {
     case 5:
-        uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
+#if VERSION <= VERSION_JPN
+        if (g_msgDHIO.field_0x08 == 0) {
+            uVar2 = i_Msg->m1104 * (1 - i_Msg->m1108);
+        } else
+#endif
+        {
+            uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
+        }
         break;
     case 0xE:
 #if VERSION == VERSION_PAL
@@ -1143,7 +1187,14 @@ void dMsg_textPosition(sub_msg_class* i_Msg) {
         uVar2 = 0;
         break;
     default:
-        uVar2 = i_Msg->m1104 * (3 - i_Msg->m1108);
+#if VERSION <= VERSION_JPN
+        if (g_msgDHIO.field_0x08 == 0) {
+            uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
+        } else
+#endif
+        {
+            uVar2 = i_Msg->m1104 * (3 - i_Msg->m1108);
+        }
         break;
     }
     pJVar3 = (J2DTextBox*)i_Msg->m0544[0].pane;
@@ -2032,7 +2083,14 @@ s32 dMsg_selectProc(sub_msg_class* i_Msg) {
         goto end;
     }
     if (i_Msg->mStatus == fopMsgStts_SELECT_2_e) {
-        i_Msg->mSelectNum = i_Msg->mMsgDataProc.selectCheck2(arrowPane, iVar10, iVar11 + uVar1 + ((int)uVar1 / 2), uVar1);
+#if VERSION <= VERSION_JPN
+        if (g_msgDHIO.field_0x08 == 0) {
+            i_Msg->mSelectNum = i_Msg->mMsgDataProc.selectCheck2(arrowPane, iVar10, iVar11 + uVar1, uVar1);
+        } else
+#endif
+        {
+            i_Msg->mSelectNum = i_Msg->mMsgDataProc.selectCheck2(arrowPane, iVar10, iVar11 + uVar1 + ((int)uVar1 / 2), uVar1);
+        }
         i_Msg->m026C[8].mUserArea++;
         if (i_Msg->m026C[8].mUserArea >= 0x14) {
             i_Msg->m026C[8].mUserArea = 0;
@@ -2643,6 +2701,9 @@ s32 dMsg_closeProc(sub_msg_class* i_Msg) {
 s32 dMsg_closeProc2(sub_msg_class* i_Msg) {
     i_Msg->mStatus = fopMsgStts_BOX_CLOSED_e;
     dMsg_messagePaneHide(i_Msg);
+#if VERSION <= VERSION_JPN
+    i_Msg->m049C.pane->hide();
+#endif
     dMsg_outFontHide(i_Msg);
     return TRUE;
 }
