@@ -201,6 +201,30 @@ void daNpc_So_c::_nodeControl(J3DNode* node, J3DModel* model) {
 
     if (m_jnt.getHeadJntNum() == jntNo) {
         cXyz offsetAtt(0.0f, 0.0f, 0.0f);
+#if VERSION == VERSION_DEMO
+        cXyz offsetEye(24.0f, -16.0f, 0.0f);
+        offsetEye.y = -16.0f + REG12_F(1);
+        mDoMtx_stack_c::multVec(&offsetAtt, &mSoAttnPos);
+        if (REG12_S(1) != 0) {
+            mDoMtx_stack_c::XrotM(REG12_S(2));
+            mDoMtx_stack_c::YrotM(REG12_S(3));
+            mDoMtx_stack_c::ZrotM(REG12_S(4));
+        } else {
+            mDoMtx_stack_c::YrotM((int)m_jnt.getHead_y());
+            mDoMtx_stack_c::ZrotM((int)m_jnt.getHead_x());
+        }
+        mDoMtx_stack_c::multVec(&offsetEye, &mSoEyePos);
+    } else if (m_jnt.getBackboneJntNum() == jntNo) {
+        if (REG12_S(0) != 0) {
+            mDoMtx_stack_c::XrotM(REG12_S(2));
+            mDoMtx_stack_c::YrotM(REG12_S(3));
+            mDoMtx_stack_c::ZrotM(REG12_S(4));
+        } else {
+            mDoMtx_stack_c::XrotM((int)m_jnt.getBackbone_y());
+            mDoMtx_stack_c::ZrotM((int)m_jnt.getBackbone_x());
+        }
+    }
+#else
         cXyz offsetEye(24.0f, -16.0f, 0.0f);
         mDoMtx_stack_c::multVec(&offsetAtt, &mSoAttnPos);
         mDoMtx_stack_c::YrotM((int)m_jnt.getHead_y());
@@ -210,6 +234,7 @@ void daNpc_So_c::_nodeControl(J3DNode* node, J3DModel* model) {
         mDoMtx_stack_c::XrotM((int)m_jnt.getBackbone_y());
         mDoMtx_stack_c::ZrotM((int)m_jnt.getBackbone_x());
     }
+#endif
 
     cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
     model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
@@ -396,11 +421,21 @@ BOOL daNpc_So_c::checkTgHit() {
             fopAcM_seStart(this, JA_SE_LK_ARROW_HIT, 0x20);
             break;
         }
+#if VERSION == VERSION_DEMO
+        bool hit = true;
+        if (hit) {
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, hitPos);
+            cXyz scale(2.0f, 2.0f, 2.0f);
+            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, hitPos, &actor->shape_angle, &scale);
+            fopAcM_seStart(this, JA_SE_LK_LAST_HIT, 0);
+        }
+#else
         fopAcM_monsSeStart(this, JA_SE_CV_SO_DAMAGE, 0);
         dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, hitPos);
         cXyz scale(2.0f, 2.0f, 2.0f);
         dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, hitPos, &actor->shape_angle, &scale);
         fopAcM_seStart(this, JA_SE_LK_LAST_HIT, 0);
+#endif
         return TRUE;
     }
     return FALSE;
@@ -591,6 +626,18 @@ u16 daNpc_So_c::next_msgStatus(u32* pMsgNo) {
 
 /* 00001214-000013A0       .text lookBack__10daNpc_So_cFv */
 void daNpc_So_c::lookBack() {
+#if VERSION == VERSION_DEMO
+    if (mEventCut.getAttnFlag()) {
+        if (mType == 4) {
+            m_jnt.clrTrn();
+        } else {
+            m_jnt.setTrn();
+            mLookAt = mEventCut.getAttnPos();
+        }
+    } else {
+        mLookAt = dNpc_playerEyePos(l_HIO.mNpc.m04);
+    }
+#else
     if (dComIfGp_event_runCheck()) {
         if (mEventCut.getAttnFlag()) {
             if (mType == 4) {
@@ -608,6 +655,7 @@ void daNpc_So_c::lookBack() {
 #endif
         mLookAt = dNpc_playerEyePos(l_HIO.mNpc.m04);
     }
+#endif
 
     if (m_jnt.trnChk()) {
         s16 maxVel = l_HIO.mNpc.mMaxHeadTurnVel;
@@ -621,7 +669,11 @@ void daNpc_So_c::lookBack() {
     }
 
     cXyz src = mSoEyePos;
+#if VERSION == VERSION_DEMO
+    src.y += 200.0f + REG12_F(0);
+#else
     src.y += 200.0f;
+#endif
     m_jnt.lookAtTarget(&shape_angle.y, &mLookAt, src, shape_angle.y, mB50, mBDA);
 }
 
@@ -654,6 +706,11 @@ void daNpc_So_c::setAnm(signed char idx, bool force) {
         {4, -1, 0, 8.0f, 1.0f, J3DFrameCtrl::EMode_LOOP},
     };
 
+#if VERSION == VERSION_DEMO
+    if (REG12_S(6) != 0) {
+        idx = REG12_S(7);
+    }
+#endif
     if (idx != 6) {
         mType = idx;
     }
@@ -673,7 +730,11 @@ void daNpc_So_c::setAnm(signed char idx, bool force) {
 void daNpc_So_c::setAnmSwimSpeed() {
     if (mType == 2) {
         f32 dist = (current.pos - old.pos).abs();
+#if VERSION == VERSION_DEMO
+        f32 playSpeed = dist / (10.0f + REG12_F(6));
+#else
         f32 playSpeed = dist / 10.0f;
+#endif
         if (playSpeed <= 0.0f) {
             playSpeed = 0.0f;
         } else if (playSpeed >= 1.0f) {
@@ -788,8 +849,13 @@ void daNpc_So_c::modeSwim() {
         mCirclePath.mPos.y = dLib_getWaterY(mCirclePath.mPos, mAcch2);
         mCirclePath.mPos.y += mB34;
         f32 distPath = (current.pos - mCirclePath.mPos).absXZ();
+#if VERSION == VERSION_DEMO
+        if (distPath > 150.0f + REG12_F(7) || ship->speedF > 10.0f) {
+            mSpeed = 12.0f + REG12_F(10);
+#else
         if (distPath > 150.0f || ship->speedF > 10.0f) {
             mSpeed = 12.0f;
+#endif
             s16 target = cLib_targetAngleY(&current.pos, &mCirclePath.mPos);
             cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
             mB04 = 0.0f;
@@ -797,8 +863,12 @@ void daNpc_So_c::modeSwim() {
             cLib_addCalc2(&mB04, 1.0f, 0.01f, 0.05f);
             cXyz pathDelta = mCirclePath.mPos - current.pos;
             current.pos = current.pos + pathDelta * mB04;
+#if VERSION == VERSION_DEMO
+            cLib_addCalcAngleS2(&shape_angle.y, mCirclePath.mAngle + 0x8000, 4, 0x400);
+#else
             s16 target = mCirclePath.mAngle + 0x8000;
             cLib_addCalcAngleS2(&shape_angle.y, target, 4, 0x400);
+#endif
         }
         if (distPlayer < mTagRadius && dComIfGp_checkPlayerStatus0(0, daPyStts0_SHIP_RIDE_e)) {
             modeProcInit(MODE_NEAR_SWIM_e);
@@ -832,8 +902,13 @@ void daNpc_So_c::modeNearSwim() {
         mCirclePath.mPos.y = dLib_getWaterY(mCirclePath.mPos, mAcch2);
         mCirclePath.mPos.y += mB34;
         f32 distPath = (current.pos - mCirclePath.mPos).absXZ();
+#if VERSION == VERSION_DEMO
+        if (distPath > 150.0f + REG12_F(7) || ship->speedF > 10.0f) {
+            mSpeed = 12.0f + REG12_F(11);
+#else
         if (distPath > 150.0f || ship->speedF > 10.0f) {
             mSpeed = 12.0f;
+#endif
             s16 target = cLib_targetAngleY(&current.pos, &mCirclePath.mPos);
             cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
             mB04 = 0.0f;
@@ -842,8 +917,12 @@ void daNpc_So_c::modeNearSwim() {
             cLib_addCalc2(&mB04, 1.0f, 0.01f, 0.05f);
             cXyz pathDelta = mCirclePath.mPos - current.pos;
             current.pos = current.pos + pathDelta * mB04;
+#if VERSION == VERSION_DEMO
+            cLib_addCalcAngleS2(&shape_angle.y, mCirclePath.mAngle + 0x8000, 4, 0x400);
+#else
             s16 target = mCirclePath.mAngle + 0x8000;
             cLib_addCalcAngleS2(&shape_angle.y, target, 4, 0x400);
+#endif
             current.pos.y += mB34;
         }
         if (distPlayer >= mTagRadius) {
@@ -1015,8 +1094,18 @@ void daNpc_So_c::modeTalkInit() {
 /* 0000283C-0000289C       .text modeTalk__10daNpc_So_cFv */
 void daNpc_So_c::modeTalk() {
     if (talk(1) == fopMsgStts_BOX_CLOSED_e) {
+#if VERSION == VERSION_DEMO
+        if (mBD8 != 0 || mB0C != 0 || dComIfGs_isSaveArriveGrid(current.roomNo - 1)) {
+            dComIfGp_event_onEventFlag(dEvtFlag_UNK8_e);
+            modeProcInit(MODE_DISAPPEAR_e);
+        } else {
+            modeProcInit(MODE_WAIT_e);
+            dComIfGp_event_onEventFlag(dEvtFlag_UNK8_e);
+        }
+#else
         dComIfGp_event_onEventFlag(dEvtFlag_UNK8_e);
         modeProcInit(MODE_DISAPPEAR_e);
+#endif
     }
 }
 
@@ -1095,12 +1184,14 @@ void daNpc_So_c::modeGetRupee() {
         }
     } else {
         if (talk(1) == fopMsgStts_BOX_CLOSED_e) {
+#if VERSION > VERSION_DEMO
             if (REG12_S(9) != 0) {
                 dComIfGp_event_onEventFlag(dEvtFlag_UNK8_e);
             }
             fopAc_ac_c* actor = dComIfGp_getPlayer(0);
             *(s16*)((u8*)actor + 0x304) = 2;
             *(int*)((u8*)actor + 0x314) = 1;
+#endif
             mB70 = 7;
         }
     }
@@ -1185,6 +1276,10 @@ void daNpc_So_c::eventOrder() {
         if (mB70 == 1) {
             fopAcM_orderSpeakEvent(this);
         }
+#if VERSION == VERSION_DEMO
+    } else if (mB70 == 5 || mB70 == 4 || mB70 == 6 || mB70 == 7) {
+        fopAcM_orderChangeEvent(this, a_demo_name_tbl[mB70 - 3], dEvtFlag_NOPARTNER_e, 0xFFFF);
+#else
     } else if (mB70 == 5 || mB70 == 4 || mB70 == 6) {
         fopAcM_orderChangeEvent(this, a_demo_name_tbl[mB70 - 3], 0, 0xFFFF);
     } else if (mB70 == 7) {
@@ -1194,6 +1289,7 @@ void daNpc_So_c::eventOrder() {
         } else {
             fopAcM_orderOtherEvent2(this, a_demo_name_tbl[mB70 - 3], dEvtFlag_NOPARTNER_e, 0xFFFF);
         }
+#endif
     } else if (mB70 >= 3) {
         fopAcM_orderOtherEvent2(this, a_demo_name_tbl[mB70 - 3], dEvtFlag_NOPARTNER_e, 0xFFFF);
     }
@@ -1224,10 +1320,12 @@ void daNpc_So_c::setScale() {
     } else {
         mB08 = l_HIO.m44;
     }
+#if VERSION > VERSION_DEMO
     if (mCurMode == MODE_EVENT_TRIFORCE_e) {
         mB08 = 1.0f;
         scale.setall(mB08);
     }
+#endif
     cXyz target;
     target.setall(mB08);
     cLib_addCalcPos2(&scale, target, 0.1f, 0.5f);
@@ -1504,6 +1602,19 @@ cPhs_State daNpc_So_c::_create() {
     cPhs_State result = dComIfG_resLoad(&mPhs, m_arc_name);
     if (result == cPhs_COMPLEATE_e) {
         getArg();
+#if VERSION == VERSION_DEMO
+        if (strcmp(dComIfGp_getStartStageName(), "sea") == 0 && current.roomNo == 0x1A &&
+            !dComIfGs_isEventBit(dSv_event_flag_c::UNK_1E40))
+        {
+            return cPhs_ERROR_e;
+        }
+        if ((strcmp(dComIfGp_getStartStageName(), "sea") == 0 && current.roomNo != 0xD &&
+             !dComIfGs_checkGetItem(dItemNo_SAIL_e)) ||
+            !dComIfGs_isStageBossEnemy(3))
+        {
+            return cPhs_ERROR_e;
+        }
+#else
         if (strcmp(dComIfGp_getStartStageName(), "sea") == 0 && current.roomNo == 0x1A &&
             !dComIfGs_isEventBit(dSv_event_flag_c::UNK_1E40))
         {
@@ -1512,7 +1623,8 @@ cPhs_State daNpc_So_c::_create() {
         if (!dComIfGs_isStageBossEnemy(3)) {
             return cPhs_ERROR_e;
         }
-        if (!fopAcM_entrySolidHeap(this, createHeap_CB, 0x1C00)) {
+#endif
+        if (!fopAcM_entrySolidHeap(this, createHeap_CB, m_heapsize)) {
             return cPhs_ERROR_e;
         }
         createInit();
