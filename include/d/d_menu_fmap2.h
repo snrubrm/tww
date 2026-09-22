@@ -275,9 +275,7 @@ private:
     /* 0x1B2C */ fopMsgM_pane_alpha_class mGsKz05PaneAlpha;
     /* 0x1B34 */ fopMsgM_pane_alpha_class mGsKz01PaneAlpha;
 #if VERSION == VERSION_DEMO
-    /* 0x1B44 */ fopMsgM_pane_alpha_class mGsBt1PaneAlpha;
-    /* 0x1B4C */ fopMsgM_pane_alpha_class mGsBt2PaneAlpha;
-    /* 0x1B54 */ fopMsgM_pane_alpha_class mGsBt3PaneAlpha;
+    /* 0x1B44 */ fopMsgM_pane_alpha_class mGsBtxPaneAlpha[3];
 #endif
 #if VERSION > VERSION_JPN
     /* 0x1B3C */ fopMsgM_pane_alpha_class mGsGsixPaneAlpha[7];
