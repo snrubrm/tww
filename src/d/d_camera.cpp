@@ -7911,7 +7911,10 @@ static bool camera_draw(camera_process_class* i_this) {
     if (fpcM_DrawPriority(a_this) != 1) {
         get_camera_id(a_this);
         for (int i = 0; i < 1; i++) {
-            if (!fopOvlpM_IsDoingReq()) {
+#if VERSION > VERSION_JPN
+            if (!fopOvlpM_IsDoingReq())
+#endif
+            {
                 fopAc_ac_c* currPlayerActor = dComIfGp_getPlayer(i);
                 f32 depth = currPlayerActor->current.pos.y;
                 if (currPlayerActor->current.pos.y > 0.0f) {
