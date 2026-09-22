@@ -835,7 +835,6 @@ bool daNpc_Kf1_c::cut_move_PLYER_MOV() {
 /* 0000228C-000023E8       .text cut_init_RUPEE_SET__11daNpc_Kf1_cFi */
 void daNpc_Kf1_c::cut_init_RUPEE_SET(int) {
 #if VERSION == VERSION_DEMO
-    int item_no;
     fopAc_ac_c* a_tsubo_actor;
     int index;
     int i;
@@ -847,7 +846,7 @@ void daNpc_Kf1_c::cut_init_RUPEE_SET(int) {
             } while (selected[index]);
             a_tsubo_actor = fopAcM_SearchByID(mPotIDs[index]);
             JUT_ASSERT(1475, 0 != a_tsubo_actor);
-            ((daTsubo::Act_c*)a_tsubo_actor)->prm_set_itemNo(item_no = dItemNo_RED_RUPEE_e);
+            ((daTsubo::Act_c*)a_tsubo_actor)->prm_set_itemNo(dItemNo_RED_RUPEE_e);
             dComIfGp_event_setItemPartner(a_tsubo_actor);
             mAttentionPotIDs[i] = mPotIDs[index];
             selected[index] = 1;

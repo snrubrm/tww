@@ -218,7 +218,8 @@ namespace daTsubo {
             JUT_ASSERT(756, (i_item_no)!= -1);
             JUT_ASSERT(757, (i_item_no & 0x3f) != 0);
             u32 prm = fopAcM_GetParam(this);
-            fopAcM_SetParam(this, (prm & ~0x3F) | ((u32)i_item_no & 0x3F));
+            i_item_no &= 0x3F;
+            fopAcM_SetParam(this, (prm & ~0x3F) | i_item_no);
         }
         void set_drop_spd_y0(f32 drop_speed) { speed.y = drop_speed; }
         bool spec_chk_prm_boko() const { return prm_get_spec() != 0x3F; }
