@@ -34,7 +34,7 @@ namespace daObjSwflat {
     public:
         /* 0x2C8 */ request_of_phase_process_class mPhase;
         /* 0x2D0 */ J3DModel* mpModel;
-        /* 0x2D4 */ mDoExt_brkAnm* mpBrk;
+        /* 0x2D4 */ mDoExt_brkAnm* mBrk;
         /* 0x2D8 */ dCcD_Stts mStts;
         /* 0x314 */ dCcD_Cyl mCyl;
         /* 0x444 */ JPABaseEmitter* mpOffEmitter;

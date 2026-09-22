@@ -81,13 +81,25 @@ Mtx daObjSwflat::Act_c::M_tmp_mtx;
 /* 00000138-00000280       .text CreateHeap__Q211daObjSwflat5Act_cFv */
 BOOL daObjSwflat::Act_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_HFBOT_BDL_HFBOT1_e);
+#if VERSION == VERSION_DEMO
+    JUT_ASSERT(238, modelData != 0);
+#else
     if (modelData == NULL) return FALSE;
+#endif
     mpModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_HFBOT_BRK_HFBOT1_e);
+#if VERSION == VERSION_DEMO
+    JUT_ASSERT(245, brk != 0);
+#else
     if (brk == NULL) return FALSE;
-    mpBrk = new mDoExt_brkAnm;
-    if (mpBrk == NULL) return FALSE;
-    BOOL result = mpBrk->init(modelData, brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+#endif
+    mBrk = new mDoExt_brkAnm;
+#if VERSION == VERSION_DEMO
+    JUT_ASSERT(248, mBrk != 0);
+#else
+    if (mBrk == NULL) return FALSE;
+#endif
+    BOOL result = mBrk->init(modelData, brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
     return mpModel != NULL && result;
 }
 
@@ -103,23 +115,23 @@ BOOL daObjSwflat::Act_c::Create() {
     mSwitch = prmGetSwNo();
     mSwitch2 = prmGetSwNo2();
     mFrame = 0;
-    mActiveFrame = mpBrk->getEndFrame() - 5.0f;
+    mActiveFrame = mBrk->getEndFrame() - 5.0f;
     mParticlePos = current.pos;
     mFinished = 0;
     if (l_HIO.mResetSwitches == 1) {
-        if (mSwitch != 0xFF) dComIfGs_offSwitch(mSwitch, home.roomNo);
-        if (mSwitch2 != 0xFF) dComIfGs_offSwitch(mSwitch2, home.roomNo);
+        if (mSwitch != 0xFF) fopAcM_offSwitch(this, mSwitch);
+        if (mSwitch2 != 0xFF) fopAcM_offSwitch(this, mSwitch2);
     }
     u8 sw = mSwitch;
     if (mType == 2) {
-        if (dComIfGs_isSwitch(mSwitch2, home.roomNo)) {
+        if (fopAcM_isSwitch(this, mSwitch2)) {
             mType = 0;
             sw = mSwitch2;
         } else {
             mType = 1;
         }
     }
-    if (dComIfGs_isSwitch(sw, home.roomNo)) {
+    if (fopAcM_isSwitch(this, sw)) {
         mActive = mPrevActive = 1;
         if (mType != 0) {
             mpOnEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_SIRENBUTTONON, &mParticlePos, &shape_angle);
@@ -128,7 +140,7 @@ BOOL daObjSwflat::Act_c::Create() {
             mpOnEmitter = NULL;
             mOnAlpha = 0;
             mFinished = 1;
-            mpBrk->setFrame(mpBrk->getEndFrame());
+            mBrk->setFrame(mBrk->getEndFrame());
         }
         mpOffEmitter = NULL;
         mOffAlpha = 0;
@@ -165,7 +177,10 @@ BOOL daObjSwflat::Act_c::Delete() {
 
 /* 0000097C-00000A64       .text Mthd_Delete__Q211daObjSwflat5Act_cFv */
 BOOL daObjSwflat::Act_c::Mthd_Delete() {
-    if (heap != NULL) {
+#if VERSION > VERSION_DEMO
+    if (heap != NULL)
+#endif
+    {
         if (mpOffEmitter != NULL) {
             mpOffEmitter->becomeInvalidEmitter();
             mpOffEmitter = NULL;
@@ -180,7 +195,11 @@ BOOL daObjSwflat::Act_c::Mthd_Delete() {
         l_HIO.mNo = -1;
     }
     BOOL result = MoveBGDelete();
+#if VERSION == VERSION_DEMO
+    dComIfG_deleteObjectRes(M_arcname);
+#else
     dComIfG_resDelete(&mPhase, M_arcname);
+#endif
     return result;
 }
 
@@ -224,7 +243,7 @@ BOOL daObjSwflat::Act_c::Execute(Mtx** mtx) {
             mCyl.SetR(10.0f);
         }
     }
-    if (prmGetType() == 2 && dComIfGs_isSwitch(mSwitch2, home.roomNo)) {
+    if (prmGetType() == 2 && fopAcM_isSwitch(this, mSwitch2)) {
         mType = 0;
         if (mFinished == 0) {
             mFinishTimer = l_HIO.mFinishTime;
@@ -237,9 +256,9 @@ BOOL daObjSwflat::Act_c::Execute(Mtx** mtx) {
         if (mFinished == 0) mDoAud_seStart(JA_SE_OBJ_FLAT_SW_LIGHT, &current.pos);
         if (mFrame < mActiveFrame) {
             mFrame++;
-            mpBrk->setFrame(mFrame);
+            mBrk->setFrame(mFrame);
         }
-        if (!playerHit) dComIfGs_onSwitch(mSwitch, home.roomNo);
+        if (!playerHit) fopAcM_onSwitch(this, mSwitch);
         if (mFinished == 0) {
             if (mpOnEmitter == NULL) {
                 mpOnEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_SIRENBUTTONON, &mParticlePos, &shape_angle);
@@ -252,7 +271,7 @@ BOOL daObjSwflat::Act_c::Execute(Mtx** mtx) {
             } else if (mOnAlpha < 250) {
                 mOnAlpha += 25;
                 mpOnEmitter->setGlobalAlpha(mOnAlpha);
-                dComIfGs_onSwitch(mSwitch, home.roomNo);
+                fopAcM_onSwitch(this, mSwitch);
             }
         }
         if (mpOffEmitter != NULL) {
@@ -266,9 +285,9 @@ BOOL daObjSwflat::Act_c::Execute(Mtx** mtx) {
     } else {
         if (mFrame > 0) {
             mFrame--;
-            mpBrk->setFrame(mFrame);
+            mBrk->setFrame(mFrame);
         }
-        dComIfGs_offSwitch(mSwitch, home.roomNo);
+        fopAcM_offSwitch(this, mSwitch);
         if (mpOffEmitter == NULL) {
             mpOffEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_SIRENBUTTONOFF, &mParticlePos, &shape_angle);
             mOffAlpha = 250;
@@ -307,7 +326,7 @@ BOOL daObjSwflat::Act_c::Execute(Mtx** mtx) {
         if (mEventTimer <= 1) {
             dComIfGp_event_reset();
             mEventState = 0;
-            dComIfGs_onSwitch(mSwitch, home.roomNo);
+            fopAcM_onSwitch(this, mSwitch);
         }
         break;
     }
@@ -334,7 +353,7 @@ BOOL daObjSwflat::Act_c::Execute(Mtx** mtx) {
             }
             if (mFrame < mActiveFrame + 5) {
                 mFrame++;
-                mpBrk->setFrame(mFrame);
+                mBrk->setFrame(mFrame);
             }
         }
     }
@@ -348,7 +367,7 @@ BOOL daObjSwflat::Act_c::Execute(Mtx** mtx) {
 BOOL daObjSwflat::Act_c::Draw() {
     g_env_light.settingTevStruct(TEV_TYPE_BG0, &current.pos, &tevStr);
     g_env_light.setLightTevColorType(mpModel, &tevStr);
-    mpBrk->entry(mpModel->getModelData());
+    mBrk->entry(mpModel->getModelData());
     dComIfGd_setListBG();
     mDoExt_modelUpdateDL(mpModel);
     dComIfGd_setList();
