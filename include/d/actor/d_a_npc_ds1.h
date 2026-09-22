@@ -156,10 +156,7 @@ public:
     /* 0x886 */ s8 mAnmCount;
     /* 0x887 */ s8 mOrder;
     /* 0x888 */ int mTalkMode;
-    /* 0x88C */ s16 mCreateDrugEvent;
-    /* 0x88E */ s16 mGetDrugEvent;
-    /* 0x890 */ s16 mPutItemEvent;
-    /* 0x892 */ s16 mPutItemFailEvent;
+    /* 0x88C */ s16 mEventIdx[4]; // CREATE_DRUG, GET_DRUG, PUT_ITEM, PUT_ITEM_FAIL (indexed by mTalkMode)
     /* 0x894 */ s8 mLookMode;
     /* 0x895 */ u8 m895;
     /* 0x896 */ s8 mType;

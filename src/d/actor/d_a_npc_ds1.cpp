@@ -101,12 +101,12 @@ s16 daNpc_Ds1_c::XyEventCB(int index) {
     u8 item = dComIfGp_getSelectItem(index);
     if (item == 0x49 || item == 0x4A || item == 0x4B) {
         if (!daNpc_Ds1_checkCreateDrugChuchu(item) && ((item == 0x49 && dComIfGs_getBeastNum(4) >= 10) || (item == 0x4A && dComIfGs_getBeastNum(5) >= DEMO_SELECT(20, 15)) || (item == 0x4B && dComIfGs_getBeastNum(6) >= DEMO_SELECT(20, 15)))) {
-            event = mPutItemEvent;
+            event = mEventIdx[2];
             mOrder = 5;
             mTalkMode = 2;
             setAction(&daNpc_Ds1_c::event_action, NULL);
         } else if (!daNpc_Ds1_checkCreateDrugChuchu(item)) {
-            event = mPutItemFailEvent;
+            event = mEventIdx[3];
             mOrder = 6;
             mTalkMode = 3;
             setAction(&daNpc_Ds1_c::event_action, NULL);
@@ -291,13 +291,13 @@ BOOL daNpc_Ds1_c::chkAttention(cXyz pos, s16 angle) {
 /* 00000DB0-00000EAC       .text eventOrder__11daNpc_Ds1_cFv */
 void daNpc_Ds1_c::eventOrder() {
     if (mOrder == 3) {
-        fopAcM_orderOtherEventId(this, mGetDrugEvent, 255, 65535, 0, 1);
+        fopAcM_orderOtherEventId(this, mEventIdx[1], 255, 65535, 0, 1);
     } else if (mOrder == 4) {
-        fopAcM_orderOtherEventId(this, mCreateDrugEvent, 255, 65535, 0, 1);
+        fopAcM_orderOtherEventId(this, mEventIdx[0], 255, 65535, 0, 1);
     } else if (mOrder == 5) {
-        fopAcM_orderOtherEventId(this, mPutItemEvent, 255, 65535, 0, 1);
+        fopAcM_orderOtherEventId(this, mEventIdx[2], 255, 65535, 0, 1);
     } else if (mOrder == 6) {
-        fopAcM_orderOtherEventId(this, mPutItemFailEvent, 255, 65535, 0, 1);
+        fopAcM_orderOtherEventId(this, mEventIdx[3], 255, 65535, 0, 1);
     } else if (mOrder == 1 || mOrder == 2) {
         eventInfo.onCondition(dEvtCnd_CANTALK_e);
         eventInfo.onCondition(dEvtCnd_CANTALKITEM_e);
@@ -702,10 +702,10 @@ BOOL daNpc_Ds1_c::CreateInit() {
     mEventCut.setActorInfo("Ds1", this);
     mEventCut.setJntCtrlPtr(&mJnt);
     mTalkMode = 4;
-    mCreateDrugEvent = dComIfGp_evmng_getEventIdx("CREATE_DRUG", 255);
-    mGetDrugEvent = dComIfGp_evmng_getEventIdx("GET_DRUG", 255);
-    mPutItemEvent = dComIfGp_evmng_getEventIdx("PUT_ITEM", 255);
-    mPutItemFailEvent = dComIfGp_evmng_getEventIdx("PUT_ITEM_FAIL", 255);
+    mEventIdx[0] = dComIfGp_evmng_getEventIdx("CREATE_DRUG", 255);
+    mEventIdx[1] = dComIfGp_evmng_getEventIdx("GET_DRUG", 255);
+    mEventIdx[2] = dComIfGp_evmng_getEventIdx("PUT_ITEM", 255);
+    mEventIdx[3] = dComIfGp_evmng_getEventIdx("PUT_ITEM_FAIL", 255);
     if (mRoomEffects) {
         mpRoomModel->setBaseTRMtx(mDoMtx_getIdentity());
         RoomEffectSet();
@@ -850,9 +850,9 @@ int daNpc_Ds1_c::getdemo_action(void*) {
         fopMsgM_demoMsgFlagOn();
         mgr->cutEnd(staff);
 #if VERSION == VERSION_DEMO
-        if (dComIfGp_evmng_endCheck(mGetDrugEvent)) {
+        if (dComIfGp_evmng_endCheck(mEventIdx[1])) {
 #else
-        if (mgr->endCheck(mGetDrugEvent)) {
+        if (mgr->endCheck(mEventIdx[1])) {
 #endif
             mOrder = 1;
             if (m7D4 != 255) {
@@ -1239,7 +1239,7 @@ int daNpc_Ds1_c::event_action(void*) {
         mActionState++;
     } else if (mActionState != -1) {
         privateCut();
-        if (dComIfGp_evmng_endCheck((&mCreateDrugEvent)[mTalkMode])) {
+        if (dComIfGp_evmng_endCheck(mEventIdx[mTalkMode])) {
             if (mTalkMode == 2) {
                 mOrder = 4;
                 mTalkMode = 0;
