@@ -19,7 +19,7 @@
 #include "SSystem/SComponent/c_counter.h"
 #include "m_Do/m_Do_audio.h"
 
-STATIC_ASSERT(sizeof(daNpc_Pf1_c) == 0x7C0);
+STATIC_ASSERT(sizeof(daNpc_Pf1_c) == DEMO_SELECT(0x7C8, 0x7C0));
 static daNpc_Pf1_HIO_c l_HIO;
 static fopAc_ac_c* l_check_inf[20];
 static int l_check_wrk;
@@ -572,10 +572,21 @@ void daNpc_Pf1_c::setBikon(cXyz offset) {
     mDoMtx_stack_c::YrotM(current.angle.y);
     cXyz pos;
     mDoMtx_stack_c::multVec(&offset, &pos);
+#if VERSION == VERSION_DEMO
+    mpBikonEmitter = dComIfGp_particle_set(0x8152, &pos);
+#else
     dComIfGp_particle_set(0x8152, &pos);
+#endif
 }
 
-void daNpc_Pf1_c::delBikon() {}
+void daNpc_Pf1_c::delBikon() {
+#if VERSION == VERSION_DEMO
+    if (mpBikonEmitter != NULL) {
+        mpBikonEmitter->becomeInvalidEmitter();
+        mpBikonEmitter = NULL;
+    }
+#endif
+}
 
 BOOL daNpc_Pf1_c::wait_1() { return TRUE; }
 
