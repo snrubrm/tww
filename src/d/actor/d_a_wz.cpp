@@ -2018,6 +2018,9 @@ void action_summon_dousa(wz_class* i_this) {
         for (int i = 0; i < 20; i++) {
             if (i_this->mChildAlive[i] != 0) {
                 fopAc_ac_c* child = fopAcM_SearchByID(i_this->mChildIds[i]);
+#if VERSION <= VERSION_JPN
+                if (child == NULL) {
+#else
                 s16 outOfBounds = 0;
                 if (child != NULL) {
                     if (strcmp(dComIfGp_getStartStageName(), "kazeMB") == 0) {
@@ -2030,6 +2033,7 @@ void action_summon_dousa(wz_class* i_this) {
                     }
                 }
                 if (child == NULL || outOfBounds != 0) {
+#endif
                     i_this->mChildAlive[i] = 0;
                     i_this->mChildIds[i] = fpcM_ERROR_PROCESS_ID_e;
                 }
