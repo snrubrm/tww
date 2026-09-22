@@ -485,7 +485,9 @@ BOOL daNpc_Btsw_c::CreateInit() {
 
     field_0x978.setWaitParm(5, 2, 3, 2, 1.0f, 0.9f, 0, 0x2000);
     set_mtx();
+#if VERSION > VERSION_DEMO
     mpMorf->calc();
+#endif
     dKy_tevstr_init(&field_0x6D4, home.roomNo, 0xFF);
 
     return TRUE;
