@@ -53,7 +53,7 @@ public:
     /* 0x5C */ f32 m5C;
 };  // Size: 0x60
 
-STATIC_ASSERT(sizeof(daMt_HIO_c) == 0x60);
+STATIC_ASSERT(sizeof(daMt_HIO_c) == DEMO_SELECT(0x64, 0x60));
 
 class mt_class : public fopEn_enemy_c {
 public:
