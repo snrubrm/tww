@@ -1755,10 +1755,10 @@ int dCamera_c::GetCameraTypeFromCameraName(const char* i_name) {
 
 /* 801651F0-80165234       .text pushPos__9dCamera_cFv */
 void dCamera_c::pushPos() {
-    m084 = mViewCache.mCenter;
-    m090 = mViewCache.mEye;
-    m09C = mViewCache.mFovy;
-    m0A0 = mViewCache.mBank;
+    m084.mCenter = mViewCache.mCenter;
+    m084.mEye = mViewCache.mEye;
+    m084.mFovY = mViewCache.mFovy;
+    m084.mBank = mViewCache.mBank;
     return;
 }
 
@@ -7244,18 +7244,18 @@ bool dCamera_c::eventCamera(s32) {
     };
 
     if (m118 == 0) {
-        m0A4[1].m00.mCenter = mCenter;
-        m0A4[0].m00.mCenter = m0A4[1].m00.mCenter;
+        m0A4[1].mCenter = mCenter;
+        m0A4[0].mCenter = m0A4[1].mCenter;
 
-        m0A4[1].m00.mEye = mEye;
-        m0A4[0].m00.mEye = m0A4[1].m00.mEye;
+        m0A4[1].mEye = mEye;
+        m0A4[0].mEye = m0A4[1].mEye;
 
-        m0A4[0].m00.mFovY = m0A4[1].m00.mFovY = mFovy;
+        m0A4[0].mFovY = m0A4[1].mFovY = mFovy;
 
-        m0A4[1].m00.mBank = mBank;
-        m0A4[0].m00.mBank = m0A4[1].m00.mBank;
+        m0A4[1].mBank = mBank;
+        m0A4[0].mBank = m0A4[1].mBank;
 
-        m0A4[0].m00.m1E = m0A4[1].m00.m1E = 0;
+        m0A4[0].m1E = m0A4[1].m1E = 0;
     }
 
     long lVar12;

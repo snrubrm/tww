@@ -160,20 +160,14 @@ public:
     /* 0x070 */ cXyz m070;
     /* 0x07C */ u32 m07C;
     /* 0x080 */ u32 m080;
-    /* 0x084 */ cXyz m084;
-    /* 0x090 */ cXyz m090;
-    /* 0x09C */ f32 m09C;
-    /* 0x0A0 */ cSAngle m0A0;
-    /* 0x0A2 */ u8 m0A2[0x0A4 - 0x0A2];
     struct {
-        struct {
-            /* 0x00 */ cXyz mCenter;
-            /* 0x0C */ cXyz mEye;
-            /* 0x18 */ f32 mFovY;
-            /* 0x1C */ cSAngle mBank;
-            /* 0x1E */ s16 m1E;
-        } m00;
+        /* 0x00 */ cXyz mCenter;
+        /* 0x0C */ cXyz mEye;
+        /* 0x18 */ f32 mFovY;
+        /* 0x1C */ cSAngle mBank;
+        /* 0x1E */ s16 m1E;
     }
+    /* 0x084 */ m084,
     /* 0x0A4 */ m0A4[2];
     /* 0x0E4 */ int mStageMapToolCameraIdx;
     /* 0x0E8 */ int m0E8;

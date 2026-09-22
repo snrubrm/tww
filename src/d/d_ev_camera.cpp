@@ -2033,22 +2033,22 @@ bool dCamera_c::restorePosEvCamera() {
 
         switch (work->mDest) {
         case 0:
-            work->mSavedCenter = m0A4[0].m00.mCenter;
-            work->mSavedEye = m0A4[0].m00.mEye;
-            work->mSavedFovy = m0A4[0].m00.mFovY;
+            work->mSavedCenter = m0A4[0].mCenter;
+            work->mSavedEye = m0A4[0].mEye;
+            work->mSavedFovy = m0A4[0].mFovY;
             break;
         case 1:
-            work->mSavedCenter = m0A4[1].m00.mCenter;
-            work->mSavedEye = m0A4[1].m00.mEye;
-            work->mSavedFovy = m0A4[1].m00.mFovY;
+            work->mSavedCenter = m0A4[1].mCenter;
+            work->mSavedEye = m0A4[1].mEye;
+            work->mSavedFovy = m0A4[1].mFovY;
             break;
         case 9:
             dComIfGp_loadCameraPosition(0, &work->mSavedCenter, &work->mSavedEye, &work->mSavedFovy, &work->mSavedBank);
             break;
         default:
-            work->mSavedCenter = m084;
-            work->mSavedEye = m090;
-            work->mSavedFovy = m09C;
+            work->mSavedCenter = m084.mCenter;
+            work->mSavedEye = m084.mEye;
+            work->mSavedFovy = m084.mFovY;
             break;
         }
 
@@ -2768,11 +2768,11 @@ bool dCamera_c::saveEvCamera() {
     if (slot == 9) {
         dComIfGp_saveCameraPosition(0, &mViewCache.mCenter, &mViewCache.mEye, mViewCache.mFovy, mViewCache.mBank);
     } else {
-        m0A4[slot].m00.mCenter = mViewCache.mCenter;
-        m0A4[slot].m00.mEye = mViewCache.mEye;
-        m0A4[slot].m00.mFovY = mViewCache.mFovy;
-        m0A4[slot].m00.mBank = mViewCache.mBank;
-        m0A4[slot].m00.m1E = 1;
+        m0A4[slot].mCenter = mViewCache.mCenter;
+        m0A4[slot].mEye = mViewCache.mEye;
+        m0A4[slot].mFovY = mViewCache.mFovy;
+        m0A4[slot].mBank = mViewCache.mBank;
+        m0A4[slot].m1E = 1;
     }
     SkipSmoother();
     return true;
@@ -2787,10 +2787,10 @@ bool dCamera_c::loadEvCamera() {
         dComIfGp_loadCameraPosition(0, &mViewCache.mCenter, &mViewCache.mEye, &mViewCache.mFovy, &bank);
         mViewCache.mBank = cSAngle(bank);
     } else {
-        mViewCache.mCenter = m0A4[slot].m00.mCenter;
-        mViewCache.mEye = m0A4[slot].m00.mEye;
-        mViewCache.mFovy = m0A4[slot].m00.mFovY;
-        mViewCache.mBank = m0A4[slot].m00.mBank;
+        mViewCache.mCenter = m0A4[slot].mCenter;
+        mViewCache.mEye = m0A4[slot].mEye;
+        mViewCache.mFovy = m0A4[slot].mFovY;
+        mViewCache.mBank = m0A4[slot].mBank;
         mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
     }
     SkipSmoother();
@@ -3236,14 +3236,14 @@ bool dCamera_c::possessedEvCamera() {
 
         if (work->mType == 0) {
             work->mGlobe.Val(work->mRadius, work->mLatitude, work->mLongitude + directionOf(work->mTarget));
-            m0A4[1].m00.mCenter = mViewCache.mCenter;
-            m0A4[1].m00.mEye = mViewCache.mEye;
-            m0A4[1].m00.mFovY = mViewCache.mFovy;
-            m0A4[1].m00.mBank = mViewCache.mBank;
-            m0A4[1].m00.m1E = 2;
+            m0A4[1].mCenter = mViewCache.mCenter;
+            m0A4[1].mEye = mViewCache.mEye;
+            m0A4[1].mFovY = mViewCache.mFovy;
+            m0A4[1].mBank = mViewCache.mBank;
+            m0A4[1].m1E = 2;
         } else {
             mViewCache.mCenter = eyePos(work->mTarget);
-            work->mGlobe.Val(m0A4[1].m00.mEye - m0A4[1].m00.mCenter);
+            work->mGlobe.Val(m0A4[1].mEye - m0A4[1].mCenter);
             mViewCache.mDirection.Val(work->mRadius, work->mLatitude, work->mLongitude + directionOf(work->mTarget));
             mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
             mViewCache.mFovy = work->mFovy;
