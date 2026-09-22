@@ -1889,11 +1889,11 @@ void daRd_c::createInit() {
 /* 000046A4-00004720       .text getArg__6daRd_cFv */
 void daRd_c::getArg() {
     u32 param = fopAcM_GetParam(this);
-    mWhichIdleAnm = fopAcM_GetParamBit(param, 0x00, 1);
-    u8 radiusParam = fopAcM_GetParamBit(param, 0x01, 7);
+    mWhichIdleAnm = param & 1;
+    u8 radiusParam = (param >> 1) & 0x7F;
     int areaRadius = radiusParam;
-    mChecksSwitch = fopAcM_GetParamBit(param, 0x08, 8);
-    mSwNo = fopAcM_GetParamBit(param, 0x18, 8);
+    mChecksSwitch = (param >> 8) & 0xFF;
+    mSwNo = (param >> 0x18) & 0xFF;
     if (areaRadius == 0x7F) {
         areaRadius = 0;
     }
