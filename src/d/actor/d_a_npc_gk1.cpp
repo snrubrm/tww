@@ -157,7 +157,7 @@ void daNpc_Gk1_c::play_animation() {
     if (mObjAcch.ChkGroundHit()) {
         sound = dComIfG_Bgsp()->GetMtrlSndId(mObjAcch.m_gnd);
     }
-    mAnmEnded = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(current.roomNo));
+    mAnmEnded = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     if (mpMorf->getFrame() < mLastFrame) {
         mAnmEnded = 1;
     }
