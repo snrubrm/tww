@@ -2,7 +2,6 @@
 #define D_A_NPC_GP1_H
 
 #include "d/d_npc.h"
-#include "m_Do/m_Do_hostIO.h"
 
 class J3DNode;
 
@@ -110,34 +109,6 @@ public:
     s8 mMoveMode, mCutIndex, mEventAction;
     u8 mAnmAttr, mAnmTag;
     s8 mTexIndex, mAnmIndex, mEventOrder, mState, mPreviousState, mLookMode, mType, mSubtype, mActionState, mMessageState;
-};
-
-#if VERSION == VERSION_DEMO
-class daNpc_Gp1_HIO_c : public JORReflexible {
-#else
-class daNpc_Gp1_HIO_c : public mDoHIO_entry_c {
-#endif
-public:
-    struct hio_prm_c {
-        s16 mMaxHeadX, mMaxHeadY, mMinHeadX, mMinHeadY;
-        s16 mMaxBackX, mMaxBackY, mMinBackX, mMinBackY;
-        s16 mMaxTurn, mTurnSpeed;
-        f32 mAttentionYOffset;
-        u8 mDebug;
-        f32 mForceTalkDistance;
-        s16 mAngleScale, mAngleMax;
-        f32 mAnimSpeedScale, mTargetSpeed, mSpeedStep, mArriveDistance;
-    };
-    daNpc_Gp1_HIO_c();
-    virtual ~daNpc_Gp1_HIO_c() {}
-#if VERSION == VERSION_DEMO
-    void genMessage(JORMContext*) {}
-#endif
-
-public:
-    s8 mNo;
-    int mCount;
-    hio_prm_c mPrm;
 };
 
 STATIC_ASSERT(sizeof(daNpc_Gp1_c) == 0x81C);
