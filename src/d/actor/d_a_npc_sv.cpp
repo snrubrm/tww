@@ -115,7 +115,17 @@ static BOOL daNpc_People_nodeCallBack(J3DNode* node, int phase) {
         J3DModel* model = j3dSys.getModel();
         daNpcSv_c* npc = (daNpcSv_c*)model->getUserArea();
         int joint = ((J3DJoint*)node)->getJntNo();
-        cMtx_copy(model->getAnmMtx(joint), *calc_mtx);
+        MTXCopy(model->getAnmMtx(joint), *calc_mtx);
+#if VERSION == VERSION_DEMO
+        if (joint == npc->m_jnt.getHeadJntNum()) {
+            cMtx_XrotM(*calc_mtx, npc->m_jnt.getHead_y());
+            cMtx_ZrotM(*calc_mtx, -npc->m_jnt.getHead_x());
+        }
+        if (joint == npc->m_jnt.getBackboneJntNum()) {
+            cMtx_XrotM(*calc_mtx, npc->m_jnt.getBackbone_y());
+            cMtx_ZrotM(*calc_mtx, -npc->m_jnt.getBackbone_x());
+        }
+#else
         if (joint == npc->m_jnt.getHeadJntNum()) {
             mDoMtx_XrotM(*calc_mtx, npc->m_jnt.getHead_y());
             mDoMtx_ZrotM(*calc_mtx, -npc->m_jnt.getHead_x());
@@ -124,6 +134,7 @@ static BOOL daNpc_People_nodeCallBack(J3DNode* node, int phase) {
             mDoMtx_XrotM(*calc_mtx, npc->m_jnt.getBackbone_y());
             mDoMtx_ZrotM(*calc_mtx, -npc->m_jnt.getBackbone_x());
         }
+#endif
         model->setAnmMtx(joint, *calc_mtx);
         cMtx_copy(*calc_mtx, J3DSys::mCurrentMtx);
     }
@@ -149,7 +160,9 @@ static cPhs_State phase_2(daNpcSv_c* npc) {
         if (fopAcM_entrySolidHeap(npc, CheckCreateHeap, 0x3800)) {
             phase = npc->createInit();
         } else {
+#if VERSION > VERSION_DEMO
             npc->mpMorf = NULL;
+#endif
             phase = cPhs_ERROR_e;
         }
     }
@@ -172,9 +185,9 @@ BOOL daNpcSv_c::createHeap() {
         return FALSE;
     }
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(946, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(945, 946), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(950, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(949, 950), m_jnt.getBackboneJntNum() >= 0);
     for (u16 i = 0; i < modelData->getJointNum(); i++) {
         if (i == m_jnt.getHeadJntNum() || i == m_jnt.getBackboneJntNum()) {
             modelData->getJointNodePointer(i)->setCallBack(daNpc_People_nodeCallBack);
@@ -182,7 +195,7 @@ BOOL daNpcSv_c::createHeap() {
     }
     mpMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 30.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, &current.angle, &shape_angle);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), fopAcM_GetAngle_p(this), fopAcM_GetShapeAngle_p(this));
     return TRUE;
 }
 
@@ -194,7 +207,16 @@ cPhs_State daNpcSv_c::createInit() {
     mEventIds[1] = dComIfGp_evmng_getEventIdx("SV_TALK_P1_2ND");
     mEventIds[2] = dComIfGp_evmng_getEventIdx("SV_TALK_P4_1ST");
     eventInfo.setEventId(mEventIds[l_event_id_tbl[getTalkNo()]]);
+#if VERSION == VERSION_DEMO
+    mStts.Init(0xFF, 0xFF, this);
+    mCyl.Set(dNpc_cyl_src);
+    mCyl.SetStts(&mStts);
+    setCollision(&mCyl, current.pos, l_npc_dat[mNpcNo].radius, l_npc_dat[mNpcNo].height);
     mEventCut.setActorInfo2(l_npc_staff_id[mNpcNo], this);
+    setMtx();
+#else
+    mEventCut.setActorInfo2(l_npc_staff_id[mNpcNo], this);
+#endif
     mCurrentTurnSpeed = 0;
     mTalking = 0;
     mHasAttention = 0;
@@ -212,21 +234,32 @@ cPhs_State daNpcSv_c::createInit() {
     mCanLook = l_npc_dat[mNpcNo].canLook;
     mAttentionDistance = l_npc_dat[mNpcNo].attentionDistance;
     mAttentionAngle = l_npc_dat[mNpcNo].attentionAngle;
+#if VERSION > VERSION_DEMO
     setMtx();
     mpMorf->getModel()->calc();
     mStts.Init(0xFF, 0xFF, this);
     mCyl.Set(dNpc_cyl_src);
     mCyl.SetStts(&mStts);
     setCollision(&mCyl, current.pos, l_npc_dat[mNpcNo].radius, l_npc_dat[mNpcNo].height);
+#endif
     return cPhs_COMPLEATE_e;
 }
 
 /* 00000C74-00000CD8       .text _delete__9daNpcSv_cFv */
 bool daNpcSv_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mResFlag) {
+        dComIfG_resDeleteDemo(&mPhase, l_arcname_tbl[mNpcNo]);
+    }
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+#else
     dComIfG_resDelete(&mPhase, l_arcname_tbl[mNpcNo]);
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return true;
 }
 
@@ -525,7 +558,8 @@ BOOL daNpcSv_c::eventMesSet() {
 /* 0000184C-000018F0       .text eventGetItemInit__9daNpcSv_cFi */
 void daNpcSv_c::eventGetItemInit(int staff) {
     int* item = dComIfGp_evmng_getMyIntegerP(staff, "ItemNo");
-    fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item != NULL ? l_get_item_no[*item] : mItem, 0, -1, current.roomNo, NULL, NULL);
+    int itemNo = item != NULL ? l_get_item_no[*item] : mItem;
+    fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
     if (id != fpcM_ERROR_PROCESS_ID_e) {
         dComIfGp_event_setItemPartnerId(id);
     }
@@ -737,11 +771,11 @@ u8 daNpcSv_c::getPrmNpcNo() {
 void daNpcSv_c::setMtx() {
     mpMorf->getModel()->setBaseScale(scale);
     cXyz offset(l_npc_dat[mNpcNo].offset.x, l_npc_dat[mNpcNo].offset.y, l_npc_dat[mNpcNo].offset.z);
-    mDoMtx_YrotS(mDoMtx_stack_c::get(), current.angle.y);
+    mDoMtx_stack_c::YrotS(current.angle.y);
     mDoMtx_stack_c::multVec(&offset, &offset);
     mDoMtx_stack_c::transS(current.pos.x + offset.x, current.pos.y + offset.y, current.pos.z + offset.z);
-    mDoMtx_XYZrotM(mDoMtx_stack_c::get(), current.angle.x, 0, current.angle.z);
-    mDoMtx_YrotM(mDoMtx_stack_c::get(), current.angle.y);
+    mDoMtx_stack_c::XYZrotM(current.angle.x, 0, current.angle.z);
+    mDoMtx_stack_c::YrotM(current.angle.y);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
 }
 
