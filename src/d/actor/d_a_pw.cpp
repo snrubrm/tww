@@ -2535,9 +2535,10 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
     }
 
     model->setUserArea((u32)a_this);
-    for (u16 i = 0; i < (model = a_this->mpMorf->getModel())->getModelData()->getJointNum(); i++) {
-        (model = a_this->mpMorf->getModel())->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
+    for (u16 i = 0; i < a_this->mpMorf->getModel()->getModelData()->getJointNum(); i++) {
+        a_this->mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
     }
+    model = a_this->mpMorf->getModel();
 
     a_this->m2BC = new mDoExt_btpAnm();
     if (a_this->m2BC == NULL) {
