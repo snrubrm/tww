@@ -816,9 +816,8 @@ int daNpc_Ds1_c::getdemo_action(void*) {
     dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
     int staff = mgr->getMyStaffId("Ds1", NULL, 0);
 #else
-    int staff;
+    int staff = dComIfGp_evmng_getMyStaffId("Ds1", NULL, 0);
     dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
-    staff = mgr->getMyStaffId("Ds1", NULL, 0);
 #endif
     if (mActionState == 0) {
         u8 item;
@@ -873,21 +872,13 @@ int daNpc_Ds1_c::getdemo_action(void*) {
 
 /* 00002A04-00002BD0       .text privateCut__11daNpc_Ds1_cFv */
 int daNpc_Ds1_c::privateCut() {
-#if VERSION == VERSION_DEMO
     int cut;
     char* name = mEventCut.getActorName();
-    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
-    int staff = mgr->getMyStaffId(name, NULL, 0);
-#else
-    int cut;
-    int staff;
-    char* name = mEventCut.getActorName();
-    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
-    staff = mgr->getMyStaffId(name, NULL, 0);
-#endif
+    int staff = dComIfGp_evmng_getMyStaffId(name, NULL, 0);
     if (staff == -1) {
         return 0;
     }
+    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
     static const char* cut_name_tbl[] = {"TALKMSG", "CONTINUE_TALK", "SHOWITEM", "HEADSWING", "SOUND", "SETANM", "MOVEPOS", "INITPOS", "JNTLOCK", "PLAYER_HIDE"};
     cut = mgr->getMyActIdx(staff, cut_name_tbl, 10, 1, 0);
     if (cut == -1) {
