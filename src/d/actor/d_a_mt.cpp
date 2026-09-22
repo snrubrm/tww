@@ -1683,11 +1683,11 @@ void mt_move_maru(mt_class* i_this) {
 
     if (i_this->m348 != 0) {
         if (i_this->m348 == 1) {
-            i_this->mp450 = (fopAc_ac_c*)dComIfGp_particle_setToon(
+            i_this->mp450 = dComIfGp_particle_setToon(
                 dPa_name::ID_AK_SN_MAGTAILSTEAM, &actor->current.pos, &actor->current.angle, NULL, 0xB4, NULL,
                 (int)actor->current.roomNo);
             if (i_this->mp450 != NULL) {
-                ((JPABaseEmitter*)i_this->mp450)->becomeImmortalEmitter();
+                i_this->mp450->becomeImmortalEmitter();
             }
             i_this->m348 = 2;
             i_this->m34A = 80;
@@ -1695,10 +1695,10 @@ void mt_move_maru(mt_class* i_this) {
         if (i_this->mp450 != NULL) {
             MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
             cMtx_YrotM(*calc_mtx, actor->shape_angle.y);
-            ((JPABaseEmitter*)i_this->mp450)->setGlobalRTMatrix(*calc_mtx);
+            i_this->mp450->setGlobalRTMatrix(*calc_mtx);
             if (i_this->m34A == 0) {
-                ((JPABaseEmitter*)i_this->mp450)->quitImmortalEmitter();
-                ((JPABaseEmitter*)i_this->mp450)->becomeInvalidEmitter();
+                i_this->mp450->quitImmortalEmitter();
+                i_this->mp450->becomeInvalidEmitter();
                 i_this->mp450 = NULL;
                 i_this->m348 = 0;
             } else {
@@ -1706,7 +1706,7 @@ void mt_move_maru(mt_class* i_this) {
                 if (i_this->m34A < 30) {
                     alpha = (u8)(i_this->m34A * 6);
                 }
-                ((JPABaseEmitter*)i_this->mp450)->setGlobalAlpha(alpha);
+                i_this->mp450->setGlobalAlpha(alpha);
             }
         }
     }
@@ -2513,10 +2513,8 @@ static BOOL daMt_Delete(mt_class* i_this) {
     l_HIO.removeHIO();
 #else
     if (i_this->mp450 != NULL) {
-        *(u32*)&i_this->mp450->shape_angle &= ~0x40;
-        fopAc_ac_c* other = i_this->mp450;
-        *(s32*)((u8*)other + 0x60) = -1;
-        *(u32*)&other->shape_angle |= 1;
+        i_this->mp450->quitImmortalEmitter();
+        i_this->mp450->becomeInvalidEmitter();
         i_this->mp450 = NULL;
     }
 #endif

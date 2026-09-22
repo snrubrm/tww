@@ -95,7 +95,7 @@ public:
     /* 0x034D */ u8 m34D[0x0350 - 0x034D];
     /* 0x0350 */ cXyz m350[8];
     /* 0x03B0 */ dPa_followEcallBack mPa[8];
-    /* 0x0450 */ fopAc_ac_c* mp450;
+    /* 0x0450 */ JPABaseEmitter* mp450;
     /* 0x0454 */ u8 m454;
     /* 0x0455 */ u8 m455;
     /* 0x0456 */ s16 m456;
