@@ -122,7 +122,10 @@ BOOL daObjVyasi::Act_c::PlayStopJointAnimation() {
 
 /* 00000194-0000021C       .text set_first_process__Q210daObjVyasi5Act_cFv */
 void daObjVyasi::Act_c::set_first_process() {
-    process_init(is_switch() ? 4 : 1);
+    int sw = daObj::PrmAbstract<int>(this, 8, 0);
+    bool is_sw = dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(this));
+    int state = is_sw ? 4 : 1;
+    process_init(state);
     mNormalCounter = 0;
     m19D4 = 1.0f;
     shape_angle.y += 0x8000;
