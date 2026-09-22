@@ -165,7 +165,8 @@ f32 daSea_WaveInfo::GetRatio(int idx) {
 
 /* 8015B530-8015B54C       .text GetKm__14daSea_WaveInfoFi */
 f32 daSea_WaveInfo::GetKm(int idx) {
-    return mWaveInfoTable[idx].mKm * 6.28f;
+    f32 km = mWaveInfoTable[idx].mKm;
+    return km * 6.28f;
 }
 
 /* 8015B54C-8015B56C       .text GetScale__14daSea_WaveInfoFf */
@@ -351,6 +352,31 @@ f32 daSea_calcWave(f32 x, f32 z) {
         return daSea_packet_c::BASE_HEIGHT;
     }
 
+#if VERSION == VERSION_DEMO
+    f32 dx = x - l_cloth.getMinX();
+    f32 dz = z - l_cloth.getMinZ();
+    const f32 frac = 1.0f / GRID_SIZE;
+
+    int x0 = dx * frac;
+    int z0 = dz * frac;
+
+    f32* pY = &l_cloth.mpHeightTable[x0];
+    pY += z0 * GRID_CELLS;
+
+    Vec v00, v01, v10, v11;
+
+    v00.x = (x0 * GRID_SIZE) + l_cloth.getMinX();
+    v00.y = pY[GRID_INDEX(0, 0)];
+    v00.z = (z0 * GRID_SIZE) + l_cloth.getMinZ();
+
+    v01.x = v00.x;
+    v01.y = pY[GRID_INDEX(0, 1)];
+    v01.z = v00.z + GRID_SIZE;
+
+    v10.x = v00.x + GRID_SIZE;
+    v10.y = pY[GRID_INDEX(1, 0)];
+    v10.z = v00.z;
+#else
     f32 frac = 1.0f / GRID_SIZE;
 
     int x0 = (x - l_cloth.getMinX()) * frac;
@@ -360,11 +386,6 @@ f32 daSea_calcWave(f32 x, f32 z) {
     pY += x0;
     pY += z0 * GRID_CELLS;
 
-    //f32 minX = (x0 * 800) + l_cloth.getMinX();
-    //f32 maxX = minX + 800.0f;
-    //f32 minZ = (z0 * 800) + l_cloth.getMinZ();
-    //f32 maxZ = minZ + 800.0f;
-    
     Vec v00, v01, v10, v11;
 
     v00.x = (x0 * GRID_SIZE) + l_cloth.getMinX();
@@ -378,6 +399,7 @@ f32 daSea_calcWave(f32 x, f32 z) {
     v10.x = v01.x + GRID_SIZE;
     v10.y = pY[GRID_INDEX(1, 0)];
     v10.z = (z0 * GRID_SIZE) + l_cloth.getMinZ();
+#endif
 
     v11.x = v10.x;
     v11.y = pY[GRID_INDEX(1, 1)];
@@ -387,8 +409,13 @@ f32 daSea_calcWave(f32 x, f32 z) {
     f32 baseY;
 
     f32 f0, f1;
+#if VERSION == VERSION_DEMO
+    f1 = x - v00.x;
+    f0 = z - v00.z;
+#else
     f1 = x - v01.x;
     f0 = z - v10.z;
+#endif
     f1 *= frac;
     f0 *= frac;
 
@@ -407,7 +434,11 @@ f32 daSea_calcWave(f32 x, f32 z) {
 void daSea_GetPoly(void* pUserData, void (*callback)(void*, cXyz&, cXyz&, cXyz&), const cXyz& minPt, const cXyz& maxPt) {
     if (!daSea_ChkArea(minPt.x, minPt.z) || !daSea_ChkArea(maxPt.x, maxPt.z)) return;
 
+#if VERSION == VERSION_DEMO
+    const f32 frac = 1.0f / GRID_SIZE;
+#else
     f32 frac = 1.0f / GRID_SIZE;
+#endif
     int x0 = (minPt.x - l_cloth.getMinX()) * frac;
     int z0 = (minPt.z - l_cloth.getMinZ()) * frac;
     int x1 = (maxPt.x - l_cloth.getMinX()) * frac;
@@ -419,8 +450,12 @@ void daSea_GetPoly(void* pUserData, void (*callback)(void*, cXyz&, cXyz&, cXyz&)
 
     for (int z = z0; z < z1 + 1; z++) {
         for (int x = x0; x < x1 + 1; x++) {
+#if VERSION == VERSION_DEMO
+            f32* pY = &l_cloth.mpHeightTable[x];
+#else
             f32* pY = l_cloth.mpHeightTable;
             pY += x;
+#endif
             pY += z * GRID_CELLS;
             cXyz v00, v01, v10, v11;
 
@@ -486,7 +521,12 @@ void daSea_packet_c::CheckRoomChange() {
                 ClrFlat();
             }
         } else {
+#if VERSION == VERSION_DEMO
+            u8 sw = octa->getSw();
+            if (!dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(octa))) {
+#else
             if (!dComIfGs_isSwitch(octa->getSw(), fopAcM_GetHomeRoomNo(octa))) {
+#endif
                 SetFlat();
             } else {
                 ClrFlat();
@@ -594,7 +634,7 @@ void daSea_packet_c::execute(cXyz& pos) {
     }
 
     // Probably unrolled loop
-    f32 frac = 1.0f / 6;
+    const f32 frac = 1.0f / 6;
     aFadeTable[GRID_CELLS - 1] = frac * 0;
     aFadeTable[0]  = frac * 0;
     aFadeTable[GRID_CELLS - 2] = frac * 1;
@@ -750,7 +790,11 @@ void daSea_packet_c::draw() {
     color1.b = colorDif.b + tmp * ((f32)colorAmb.b - (f32)colorDif.b);
     color1.a = 0xFF;
 
+#if VERSION == VERSION_DEMO
+    const f32 f = 1.0f / 10;
+#else
     f32 f = 1.0f / 10;
+#endif
 
     f32 r;
     f32 g;
@@ -842,19 +886,38 @@ void daSea_packet_c::draw() {
     // TODO: Remove magic numbers
 
     // 1.0f / 2000
+#if VERSION == VERSION_DEMO
+    const f32 frac = 0.0005000001f;   // Fakematch
+#else
     f32 frac = 0.0005000001f;   // Fakematch
+#endif
 
+#if VERSION == VERSION_DEMO
+    f32 posZ;
+    f32 dVar14;
+    f32 prevTexZ;
+    f32 texZ;
+#endif
     cXyz* pVtx;
+#if VERSION == VERSION_DEMO
+    int z;
+    u16 idx2;
+#else
     u16 idx2;
     int z;
+#endif
     u16 idx1;
     idx1 = 0;
     idx2 = GRID_CELLS;
 
     pVtx = m_draw_vtx;
 
+#if VERSION == VERSION_DEMO
+    texZ = frac * (*pVtx).z;
+#else
     f32 prevTexZ;
     f32 texZ = frac * (*pVtx).z;
+#endif
     for (z = 0; z < GRID_CELLS - 1; z++) {
         prevTexZ = texZ;
         texZ = frac * ((*pVtx).z + GRID_SIZE);
@@ -880,9 +943,11 @@ void daSea_packet_c::draw() {
     GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
     GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 
+#if VERSION > VERSION_DEMO
     f32 dVar14;
 
     f32 posZ;
+#endif
     if (getMinZ() > -450000.0f) {
         int end = (getMinZ() - (-450000.0f)) / 225000.0f;
         posZ = -450000.0f;
@@ -1010,7 +1075,11 @@ void daSea_packet_c::draw() {
                     texX = frac * posX;
 
                     GXPosition3f32(posX, BASE_HEIGHT, posZ + 225000.0f);
+#if VERSION == VERSION_DEMO
+                    GXTexCoord2f32(texX, texZ);
+#else
                     GXTexCoord2f32(texX, frac * 450000.0f);
+#endif
                     GXPosition3f32(posX, BASE_HEIGHT, posZ);
                     GXTexCoord2f32(texX, prevTexZ);
                     posX += 225000.0f;
@@ -1019,7 +1088,11 @@ void daSea_packet_c::draw() {
                 if (trunc) {
                     texX = frac * getMinX();
                     GXPosition3f32(getMinX(), BASE_HEIGHT, posZ + 225000.0f);
+#if VERSION == VERSION_DEMO
+                    GXTexCoord2f32(texX, texZ);
+#else
                     GXTexCoord2f32(texX, frac * 450000.0f);
+#endif
                     GXPosition3f32(getMinX(), BASE_HEIGHT, posZ);
                     GXTexCoord2f32(texX, prevTexZ);
                 }
@@ -1059,11 +1132,18 @@ void daSea_packet_c::draw() {
 
         if (getMaxX() < 450000.0f) {
             int z;
+#if VERSION == VERSION_DEMO
+            int trunc;
+#endif
             f32 temp_f3_3 = 450000.0f - getMaxX();
             int temp_r26_2 = temp_f3_3 / 225000.0f;
 
             // Check if value gets truncated?
+#if VERSION == VERSION_DEMO
+            trunc = 225000.0f * temp_r26_2 < temp_f3_3 ? 1 : 0;
+#else
             int trunc = 225000.0f * temp_r26_2 < temp_f3_3 ? 1 : 0;
+#endif
 
             posZ = getMinZ();
             texZ = frac * posZ;
@@ -1088,10 +1168,18 @@ void daSea_packet_c::draw() {
                 }
 
                 if (trunc != 0) {
+#if VERSION == VERSION_DEMO
+                    texX = frac * 450000.0f;
+                    GXPosition3f32(450000.0f, BASE_HEIGHT, posZ + 225000.0f);
+                    GXTexCoord2f32(texX, texZ);
+                    GXPosition3f32(450000.0f, BASE_HEIGHT, posZ);
+                    GXTexCoord2f32(texX, prevTexZ);
+#else
                     GXPosition3f32(450000.0f, BASE_HEIGHT, posZ + 225000.0f);
                     GXTexCoord2f32(frac * 450000.0f, texZ);
                     GXPosition3f32(450000.0f, BASE_HEIGHT, posZ);
                     GXTexCoord2f32(frac * 450000.0f, prevTexZ);
+#endif
                 }
 
                 GXEnd();
@@ -1131,7 +1219,9 @@ void daSea_packet_c::draw() {
         }
     }
 
+#if VERSION > VERSION_DEMO
     GXSetNumIndStages(0);
+#endif
 #if VERSION > VERSION_JPN
     J3DShape::resetVcdVatCache();
 #endif
@@ -1172,9 +1262,12 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 /* 8015D924-8015D99C       .text daSea_Create__FP10fopAc_ac_c */
 static cPhs_State daSea_Create(fopAc_ac_c* i_this) {
     fopAcM_ct(i_this, sea_class);
-    if (!fopAcM_entrySolidHeap(i_this, CheckCreateHeap, 0xA000))
-        return cPhs_ERROR_e;
-    return cPhs_COMPLEATE_e;
+    cPhs_State phase = cPhs_COMPLEATE_e;
+    if (phase == cPhs_COMPLEATE_e) {
+        if (!fopAcM_entrySolidHeap(i_this, CheckCreateHeap, 0xA000))
+            return cPhs_ERROR_e;
+    }
+    return phase;
 }
 
 static actor_method_class l_daSea_Method = {
