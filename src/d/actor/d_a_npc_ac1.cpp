@@ -196,14 +196,8 @@ bool daNpc_Ac1_c::iniTexPttrnAnm(bool modify) {
 void daNpc_Ac1_c::plyTexPttrnAnm() {
     if (mBtpNo != 0 || cLib_calcTimer(&mBtpTimer) == 0) {
         mBtpFrame++;
-#if VERSION == VERSION_DEMO
         if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) {
             if (mBtpNo != 0) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
-#else
-        int end = m_hed_tex_pttrn->getFrameMax();
-        if (mBtpFrame >= (s16)end) {
-            if (mBtpNo != 0) mBtpFrame = end;
-#endif
             else {
                 mBtpTimer = 30.0f + cM_rndF(60.0f);
                 mBtpFrame = 0;
@@ -536,12 +530,7 @@ u8 daNpc_Ac1_c::demo() {
         dDemo_actor_c* actor = dComIfGp_demo_getActor(demoActorID);
         if (m_hed_tex_pttrn != NULL) {
             mBtpFrame++;
-#if VERSION == VERSION_DEMO
             if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
-#else
-            int end = m_hed_tex_pttrn->getFrameMax();
-            if (mBtpFrame >= (s16)end) mBtpFrame = end;
-#endif
         }
         J3DAnmTexPattern* btp = actor->getP_BtpData("Ac");
         if (btp != NULL) {
