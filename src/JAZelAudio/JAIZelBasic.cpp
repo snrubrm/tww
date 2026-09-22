@@ -3534,6 +3534,17 @@ void JAIZelBasic::setLinkGroupInfo(u8 param_1) {
     if (param_1 == mLinkSeaFloorGroupInfo) {
         return;
     }
+#if VERSION <= VERSION_JPN
+    if (field_0x021e == 0) {
+        if (mLinkSeaFloorGroupInfo & 0x40) {
+            if (mpMainBgmSound) {
+                mpMainBgmSound->stop(JAIZelParam::BGM_SCENE_CHANGE_FO_TIME);
+            }
+            field_0x00bc = 3;
+        }
+        field_0x021e = 1;
+    }
+#endif
     mLinkSeaFloorGroupInfo = param_1;
 }
 
