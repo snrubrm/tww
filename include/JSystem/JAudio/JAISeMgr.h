@@ -65,7 +65,7 @@ namespace JAInter {
         extern JAISound** seRegistBuffer;
         extern JAISound* seHandle;
         extern u8 seScene;
-        extern int seqMuteFlagFromSe;
+        extern u32 seqMuteFlagFromSe;
         extern f32* seCategoryVolume;
         extern u8* seEntryCancel;
     }

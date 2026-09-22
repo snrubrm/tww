@@ -26,7 +26,7 @@ JAInter::LinkSound* JAInter::SeMgr::seRegist;
 JAISound** JAInter::SeMgr::seRegistBuffer;
 JAISound* JAInter::SeMgr::seHandle;
 u8 JAInter::SeMgr::seScene;
-int JAInter::SeMgr::seqMuteFlagFromSe;
+u32 JAInter::SeMgr::seqMuteFlagFromSe;
 f32* JAInter::SeMgr::seCategoryVolume;
 u8* JAInter::SeMgr::seEntryCancel;
 
@@ -436,7 +436,7 @@ void JAInter::SeMgr::setSeqMuteFromSeStart(JAISound* sound) {
 
 /* 802942B0-80294380       .text clearSeqMuteFromSeStop__Q27JAInter5SeMgrFP8JAISound */
 void JAInter::SeMgr::clearSeqMuteFromSeStop(JAISound* sound) {
-    if ((u32)seqMuteFlagFromSe != 0 && (sound->getSwBit() & 8)) {
+    if (seqMuteFlagFromSe != 0 && (sound->getSwBit() & 8)) {
         for (u32 i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
             JAISound* sequence = SequenceMgr::getPlayTrackInfo(i)->field_0x48;
             if (i != seHandle->field_0x4 && sequence != NULL && !(sequence->getSwBit() & 8)) {
