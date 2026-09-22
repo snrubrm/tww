@@ -55,18 +55,21 @@ __declspec(section ".init") void TRK_copy_vector(u32 offset) {
     TRK_flush_cache(destPtr, 0x100);
 }
 
-// NONMATCHING - regalloc: mask/i/destPtr and the hoisted TRK_ISR_OFFSETS pointer get r31/r27/r29/r28 instead of r29/r28/r27/r31
-__declspec(section ".init") void __TRK_copy_vectors(void) {
+// Name unknown; mwcc-instr shows an inline call here (mask and i are inlined-body locals, @temps with ids above the loop
+// pointer, giving r29/r28/r31; as locals of __TRK_copy_vectors in any order or type they get the lowest ids and r31/r27/r28).
+static void TRK_copy_vectors_by_mask(u32* maskPtr) {
     int i;
-    u32 mask;
+    u32 mask = *maskPtr;
 
-    mask = *(u32*)TRKTargetTranslate(0x44);
-
-    for (i = 0; i <= 14; ++i) {
+    for (i = 0; i <= 14; i++) {
         if (mask & (1 << i)) {
             TRK_copy_vector(TRK_ISR_OFFSETS[i]);
         }
     }
+}
+
+__declspec(section ".init") void __TRK_copy_vectors(void) {
+    TRK_copy_vectors_by_mask((u32*)TRKTargetTranslate(0x44));
 }
 
 DSError TRKInitializeTarget() {

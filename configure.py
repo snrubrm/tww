@@ -1374,7 +1374,7 @@ config.libs = [
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "TRK_MINNOW_DOLPHIN/ppc/Generic/targimpl.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/ppc/Export/targsupp.s"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "TRK_MINNOW_DOLPHIN/ppc/Generic/exception.s"),
-            Object(NonMatching, "TRK_MINNOW_DOLPHIN/Os/dolphin/dolphin_trk.c"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "TRK_MINNOW_DOLPHIN/Os/dolphin/dolphin_trk.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/ppc/Generic/mpc_7xx_603e.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Portable/main_TRK.c"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "TRK_MINNOW_DOLPHIN/Os/dolphin/dolphin_trk_glue.c"),
