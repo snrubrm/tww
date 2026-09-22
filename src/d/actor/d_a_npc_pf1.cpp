@@ -335,14 +335,15 @@ void daNpc_Pf1_c::checkOrder() {
         if (dComIfGp_evmng_startCheck(mEventIdx[mEventNo]) && mOrder >= 3) {
             switch (mEventNo) {
             case 0:
-                for (int i = 0; i < 1; i++) {}
                 break;
             }
             mOrder = 0;
             mAnmAttr = 0xFF;
             mAnmTag = 0xFF;
         }
-    } else if (eventInfo.getCommand() == dEvtCmd_INTALK_e && (mOrder == 1 || mOrder == 2)) {
+        return;
+    }
+    if (eventInfo.getCommand() == dEvtCmd_INTALK_e && (mOrder == 1 || mOrder == 2)) {
         mOrder = 0;
         mTalking = true;
     }
