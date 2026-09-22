@@ -251,10 +251,10 @@ void damage_check(pt_class* i_this) {
 /* 0000093C-00000D74       .text get_z_ang__FP8pt_class */
 s16 get_z_ang(pt_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    dBgS_LinChk lin_chk;
     cXyz src;
     cXyz p1;
     cXyz p2;
+    dBgS_LinChk lin_chk;
 
     MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
     cMtx_YrotM(*calc_mtx, actor->current.angle.y);
