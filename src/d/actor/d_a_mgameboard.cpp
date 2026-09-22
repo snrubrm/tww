@@ -524,7 +524,7 @@ cPhs_State daMgBoard_c::_create() {
     fopAcM_SetupActor(this, daMgBoard_c);
 #endif
 #if VERSION == VERSION_PAL
-    sprintf(m_arcname, "Kaisen_%d", dComIfGs_getPalLanguage());
+    sprintf(m_arcname, "Kaisen_%d\0", dComIfGs_getPalLanguage());
 #elif VERSION > VERSION_JPN
     strcpy(m_arcname, "Kaisen_e");
 #endif
