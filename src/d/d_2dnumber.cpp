@@ -396,10 +396,17 @@ f32 dDlst_2DOutFont_c::iconset(int i_iconNo, char** param_1) {
             break;
         }
 
+#if VERSION == VERSION_PAL
+        var_f31 = 0.5f + (m6C + mCharSpace);
+
+        char buffer[16];
+        sprintf(buffer, "\x1B""CR[%d]", (int)var_f31);
+#else
         var_f31 = m6C + mCharSpace;
 
         char buffer[16];
         sprintf(buffer, "\x1B""CR[%d]", (int)(var_f31 + 0.5f));
+#endif
 
         char c;
         for (char* var_r5 = buffer; c = *var_r5, c != 0; var_r5++) {
@@ -572,6 +579,9 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
                 message++;
 
                 if (var_r5_2 == '\n') {
+#if VERSION == VERSION_PAL
+                    if (i_msgNo != 0x5f) {
+#endif
                     char sp24[16];
                     *dst = 0;
 
@@ -602,6 +612,11 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
                         strcat(mEC, "\n");
                         *spA0 = 0;
                     }
+#if VERSION == VERSION_PAL
+                    } else {
+                        dst--;
+                    }
+#endif
                 } else {
                     m68 += charWidth(var_r5_2);
                 }
@@ -611,7 +626,9 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
 
     *dst = 0;
 
-    #if VERSION >= VERSION_USA
+    #if VERSION == VERSION_PAL
+    f32 y = ((mpTextBox->getHeight() - mFontSize.mSizeY) - m82 * mpTextBox->getLineSpace()) / 2;
+    #elif VERSION >= VERSION_USA
     f32 y = 0.0f;
     if (m74 == 0) {
         y = ((mpTextBox->getHeight() - m6C) - m82 * mpTextBox->getLineSpace()) / 2;
@@ -662,8 +679,17 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
 
     #if VERSION >= VERSION_USA
     if (m74) {
+    #if VERSION == VERSION_PAL
+        if (mpTextBox->getWidth() - 5.0f < m68) {
+            f32 ratio = (mpTextBox->getWidth() - 5.0f) / m68;
+            int sizeX = ratio * mFontSize.mSizeX;
+            mCharSpace = (int)(mpTextBox->getCharSpace() * ratio);
+            mpTextBox->setCharSpace(mCharSpace);
+            mFontSize.mSizeX = m6C = sizeX;
+    #else
         if (mpTextBox->getWidth() < m68) {
             mFontSize.mSizeX = (int)(mFontSize.mSizeX * (mpTextBox->getWidth() / m68));
+    #endif
 
             J2DTextBox::TFontSize fontSize = mFontSize;
             mpTextBox->setFontSize(fontSize);
