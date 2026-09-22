@@ -884,13 +884,14 @@ f32 dMeter_alphaClose(s16* timer, s16* value) {
 /* 801F0258-801F02E8       .text dMeter_alphaOpen__FPsPs */
 f32 dMeter_alphaOpen(s16* timer, s16* value) {
     f32 ret;
+    int max = 6;
     if (*timer == 0) {
         *timer = 7;
         ret = 0.0f;
         *value = 0;
     } else if (*timer == 7) {
-        if (*value < 6) {
-            ret = fopMsgM_valueIncrease(6, *value, 1);
+        if (*value < max) {
+            ret = fopMsgM_valueIncrease(max, *value, 1);
             (*value)++;
         } else {
             ret = 1.0f;
@@ -1024,6 +1025,15 @@ const char* dMeter_weponTex() {
         "sword_03.bti",
     };
     int var1;
+#if VERSION == VERSION_DEMO
+    if (dComIfGs_isCollect(0, 1)) {
+        var1 = 1;
+    } else if (dComIfGs_isCollect(0, 2)) {
+        var1 = 2;
+    } else if (dComIfGs_isCollect(0, 3)) {
+        var1 = 3;
+    } else {
+#else
     if (dComIfGs_isCollect(0, 3)) {
         var1 = 3;
     } else if (dComIfGs_isCollect(0, 2)) {
@@ -1031,6 +1041,7 @@ const char* dMeter_weponTex() {
     } else if (dComIfGs_isCollect(0, 1)) {
         var1 = 1;
     } else {
+#endif
         var1 = 0;
     }
     return wepon[var1];
@@ -1375,9 +1386,13 @@ void dMeter_heartAlpha(sub_meter_class* i_Meter) {
         } else {
             i_Meter->field_0x3014 = 5;
         }
+#if VERSION == VERSION_DEMO
+        mDoAud_heartGaugeOn();
+#else
         if (dComIfGp_getMiniGameType() != 6) {
             mDoAud_heartGaugeOn();
         }
+#endif
     }
     dVar5 = fopMsgM_valueIncrease(5, i_Meter->field_0x3014, 0);
     i_Meter->field_0x2fbc = dVar5;
@@ -1593,7 +1608,9 @@ void dMeter_weponInit(sub_meter_class* i_Meter) {
     ((J2DPicture*)i_Meter->field_0x2828.pane)->changeTexture(i_Meter->actionTex[0], 0);
     ((J2DPicture*)i_Meter->field_0x2860.pane)->changeTexture(i_Meter->actionTex[0], 0);
     ((J2DPicture*)i_Meter->field_0x1d00.pane)->changeTexture(i_Meter->actionTex[0], 0);
+#if VERSION > VERSION_DEMO
     i_Meter->field_0x2828.mUserArea = 0;
+#endif
 }
 
 /* 801F1F8C-801F23B8       .text dMeter_weponMove__FP15sub_meter_class */
@@ -1877,6 +1894,13 @@ void dMeter_weponTrans(sub_meter_class* i_Meter) {
         }
         moveStatus = 3;
     } else if (dMenu_flag() && (dMenu_getPushMenuButton() == 1 || (dMenu_getMenuStatus() == 1 && dMenu_getPushMenuButton() == 0))) {
+#if VERSION == VERSION_DEMO
+        if (moveStatus != 4) {
+            moveFlag = 1;
+            dMeter_offBit8(&i_Meter->field_0x3026, 2);
+        }
+        moveStatus = 4;
+#else
         if (dMenu_getItemMode() == 0) {
             if (moveStatus != 4) {
                 moveFlag = 1;
@@ -1890,6 +1914,7 @@ void dMeter_weponTrans(sub_meter_class* i_Meter) {
             }
             moveStatus = 5;
         }
+#endif
     } else if (dMenu_flag() && (dMenu_getPushMenuButton() == 2 || (dMenu_getMenuStatus() == 2 && dMenu_getPushMenuButton() == 0))) {
         if (moveStatus != 5) {
             moveFlag = 1;
@@ -2589,7 +2614,11 @@ void dMeter_actionAlpha(sub_meter_class* i_Meter) {
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x27f0);
     }
     fopMsgM_setNowAlpha(&i_Meter->field_0x2908, dVar2);
+#if VERSION == VERSION_DEMO
+    if (dMeter_isBit8(&i_Meter->field_0x3026, 1) != 0) {
+#else
     if (dMeter_isBit8(&i_Meter->field_0x3026, 1) != 0 && i_Meter->field_0x27b8.mUserArea == 0) {
+#endif
         i_Meter->field_0x1d38.pane->show();
         i_Meter->field_0x27b8.pane->show();
         i_Meter->field_0x27f0.pane->show();
@@ -3400,7 +3429,9 @@ void dMeter_xyTrans(sub_meter_class* i_Meter) {
 /* 801F7034-801F70E0       .text dMeter_rInit__FP15sub_meter_class */
 void dMeter_rInit(sub_meter_class* i_Meter) {
     i_Meter->field_0x26d8.mUserArea = 0;
+#if VERSION > VERSION_DEMO
     i_Meter->field_0x1cc8.mUserArea = 0;
+#endif
     i_Meter->field_0x301c = 0;
     dComIfGp_setRStatus(dActStts_BLANK_e);
     JKRArchive* archive;
@@ -3428,7 +3459,11 @@ void dMeter_rMove(sub_meter_class* i_Meter) {
     if (dComIfGp_getRStatusForce() != dActStts_BLANK_e) {
         dComIfGp_setRStatus(dComIfGp_getRStatusForce());
     }
+#if VERSION == VERSION_DEMO
+    if (i_Meter->field_0x301c != dComIfGp_getRStatus()) {
+#else
     if (i_Meter->field_0x1cc8.mUserArea != 0) {
+#endif
         if (dComIfGp_getRStatus() != dActStts_BLANK_e) {
             JKRArchive* archive;
 #if VERSION == VERSION_PAL
@@ -3451,13 +3486,24 @@ void dMeter_rMove(sub_meter_class* i_Meter) {
         }
         i_Meter->field_0x301c = dComIfGp_getRStatus();
         i_Meter->field_0x26d8.mUserArea = 1;
+#if VERSION > VERSION_DEMO
         i_Meter->field_0x1cc8.mUserArea = 0;
+#endif
     }
+#if VERSION > VERSION_DEMO
     if (i_Meter->field_0x301c != dComIfGp_getRStatus()) {
         i_Meter->field_0x1cc8.mUserArea = 1;
     }
+#endif
     dMeter_rTrans(i_Meter);
     dMeter_rAlpha(i_Meter);
+#if VERSION == VERSION_DEMO
+    if (dMeter_isBit8(&i_Meter->field_0x3026, 8)) {
+        i_Meter->field_0x26d8.pane->show();
+    } else {
+        i_Meter->field_0x26d8.pane->hide();
+    }
+#endif
     dComIfGp_setRStatusForce(dActStts_BLANK_e);
 }
 
@@ -4126,7 +4172,7 @@ void dMeter_magicGaugeMove(sub_meter_class* i_Meter) {
     if (dComIfGs_getMagic() > dComIfGs_getMaxMagic()) {
         dComIfGs_setMagic(dComIfGs_getMaxMagic());
     }
-    if (!fopOvlpM_IsDoingReq() &&
+    if (!DEMO_SELECT(fopOvlpM_IsPeek(), fopOvlpM_IsDoingReq()) &&
         (!(i_Meter->mStatusFlags & dMtrStts_UNK40_e) ||
          !dComIfGp_event_checkHind(0x20) || !dComIfGp_evmng_checkStartDemo() || dComIfGp_checkPlayerStatus1(0, daPyStts1_UNK2000_e)))
     {
@@ -4587,7 +4633,7 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
     }
     if (
         (i_Meter->mStatusFlags & dMtrStts_UNK4000_e) ||
-        fopOvlpM_IsDoingReq() ||
+        DEMO_SELECT(fopOvlpM_IsPeek(), fopOvlpM_IsDoingReq()) ||
         ((i_Meter->mStatusFlags & dMtrStts_UNK40_e) && dComIfGp_event_checkHind(0x100)) ||
         (i_Meter->mStatusFlags & dMtrStts_UNK200000_e) ||
         (i_Meter->mStatusFlags & dMtrStts_UNK100_e) ||
@@ -4882,7 +4928,9 @@ void dMeter_magicLength(sub_meter_class* i_Meter, f32 param_2) {
 void dMeter_windInit(sub_meter_class* i_Meter) {
     dMeter_windID = fpcM_ERROR_PROCESS_ID_e;
     dMeter_windStatus = 0;
+#if VERSION > VERSION_DEMO
     dComIfGp_setOperateWindCancelOff();
+#endif
 }
 
 /* 801FBC90-801FBCEC       .text dMeter_metronomeInit__FP15sub_meter_class */
@@ -5877,7 +5925,7 @@ void dMeter_clockMultiInit(sub_meter_class* i_Meter) {
     ResTIMG* texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getMenuArchive();
     ResTIMG* texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "screw_01.bti", pArchive2);
-    JUT_ASSERT(VERSION_SELECT(10626, 10505, 10626, 10625), texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(10368, 10505, 10626, 10625), texture1 != NULL && texture2 != NULL);
     for (s32 i = 0; i < 3; i++) {
         clock[i].init(texture1, texture2, 1.0f / scaleX[i], 1.0f / scaleY[i]);
     }
@@ -5924,7 +5972,7 @@ void dMeter_mapMove(sub_meter_class* i_Meter) {
     static s16 mapTimer = 0;
     static u8 stageFlag = false;
     static s32 stayNo = dComIfGp_roomControl_getStayNo();
-    if (fopOvlpM_IsDoingReq() == 0) {
+    if (DEMO_SELECT(fopOvlpM_IsPeek(), fopOvlpM_IsDoingReq()) == 0) {
         if (i_Meter->field_0x3027 == 0xFF) {
             stageFlag = 1;
         } else if (stayNo != dComIfGp_roomControl_getStayNo()) {
@@ -6308,7 +6356,11 @@ void dMeter_moveItemMove(sub_meter_class* i_Meter) {
 /* 80200398-8020042C       .text dMeter_moveItemDraw__FP15sub_meter_class */
 void dMeter_moveItemDraw(sub_meter_class* i_Meter) {
     s16 uVar1 = g_menuHIO.field_0xc8;
+#if VERSION == VERSION_DEMO
+    if (dMeter_itemMoveFlagCheck() && dMeter_itemTimer != 0) {
+#else
     if (dMeter_itemMoveFlagCheck() && dMeter_itemTimer != 0 && moveItemPane != NULL) {
+#endif
         moveItemPane->draw(item_parts.mPosTopLeft.x, item_parts.mPosTopLeft.y, item_parts.mSize.x, item_parts.mSize.y, false, false, false);
         if (dMeter_itemTimer >= uVar1) {
             dMeter_itemMoveFlag = 0;
@@ -6393,7 +6445,7 @@ void dMeter_swimInit(sub_meter_class* i_Meter) {
     texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getSwimResArchive();
     texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "tekari.bti", pArchive2);
-    JUT_ASSERT(VERSION_SELECT(11498, 11377, 11498, 11497), texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(11240, 11377, 11498, 11497), texture1 != NULL && texture2 != NULL);
     tekari.init(texture1, texture2, 1.0f, 1.0f);
 }
 
@@ -7219,9 +7271,9 @@ void dMeter_screenDataSet(sub_meter_class* i_Meter) {
 /* 8020408C-8020438C       .text dMeter_screenDataTimeSet__FP15sub_meter_class */
 void dMeter_screenDataTimeSet(sub_meter_class* i_Meter) {
     sScrTimer1 = new J2DScreen();
-    JUT_ASSERT(VERSION_SELECT(12863, 12742, 12863, 12862), sScrTimer1 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12605, 12742, 12863, 12862), sScrTimer1 != NULL);
     sScrTimer2 = new J2DScreen();
-    JUT_ASSERT(VERSION_SELECT(12865, 12744, 12865, 12864), sScrTimer2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12607, 12744, 12865, 12864), sScrTimer2 != NULL);
     sScrTimer1->set("time_swim_1.blo", dComIfGp_getSwimResArchive());
     sScrTimer2->set("time_swim_2.blo", dComIfGp_getSwimResArchive());
     fopMsgM_setPaneData(&i_Meter->field_0x2a90[8], sScrTimer2, 'hk33');
@@ -7328,7 +7380,16 @@ static BOOL dMeter_Draw(sub_meter_class* i_Meter) {
     fopMsgM_setAlpha(&i_Meter->field_0x2a58);
     dMeter_swimDraw(i_Meter);
     dMeter_arrowDraw(i_Meter);
+#if VERSION == VERSION_DEMO
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    f32 y = player->current.pos.y;
+    int stayNo = dComIfGp_roomControl_getStayNo();
+    f32 z = player->current.pos.z;
+    dMap_c::drawTest(player->current.pos.x, z, stayNo, y);
+    {
+#else
     if (!fopOvlpM_IsDoingReq()) {
+#endif
         dComIfGd_set2DOpa(&meter1);
         for (s32 i = 0; i < 3; i++) {
             dComIfGd_set2DOpa(&clock[i]);
@@ -7662,6 +7723,9 @@ dMeter_HIO_c::~dMeter_HIO_c() {
 
 /* 80205990-802059E0       .text __ct__16dMeter_map_HIO_cFv */
 dMeter_map_HIO_c::dMeter_map_HIO_c() {
+#if VERSION == VERSION_DEMO
+    field_0x5 = 1;
+#endif
     field_0x8 = 0x23;
     field_0xa = 0x152;
     field_0xc = -0xb4;
@@ -7688,6 +7752,10 @@ void mapCtrlDisp_c::initMapCtrlDisp() {
     field_0x0 = 0;
     field_0x1 = 0;
     field_0x2 = 0;
+#if VERSION == VERSION_DEMO
+    field_0x3 = 0;
+    field_0x4_demo = 0;
+#endif
     field_0x4 = 0;
 }
 
@@ -7743,7 +7811,8 @@ void mapCtrlDisp_c::moveMapCtrlDisp() {
             mDoAud_seStart(JA_SE_MAP_SHOW_END);
         }
     } else {
-        cLib_addCalcAngleS(&field_0x4, g_meter_mapHIO.field_0xc - g_meter_mapHIO.field_0x8, 2, 0x3c, 10);
+        s16 target = g_meter_mapHIO.field_0xc - g_meter_mapHIO.field_0x8;
+        cLib_addCalcAngleS(&field_0x4, target, 2, 0x3c, 10);
     }
     int uVar6_2 = ((dComIfGp_getWindow(0)->getScissor()->mYOrig + dComIfGp_getWindow(0)->getScissor()->mHeight) - 452.0f);
     dMap_c::setMapDispPosLeftUpX(g_meter_mapHIO.field_0x8 + field_0x4);
@@ -7751,6 +7820,12 @@ void mapCtrlDisp_c::moveMapCtrlDisp() {
     if ((f32)(uVar6_2) < 0.0f) {
         dMap_c::setMapDispPosLeftUpY(uVar6_2 + g_meter_mapHIO.field_0xa);
     }
+#if VERSION == VERSION_DEMO
+    if (g_meter_mapHIO.field_0x5 == 0) {
+        dMap_c::setIconFreeAlpha(0);
+        dMap_c::setIconFreeScale(0.0f);
+    }
+#endif
 }
 
 /* 80205D24-80205D6C       .text __dt__16dMeter_map_HIO_cFv */
