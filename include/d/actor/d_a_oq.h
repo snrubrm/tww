@@ -50,9 +50,15 @@ public:
     /* 0x34C */ csXyz mRollAngle;
     /* 0x352 */ u8 m352[0x354 - 0x352];
     /* 0x354 */ dPa_rippleEcallBack mRippleCb;
+#if VERSION == VERSION_DEMO
+    /* 0x368 */ cXyz mRipplePos;
+    /* 0x374 */ u8 m374[0x37C - 0x374];
+    /* 0x37C */ JPABaseEmitter* mpEmitter;
+#else
     /* 0x368 */ dPa_followEcallBack mFollowCb;
     /* 0x37C */ cXyz mRipplePos;
     /* 0x388 */ u8 m388[0x390 - 0x388];
+#endif
     /* 0x390 */ dBgS_AcchCir mAcchCir;
     /* 0x3D0 */ dBgS_ObjAcch mAcch;
     /* 0x594 */ dCcD_Stts mStts;
@@ -66,6 +72,6 @@ public:
     /* 0x1070 */ JntHit_c* mpJntHit;
 };  // Size: 0x1074
 
-STATIC_ASSERT(sizeof(oq_class) == 0x1074);
+STATIC_ASSERT(sizeof(oq_class) == DEMO_SELECT(0x1064, 0x1074));
 
 #endif /* D_A_OQ_H */
