@@ -251,10 +251,7 @@ void daObjFlame::Act_c::em_position() {
 
 /* 00000B3C-00000CAC       .text em_simple_set__Q210daObjFlame5Act_cFv */
 void daObjFlame::Act_c::em_simple_set() {
-    bool visible = false;
-    if (!attr_scl().hideCovered || !m459) {
-        visible = true;
-    }
+    bool visible = !(attr_scl().hideCovered && m459);
     if (mEm0State == 1 && visible) {
         cXyz pos(eyePos.x, eyePos.y + mExtraScaleY * (-300.0f * attr_scl().height), eyePos.z);
         dComIfGp_particle_setSimple(dPa_name::ID_AK_SN_O_FIRESHAFTHEAD, &pos);
