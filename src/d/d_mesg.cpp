@@ -1621,8 +1621,11 @@ void dMesg_screenData_c::dotAnimeInit() {
     resetTimer();
 }
 
+// Name unknown; mwcc-instr shows an inline call here (60 - mTimer is an inline-return @temp coalesced into r4, which is
+// why it is computed before the 30 is loaded; casts, reordering and a named local all fold it into the argument).
+static inline int dMesg_dotReverseTimer(int timer) { return 60 - timer; }
+
 /* 801E3194-801E36A8       .text dotAnime__18dMesg_screenData_cFv */
-// NONMATCHING - the 60 - mTimer argument is computed before the constant 30 is loaded in the target
 void dMesg_screenData_c::dotAnime() {
     f32 f31 = 150.0f - field_0x1b0.r;
     f32 f30 = 150.0f - field_0x1b0.g;
@@ -1649,7 +1652,7 @@ void dMesg_screenData_c::dotAnime() {
             fopMsgM_setInitAlpha(&field_0x18);
             resetTimer();
         } else if (mTimer > 30) {
-            f32 tmp = fopMsgM_valueIncrease(30, 60 - mTimer, 0);
+            f32 tmp = fopMsgM_valueIncrease(30, dMesg_dotReverseTimer(mTimer), 0);
             black.r = field_0x1b0.r + f31 * tmp;
             black.g = field_0x1b0.g + f30 * tmp;
             black.b = field_0x1b0.b + f29 * tmp;
