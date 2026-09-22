@@ -103,12 +103,12 @@ BOOL daObjFlame::Act_c::solidHeapCB(fopAc_ac_c* actor) {
 bool daObjFlame::Act_c::create_heap() {
     bool success = false;
     J3DModelData* mdl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, attr_scl().model);
-    JUT_ASSERT(0x1F3, mdl_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x1F2, 0x1F3), mdl_data != 0);
     mpModel = mDoExt_J3DModel__create(mdl_data, 0, 0x11020203);
     J3DAnmTextureSRTKey* btk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(M_arcname, attr_scl().btk));
     mpBtkAnm = new mDoExt_btkAnm;
     BOOL btkOK = FALSE;
-    JUT_ASSERT(0x1FC, btk != 0);
+    JUT_ASSERT(DEMO_SELECT(0x1FB, 0x1FC), btk != 0);
     if (mpBtkAnm != NULL) {
         btkOK = mpBtkAnm->init(mdl_data, btk, TRUE, J3DFrameCtrl::EMode_LOOP, attr_scl().animationSpeed, 0, -1, false, 0);
     }
@@ -116,7 +116,7 @@ bool daObjFlame::Act_c::create_heap() {
     if (attr_scl().brk >= 0) {
         J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, attr_scl().brk));
         mpBrkAnm = new mDoExt_brkAnm;
-        JUT_ASSERT(0x212, brk != 0);
+        JUT_ASSERT(DEMO_SELECT(0x211, 0x212), brk != 0);
         if (mpBrkAnm != NULL) {
             brkOK = mpBrkAnm->init(mdl_data, brk, TRUE, J3DFrameCtrl::EMode_LOOP, attr_scl().animationSpeed, 0, -1, false, 0);
         }
