@@ -242,7 +242,7 @@ bool daNpc_Bj1_c::createInit() {
         "Bj3", "Bj3",
         "Bj4", "Bj4",
         "Bj5", "Bj5",
-        "Bj6", "Bj7",
+        "Bj6", "Bj6",
         "Bj7",
         "Bj8", "Bj8",
         "Bj9", "Bj9",
