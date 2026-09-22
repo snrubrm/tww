@@ -489,18 +489,9 @@ void body_control2(mt_class* i_this) {
 
 /* 00001B54-00001E44       .text wall_check_sub__FP8mt_classP4cXyzP4cXyz */
 BOOL wall_check_sub(mt_class* i_this, cXyz* i_start, cXyz* i_end) {
-#if VERSION == VERSION_DEMO
     dBgS_LinChk linChk;
 
     linChk.Set(i_start, i_end, i_this);
-#else
-    mt_class* a = i_this;
-    cXyz* b = i_start;
-    cXyz* c = i_end;
-    dBgS_LinChk linChk;
-
-    linChk.Set(b, c, a);
-#endif
     if (dComIfG_Bgsp()->LineCross(&linChk)) {
         return TRUE;
     }
