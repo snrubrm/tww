@@ -4596,7 +4596,9 @@ void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
     GXSetAlphaCompare(GX_GREATER, 0, GX_AOP_OR, GX_GREATER, 0);
     GXSetZMode(GX_ENABLE, GX_LEQUAL, GX_DISABLE);
     GXSetCullMode(GX_CULL_NONE);
+#if VERSION > VERSION_JPN
     GXSetClipMode(GX_CLIP_DISABLE);
+#endif
     GXSetNumIndStages(0);
     GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_CLR_RGBA, GX_F32, 0);
     GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_TEX0, GX_CLR_RGBA, GX_RGBA4, 8);
