@@ -1243,12 +1243,9 @@ static BOOL daNpc_AuctionExecute(void* i_this) {
 }
 
 /* 00002C70-00002EB8       .text daNpc_AuctionDraw__FPv */
-#pragma push
-#pragma inline_max_size(4096)
 static BOOL daNpc_AuctionDraw(void* i_this) {
     return ((daNpcAuction_c*)i_this)->_draw();
 }
-#pragma pop
 
 /* 00002EB8-00002EC0       .text daNpc_AuctionIsDelete__FPv */
 static BOOL daNpc_AuctionIsDelete(void*) {
