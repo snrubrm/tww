@@ -2333,9 +2333,11 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
     if (chkFlag(0x2000) && mpLockonTarget) {
         f32 sight_radius = radiusActorInSight(mpPlayerActor, mpLockonTarget);
         if (sight_radius > 0.0f) {
+#if VERSION > VERSION_DEMO
             if (sight_radius >= 3500.0f) {
                 sight_radius = 3500.0f;
             }
+#endif
             m14C += (sight_radius - m14C) * 0.33f;
             res |= 0x40;
         }
@@ -2355,8 +2357,14 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
     if ((i_flags & 0x40) && m364 != 0) {
         cSGlobe cStack_3e4 = m36C - mViewCache.mCenter;
         if (direction.V() < cStack_3e4.V()) {
+#if VERSION == VERSION_DEMO
+            f32 ratio = 0.05f;
+            cSAngle local_408 = mDirection.V();
+            local_408 += (cStack_3e4.V() - local_408) * ratio;
+#else
             cSAngle local_408 = mDirection.V();
             local_408 += (cStack_3e4.V() - local_408) * 0.05f;
+#endif
             direction.V(local_408);
             eye = mViewCache.mCenter + direction.Xyz();
             res |= 0x20;
@@ -2480,7 +2488,15 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
                         if (lineBGCheck(&local_278, &local_284, &lin_chk1, i_flags)) {
                             cXyz cross = lin_chk1.GetCross();
                             local_284 = compWallMargin(&cross, gaze_back_margin);
+#if VERSION == VERSION_DEMO
+                            if (REG5_S(3)) {
+                                mEye += (local_284 - mEye) * mCamSetup.mBGChk.WallCushion();
+                            } else {
+                                mEye = local_284;
+                            }
+#else
                             mEye += (local_284 - mEye) * mCamSetup.mBGChk.WallCushion();
+#endif
                         }
                         else {
                             mEye += (local_284 - mEye) * mCamSetup.mBGChk.WallCushion();
@@ -2546,9 +2562,13 @@ bool dCamera_c::bumpCheck(u32 i_flags) {
             }
 
             cSAngle acStack_440 = mDirection.V() - mViewCache.mDirection.V();
+#if VERSION == VERSION_DEMO
+            if (acStack_440.Abs() < cSAngle(0.2f).Val()) {
+#else
             corner_angle_max_cos = acStack_440.Degree();
 
             if (std::fabsf(corner_angle_max_cos) < 0.2f) {
+#endif
                 clrFlag(0x4000);
             }
         } 
