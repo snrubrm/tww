@@ -1617,7 +1617,11 @@ bool daGy_c::_draw() {
         drawDebug();
     }
 
+#if VERSION > VERSION_JPN
     if (m4E4 <= l_HIO.mA0 && mPrmIdx != 5) {
+#else
+    if (m4E4 <= l_HIO.mA0) {
+#endif
         return true;
     }
 
