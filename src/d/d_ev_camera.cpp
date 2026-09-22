@@ -1000,8 +1000,6 @@ bool dCamera_c::uniformTransEvCamera() {
     bool ret = false;
     f32 ratio;
 
-    (void)DefaultTimer;
-    (void)DefaultBank;
 
     if (m11C == 0) {
         if (!getEvIntData(&work->mTimer, "Timer")) {
@@ -1232,8 +1230,6 @@ bool dCamera_c::uniformBrakeEvCamera() {
     bool ret = false;
     f32 ratio;
 
-    (void)DefaultTimer;
-    (void)DefaultBank;
 
     if (m11C == 0) {
         if (!getEvIntData(&work->mTimer, "Timer")) {
@@ -1483,8 +1479,6 @@ bool dCamera_c::uniformAcceleEvCamera() {
     bool ret = false;
     f32 ratio;
 
-    (void)DefaultTimer;
-    (void)DefaultBank;
 
     if (m11C == 0) {
         if (!getEvIntData(&work->mTimer, "Timer")) {
@@ -1736,7 +1730,6 @@ bool dCamera_c::watchActorEvCamera() {
     static f32 DefaultFrontAngle = 179.0f;
     WatchActorWork* work = (WatchActorWork*)&mWork;
 
-    (void)DefaultJumpTimer;
 
     if (m11C == 0) {
         getEvXyzData(&work->mCtrGap, "CtrGap", DefaultGap);
@@ -2604,7 +2597,6 @@ bool dCamera_c::turnToActorEvCamera() {
     static f32 DefaultFrontAngle = 179.0f;
     TurnToActorWork* work = (TurnToActorWork*)&mWork;
 
-    (void)DefaultDist;
 
     if (m11C == 0) {
         getEvXyzData(&work->mCtrGap, "CtrGap", DefaultGap);
