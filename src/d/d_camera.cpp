@@ -6492,6 +6492,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
     f32 val18 = mCamParam.Val(param_1, 18);
     f32 val25 = mCamParam.Val(param_1, 25);
     f32 val20 = mCamParam.Val(param_1, 20);
+    f32 timerMul = 3.0f;
 
     cXyz posOffset(val1, val5, val0);
     cSGlobe offsetGlobe(posOffset);
@@ -6523,7 +6524,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
         f20 /= height < 10.0f ? 10.0f : height;
 
         f32 angFac = std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
-        f32 t = 3.0f * std::sqrtf(f20);
+        f32 t = timerMul * std::sqrtf(f20);
         work->m37C = (int)(t * (1.0f + angFac)) + 1;
         work->m380 = work->m37C * (work->m37C + 1) >> 1;
     }
@@ -6541,7 +6542,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
             if (lineBGCheck(&attn, &mViewCache.mCenter, &lin_chk, 0x7f)) {
                 cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
                 mViewCache.mCenter = lin_chk.GetCross();
-                mViewCache.mCenter += plane->mNormal;
+                mViewCache.mCenter += *plane->GetNP();
             }
         }
 
@@ -6565,6 +6566,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
         return true;
     }
 
+    f32 cush = val20;
     mViewCache.mCenter = targetCenter;
 
     cXyz attn = attentionPos(mpPlayerActor);
@@ -6573,7 +6575,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
     if (lineBGCheck(&attn, &mViewCache.mCenter, &lin_chk, 0x7f)) {
         cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
         mViewCache.mCenter = lin_chk.GetCross();
-        mViewCache.mCenter += plane->mNormal;
+        mViewCache.mCenter += *plane->GetNP();
     }
 
     cSAngle lat(val15);
@@ -6593,13 +6595,13 @@ bool dCamera_c::shieldCamera(s32 param_1) {
         bodyY.Val((s16)0);
     }
 
-    mViewCache.mDirection.V(mViewCache.mDirection.V() + ((lat + bodyX * val18) - mViewCache.mDirection.V()) * val20);
-    mViewCache.mDirection.U(mViewCache.mDirection.U() + ((yaw + bodyY * val23) - mViewCache.mDirection.U()) * val20);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + ((lat + bodyX * val18) - mViewCache.mDirection.V()) * cush);
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + ((yaw + bodyY * val23) - mViewCache.mDirection.U()) * cush);
 
     f32 targetR = limitf(mViewCache.mDirection.R(), val11, val10);
-    mViewCache.mDirection.R(mViewCache.mDirection.R() + val20 * (targetR - mViewCache.mDirection.R()));
+    mViewCache.mDirection.R(mViewCache.mDirection.R() + cush * (targetR - mViewCache.mDirection.R()));
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-    mViewCache.mFovy += val20 * (val25 - mViewCache.mFovy);
+    mViewCache.mFovy += cush * (val25 - mViewCache.mFovy);
     return true;
 }
 
