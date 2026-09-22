@@ -868,7 +868,7 @@ BOOL daNpc_Gk1_c::bodyCreateHeap() {
 /* 00002AE8-00002BA8       .text itemCreateHeap__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::itemCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_GK_BDL_GK_HAIR_e);
-    JUT_ASSERT(1598, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(1593, 1598), a_mdl_dat != 0);
     mpItemModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     if (mpItemModel == NULL) {
         return FALSE;
