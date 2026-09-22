@@ -385,7 +385,7 @@ void daShip_c::setInitMessage() {
     else if (checkForceMessage()) {
         return;
     }
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
     else if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_2110) && !dComIfGs_checkGetItem(dItemNo_BOMB_BAG_e)) {
         mNextMessageNo = 0x623;
     }
