@@ -173,9 +173,17 @@ void FuseSmokeCB_c::execute(JPABaseEmitter* emitter) {
 /* 800DD6C0-800DDAE8       .text executeAfter__Q27daBomb213FuseSmokeCB_cFP14JPABaseEmitter */
 void FuseSmokeCB_c::executeAfter(JPABaseEmitter* emitter) {
     JGeometry::TVec3<f32> vec1;
+#if VERSION == VERSION_DEMO
+    vec1.set(field_0x0C->x, field_0x0C->y, field_0x0C->z);
+#else
     vec1.set(*field_0x0C);
+#endif
     JGeometry::TVec3<f32> vec2;
+#if VERSION == VERSION_DEMO
+    vec2.set(mpPos->x, mpPos->y, mpPos->z);
+#else
     vec2.set(*mpPos);
+#endif
     f32 f15 = attr().field_0x24;
     emitter->setGlobalTranslation(vec2);
     
@@ -233,7 +241,11 @@ void FuseSparksCB_c::deleteCallBack() {
 }
 
 void FuseSparksCB_c::execute(JPABaseEmitter* emitter) {
+#if VERSION == VERSION_DEMO
+    JGeometry::TVec3<f32> pos(mpPos->x, mpPos->y, mpPos->z);
+#else
     JGeometry::TVec3<f32> pos(*mpPos);
+#endif
     emitter->setGlobalTranslation(pos);
 
     JSUPtrLink* link = emitter->getParticleList()->getFirstLink();
@@ -264,7 +276,11 @@ BOOL Act_c::solidHeapCB(fopAc_ac_c* i_this) {
 bool Act_c::create_heap_nut() {
     const char* resName = attr().resName;
 
+#if VERSION == VERSION_DEMO
+    J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(resName, dRes_INDEX_VBAKH_BDL_VBAKM_e));
+#else
     J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(attr().resName, dRes_INDEX_VBAKH_BDL_VBAKM_e));
+#endif
     JUT_ASSERT(0x303, mdl_data != NULL);
     mpModel = mDoExt_J3DModel__create(mdl_data, 0x80000, 0x11000022);
 
@@ -290,12 +306,14 @@ void Act_c::crr_init() {
     mAcch.ClrRoofNone();
     mAcch.m_roof_crr_height = 50.0f;
     mAcch.OnLineCheck();
+#if VERSION > VERSION_DEMO
     field_0x51C = -G_CM3D_F_INF;
     field_0x520 = -G_CM3D_F_INF;
     field_0x524 = 0;
     mbWaterIn = 0;
     field_0x526 = 0;
     field_0x528 = -G_CM3D_F_INF;
+#endif
 }
 
 dCcD_SrcSph Act_c::M_sph_src = {
@@ -424,7 +442,7 @@ Act_c::Act_c() {}
 bool Act_c::_delete() {
     eff_fuse_end();
     mEnv.clean();
-    dComIfG_resDelete(&mPhase, attr().resName);
+    dComIfG_resDeleteDemo(&mPhase, attr().resName);
 
     return true;
 }
@@ -462,7 +480,11 @@ void Act_c::cc_set() {
         }
     } else if (r4) {
         r31 = false;
+#if VERSION == VERSION_DEMO
+    } else {
+#else
     } else if (r31) {
+#endif
         radius = scale.x * 30.0f;
         static cXyz local_center(0.0f, 30.0f, 0.0f);
         mDoMtx_stack_c::copy(mpModel->getBaseTRMtx());
@@ -512,10 +534,20 @@ void Act_c::posMoveF() {
 /* 800DE854-800DE8A8       .text bgCrrPos__Q27daBomb25Act_cFv */
 void Act_c::bgCrrPos() {
     mAcch.CrrPos(*dComIfG_Bgsp());
+#if VERSION == VERSION_DEMO
+    cXyz temp(current.pos.x, old.pos.y + 1.0f, current.pos.z);
+    mGndChk.SetPos(&temp);
+    field_0x51C = dComIfG_Bgsp()->GroundCross(&mGndChk);
+    mbSeaArea = daSea_ChkArea(current.pos.x, current.pos.z);
+    mSeaWaveH = daSea_calcWave(current.pos.x, current.pos.z);
+#else
     bgCrrPos_lava();
     bgCrrPos_water();
+#endif
     setRoomInfo();
 }
+
+#if VERSION > VERSION_DEMO
 
 /* 800DE8A8-800DE914       .text bgCrrPos_lava__Q27daBomb25Act_cFv */
 void Act_c::bgCrrPos_lava() {
@@ -554,9 +586,21 @@ void Act_c::bgCrrPos_water() {
     }
     mbWaterIn = r5;
 }
+#endif
 
 bool Act_c::chk_water_in() const {
+#if VERSION == VERSION_DEMO
+    bool water = (mAcch.m_flags & dBgS_Acch::WATER_IN) != 0;
+    bool ret = false;
+    if (water) {
+        ret = true;
+    } else if (mbSeaArea && current.pos.y < mSeaWaveH) {
+        ret = true;
+    }
+    return ret;
+#else
     return mbWaterIn;
+#endif
 }
 
 bool Act_c::chk_lava_in() const {
@@ -755,7 +799,11 @@ void Act_c::eff_fuse_end() {
 }
 
 void Act_c::eff_water_splash() {
+#if VERSION == VERSION_DEMO
+    cXyz pos(current.pos.x, mAcch.m_wtr.GetHeight(), current.pos.z);
+#else
     cXyz pos(current.pos.x, field_0x520, current.pos.z);
+#endif
     fopKyM_createWpillar(&pos, 0.5f, 0.75f, 0);
 
     se_fall_water();
@@ -765,14 +813,20 @@ void Act_c::eff_water_splash() {
 /* 800DF488-800DF578       .text se_fall_water__Q27daBomb25Act_cFv */
 void Act_c::se_fall_water() {
     cBgS_PolyInfo* temp[2] = {
+#if VERSION == VERSION_DEMO
+        &mAcch.m_wtr,
+#else
         field_0x526 ? NULL : &mAcch.m_wtr,
+#endif
         &mAcch.m_gnd,
     };
     
     u32 mtrlSndId = 0x13;
     for (int i = 0; i < ARRAY_SIZE(temp); i++) {
+#if VERSION > VERSION_DEMO
         if (temp[i] == NULL)
             continue;
+#endif
         int bg_index = temp[i]->GetBgIndex();
         if (bg_index >= 0 && bg_index < 0x100) {
             mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(*temp[i]);
@@ -1135,10 +1189,19 @@ void Act_c::vib_init() {
 
 /* 800E0430-800E04FC       .text vib_proc__Q27daBomb25Act_cFv */
 void Act_c::vib_proc() {
+#if VERSION == VERSION_DEMO
+    f32 dx = field_0x78C - field_0x784;
+    f32 dy = field_0x790 - field_0x788;
+    f32 f0 = field_0x79C - dx * attr().field_0x50;
+    f32 f5 = field_0x7A0 - dy * attr().field_0x50;
+    f32 f6 = 1.0f / attr().field_0x5C;
+    f32 f7 = 1.0f - field_0x7A4;
+#else
     f32 f5 = field_0x7A0 - attr().field_0x50 * (field_0x790 - field_0x788);
     f32 f6 = 1.0f / attr().field_0x5C;
     f32 f7 = 1.0f - field_0x7A4;
     f32 f0 = field_0x79C - attr().field_0x50 * (field_0x78C - field_0x784);
+#endif
     field_0x794 += f0 * f6;
     field_0x798 += f5 * f6;
     field_0x794 *= f7;
@@ -1283,9 +1346,13 @@ void Act_c::draw_shadow() {
 
     if(fopAcM_GetModel(this) == 0) {
         int framesLeft = mBck0.getEndFrame() - mBck0.getFrame();
+#if VERSION == VERSION_DEMO
+        dComIfGd_setSimpleShadow2(&current.pos, mAcch.GetGroundH(), 25.0f * mult[cLib_minMaxLimit<int>(framesLeft, 0, 9)], mAcch.m_gnd, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
+#else
         f32 scale = mult[cLib_minMaxLimit<int>(framesLeft, 0, 9)] * 25.0f;
 
         dComIfGd_setSimpleShadow2(&current.pos, mAcch.GetGroundH(), scale, mAcch.m_gnd, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
+#endif
     }
 }
 
