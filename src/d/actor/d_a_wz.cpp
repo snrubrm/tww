@@ -475,26 +475,13 @@ BOOL body_atari_check(wz_class* i_this) {
             cXyz scale;
             atInfo.mpObj = i_this->mBodyCyl.GetTgHitObj();
             cc_at_check(i_this, &atInfo);
-            if (i_this->m34E == 1) {
-                goto critical_hit;
+            if (i_this->m34E == 1 || i_this->m34E == 7 || i_this->m34E == 8 || i_this->health <= 0) {
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos);
+                scale.setall(2.0f);
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
+            } else {
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle);
             }
-            if (i_this->m34E == 7) {
-                goto critical_hit;
-            }
-            if (i_this->m34E == 8) {
-                goto critical_hit;
-            }
-            if (i_this->health > 0) {
-                goto ok_hit;
-            }
-        critical_hit:
-            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hitPos);
-            scale.setall(2.0f);
-            dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHIT, &hitPos, &player->shape_angle, &scale);
-            goto after_hit;
-        ok_hit:
-            dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &hitPos, &player->shape_angle);
-        after_hit:;
         }
 
         i_this->mAction = 1;
