@@ -943,18 +943,18 @@ int daNpc_De1_c::CreateHeap() {
     if (mpMorf != NULL) {
         if (mpMorf->getModel() != NULL) {
             m_branchL_jnt_num = data->getJointName()->getIndex("branchL");
-            JUT_ASSERT(0x6D0, m_branchL_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(0x6C1, 0x6D0), m_branchL_jnt_num >= 0);
             m_head_jnt_num = data->getJointName()->getIndex("head");
-            JUT_ASSERT(0x6D2, m_head_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(0x6C3, 0x6D2), m_head_jnt_num >= 0);
             for (int i = 0; i < 10; i++) {
                 m_c0_jnt_num[i] = data->getJointName()->getIndex(a_jnt_name_tbl[i]);
-                JUT_ASSERT(0x6D5, m_c0_jnt_num[ i] >= 0);
+                JUT_ASSERT(DEMO_SELECT(0x6C6, 0x6D5), m_c0_jnt_num[ i] >= 0);
             }
             mpMorf->getModel()->setUserArea(0);
             mpBgW = new dBgWDeform;
             if (mpBgW != NULL && !mpBgW->Set((cBgD_t*)dComIfG_getObjectIDRes("De", dRes_ID_DE_DZB_DE_e), mpMorf->getModel(), 0)) {
                 mAcchCir.SetWall(0.0f, 0.0f);
-                mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+                mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
                 mObjAcch.SetWaterNone();
                 mObjAcch.SetWallNone();
                 mObjAcch.SetRoofNone();
