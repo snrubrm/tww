@@ -550,8 +550,8 @@ void daNpc_Yw1_c::partner_search() {
     }
 }
 
+// NONMATCHING - .rodata: the original has an unreferenced 0x7FFF / 180.0f literal here (stripped code), shifting later literals
 void daNpc_Yw1_c::lookBack() {
-    struct { f32 x; } unused = {182.0388946533203f};
     mOldHead = m_jnt.getHead_y();
     mOldBackbone = m_jnt.getBackbone_y();
     mOldAngle = current.angle.y;
