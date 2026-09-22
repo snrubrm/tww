@@ -2732,7 +2732,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation >= 100) {
             i_variation = 100;
         }
-        if (i_variation == 0) {
+        if (i_variation <= 0) {
             i_variation = 0;
         }
         f32 pitchVar = i_variation;
@@ -2753,7 +2753,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation >= 100) {
             i_variation = 100;
         }
-        if (i_variation == 0) {
+        if (i_variation <= 0) {
             i_variation = 0;
         }
         f32 pitchVar = i_variation;
@@ -2773,7 +2773,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation >= 100) {
             i_variation = 100;
         }
-        if (i_variation == 0) {
+        if (i_variation <= 0) {
             i_variation = 0;
         }
         f32 pitchVar = i_variation;
@@ -2821,7 +2821,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation >= 100) {
             i_variation = 100;
         }
-        if (i_variation == 0) {
+        if (i_variation <= 0) {
             i_variation = 0;
         }
         i_volume = (f32)i_variation / 100.0f;
@@ -2831,7 +2831,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation >= 100) {
             i_variation = 100;
         }
-        if (i_variation == 0) {
+        if (i_variation <= 0) {
             i_variation = 0;
         }
         i_volume = (f32)i_variation / 100.0f;
