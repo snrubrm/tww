@@ -160,7 +160,6 @@ void GXSetNumIndStages(u8 num) {
     data->dirtyState |= GX_DIRTY_BP_MASK | GX_DIRTY_GEN_MODE;
 }
 
-#pragma inline_depth(0)
 #pragma dont_inline on
 void GXSetTevDirect(GXTevStageID tev_stage) {
     GXSetTevIndirect(tev_stage, GX_INDTEXSTAGE0, GX_ITF_8, GX_ITB_NONE, GX_ITM_OFF, GX_ITW_OFF,
