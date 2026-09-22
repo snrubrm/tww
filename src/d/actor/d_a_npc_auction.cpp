@@ -298,12 +298,12 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
     int maxKind = l_kind_max[mdlNo][1];
     u8 kind;
     if (mdlNo == 2 || mdlNo == 3) {
-        if (((u8*)auction)[0x81C] == 0xFF) {
+        if (auction->m81C == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            ((u8*)auction)[0x81C] = kind;
+            auction->m81C = kind;
         } else {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            if (kind == ((u8*)auction)[0x81C]) {
+            if (kind == auction->m81C) {
                 if (kind == (u8)maxKind) {
                     kind--;
                 } else {
@@ -312,12 +312,12 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
             }
         }
     } else if (mdlNo == 4 || mdlNo == 5) {
-        if (((u8*)auction)[0x81D] == 0xFF) {
+        if (auction->m81D == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            ((u8*)auction)[0x81D] = kind;
+            auction->m81D = kind;
         } else {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            if (kind == ((u8*)auction)[0x81D]) {
+            if (kind == auction->m81D) {
                 if (kind == (u8)maxKind) {
                     kind--;
                 } else {
@@ -480,10 +480,10 @@ void daNpcAuction_c::wait_action() {
                 daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
                 if (auction != NULL) {
                     if (m745 == 1) {
-                        ((u8*)auction)[0x821] = 1;
+                        auction->m821 = 1;
                     } else if (m745 == 2) {
-                        ((u8*)auction)[0x821] = 2;
-                        ((u8*)auction)[0x823] = m743;
+                        auction->m821 = 2;
+                        auction->mCurrAuctionItemIndex = m743;
                     }
                 }
             }
@@ -537,10 +537,10 @@ void daNpcAuction_c::eventMove() {
             daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
             if (auction != NULL) {
                 if (m745 == 1) {
-                    ((u8*)auction)[0x821] = 1;
+                    auction->m821 = 1;
                 } else if (m745 == 2) {
-                    ((u8*)auction)[0x821] = 2;
-                    ((u8*)auction)[0x823] = m743;
+                    auction->m821 = 2;
+                    auction->mCurrAuctionItemIndex = m743;
                 }
             }
         }
@@ -607,7 +607,7 @@ void daNpcAuction_c::eventMainInit() {
 /* 00001554-00001888       .text eventMain__14daNpcAuction_cFv */
 BOOL daNpcAuction_c::eventMain() {
     daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
-    u8 flags = ((u8*)auction)[0x834];
+    u8 flags = auction->m834;
     if (flags & 0x04) {
         if ((m747 & 0x08) == 0) {
             setAnm2(3, 2, 8.0f);
@@ -648,7 +648,7 @@ BOOL daNpcAuction_c::eventMain() {
         }
     }
 
-    if (((u8*)auction)[0x834] & 0x04) {
+    if (auction->m834 & 0x04) {
         if (mpEmitter == NULL) {
             mpEmitter = dComIfGp_particle_set(
                 dPa_name::ID_IT_SN_MD_PIYOPIYO00, &current.pos, NULL, NULL, 0xFF, NULL,
@@ -798,7 +798,7 @@ u16 daNpcAuction_c::next_msgStatus(u32* pMsgNo) {
         *pMsgNo = 0x1D37;
         break;
     case 0x1D37:
-        if (((u8*)auction)[0x827] == 0) {
+        if (auction->m827 == 0) {
             *pMsgNo = 0x1D38;
         } else {
             *pMsgNo = 0x1D39;
@@ -856,7 +856,7 @@ u32 daNpcAuction_c::getMsg() {
         msgNo = 0x1D35;
     } else {
         daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
-        u8 winner = ((u8*)auction)[0x824];
+        u8 winner = auction->m824;
         if (winner == 0) {
             msgNo = l_npc_msg_id[mNpcNo][0];
         } else if (winner == mMdlNo) {
