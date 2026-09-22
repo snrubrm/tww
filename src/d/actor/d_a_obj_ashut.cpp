@@ -171,7 +171,7 @@ void daObjAshut::Act_c::mode_l_u_init() {
     mSpeed = 0.0f;
     mBounces = attr().riseBounces;
     mTimer = attr().riseTime;
-    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_OP, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_OP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 }
 
 /* 000008D4-00000A50       .text mode_l_u__Q210daObjAshut5Act_cFv */
