@@ -2353,20 +2353,7 @@ static BOOL daGM_Execute(gm_class* i_this) {
                     i_this->mpEmitters[1]->setGlobalRTMatrix(
                         i_this->mpMorf->getModel()->getAnmMtx(GM_JNT_HANEURB_e)
                     );
-#if VERSION == VERSION_DEMO
                     i_this->mpEmitters[1]->setEmitterRotation(JGeometry::TVec3<s16>(0x471C, -0x1555, 0));
-#else
-                    struct gm_em1_rot_s {
-                        u8 pad[0x24];
-                        s16 rotX;
-                        s16 rotY;
-                        s16 rotZ;
-                    };
-                    gm_em1_rot_s* em1 = (gm_em1_rot_s*)i_this->mpEmitters[1];
-                    em1->rotX = 0x471C;
-                    em1->rotY = -0x1555;
-                    em1->rotZ = 0;
-#endif
                     JGeometry::TVec3<f32> emTrans(40.0f, 0.0f, -30.0f);
                     i_this->mpEmitters[1]->setEmitterTranslation(emTrans);
                 }
