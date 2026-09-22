@@ -1191,7 +1191,7 @@ void daGy_c::modeDeleteBomb() {
 
     if (mPrmIdx == 9) {
         if (m4E4 >= l_HIO.m16C - 10.0f) {
-            if ((f32)m8EC == -1.0f) {
+            if (m8EC == -1.0f) {
                 m8EC = l_HIO.m164;
             }
             m4EC = l_HIO.m178;
@@ -1204,7 +1204,7 @@ void daGy_c::modeDeleteBomb() {
             m4E8 = l_HIO.m16C - l_HIO.m170;
         }
 
-        if ((f32)m8EC != -1.0f) {
+        if (m8EC != -1.0f) {
             if (cLib_calcTimer<int>(&m8EC) == 0) {
                 fopAcM_createDisappear(this, &current.pos, 10, daDisItem_IBALL_e, 0xFF);
                 fopAcM_delete(this);
