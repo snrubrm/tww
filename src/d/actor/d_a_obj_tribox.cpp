@@ -682,18 +682,15 @@ void daObjTribox::Act_c::mode_block_walk() {
 
     f32 c = (f32)cos(0.157079637f * mTimer);
 #if VERSION == VERSION_DEMO
-    f32 rot0;
-    f32 rot1;
     f32 s = (f32)mSign * (0.5f * (1.0f + c));
-    rot0 = 9.58738019e-5f * home.angle.y;
+    f32 rot0 = cM_s2rad(home.angle.y);
     rot0 = 1.04719758f * mWalkRot + rot0;
-    rot1 = 1.04719758f * s;
+    f32 rot1 = 1.04719758f * s;
 #else
-    f32 rot0 = 9.58738019e-5f * home.angle.y;
+    f32 rot0 = cM_s2rad(home.angle.y);
     rot0 = 1.04719758f * mWalkRot + rot0;
     f32 rot1 = 1.04719758f * ((f32)mSign * (0.5f * (1.0f + c)));
 #endif
-
     MTXRotRad(mDoMtx_stack_c::now, 'Y', rot0);
     cXyz v0;
     mDoMtx_stack_c::multVecSR(&M_post[mDir], &v0);
