@@ -234,7 +234,7 @@ void daObjTribox::Act_c::controll_clear() {
 cPhs_State daObjTribox::Act_c::create_block_before() {
     cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
     if (phase == cPhs_COMPLEATE_e) {
-        if (fopAcM_entrySolidHeap(this, solidHeapCB, 0x11C0)) {
+        if (fopAcM_entrySolidHeap(this, solidHeapCB, DEMO_SELECT(0x4000, 0x11C0))) {
             block_init();
         } else {
             phase = cPhs_ERROR_e;
