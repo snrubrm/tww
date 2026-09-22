@@ -6,6 +6,7 @@
 #include "m_Do/m_Do_hostIO.h"
 #include "JSystem/J2DGraph/J2DTextBox.h"
 
+class JKRArchive;
 class JKRMemArchive;
 class STControl;
 
@@ -90,18 +91,10 @@ public:
     /* 0x5D */ u8 field_0x5d;
     /* 0x5E */ u8 field_0x5e;
     /* 0x5F */ u8 field_0x5f;
-    /* 0x60 */ s16 field_0x60;
-    /* 0x62 */ s16 field_0x62;
-    /* 0x64 */ s16 field_0x64;
-    /* 0x66 */ s16 field_0x66;
-    /* 0x68 */ s16 field_0x68;
-    /* 0x6A */ s16 field_0x6a;
-    /* 0x6C */ s16 field_0x6c;
-    /* 0x6E */ s16 field_0x6e;
-    /* 0x70 */ s16 field_0x70;
-    /* 0x72 */ s16 field_0x72;
-    /* 0x74 */ s16 field_0x74;
-    /* 0x76 */ s16 field_0x76;
+    /* 0x60 */ s16 field_0x60[3];
+    /* 0x66 */ s16 field_0x66[3];
+    /* 0x6C */ s16 field_0x6c[3];
+    /* 0x72 */ s16 field_0x72[3];
     /* 0x78 */ u8 field_0x78;
 #endif
 };
@@ -214,6 +207,10 @@ public:
     int PaneTranceCopy(s16, u8, f32, f32, u8, int);
     int PaneTranceErase(s16, u8, f32, f32, u8, int);
     int PaneTranceBack(s16, u8, f32, f32, u8, int);
+#if VERSION == VERSION_PAL
+    int PaneTranceLanguage(s16, u8, f32, f32, f32, f32, u8, int);
+    int PaneTranceLanguageBase(s16, u8, f32, f32, f32, f32, u8, int);
+#endif
     void displayInit();
     void setSaveData();
     void changeExtraColor(int);
@@ -232,6 +229,20 @@ public:
     void ExDataSavePaneMoveOk2();
     void ExErrorMsgPaneMove();
     void ExErrorMsgPaneMove2();
+#if VERSION == VERSION_PAL
+    void langSelectPaneMove();
+    void langSelect();
+    void langSelectBack();
+    void langSelCurMove();
+    void langSelCurAnimeInit();
+    void langSelCurAnime();
+    void changeMenuText();
+    void changeLangageTex(u8);
+    int PaneAlphaLangTxt(s16, u8);
+    void languageTexChange();
+    void langTexChg();
+    void langTexChgFast();
+#endif
 
 public:
     /* 0x0000 */ JKRMemArchive* archive;
@@ -293,7 +304,11 @@ private:
     /* 0x3768 */ fopMsgM_pane_class field_0x3768;
     /* 0x37A0 */ fopMsgM_pane_class field_0x37a0;
 #if VERSION == VERSION_PAL
-    fopMsgM_pane_class pad[0xF]; // TODO
+    /* 0x37D8 */ fopMsgM_pane_class mLangPane[4];
+    /* 0x38B8 */ fopMsgM_pane_class mLangBase[2];
+    /* 0x3928 */ fopMsgM_pane_class mLangCursor[3];
+    /* 0x39D0 */ fopMsgM_pane_class mLangName[5];
+    /* 0x3AE8 */ fopMsgM_pane_class mMes2;
 #endif
     /* 0x37D8 */ JUtility::TColor field_0x37d8[11];
     /* 0x3804 */ JUtility::TColor field_0x3804[11];
@@ -341,17 +356,30 @@ private:
     /* 0x3944 */ f32 field_0x3944;
     /* 0x3948 */ f32 field_0x3948;
 #if VERSION == VERSION_PAL
-    u8 pad2[0x32]; // TODO
 public:
+    /* 0x3C94 */ char* field_0x3c94;
+    /* 0x3C98 */ char* field_0x3c98;
+    /* 0x3C9C */ char* field_0x3c9c;
+    /* 0x3CA0 */ char* field_0x3ca0;
+    /* 0x3CA4 */ char* field_0x3ca4;
+    /* 0x3CA8 */ char* field_0x3ca8;
+    /* 0x3CAC */ char* field_0x3cac[5];
+    /* 0x3CC0 */ char* field_0x3cc0;
+    /* 0x3CC4 */ u8 field_0x3cc4;
+    /* 0x3CC5 */ u8 field_0x3cc5;
     /* 0x3CC6 */ u8 field_0x3cc6;
-    u8 getLanguage() { return field_0x3cc6; }
-    u8 pad3[0xC]; // TODO
+    /* 0x3CC8 */ f32 field_0x3cc8;
+    /* 0x3CCC */ f32 field_0x3ccc;
+    /* 0x3CD0 */ u8 field_0x3cd0;
+    /* 0x3CD1 */ u8 field_0x3cd1;
+    /* 0x3CD2 */ u8 field_0x3cd2;
     /* 0x3CD3 */ u8 field_0x3cd3;
-    /* 0x3CD4 */ JKRArchive* mBmgArchive[5];
+    /* 0x3CD4 */ JKRArchive* field_0x3cd4[5];
 
+    u8 getLanguage() { return field_0x3cc6; }
     void setBmgArchive(JKRArchive** arc) {
         for (int i = 0; i < 5; i++) {
-            mBmgArchive[i] = arc[i];
+            field_0x3cd4[i] = arc[i];
         }
     }
 #endif
