@@ -4653,19 +4653,19 @@ BOOL daNpc_Ji1_c::CreateHeap() {
     mpOrcaMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(0x15AB, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15AB, 0x15AB, 0x15AB, 0x15B7), m_jnt.getHeadJntNum() >= 0);
 
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone1"));
-    JUT_ASSERT(0x15B0, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15B0, 0x15B0, 0x15B0, 0x15BC), m_jnt.getBackboneJntNum() >= 0);
 
     armLJointNo = modelData->getJointName()->getIndex("armL1");
-    JUT_ASSERT(0x15B4, armLJointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15B4, 0x15B4, 0x15B4, 0x15C0), armLJointNo >= 0);
 
     armRJointNo = modelData->getJointName()->getIndex("armR1");
-    JUT_ASSERT(0x15B7, armRJointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15B7, 0x15B7, 0x15B7, 0x15C3), armRJointNo >= 0);
 
     handRJointNo = modelData->getJointName()->getIndex("handR");
-    JUT_ASSERT(0x15BA, handRJointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15BA, 0x15BA, 0x15BA, 0x15C6), handRJointNo >= 0);
 
     mpSpearMorf = new mDoExt_McaMorf(
         (J3DModelData*)(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BDL_JI_YARI_e)),
@@ -4686,10 +4686,10 @@ BOOL daNpc_Ji1_c::CreateHeap() {
     mpTearsModel = mDoExt_J3DModel__create(modelData2, 0, 0x11020203);
 
     J3DAnmTevRegKey* a_brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BRK_YJITR00_e));
-    JUT_ASSERT(0x15CD, a_brk != NULL);
+    JUT_ASSERT(VERSION_SELECT(0x15CD, 0x15CD, 0x15CD, 0x15D9), a_brk != NULL);
 
     J3DAnmTextureSRTKey* a_btk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BTK_YJITR00_e));
-    JUT_ASSERT(0x15D0, a_btk != NULL);
+    JUT_ASSERT(VERSION_SELECT(0x15D0, 0x15D0, 0x15D0, 0x15DC), a_btk != NULL);
 
     int temp1 = mCryBrk.init(modelData2, a_brk, false, J3DFrameCtrl::EMode_LOOP);
     int temp2 = mCryBtk.init(modelData2, a_btk, false, J3DFrameCtrl::EMode_LOOP);
@@ -4699,7 +4699,7 @@ BOOL daNpc_Ji1_c::CreateHeap() {
     }
 
     headTexPattern = (J3DAnmTexPattern*)(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BTP_JI_e));
-    JUT_ASSERT(0x15D8, headTexPattern != NULL);
+    JUT_ASSERT(VERSION_SELECT(0x15D8, 0x15D8, 0x15D8, 0x15E4), headTexPattern != NULL);
 
     temp2 = mBlinkAnim.init(modelData, headTexPattern, TRUE, J3DFrameCtrl::EMode_LOOP);
 #if VERSION > VERSION_DEMO
@@ -4709,11 +4709,11 @@ BOOL daNpc_Ji1_c::CreateHeap() {
 #endif
 
     hair1JointNo = modelData->getJointName()->getIndex("hair1");
-    JUT_ASSERT(0x15DF, hair1JointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15DF, 0x15DF, 0x15DF, 0x15EB), hair1JointNo >= 0);
     hair2JointNo = modelData->getJointName()->getIndex("hair2");
-    JUT_ASSERT(0x15E1, hair2JointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15E1, 0x15E1, 0x15E1, 0x15ED), hair2JointNo >= 0);
     hair3JointNo = modelData->getJointName()->getIndex("hair3");
-    JUT_ASSERT(0x15E3, hair3JointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15E3, 0x15E3, 0x15E3, 0x15EF), hair3JointNo >= 0);
 
     for(u16 i = 0; i < modelData->getJointNum(); i++) {
         if(i == hair1JointNo || i == hair2JointNo || i == hair3JointNo) {
