@@ -425,7 +425,7 @@ dMeter_msg_HIO_c::dMeter_msg_HIO_c() {
     field_0x64 = 0;
     field_0x82 = 2;
     field_0x58 = 0x1d;
-    field_0x70 = DEMO_SELECT(0x19, 0x17);
+    field_0x70 = VERSION_SELECT(0x19, 0x19, 0x17, 0x17);
     field_0x62 = 0;
     field_0x60 = 0xd;
     field_0x6e = 0xf0;
@@ -1585,7 +1585,11 @@ void dMeter_weponInit(sub_meter_class* i_Meter) {
 #endif
     const char* filename = dMeter_actionTex(dActStts_BLANK_e);
     JKRReadTypeResource(i_Meter->actionTex[0], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Meter->actionTex[0], 0xc00);
+#else
     DCStoreRangeNoSync(i_Meter->actionTex[0], 0xc00);
+#endif
     ((J2DPicture*)i_Meter->field_0x2828.pane)->changeTexture(i_Meter->actionTex[0], 0);
     ((J2DPicture*)i_Meter->field_0x2860.pane)->changeTexture(i_Meter->actionTex[0], 0);
     ((J2DPicture*)i_Meter->field_0x1d00.pane)->changeTexture(i_Meter->actionTex[0], 0);
@@ -2660,7 +2664,7 @@ void dMeter_xyMove(sub_meter_class* i_Meter) {
         if (i_Meter->field_0x3021[itemBtn] != dComIfGp_getSelectItem(itemBtn)) {
             dMeter_xyItemChange(i_Meter, itemBtn);
             bVar2 = false;
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
             if (i_Meter->field_0x3021[itemBtn] == dItemNo_MAGIC_ARROW_e || i_Meter->field_0x3021[itemBtn] == dItemNo_LIGHT_ARROW_e)
 #else
             if (dComIfGp_getSelectItem(itemBtn) != dItemNo_MAGIC_ARROW_e && dComIfGp_getSelectItem(itemBtn) != dItemNo_LIGHT_ARROW_e)
@@ -2953,7 +2957,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(dComIfGp_getSelectItem(i_itemBtn));
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         } else if (dComIfGs_getSelectItem(i_itemBtn) >= dInvSlot_BaitFirst_e) {
@@ -2962,7 +2970,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(dComIfGp_getSelectItem(i_itemBtn));
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         } else if (dComIfGs_getSelectItem(i_itemBtn) >= dInvSlot_BeastFirst_e) {
@@ -2971,7 +2983,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(dComIfGp_getSelectItem(i_itemBtn));
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         } else {
@@ -2995,7 +3011,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(itemNo);
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         }
@@ -3395,7 +3415,11 @@ void dMeter_rInit(sub_meter_class* i_Meter) {
 #endif
     const char* filename = dMeter_actionTex(dActStts_BLANK_e);
     JKRReadTypeResource(i_Meter->actionTex[2], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#else
     DCStoreRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#endif
     ((J2DPicture*)i_Meter->field_0x1cc8.pane)->changeTexture(i_Meter->actionTex[2], 0);
 }
 
@@ -3418,7 +3442,11 @@ void dMeter_rMove(sub_meter_class* i_Meter) {
 #endif
             const char* filename = dMeter_actionTex(dComIfGp_getRStatus());
             JKRReadTypeResource(i_Meter->actionTex[2], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x1cc8.pane)->changeTexture(i_Meter->actionTex[2], 0);
         }
         i_Meter->field_0x301c = dComIfGp_getRStatus();
@@ -3656,7 +3684,7 @@ void dMeter_enemyInit(sub_meter_class* i_Meter) {
 void dMeter_enemyMove(sub_meter_class* i_Meter) {
     dAttention_c* attention = &dComIfGp_getAttention();
     stage_stag_info_class* stage_info = dComIfGp_getStageStagInfo();
-    JUT_ASSERT(VERSION_SELECT(7176, 7176, 7176, 7175), stage_info != NULL);
+    JUT_ASSERT(VERSION_SELECT(7176, 7055, 7176, 7175), stage_info != NULL);
     if (attention != NULL) {
         if (!dMenu_flag() && !dComIfGp_event_runCheck() && attention->LockonTarget(0) != NULL && attention->LockonTarget(0)->max_health > 0.0f &&
             dComIfGs_isCollect(4, 1) != 0 && (attention->LockonTruth() & 0xFF) != 0 && attention->LockonTarget(0)->group == fopAc_ENEMY_e &&
@@ -5849,7 +5877,7 @@ void dMeter_clockMultiInit(sub_meter_class* i_Meter) {
     ResTIMG* texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getMenuArchive();
     ResTIMG* texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "screw_01.bti", pArchive2);
-    JUT_ASSERT(VERSION_SELECT(10626, 10626, 10626, 10625), texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(10626, 10505, 10626, 10625), texture1 != NULL && texture2 != NULL);
     for (s32 i = 0; i < 3; i++) {
         clock[i].init(texture1, texture2, 1.0f / scaleX[i], 1.0f / scaleY[i]);
     }
@@ -5990,7 +6018,11 @@ void dMeter_arwInit(sub_meter_class* i_Meter) {
     for (s32 i = 0; i < 2; i++) {
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(i_Meter->arrowTex[i], 0xc00, 'TIMG', arrowTexImage[uVar1], archive);
+#if VERSION <= VERSION_JPN
+        DCFlushRangeNoSync(i_Meter->arrowTex[i], 0xc00);
+#else
         DCStoreRangeNoSync(i_Meter->arrowTex[i], 0xc00);
+#endif
         ((J2DPicture*)i_Meter->field_0x2940[i].pane)->changeTexture(i_Meter->arrowTex[i], 0);
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x2940[i]);
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x29b0[i]);
@@ -6035,13 +6067,21 @@ void dMeter_arwMove(sub_meter_class* i_Meter) {
         if (arrowType != daArrow_c::getKeepType()) {
             archive = dComIfGp_getItemIconArchive();
             JKRReadTypeResource(i_Meter->arrowTex[0], 0xc00, 'TIMG', arrowTexImage[arrowType], archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->arrowTex[0], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->arrowTex[0], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2940[0].pane)->changeTexture(i_Meter->arrowTex[0], 0);
             oldType = arrowType;
             arrowType = daArrow_c::getKeepType();
             archive = dComIfGp_getItemIconArchive();
             JKRReadTypeResource(i_Meter->arrowTex[1], 0xc00, 'TIMG', arrowTexImage[arrowType], archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->arrowTex[1], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->arrowTex[1], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2940[1].pane)->changeTexture(i_Meter->arrowTex[1], 0);
             i_Meter->field_0x29b0[0].mUserArea = 0;
             if (i_Meter->field_0x29b0[1].mUserArea < 2) {
@@ -6163,7 +6203,11 @@ void dMeter_moveItemInit(sub_meter_class* i_Meter) {
     JKRArchive* archive = dComIfGp_getItemIconArchive();
     const char* filename = dItem_data::getTexture(dItemNo_BOW_e);
     JKRReadTypeResource(i_Meter->moveIconTex[0], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Meter->moveIconTex[0], 0xc00);
+#else
     DCStoreRangeNoSync(i_Meter->moveIconTex[0], 0xc00);
+#endif
     moveItemPane = new J2DPicture(i_Meter->moveIconTex[0]);
 }
 
@@ -6349,7 +6393,7 @@ void dMeter_swimInit(sub_meter_class* i_Meter) {
     texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getSwimResArchive();
     texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "tekari.bti", pArchive2);
-    JUT_ASSERT(VERSION_SELECT(11498, 11498, 11498, 11497), texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(11498, 11377, 11498, 11497), texture1 != NULL && texture2 != NULL);
     tekari.init(texture1, texture2, 1.0f, 1.0f);
 }
 
@@ -7175,9 +7219,9 @@ void dMeter_screenDataSet(sub_meter_class* i_Meter) {
 /* 8020408C-8020438C       .text dMeter_screenDataTimeSet__FP15sub_meter_class */
 void dMeter_screenDataTimeSet(sub_meter_class* i_Meter) {
     sScrTimer1 = new J2DScreen();
-    JUT_ASSERT(VERSION_SELECT(12863, 12863, 12863, 12862), sScrTimer1 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12863, 12742, 12863, 12862), sScrTimer1 != NULL);
     sScrTimer2 = new J2DScreen();
-    JUT_ASSERT(VERSION_SELECT(12865, 12865, 12865, 12864), sScrTimer2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12865, 12744, 12865, 12864), sScrTimer2 != NULL);
     sScrTimer1->set("time_swim_1.blo", dComIfGp_getSwimResArchive());
     sScrTimer2->set("time_swim_2.blo", dComIfGp_getSwimResArchive());
     fopMsgM_setPaneData(&i_Meter->field_0x2a90[8], sScrTimer2, 'hk33');
