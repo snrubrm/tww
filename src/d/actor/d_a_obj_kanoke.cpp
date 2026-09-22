@@ -132,7 +132,9 @@ cPhs_State daObjKanoke_c::_create() {
         if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x2400)) {
             return createInit();
         }
+#if VERSION > VERSION_DEMO
         mpBodyBgW = mpLidBgW = NULL;
+#endif
         return cPhs_ERROR_e;
     }
     return phase;
