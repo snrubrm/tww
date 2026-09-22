@@ -208,6 +208,32 @@ void dDlst_2DMSG_c::outFontDraw() {
 }
 
 /* 8020AC40-8020AD3C       .text draw__14dDlst_2Dtact_cFv */
+#if VERSION == VERSION_DEMO
+void dDlst_2Dtact_c::draw() {
+    int left;
+    int top;
+    int width;
+    int height;
+    int r27 = 0;
+    int r28 = 0;
+    int r26 = 372;
+    int r25 = 72;
+
+    J2DOrthoGraph* graf = dComIfGp_getCurrentGrafPort();
+    graf->setPort();
+
+    left = r27 * 1.0296875f + -9.0f;
+    top = r28 * 1.0916667f + -21.0f;
+    width = r26 * 1.0296875f;
+    height = r25 * 1.0916667f;
+
+    GXSetScissor(left, top, width, height);
+    sScreen->draw(0.0f, 0.0f, graf);
+    GXSetTexCopySrc(left, top, width, height);
+    GXSetTexCopyDst(width, height, GX_TF_RGB565, GX_FALSE);
+    GXCopyTex(field_0x8, REG1_S(6) == 0 ? GX_TRUE : GX_FALSE);
+}
+#else
 void dDlst_2Dtact_c::draw() {
     int r27 = 0;
     int r28 = 0;
@@ -228,6 +254,7 @@ void dDlst_2Dtact_c::draw() {
     GXSetTexCopyDst(width, height, GX_TF_RGB565, GX_FALSE);
     GXCopyTex(field_0x8, REG1_S(6) == 0 ? GX_TRUE : GX_FALSE);
 }
+#endif
 
 /* 8020AD3C-8020ADD8       .text dMsg_msg_pane_parts_set__FP18fopMsgM_pane_classUc */
 void dMsg_msg_pane_parts_set(fopMsgM_pane_class* pPane, u8 param_2) {
@@ -498,6 +525,7 @@ void dMsg_screenDataSetItem(sub_msg_class* i_Msg) {
     } else if (i_Msg->mMsgNo == 0x74) {
         ((J2DPicture*)i_Msg->m0624[8].pane)->setBlack(JUtility::TColor(0x00000000));
         ((J2DPicture*)i_Msg->m0624[8].pane)->setWhite(JUtility::TColor(0xFFFFFFFF));
+#if VERSION > VERSION_DEMO
     } else if (i_Msg->mMsgNo == 0x7f) {
         ((J2DPicture*)i_Msg->m0624[8].pane)->setBlack(JUtility::TColor(0x50500000));
         ((J2DPicture*)i_Msg->m0624[8].pane)->setWhite(JUtility::TColor(0xFFFF00FF));
@@ -507,6 +535,7 @@ void dMsg_screenDataSetItem(sub_msg_class* i_Msg) {
     } else if (i_Msg->mMsgNo == 0x11d) {
         ((J2DPicture*)i_Msg->m0624[8].pane)->setBlack(JUtility::TColor(0x50280000));
         ((J2DPicture*)i_Msg->m0624[8].pane)->setWhite(JUtility::TColor(0xFF8C00FF));
+#endif
     } else if (i_Msg->mMsgNo == 0xd2) {
         ((J2DPicture*)i_Msg->m0624[8].pane)->setBlack(JUtility::TColor(0x00000000));
         ((J2DPicture*)i_Msg->m0624[8].pane)->setWhite(JUtility::TColor(0x50FFFFFF));
@@ -526,6 +555,7 @@ void dMsg_screenDataSetItem(sub_msg_class* i_Msg) {
         ((J2DPicture*)i_Msg->m0624[8].pane)->setBlack(JUtility::TColor(0x00000000));
         ((J2DPicture*)i_Msg->m0624[8].pane)->setWhite(JUtility::TColor(0xFFFFFFFF));
     }
+#if VERSION > VERSION_DEMO
     if (i_Msg->mMsgNo == 0xc6) {
         i_Msg->m0624[8].mSize.x = 32.0f;
         i_Msg->m0624[8].mSize.y = 32.0f;
@@ -559,6 +589,7 @@ void dMsg_screenDataSetItem(sub_msg_class* i_Msg) {
         i_Msg->m0624[8].mSize.y = 40.0f;
         fopMsgM_paneTrans(&i_Msg->m0624[8], 0.0f, 0.0f);
     }
+#endif
     if (i_Msg->mMesgEntry.mTextboxType == 1) {
         ((J2DPicture*)i_Msg->m049C.pane)->setBlack(JUtility::TColor(0x00000000));
         ((J2DPicture*)i_Msg->m049C.pane)->setWhite(JUtility::TColor(0xFFFFFFFF));
@@ -1771,9 +1802,16 @@ void dMsg_dotMove(sub_msg_class* i_Msg) {
 
     i_Msg->m1100++;
     if ((i_Msg->m050C).mNowAlpha < (i_Msg->m050C).mInitAlpha) {
+#if VERSION == VERSION_DEMO
+        s32 max = 10;
+        dVar5 = fopMsgM_valueIncrease(max, i_Msg->m1100, 0);
+        fopMsgM_setNowAlpha(&i_Msg->m050C, (f32)dVar5);
+        if (max == i_Msg->m1100) {
+#else
         dVar5 = fopMsgM_valueIncrease(10, i_Msg->m1100, 0);
         fopMsgM_setNowAlpha(&i_Msg->m050C, (f32)dVar5);
         if (i_Msg->m1100 == 10) {
+#endif
             i_Msg->m1100 = 0;
         }
     } else {
@@ -1856,11 +1894,21 @@ void dMsg_cornerMove(sub_msg_class* param_1) {
     static const u8 cc2_b[] = {180, 180, 120, 180};
     static const u8 cc2_a[] = {255, 150, 255, 255};
 
+#if VERSION == VERSION_DEMO
+    s32 max = 240;
+    param_1->m049C.mUserArea++;
+    if (param_1->m049C.mUserArea >= max) {
+        param_1->m049C.mUserArea = 0;
+    }
+    s32 now = param_1->m049C.mUserArea % 60;
+    f32 tmp = fopMsgM_valueIncrease(60, now, 2);
+#else
     param_1->m049C.mUserArea++;
     if (param_1->m049C.mUserArea >= 240) {
         param_1->m049C.mUserArea = 0;
     }
     f32 tmp = fopMsgM_valueIncrease(60, param_1->m049C.mUserArea % 60, 2);
+#endif
     GXColor local_68[4];
     if (param_1->mMesgEntry.mTextboxType == 1) {
         for (int i = 0; i < 4; i++) {
@@ -2070,8 +2118,13 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
     } else {
         posY = (posY + i_Msg->m049C.mSize.y / 2.0f) - ((int)g_msgHIO.field_0x7c);
     }
+#if VERSION == VERSION_DEMO
+    int len = i_Msg->mMsgDataProc.getSelectLength();
+    fVar3 = (int)g_msgHIO.field_0x78 + ((2.0f * g_msgHIO.field_0x7e + len) - i_Msg->m011C[0].mSizeOrig.x);
+#else
     local_68 = (int)g_msgHIO.field_0x78;
     fVar3 = local_68 + ((2.0f * g_msgHIO.field_0x7e + i_Msg->mMsgDataProc.getSelectLength()) - i_Msg->m011C[0].mSizeOrig.x);
+#endif
     for (s32 i = 0; i < 4; i++) {
         i_Msg->m011C[i].mSize.x = i_Msg->m011C[i].mSizeOrig.x + fVar3;
     }
@@ -2110,9 +2163,13 @@ void dMsg_subTextSizeSet(sub_msg_class* i_Msg) {
         i_Msg->m011C[i].mPosCenter.y = i_Msg->m011C[i].mPosCenterOrig.y + fVar2;
     }
     i_Msg->m01FC.mPosCenterOrig.x = i_Msg->m01FC.mPosTopLeftOrig.x + i_Msg->m01FC.mSizeOrig.x / 2.0f + fVar3;
+#if VERSION == VERSION_DEMO
+    i_Msg->m0234.mPosCenterOrig.x = i_Msg->m01FC.mPosCenterOrig.x + i_Msg->m01FC.mSizeOrig.x + i_Msg->mMsgDataProc.getSelectLength() + g_msgHIO.field_0x7e * 2.0f;
+#else
     f32 f4 = g_msgHIO.field_0x7e * 2.0f;
     f32 f3 = i_Msg->m01FC.mPosCenterOrig.x + i_Msg->m01FC.mSizeOrig.x;
     i_Msg->m0234.mPosCenterOrig.x = f3 + i_Msg->mMsgDataProc.getSelectLength() + f4;
+#endif
     i_Msg->m01FC.mPosCenterOrig.y = i_Msg->m01FC.mPosTopLeftOrig.y + i_Msg->m01FC.mSizeOrig.y / 2.0f + fVar5;
     i_Msg->m0234.mPosCenterOrig.y = i_Msg->m0234.mPosTopLeftOrig.y + i_Msg->m0234.mSizeOrig.y / 2.0f + fVar5;
     for (s32 i = 0; i < 4; i++) {
@@ -2599,6 +2656,9 @@ s32 dMsg_demoProc(sub_msg_class* i_Msg) {
     if (i_Msg->m116B == 0) {
         int melody_no = dComIfGp_getMelodyNum();
         static bool flag = 0;
+#if VERSION == VERSION_DEMO
+        s16 limit = 0x23;
+#endif
         static s16 cnt = 0;
         f32 local_64[7];
         local_64[0] = 0.0f;
@@ -2619,7 +2679,11 @@ s32 dMsg_demoProc(sub_msg_class* i_Msg) {
             }
         }
         for (int i = 0; i < mBeatNum[melody_no]; i++) {
+#if VERSION == VERSION_DEMO
+            if ((i_Msg->m0B64[i].mUserArea > 0) && (i_Msg->m0B64[i].mUserArea <= limit)) {
+#else
             if ((i_Msg->m0B64[i].mUserArea > 0) && (i_Msg->m0B64[i].mUserArea <= 0x23)) {
+#endif
                 if (i_Msg->m0B64[i].mUserArea < 5) {
                     f32 fVar10 = (fopMsgM_valueIncrease(5, i_Msg->m0B64[i].mUserArea, 0) * 0.5f) + 0.5f;
                     if (dComIfGp_getMelodyNum() < 5) {
@@ -2638,7 +2702,11 @@ s32 dMsg_demoProc(sub_msg_class* i_Msg) {
                     }
                 }
                 i_Msg->m0B64[i].mUserArea++;
+#if VERSION == VERSION_DEMO
+                if (i_Msg->m0B64[mBeatNum[melody_no] - 1].mUserArea > limit) {
+#else
                 if (i_Msg->m0B64[mBeatNum[melody_no] - 1].mUserArea > 0x23) {
+#endif
                     if (flag != 0) {
                         dMsg_messagePaneShow(i_Msg);
                         dMsg_yose_select(i_Msg);
