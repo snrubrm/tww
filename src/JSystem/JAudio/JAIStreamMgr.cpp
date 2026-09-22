@@ -90,7 +90,9 @@ int JAInter::StreamLib::sFillBlockSize;
 void* JAInter::StreamLib::Head;
 bool JAInter::StreamLib::bufferMode;
 u8 JAInter::StreamLib::allocFlag;
+#if VERSION > VERSION_DEMO
 u8 JAInter::StreamLib::dspFinishFlag;
+#endif
 void (*JAInter::StreamLib::allocCallback)();
 void (*JAInter::StreamLib::deallocCallback)();
 
@@ -144,10 +146,18 @@ void JAInter::StreamMgr::storeStreamBuffer(JAISound** param_1, JAInter::Actor* p
     if (param_1 && param_1[0] && param_1[0]->checkSoundHandle(param_3, param_6)) {
         return;
     }
+#if VERSION == VERSION_DEMO
+    JAISound* sound = streamControl.getSound();
+    if (sound == NULL) {
+        *param_1 = NULL;
+        return;
+    }
+#else
     if (streamControl.field_0x4) {
         releaseStreamBuffer(streamControl.field_0x4, 0);
     }
     JAISound* sound = streamControl.getSound();
+#endif
     StreamParameter* para = sound->getStreamParameter();
     para->init();
     sound->mState = SOUNDSTATE_Stored;
@@ -422,24 +432,24 @@ void JAInter::StreamLib::allocBuffer(void* param_1, s32 param_2) {
     }
     streamHeap.init((u8*)param_1, param_2);
     loop_buffer = (s16***)streamHeap.alloc(8);
-    JUT_ASSERT_3(555, loop_buffer);
+    JUT_ASSERT_3(DEMO_SELECT(548, 555), loop_buffer);
     for (u32 i = 0; i < 2; i++) {
         loop_buffer[i] = (s16**)streamHeap.alloc(LOOP_BLOCKS << 2);
-        JUT_ASSERT_3(559, loop_buffer[i]);
+        JUT_ASSERT_3(DEMO_SELECT(552, 559), loop_buffer[i]);
         for (int j = 0; j < LOOP_BLOCKS; j++) {
             loop_buffer[i][j] = (s16*)streamHeap.alloc(0x2800);
-            JUT_ASSERT_3(563, loop_buffer[i][j]);
+            JUT_ASSERT_3(DEMO_SELECT(556, 563), loop_buffer[i][j]);
         }
     };
     store_buffer = (void**)streamHeap.alloc(8);
-    JUT_ASSERT_3(568, store_buffer);
+    JUT_ASSERT_3(DEMO_SELECT(561, 568), store_buffer);
     for (u32 i = 0; i < 2; i++) {
         store_buffer[i] = streamHeap.alloc(0x5000);
-        JUT_ASSERT_3(572, store_buffer[i]);
+        JUT_ASSERT_3(DEMO_SELECT(565, 572), store_buffer[i]);
     }
-    JUT_ASSERT_3(575, loop_buffer);
+    JUT_ASSERT_3(DEMO_SELECT(568, 575), loop_buffer);
     adpcm_buffer = (s16*)streamHeap.alloc(0x5000);
-    JUT_ASSERT_3(577, adpcm_buffer);
+    JUT_ASSERT_3(DEMO_SELECT(570, 577), adpcm_buffer);
     allocFlag = true;
 }
 
@@ -606,7 +616,7 @@ void JAInter::StreamLib::__Decode() {
         __DecodeADPCM();
         return;
     }
-    JUT_ASSERT_3(948, 0);
+    JUT_ASSERT_3(DEMO_SELECT(941, 948), 0);
 }
 
 /* 8029D1C8-8029D1E8       .text __LoadFin__Q27JAInter9StreamLibFlP11DVDFileInfo */
@@ -629,7 +639,7 @@ void JAInter::StreamLib::LoadADPCM() {
             loadsize = 0x1680;
             break;
         default:
-            JUT_ASSERT_3(992, 0);
+            JUT_ASSERT_3(DEMO_SELECT(985, 992), 0);
             break;
         }
         extra_sample = 0;
@@ -757,7 +767,7 @@ void JAInter::StreamLib::__start() {
         if (!allocFlag && allocCallback) {
             allocCallback();
         }
-        JUT_ASSERT_3(1217, allocFlag);
+        JUT_ASSERT_3(DEMO_SELECT(1210, 1217), allocFlag);
     }
     playmode = Mode;
     sFillBlockSize = 0;
@@ -793,7 +803,9 @@ void JAInter::StreamLib::__start() {
     adpcmbuf_state = 0;
     playside = 0;
     shift_sample = 0;
+#if VERSION > VERSION_DEMO
     dspFinishFlag = 0;
+#endif
     LOOP_SAMPLESIZE = LOOP_BLOCKS * 0x1400;
     LoadADPCM();
     for (u32 i = 0; i < 2; i++) {
@@ -838,7 +850,7 @@ s32 JAInter::StreamLib::callBack(void*) {
         }
     }
     if (!assign_ch[0] || !assign_ch[1]) {
-        JUTAssertion::setWarningMessage_f(JUTAssertion::getSDevice(), __FILE__, 1403, "%s",
+        JUTAssertion::setWarningMessage_f(JUTAssertion::getSDevice(), __FILE__, DEMO_SELECT(1395, 1403), "%s",
             "JAIStream::callBack チャンネルが確保できないor無くなった！\n");
         sync(-1);
         playflag = 0;
@@ -875,8 +887,13 @@ s32 JAInter::StreamLib::callBack(void*) {
     int canLoad;
     if (movieframe != 0) {
         JASystem::DSPInterface::DSPBuffer* buffer = getDSPHandle(assign_ch[0]->getNumber());
+#if VERSION == VERSION_DEMO
+        if (buffer->field_0x2 != 0) {
+            if (adpcmbuf_state != 2) {
+#else
         if (buffer->field_0x2 != 0 || dspFinishFlag) {
             if (adpcmbuf_state != 1) {
+#endif
                 TDSPChannel::free(assign_ch[0], (u32)&assign_ch[0]);
                 TDSPChannel::free(assign_ch[1], (u32)&assign_ch[1]);
                 assign_ch[0] = NULL;
@@ -889,7 +906,9 @@ s32 JAInter::StreamLib::callBack(void*) {
                 }
                 return -1;
             } else {
+#if VERSION > VERSION_DEMO
                 dspFinishFlag = 1;
+#endif
                 return 0;
             }
         }
@@ -916,7 +935,10 @@ s32 JAInter::StreamLib::callBack(void*) {
     }
     if (stopflag && stopflag2) {
         if (movieframe == 0) {
-            if (adpcmbuf_state != 1) {
+#if VERSION > VERSION_DEMO
+            if (adpcmbuf_state != 1)
+#endif
+            {
                 TDSPChannel::free(assign_ch[0], (u32)&assign_ch[0]);
                 TDSPChannel::free(assign_ch[1], (u32)&assign_ch[1]);
                 assign_ch[0] = NULL;
@@ -929,11 +951,16 @@ s32 JAInter::StreamLib::callBack(void*) {
                 }
                 return -1;
             }
+#if VERSION > VERSION_DEMO
             return 0;
+#endif
         } else {
             stopflag2 = false;
             assign_ch[0]->forceStop();
             assign_ch[1]->forceStop();
+#if VERSION == VERSION_DEMO
+            adpcmbuf_state = 3;
+#endif
         }
     }
     if (canLoad == 1 || movieframe == 0) {
