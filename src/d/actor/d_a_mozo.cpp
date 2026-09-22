@@ -87,8 +87,7 @@ public:
 public:
     /* 0x04 */ s8 mNo;
     /* 0x08 */ int m08;
-    /* 0x0C */ daMozo_childHIO_c* mpBeamChild;
-    /* 0x10 */ daMozo_childHIO_c* mpFireChild;
+    /* 0x0C */ daMozo_childHIO_c* mpChild[2];
     /* 0x14 */ daMozo_BeamChildHIO_c mBeamChild;
     /* 0x28 */ daMozo_FireChildHIO_c mFireChild;
     /* 0x3C */ cXyz mTargetOffset;
@@ -103,18 +102,18 @@ daMozo_HIO_c::daMozo_HIO_c() {
     mTargetOffset.z = 600.0f;
     mNo = -1;
     m08 = -1;
-    mpBeamChild = &mBeamChild;
-    mpFireChild = &mFireChild;
-    mpBeamChild->m04 = 1000.0f;
-    mpBeamChild->m08 = 1200.0f;
-    mpBeamChild->m0C = 0x2000;
-    mpBeamChild->m0E = 0x2800;
-    mpBeamChild->m10 = 0;
-    mpFireChild->m04 = 1000.0f;
-    mpFireChild->m08 = 1200.0f;
-    mpFireChild->m0C = 0x2000;
-    mpFireChild->m0E = 0x2800;
-    mpFireChild->m10 = 0;
+    mpChild[0] = &mBeamChild;
+    mpChild[1] = &mFireChild;
+    mpChild[0]->m04 = 1000.0f;
+    mpChild[0]->m08 = 1200.0f;
+    mpChild[0]->m0C = 0x2000;
+    mpChild[0]->m0E = 0x2800;
+    mpChild[0]->m10 = 0;
+    mpChild[1]->m04 = 1000.0f;
+    mpChild[1]->m08 = 1200.0f;
+    mpChild[1]->m0C = 0x2000;
+    mpChild[1]->m0E = 0x2800;
+    mpChild[1]->m10 = 0;
 }
 
 static daMozo_HIO_c l_HIO;
@@ -573,11 +572,11 @@ BOOL daMozo_c::checkRange(int param) {
     f32 range;
     s16 maxAngle;
     if (param == 0) {
-        range = (&l_HIO.mpBeamChild)[mType]->m04;
-        maxAngle = (&l_HIO.mpBeamChild)[mType]->m0C;
+        range = l_HIO.mpChild[mType]->m04;
+        maxAngle = l_HIO.mpChild[mType]->m0C;
     } else {
-        range = (&l_HIO.mpBeamChild)[mType]->m08;
-        maxAngle = (&l_HIO.mpBeamChild)[mType]->m0E;
+        range = l_HIO.mpChild[mType]->m08;
+        maxAngle = l_HIO.mpChild[mType]->m0E;
     }
 
     cXyz dir(cM_ssin(current.angle.y), 0.0f, cM_scos(current.angle.y));
