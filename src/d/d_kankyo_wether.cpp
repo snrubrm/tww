@@ -331,8 +331,14 @@ void dKyw_wether_delete() {
         delete g_env_light.mpWavePacket;
     }
 
+#if VERSION == VERSION_DEMO
+    dScnKy_env_light_c& env_light = dKy_getEnvlight();
+    if (env_light.mbWindlineInitialized) {
+        WINDEFF_SET* wind_p = env_light.mpWind;
+#else
     if (g_env_light.mbWindlineInitialized) {
         WINDEFF_SET* wind_p = g_env_light.mpWind;
+#endif
         for (int i = 0; i < 30; i++) {
             if (wind_p->mWindEff[i].mpEmitter != NULL) {
                 wind_p->mWindEff[i].mpEmitter->deleteAllParticle();
