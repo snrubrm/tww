@@ -2622,6 +2622,19 @@ void dMap_c::setArriveInfo(f32 param_1, f32 param_2) {
 }
 
 /* 8004B9C8-8004BA64       .text drawPointPlayer__6dMap_cFffs */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointPlayer(f32 i_posX, f32 i_posY, s16 i_angle) {
+    f32 scale = 1.1f;
+    dMap_2DTri_c* cursor = &mCursor;
+    cursor->setPos(i_posX, i_posY);
+    cursor->setScaleX(6.0f * scale);
+    cursor->setScaleY(10.0f * scale);
+    cursor->setAngle(i_angle);
+    cursor->setAlpha(mAlpha);
+    cursor->setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mDrawPointCntPlayer++;
+}
+#else
 void dMap_c::drawPointPlayer(f32 i_posX, f32 i_posY, s16 i_angle) {
     mCursor.setPos(i_posX, i_posY);
     mCursor.setScaleX(6.6000004f);
@@ -2631,8 +2644,22 @@ void dMap_c::drawPointPlayer(f32 i_posX, f32 i_posY, s16 i_angle) {
     mCursor.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mDrawPointCntPlayer++;
 }
+#endif
 
 /* 8004BA64-8004BB0C       .text drawPointEnemy__6dMap_cFff */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointEnemy(f32 param_1, f32 param_2) {
+    if (mDrawPointCntEnemy >= ARRAY_SIZE(mPoint)) {
+        return;
+    }
+    GXColor color = {255, 0, 0, 255};
+    u8 size = 4;
+    color.a = mAlpha;
+    mPoint[mDrawPointCntEnemy].init(param_1, param_2, color, size * 6);
+    mPoint[mDrawPointCntEnemy].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mDrawPointCntEnemy++;
+}
+#else
 void dMap_c::drawPointEnemy(f32 param_1, f32 param_2) {
     if (mDrawPointCntEnemy >= ARRAY_SIZE(mPoint)) {
         return;
@@ -2643,8 +2670,34 @@ void dMap_c::drawPointEnemy(f32 param_1, f32 param_2) {
     mPoint[mDrawPointCntEnemy].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mDrawPointCntEnemy++;
 }
+#endif
 
 /* 8004BB0C-8004BC94       .text drawPointAgbCursor__6dMap_cFff */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointAgbCursor(f32 param_1, f32 param_2) {
+    f32 scale = 1.1f;
+    GXColor color;
+    if (agbFlashCheck()) {
+        mMapAGBCursorFlashFrmCnt++;
+        mMapAGBCursorFlashFrmCnt = mMapAGBCursorFlashFrmCnt % g_mapHIO.field_0x3c;
+        f32 sinSq = JMASSin(32768.0f * (mMapAGBCursorFlashFrmCnt / (f32)g_mapHIO.field_0x3c));
+        sinSq *= sinSq;
+        color.r = g_mapHIO.field_0x2f + sinSq * (g_mapHIO.field_0x33 - (f32)g_mapHIO.field_0x2f);
+        color.g = g_mapHIO.field_0x30 + sinSq * (g_mapHIO.field_0x34 - (f32)g_mapHIO.field_0x30);
+        color.b = g_mapHIO.field_0x31 + sinSq * (g_mapHIO.field_0x35 - (f32)g_mapHIO.field_0x31);
+    } else {
+        color.r = g_mapHIO.field_0x2f;
+        color.g = g_mapHIO.field_0x30;
+        color.b = g_mapHIO.field_0x31;
+        mMapAGBCursorFlashFrmCnt = 0;
+    }
+    color.a = mAlpha;
+    u8 size = 16;
+    mAgbCursor.init(param_1, param_2, color, (int)(6.0f * (size * scale)));
+    mAgbCursor.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mDrawPointCntAgbCursor++;
+}
+#else
 void dMap_c::drawPointAgbCursor(f32 param_1, f32 param_2) {
     /* Nonmatching */
     GXColor color;
@@ -2669,8 +2722,34 @@ void dMap_c::drawPointAgbCursor(f32 param_1, f32 param_2) {
     mAgbCursor.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mDrawPointCntAgbCursor++;
 }
+#endif
 
 /* 8004BC94-8004BD84       .text drawPointTbox__6dMap_cFffff */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointTbox(f32 param_1, f32 param_2, f32 param_3, f32 param_4) {
+    if (mTboxNum >= ARRAY_SIZE(mTbox)) {
+        return;
+    }
+    GXColor local_c = {255, 255, 255, 255};
+    GXColor local_10 = {0, 0, 0, 255};
+    local_c.r = g_mapHIO.field_0x70;
+    local_c.g = g_mapHIO.field_0x71;
+    local_c.b = g_mapHIO.field_0x72;
+    local_10.r = g_mapHIO.field_0x74;
+    local_10.g = g_mapHIO.field_0x75;
+    local_10.b = g_mapHIO.field_0x76;
+    local_c.a = mAlpha;
+    mTbox[mTboxNum].setPos(param_1, param_2);
+    mTbox[mTboxNum].setColorW(local_c);
+    mTbox[mTboxNum].setColorB(local_10);
+    mTbox[mTboxNum].setWide(8.0f * param_3);
+    mTbox[mTboxNum].setHeight(8.0f * param_4);
+    mTbox[mTboxNum].setScaleX(1.0f);
+    mTbox[mTboxNum].setScaleY(1.0f);
+    mTbox[mTboxNum].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mTboxNum++;
+}
+#else
 void dMap_c::drawPointTbox(f32 param_1, f32 param_2, f32 param_3, f32 param_4) {
     if (mTboxNum >= ARRAY_SIZE(mTbox)) {
         return;
@@ -2694,8 +2773,33 @@ void dMap_c::drawPointTbox(f32 param_1, f32 param_2, f32 param_3, f32 param_4) {
     mTbox[mTboxNum].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mTboxNum++;
 }
+#endif
 
 /* 8004BD84-8004BE7C       .text drawPointDoor__6dMap_cFffffsUc */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointDoor(f32 param_1, f32 param_2, f32 param_3, f32 param_4, s16 param_5, u8 param_6) {
+    if (mDoorNum >= ARRAY_SIZE(mDoor)) {
+        return;
+    }
+    GXColor local_c = {255, 255, 255, 255};
+    GXColor local_10 = {0, 0, 0, 255};
+    local_c.r = g_mapHIO.field_0x88;
+    local_c.g = g_mapHIO.field_0x89;
+    local_c.b = g_mapHIO.field_0x8a;
+    local_10.r = g_mapHIO.field_0x8c;
+    local_10.g = g_mapHIO.field_0x8d;
+    local_10.b = g_mapHIO.field_0x8e;
+    local_c.a = param_6;
+    mDoor[mDoorNum].setPos(param_1, param_2);
+    mDoor[mDoorNum].setColorW(local_c);
+    mDoor[mDoorNum].setColorB(local_10);
+    mDoor[mDoorNum].setWide(8.0f * param_3);
+    mDoor[mDoorNum].setHeight(8.0f * param_4);
+    mDoor[mDoorNum].setRotZ(-param_5);
+    mDoor[mDoorNum].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mDoorNum++;
+}
+#else
 void dMap_c::drawPointDoor(f32 param_1, f32 param_2, f32 param_3, f32 param_4, s16 param_5, u8 param_6) {
     if (mDoorNum >= ARRAY_SIZE(mDoor)) {
         return;
@@ -2718,8 +2822,23 @@ void dMap_c::drawPointDoor(f32 param_1, f32 param_2, f32 param_3, f32 param_4, s
     mDoor[mDoorNum].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mDoorNum++;
 }
+#endif
 
 /* 8004BE7C-8004BF78       .text drawPointRestart__6dMap_cFffsff */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointRestart(f32 param_1, f32 param_2, s16 param_3, f32 param_4, f32 param_5) {
+    GXColor color;
+    color.r = g_mapHIO.field_0xa8;
+    color.g = g_mapHIO.field_0xa9;
+    color.b = g_mapHIO.field_0xaa;
+    mPointRestart.init(0, 0, color, 6.0f * param_4, 10.0f * param_5, 0);
+    mPointRestart.setPos(param_1, param_2);
+    mPointRestart.setAngle(param_3);
+    mPointRestart.setAlpha((mAlpha * g_mapHIO.field_0xab) >> 8);
+    mPointRestart.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mDrawPointRestartCnt++;
+}
+#else
 void dMap_c::drawPointRestart(f32 param_1, f32 param_2, s16 param_3, f32 param_4, f32 param_5) {
     GXColor color;
     color.r = 119;
@@ -2732,8 +2851,25 @@ void dMap_c::drawPointRestart(f32 param_1, f32 param_2, s16 param_3, f32 param_4
     mPointRestart.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mDrawPointRestartCnt++;
 }
+#endif
 
 /* 8004BF78-8004C044       .text drawPointFriend__6dMap_cFfff */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointFriend(f32 param_1, f32 param_2, f32 param_3) {
+    if (mPointFriendNum >= 3) {
+        return;
+    }
+    GXColor color;
+    color.r = g_mapHIO.field_0xd0;
+    color.g = g_mapHIO.field_0xd1;
+    color.b = g_mapHIO.field_0xd2;
+    u8 size = 4.0f * param_3;
+    color.a = mAlpha;
+    mPointFriend[mPointFriendNum].init(param_1, param_2, color, size * 6);
+    mPointFriend[mPointFriendNum].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mPointFriendNum++;
+}
+#else
 void dMap_c::drawPointFriend(f32 param_1, f32 param_2, f32 param_3) {
     if (mPointFriendNum >= 3) {
         return;
@@ -2747,8 +2883,32 @@ void dMap_c::drawPointFriend(f32 param_1, f32 param_2, f32 param_3) {
     mPointFriend[mPointFriendNum].setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mPointFriendNum++;
 }
+#endif
 
 /* 8004C044-8004C144       .text drawPointShip__6dMap_cFffsff */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointShip(f32 param_1, f32 param_2, s16 param_3, f32 param_4, f32 param_5) {
+    GXColor local_c = {255, 255, 255, 255};
+    GXColor local_10 = {};
+    local_c.r = g_mapHIO.field_0x46;
+    local_c.g = g_mapHIO.field_0x47;
+    local_c.b = g_mapHIO.field_0x48;
+    local_10.r = g_mapHIO.field_0x4a;
+    local_10.g = g_mapHIO.field_0x4b;
+    local_10.b = g_mapHIO.field_0x4c;
+    local_c.a = mAlpha;
+    mShip.setPos(param_1, param_2);
+    mShip.setColorW(local_c);
+    mShip.setColorB(local_10);
+    mShip.setWide(8.0f * param_4);
+    mShip.setHeight(16.0f * param_5);
+    mShip.setScaleX(1.0f);
+    mShip.setScaleY(1.0f);
+    mShip.setRotZ(-param_3);
+    mShip.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
+    mDrawPointCntShip++;
+}
+#else
 void dMap_c::drawPointShip(f32 param_1, f32 param_2, s16 param_3, f32 param_4, f32 param_5) {
     GXColor local_c = {255, 255, 255, 255};
     GXColor local_10 = {};
@@ -2770,6 +2930,7 @@ void dMap_c::drawPointShip(f32 param_1, f32 param_2, s16 param_3, f32 param_4, f
     mShip.setScissor(mScissorOrigX, mScissorOrigY, mScissorWidth, mScissorHeight);
     mDrawPointCntShip++;
 }
+#endif
 
 /* 8004C144-8004CC7C       .text drawPointGc__6dMap_cFUcfffScsUcUcUcUc */
 void dMap_c::drawPointGc(u8 kind, f32 posX, f32 posY, f32 posZ, s8 roomNo, s16 angle, u8 param_7, u8 gbaName, u8 param_9, u8 gcName) {
