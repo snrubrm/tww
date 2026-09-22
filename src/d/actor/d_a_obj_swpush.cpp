@@ -302,10 +302,10 @@ cPhs_State daObjSwpush::Act_c::Mthd_Create() {
 BOOL daObjSwpush::Act_c::Mthd_Delete() {
     dComIfG_Bgsp()->Release(mpBgW);
     if (attr().mKbotaResName != NULL) {
-        dComIfG_resDelete(&mKbotaPhs, attr().mKbotaResName);
+        dComIfG_resDeleteDemo(&mKbotaPhs, attr().mKbotaResName);
     }
     if (attr().mHhbotResName != NULL) {
-        dComIfG_resDelete(&mHhbotPhs, attr().mHhbotResName);
+        dComIfG_resDeleteDemo(&mHhbotPhs, attr().mHhbotResName);
     }
     return TRUE;
 }
