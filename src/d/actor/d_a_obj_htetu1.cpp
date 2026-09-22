@@ -123,9 +123,8 @@ void daObjHtetu1_c::init_mtx() {
 void daObjHtetu1_c::unlock() {
     cXyz offset = cXyz::BaseY;
     mNextPos -= mShakeOffset;
-    f32 amplitude = mShakeAmplitude;
     s16 angle = mShakeTimer * 0x859;
-    offset *= std::fabsf((s16)(amplitude * cM_ssin(angle)));
+    offset *= std::fabsf((s16)(mShakeAmplitude * cM_ssin(angle)));
     mNextPos += offset;
     mShakeOffset = offset;
     cLib_addCalc(&mShakeAmplitude, 0.0f, 0.13f, 50.0f, 1.0f);
