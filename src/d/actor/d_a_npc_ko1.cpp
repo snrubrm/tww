@@ -849,15 +849,7 @@ bool daNpc_Ko1_c::chk_manzai_1() {
 
 /* 00001E0C-00001E4C       .text chk_partsNotMove__11daNpc_Ko1_cFv */
 bool daNpc_Ko1_c::chk_partsNotMove() {
-    bool result = false;
-    bool jnt = false;
-    if (mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y()) {
-        jnt = true;
-    }
-    if (jnt && mOldActorY == current.angle.y) {
-        result = true;
-    }
-    return result;
+    return mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y() && mOldActorY == current.angle.y;
 }
 
 /* 00001E4C-00001FFC       .text lookBack__11daNpc_Ko1_cFv */
