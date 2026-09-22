@@ -330,10 +330,6 @@ BOOL rakka_line_check(nz_class* i_this) {
     return FALSE;
 }
 
-const u32 unused_4556[] = {
-    0xFF000040,
-};
-
 /* 00001578-0000178C       .text daNZ_Draw__FP8nz_class */
 static BOOL daNZ_Draw(nz_class* i_this) {
     fopAc_ac_c* actor = i_this;
@@ -366,8 +362,8 @@ static BOOL daNZ_Draw(nz_class* i_this) {
         dComIfGd_setSimpleShadow2(&i_this->m304, i_this->mAcch.GetGroundH(), 20.0f, i_this->mAcch.m_gnd, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
     if (REG8_S(1) != 0) {
-        for (s32 i = 0; i < 16; i++) {
-            i++;
+        for (s32 i = 0; i < 8; i++) {
+            GXColor color = {0xFF, 0x00, 0x00, 0x40};
         }
     }
     if (REG8_S(2) != 0) {
