@@ -2842,7 +2842,10 @@ BOOL daNpc_Bj1_c::_execute() {
 /* 00006128-000061A4       .text _delete__11daNpc_Bj1_cFv */
 BOOL daNpc_Bj1_c::_delete() {
     dComIfG_resDelete(&mPhs, "Bj");
-    if (heap != NULL) {
+#if VERSION > VERSION_DEMO
+    if (heap != NULL)
+#endif
+    {
         if (mpMorf != NULL) {
             mpMorf->stopZelAnime();
         }
@@ -2852,6 +2855,9 @@ BOOL daNpc_Bj1_c::_delete() {
     }
     delPrtcl_drugPot();
     delPrtcl_danceLR();
+#if VERSION == VERSION_DEMO
+    l_HIO.removeHIO();
+#endif
     return TRUE;
 }
 
@@ -2862,7 +2868,7 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 
 /* 000061C4-000062E4       .text _create__11daNpc_Bj1_cFv */
 cPhs_State daNpc_Bj1_c::_create() {
-    fopAcM_SetupActor(this, daNpc_Bj1_c);
+    fopAcM_ct_Retail(this, daNpc_Bj1_c);
     static u32 a_size_tbl[] = {
         0x272E0, 0x272E0, 0x272E0, 0x272E0, 0x272E0, 0x272E0, 0x272E0, 0x272E0, 0x272E0,
     };
@@ -2870,9 +2876,14 @@ cPhs_State daNpc_Bj1_c::_create() {
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
     }
-    if (!charDecide(fopAcM_GetParam(this) & 0xFF)) {
+    u32 prm = fopAcM_GetParam(this) & 0xFF;
+    if (!charDecide(prm)) {
         return cPhs_ERROR_e;
     }
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("コログ族");
+    fopAcM_ct(this, daNpc_Bj1_c);
+#endif
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_size_tbl[mType])) {
         return cPhs_ERROR_e;
     }
@@ -2960,8 +2971,9 @@ bool daNpc_Bj1_c::create_itm_Mdl() {
     mpFaceModel = NULL;
 
     bool result;
+    J3DModelData* a_mdl_dat;
     if (l_arm_L_bmd_tbl[mType] >= 0) {
-        J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", l_arm_L_bmd_tbl[mType]);
+        a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", l_arm_L_bmd_tbl[mType]);
         JUT_ASSERT(0x1145, a_mdl_dat != 0);
         mpPlantLModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
         result = mpPlantLModel != NULL;
@@ -2975,7 +2987,7 @@ bool daNpc_Bj1_c::create_itm_Mdl() {
     }
 
     if (l_arm_R_bmd_tbl[mType] >= 0) {
-        J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", l_arm_R_bmd_tbl[mType]);
+        a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Bj", l_arm_R_bmd_tbl[mType]);
         JUT_ASSERT(0x1156, a_mdl_dat != 0);
         mpPlantRModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
         result = mpPlantRModel != NULL;
@@ -2988,7 +3000,7 @@ bool daNpc_Bj1_c::create_itm_Mdl() {
         }
     }
 
-    J3DModelData* a_mdl_dat = static_cast<J3DModelData*>(dComIfG_getObjectIDRes("Bj", l_bmd_tbl[mType]));
+    a_mdl_dat = static_cast<J3DModelData*>(dComIfG_getObjectIDRes("Bj", l_bmd_tbl[mType]));
     JUT_ASSERT(0x1166, a_mdl_dat != 0);
     mpFaceModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     return mpFaceModel != NULL;
