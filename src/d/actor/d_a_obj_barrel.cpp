@@ -410,6 +410,7 @@ bool daObjBarrel::Act_c::mode_proc_call() {
 
 /* 000012A0-00001490       .text set_mtx__Q211daObjBarrel5Act_cFv */
 void daObjBarrel::Act_c::set_mtx() {
+    f32 radius;
     mDoMtx_stack_c::transS(current.pos);
     switch (mMode) {
         case MODE_VIB0:
@@ -426,7 +427,8 @@ void daObjBarrel::Act_c::set_mtx() {
         case MODE_CARRY:
         case MODE_JUMP:
         case MODE_WALK:
-            mDoMtx_stack_c::transM(0.0f, cM_scos(shape_angle.z) * 5.0f + l_s_radius, 0.0f);
+            radius = cM_scos(shape_angle.z) * 5.0f + l_s_radius;
+            mDoMtx_stack_c::transM(0.0f, radius, 0.0f);
             mDoMtx_stack_c::ZXYrotM(0, shape_angle.y, shape_angle.z);
             mDoMtx_stack_c::YrotM(m612);
             mDoMtx_stack_c::XrotM(m610);
