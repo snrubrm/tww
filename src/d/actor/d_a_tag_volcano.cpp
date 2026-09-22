@@ -34,18 +34,28 @@ cPhs_State daTagvolcano::Act_c::_create() {
         if (current.roomNo == dIsleRoom_FireMountain_e) {
             if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_1902)) {
                 fopAcM_onSwitch(this, prm_get_swSave());
+#if VERSION == VERSION_DEMO
+            } else if (dComIfGs_getStartPoint() == 2) {
+                field_0x2a0 = 10;
+#else
             } else if (dComIfGs_getStartPoint() == 2 && current.roomNo == dComIfGs_getRestartRoomNo()) {
                 field_0x2a0 = 10;
                 fopAcM_onSwitch(this, prm_get_swSave());
+#endif
             } else {
                 fopAcM_offSwitch(this, prm_get_swSave());
             }
         } else {
             if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_1901)) {
                 fopAcM_onSwitch(this, prm_get_swSave());
+#if VERSION == VERSION_DEMO
+            } else if (dComIfGs_getStartPoint() == 2) {
+                field_0x2a0 = 10;
+#else
             } else if (dComIfGs_getStartPoint() == 2 && current.roomNo == dComIfGs_getRestartRoomNo()) {
                 field_0x2a0 = 10;
                 fopAcM_onSwitch(this, prm_get_swSave());
+#endif
             } else {
                 fopAcM_offSwitch(this, prm_get_swSave());
             }
