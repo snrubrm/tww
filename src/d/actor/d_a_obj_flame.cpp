@@ -361,7 +361,7 @@ void daObjFlame::Act_c::eff_hase() {
 
 /* 000011E4-00001254       .text se_fireblast_omen__Q210daObjFlame5Act_cFv */
 void daObjFlame::Act_c::se_fireblast_omen() {
-    mDoAud_seStart(JA_SE_FIREBLAST_OMEN, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_FIREBLAST_OMEN, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 }
 
 /* 00001254-00001610       .text liftup_magmarock__Q210daObjFlame5Act_cFPvPv */
