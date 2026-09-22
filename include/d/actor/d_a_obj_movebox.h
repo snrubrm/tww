@@ -205,7 +205,14 @@ namespace daObjMovebox {
                 mDoMtx_stack_c::push();
                 mDoMtx_stack_c::YrotS(home.angle.y);
                 mDoMtx_stack_c::transM(m628, 0.0f, m62C);
+#if VERSION == VERSION_DEMO
+                cXyz grid;
+                grid.x = mDoMtx_stack_c::get()[0][3];
+                grid.y = mDoMtx_stack_c::get()[1][3];
+                grid.z = mDoMtx_stack_c::get()[2][3];
+#else
                 cXyz grid(mDoMtx_stack_c::get()[0][3], mDoMtx_stack_c::get()[1][3], mDoMtx_stack_c::get()[2][3]);
+#endif
                 cXyz direction;
                 mDoMtx_stack_c::YrotS(home.angle.y + M_dir_base[m634]);
                 mDoMtx_stack_c::multVecSR(&cXyz::BaseZ, &direction);

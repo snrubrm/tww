@@ -49,9 +49,10 @@ BOOL daObjTrap_c::solidHeapCB(fopAc_ac_c* actor) {
 
 /* 0000010C-000002A4       .text create_heap__11daObjTrap_cFv */
 BOOL daObjTrap_c::create_heap() {
+    J3DModelData* mdl_data;
     BOOL success = FALSE;
 
-    J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_BDL_HTORA1_e));
+    mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_TRAP_BDL_HTORA1_e));
     JUT_ASSERT(0x163, mdl_data != NULL);
 
     if (mdl_data != NULL) {
@@ -80,7 +81,7 @@ cPhs_State daObjTrap_c::_create() {
         if ((bool)fopAcM_entrySolidHeap(this, solidHeapCB, 0)) {
             mPathNo = fopAcM_GetParam(this);
             if (mPathNo != 0xFF) {
-                mpPath = dPath_GetRoomPath(mPathNo, current.roomNo);
+                mpPath = dPath_GetRoomPath(mPathNo, fopAcM_GetRoomNo(this));
                 if (mpPath != NULL && mpPath->m_points != NULL) {
                     mSpeedType = (fopAcM_GetParam(this) >> 8) & 0xF;
                     if (mSpeedType == 0xF) {
@@ -113,10 +114,16 @@ cPhs_State daObjTrap_c::_create() {
 
 /* 00000DF0-00000E84       .text _delete__11daObjTrap_cFv */
 bool daObjTrap_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mpBgW != NULL && mpBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpBgW);
+    }
+#else
     if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) {
         dComIfG_Bgsp()->Release(mpBgW);
         mpBgW = NULL;
     }
+#endif
     dComIfG_resDelete(&mPhase, M_arcname);
     return true;
 }
@@ -160,7 +167,12 @@ BOOL daObjTrap_c::circle_search() {
 /* 0000112C-0000122C       .text set_move_info__11daObjTrap_cFv */
 void daObjTrap_c::set_move_info() {
     mStart.set(mpPath->m_points[mPathPoint].m_position.x, current.pos.y, mpPath->m_points[mPathPoint].m_position.z);
+#if VERSION == VERSION_DEMO
+    int next = (mPathPoint + 1) & 1;
+    mTarget.set(mpPath->m_points[next].m_position.x, current.pos.y, mpPath->m_points[next].m_position.z);
+#else
     mTarget.set(mpPath->m_points[(mPathPoint + 1) & 1].m_position.x, current.pos.y, mpPath->m_points[(mPathPoint + 1) & 1].m_position.z);
+#endif
     mDirection = mTarget - mStart;
     mDirectionValid = mDirection.normalizeRS();
     mMove = cXyz::Zero;
@@ -281,18 +293,28 @@ void daObjTrap_c::set_vib_mode() {
 
 /* 0000250C-0000255C       .text vibrate__11daObjTrap_cFv */
 void daObjTrap_c::vibrate() {
+#if VERSION == VERSION_DEMO
+    s16 angle = mVibrateTimer * 0x5555;
+    shape_angle.x = 288.0f * cM_ssin(angle);
+#else
     f32 amplitude = 288.0f;
     s16 angle = mVibrateTimer * 0x5555;
     shape_angle.x = amplitude * cM_ssin(angle);
+#endif
 }
 
 /* 0000255C-00002678       .text bound__11daObjTrap_cFv */
 void daObjTrap_c::bound() {
     cXyz offset = mDirection * -1.0f;
     mNextPos -= mBounceOffset;
+#if VERSION == VERSION_DEMO
+    s16 angle = mBounceTimer * 0x4000;
+    offset *= std::fabsf((s16)(mBounceAmplitude * cM_ssin(angle)));
+#else
     f32 amplitude = mBounceAmplitude;
     s16 angle = mBounceTimer * 0x4000;
     offset *= std::fabsf((s16)(amplitude * cM_ssin(angle)));
+#endif
     mNextPos += offset;
     mBounceOffset = offset;
     cLib_addCalc(&mBounceAmplitude, 0.0f, 0.17f, 35.0f, 1.0f);
@@ -331,15 +353,15 @@ bool daObjTrap_c::_execute() {
             mNextPos = collision;
             set_vib_mode();
             set_shine();
-            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         } else if (arrived == 1) {
             set_vib_mode();
             set_shine();
-            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         } else if (circle_search() == 1) {
             mMode = 1;
         } else {
-            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_MOVE, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_MOVE, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         }
         break;
     }
@@ -352,14 +374,14 @@ bool daObjTrap_c::_execute() {
             mNextPos = collision;
             set_vib_mode();
             set_shine();
-            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         } else if (check_arrival() == 1) {
             mNextPos = mTarget;
             set_vib_mode();
             set_shine();
-            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_STOP, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         } else {
-            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_MOVE, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_WDUN_TRAP_MOVE, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         }
         break;
     case 2:
@@ -396,7 +418,11 @@ bool daObjTrap_c::_execute() {
     init_mtx();
     set_co_pos();
     dComIfG_Ccsp()->Set(&mCyl);
+#if VERSION == VERSION_DEMO
+    if (mpBgW != NULL && mpBgW->ChkUsed()) {
+#else
     if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) {
+#endif
         mpBgW->Move();
     }
     return true;
