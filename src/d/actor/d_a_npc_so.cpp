@@ -584,7 +584,9 @@ void daNpc_So_c::lookBack() {
             mLookAt = dNpc_playerEyePos(l_HIO.mNpc.m04);
         }
     } else {
+#if VERSION > VERSION_JPN
         m_jnt.clrTrn();
+#endif
         mLookAt = dNpc_playerEyePos(l_HIO.mNpc.m04);
     }
 
@@ -1022,7 +1024,9 @@ void daNpc_So_c::modeDisappear() {
         mBD8 = 0;
         mBDB = 1;
         modeProcInit(MODE_HIDE_e);
+#if VERSION > VERSION_JPN
         gravity = -2.5f;
+#endif
     }
 }
 
