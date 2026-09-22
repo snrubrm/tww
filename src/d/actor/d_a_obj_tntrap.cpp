@@ -101,7 +101,7 @@ bool daObjTnTrap_c::chk_appear() {
             if (mSwitch != 0xff && fopAcM_isSwitch(this, mSwitch) == 1) {
                 if (dComIfGs_getTriforceNum() == 8 && mArg == 0) {
                     if (dComIfGs_isEventBit(0x2c01) == 1) {
-                        if (mSwitch2 != 0xff && !fopAcM_isSwitch(this, mSwitch2)) {
+                        if (mSwitch2 != 0xff && fopAcM_isSwitch(this, mSwitch2) == FALSE) {
                             mType = 2;
                             result = true;
                         }
