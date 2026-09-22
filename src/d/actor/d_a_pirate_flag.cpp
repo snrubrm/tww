@@ -474,8 +474,8 @@ static BOOL daPirate_Flag_IsDelete(pirate_flag_class*) {
 
 /* 00001A40-00001A90       .text daPirate_Flag_Delete__FP17pirate_flag_class */
 static BOOL daPirate_Flag_Delete(pirate_flag_class* i_this) {
-    dComIfG_resDelete(&i_this->mPhs1, "Cloth");
-    dComIfG_resDelete(&i_this->mPhs2, "Kaizokusen");
+    dComIfG_resDeleteDemo(&i_this->mPhs1, "Cloth");
+    dComIfG_resDeleteDemo(&i_this->mPhs2, "Kaizokusen");
 
     return TRUE;
 }
