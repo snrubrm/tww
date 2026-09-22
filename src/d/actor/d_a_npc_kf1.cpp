@@ -568,7 +568,8 @@ void daNpc_Kf1_c::create_rupee(cXyz pos, int count) {
         random = cM_rndF(30.0f) - 15.0f;
         f32 off = offsets[counter % 3];
         random = off + random;
-        s16 scaled = cM_deg2s((s16)random);
+        s16 scaled = (s16)random;
+        scaled = scaled * (0x7FFF / 180.0f);
 #endif
         angle.y = current.angle.y + scaled;
         room = current.roomNo;
