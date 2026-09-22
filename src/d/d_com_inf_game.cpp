@@ -512,11 +512,16 @@ BOOL dComIfG_resetToOpening(scene_class* i_scene) {
         return FALSE;
     }
 
+#if VERSION == VERSION_DEMO
+    if (dComIfG_changeOpeningScene(i_scene, 8)) {
+        mDoAud_zelAudio_c::getInterface()->resetProcess();
+        mDoAud_zelAudio_c::onResetFlag();
+    }
+#else
     dComIfG_changeOpeningScene(i_scene, 8);
-#if VERSION > VERSION_DEMO
     mDoAud_bgmStop(30);
-#endif
     mDoAud_resetProcess();
+#endif
     return TRUE;
 }
 
