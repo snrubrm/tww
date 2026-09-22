@@ -108,24 +108,29 @@ static BOOL daNpc_Kg1_nodeCallBack(J3DNode* node, int phase) {
         if (joint == i_this->m_jnt.getHeadJntNum()) {
             mDoMtx_stack_c::XrotM((s16)i_this->m_jnt.getHead_y());
             mDoMtx_stack_c::ZrotM(-i_this->m_jnt.getHead_x());
-            static cXyz attn(24.0f, 5.0f, 0.0f);
-            static cXyz eye(24.0f, -16.0f, 0.0f);
-            mDoMtx_stack_c::multVec(&attn, &i_this->mHeadPos);
+            static cXyz l_offsetAttPos(24.0f, 5.0f, 0.0f);
+            static cXyz l_offsetEyePos(24.0f, -16.0f, 0.0f);
+            mDoMtx_stack_c::multVec(&l_offsetAttPos, i_this->getHeadPosP());
             mDoMtx_stack_c::XrotM((s16)i_this->m_jnt.getHead_y());
             mDoMtx_stack_c::ZrotM(-i_this->m_jnt.getHead_x());
-            mDoMtx_stack_c::multVec(&eye, &i_this->mLookPos);
-            mDoMtx_stack_c::multVec(&attn, &i_this->attention_info.position);
+            mDoMtx_stack_c::multVec(&l_offsetEyePos, i_this->getLookPosP());
+            mDoMtx_stack_c::multVec(&l_offsetAttPos, &i_this->attention_info.position);
             i_this->attention_info.position.y += l_HIO.mNpc[0].mAttnYOffset;
         }
         if (joint == i_this->m_jnt.getBackboneJntNum()) {
             mDoMtx_stack_c::XrotM((s16)i_this->m_jnt.getBackbone_y());
             mDoMtx_stack_c::ZrotM(-i_this->m_jnt.getBackbone_x());
         }
-        PSMTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+        model->setAnmMtx(joint, mDoMtx_stack_c::get());
         PSMTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
         if (joint == 8) {
             mDoMtx_stack_c::transM(23.46f, -22.26f, -47.05f);
+#if VERSION == VERSION_DEMO
+            // The demo passes the unwrapped value 0xB100 here, which only a float -> s16 conversion reproduces.
+            mDoMtx_stack_c::XYZrotM(0x1F4B, cM_deg2s(248.90625f), 0x1F4B);
+#else
             mDoMtx_stack_c::XYZrotM(0x1F4B, -0x4F00, 0x1F4B);
+#endif
             i_this->m6C4->setBaseTRMtx(mDoMtx_stack_c::get());
         }
     }
@@ -161,11 +166,13 @@ BOOL daNpc_Kg1_c::chkAttention() {
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
     cXyz direction;
     f32 distance = (player->current.pos - current.pos).absXZ();
+    f32 maxDist = l_HIO.mNpc[0].mMaxAttnDistXZ;
     s16 limit = l_HIO.mNpc[0].mMaxAttnAngleY;
-    if (distance < l_HIO.mNpc[0].mMaxAttnDistXZ) {
+    if (distance < maxDist) {
         direction.x = player->current.pos.x - current.pos.x;
         direction.z = player->current.pos.z - current.pos.z;
-        s16 angle = cM_atan2s(direction.x, direction.z) - (s16)(current.angle.y + m_jnt.getHead_y() + m_jnt.getBackbone_y());
+        s16 angle = cM_atan2s(direction.x, direction.z);
+        angle -= (s16)(current.angle.y + m_jnt.getHead_y() + m_jnt.getBackbone_y());
         if ((s16)abs(angle) < limit) return TRUE;
     }
     return FALSE;
@@ -183,9 +190,8 @@ BOOL daNpc_Kg1_c::initTexPatternAnm(int index, bool modify) {
 
 void daNpc_Kg1_c::playTexPatternAnm() {
     if (cLib_calcTimer(&m72C) == 0) {
-        u32 end = m_eye_tex_pattern->getFrameMax();
-        if (m720 >= (s16)end) {
-            m720 -= end;
+        if (m720 >= m_eye_tex_pattern->getFrameMax()) {
+            m720 -= m_eye_tex_pattern->getFrameMax();
             m72C = 120;
         }
         else m720++;
@@ -223,7 +229,7 @@ BOOL daNpc_Kg1_c::CreateHeap() {
     }
     mpMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 30.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, &current.angle, &shape_angle);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), fopAcM_GetAngle_p(this), fopAcM_GetShapeAngle_p(this));
     return TRUE;
 }
 
@@ -303,7 +309,11 @@ void daNpc_Kg1_c::wait_action() {
     dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
     staff = mgr->getMyStaffId("Kg1", NULL, 0);
     name = fpcNm_MGBOARD_e;
+#if VERSION == VERSION_DEMO
+    board = (daMgBoard_c*)fopAcM_Search((fopAcIt_JudgeFunc)fpcSch_JudgeForPName, &name);
+#else
     board = (daMgBoard_c*)fopAcIt_Judge((fopAcIt_JudgeFunc)fpcSch_JudgeForPName, &name);
+#endif
     switch (mWaitMode) {
     case 0:
         m751 = 0;
@@ -407,7 +417,11 @@ void daNpc_Kg1_c::wait_action() {
         }
         break;
     case 7:
+#if VERSION == VERSION_DEMO
+        if (dComIfGp_evmng_endCheck(m788)) {
+#else
         if (mgr->endCheck(m788)) {
+#endif
             dComIfGp_event_reset();
             mPrizeGiven = 1;
             m732 = 2;
@@ -448,7 +462,11 @@ void daNpc_Kg1_c::wait_action() {
         }
         break;
     case 10:
+#if VERSION == VERSION_DEMO
+        if (dComIfGp_evmng_endCheck(m788)) {
+#else
         if (mgr->endCheck(m788)) {
+#endif
             dComIfGp_event_reset();
             mRecordPrizeGiven = 1;
             m732 = 2;
@@ -509,6 +527,18 @@ u16 daNpc_Kg1_c::next_msgStatus(u32* msg) {
     daPy_py_c* player = daPy_getPlayerActorClass();
     switch (*msg) {
     case 0x1D4D:
+#if VERSION == VERSION_DEMO
+        u8 flag = 0;
+        if (dComIfGs_isEventBit(0xE04)) {
+            if (flag || (s32)dLib_getIplDaysFromSaveTime() < 4) {
+                if (dComIfGs_isTmpBit(0x101)) *msg = 0x1D50;
+                else {
+                    dComIfGs_onTmpBit(0x101);
+                    *msg = 0x1D51;
+                }
+            } else *msg = 0x1D4F;
+        } else *msg = 0x1D52;
+#else
         if (!dComIfGs_isEventBit(0xE04)) *msg = 0x1D52;
         else if ((s32)dLib_getIplDaysFromSaveTime() < 4) *msg = 0x1D4F;
         else if (dComIfGs_isTmpBit(0x101)) *msg = 0x1D50;
@@ -516,6 +546,7 @@ u16 daNpc_Kg1_c::next_msgStatus(u32* msg) {
             dComIfGs_onTmpBit(0x101);
             *msg = 0x1D51;
         }
+#endif
         mMet = 1;
         break;
     case 0x1D4E: case 0x1D4F: case 0x1D50: case 0x1D51:
@@ -614,7 +645,11 @@ void daNpc_Kg1_c::setAnm() {
     if (m74D != m74E) initTexPatternAnm(a_anm_btp_tbl[m74D], true);
     if (mAnm == 4 || mAnm == 2 || mAnm == 5 || mAnm == 6 || mAnm == 7 || mAnm == 8 || mAnm == 9) {
         mDrawProp = 1;
+#if VERSION == VERSION_DEMO
+        if (m74D == 10 && mpMorf->getFrame() == 30.0f) mBtpAnm.setFrame(1.0f);
+#else
         if (mAnm == 9 && mpMorf->getFrame() == 31.0f) mBtpAnm.setFrame(1.0f);
+#endif
     } else mDrawProp = 0;
     daNpc_Kg1_bcks_setAnm(m_arcname, mpMorf, &mAnm, &m74D, &m74E, a_anm_bck_tbl, params);
 }
@@ -623,9 +658,14 @@ static cPhs_State daNpc_Kg1Create(void* actor) {
     return ((daNpc_Kg1_c*)actor)->_create();
 }
 cPhs_State daNpc_Kg1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Kg1_c);
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhs, m_arcname);
     if (phase == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(this, daNpc_Kg1_c);
+#endif
         if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x10000)) return CreateInit();
         return cPhs_ERROR_e;
     }
@@ -634,8 +674,13 @@ cPhs_State daNpc_Kg1_c::_create() {
 
 static BOOL daNpc_Kg1Delete(void* actor) {
     daNpc_Kg1_c* i_this = (daNpc_Kg1_c*)actor;
+#if VERSION == VERSION_DEMO
+    dComIfG_deleteObjectRes(daNpc_Kg1_c::m_arcname);
+    if (i_this->mpMorf != NULL) i_this->mpMorf->stopZelAnime();
+#else
     dComIfG_resDelete(&i_this->mPhs, daNpc_Kg1_c::m_arcname);
     if (i_this->heap != NULL && i_this->mpMorf != NULL) i_this->mpMorf->stopZelAnime();
+#endif
     if (l_HIO.mCount >= 0 && --l_HIO.mCount < 0) mDoHIO_deleteChild(l_HIO.mChild);
     return TRUE;
 }

@@ -15,6 +15,8 @@ public:
     void getAttentionBasePos() { attention_info.position.set(current.pos.x, current.pos.y + 190.0f, current.pos.z); }
     void getEyePos() { eyePos.set(current.pos.x, current.pos.y + 150.0f, current.pos.z); }
     void setAction(void (daNpc_Kg1_c::*action)()) { mAction = action; }
+    cXyz* getHeadPosP() { return &mHeadPos; }
+    cXyz* getLookPosP() { return &mLookPos; }
 
     void lookBack();
     BOOL chkAttention();
