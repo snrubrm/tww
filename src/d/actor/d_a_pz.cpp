@@ -138,7 +138,11 @@ const dCcD_SrcCyl daPz_c::m_cyl_src = {
         /* SrcObjAt  SPrm    */ 0,
         /* SrcObjTg  Type    */ AT_TYPE_ALL & ~AT_TYPE_WATER & ~AT_TYPE_UNK20000 & ~AT_TYPE_WIND & ~AT_TYPE_UNK400000,
         /* SrcObjTg  SPrm    */ cCcD_TgSPrm_Set_e | cCcD_TgSPrm_IsOther_e,
+#if VERSION == VERSION_DEMO
+        /* SrcObjCo  SPrm    */ cCcD_CoSPrm_Set_e | cCcD_CoSPrm_IGrpAll_e | cCcD_CoSPrm_VsGrpAll_e,
+#else
         /* SrcObjCo  SPrm    */ cCcD_CoSPrm_Set_e | cCcD_CoSPrm_VsGrpAll_e,
+#endif
         /* SrcGObjAt Se      */ 0,
         /* SrcGObjAt HitMark */ dCcG_AtHitMark_None_e,
         /* SrcGObjAt Spl     */ dCcG_At_Spl_UNK0,
@@ -393,7 +397,7 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 /* 00000940-00000D54       .text bodyCreateHeap__6daPz_cFv */
 BOOL daPz_c::bodyCreateHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_PZ_BDL_PZ_e));
-    JUT_ASSERT(0x23E, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x227, 0x23E), modelData != NULL);
 
     for (u16 i = 0; i < modelData->getMaterialNum(); i++) {
         J3DMaterial* material = modelData->getMaterialNodePointer(i);
@@ -419,13 +423,13 @@ BOOL daPz_c::bodyCreateHeap() {
     modelData->getJointNodePointer(PZ_JNT_SKIRT_2_e)->setCallBack(nodeSkirtControl_CB);
 
     J3DAnmTexPattern* btp = static_cast<J3DAnmTexPattern*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_PZ_BTP_MABA_A_e));
-    JUT_ASSERT(0x277, btp != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x260, 0x277), btp != NULL);
     if (!mBtpAnm.init(modelData, btp, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) {
         return FALSE;
     }
 
     J3DAnmTextureSRTKey* btk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_PZ_BTK_MABA_A_e));
-    JUT_ASSERT(0x27D, btk != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x266, 0x27D), btk != NULL);
     if (!mBtkAnm.init(modelData, btk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) {
         return FALSE;
     }
@@ -437,7 +441,7 @@ BOOL daPz_c::bodyCreateHeap() {
     }
 
     J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_PZ_BRK_TRI_TEST_e));
-    JUT_ASSERT(0x28E, brk != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x277, 0x28E), brk != NULL);
     if (!mBrkAnm.init(modelData, brk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0)) {
         return FALSE;
     }
@@ -448,7 +452,7 @@ BOOL daPz_c::bodyCreateHeap() {
 /* 00000D54-00000E74       .text bowCreateHeap__6daPz_cFv */
 BOOL daPz_c::bowCreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_PZ_BDL_BOW_e);
-    JUT_ASSERT(0x29F, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x288, 0x29F), modelData != NULL);
 
     mpBowMcaMorf = new mDoExt_McaMorf(
         modelData, NULL, NULL, NULL,
@@ -788,10 +792,12 @@ bool daPz_c::checkTgHit() {
             case AT_TYPE_LIGHT_ARROW:
                 mHitType = 5;
                 break;
+#if VERSION > VERSION_DEMO
             case AT_TYPE_GRAPPLING_HOOK:
                 mHitType = 0xE;
                 doKnockback = false;
                 break;
+#endif
             }
 
             fopAc_ac_c* hitAc = mCyl.GetTgHitAc();
@@ -828,9 +834,11 @@ bool daPz_c::checkTgHit() {
                         m0764 = l_HIO.mE4;
                         m0768 = 1;
                     }
+#if VERSION > VERSION_DEMO
                     if (cM_rndF(100.0f) < 60.0f) {
                         fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
                     }
+#endif
                 } else {
                     m0744 = 1;
                     m0760 = 0;
@@ -841,12 +849,16 @@ bool daPz_c::checkTgHit() {
                         m0758 = l_HIO.mE8;
                         m075C = 1;
                     }
+#if VERSION > VERSION_DEMO
                     if (cM_rndF(100.0f) < 30.0f) {
                         fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
                     }
+#endif
                 }
                 mHitPos = *hitPosP;
-            } else if (mHitType == 0xE) {
+            }
+#if VERSION > VERSION_DEMO
+            else if (mHitType == 0xE) {
                 fopAcM_monsSeStart(this, JA_SE_CV_ZL_GN_DAMAGE, 0);
                 int itemNo = dItemNo_HEART_e;
                 if (dComIfGs_getLife() <= 12) {
@@ -855,6 +867,7 @@ bool daPz_c::checkTgHit() {
                 fopAcM_fastCreateItem(&current.pos, itemNo, fopAcM_GetRoomNo(this), &shape_angle, NULL, 0.0f, 0.0f, -6.0f, -1, stealItem_CB);
                 modeProc(PROC_INIT_e, MODE_DEFEND);
             }
+#endif
             return true;
         }
     }
@@ -1057,7 +1070,7 @@ void daPz_c::setAnmRunSpeed() {
 void daPz_c::setEyeBtp(int idx) {
     J3DModel* model = mpMorf->getModel();
     J3DAnmTexPattern* btp = (J3DAnmTexPattern*)dComIfG_getObjectRes(m_arc_name, idx);
-    JUT_ASSERT(0x683, btp != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x636, 0x683), btp != NULL);
     m0F67 = 0;
     mBtpAnm.init(model->getModelData(), btp, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, 0);
 }
@@ -1066,7 +1079,7 @@ void daPz_c::setEyeBtp(int idx) {
 void daPz_c::setEyeBtk(int idx) {
     J3DModel* model = mpMorf->getModel();
     J3DAnmTextureSRTKey* btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(m_arc_name, idx);
-    JUT_ASSERT(0x691, btk != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x644, 0x691), btk != NULL);
     mBtkAnm.init(model->getModelData(), btk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, 0);
 }
 
@@ -1379,6 +1392,11 @@ void daPz_c::modeMove() {
         setAnm(3, false, 0xF);
     }
 
+#if VERSION == VERSION_DEMO
+    if (l_HIO.m34[1] == 0 && cLib_calcTimer(&m08EC) == 0) {
+        modeProc(PROC_INIT_e, MODE_ATTACKWAIT);
+    }
+#else
     if (mTalkState == 2) {
         fopAc_ac_c* player = dComIfGp_getLinkPlayer();
         m0F81 = dLib_checkActorInFan(player->current.pos, this, player->shape_angle.y,
@@ -1397,6 +1415,7 @@ void daPz_c::modeMove() {
             }
         }
     }
+#endif
 
     mEventOrder = 2;
 }
@@ -1443,6 +1462,14 @@ void daPz_c::modeAttackWait() {
         }
     }
 
+#if VERSION == VERSION_DEMO
+    if (m075C != 0) {
+        mLookPos = dNpc_playerEyePos(l_HIO.mNpc.m04);
+    }
+    if (m0768 != 0 && mbHasGanondorf) {
+        mLookPos = mGanondorfPosEye;
+    }
+#else
     if (mTalkState == 0) {
         fopAc_ac_c* gnd;
         if (fopAcM_SearchByName(fpcNm_GND_e, &gnd) && gnd->health > 0x3C && dComIfGs_getLife() >= 12 && m075C != 0) {
@@ -1459,6 +1486,7 @@ void daPz_c::modeAttackWait() {
             mLookPos = mGanondorfPosEye;
         }
     }
+#endif
 
     if (l_HIO.m2D != 0) {
         if (cLib_calcTimer(&m08EC) == 0) {
@@ -1512,6 +1540,14 @@ void daPz_c::modeAttack() {
         mLookPos = dNpc_playerEyePos(l_HIO.mNpc.m04);
     }
 
+#if VERSION == VERSION_DEMO
+    if (m075C != 0) {
+        mLookPos = dNpc_playerEyePos(l_HIO.mNpc.m04);
+    }
+    if (m0768 != 0 && mbHasGanondorf) {
+        mLookPos = mGanondorfPosEye;
+    }
+#else
     if (mTalkState == 0) {
         fopAc_ac_c* gnd;
         if (fopAcM_SearchByName(fpcNm_GND_e, &gnd) && gnd->health > 0x3C && dComIfGs_getLife() >= 12 && m075C != 0) {
@@ -1528,6 +1564,7 @@ void daPz_c::modeAttack() {
             mLookPos = mGanondorfPosEye;
         }
     }
+#endif
 
     if (isAnm(4) || isAnm(5)) {
         if (cLib_calcTimer(&m08F4) == 0) {
@@ -1727,9 +1764,9 @@ void daPz_c::modeDown() {
 #if VERSION > VERSION_DEMO
         m0F7C = l_HIO.mFC;
         m0F80 = 0;
-#endif
         m075C = 0;
         m0768 = 0;
+#endif
         modeProc(PROC_INIT_e, MODE_MOVE);
     } else {
         setAnm(9, false, 0xF);
@@ -1805,8 +1842,12 @@ void daPz_c::modeSideStep() {
     m08EA = 0;
     m_jnt.setTrn();
     m073F = 0;
+#if VERSION == VERSION_DEMO
+    cLib_addCalcAngleS2(&mWaist2AngleY, m0920 * 0x1194, 4, 0x800);
+#else
     s16 target = (s16)(m0920 * 0x1194);
     cLib_addCalcAngleS2(&mWaist2AngleY, target, 4, 0x800);
+#endif
     s16 angY = cLib_targetAngleY(&mEyePos, &mLookPos);
     cXyz offset(m0F70 * m0920, 0.0f, 0.0f);
     cXyz dst(0.0f, 0.0f, 0.0f);
@@ -1875,7 +1916,9 @@ void daPz_c::modeBackStep() {
 
 /* 0000527C-00005304       .text modeTalkInit__6daPz_cFv */
 void daPz_c::modeTalkInit() {
+#if VERSION > VERSION_DEMO
     setAnm(2, true, 0xF);
+#endif
     speedF = 0.0f;
     m0924 = 0.0f;
     m08EA = 0;
@@ -2096,7 +2139,7 @@ bool daPz_c::_execute() {
 
     s8 roomNo = fopAcM_GetRoomNo(this);
     int mtrlSndId;
-    if (mObjAcch.ChkGroundHit()) {
+    if (mObjAcch.ChkGroundHit() != false) {
         mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(mObjAcch.m_gnd);
     } else {
         mtrlSndId = 0;
@@ -2110,9 +2153,13 @@ bool daPz_c::_execute() {
     }
     fopAcM_posMoveF(this, NULL);
     mObjAcch.CrrPos(*dComIfG_Bgsp());
+#if VERSION == VERSION_DEMO
+    setCollision(30.0f, 130.0f);
+#else
     if (!dComIfGp_event_runCheck()) {
         setCollision(30.0f, 130.0f);
     }
+#endif
     setAnmRunSpeed();
     current.angle = shape_angle;
     setMtx();
@@ -2120,15 +2167,35 @@ bool daPz_c::_execute() {
     return true;
 }
 
+#if VERSION == VERSION_DEMO
+/* 00005BC4-00005C84       .text debugDraw__6daPz_cFv */
+void daPz_c::debugDraw() {
+    static const GXColor color_ok = {0x00, 0xFF, 0x00, 0x80};
+    static const GXColor color_ng = {0xFF, 0x00, 0x00, 0x80};
+    GXColor color = color_ok;
+    if (mbEyesFollowGanondorf) {
+        color = color_ng;
+    }
+    cXyz pos = current.pos;
+    pos.y += 20.0f;
+    dLib_debugDrawFan(pos, shape_angle.y, l_HIO.m54, l_HIO.m58, color);
+    dLib_debugDrawAxis(mWaistMtx, 50.0f);
+}
+
+static void dummy() {
+#else
 static void dummy() {
     static const GXColor color_ok = {0x00, 0xFF, 0x00, 0x80};
     static const GXColor color_ng = {0xFF, 0x00, 0x00, 0x80};
+#endif
     GXColor c1 = {0xFF, 0xFF, 0x00, 0x80};
     GXColor c2 = {0xFF, 0x00, 0x00, 0x80};
     GXColor c3 = {0xFF, 0xFF, 0x00, 0x80};
     GXColor c4 = {0x00, 0x00, 0xFF, 0x80};
     GXColor c5 = {0xFF, 0x00, 0xFF, 0x80};
+#if VERSION > VERSION_DEMO
     f32 debug_dist[1] = {10000.0f};
+#endif
 }
 
 /* 000060D8-00006154       .text bowDraw__6daPz_cFv */
@@ -2262,6 +2329,11 @@ void daPz_c::drawShadow() {
 
 /* 000066D8-0000676C       .text _draw__6daPz_cFv */
 bool daPz_c::_draw() {
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mNpc.m22) {
+        debugDraw();
+    }
+#endif
     if (mEventIce.mFreezeTimer > 0x14) {
         dMat_control_c::iceEntryDL(mpMorf, -1, &mInvisibleModel);
     } else {
@@ -2323,7 +2395,9 @@ void daPz_c::createInit() {
 
     max_health = 0x1E;
     health = max_health;
+#if VERSION > VERSION_DEMO
     stealItemLeft = 0xA;
+#endif
 
     mEnemyFire.mpMcaMorf = mpMorf;
     mEnemyFire.mpActor = this;
@@ -2347,8 +2421,8 @@ void daPz_c::createInit() {
     if (mArg == 0) {
         mbDrawBow = 1;
         modeProc(PROC_INIT_e, MODE_MOVE);
-        attention_info.distances[1] = 3;
-        attention_info.distances[3] = 3;
+        attention_info.distances[1] = DEMO_SELECT(0xB1, 3);
+        attention_info.distances[3] = DEMO_SELECT(0xB1, 3);
         attention_info.flags |= fopAc_Attn_ACTION_SPEAK_e;
         attention_info.flags |= fopAc_Attn_LOCKON_TALK_e;
     } else {
@@ -2360,15 +2434,21 @@ void daPz_c::createInit() {
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
     fopAcM_setCullSizeBox(this, -60.0f, -50.0f, -60.0f, 60.0f, 1800.0f, 60.0f);
     mAcchCir.SetWall(80.0f, 60.0f);
+#if VERSION == VERSION_DEMO
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
+#else
     mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+#endif
     mObjAcch.SetRoofNone();
     gravity = l_HIO.mB0;
     mStts.Init(0xFF, 0xFF, this);
     mCyl.Set(m_cyl_src);
     mCyl.SetStts(&mStts);
     setCollision(30.0f, 130.0f);
+#if VERSION > VERSION_DEMO
     dKy_tevstr_init(&mTevstr, home.roomNo, 0xFF);
     g_env_light.settingTevStruct(0, &current.pos, &tevStr);
+#endif
 }
 
 /* 00006BAC-00006CB0       .text _create__6daPz_cFv */
@@ -2377,7 +2457,7 @@ cPhs_State daPz_c::_create() {
     fopAcM_SetupActor(this, daPz_c);
     if (phase_state == cPhs_COMPLEATE_e) {
         getArg();
-        if (mArg != 0) {
+        if (mArg != DEMO_SELECT(1, 0)) {
             if (strcmp(dComIfGp_getStartStageName(), "kenroom") == 0 && dComIfGs_isEventBit(0x3520) == TRUE) {
                 return cPhs_ERROR_e;
             }
@@ -2396,9 +2476,11 @@ bool daPz_c::_delete() {
     mRippleCb.end();
     mFollowCb1.end();
     mFollowCb2.end();
+#if VERSION > VERSION_DEMO
     if (heap != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return true;
 }
 

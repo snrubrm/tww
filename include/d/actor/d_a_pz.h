@@ -123,6 +123,9 @@ public:
     void modeFollow();
     void modeProc(Proc_e, int);
     bool _execute();
+#if VERSION == VERSION_DEMO
+    void debugDraw();
+#endif
     void bowDraw();
     void bodyDraw();
     void drawShadow();
@@ -219,9 +222,11 @@ public:
     /* 0x0F74 */ u8 m0F74[0x0F78 - 0x0F74];
     /* 0x0F78 */ s16 mWaist2AngleZ;
     /* 0x0F7A */ s16 mWaist2AngleY;
+#if VERSION > VERSION_DEMO
     /* 0x0F7C */ int m0F7C;
     /* 0x0F80 */ u8 m0F80;
     /* 0x0F81 */ u8 m0F81;
+#endif
     /* 0x0F82 */ u8 mEventOrder;
     /* 0x0F83 */ u8 m0F83;
     /* 0x0F84 */ int mArg;
@@ -244,6 +249,6 @@ public:
     /* 0x1084 */ mDoExt_onCupOffAupPacket mOnCupOffAup2;
 };
 
-STATIC_ASSERT(sizeof(daPz_c) == 0x1094);
+STATIC_ASSERT(sizeof(daPz_c) == DEMO_SELECT(0x1090, 0x1094));
 
 #endif /* D_A_PZ_H */
