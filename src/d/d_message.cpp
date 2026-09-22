@@ -458,12 +458,26 @@ inline int dMsg2_getShiftY(sub_msg2_class* i_Msg, u8 i_index) {
 
 /* 801E86E8-801E8798       .text dMsg2_textPosition__FP14sub_msg2_classUc */
 void dMsg2_textPosition(sub_msg2_class* i_Msg, u8 i_index) {
+#if VERSION == VERSION_DEMO
+    int r7 = 0;
+    int temp_r0 = dMsg2_getShiftY(i_Msg, i_index);
+    f32 y;
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, y);
+#else
     f32 r7 = 0.0f;
     int temp_r0 = dMsg2_getShiftY(i_Msg, i_index);
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
+#endif
 }
 
 /* 801E8798-801E880C       .text dMsg2_rubySet__FP14sub_msg2_class */
@@ -1032,6 +1046,7 @@ void dDlst_2DMSG2_c::outFontDraw() {
 
 /* 801E9FC4-801EA0C8       .text draw__14dDlst_2DCopy_cFv */
 void dDlst_2DCopy_c::draw() {
+    int left, top, width, height;
     int r27 = 0;
     int r28 = 0;
     int r26 = 372;
@@ -1040,10 +1055,10 @@ void dDlst_2DCopy_c::draw() {
     J2DOrthoGraph* graf = dComIfGp_getCurrentGrafPort();
     graf->setPort();
 
-    int left = r27 * 1.0296875f + -9.0f;
-    int top = r28 * 1.0916667f + -21.0f;
-    int width = r26 * 1.0296875f;
-    int height = r25 * 1.0916667f;
+    left = r27 * 1.0296875f + -9.0f;
+    top = r28 * 1.0916667f + -21.0f;
+    width = r26 * 1.0296875f;
+    height = r25 * 1.0916667f;
 
     GXSetScissor(left, top, width, height);
     sScreen2[0]->draw(0.0f, 0.0f, graf);
