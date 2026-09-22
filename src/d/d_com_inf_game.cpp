@@ -1361,8 +1361,9 @@ void dComIfGs_setGameStartStage() {
                 strcpy(stage_name, dComIfGp_getStartStageName());
             } else {
                 stage_scls_info_class* scls_p;
-                if (dComIfGp_getShipActor() != NULL) {
-                    scls_p = dComIfGd_getMeshSceneList(dComIfGp_getShipActor()->current.pos);
+                daShip_c* ship = dComIfGp_getShipActor();
+                if (ship != NULL) {
+                    scls_p = dComIfGd_getMeshSceneList(ship->current.pos);
                 } else {
                     scls_p = dComIfGd_getMeshSceneList(player_p->current.pos);
                 }
