@@ -2233,11 +2233,15 @@ void dMeter_actionChange(sub_meter_class* i_Meter) {
                 ((J2DPicture*)i_Meter->field_0x27f0.pane)->changeTexture(i_Meter->actionTex[1], 0);
             } else {
                 JKRArchive* archive;
+#if VERSION == VERSION_PAL
+                archive = dComIfGp_getActionIconArchive();
+#else
                 if (dComIfGp_getDoStatus() == dActStts_RETURN_e || dComIfGp_getDoStatus() == dActStts_RETURN_e) {
                     archive = dComIfGp_getMenuArchive();
                 } else {
                     archive = dComIfGp_getActionIconArchive();
                 }
+#endif
                 JKRReadTypeResource(i_Meter->actionTex[1], 0xc00, 'TIMG', dMeter_actionTex(dComIfGp_getDoStatus()), archive);
 #if VERSION <= VERSION_JPN
                 DCFlushRangeNoSync(i_Meter->actionTex[1], 0xc00);
