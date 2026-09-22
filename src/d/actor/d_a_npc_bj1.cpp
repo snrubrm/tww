@@ -157,7 +157,7 @@ void daNpc_Bj1_c::nodePrpControl(J3DNode* node, J3DModel* model) {
     }
     if (joint == m_cen_jnt_num) {
         mDoMtx_stack_c::YrotS(mPrpRotY);
-        cMtx_concat(model->getAnmMtx(joint), mDoMtx_stack_c::get(), mDoMtx_stack_c::get());
+        mDoMtx_stack_c::revConcat(model->getAnmMtx(joint));
         cMtx_copy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
         model->setAnmMtx(joint, mDoMtx_stack_c::get());
     }
@@ -722,8 +722,7 @@ void daNpc_Bj1_c::lookBack() {
         angle = mLookAngle;
         break;
     }
-    s16 tgt = l_HIO.mChild[mType].mPrm.mTurnSpeed;
-    cLib_addCalcAngleS2(&mTurnSpeed, tgt, 4, 0x800);
+    cLib_addCalcAngleS2(&mTurnSpeed, l_HIO.mChild[mType].mPrm.mTurnSpeed, 4, 0x800);
     if (!m_jnt.trnChk()) {
         mTurnSpeed = 0;
     }
@@ -1092,15 +1091,25 @@ u32 daNpc_Bj1_c::getMsg_BJ9_0() {
 /* 00002294-0000242C       .text getMsg_Corog__11daNpc_Bj1_cFv */
 u32 daNpc_Bj1_c::getMsg_Corog() {
     if (chkReg(0x9AFF)) {
-        if (dComIfGs_isEventBit(0x102)) {
-            return (chkReg(0x99FF) ? 1 : 0) + 0x1485;
-        }
+#if VERSION == VERSION_DEMO
         if (!chkReg(0x9EFF)) {
             if (!chkReg(0x98FF)) {
                 return 0x1487;
             }
             return 0x149E;
         }
+#endif
+        if (dComIfGs_isEventBit(0x102)) {
+            return (chkReg(0x99FF) ? 1 : 0) + 0x1485;
+        }
+#if VERSION > VERSION_DEMO
+        if (!chkReg(0x9EFF)) {
+            if (!chkReg(0x98FF)) {
+                return 0x1487;
+            }
+            return 0x149E;
+        }
+#endif
         if (chkReg(0x96FF)) {
             return 0x1484;
         }
@@ -1183,11 +1192,8 @@ bool daNpc_Bj1_c::chkAttention() {
 
 /* 0000256C-000025D4       .text setAttention__11daNpc_Bj1_cFb */
 void daNpc_Bj1_c::setAttention(bool force) {
-    attention_info.position.set(
-        current.pos.x,
-        current.pos.y + l_HIO.mChild[mType].mPrm.mAttentionOffsetY,
-        current.pos.z
-    );
+    f32 ofs = l_HIO.mChild[mType].mPrm.mAttentionOffsetY;
+    attention_info.position.set(current.pos.x, current.pos.y + ofs, current.pos.z);
     if (!m850 && !force) {
         return;
     }
@@ -2005,6 +2011,20 @@ void daNpc_Bj1_c::eInit_SET_ANM_(int* anmNo, float* morf) {
 
 /* 0000417C-000044E4       .text event_actionInit__11daNpc_Bj1_cFi */
 void daNpc_Bj1_c::event_actionInit(int staffIdx) {
+    int* angle;
+    cXyz* offst;
+    int* prm0;
+    int* prm1;
+    f32* accel;
+    int* index;
+    int* timer;
+    int* prm2;
+    f32* goalR;
+    f32* speed;
+    f32* grvty;
+    int* pthNo;
+    int* anmNo;
+    f32* morfc;
     int* actNo = dComIfGp_evmng_getMyIntegerP(staffIdx, "ActNo");
     if (actNo == NULL) {
         return;
@@ -2013,13 +2033,13 @@ void daNpc_Bj1_c::event_actionInit(int staffIdx) {
     m850 = 0;
     switch (mActNo) {
     case 0: {
-        int* prm0 = dComIfGp_evmng_getMyIntegerP(staffIdx, "prm_0");
-        int* prm1 = dComIfGp_evmng_getMyIntegerP(staffIdx, "prm_1");
-        int* prm2 = dComIfGp_evmng_getMyIntegerP(staffIdx, "prm_2");
-        cXyz* offst = dComIfGp_evmng_getMyXyzP(staffIdx, "Offst");
-        int* angle = dComIfGp_evmng_getMyIntegerP(staffIdx, "Angle");
-        int* index = dComIfGp_evmng_getMyIntegerP(staffIdx, "Index");
-        int* timer = dComIfGp_evmng_getMyIntegerP(staffIdx, "Timer");
+        prm0 = dComIfGp_evmng_getMyIntegerP(staffIdx, "prm_0");
+        prm1 = dComIfGp_evmng_getMyIntegerP(staffIdx, "prm_1");
+        prm2 = dComIfGp_evmng_getMyIntegerP(staffIdx, "prm_2");
+        offst = dComIfGp_evmng_getMyXyzP(staffIdx, "Offst");
+        angle = dComIfGp_evmng_getMyIntegerP(staffIdx, "Angle");
+        index = dComIfGp_evmng_getMyIntegerP(staffIdx, "Index");
+        timer = dComIfGp_evmng_getMyIntegerP(staffIdx, "Timer");
         m850 = 1;
         eInit_ATTENTION_(prm0, prm1, prm2, offst, angle, index, timer);
         break;
@@ -2029,24 +2049,24 @@ void daNpc_Bj1_c::event_actionInit(int staffIdx) {
         break;
     case 2:
     case 8: {
-        f32* goalR = dComIfGp_evmng_getMyFloatP(staffIdx, "GoalR");
-        f32* speed = dComIfGp_evmng_getMyFloatP(staffIdx, "Speed");
-        f32* accel = dComIfGp_evmng_getMyFloatP(staffIdx, "Accel");
-        int* timer = dComIfGp_evmng_getMyIntegerP(staffIdx, "Timer");
+        goalR = dComIfGp_evmng_getMyFloatP(staffIdx, "GoalR");
+        speed = dComIfGp_evmng_getMyFloatP(staffIdx, "Speed");
+        accel = dComIfGp_evmng_getMyFloatP(staffIdx, "Accel");
+        timer = dComIfGp_evmng_getMyIntegerP(staffIdx, "Timer");
         m850 = 1;
         eInit_MOV_(goalR, speed, accel, timer);
         break;
     }
     case 3: {
-        f32* spd = dComIfGp_evmng_getMyFloatP(staffIdx, "Speed");
-        f32* grav = dComIfGp_evmng_getMyFloatP(staffIdx, "Grvty");
+        speed = dComIfGp_evmng_getMyFloatP(staffIdx, "Speed");
+        grvty = dComIfGp_evmng_getMyFloatP(staffIdx, "Grvty");
         m850 = 1;
-        eInit_JMP_(spd, grav);
+        eInit_JMP_(speed, grvty);
         break;
     }
     case 4: {
-        int* pthNo = dComIfGp_evmng_getMyIntegerP(staffIdx, "PthNo");
-        int* index = dComIfGp_evmng_getMyIntegerP(staffIdx, "Index");
+        pthNo = dComIfGp_evmng_getMyIntegerP(staffIdx, "PthNo");
+        index = dComIfGp_evmng_getMyIntegerP(staffIdx, "Index");
         eInit_CHG_PTH_(pthNo, index);
         break;
     }
@@ -2060,8 +2080,8 @@ void daNpc_Bj1_c::event_actionInit(int staffIdx) {
         eInit_DEL_TNE_();
         break;
     case 9: {
-        int* anmNo = dComIfGp_evmng_getMyIntegerP(staffIdx, "AnmNo");
-        f32* morfc = dComIfGp_evmng_getMyFloatP(staffIdx, "Morfc");
+        anmNo = dComIfGp_evmng_getMyIntegerP(staffIdx, "AnmNo");
+        morfc = dComIfGp_evmng_getMyFloatP(staffIdx, "Morfc");
         eInit_SET_ANM_(anmNo, morfc);
         break;
     }
@@ -2497,10 +2517,10 @@ int daNpc_Bj1_c::talk_1() {
                 setReg(0x96FF);
                 break;
             case 0x1485:
-                setReg(0x99FF);
+                setReg(DEMO_SELECT(0x98FF, 0x99FF));
                 break;
             case 0x1489:
-                setReg(0x98FF);
+                setReg(DEMO_SELECT(0x99FF, 0x98FF));
                 break;
             }
             mPresentItem = 0xFF;
@@ -2829,8 +2849,7 @@ BOOL daNpc_Bj1_c::_execute() {
             vol = vol > 100.0f ? 100.0f : vol;
             vol = vol < 0.0f ? 0.0f : vol;
         }
-        s8 reverb = dComIfGp_getReverb(fopAcM_GetRoomNo(this));
-        mDoAud_seStart(JA_SE_CM_PRAPELLO_ROLLING, &current.pos, (u32)vol, reverb);
+        mDoAud_seStart(JA_SE_CM_PRAPELLO_ROLLING, &current.pos, (u32)vol, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     }
     setMtx(false);
     if (m857 == 0) {
@@ -3033,7 +3052,7 @@ BOOL daNpc_Bj1_c::CreateHeap() {
         mpMorf->getModel()->setUserArea((u32)this);
 
         mAcchCir.SetWall(30.0f, 40.0f);
-        mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+        mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
         return TRUE;
     }
     mpMorf = NULL;
