@@ -782,8 +782,12 @@ void J3DModel::calcDrawMtx() {
     case 0: {
         MtxP viewMtx = j3dSys.getViewMtx();
         for (i = 0; i < mModelData->getDrawFullWgtMtxNum(); i++) {
+#if VERSION == VERSION_JPN
+            MTXConcat(viewMtx, getAnmMtx(mModelData->getDrawMtxIndex(i)), getDrawMtx(i));
+#else
             u16 drawMtxIdx = mModelData->getDrawMtxIndex(i);
             MTXConcat(viewMtx, getAnmMtx(drawMtxIdx), getDrawMtx(i));
+#endif
         }
         if (mModelData->getDrawMtxNum() > mModelData->getDrawFullWgtMtxNum()) {
             J3DPSMtxArrayConcat(viewMtx, getWeightAnmMtx(0), getDrawMtx(mModelData->getDrawFullWgtMtxNum()), mModelData->getWEvlpMtxNum());
@@ -801,8 +805,12 @@ void J3DModel::calcDrawMtx() {
     case 2:
         calcViewBaseMtx(j3dSys.getViewMtx(), mBaseScale, mBaseTransformMtx, mViewBaseMtx);
         for (i = 0; i < mModelData->getDrawFullWgtMtxNum(); i++) {
+#if VERSION == VERSION_JPN
+            MTXConcat(mViewBaseMtx, getAnmMtx(mModelData->getDrawMtxIndex(i)), getDrawMtx(i));
+#else
             u16 drawMtxIdx = mModelData->getDrawMtxIndex(i);
             MTXConcat(mViewBaseMtx, getAnmMtx(drawMtxIdx), getDrawMtx(i));
+#endif
         }
         if (mModelData->getDrawMtxNum() > mModelData->getDrawFullWgtMtxNum()) {
             J3DPSMtxArrayConcat(mViewBaseMtx, getWeightAnmMtx(0), getDrawMtx(mModelData->getDrawFullWgtMtxNum()), mModelData->getWEvlpMtxNum());
