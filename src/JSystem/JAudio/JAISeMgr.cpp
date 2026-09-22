@@ -196,8 +196,7 @@ void JAInter::SeMgr::checkNextFrameSe() {
                         (u32)((255 - priority) * (255 - priority) * 5776 / scale);
                     if (current->z > 0.0f) {
                         u32 penalty = (u32)(6.0f * current->z / scale);
-                        penalty += sound->field_0x10;
-                        sound->field_0x10 = penalty;
+                        sound->field_0x10 = penalty + sound->field_0x10;
                     }
                     if (camera == 0 || position->mDistance < nearest) {
                         nearest = position->mDistance;
