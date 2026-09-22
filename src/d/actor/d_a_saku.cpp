@@ -50,7 +50,11 @@ static void changeXluMaterialAlpha(J3DMaterial*, u8, bool);
 void daSaku_c::CreateInit() {
     for (int i = 0; i < 2; i++) {
         mParticleTimer[i] = 0;
+#if VERSION == VERSION_DEMO
+        mSmokeEmitter[i] = NULL;
+#else
         mSmokeActive[i] = 0;
+#endif
         mAlpha[i][0] = 255;
         mAlpha[i][1] = 0;
         mCollisionTimer[i] = -1;
@@ -62,10 +66,12 @@ void daSaku_c::CreateInit() {
     mStts.Init(255, 255, this);
     setCol();
     setMtx();
+#if VERSION > VERSION_DEMO
     for (int i = 0; i < 2; i++) {
         mSmoke[i].setColor(dust_color);
         mSmoke[i].setRateOff(1);
     }
+#endif
 }
 
 /* 00000200-000003A8       .text saku_draw_sub__8daSaku_cFi */
@@ -107,6 +113,27 @@ BOOL daSaku_c::mode_break_none(int id) {
             cCcD_Obj* const hit = mCyl[id][i].GetTgHitObj();
 #endif
             if (hit) {
+#if VERSION == VERSION_DEMO
+                if (mSturdinessType == 0) {
+                    brokenHit |= ((hit->GetAtType() & AT_TYPE_SWORD) ||
+                                  (hit->GetAtType() & AT_TYPE_UNK8) ||
+                                  (hit->GetAtType() & AT_TYPE_BOMB) ||
+                                  (hit->GetAtType() & AT_TYPE_MACHETE) ||
+                                  (hit->GetAtType() & AT_TYPE_UNK800) ||
+                                  (hit->GetAtType() & AT_TYPE_DARKNUT_SWORD) ||
+                                  (hit->GetAtType() & AT_TYPE_MOBLIN_SPEAR) ||
+                                  (hit->GetAtType() & AT_TYPE_SKULL_HAMMER));
+                } else if (mSturdinessType == 1) {
+                    brokenHit |= ((hit->GetAtType() & AT_TYPE_MACHETE) ||
+                                  (hit->GetAtType() & AT_TYPE_BOMB) ||
+                                  (hit->GetAtType() & AT_TYPE_UNK800) ||
+                                  (hit->GetAtType() & AT_TYPE_DARKNUT_SWORD));
+                }
+                if (brokenHit) {
+                    dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
+                }
+                fire |= ((hit->GetAtType() & AT_TYPE_FIRE) || (hit->GetAtType() & AT_TYPE_UNK20000) || (hit->GetAtType() & AT_TYPE_FIRE_ARROW));
+#else
                 if (mSturdinessType == 0) {
                     brokenHit |= bool(hit->ChkAtType(AT_TYPE_SWORD) ||
                                       hit->ChkAtType(AT_TYPE_UNK8) ||
@@ -126,6 +153,7 @@ BOOL daSaku_c::mode_break_none(int id) {
                     dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
                 }
                 fire |= bool(hit->ChkAtType(AT_TYPE_FIRE) || hit->ChkAtType(AT_TYPE_UNK20000) || hit->ChkAtType(AT_TYPE_FIRE_ARROW));
+#endif
                 if (fire) {
                     break;
                 }
@@ -167,6 +195,19 @@ BOOL daSaku_c::mode_break_throw_obj(int id) {
             mModel[id][0] = NULL;
         }
     }
+#if VERSION == VERSION_DEMO
+    if (mParticleTimer[id] >= m_alpha_start_time && mSmokeEmitter[id]) {
+        f32 step = l_sakuHIO.mDustAlpha / (255.0f * m_fade_time);
+        cLib_chaseF(&mSmokeAlpha[id], 0.0f, step);
+        mSmokeAlpha[id] = fabs(mSmokeAlpha[id]);
+        u8 alpha = 255.0f * mSmokeAlpha[id];
+        mSmokeEmitter[id]->setGlobalAlpha(alpha);
+        if (alpha == 0) {
+            mSmoke.end();
+            mSmokeEmitter[id] = NULL;
+        }
+    }
+#else
     if (mParticleTimer[id] >= m_alpha_start_time && mSmoke[id].getEmitter()) {
         cLib_chaseF(&mSmokeAlpha[id], 0.0f, l_sakuHIO.mDustAlpha / (255.0f * m_fade_time));
         mSmokeAlpha[id] = fabs(mSmokeAlpha[id]);
@@ -177,12 +218,13 @@ BOOL daSaku_c::mode_break_throw_obj(int id) {
             mSmokeActive[id] = 0;
         }
     }
+#endif
     return TRUE;
 }
 
 /* 0000083C-000008EC       .text RecreateHeap__8daSaku_cFii */
 BOOL daSaku_c::RecreateHeap(int heap_id, int saku_id) {
-    JUT_ASSERT(869, m_heap[saku_id][heap_id] != 0);
+    JUT_ASSERT(DEMO_SELECT(878, 869), m_heap[saku_id][heap_id] != 0);
     m_heap[saku_id][heap_id]->freeAll();
     JKRHeap* old = mDoExt_setCurrentHeap(m_heap[saku_id][heap_id]);
     CreateHeap(1, saku_id);
@@ -225,7 +267,7 @@ int daSaku_c::GetDzbId(int id) {
         }
     } else if (state == 3 || state == 2) {
         result = 3;
-    } else if (dComIfGs_isSwitch(mTopHalfDestroyedSwitch, home.roomNo)) {
+    } else if (DEMO_SELECT(fopAcM_isSwitch(this, mTopHalfDestroyedSwitch), dComIfGs_isSwitch(mTopHalfDestroyedSwitch, home.roomNo))) {
         result = 4;
     } else {
         result = 2;
@@ -276,7 +318,7 @@ BOOL daSaku_c::loadModel(int resource, int heap_id, int saku_id) {
     } else if (mSturdinessType == 1) {
         modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname[2], sturdy[resource]);
     }
-    JUT_ASSERT(1085, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(1094, 1085), modelData != 0);
     mModel[saku_id][heap_id] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     if (!mModel[saku_id][heap_id]) {
         return FALSE;
@@ -304,9 +346,9 @@ BOOL daSaku_c::burn() {
         }
         setEffFire(0);
         mFireTimer = 90;
-        dComIfGs_onSwitch(mBottomHalfDestroyedSwitch, home.roomNo);
+        DEMO_SELECT(fopAcM_onSwitch(this, mBottomHalfDestroyedSwitch), dComIfGs_onSwitch(mBottomHalfDestroyedSwitch, home.roomNo));
         if (mState[1] != 0) {
-            dComIfGs_onSwitch(mTopHalfDestroyedSwitch, home.roomNo);
+            DEMO_SELECT(fopAcM_onSwitch(this, mTopHalfDestroyedSwitch), dComIfGs_onSwitch(mTopHalfDestroyedSwitch, home.roomNo));
         }
         mBurning = 1;
     }
@@ -319,9 +361,9 @@ BOOL daSaku_c::broken(int id) {
     mState[id] = 3;
     mCollisionTimer[id] = 0;
     if (id == 0) {
-        dComIfGs_onSwitch(mBottomHalfDestroyedSwitch, home.roomNo);
+        DEMO_SELECT(fopAcM_onSwitch(this, mBottomHalfDestroyedSwitch), dComIfGs_onSwitch(mBottomHalfDestroyedSwitch, home.roomNo));
     } else {
-        dComIfGs_onSwitch(mTopHalfDestroyedSwitch, home.roomNo);
+        DEMO_SELECT(fopAcM_onSwitch(this, mTopHalfDestroyedSwitch), dComIfGs_onSwitch(mTopHalfDestroyedSwitch, home.roomNo));
     }
     RecreateHeap(1, id);
     if (id == 0) {
@@ -470,6 +512,19 @@ BOOL daSaku_c::setEffBreak(int id) {
     dust_color.g = l_sakuHIO.mDustG;
     dust_color.b = l_sakuHIO.mDustB;
     mSmokePos[id] = pos;
+#if VERSION == VERSION_DEMO
+    mSmokeEmitter[id] = dComIfGp_particle_setToon(0x2027, &mSmokePos[id], &current.angle, NULL, l_sakuHIO.mDustAlpha, &mSmoke, fopAcM_GetRoomNo(this));
+    if (mSmokeEmitter[id]) {
+        mSmokeEmitter[id]->setGlobalAlpha(255.0f * mSmokeAlpha[id]);
+        mSmokeEmitter[id]->becomeImmortalEmitter();
+        cXyz dynamics(2.0f, 2.0f, 2.0f), emitter(1.0f, 0.5f, 0.7f);
+        mSmokeEmitter[id]->setGlobalParticleScale(3.2f, 3.2f);
+        mSmokeEmitter[id]->setGlobalDynamicsScale(dynamics);
+        mSmokeEmitter[id]->setEmitterScale(emitter);
+        mSmokeEmitter[id]->setRate(40.0f);
+        mSmokeEmitter[id]->setMaxFrame(1);
+    }
+#else
     dComIfGp_particle_setToon(0x2027, &mSmokePos[id], &current.angle, NULL, l_sakuHIO.mDustAlpha, &mSmoke[id], fopAcM_GetRoomNo(this));
     if (mSmoke[id].getEmitter()) {
         mSmoke[id].getEmitter()->setGlobalAlpha(255.0f * mSmokeAlpha[id]);
@@ -481,6 +536,7 @@ BOOL daSaku_c::setEffBreak(int id) {
         mSmoke[id].getEmitter()->setRate(40.0f);
         mSmoke[id].getEmitter()->setMaxFrame(1);
     }
+#endif
     if (mSturdinessType == 0) {
         fopAcM_seStart(this, JA_SE_OBJ_COL_BRK_WRAILING, 0);
     } else if (mSturdinessType == 1) {
@@ -492,7 +548,7 @@ BOOL daSaku_c::setEffBreak(int id) {
 
 /* 000019AC-00001A50       .text matAlphaAnim__FP12J3DModelDataUcb */
 BOOL matAlphaAnim(J3DModelData* modelData, u8 alpha, bool zWrite) {
-    JUT_ASSERT(1489, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(1520, 1489), modelData != 0);
     for (u16 i = 0; i < modelData->getMaterialNum(); i++) {
         changeXluMaterialAlpha(modelData->getMaterialNodePointer(i), alpha, zWrite);
     }
@@ -504,7 +560,7 @@ void changeXluMaterialAlpha(J3DMaterial* i_material, u8 alpha, bool zWrite) {
     static J3DBlendInfo l_blendInfo = {GX_BM_BLEND, GX_BL_SRC_ALPHA, GX_BL_INV_SRC_ALPHA, GX_LO_OR};
     static J3DZModeInfo l_zmodeInfo = {GX_TRUE, GX_LEQUAL, GX_FALSE};
     static J3DZModeInfo l_zmodeInfo2 = {GX_TRUE, GX_LEQUAL, GX_TRUE};
-    JUT_ASSERT(1535, i_material != 0);
+    JUT_ASSERT(DEMO_SELECT(1566, 1535), i_material != 0);
     J3DPEBlock* pe = i_material->getPEBlock();
     i_material->getTevKColor(3)->mColor.a = alpha;
     pe->getBlend()->setBlendInfo(l_blendInfo);
@@ -626,6 +682,25 @@ cPhs_State daSaku_c::_daSaku_create() {
     if (mSturdinessType == 0) {
         arc = 1;
     }
+#if VERSION == VERSION_DEMO
+    cPhs_State modelPhase = dComIfG_resLoad(&mModelPhase, m_arcname[arc]);
+    cPhs_State collisionPhase = dComIfG_resLoad(&mCollisionPhase, m_arcname[0]);
+    if (modelPhase == cPhs_COMPLEATE_e) {
+        setFlag(1);
+    }
+    if (collisionPhase == cPhs_COMPLEATE_e) {
+        setFlag(2);
+    }
+    if (modelPhase == cPhs_ERROR_e || collisionPhase == cPhs_ERROR_e) {
+        return cPhs_ERROR_e;
+    }
+    if (modelPhase != cPhs_COMPLEATE_e) {
+        return modelPhase;
+    }
+    if (collisionPhase != cPhs_COMPLEATE_e) {
+        return collisionPhase;
+    }
+#else
     cPhs_State phase = dComIfG_resLoad(&mModelPhase, m_arcname[arc]);
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
@@ -634,16 +709,17 @@ cPhs_State daSaku_c::_daSaku_create() {
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
     }
+#endif
     mBottomHalfDestroyedSwitch = (fopAcM_GetParam(this) >> 8) & 255;
     mTopHalfDestroyedSwitch = (fopAcM_GetParam(this) >> 16) & 255;
     mState[0] = 1;
-    if (dComIfGs_isSwitch(mBottomHalfDestroyedSwitch, home.roomNo)) {
+    if (DEMO_SELECT(fopAcM_isSwitch(this, mBottomHalfDestroyedSwitch), dComIfGs_isSwitch(mBottomHalfDestroyedSwitch, home.roomNo))) {
         mState[0] = 3;
     }
     mState[1] = 0;
     if ((fopAcM_GetParam(this) & 15) != 0) {
         mState[1] = 1;
-        if (dComIfGs_isSwitch(mTopHalfDestroyedSwitch, home.roomNo)) {
+        if (DEMO_SELECT(fopAcM_isSwitch(this, mTopHalfDestroyedSwitch), dComIfGs_isSwitch(mTopHalfDestroyedSwitch, home.roomNo))) {
             mState[1] = 3;
         }
     }
@@ -692,9 +768,13 @@ inline BOOL daSaku_c::_daSaku_delete() {
         mDoHIO_deleteChild(l_sakuHIO.mNo);
         l_sakuHIO.mNo = -1;
     }
+#if VERSION == VERSION_DEMO
+    mSmoke.end();
+#else
     for (int i = 0; i < 2; i++) {
         mSmoke[i].end();
     }
+#endif
     for (int i = 0; i < 2; i++) {
         if (mState[i] != 0) {
             dComIfG_Bgsp()->Release(mActiveBgW[i]);
@@ -709,12 +789,25 @@ inline BOOL daSaku_c::_daSaku_delete() {
             }
         }
     }
+#if VERSION == VERSION_DEMO
+    if (chkFlag(2)) {
+        dComIfG_deleteObjectRes(daSaku_c::m_arcname[0]);
+    }
+    if (chkFlag(1)) {
+        if (mSturdinessType == 0) {
+            dComIfG_deleteObjectRes(daSaku_c::m_arcname[1]);
+        } else if (mSturdinessType == 1) {
+            dComIfG_deleteObjectRes(daSaku_c::m_arcname[2]);
+        }
+    }
+#else
     dComIfG_resDelete(&mCollisionPhase, daSaku_c::m_arcname[0]);
     if (mSturdinessType == 0) {
         dComIfG_resDelete(&mModelPhase, daSaku_c::m_arcname[1]);
     } else {
         dComIfG_resDelete(&mModelPhase, daSaku_c::m_arcname[2]);
     }
+#endif
     return TRUE;
 }
 
