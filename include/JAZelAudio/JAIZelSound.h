@@ -6,7 +6,11 @@
 class JAIZelSound : public JAISound {
 public:
     JAIZelSound();
+#if VERSION > VERSION_JPN
     ~JAIZelSound() {}
+#else
+    ~JAIZelSound();
+#endif
 
     virtual f32 setDistanceVolumeCommon(f32, u8);
     virtual void setSeDistanceVolume(u8);

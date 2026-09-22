@@ -4617,6 +4617,10 @@ JAISound* JAIZelBasic::makeSound(u32 param_1) {
     }
 }
 
+#if VERSION <= VERSION_JPN
+JAIZelSound::~JAIZelSound() {}
+#endif
+
 /* 802AC258-802AC300       .text checkSeqIDDemoPlaying__11JAIZelBasicFUl */
 BOOL JAIZelBasic::checkSeqIDDemoPlaying(u32 id) {
     for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
