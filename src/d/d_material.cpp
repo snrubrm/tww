@@ -45,7 +45,8 @@ void dMat_ice_c::copy(J3DModelData* modelData) {
         mat->setMaterialMode(srcMat->getMaterialMode());
     }
     J3DTexture* srcTex = mMaterialTable->getTexture();
-    if (srcTex->getNum() != 0) {
+    u16 num = srcTex->getNum();
+    if (num != 0) {
         modelData->setTexture(srcTex);
         modelData->setTextureName(mMaterialTable->getTextureName());
     }
