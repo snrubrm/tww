@@ -75,7 +75,10 @@ void daObjLight::Act_c::init_collision() {
 
 /* 000003C0-00000468       .text set_collision__Q210daObjLight5Act_cFv */
 void daObjLight::Act_c::set_collision() {
-    if (dKy_daynight_check() == 1) {
+#if VERSION > VERSION_DEMO
+    if (dKy_daynight_check() == 1)
+#endif
+    {
         if (mCyl.ChkTgHit()) {
             if (mLit == 0) {
                 mLightTimer = 1;
