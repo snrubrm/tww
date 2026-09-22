@@ -1142,7 +1142,7 @@ cPhs_State daBigelf_c::_create() {
 /* 00003224-00003808       .text CreateHeap__10daBigelf_cFv */
 BOOL daBigelf_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes("bigelf", dRes_INDEX_BIGELF_BDL_DY_e);
-    JUT_ASSERT(0x7d4, modelData);
+    JUT_ASSERT(DEMO_SELECT(0x7c3, 0x7d4), modelData);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
@@ -1183,7 +1183,7 @@ BOOL daBigelf_c::CreateHeap() {
     case J3DErrType_OutOfMemory:
         return FALSE;
     default:
-        JUT_ASSERT(0x811, 0);
+        JUT_ASSERT(DEMO_SELECT(0x800, 0x811), 0);
         break;
     }
 
@@ -1194,11 +1194,11 @@ BOOL daBigelf_c::CreateHeap() {
     mpMorf->calc();
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(0x824, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x813, 0x824), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(0x829, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x818, 0x829), m_jnt.getBackboneJntNum() >= 0);
     m_fl_jnt = modelData->getJointName()->getIndex("handRB");
-    JUT_ASSERT(0x82d, m_fl_jnt >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x81c, 0x82d), m_fl_jnt >= 0);
 
     for (u16 i = 0; i < modelData->getJointNum(); i++) {
         if (i == getHeadJntNum() || i == getBackboneJntNum() || i == m_fl_jnt) {
@@ -1208,7 +1208,7 @@ BOOL daBigelf_c::CreateHeap() {
     mpMorf->getModel()->setUserArea((u32)this);
 
     J3DModelData* flModelData = (J3DModelData*)dComIfG_getObjectRes("bigelf", dRes_INDEX_BIGELF_BDL_DY_FL_e);
-    JUT_ASSERT(0x842, flModelData);
+    JUT_ASSERT(DEMO_SELECT(0x831, 0x842), flModelData);
     mpFlowerModel = mDoExt_J3DModel__create(flModelData, 0x80000, 0x1000000);
     if (mpFlowerModel == NULL) {
         return FALSE;
