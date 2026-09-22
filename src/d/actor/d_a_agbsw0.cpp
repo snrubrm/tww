@@ -51,6 +51,29 @@ static dCcD_SrcCyl l_cyl_src = {
     }},
 };
 
+#if VERSION == VERSION_DEMO
+class daAgbsw0_HIO_c : public mDoHIO_entry_c {
+public:
+    daAgbsw0_HIO_c();
+    virtual ~daAgbsw0_HIO_c() {}
+
+public:
+    /* 0x08 */ u8 field_0x08[15];
+    /* 0x17 */ u8 field_0x17[15];
+};
+
+daAgbsw0_HIO_c::daAgbsw0_HIO_c() {
+    for (int i = 0; i < 15; i++) {
+        field_0x08[i] = 0;
+    }
+    for (int i = 0; i < 15; i++) {
+        field_0x17[i] = 0;
+    }
+}
+
+static daAgbsw0_HIO_c l_HIO;
+#endif
+
 /* 00004838-00004B2C       .text draw__10daAgbsw0_cFv */
 BOOL daAgbsw0_c::draw() {
     u8 toCheck = getSw0();
@@ -210,9 +233,13 @@ cPhs_State daAgbsw0_c::create() {
     }
 
     if(type == daAgbsw0Type_B_e && getMsgNo() == 0xFFFF) {
+#if VERSION == VERSION_DEMO
+        fpcM_SetParam(this, (fopAcM_GetParam(this) & 0xFFFF0000) | 0xE);
+#else
         u16 msgNo = 0xE;
         // Debug map indicates fpcM_SetParam was used here instead of fopAcM_SetParam.
         fpcM_SetParam(this, (fopAcM_GetParam(this) & 0xFFFF0000) | msgNo);
+#endif
     }
 
     if(type != daAgbsw0Type_MW_e && type != daAgbsw0Type_T_e && type != daAgbsw0Type_S_e && type != daAgbsw0Type_UNK_0xE_e && getMsgNo() == 0xFFFF) {
@@ -271,6 +298,9 @@ cPhs_State daAgbsw0_c::create() {
         }
     }
 
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("チンクルタグ");
+#endif
     return cPhs_COMPLEATE_e;
 }
 
@@ -299,9 +329,14 @@ BOOL daAgbsw0_c::execute() {
 
 void daAgbsw0_c::deleteSub() {
     daAgb_c* agb = dComIfGp_getAgb();
+#if VERSION > VERSION_DEMO
     u32 type = getType();
+#endif
 
     if(agb) {
+#if VERSION == VERSION_DEMO
+        u32 type = getType();
+#endif
         if(type == daAgbsw0Type_B_e) {
             if(getParamNo() == 3) {
                 agb->offBombDeny();
@@ -328,6 +363,9 @@ void daAgbsw0_c::deleteSub() {
         }
     }
 
+#if VERSION == VERSION_DEMO
+    l_HIO.removeHIO();
+#else
     if((
         type == daAgbsw0Type_A_e ||
         type == daAgbsw0Type_AT_e ||
@@ -348,6 +386,7 @@ void daAgbsw0_c::deleteSub() {
 
         mDoGaC_SendEntry(5, *(u32*)&info);
     }
+#endif
 }
 
 agb_mail_struct daAgbsw0_c::mMail;
