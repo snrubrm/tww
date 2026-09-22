@@ -2301,7 +2301,7 @@ s32 dMsg_continueProc(sub_msg_class* i_Msg) {
             i_Msg->m1169 = 0;
         }
         i_Msg->head_p = i_Msg->mMsgGet.getMesgHeader(i_Msg->mMsgNo);
-        JUT_ASSERT(VERSION_SELECT(4002, 4002, 4002, 4028), i_Msg->head_p);
+        JUT_ASSERT(VERSION_SELECT(4002, 3973, 4002, 4028), i_Msg->head_p);
         pcVar9 = (char*)i_Msg->mMsgGet.getMessage(i_Msg->head_p);
         i_Msg->mpMesgStr = (char*)pcVar9;
         i_Msg->mMesgEntry = i_Msg->mMsgGet.getMesgEntry(i_Msg->head_p);
@@ -3074,7 +3074,7 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     } else {
         i_Msg->head_p = i_Msg->mMsgGet.getMesgHeader(i_this->mMsgNo);
     }
-    JUT_ASSERT(VERSION_SELECT(5416, 5416, 5416, 5450), i_Msg->head_p);
+    JUT_ASSERT(VERSION_SELECT(5416, 5377, 5416, 5450), i_Msg->head_p);
     i_Msg->mpMesgStr = (char*)i_Msg->mMsgGet.getMessage(i_Msg->head_p);
     i_Msg->mMesgEntry = i_Msg->mMsgGet.getMesgEntry(i_Msg->head_p);
     i_Msg->mMsgID = i_Msg->mMsgGet.mGroupID << 8 | i_Msg->mMsgGet.mResMsgNo;
@@ -3093,23 +3093,23 @@ static cPhs_State dMsg_Create(msg_class* i_this) {
     }
     arrowPane = new J2DPicture("font_10.bti");
     i_Msg->output_text = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(VERSION_SELECT(5444, 5444, 5444, 5481), i_Msg->output_text != NULL);
+    JUT_ASSERT(VERSION_SELECT(5444, 5405, 5444, 5481), i_Msg->output_text != NULL);
     i_Msg->output_rub = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(VERSION_SELECT(5447, 5447, 5447, 5484), i_Msg->output_rub != NULL);
+    JUT_ASSERT(VERSION_SELECT(5447, 5408, 5447, 5484), i_Msg->output_rub != NULL);
     i_Msg->output_textSdw = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(VERSION_SELECT(5450, 5450, 5450, 5487), i_Msg->output_textSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5450, 5411, 5450, 5487), i_Msg->output_textSdw != NULL);
     i_Msg->output_rubSdw = (char*)i_Msg->mpHeap->alloc(0x385, 4);
-    JUT_ASSERT(VERSION_SELECT(5453, 5453, 5453, 5490), i_Msg->output_rubSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5453, 5414, 5453, 5490), i_Msg->output_rubSdw != NULL);
     i_Msg->select_text = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(VERSION_SELECT(5456, 5456, 5456, 5493), i_Msg->select_text != NULL);
+    JUT_ASSERT(VERSION_SELECT(5456, 5417, 5456, 5493), i_Msg->select_text != NULL);
     i_Msg->select_rub = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(VERSION_SELECT(5459, 5459, 5459, 5496), i_Msg->select_rub != NULL);
+    JUT_ASSERT(VERSION_SELECT(5459, 5420, 5459, 5496), i_Msg->select_rub != NULL);
     i_Msg->select_textSdw = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(VERSION_SELECT(5462, 5462, 5462, 5499), i_Msg->select_textSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5462, 5423, 5462, 5499), i_Msg->select_textSdw != NULL);
     i_Msg->select_rubSdw = (char*)i_Msg->mpHeap->alloc(0x65, 4);
-    JUT_ASSERT(VERSION_SELECT(5465, 5465, 5465, 5502), i_Msg->select_rubSdw != NULL);
+    JUT_ASSERT(VERSION_SELECT(5465, 5426, 5465, 5502), i_Msg->select_rubSdw != NULL);
     agb_work_area = i_Msg->mpHeap;
-    JUT_ASSERT(VERSION_SELECT(5468, 5468, 5468, 5505), agb_work_area != NULL);
+    JUT_ASSERT(VERSION_SELECT(5468, 5429, 5468, 5505), agb_work_area != NULL);
     i_this->mStatus = fopMsgStts_MSG_PREPARING_e;
     i_Msg->m1164 = -1;
     dMsg_value_init(i_Msg);
