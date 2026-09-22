@@ -1222,12 +1222,21 @@ int dComIfGd_setShadow(u32 id, s8 shouldFade, J3DModel* pModel, cXyz* pPos, f32 
         return 0;
     }
 
+#if VERSION == VERSION_DEMO
+    id = dComIfGd_setRealShadow2(id, shouldFade, pModel, pPos, casterSize, y - groundY, pTevStr);
+    if (id == 0) {
+        cXyz pos(pPos->x, y, pPos->z);
+        dComIfGd_setSimpleShadow2(&pos, groundY, scaleXZ, pFloorPoly, rotY, scaleZ, pTexObj);
+    }
+    return id;
+#else
     int sid = dComIfGd_setRealShadow2(id, shouldFade, pModel, pPos, casterSize, y - groundY, pTevStr);
     if (sid == 0) {
         cXyz pos(pPos->x, y, pPos->z);
         dComIfGd_setSimpleShadow2(&pos, groundY, scaleXZ, pFloorPoly, rotY, scaleZ, pTexObj);
     }
     return sid;
+#endif
 }
 
 static void dummy() {
