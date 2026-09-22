@@ -195,7 +195,7 @@ void daObjAshut::Act_c::mode_l_u() {
 
 /* 00000A50-00000B0C       .text mode_demoreq_init__Q210daObjAshut5Act_cFQ310daObjAshut5Act_c6Mode_e */
 void daObjAshut::Act_c::mode_demoreq_init(daObjAshut::Act_c::Mode_e i_demo_next) {
-    JUT_ASSERT(546, (i_demo_next == Mode_U_L) || (i_demo_next == Mode_L_U));
+    JUT_ASSERT(DEMO_SELECT(544, 546), (i_demo_next == Mode_U_L) || (i_demo_next == Mode_L_U));
     if (mDemoAccepted) {
         if (i_demo_next == Mode_U_L) mode_u_l_init();
         else mode_l_u_init();
