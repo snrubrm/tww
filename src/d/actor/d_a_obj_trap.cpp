@@ -78,7 +78,7 @@ cPhs_State daObjTrap_c::_create() {
     cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
     if (phase == cPhs_COMPLEATE_e) {
         phase = cPhs_ERROR_e;
-        if ((bool)fopAcM_entrySolidHeap(this, solidHeapCB, 0)) {
+        if (fopAcM_entrySolidHeap(this, solidHeapCB, 0)) {
             mPathNo = fopAcM_GetParam(this);
             if (mPathNo != 0xFF) {
                 mpPath = dPath_GetRoomPath(mPathNo, fopAcM_GetRoomNo(this));
@@ -293,28 +293,16 @@ void daObjTrap_c::set_vib_mode() {
 
 /* 0000250C-0000255C       .text vibrate__11daObjTrap_cFv */
 void daObjTrap_c::vibrate() {
-#if VERSION == VERSION_DEMO
     s16 angle = mVibrateTimer * 0x5555;
     shape_angle.x = 288.0f * cM_ssin(angle);
-#else
-    f32 amplitude = 288.0f;
-    s16 angle = mVibrateTimer * 0x5555;
-    shape_angle.x = amplitude * cM_ssin(angle);
-#endif
 }
 
 /* 0000255C-00002678       .text bound__11daObjTrap_cFv */
 void daObjTrap_c::bound() {
     cXyz offset = mDirection * -1.0f;
     mNextPos -= mBounceOffset;
-#if VERSION == VERSION_DEMO
     s16 angle = mBounceTimer * 0x4000;
     offset *= std::fabsf((s16)(mBounceAmplitude * cM_ssin(angle)));
-#else
-    f32 amplitude = mBounceAmplitude;
-    s16 angle = mBounceTimer * 0x4000;
-    offset *= std::fabsf((s16)(amplitude * cM_ssin(angle)));
-#endif
     mNextPos += offset;
     mBounceOffset = offset;
     cLib_addCalc(&mBounceAmplitude, 0.0f, 0.17f, 35.0f, 1.0f);
