@@ -151,11 +151,20 @@ BOOL daObjLight::Act_c::set_fire(int effect) {
 /* 00000A9C-00000B04       .text draw_fire__Q210daObjLight5Act_cFv */
 void daObjLight::Act_c::draw_fire() {
     if (mFireCallback.getEmitter() != NULL) {
+#if VERSION == VERSION_DEMO
+        GXColor color;
+        color.r = 235;
+        color.g = 125;
+        color.b = 0;
+        color.a = 0;
+        dComIfGd_setAlphaModelColor(color);
+#else
         GXColor& color = dComIfGd_getAlphaModelColor();
         color.r = 235;
         color.g = 125;
         color.b = 0;
         color.a = 0;
+#endif
         dComIfGd_setAlphaModel(1, mFireMtx, mFireAlpha);
     }
 }
