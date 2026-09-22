@@ -1128,6 +1128,9 @@ void JAIZelBasic::bgmStart(u32 i_bgmNum, u32 i_fadeTime, s32 param_3) {
     if ((i_bgmNum + 0x80000000) == 0x38 || (i_bgmNum + 0x80000000) == 0x1 || (i_bgmNum + 0x80000000) == 0xE) {
         field_0x1f3c = 1;
     }
+#if VERSION <= VERSION_JPN
+    field_0x00bb = 0;
+#endif
 }
 
 /* 802A4658-802A4770       .text bgmStop__11JAIZelBasicFUll */
