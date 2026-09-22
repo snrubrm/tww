@@ -191,14 +191,10 @@ void daObjMagmarock::ride_call_back(dBgW*, fopAc_ac_c* slab, fopAc_ac_c* rider) 
     dir = dir.outprod(up);
     f32 distance = dir.abs();
     if (dir.normalizeRS()) {
-#if VERSION == VERSION_DEMO
         f32 dy = self->current.pos.y - self->home.pos.y;
         f32 h = 0.001f * dy;
         s16 target = -distance * (2.0f + 4.0f * h);
         cLib_addCalcAngleS2(&self->mRideAngle, target, 8, 0x200);
-#else
-        cLib_addCalcAngleS2(&self->mRideAngle, -distance * (2.0f + 4.0f * (0.001f * (self->current.pos.y - self->home.pos.y))), 8, 0x200);
-#endif
         self->mRidden = 1;
         self->mHasRider = 1;
         f32 sine = cM_ssin(self->mRideAngle);
@@ -234,7 +230,7 @@ BOOL daObjMagmarock::Act_c::CreateHeap() {
     if (mpBgW == NULL) {
         return FALSE;
     }
-    return (bool)(mpModel != NULL && brkOK && bckOK);
+    return mpModel != NULL && brkOK && bckOK;
 }
 
 /* 00000DA0-000013B4       .text CreateInit__Q214daObjMagmarock5Act_cFv */
