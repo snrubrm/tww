@@ -341,11 +341,11 @@ void daNpcSv_c::executeWait() {
                 if (mNearPlayer != mPreviousNearPlayer) {
                     mStopped = 1;
                 }
-                raft->m1166 = 1;
+                raft->setStop();
             } else {
                 mEventOrder = 0;
                 mStopped = 0;
-                raft->m1166 = 0;
+                raft->setStart();
             }
             if (mStopped) {
                 setAnmTbl(l_npc_anm_wait);
