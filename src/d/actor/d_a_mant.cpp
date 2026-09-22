@@ -313,25 +313,21 @@ void joint_control(mant_class* i_this, mant_j_s* joint, int column) {
     cXyz local, offset, back, force, influence, waveLocal, wave, wind, windForce;
     dBgS_GndChk gnd;
 #if VERSION == VERSION_DEMO
-    f32 groundX = joint->pos[0].x;
-    f32 groundY = joint->pos[0].y;
-    f32 groundZ = joint->pos[0].z;
-    groundY += 50.0f;
-    gnd.m_pos.set(groundX, groundY, groundZ);
+    x = joint->pos[0].x;
+    y = joint->pos[0].y;
+    z = joint->pos[0].z;
+    y += 50.0f;
+    gnd.m_pos.set(x, y, z);
+#else
+    y = pos->y;
+    z = pos->z;
+    y += 50.0f;
+    gnd.m_pos.set(pos->x, y, z);
+#endif
     f32 ground = 1.5f + dComIfG_Bgsp()->GroundCross(&gnd);
     if (ground - pos->y > 50.0f) {
         ground = pos->y;
     }
-#else
-    f32 groundY = joint->pos[0].y;
-    f32 groundZ = joint->pos[0].z;
-    groundY += 50.0f;
-    gnd.m_pos.set(joint->pos[0].x, groundY, groundZ);
-    f32 ground = 1.5f + dComIfG_Bgsp()->GroundCross(&gnd);
-    if (ground - joint->pos[0].y > 50.0f) {
-        ground = joint->pos[0].y;
-    }
-#endif
     influence.set(0.0f, 0.0f, 0.0f);
     waveLocal.set(0.0f, 0.0f, 0.0f);
     wave.set(0.0f, 0.0f, 0.0f);
