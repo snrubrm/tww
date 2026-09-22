@@ -610,7 +610,7 @@ cPhs_State daObjFlame::Act_c::_create() {
     cPhs_State phase = dComIfG_resLoad(&mPhs, M_arcname);
     if (phase == cPhs_COMPLEATE_e) {
         mType = prm_get_scl();
-        if ((bool)fopAcM_entrySolidHeap(this, solidHeapCB, attr_scl().heapSize)) {
+        if (fopAcM_entrySolidHeap(this, solidHeapCB, attr_scl().heapSize)) {
             mOrigScale = scale;
             if (mType == 1) {
                 m46C = 1.0f;
