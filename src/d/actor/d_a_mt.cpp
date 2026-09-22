@@ -2656,21 +2656,15 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
 
         for (u16 jntNo = 0; jntNo < modelData->getJointNum(); jntNo++) {
             if (i == 0) {
-                if (jntNo < 2) {
-                } else if (jntNo > 5) {
-                } else {
+                if (jntNo >= 2 && jntNo <= 5) {
                     modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_head);
                 }
             } else if (i == 7) {
-                if (jntNo < 2) {
-                } else if (jntNo > 5) {
-                } else {
+                if (jntNo >= 2 && jntNo <= 5) {
                     modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_tail);
                 }
             } else {
-                if (jntNo < 2) {
-                } else if (jntNo > 5) {
-                } else {
+                if (jntNo >= 2 && jntNo <= 5) {
                     modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_body);
                 }
             }
