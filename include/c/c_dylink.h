@@ -22,6 +22,7 @@ void cDyl_InitAsync();
 
 BOOL cDyl_IsLinked(s16 i_procName);
 BOOL cDyl_Unlink(s16 i_procName);
+cPhs_State cDyl_Link(s16 i_procName);
 cPhs_State cDyl_LinkASync(s16 i_procName);
 
 #endif /* C_C_DYLINK_H */

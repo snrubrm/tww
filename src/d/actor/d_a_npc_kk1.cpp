@@ -90,7 +90,7 @@ void daNpc_Kk1_c::_nodeCB_Head(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::XrotM(m_jnt.getHead_y());
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
     MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 /* 00000340-0000038C       .text nodeCB_BackBone__FP7J3DNodei */
@@ -112,7 +112,7 @@ void daNpc_Kk1_c::_nodeCB_BackBone(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::XrotM(m_jnt.getBackbone_y());
     mDoMtx_stack_c::ZrotM(-m_jnt.getBackbone_x());
     MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 /* 0000042C-0000044C       .text CheckCreateHeap__FP10fopAc_ac_c */
@@ -126,8 +126,7 @@ static void* searchActor_SWC00(void* i_actor, void* i_data) {
     daNpc_Kk1_c* i_this = (daNpc_Kk1_c*)i_data;
     if (l_check_wrk < 20) {
         if (fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_SWC00_e) {
-            u32 param = fopAcM_GetParam(actor);
-            if ((param >> 0x10 & 3) == 0 && (u16)(param & 0xFF) == i_this->mSwNo) {
+            if (daSwc00_getType((swc00_class*)actor) == 0 && daSwc00_getSw1No((swc00_class*)actor) == i_this->getSWbit()) {
                 l_check_inf[l_check_wrk] = actor;
                 l_check_wrk++;
             }
@@ -745,11 +744,7 @@ bool daNpc_Kk1_c::chk_talk() {
 
 /* 00001774-000017B4       .text chk_parts_notMov__11daNpc_Kk1_cFv */
 bool daNpc_Kk1_c::chk_parts_notMov() {
-    bool result = false;
-    if (mPreviousAngles.y != m_jnt.getHead_y() || mPreviousAngles.z != m_jnt.getBackbone_y() || mPreviousAngles.x != current.angle.y) {
-        result = true;
-    }
-    return result;
+    return mPreviousAngles.y != m_jnt.getHead_y() || mPreviousAngles.z != m_jnt.getBackbone_y() || mPreviousAngles.x != current.angle.y;
 }
 
 /* 000017B4-00001808       .text searchByID__11daNpc_Kk1_cFUiPi */
@@ -1023,16 +1018,20 @@ bool daNpc_Kk1_c::cut_move_BYE_START() {
 /* 00002390-00002490       .text cut_init_BYE__11daNpc_Kk1_cFi */
 void daNpc_Kk1_c::cut_init_BYE(int staff) {
     int* timer = dComIfGp_evmng_getMyIntegerP(staff, "Timer");
+#if VERSION > VERSION_DEMO
     int* delay = dComIfGp_evmng_getMyIntegerP(staff, "Delay");
+#endif
     int* prm0 = dComIfGp_evmng_getMyIntegerP(staff, "prm_0");
     m798 = 30;
     if (timer != NULL) {
         m798 = *timer;
     }
+#if VERSION > VERSION_DEMO
     m79A = -1;
     if (delay != NULL) {
         m79A = *delay;
     }
+#endif
     m7B0 = 0;
     if (prm0 != NULL) {
         m7B0 = *prm0;
@@ -1045,12 +1044,14 @@ void daNpc_Kk1_c::cut_init_BYE(int staff) {
 /* 00002490-00002568       .text cut_move_BYE__11daNpc_Kk1_cFv */
 bool daNpc_Kk1_c::cut_move_BYE() {
     event_move(false);
+#if VERSION > VERSION_DEMO
     if (m79A > 0 && cLib_calcTimer(&m79A) == 0) {
         daPy_getPlayerLinkActorClass()->setPlayerPosAndAngle(&daPy_getPlayerLinkActorClass()->current.pos, -0x3217);
         daPy_getPlayerLinkActorClass()->changeOriginalDemo();
         daPy_getPlayerLinkActorClass()->mDemo.setDemoMode(daPy_demo_c::DEMO_LDAM_e);
         daPy_getPlayerLinkActorClass()->mDemo.setParam0(0x3217);
     }
+#endif
     if (cLib_calcTimer(&m798) == 0) {
         if (m7B0 == 0) {
             speedF = 0.0f;
@@ -1642,14 +1643,26 @@ void daNpc_Kk1_c::setBikon(cXyz offset) {
     mDoMtx_stack_c::YrotM(current.angle.y);
     cXyz pos;
     mDoMtx_stack_c::multVec(&offset, &pos);
+#if VERSION == VERSION_DEMO
+    mpBikon = dComIfGp_particle_set(dPa_name::ID_IT_SN_PF_BIKON00, &pos);
+    if (mpBikon != NULL) {
+#else
     JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_IT_SN_PF_BIKON00, &pos);
     if (emitter != NULL) {
+#endif
         mDoAud_seStart(JA_SE_CM_CMN_NOTICE, &current.pos, 0, 0);
     }
 }
 
 /* 00003D9C-00003DA0       .text delBikon__11daNpc_Kk1_cFv */
-void daNpc_Kk1_c::delBikon() {}
+void daNpc_Kk1_c::delBikon() {
+#if VERSION == VERSION_DEMO
+    if (mpBikon != NULL) {
+        mpBikon->becomeInvalidEmitter();
+        mpBikon = NULL;
+    }
+#endif
+}
 
 /* 00003DA0-00003E18       .text setAse__11daNpc_Kk1_cFv */
 void daNpc_Kk1_c::setAse() {
@@ -2297,6 +2310,19 @@ BOOL daNpc_Kk1_c::_execute() {
 
 /* 000059EC-00005A58       .text _delete__11daNpc_Kk1_cFv */
 BOOL daNpc_Kk1_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (m7BC) {
+        l_HIO.removeHIO();
+        dComIfG_resDelete(&mPhs, mArcName);
+        cDyl_Unlink(fpcNm_TAMA_e);
+        delBikon();
+        delAse();
+        if (mpMorf != NULL) {
+            mpMorf->stopZelAnime();
+        }
+    }
+    return TRUE;
+#else
     cDyl_Unlink(fpcNm_TAMA_e);
     dComIfG_resDelete(&mPhs, mArcName);
     delBikon();
@@ -2305,10 +2331,36 @@ BOOL daNpc_Kk1_c::_delete() {
         mpMorf->stopZelAnime();
     }
     return TRUE;
+#endif
 }
 
 /* 00005A58-00005B98       .text _create__11daNpc_Kk1_cFv */
 cPhs_State daNpc_Kk1_c::_create() {
+#if VERSION == VERSION_DEMO
+    fopAcM_ct_Retail(this, daNpc_Kk1_c);
+    if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
+        return cPhs_ERROR_e;
+    }
+    cPhs_State phase = dComIfG_resLoad(&mPhs, mArcName);
+    m7BC = phase == cPhs_COMPLEATE_e;
+    if (!m7BC) {
+        return phase;
+    }
+    l_HIO.entryHIO("貧乏ム−ル");
+    fopAcM_ct_Demo(this, daNpc_Kk1_c);
+    static u32 a_siz_tbl[] = {0, 0};
+    if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_siz_tbl[mType])) {
+        m7BC = false;
+        return cPhs_ERROR_e;
+    }
+    fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
+    fopAcM_setCullSizeBox(this, -50.0f, -20.0f, -50.0f, 50.0f, 140.0f, 50.0f);
+    if (!createInit()) {
+        return cPhs_ERROR_e;
+    }
+    cDyl_Link(fpcNm_TAMA_e);
+    return phase;
+#else
     fopAcM_SetupActor(this, daNpc_Kk1_c);
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
@@ -2332,6 +2384,7 @@ cPhs_State daNpc_Kk1_c::_create() {
         return phase;
     }
     return cPhs_ERROR_e;
+#endif
 }
 
 /* 00006118-0000638C       .text bodyCreateHeap__11daNpc_Kk1_cFv */
@@ -2397,7 +2450,7 @@ BOOL daNpc_Kk1_c::CreateHeap() {
         return FALSE;
     }
     mAcchCir.SetWall(30.0f, 40.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
     return TRUE;
 }
 

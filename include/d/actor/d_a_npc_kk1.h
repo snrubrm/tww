@@ -20,7 +20,7 @@ public:
         /* 0x0C */ int mLoop;
     };  // Size: 0x10
 
-    void getSWbit() {}
+    u8 getSWbit() { return mSwNo; }
 
     void _nodeCB_Head(J3DNode*, J3DModel*);
     void _nodeCB_BackBone(J3DNode*, J3DModel*);
@@ -169,7 +169,9 @@ public:
     /* 0x794 */ s16 m794;
     /* 0x796 */ s16 m796;
     /* 0x798 */ s16 m798;
+#if VERSION > VERSION_DEMO
     /* 0x79A */ s16 m79A;
+#endif
     /* 0x79C */ s16 m79C;
     /* 0x79E */ s16 m79E;
     /* 0x7A0 */ s16 m7A0;
@@ -210,7 +212,10 @@ public:
     /* 0x804 */ s16 mBckFrame;
     /* 0x806 */ u8 m806[0x808 - 0x806];
     /* 0x808 */ J3DModel* mpEffModel;
-    /* 0x80C */ u8 m80C[0x810 - 0x80C];
+#if VERSION == VERSION_DEMO
+    /* 0x808 */ u8 m808[4];
+#endif
+    /* 0x80C */ JPABaseEmitter* mpBikon;
     /* 0x810 */ JPABaseEmitter* mpAse;
     /* 0x814 */ u8 m814;
     /* 0x815 */ u8 m815;
