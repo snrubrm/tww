@@ -212,7 +212,8 @@ static void hand_1_move(ss_class* i_this, ss_s* hand) {
 static void hand_1_cut(ss_class* i_this, ss_s* hand) {
     fopAc_ac_c* actor = i_this;
     cXyz step, delta, world, wave;
-    f32 x, yPos, z, y, groundY;
+    Vec pos;
+    f32 y, groundY;
     s16 rot_target;
     step.y = 0.0f;
     step.x = 0.0f;
@@ -241,11 +242,11 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
     cLib_addCalc2(&hand->gravity, -20.0f + REG8_F(2), 1.0f, 1.0f + REG8_F(4));
     wave.y = 0.0f;
     for (int i = 18; i >= 0; i--, segment--) {
-        x = segment->pos.x;
-        yPos = segment->pos.y;
-        z = segment->pos.z;
-        yPos += 50.0f;
-        ground.m_pos.set(x, yPos, z);
+        pos.x = segment->pos.x;
+        pos.y = segment->pos.y;
+        pos.z = segment->pos.z;
+        pos.y += 50.0f;
+        ground.SetPos(&pos);
         groundY = 5.0f + dComIfG_Bgsp()->GroundCross(&ground);
         y = segment->pos.y + hand->gravity;
         if (y < groundY + hand->sink) y = groundY + hand->sink;
@@ -266,11 +267,11 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
     }
     hand->pos += hand->speed;
     hand->speed.y -= 3.0f + REG8_F(14);
-    x = hand->pos.x;
-    yPos = hand->pos.y;
-    z = hand->pos.z;
-    yPos += 50.0f;
-    ground.m_pos.set(x, yPos, z);
+    pos.x = hand->pos.x;
+    pos.y = hand->pos.y;
+    pos.z = hand->pos.z;
+    pos.y += 50.0f;
+    ground.SetPos(&pos);
     groundY = 5.0f + dComIfG_Bgsp()->GroundCross(&ground);
     if (hand->groundTimer == 0) {
         if (hand->speed.y < -300.0f) {
