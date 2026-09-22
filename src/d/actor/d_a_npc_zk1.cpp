@@ -625,10 +625,6 @@ void daNpc_Zk1_c::shadowDraw() {
         current.pos.y, mObjAcch.GetGroundH(), mObjAcch.m_gnd, &tevStr, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
 }
 
-// Retain the unused debug drawing colors present in the original actor.
-extern const GXColor l_zk1DebugRed = {255, 0, 0, 128};
-extern const GXColor l_zk1DebugBlue = {0, 0, 255, 128};
-
 /* 00001BAC-00001C80       .text _draw__11daNpc_Zk1_cFv */
 BOOL daNpc_Zk1_c::_draw() {
     J3DModel* model = mpMorf->getModel();
@@ -640,6 +636,8 @@ BOOL daNpc_Zk1_c::_draw() {
     mpMorf->entryDL();
     mBtpAnm.remove(data);
     shadowDraw();
+    GXColor red = {255, 0, 0, 128};
+    GXColor blue = {0, 0, 255, 128};
     dSnap_RegistFig(DSNAP_TYPE_UNK8C, this, 1.0f, 1.0f, 1.0f);
     return TRUE;
 }
