@@ -373,7 +373,9 @@ public:
             /* 0x37C */ f32 m37C;
             /* 0x380 */ f32 m380;
             /* 0x384 */ cXyz m384;
+#if VERSION > VERSION_JPN
             /* 0x390 */ cXyz m390;
+#endif
             /* 0x39C */ u8 m39C;
         } fixedPos;
     } mWork;

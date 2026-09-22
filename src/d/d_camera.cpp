@@ -6934,6 +6934,7 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
 /* 80179F8C-8017A80C       .text fixedPositionCamera__9dCamera_cFl */
 bool dCamera_c::fixedPositionCamera(s32 param_1) {
     int uVar10;
+    f32 fVar8_2;
     cXyz sp160;
     cXyz sp154;
     cXyz sp148;
@@ -6950,18 +6951,17 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
     f32 fVar7 = mCamParam.Val(param_1, 23);
     f32 fVar8 = mCamParam.Val(param_1, 25);
 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
     if (m11C == 0) {
         mWork.fixedPos.m390 = cXyz::Zero;
     }
 #endif
     mWork.fixedPos.m39C = 0;
 
-    f32 fVar8_2;
     if (mCamParam.Flag(param_1, dCamPrmFlg_UNK040) && mCurArrowIdx != 0xff) {
         sp160 = mCurRoomArrowEntry.position;
 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
         if (mWork.fixedPos.m390 != sp160) {
             setDMCAngle();
         }
@@ -7019,17 +7019,18 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
     sp13C = relationalPos(mpPlayerActor, &sp154);
     
     if (m100 == 0) {
+        f32 ratio;
         if (mWork.fixedPos.m39C == 0) {
             mWork.fixedPos.m380 = mWork.fixedPos.m378 - (s32)m11C;
-            fVar15 = mWork.fixedPos.m380 / mWork.fixedPos.m37C;
+            ratio = mWork.fixedPos.m380 / mWork.fixedPos.m37C;
             mWork.fixedPos.m37C -= mWork.fixedPos.m380;
         }
         else {
-            fVar15 = 1.0f / mWork.fixedPos.m37C;
+            ratio = 1.0f / mWork.fixedPos.m37C;
             mWork.fixedPos.m37C -= 1.0f;
         }
 
-        mWork.fixedPos.m384 += (sp13C - mWork.fixedPos.m384) * fVar15;
+        mWork.fixedPos.m384 += (sp13C - mWork.fixedPos.m384) * ratio;
         mViewCache.mCenter += (mWork.fixedPos.m384 - mViewCache.mCenter) * sp148;
         
         cSGlobe g(sp160 - mViewCache.mCenter);
@@ -7041,12 +7042,12 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
             g.R(fVar4);
         }
 
-        mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * fVar15);
-        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * fVar15);
-        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * fVar15);
+        mViewCache.mDirection.R(mViewCache.mDirection.R() + (g.R() - mViewCache.mDirection.R()) * ratio);
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + (g.V() - mViewCache.mDirection.V()) * ratio);
+        mViewCache.mDirection.U(mViewCache.mDirection.U() + (g.U() - mViewCache.mDirection.U()) * ratio);
         
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
-        mViewCache.mFovy += fVar15 * (fVar8_2 - mViewCache.mFovy);
+        mViewCache.mFovy += ratio * (fVar8_2 - mViewCache.mFovy);
         if (m11C >= mWork.fixedPos.m378 - 1U) {
             m102 = 1;
             m101 = 1;
