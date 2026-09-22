@@ -50,9 +50,9 @@ void dMesg_fontsizeCenter(sub_mesg_class*, int, int, int, int);
 /* 801DFEE4-801E000C       .text _create__15dMesg_outFont_cFv */
 void dMesg_outFont_c::_create() {
     icon = new J2DPicture("font_07_02.bti");
-    JUT_ASSERT(117, icon != NULL);
+    JUT_ASSERT(VERSION_SELECT(117, 117, 117, 118), icon != NULL);
     kage = new J2DPicture("font_07_02.bti");
-    JUT_ASSERT(119, kage != NULL);
+    JUT_ASSERT(VERSION_SELECT(119, 119, 119, 120), kage != NULL);
 
     fopMsgM_blendInit(icon,"font_00.bti");
     fopMsgM_blendInit(kage,"font_00.bti");
