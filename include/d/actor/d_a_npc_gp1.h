@@ -112,7 +112,11 @@ public:
     s8 mTexIndex, mAnmIndex, mEventOrder, mState, mPreviousState, mLookMode, mType, mSubtype, mActionState, mMessageState;
 };
 
+#if VERSION == VERSION_DEMO
+class daNpc_Gp1_HIO_c : public JORReflexible {
+#else
 class daNpc_Gp1_HIO_c : public mDoHIO_entry_c {
+#endif
 public:
     struct hio_prm_c {
         s16 mMaxHeadX, mMaxHeadY, mMinHeadX, mMinHeadY;
@@ -126,6 +130,9 @@ public:
     };
     daNpc_Gp1_HIO_c();
     virtual ~daNpc_Gp1_HIO_c() {}
+#if VERSION == VERSION_DEMO
+    void genMessage(JORMContext*) {}
+#endif
 
 public:
     s8 mNo;

@@ -89,10 +89,10 @@ bool daNpc_Gp1_c::createInit() {
     weight = 0xFF;
     u8 pathNo = (fopAcM_GetParam(this) >> 16) & 0xFF;
     if (pathNo != 0xFF) {
-        mPath.setInf(pathNo, current.roomNo, 1);
+        mPath.setInf(pathNo, fopAcM_GetRoomNo(this), 1);
         if (mPath.isPath()) {
             fopAcM_OffStatus(this, 0x80);
-            weight = 0xD9;
+            weight = DEMO_SELECT(0xF0, 0xD9);
         } else return false;
     }
     mCut.setActorInfo2("Gp1", this);
@@ -172,8 +172,13 @@ bool daNpc_Gp1_c::iniTexPttrnAnm(bool modify) {
 void daNpc_Gp1_c::plyTexPttrnAnm() {
     if (mTexIndex != 0 || cLib_calcTimer(&mBlinkTimer) == 0) {
         mBtpFrame++;
+#if VERSION == VERSION_DEMO
+        s16 max = m_hed_tex_pttrn->getFrameMax();
+        if (mBtpFrame >= max) {
+#else
         int max = m_hed_tex_pttrn->getFrameMax();
         if (mBtpFrame >= (s16)max) {
+#endif
             if (mTexIndex != 0) {
                 mBtpFrame = max;
             } else {
@@ -370,9 +375,17 @@ bool daNpc_Gp1_c::chk_talk() {
 /* 00001008-00001048       .text chk_partsNotMove__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::chk_partsNotMove() {
     bool result = false;
+#if VERSION == VERSION_DEMO
+    bool jnt = false;
+    if (mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y()) jnt = true;
+    if (jnt && mOldActorY == current.angle.y) {
+        result = true;
+    }
+#else
     if (mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y() && mOldActorY == current.angle.y) {
         result = true;
     }
+#endif
     return result;
 }
 // Pin DEG2S at this .rodata slot so create_rupee can reuse it from the literal pool.
@@ -543,15 +556,17 @@ u32 daNpc_Gp1_c::getMsg() {
 
 /* 000016A8-00001728       .text chkAttention__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::chkAttention() {
-    if (dComIfGp_getAttention().LockonTruth()) {
-        return this == dComIfGp_getAttention().LockonTarget(0);
+    dAttention_c& attn = dComIfGp_getAttention();
+    if (attn.LockonTruth()) {
+        return this == attn.LockonTarget(0);
     }
-    return this == dComIfGp_getAttention().ActionTarget(0);
+    return this == attn.ActionTarget(0);
 }
 
 /* 00001728-00001790       .text setAttention__11daNpc_Gp1_cFb */
 void daNpc_Gp1_c::setAttention(bool force) {
-    attention_info.position.set(current.pos.x, current.pos.y + l_HIO.mPrm.mAttentionYOffset, current.pos.z);
+    f32 ofs = l_HIO.mPrm.mAttentionYOffset;
+    attention_info.position.set(current.pos.x, current.pos.y + ofs, current.pos.z);
     if (mUpdateEye || force) {
         eyePos.set(mEyeLocal.x, mEyeLocal.y, mEyeLocal.z);
         eyePos.y += mEyeYOffset;
@@ -691,9 +706,7 @@ BOOL daNpc_Gp1_c::create_rupee() {
     counter = g_Counter.mCounter0;
     for (i = 0; i < mRupeeCount; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
-        random = cM_rndF(30.0f) - 15.0f;
-        f32 off = offsets[counter % 3];
-        random = off + random;
+        random = offsets[counter % 3] + (cM_rndF(30.0f) - 15.0f);
         s16 scaled = gp1_deg2s((s16)random);
         angle.y = current.angle.y + scaled;
         room = current.roomNo;
@@ -875,6 +888,11 @@ void daNpc_Gp1_c::setStt(s8 state) {
 /* 0000240C-0000255C       .text wait_1__11daNpc_Gp1_cFv */
 BOOL daNpc_Gp1_c::wait_1() {
     mIdleAnimTimer = 180 + cM_rndF(120.0f);
+#if VERSION == VERSION_DEMO
+    if (mEventOrder == 1 || mEventOrder >= 3) {
+        return TRUE;
+    }
+#endif
     if (mTalking && mAnmIndex != 4) {
         if (chk_talk()) {
             setStt(2);
@@ -882,9 +900,13 @@ BOOL daNpc_Gp1_c::wait_1() {
         }
         return TRUE;
     }
+#if VERSION == VERSION_DEMO
+    mEventOrder = 2;
+#else
     if (mEventOrder != 1 && mEventOrder < 3) {
         mEventOrder = 2;
     }
+#endif
     if (chk_forceTlkArea() || mHasAttention) {
         mAttentionTimer = 60;
     }
@@ -942,7 +964,8 @@ BOOL daNpc_Gp1_c::talk_1() {
                     int count = dComIfGs_getEventReg(0xC5FF);
                     count &= 0xFF;
                     dComIfGp_setItemBeastNumCount(dBeastIdx_SKULL_NECKLACE_e, -mNecklaceCount);
-                    dComIfGs_setEventReg(0xC5FF, cLib_maxLimit<int>(count + mNecklaceCount, 127));
+                    count = cLib_maxLimit<int>(count + mNecklaceCount, 127);
+                    dComIfGs_setEventReg(0xC5FF, count);
                 }
                 mConsumeNecklaces = 0;
             }
@@ -957,9 +980,13 @@ BOOL daNpc_Gp1_c::walk_1() {
     if (mTalking || chk_forceTlkArea() || cLib_calcTimer(&mWaitTimer) == 0) {
         mTargetSpeed = 0.0f;
     }
+#if VERSION == VERSION_DEMO
+    mEventOrder = 2;
+#else
     if (mEventOrder != 1 && mEventOrder < 3) {
         mEventOrder = 2;
     }
+#endif
     if (mArrived) {
         mArrived = 0;
         if (mMoveMode == 0) {
@@ -993,7 +1020,11 @@ BOOL daNpc_Gp1_c::hair_1() {
         setStt(4);
         return TRUE;
     }
+#if VERSION == VERSION_DEMO
+    if (!mTalking) {
+#else
     if (!mTalking && mEventOrder != 1 && mEventOrder < 3) {
+#endif
         mEventOrder = 2;
     }
     return TRUE;
@@ -1001,7 +1032,11 @@ BOOL daNpc_Gp1_c::hair_1() {
 
 /* 00002930-00002988       .text wait_2__11daNpc_Gp1_cFv */
 BOOL daNpc_Gp1_c::wait_2() {
+#if VERSION == VERSION_DEMO
+    if (mEventOrder != 3) {
+#else
     if (mEventOrder != 1 && mEventOrder < 3) {
+#endif
         f32 dy = dComIfGp_getPlayer(0)->current.pos.y - current.pos.y;
         mEventOrder = 0;
         if (dy > -1.0f) {
@@ -1046,7 +1081,11 @@ int daNpc_Gp1_c::wait_action1(void*) {
             mUpdateEye = wait_2();
             break;
         }
+#if VERSION == VERSION_DEMO
+        if (!dComIfGs_isEventBit(0x1501) && !mTalking && chk_forceTlkArea()) {
+#else
         if (mEventOrder != 1 && mEventOrder < 3 && !dComIfGs_isEventBit(0x1501) && !mTalking && chk_forceTlkArea()) {
+#endif
             mEventOrder = 1;
         }
         lookBack();
@@ -1091,6 +1130,7 @@ extern const GXColor l_gp1DebugGreen1 = {0, 255, 0, 128};
 extern const GXColor l_gp1DebugGreen2 = {0, 255, 0, 128};
 /* 00002C6C-00002E24       .text _draw__11daNpc_Gp1_cFv */
 BOOL daNpc_Gp1_c::_draw() {
+    daNpc_Gp1_c* i_this = this;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     if (mHidden || mNoDraw) {
@@ -1111,7 +1151,7 @@ BOOL daNpc_Gp1_c::_draw() {
         cXyz debug = current.pos;
         debug.y = eyePos.y;
     }
-    dSnap_RegistFig(DSNAP_TYPE_UNK5B, this, 1.0f, 1.0f, 1.0f);
+    dSnap_RegistFig(DSNAP_TYPE_UNK5B, i_this, 1.0f, 1.0f, 1.0f);
     return TRUE;
 }
 
@@ -1132,7 +1172,7 @@ BOOL daNpc_Gp1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) {
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) {
             staff = isEventEntry();
         }
         if (staff >= 0) {
@@ -1159,10 +1199,19 @@ BOOL daNpc_Gp1_c::_execute() {
 
 /* 00003008-00003064       .text _delete__11daNpc_Gp1_cFv */
 BOOL daNpc_Gp1_c::_delete() {
-    dComIfG_resDelete(&mPhase, "Gp");
+    dComIfG_resDeleteDemo(&mPhase, "Gp");
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+    if (l_HIO.mCount >= 0 && --l_HIO.mCount < 0) {
+        mDoHIO_deleteChild(l_HIO.mNo);
+    }
+#else
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return TRUE;
 }
 
@@ -1173,6 +1222,21 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 
 /* 00003084-000031A4       .text _create__11daNpc_Gp1_cFv */
 cPhs_State daNpc_Gp1_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase = dComIfG_resLoad(&mPhase, "Gp");
+    if (phase != cPhs_COMPLEATE_e) {
+        return phase;
+    }
+    int prm = fopAcM_GetParam(this) & 0xFF;
+    if (!charDecide(prm)) {
+        return cPhs_ERROR_e;
+    }
+    if (l_HIO.mCount < 0) {
+        l_HIO.mNo = mDoHIO_createChild("金持ちマギ−の父", &l_HIO);
+    }
+    l_HIO.mCount++;
+    fopAcM_SetupActor(this, daNpc_Gp1_c);
+#else
     fopAcM_SetupActor(this, daNpc_Gp1_c);
     cPhs_State phase = dComIfG_resLoad(&mPhase, "Gp");
     if (phase != cPhs_COMPLEATE_e) {
@@ -1181,6 +1245,7 @@ cPhs_State daNpc_Gp1_c::_create() {
     if (!charDecide(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
     }
+#endif
     static u32 a_size_tbl[] = {0x272E0};
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_size_tbl[mType])) {
         return cPhs_ERROR_e;
@@ -1196,7 +1261,7 @@ cPhs_State daNpc_Gp1_c::_create() {
 /* 000035D4-00003844       .text create_Anm__11daNpc_Gp1_cFv */
 J3DModelData* daNpc_Gp1_c::create_Anm() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Gp", dRes_ID_GP_BDL_GP_e);
-    JUT_ASSERT(2159, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(2148, 2159), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, (J3DAnmTransform*)dComIfG_getObjectIDRes("Gp", dRes_ID_GP_BCK_WAIT01_e), 2, 1.0f, 0, -1, TRUE, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) {
         return NULL;
@@ -1206,11 +1271,11 @@ J3DModelData* daNpc_Gp1_c::create_Anm() {
         return NULL;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(2179, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(2168, 2179), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(2182, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(2171, 2182), m_bbone_jnt_num >= 0);
     m_hnd_L_jnt_num = a_mdl_dat->getJointName()->getIndex("handL");
-    JUT_ASSERT(2185, m_hnd_L_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(2174, 2185), m_hnd_L_jnt_num >= 0);
     return a_mdl_dat;
 }
 
@@ -1234,7 +1299,7 @@ BOOL daNpc_Gp1_c::CreateHeap() {
         }
         mpMorf->getModel()->setUserArea((u32)this);
         mAcchCir.SetWall(30.0f, 70.0f);
-        mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+        mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
         return TRUE;
     }
     mpMorf = NULL;
