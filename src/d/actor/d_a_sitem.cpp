@@ -271,7 +271,8 @@ static f32 max_d[4] = {100.0f, 250.0f, 400.0f, 600.0f};
 static void hand_move(sitem_class* i_this) {
     fopAc_ac_c* actor = i_this;
 #if VERSION == VERSION_DEMO
-    dComIfG_inf_c* info = &g_dComIfG_gameInfo;
+    // Unused, but its dead load leaves &g_dComIfG_gameInfo hoisted into a register as in the target.
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
 #endif
     f32 approach, maxSpeed, extension, length, lengthStep, wave;
     cXyz offset, direction, target, center;
@@ -367,7 +368,7 @@ static void hand_move(sitem_class* i_this) {
         cLib_addCalc2(&i_this->mPos.z, target.z, approach, actor->speedF);
 #if VERSION == VERSION_DEMO
         if (cut) {
-            cLib_addCalcAngleS2(&actor->current.angle.y, fopAcM_searchActorAngleY(actor, info->play.getPlayer(0)), 0x10, 0x800);
+            cLib_addCalcAngleS2(&actor->current.angle.y, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)), 0x10, 0x800);
         }
 #endif
         control1(i_this);
@@ -438,11 +439,7 @@ static void hand_move(sitem_class* i_this) {
                     at_power_check(&atInfo);
                     if (atInfo.mResultingAttackType == 8) {
                         i_this->mHitSpeed = 300.0f + REG6_F(6);
-#if VERSION == VERSION_DEMO
-                        i_this->mHitAngle = fopAcM_searchActorAngleY(actor, info->play.getPlayer(0)) + 0x8000;
-#else
                         i_this->mHitAngle = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000;
-#endif
                         return;
                     }
                 }
