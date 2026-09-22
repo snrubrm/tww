@@ -538,7 +538,7 @@ static void pos_move(gnd_class* i_this, s8 param_2) {
     cXyz vec;
 
     if (param_2 == 0) {
-        vec = *(cXyz*)&i_this->m2D4 - actor->current.pos;
+        vec = i_this->m2D4 - actor->current.pos;
         s16 angY = cM_atan2s(vec.x, vec.z);
         cLib_addCalcAngleS2(&actor->current.angle.y, angY, DEMO_SELECT(REG0_S(3) + 5, 5), i_this->m2F0 * i_this->m2F4);
         cLib_addCalc2(&i_this->m2F4, 1.0f, 1.0f, 0.05f);

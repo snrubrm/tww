@@ -31,7 +31,7 @@ public:
     /* 0x02CE */ s16 m2CE;
     /* 0x02D0 */ s16 m2D0;
     /* 0x02D2 */ u8 m2D2[0x02D4 - 0x02D2];
-    /* 0x02D4 */ Vec m2D4;
+    /* 0x02D4 */ cXyz m2D4;
     /* 0x02E0 */ cXyz m2E0;
     /* 0x02EC */ u8 m2EC[0x02F0 - 0x02EC];
     /* 0x02F0 */ f32 m2F0;
