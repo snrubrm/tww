@@ -60,6 +60,12 @@ const char* mLayout[] = {
 
 const u8 mBeatNum[] = {0x03, 0x04, 0x04, 0x06, 0x06, 0x03, 0x03, 0x04};
 
+#if VERSION == VERSION_DEMO
+#define dMsg_CHECK_TRIG_AB() (CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_A(3) || CPad_CHECK_TRIG_B(3) || CPad_CHECK_TRIG_B(0))
+#else
+#define dMsg_CHECK_TRIG_AB() (CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0))
+#endif
+
 void dMsg_textPosition(sub_msg_class*);
 void dMsg_mesgOutPos(sub_msg_class*);
 void dMsg_setCloseSound(sub_msg_class*, u8);
@@ -224,6 +230,21 @@ void dDlst_2Dtact_c::draw() {
 
 /* 8020AD3C-8020ADD8       .text dMsg_msg_pane_parts_set__FP18fopMsgM_pane_classUc */
 void dMsg_msg_pane_parts_set(fopMsgM_pane_class* pPane, u8 param_2) {
+#if VERSION == VERSION_DEMO
+    switch (param_2) {
+    case 1:
+        pPane->mPosTopLeft.y = (480.0f - (pPane->mPosTopLeftOrig.y + pPane->mSizeOrig.y)) + -26.0f;
+        break;
+    case 2:
+        pPane->mPosTopLeft.y = 240.0f - pPane->mSizeOrig.y / 2.0f;
+        break;
+    default:
+        pPane->mPosTopLeft.y = pPane->mPosTopLeftOrig.y + 32.0f;
+        break;
+    }
+    pPane->mPosCenter.x = pPane->mPosTopLeft.x + pPane->mSizeOrig.x / 2.0f;
+    pPane->mPosCenter.y = pPane->mPosTopLeft.y + pPane->mSizeOrig.y / 2.0f;
+#else
     f32 tmp;
     switch (param_2) {
     case 1:
@@ -240,13 +261,19 @@ void dMsg_msg_pane_parts_set(fopMsgM_pane_class* pPane, u8 param_2) {
     tmp = 0.5f;
     pPane->mPosCenter.x = pPane->mPosTopLeft.x + pPane->mSizeOrig.x * tmp;
     pPane->mPosCenter.y = pPane->mPosTopLeft.y + pPane->mSizeOrig.y * tmp;
+#endif
 }
 
 /* 8020ADD8-8020AE28       .text dMsg_arw_pane_parts_set__FP18fopMsgM_pane_classP18fopMsgM_pane_class */
 void dMsg_arw_pane_parts_set(fopMsgM_pane_class* pDst, fopMsgM_pane_class* pSrc) {
+#if VERSION == VERSION_DEMO
+    pDst->mPosTopLeft.y = (pSrc->mPosTopLeft.y + pDst->mPosTopLeftOrig.y) - pSrc->mPosTopLeftOrig.y;
+    pDst->mPosCenter.y = pDst->mPosTopLeft.y + pDst->mSizeOrig.y / 2.0f;
+#else
     f32 tmp = 0.5f;
     pDst->mPosTopLeft.y = (pSrc->mPosTopLeft.y + pDst->mPosTopLeftOrig.y) - pSrc->mPosTopLeftOrig.y;
     pDst->mPosCenter.y = pDst->mPosTopLeft.y + pDst->mSizeOrig.y * tmp;
+#endif
     fopMsgM_cposMove(pDst);
 }
 
@@ -989,8 +1016,12 @@ void dMsg_ScreenDataValueInitTalk(sub_msg_class* i_Msg) {
     dMsg_mesgOutPos(i_Msg);
     i_Msg->m10D8 = (int)i_Msg->m049C.mPosCenter.x;
     i_Msg->m10DC = (int)i_Msg->m049C.mPosCenter.y;
+#if VERSION == VERSION_DEMO
+    i_Msg->m1104 = (int)(((J2DTextBox*)i_Msg->m0544[0].pane)->mLineSpace / 2.0f);
+#else
     f32 tmp = 0.5f;
     i_Msg->m1104 = (int)(((J2DTextBox*)i_Msg->m0544[0].pane)->mLineSpace * tmp);
+#endif
     i_Msg->m10C0 = i_Msg->m10BC;
     i_Msg->m10C8 = i_Msg->m10C4;
     local_48.setall(0.0f);
@@ -1065,8 +1096,12 @@ void dMsg_ScreenDataValueInitItem(sub_msg_class* i_Msg) {
     i_Msg->m0544[3].pane->move(uVar1 + 2, (iVar9 - g_msgHIO.field_0x60) - (int)textOffsetY + 2);
     i_Msg->m10D8 = (int)i_Msg->m049C.mPosCenter.x;
     i_Msg->m10DC = (int)i_Msg->m049C.mPosCenter.y;
+#if VERSION == VERSION_DEMO
+    i_Msg->m1104 = (int)(((J2DTextBox*)i_Msg->m0544[0].pane)->mLineSpace / 2.0f);
+#else
     f32 tmp = 0.5f;
     i_Msg->m1104 = (int)(((J2DTextBox*)i_Msg->m0544[0].pane)->mLineSpace * tmp);
+#endif
     i_Msg->m10C0 = i_Msg->m10BC;
     i_Msg->m10C8 = i_Msg->m10C4;
     i_Msg->m10E0.x = i_Msg->m049C.mPosCenter.x;
@@ -1113,8 +1148,13 @@ void dMsg_ScreenDataValueInitItem(sub_msg_class* i_Msg) {
 void dMsg_ScreenDataValueInitTact(sub_msg_class* i_Msg) {
     int uVar1;
     int iVar2;
+#if VERSION == VERSION_DEMO
+    int dVar7;
+    int dVar8;
+#else
     f32 dVar7;
     f32 dVar8;
+#endif
 
     dVar7 = ((J2DTextBox*)i_Msg->m0544[0].pane)->getCharSpace();
     dVar8 = ((J2DTextBox*)i_Msg->m0544[1].pane)->getCharSpace();
@@ -1174,10 +1214,19 @@ void dMsg_ScreenDataValueInitTact(sub_msg_class* i_Msg) {
 
 /* 8020EAC4-8020EC28       .text dMsg_ScreenDataValueInitDemo__FP13sub_msg_class */
 void dMsg_ScreenDataValueInitDemo(sub_msg_class* i_Msg) {
+#if VERSION == VERSION_DEMO
+    int charSpace = ((J2DTextBox*)i_Msg->m0544[0].pane)->getCharSpace();
+    int rubyCharSpace = ((J2DTextBox*)i_Msg->m0544[1].pane)->getCharSpace();
+#else
     f32 charSpace = ((J2DTextBox*)i_Msg->m0544[0].pane)->getCharSpace();
     f32 rubyCharSpace = ((J2DTextBox*)i_Msg->m0544[1].pane)->getCharSpace();
+#endif
+#if VERSION == VERSION_DEMO
+    i_Msg->m1104 = (((J2DTextBox*)i_Msg->m0544[0].pane)->mLineSpace / 2.0f);
+#else
     f32 tmp = 0.5f;
     i_Msg->m1104 = (((J2DTextBox*)i_Msg->m0544[0].pane)->mLineSpace * tmp);
+#endif
     i_Msg->mMsgDataProc.dataInit();
     i_Msg->mMsgDataProc.setBmgData(i_Msg->mpMesgStr);
     i_Msg->mMsgDataProc.setOutMessage(i_Msg->output_text, i_Msg->output_rub, i_Msg->output_textSdw, i_Msg->output_rubSdw);
@@ -1483,8 +1532,12 @@ void dMsg_mesgOutPos(sub_msg_class* i_Msg) {
     if (bVar4 == 1) {
         iVar3 = (int)(480.0f - (i_Msg->m0544[0].mPosTopLeftOrig.y + i_Msg->m0544[0].mSizeOrig.y)) + -0x13;
     } else if (bVar4 == 2) {
+#if VERSION == VERSION_DEMO
+        iVar3 = (int)(240.0f - i_Msg->m0544[0].mSizeOrig.y / 2.0f);
+#else
         f32 tmp = 0.5f;
         iVar3 = (int)(240.0f - i_Msg->m0544[0].mSizeOrig.y * tmp);
+#endif
     } else {
         iVar3 = (int)i_Msg->m0544[0].mPosTopLeftOrig.y + 0x20;
     }
@@ -1762,7 +1815,7 @@ void dMsg_numberInput(sub_msg_class* i_Msg) {
     for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
         if (i_Msg->mMsgDataProc.getIconNum(i) == fopMsgM_Icon_INPUT_e) {
             i_Msg->m10EC = ((i_Msg->m0544[0].pane)->getBounds().i.x + i_Msg->mMsgDataProc.getIconPosX(i));
-            i_Msg->m10F0 = ((i_Msg->m0544[0].pane)->getBounds().i.y + (i_Msg->m1104 * (s32)((VERSION_SELECT(3, 2, 3, 3) - i_Msg->m1108) + (i_Msg->mMsgDataProc.getIconPosY(i)) * 2)));
+            i_Msg->m10F0 = ((i_Msg->m0544[0].pane)->getBounds().i.y + (i_Msg->m1104 * (s32)((VERSION_SELECT(2, 2, 3, 3) - i_Msg->m1108) + (i_Msg->mMsgDataProc.getIconPosY(i)) * 2)));
         }
     }
     if (i_Msg->mMsgNo == 0x1cfa) {
@@ -1775,7 +1828,7 @@ void dMsg_numberInput(sub_msg_class* i_Msg) {
     numberPane[1]->setString(num_str[(dComIfGp_getMessageSetNumber() % 100) / 10]);
     numberPane[0]->setString(num_str[dComIfGp_getMessageSetNumber() % 10]);
     daNpc_Bs1_c::setBuyItem(dComIfGp_getMessageSetNumber());
-    if (CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0) || fopMsgM_checkMessageSend()) {
+    if (dMsg_CHECK_TRIG_AB() || fopMsgM_checkMessageSend()) {
         dMsg_setCancelMode(i_Msg);
     } else {
         dMeter_Info.field_0x0 = 3;
@@ -2169,7 +2222,7 @@ s32 dMsg_stopProc(sub_msg_class* i_Msg) {
             dMeter_Info.field_0x0 = 1;
         }
     } else {
-        if (((CPad_CHECK_TRIG_A(0)) || (CPad_CHECK_TRIG_B(0))) && (!dComIfGp_checkMesgBgm())) {
+        if (dMsg_CHECK_TRIG_AB() && (!dComIfGp_checkMesgBgm())) {
             i_Msg->mStatus = fopMsgStts_MSG_TYPING_e;
             dMsg_value_init(i_Msg);
             dMsg_yose_select(i_Msg);
@@ -2226,7 +2279,7 @@ s32 dMsg_selectProc(sub_msg_class* i_Msg) {
     sVar3 = i_Msg->m026C[0].mUserArea;
     if (sVar3 == 0) {
         if ((i_Msg->mStatus == fopMsgStts_SELECT_2_e) || (i_Msg->mStatus == fopMsgStts_SELECT_3_e)) {
-            if (((CPad_CHECK_TRIG_A(0)) || (CPad_CHECK_TRIG_B(0))) || (fopMsgM_checkMessageSend())) {
+            if (dMsg_CHECK_TRIG_AB() || (fopMsgM_checkMessageSend())) {
                 dMsg_subTextSizeSet(i_Msg);
                 i_Msg->m026C[0].mUserArea = 1;
                 mDoAud_seStart(JA_SE_TALK_SEL_WIN_OPEN);
@@ -2521,8 +2574,7 @@ s32 dMsg_continueProc(sub_msg_class* i_Msg) {
     iVar2 = (int)((J2DTextBox*)i_Msg->m0544[1].pane)->getCharSpace();
     if (
         (
-            CPad_CHECK_TRIG_A(0) ||
-            CPad_CHECK_TRIG_B(0) ||
+            dMsg_CHECK_TRIG_AB() ||
             i_Msg->mMsgDataProc.getSelectFlag() != fopMsgM_msgDataProc_c::Select_OFF ||
             fopMsgM_checkMessageSend() ||
             (i_Msg->mMsgNo == 0x5ac && dComIfGp_checkMesgCancelButton())
@@ -2682,7 +2734,7 @@ s32 dMsg_closewaitProc(sub_msg_class* i_Msg) {
     } else {
         if (i_Msg->mMsgDataProc.handSendFlag != 0) {
             if (i_Msg->mMsgDataProc.dec_waitTimer() != 0) {
-                if ((((CPad_CHECK_TRIG_A(0)) || (CPad_CHECK_TRIG_B(0))) || (fopMsgM_checkMessageSend())) && (!dComIfGp_checkMesgBgm())) {
+                if ((dMsg_CHECK_TRIG_AB() || (fopMsgM_checkMessageSend())) && (!dComIfGp_checkMesgBgm())) {
                     i_Msg->mMsgDataProc.setHandSendFlagOff();
                     i_Msg->mStatus = fopMsgStts_BOX_CLOSING_e;
                     bVar1 = i_Msg->mMesgEntry.mTextboxType;
@@ -2721,8 +2773,7 @@ s32 dMsg_closewaitProc(sub_msg_class* i_Msg) {
 s32 dMsg_finishProc(sub_msg_class* i_Msg) {
     if (
         (
-            CPad_CHECK_TRIG_A(0) ||
-            CPad_CHECK_TRIG_B(0) ||
+            dMsg_CHECK_TRIG_AB() ||
             i_Msg->mMsgDataProc.getSelectFlag() != fopMsgM_msgDataProc_c::Select_OFF ||
             fopMsgM_checkMessageSend() ||
             (i_Msg->mMsgNo == 0x5ac && dComIfGp_checkMesgCancelButton())
@@ -2781,18 +2832,28 @@ s32 dMsg_openItemProc(sub_msg_class* i_Msg) {
         }
         dMsg_setString(i_Msg);
         if ((i_Msg->mMsgNo == 0x74) || (i_Msg->mMsgNo == 0xbe)) {
+#if VERSION == VERSION_DEMO
+            f32 y = (i_Msg->m0624[8].mSize.y / 2.0f + i_Msg->m0624[8].pane->getGlbBounds().i.y) - 240.0f;
+            f32 x = (i_Msg->m0624[8].mSize.x / 2.0f + i_Msg->m0624[8].pane->getGlbBounds().i.x) - 320.0f;
+#else
             f32 tmp = 0.5f;
             f32 y = (i_Msg->m0624[8].mSize.y * tmp + i_Msg->m0624[8].pane->getGlbBounds().i.y) - 240.0f;
             f32 x = (i_Msg->m0624[8].mSize.x * tmp + i_Msg->m0624[8].pane->getGlbBounds().i.x) - 320.0f;
+#endif
             local_1c.set(x, y, 0.0f);
             i_Msg->m10B4[0] = dComIfGp_particle_set2Dfore(dPa_name::ID_HM_J2_RUPYLIGHT, &local_1c);
             if (i_Msg->mMsgNo == 0xbe) {
                 i_Msg->m10B4[1] = dComIfGp_particle_set2Dfore(dPa_name::ID_HM_J2_RUPYLIGHT, &local_1c);
             }
         } else if (i_Msg->mMsgNo == 0x9a) {
+#if VERSION == VERSION_DEMO
+            f32 y = ((i_Msg->m0624[8].mSize.y / 2.0f + i_Msg->m0624[8].pane->getGlbBounds().i.y) - 240.0f) - 10.0f;
+            f32 x = ((i_Msg->m0624[8].mSize.x / 2.0f + i_Msg->m0624[8].pane->getGlbBounds().i.x) - 320.0f) + 10.0f;
+#else
             f32 tmp = 0.5f;
             f32 y = ((i_Msg->m0624[8].mSize.y * tmp + i_Msg->m0624[8].pane->getGlbBounds().i.y) - 240.0f) - 10.0f;
             f32 x = ((i_Msg->m0624[8].mSize.x * tmp + i_Msg->m0624[8].pane->getGlbBounds().i.x) - 320.0f) + 10.0f;
+#endif
             local_28.set(x, y, 0.0f);
             i_Msg->m10B4[0] = dComIfGp_particle_set2Dfore(dPa_name::ID_HM_J2_ARWG_FLAME00, &local_28);
         }
@@ -2939,7 +3000,11 @@ s32 dMsg_initProc(sub_msg_class* i_Msg) {
 
 /* 802140CC-8021411C       .text dMsg_tactProc__FP13sub_msg_class */
 s32 dMsg_tactProc(sub_msg_class* i_Msg) {
+#if VERSION == VERSION_DEMO
+    if (fopMsgM_checkMessageSend() || CPad_CHECK_TRIG_A(3)) {
+#else
     if (fopMsgM_checkMessageSend()) {
+#endif
         i_Msg->mMsgDataProc.setAutoSendFlagOn();
         i_Msg->mMsgDataProc.set_waitTimer(30);
         i_Msg->mStatus = fopMsgStts_CLOSE_WAIT_e;
@@ -2961,7 +3026,7 @@ s32 dMsg_outnowProc(sub_msg_class* i_Msg) {
         }
     }
     if (i_Msg->mMesgEntry.mDrawType == 0) {
-        if (((CPad_CHECK_TRIG_A(0)) || (CPad_CHECK_TRIG_B(0))) && (!dComIfGp_checkMesgBgm())) {
+        if (dMsg_CHECK_TRIG_AB() && (!dComIfGp_checkMesgBgm())) {
             i_Msg->mMsgDataProc.field_0x299 = 1;
             if ((i_Msg->mMsgDataProc.autoSendFlag == 0 && (i_Msg->mMsgDataProc.getHandSendFlag() == 0)) && ((s32)i_Msg->mMsgDataProc.get_waitTimer() !=0)) {
                 i_Msg->mMsgDataProc.set_waitTimerZero();
