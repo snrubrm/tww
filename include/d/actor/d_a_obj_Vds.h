@@ -13,7 +13,7 @@ namespace daObjVds {
     class Act_c : public fopAc_ac_c {
     public:
         virtual ~Act_c() {}
-        inline BOOL is_switch() const;
+        inline BOOL is_switch();
     
         BOOL SetLoopJointAnimation(J3DAnmTransformKey*, J3DAnmTransformKey*, float, float);
         BOOL PlayLoopJointAnimation();
