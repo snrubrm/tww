@@ -153,17 +153,23 @@ bool daNpc_Kk1_c::createInit() {
     }
     mEventCut.setActorInfo2("Kk1", this);
     mSwNo = (fopAcM_GetParam(this) >> 8) & 0xFF;
+#if VERSION == VERSION_DEMO
+    int weight = 0xFF;
+#endif
     u8 path = (fopAcM_GetParam(this) >> 16) & 0xFF;
     if (path != 0xFF) {
-        mPath.setInf(path, current.roomNo, 1);
+        mPath.setInf(path, fopAcM_GetRoomNo(this), 1);
         if (mPath.getPath()) {
             fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
+#if VERSION == VERSION_DEMO
+            weight = 0xD9;
+#endif
             set_pthPoint(0);
         } else {
             return false;
         }
     }
-    if (!mPath.getPath()) {
+    if (mPath.isPath() == false) {
         return false;
     }
     attention_info.flags = 0xA;
@@ -190,7 +196,7 @@ bool daNpc_Kk1_c::createInit() {
     }
     mModelAngle = current.angle;
     shape_angle = mModelAngle;
-    mStts.Init(0xFF, 0xFF, this);
+    mStts.Init(DEMO_SELECT(weight, 0xFF), 0xFF, this);
     mCyl.SetStts(&mStts);
     mCyl.Set(dNpc_cyl_src);
     mObjAcch.CrrPos(*dComIfG_Bgsp());
@@ -209,7 +215,7 @@ void daNpc_Kk1_c::play_animation() {
     if (mObjAcch.ChkGroundHit()) {
         sound = dComIfG_Bgsp()->GetMtrlSndId(mObjAcch.m_gnd);
     }
-    mAnmEnd = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(current.roomNo));
+    mAnmEnd = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     if (mpMorf->getFrame() < mFrame) {
         mAnmEnd = 1;
     }
@@ -1557,7 +1563,7 @@ void daNpc_Kk1_c::set_pthPoint(unsigned char point) {
 
 /* 000036A8-00003940       .text event_move__11daNpc_Kk1_cFb */
 bool daNpc_Kk1_c::event_move(bool useArg) {
-    if (mPath.getPath() == NULL) {
+    if (mPath.isPath() == false) {
         return true;
     }
     if (!dPath_ChkClose(mPath.getPath())) {
@@ -2343,7 +2349,8 @@ BOOL daNpc_Kk1_c::_execute() {
     tevStr.mEnvrIdxOverride = dComIfG_Bgsp()->GetPolyColor(mObjAcch.m_gnd);
     setMtx(false);
     if (!m7C6 && !m7BB) {
-        setCollision(mAnmNo == 1 ? 60.0f : 40.0f, 140.0f);
+        f32 radius = mAnmNo == 1 ? 60.0f : 40.0f;
+        setCollision(radius, 140.0f);
     }
     return TRUE;
 }
