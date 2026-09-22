@@ -138,12 +138,12 @@ daGy_HIO_c::daGy_HIO_c() {
     m1C = 2.0f;
     m24 = 15.0f;
     m20 = 0.0f;
-    m28 = -80.0f;
-    m2C = -50.0f;
-    m30 = -150.0f;
-    m34 = -40.0f;
-    m38 = -100.0f;
-    m3C = -350.0f;
+    m28.x = -80.0f;
+    m28.y = -50.0f;
+    m28.z = -150.0f;
+    m34.x = -40.0f;
+    m34.y = -100.0f;
+    m34.z = -350.0f;
     m48 = 10.0f;
     m4C = 20.0f;
     m50 = 30.0f;
@@ -1326,8 +1326,8 @@ wave_ready:
     mD7C.setPitch(1.0f + l_HIO.m20);
     mD18.setPitch(1.0f - l_HIO.m20);
 
-    cXyz collapse0 = *(cXyz*)&l_HIO.m28;
-    cXyz collapse1 = *(cXyz*)&l_HIO.m34;
+    cXyz collapse0 = l_HIO.m28;
+    cXyz collapse1 = l_HIO.m34;
     cXyz collapse0_l = collapse0;
     cXyz collapse1_l = collapse1;
     mD7C.setAnchor(&collapse0, &collapse1);
