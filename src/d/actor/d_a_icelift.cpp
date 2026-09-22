@@ -25,7 +25,11 @@ static void rideCallBack(dBgW*, fopAc_ac_c*, fopAc_ac_c*);
 
 /* 00000078-000000E0       .text _delete__9daIlift_cFv */
 bool daIlift_c::_delete() {
+#if VERSION == VERSION_DEMO
+    dComIfG_Bgsp()->Release(mBgW);
+#else
     if (heap != NULL) dComIfG_Bgsp()->Release(mBgW);
+#endif
     dComIfG_resDelete(&mPhs, m_arcname[mType]);
     return true;
 }
@@ -38,7 +42,7 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 /* 00000100-00000284       .text CreateHeap__9daIlift_cFv */
 BOOL daIlift_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname[mType], m_bmdidx[mType]);
-    JUT_ASSERT(235, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(233, 235), modelData != NULL);
     mModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mModel == NULL) return FALSE;
     mBgW = new dBgW();
@@ -62,8 +66,8 @@ static void rideCallBack(dBgW*, fopAc_ac_c* actor, fopAc_ac_c* rider) {
         axis = axis.outprod(up);
         lift->mRideDistance = axis.abs();
         if (axis.normalizeRS()) {
-            f32 tilt = -lift->mRideDistance;
             f32 factor = 4.0f;
+            f32 tilt = -lift->mRideDistance;
             lift->mTiltTarget = tilt * factor;
             cLib_addCalcAngleS2(&lift->mTiltAngle, lift->mTiltTarget, 8, 0x200);
             f32 sine = cM_ssin(lift->mTiltAngle);
@@ -82,7 +86,7 @@ void daIlift_c::CreateInit() {
     fopAcM_setCullSizeBox(this, -200.0f, -250.0f, -200.0f, 200.0f, 250.0f, 200.0f);
     cullSizeFar = 1.0f;
     mAcchCir.SetWall(30.0f, 30.0f);
-    mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
     mAcch.ClrWaterNone();
     mAcch.ClrRoofNone();
     gravity = -5.0f;
@@ -90,7 +94,7 @@ void daIlift_c::CreateInit() {
     mQuat = mTargetQuat;
     mPathId = (fopAcM_GetParam(this) >> 4) & 0xFF;
     if (mPathId != 0xFF) {
-        mPath = dPath_GetRoomPath(mPathId, current.roomNo);
+        mPath = dPath_GetRoomPath(mPathId, fopAcM_GetRoomNo(this));
         if (mPath != NULL) {
             mPathDirection = 1;
             mPointIndex = 1;
@@ -162,14 +166,16 @@ bool daIlift_c::_execute() {
 /* 000009C8-00000C8C       .text lift_wave__9daIlift_cFv */
 void daIlift_c::lift_wave() {
     cXyz up(0.0f, 1.0f, 0.0f);
+    f32 strength = 10.0f;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
     if (!mRidden && mWasRidden) {
         f32 distance = (mPreviousPlayerPos - player->current.pos).absXZ();
-        mTiltTarget = (distance / 18.0f) * (10.0f * (4.0f * -mRideDistance));
+        mTiltTarget = (distance / 18.0f) * (strength * (4.0f * -mRideDistance));
         mRideDistance = 0.0f;
     }
     if (!mRidden) {
-        cLib_addCalcAngleS(&mTiltAngle, (mTiltTarget * cM_scos(mWaveTimer * 0x400)) / mWaveTimer, 4, 0x800, 0x400);
+        s16 target = (mTiltTarget * cM_scos(mWaveTimer * 0x400)) / mWaveTimer;
+        cLib_addCalcAngleS(&mTiltAngle, target, 4, 0x800, 0x400);
         f32 sine = cM_ssin(mTiltAngle);
         cXyz axis = mRideOffset.outprod(up);
         axis = axis.normZP();
@@ -190,6 +196,10 @@ void daIlift_c::path_move() {
 
 /* 00000CB8-00000E5C       .text lift_normal_move__9daIlift_cFv */
 void daIlift_c::lift_normal_move() {
+    f32 near_dist = 50.0f;
+    f32 div = 4.0f;
+    f32 step = 1.0f;
+    f32 decel = 2.2f;
     switch (mMoveState) {
     case 0:
         mMoveState = 1;
@@ -197,15 +207,15 @@ void daIlift_c::lift_normal_move() {
         set_next_pnt();
     case 1:
         mMoveTimer++;
-        if (cLib_addCalc(&mMoveSpeed, mMaxSpeed, 0.25f, 1.0f, 1.0f) == 0.0f) mMoveState = 2;
+        if (cLib_addCalc(&mMoveSpeed, mMaxSpeed, 1.0f / div, step, 1.0f) == 0.0f) mMoveState = 2;
         break;
     case 2:
         mMoveTimer = 0;
-        if ((current.pos - mTargetPos).abs() < 50.0f) mMoveState = 3;
+        if ((current.pos - mTargetPos).abs() < near_dist) mMoveState = 3;
         break;
     case 3:
         mMoveTimer++;
-        if (cLib_addCalc(&mMoveSpeed, mMaxSpeed / 2.2f, 0.25f, 1.0f, 1.0f) == 0.0f) mMoveState = 0;
+        if (cLib_addCalc(&mMoveSpeed, mMaxSpeed / decel, step / div, step, step) == 0.0f) mMoveState = 0;
         break;
     }
     cLib_addCalcPos2(&current.pos, mTargetPos, 1.0f, mMoveSpeed);
