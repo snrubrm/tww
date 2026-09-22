@@ -17,6 +17,7 @@
 #include "d/actor/d_a_item.h"
 #include "d/actor/d_a_player_main.h"
 #include "d/actor/d_a_arrow.h"
+#include "d/actor/d_a_gnd.h"
 #include "d/d_demo.h"
 #include "d/d_cc_uty.h"
 #include "d/d_item_data.h"
@@ -2120,10 +2121,9 @@ bool daPz_c::_execute() {
     } else if (cLib_calcTimer(&m0F7C) == 0) {
         fopAc_ac_c* gnd;
         if (fopAcM_SearchByName(fpcNm_GND_e, &gnd)) {
-            fopAc_ac_c* ganonAc = gnd;
+            gnd_class* ganon = (gnd_class*)gnd;
             f32 dist = fopAcM_searchActorDistanceXZ(this, dComIfGp_getPlayer(0));
-            if (dist < (&l_HIO.m100)[mTalkState] &&
-                (*(s16*)((u8*)ganonAc + 0x2CE)) == 0) {
+            if (dist < (&l_HIO.m100)[mTalkState] && ganon->m2CE == 0) {
                 mEventOrder = 1;
                 modeProc(PROC_INIT_e, MODE_TALK);
             }
