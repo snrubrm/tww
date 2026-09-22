@@ -700,9 +700,12 @@ int daNpc_De1_c::wait02() {
         setStt(4);
     } else {
         daLlift_c* lift = (daLlift_c*)searchByID(mLiftID);
-        if (lift != NULL && lift->current.pos.y < lift->home.pos.y + daLlift_c::m_height) {
-            setStt(5);
-            return 1;
+        if (lift != NULL) {
+            const f32& h = daLlift_c::m_height;
+            if (lift->current.pos.y < lift->home.pos.y + h) {
+                setStt(5);
+                return 1;
+            }
         }
         if (mAttention) {
             mOrder = 2;
