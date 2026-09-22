@@ -1684,6 +1684,22 @@ void dComIfGs_revPlayerRecollectionData() {
     tmp_item.mItems[dInvSlot_BOTTLE3_e] = dComIfGs_getItem(dInvSlot_BOTTLE3_e);
     tmp_item.mItems[dInvSlot_CAMERA_e]  = dComIfGs_getItem(dInvSlot_CAMERA_e);
 
+#if VERSION == VERSION_DEMO
+    u8* buffer = (u8*)dComIfGp_getPlayerInfoBuffer();
+    memcpy(dComIfGs_getpPlayerStatusA(), buffer, sizeof(dSv_player_status_a_c));
+    buffer += sizeof(dSv_player_status_a_c);
+    memcpy(dComIfGs_getpItem(), buffer, sizeof(dSv_player_item_c));
+    buffer += sizeof(dSv_player_item_c);
+    memcpy(&dComIfGs_getpItemRecord()->mItemRecord2, buffer, sizeof(dSv_player_item_record2_c));
+    buffer += sizeof(dSv_player_item_record2_c);
+    memcpy(&dComIfGs_getpItemMax()->mItemMax2, buffer, sizeof(dSv_player_item_max2_c));
+    buffer += sizeof(dSv_player_item_max2_c);
+    memcpy(dComIfGs_getpBagItem(), buffer, sizeof(dSv_player_bag_item_c));
+    buffer += sizeof(dSv_player_bag_item_c);
+    memcpy(dComIfGs_getpBagItemRecord(), buffer, sizeof(dSv_player_bag_item_record_c));
+    buffer += sizeof(dSv_player_bag_item_record_c);
+    memcpy(dComIfGs_getpCollect(), buffer, sizeof(dSv_player_collect_c));
+#else
     // TODO: This matches but could probably be cleaned up somehow.
     u32 buffer = (u32)dComIfGp_getPlayerInfoBuffer();
     memcpy(dComIfGs_getpPlayerStatusA(),             (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectStatusA)),       sizeof(dSv_player_status_c_c().mRecollectStatusA));
@@ -1693,6 +1709,7 @@ void dComIfGs_revPlayerRecollectionData() {
     memcpy(dComIfGs_getpBagItem(),                   (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectBagItem)),       sizeof(dSv_player_status_c_c().mRecollectBagItem));
     memcpy(dComIfGs_getpBagItemRecord(),             (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectBagItemRecord)), sizeof(dSv_player_status_c_c().mRecollectBagItemRecord));
     memcpy(dComIfGs_getpCollect(),                   (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectCollect)),       sizeof(dSv_player_status_c_c().mRecollectCollect));
+#endif
 
     dComIfGs_setMaxLife(tmp_sttsA.mMaxLife);
     dComIfGs_setLife(tmp_sttsA.mLife);
