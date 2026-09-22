@@ -1440,6 +1440,24 @@ void dComIfGs_copyPlayerRecollectionData() {
         return;
     }
 
+#if VERSION == VERSION_DEMO
+    u8* buffer = (u8*)&stts;
+    u8* start = buffer;
+    memcpy(buffer, dComIfGs_getpPlayerStatusA(), sizeof(stts.mRecollectStatusA));
+    buffer += sizeof(stts.mRecollectStatusA);
+    memcpy(buffer, dComIfGs_getpItem(), sizeof(stts.mRecollectItem));
+    buffer += sizeof(stts.mRecollectItem);
+    memcpy(buffer, &dComIfGs_getpItemRecord()->mItemRecord2, sizeof(stts.mRecollectItemRecord));
+    buffer += sizeof(stts.mRecollectItemRecord);
+    memcpy(buffer, &dComIfGs_getpItemMax()->mItemMax2, sizeof(stts.mRecollectItemMax));
+    buffer += sizeof(stts.mRecollectItemMax);
+    memcpy(buffer, dComIfGs_getpBagItem(), sizeof(stts.mRecollectBagItem));
+    buffer += sizeof(stts.mRecollectBagItem);
+    memcpy(buffer, dComIfGs_getpBagItemRecord(), sizeof(stts.mRecollectBagItemRecord));
+    buffer += sizeof(stts.mRecollectBagItemRecord);
+    memcpy(buffer, dComIfGs_getpCollect(), sizeof(stts.mRecollectCollect));
+    memcpy(dComIfGs_getpPlayerStatusC(tbl), start, sizeof(stts));
+#else
     u8* buffer = (u8*)&stts;
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectStatusA),       dComIfGs_getpPlayerStatusA(),             sizeof(stts.mRecollectStatusA));
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectItem),          dComIfGs_getpItem(),                      sizeof(stts.mRecollectItem));
@@ -1449,6 +1467,7 @@ void dComIfGs_copyPlayerRecollectionData() {
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectBagItemRecord), dComIfGs_getpBagItemRecord(),             sizeof(stts.mRecollectBagItemRecord));
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectCollect),       dComIfGs_getpCollect(),                   sizeof(stts.mRecollectCollect));
     memcpy(dComIfGs_getpPlayerStatusC(tbl), &stts, sizeof(stts));
+#endif
 }
 
 /* 80054E9C-80055318       .text dComIfGs_setPlayerRecollectionData__Fv */
