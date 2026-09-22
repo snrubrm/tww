@@ -42,6 +42,12 @@ add_relocations:
 - source: .text:0x803069f8
   type: l
   target: _db_stack_end
+- source: .text:0x8033c5f8
+  type: hi
+  target: _db_stack_addr
+- source: .text:0x8033c5fc
+  type: l
+  target: _db_stack_addr
 # Interrupt vector table is copied to low memory at runtime; restore its references to the TRK handler
 - source: .init:0x8000376c
   type: hi
