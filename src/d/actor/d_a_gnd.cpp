@@ -1425,14 +1425,10 @@ static void defence0(gnd_class* i_this) {
     switch (i_this->m2D0) {
     case 0:
 #if VERSION > VERSION_DEMO
-        if (i_this->m3D8 == 2) {
-            f32 dy = player->current.pos.y - i_this->mAcch.GetGroundH();
-            if (dy > 300.0f + REG0_F(19)) {
-                i_this->m3DC = 0;
-                i_this->m3D5 = 2;
-                goto defence_anm;
-            }
-        }
+        if (i_this->m3D8 == 2 && player->current.pos.y - i_this->mAcch.GetGroundH() > 300.0f + REG0_F(19)) {
+            i_this->m3DC = 0;
+            i_this->m3D5 = 2;
+        } else
 #endif
         if ((player->getCutType() == 0xF && cM_rndF(1.0f) < 0.8f) ||
             (i_this->m3DB == 1 && cM_rndF(1.0f) < 0.05f && i_this->m3D8 == 2))
@@ -1448,7 +1444,6 @@ static void defence0(gnd_class* i_this) {
         }
         anm_init(i_this, bougyo_d[i_this->m3DC], 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
 #else
-    defence_anm:
         anm_init(i_this, bougyo_d[i_this->m3DC], 4.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
     defence_jump_init:
 #endif
@@ -1811,22 +1806,11 @@ static void damage_check(gnd_class* i_this) {
                 if (ang_diff < 0) {
                     ang_diff = -ang_diff;
                 }
-                if ((u16)ang_diff >= 0x4000) {
-                    goto reflect_chk;
+                if (((u16)ang_diff < 0x4000 && i_this->m3D8 < 2) || arrow->mbLinkReflect != 0) {
+                    ignore_arrow = 1;
+                } else {
+                    i_this->m13CE = 2;
                 }
-                if (i_this->m3D8 < 2) {
-                    goto set_ignore;
-                }
-            reflect_chk:
-                if (arrow->mbLinkReflect == 0) {
-                    goto set_13ce;
-                }
-            set_ignore:
-                ignore_arrow = 1;
-                goto arrow_done;
-            set_13ce:
-                i_this->m13CE = 2;
-            arrow_done:;
             }
         }
 
