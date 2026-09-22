@@ -55,19 +55,18 @@ __declspec(section ".init") void TRK_copy_vector(u32 offset) {
     TRK_flush_cache(destPtr, 0x100);
 }
 
-static void TRK_copy_vectors_by_mask(u32* maskPtr) {
+// NONMATCHING - regalloc: mask/i/destPtr and the hoisted TRK_ISR_OFFSETS pointer get r31/r27/r29/r28 instead of r29/r28/r27/r31
+__declspec(section ".init") void __TRK_copy_vectors(void) {
     int i;
-    u32 mask = *maskPtr;
+    u32 mask;
 
-    for (i = 0; i <= 14; i++) {
+    mask = *(u32*)TRKTargetTranslate(0x44);
+
+    for (i = 0; i <= 14; ++i) {
         if (mask & (1 << i)) {
             TRK_copy_vector(TRK_ISR_OFFSETS[i]);
         }
     }
-}
-
-__declspec(section ".init") void __TRK_copy_vectors(void) {
-    TRK_copy_vectors_by_mask((u32*)TRKTargetTranslate(0x44));
 }
 
 DSError TRKInitializeTarget() {
