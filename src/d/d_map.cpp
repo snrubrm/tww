@@ -2032,8 +2032,10 @@ void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
 
 /* 8004A3A4-8004A478       .text calcScissor__6dMap_cFv */
 void dMap_c::calcScissor() {
-    int x = (mDispPosLeftUpX - -9.0f) * 640.0f / 659.0f;
-    int y = (mDispPosLeftUpY - -21.0f) * 480.0f / 524.0f;
+    s16 px = mDispPosLeftUpX;
+    int x = (px - -9.0f) * 640.0f / 659.0f;
+    s16 py = mDispPosLeftUpY;
+    int y = (py - -21.0f) * 480.0f / 524.0f;
     int width = 116;
     int height = 109;
 
@@ -2450,7 +2452,12 @@ void dMap_c::setCollectPoint(u8 param_1, u8 param_2, f32 param_3, f32 param_4, f
     if (mCollectPointDataCnt >= 64) {
         return;
     }
-    if (getKindMapType() != 1 && param_1 != 1 && param_1 != 3 && param_6 != -1 && (!mNowRoomInfoP || param_6 != mNowRoomInfoP->getRoomNo())) {
+#if VERSION == VERSION_DEMO
+    if (param_1 != 1 && param_1 != 3 && param_6 != -1 && (!mNowRoomInfoP || param_6 != mNowRoomInfoP->getRoomNo()))
+#else
+    if (getKindMapType() != 1 && param_1 != 1 && param_1 != 3 && param_6 != -1 && (!mNowRoomInfoP || param_6 != mNowRoomInfoP->getRoomNo()))
+#endif
+    {
         return;
     }
     int typeNo = param_1 - 1;
@@ -2588,7 +2595,12 @@ void dMap_c::setGbaPoint(u8 param_1, f32 param_2, f32 param_3, s16 param_4, u8 p
 
 /* 8004B8DC-8004B9C8       .text setArriveInfo__6dMap_cFff */
 void dMap_c::setArriveInfo(f32 param_1, f32 param_2) {
-    if (!dComIfGp_event_runCheck() && strcmp(dComIfGp_getStartStageName(), "sea") == 0) {
+#if VERSION == VERSION_DEMO
+    if (getKindMapType() == 1)
+#else
+    if (!dComIfGp_event_runCheck() && strcmp(dComIfGp_getStartStageName(), "sea") == 0)
+#endif
+    {
         s8 gridX;
         s8 gridY;
         s16 localX;
@@ -2597,9 +2609,13 @@ void dMap_c::setArriveInfo(f32 param_1, f32 param_2) {
         if (mPlGridX != gridX || mPlGridY != gridY) {
             mPlGridX = gridX;
             mPlGridY = gridY;
+#if VERSION == VERSION_DEMO
+            onSaveArriveGridForAgbUseGridPos(mPlGridX, mPlGridY);
+#else
             if (gridX >= -3 && gridX <= 3 && gridY >= -3 && gridY <= 3) {
                 onSaveArriveGridForAgbUseGridPos(gridX, gridY);
             }
+#endif
             agbMapNoSetCall();
         }
     }
