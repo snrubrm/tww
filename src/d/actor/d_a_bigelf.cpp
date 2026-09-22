@@ -1107,9 +1107,14 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 
 /* 00002FCC-00003124       .text _create__10daBigelf_cFv */
 cPhs_State daBigelf_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daBigelf_c);
+#endif
     cPhs_State phase_state = dComIfG_resLoad(&mPhase, "bigelf");
     if (phase_state == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(this, daBigelf_c);
+#endif
         switch (fopAcM_GetName(this)) {
         case fpcNm_BIGELF_e:
             mNpcType = 0;
@@ -1118,12 +1123,16 @@ cPhs_State daBigelf_c::_create() {
             return cPhs_ERROR_e;
         }
         if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0xB7B0)) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
         if (!init()) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
     }
