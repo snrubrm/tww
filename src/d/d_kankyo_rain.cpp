@@ -1991,6 +1991,185 @@ void wave_move() {
 }
 
 /* 80091964-80092294       .text cloud_shadow_move__Fv */
+#if VERSION == VERSION_JPN
+void cloud_shadow_move() {
+    dKankyo_cloud_Packet* pPkt = dKy_getEnvlight().mpMoyaPacket;
+    camera_process_class* pCamera = (camera_process_class*)dComIfGp_getCamera(0);
+    Mtx camMtx;
+    cXyz windVecPow = dKyw_get_wind_vecpow();
+    cXyz center;
+    cXyz pos;
+    cXyz pntwind;
+    cXyz velRndm;
+
+    if (dComIfGd_getView() != NULL) {
+        MTXInverse(dComIfGd_getViewRotMtx(), camMtx);
+    } else {
+        return;
+    }
+
+    if (pPkt->mCount <= dKy_getEnvlight().mMoyaCount)
+        pPkt->mCount = (s16)dKy_getEnvlight().mMoyaCount;
+
+    if (pPkt->mCount == 0)
+        return;
+
+    f32 rnd_pos = 2000.0f;
+    dKy_set_eyevect_calc2(pCamera, &center, rnd_pos, rnd_pos);
+
+    for (s32 i = 0; i < pPkt->mCount; i++) {
+        switch (pPkt->mEff[i].mStatus) {
+        case 0:
+            pPkt->mEff[i].mInitialSize = 400.0f + cM_rndFX(80.0f);
+            pPkt->mEff[i].mSize = pPkt->mEff[i].mInitialSize;
+            pPkt->mEff[i].mBasePos.set(center);
+            pPkt->mEff[i].mPos.x = cM_rndFX(rnd_pos);
+            pPkt->mEff[i].mPos.y = cM_rndFX(rnd_pos);
+            pPkt->mEff[i].mPos.z = cM_rndFX(rnd_pos);
+            pPkt->mEff[i].mWindSpeed = 0.7f + cM_rndF(0.3f);
+            pPkt->mEff[i].mAlpha = 0.0;
+            pPkt->mEff[i].mAnimCounter = cM_rndF(0xFFFF);
+            pPkt->mEff[i].mVelRndm.x = cM_rndF(360.0f);
+            pPkt->mEff[i].mVelRndm.y = cM_rndF(360.0f);
+            pPkt->mEff[i].mVelRndm.z = cM_rndF(360.0f);
+            pPkt->mEff[i].mPntWindVel.x = 0.0f;
+            pPkt->mEff[i].mPntWindVel.y = 0.0f;
+            pPkt->mEff[i].mPntWindVel.z = 0.0f;
+            pPkt->mEff[i].mStatus++;
+            break;
+        case 1:
+        case 2:
+            {
+                pos.x = pPkt->mEff[i].mBasePos.x + pPkt->mEff[i].mPos.x;
+                pos.y = pPkt->mEff[i].mBasePos.y + pPkt->mEff[i].mPos.y;
+                pos.z = pPkt->mEff[i].mBasePos.z + pPkt->mEff[i].mPos.z;
+                pPkt->mEff[i].mAnimCounter += 1200;
+                cLib_chaseF(&pPkt->mEff[i].field_0x34, pPkt->mEff[i].mWindSpeed, 7.0f);
+                if (dKy_getEnvlight().mMoyaMode & 1) {
+                    if (strcmp(dComIfGp_getStartStageName(), "M_DragB") != 0 || dKy_getEnvlight().mbVrboxInvisible) {
+                        if (dKy_getEnvlight().mMoyaMode == 1) {
+                            pPkt->mEff[i].mPos.y += 20.0f;
+                        }
+                    } else {
+                        pPkt->mEff[i].mPos.y += 5.0f;
+                    }
+                }
+
+                f32 speed;
+                if (dKy_getEnvlight().mMoyaMode == 1) {
+                    speed = 10.0f;
+                } else {
+                    speed = 40.0f;
+                }
+
+                pPkt->mEff[i].mPos.x += windVecPow.x * speed * pPkt->mEff[i].mWindSpeed;
+                pPkt->mEff[i].mPos.y += windVecPow.y * speed * pPkt->mEff[i].mWindSpeed;
+                pPkt->mEff[i].mPos.z += windVecPow.z * speed * pPkt->mEff[i].mWindSpeed;
+                pntwind = dKyw_pntwind_get_vecpow(&pos);
+                if (pPkt->mEff[i].mPntWindVel.x < 30.0f)
+                    pPkt->mEff[i].mPntWindVel.x += pntwind.x * 9.0f;
+                if (pPkt->mEff[i].mPntWindVel.y < 30.0f)
+                    pPkt->mEff[i].mPntWindVel.y += pntwind.y * 9.0f;
+                if (pPkt->mEff[i].mPntWindVel.z < 30.0f)
+                    pPkt->mEff[i].mPntWindVel.z += pntwind.z * 9.0f;
+
+                cLib_addCalc(&pPkt->mEff[i].mPntWindVel.x, 0.0f, 0.2f, 0.1f, 0.00001f);
+                cLib_addCalc(&pPkt->mEff[i].mPntWindVel.y, 0.0f, 0.2f, 0.1f, 0.00001f);
+                cLib_addCalc(&pPkt->mEff[i].mPntWindVel.z, 0.0f, 0.2f, 0.1f, 0.00001f);
+
+                pPkt->mEff[i].mPos.x += pPkt->mEff[i].mPntWindVel.x;
+                pPkt->mEff[i].mPos.y += pPkt->mEff[i].mPntWindVel.y;
+                pPkt->mEff[i].mPos.z += pPkt->mEff[i].mPntWindVel.z;
+
+                if (strcmp(dComIfGp_getStartStageName(), "kaze") == 0) {
+                    speed = 18.0f;
+                } else {
+                    speed = 8.0f;
+                }
+
+                velRndm.x = (pPkt->mEff[i].mVelRndm.x / 360.0f - 0.5f) * speed;
+                velRndm.y = (pPkt->mEff[i].mVelRndm.y / 360.0f - 0.5f) * speed;
+                velRndm.z = (pPkt->mEff[i].mVelRndm.z / 360.0f - 0.5f) * speed;
+
+                pPkt->mEff[i].mPos.x += velRndm.x;
+                pPkt->mEff[i].mPos.y += velRndm.y;
+                pPkt->mEff[i].mPos.z += velRndm.z;
+
+                pos.x = pPkt->mEff[i].mBasePos.x + pPkt->mEff[i].mPos.x;
+                pos.y = pPkt->mEff[i].mBasePos.y + pPkt->mEff[i].mPos.y;
+                pos.z = pPkt->mEff[i].mBasePos.z + pPkt->mEff[i].mPos.z;
+
+                if (pos.abs(center) > rnd_pos) {
+                    pPkt->mEff[i].mBasePos.set(center);
+
+                    if (pos.abs(center) > rnd_pos + 500.0f) {
+                        pPkt->mEff[i].mPos.x = cM_rndFX(rnd_pos);
+                        pPkt->mEff[i].mPos.y = cM_rndFX(rnd_pos);
+                        pPkt->mEff[i].mPos.z = cM_rndFX(rnd_pos);
+                    } else {
+                        get_vectle_calc(&pos, &center, &pntwind);
+                        pPkt->mEff[i].mPos.x = pntwind.x * rnd_pos;
+                        pPkt->mEff[i].mPos.y = pntwind.y * rnd_pos;
+                        pPkt->mEff[i].mPos.z = pntwind.z * rnd_pos;
+                    }
+
+                    pPkt->mEff[i].mAlpha = 0.0f;
+                }
+            }
+            break;
+        case 3:
+            pPkt->mEff[i].mStatus = 0;
+            break;
+        }
+
+        pos.x = pPkt->mEff[i].mBasePos.x + pPkt->mEff[i].mPos.x;
+        pos.y = pPkt->mEff[i].mBasePos.y + pPkt->mEff[i].mPos.y;
+        pos.z = pPkt->mEff[i].mBasePos.z + pPkt->mEff[i].mPos.z;
+
+        f32 wave = 0.0f;
+        f32 sp18 = (pos.abs(pCamera->view.mLookat.mEye) - 1000.0f) / rnd_pos;
+        sp18 = sp18 * 1.5f;
+        f32 sin = cM_ssin(pPkt->mEff[i].mAnimCounter);
+        if (dKy_getEnvlight().mMoyaMode != 0) {
+            if (sin < 0.0f) {
+                wave = 100.0f * sin;
+            } else {
+                wave = 100.0f * sin;
+            }
+        }
+        pPkt->mEff[i].mSize = wave + (pPkt->mEff[i].mInitialSize + pPkt->mEff[i].mInitialSize * sp18);
+
+        f32 dist = pos.abs(pCamera->view.mLookat.mEye);
+        if (dist < 0.0f)
+            dist = 0.0f;
+
+        f32 alphaTarget = 1.0f;
+        if (dist < 1000.0f || dist > 2800.0f) {
+            alphaTarget = 0.0f;
+        } else if (dist > 2700.0f) {
+            alphaTarget = (2800.0f - dist) / 100.0f;
+        } else if (dist < 1300.0f) {
+            alphaTarget = 1.0f - (1300.0f - dist) / 300.0f;
+        }
+
+        f32 maxAlpha = 0.035f;
+        if (dKy_getEnvlight().mMoyaMode == 3) {
+            maxAlpha = 0.06f;
+        } else if (dKy_getEnvlight().mMoyaMode == 4) {
+            maxAlpha = 0.05f;
+        }
+
+        if (i > dKy_getEnvlight().mMoyaCount - 1) {
+            alphaTarget = 0.0f;
+            if (pPkt->mEff[i].mAlpha < 0.001f && i == pPkt->mCount - 1) {
+                pPkt->mCount--;
+            }
+        }
+
+        cLib_addCalc(&pPkt->mEff[i].mAlpha, alphaTarget * maxAlpha, 0.02f, 0.005f, 0.00000001f);
+    }
+}
+#else
 void cloud_shadow_move() {
     dKankyo_cloud_Packet* pPkt = dKy_getEnvlight().mpMoyaPacket;
     camera_process_class* pCamera = (camera_process_class*)dComIfGp_getCamera(0);
@@ -2174,6 +2353,7 @@ void cloud_shadow_move() {
 #endif
     }
 }
+#endif
 
 /* 80092294-80092310       .text light_at_hit_check__FP4cXyz */
 BOOL light_at_hit_check(cXyz* pPos) {
