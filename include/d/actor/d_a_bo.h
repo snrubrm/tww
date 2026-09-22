@@ -88,6 +88,9 @@ public:
     /* 0x39C */ cXyz m39C;
     /* 0x3A8 */ u8 m3A8[0x3B0 - 0x3A8];
     /* 0x3B0 */ dPa_smokeEcallBack mSmokeCb;
+#if VERSION == VERSION_DEMO
+    /* 0x3D0 */ JPABaseEmitter* mSmokeEmitter;
+#endif
     /* 0x3D0 */ JPABaseEmitter* m3D0;
     /* 0x3D4 */ JPABaseEmitter* m3D4;
     /* 0x3D8 */ JPABaseEmitter* m3D8;
@@ -103,6 +106,6 @@ public:
     /* 0xFDC */ mDoExt_invisibleModel mInvisModel;
 };
 
-STATIC_ASSERT(sizeof(bo_class) == 0xFE4);
+STATIC_ASSERT(sizeof(bo_class) == DEMO_SELECT(0xFE8, 0xFE4));
 
 #endif /* D_A_BO_H */
