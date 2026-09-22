@@ -1238,11 +1238,11 @@ BOOL daNpc_Kf1_c::wait_1() {
         mEventOrder = 2;
     }
     mNoTurn = true;
-    if ((int)(u8)mAnmIndex == 9) {
+    if (mAnmIndex == 9) {
         mLookTimer = 0;
     }
     if (cLib_calcTimer(&mLookTimer) == 0) {
-        if ((int)(u8)mAnmIndex != 9) {
+        if (mAnmIndex != 9) {
             setAnm_NUM(9, 1);
             mMoveTimer = 0;
         }
@@ -1328,7 +1328,7 @@ BOOL daNpc_Kf1_c::talk_1() {
         endEvent();
         break;
     }
-    return (u8)(mAnmIndex != 4);
+    return mAnmIndex != 4;
 }
 
 /* 000035CC-000036B4       .text wait_action1__11daNpc_Kf1_cFPv */
