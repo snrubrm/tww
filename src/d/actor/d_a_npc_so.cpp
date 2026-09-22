@@ -1331,7 +1331,13 @@ void daNpc_So_c::checkOrder() {
 void daNpc_So_c::setScale() {
     f32 dist = fopAcM_searchPlayerDistanceXZ(this);
     if (dist > l_HIO.m48) {
+#if VERSION == VERSION_DEMO
+        f32 over = dist - l_HIO.m48;
+        f32 step = (100000.0f - l_HIO.m48) / l_HIO.m4C;
+        mB08 = 1.0f + over / step;
+#else
         mB08 = 1.0f + (dist - l_HIO.m48) / ((100000.0f - l_HIO.m48) / l_HIO.m4C);
+#endif
         if (mB08 > l_HIO.m4C) {
             mB08 = l_HIO.m4C;
         }
