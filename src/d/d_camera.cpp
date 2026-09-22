@@ -4145,7 +4145,11 @@ bool dCamera_c::talktoCamera(s32 param_1) {
 
             for (int i = 0; i < 36; i++) {
                 cSAngle cur = talk->m3A0.U() - relGlobe.U();
+#if VERSION == VERSION_DEMO
+                if (cSAngle(cur.Abs()) < cSAngle(10.0f)) {
+#else
                 if (std::fabsf(cur.Degree()) < 10.0f) {
+#endif
                     talk->m3A0.U(talk->m3A0.U() + step);
                     continue;
                 }
@@ -4471,10 +4475,11 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             side = talk->m3B0 == 0 ? 1 : 0;
         }
         if (talk->m3BC == 0) {
+            f32 quarter = 0.25f;
             f32 height = (eyePos(actor1).y - positionOf(actor1).y) * 1.2f;
-            f32 eyeDelta = (eyePos(actor2).y - eyePos(actor1).y) * 0.25f;
+            f32 eyeDelta = (eyePos(actor2).y - eyePos(actor1).y) * quarter;
             f32 mixY = 0.5f * height + eyeDelta;
-            cXyz offA(25.0f, 0.0f, 0.25f * talk->m3A8.R());
+            cXyz offA(25.0f, 0.0f, quarter * talk->m3A8.R());
             cXyz offB(75.0f, eyeDelta, -75.0f);
             if (side) {
                 offA.x = -offA.x;
