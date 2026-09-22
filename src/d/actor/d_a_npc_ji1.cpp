@@ -35,9 +35,7 @@ public:
     /* 0x016 */ s16 field_0x16;
     /* 0x018 */ s16 field_0x18;
     /* 0x01A */ u8 field_0x1A;
-    /* 0x01C */ f32 field_0x1C;
-    /* 0x020 */ f32 field_0x20;
-    /* 0x024 */ f32 field_0x24;
+    /* 0x01C */ cXyz field_0x1C;
     /* 0x028 */ u8 field_0x28;
     /* 0x02C */ f32 field_0x2C;
     /* 0x030 */ u8 field_0x30;
@@ -232,9 +230,9 @@ daNpc_Ji1_HIO_c::daNpc_Ji1_HIO_c() {
     field_0x14 = 5000;
     field_0x16 = 1;
     field_0x18 = 2000;
-    field_0x1C = 0.0f;
-    field_0x20 = 20.0f;
-    field_0x24 = 20.0f;
+    field_0x1C.x = 0.0f;
+    field_0x1C.y = 20.0f;
+    field_0x1C.z = 20.0f;
     field_0x28 = 0;
     field_0x2C = 200.0f;
     field_0x30 = 0;
