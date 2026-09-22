@@ -2593,6 +2593,7 @@ void dMap_c::setCollectPoint(u8 param_1, u8 param_2, f32 param_3, f32 param_4, f
 }
 
 /* 8004B33C-8004B814       .text setGbaPoint_dungeon__6dMap_cFUcffsUcUcUcUc */
+// NONMATCHING - the original sign-extends sx/sz before subtracting the AGB scroll; we don't.
 void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm6, u8 prm7, u8 prm8) {
     u8* ptr;
     if (mNowRoomInfoP == NULL || !mNowRoomInfoP->getEnableFlg()) {
@@ -2602,8 +2603,8 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
     {
         s16 sx = (x - getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoP())) * mNowRoomInfoP->getMap1ScaleX();
         s16 sz = (z - getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoP())) * mNowRoomInfoP->getMap1ScaleZ();
-        s16 scrX = (s16)(s32)sx - agbScrollX();
-        s16 scrY = (s16)(s32)sz - agbScrollY();
+        s16 scrX = sx - agbScrollX();
+        s16 scrY = sz - agbScrollY();
 
         if (type == 1 || (type != 1 && (u8)isPointStayInDspNowRoomAgbScr(sx, sz))) {
             if (type == 1 || type == 3 || ((f32)scrX >= -8.0f && (f32)scrX <= 160.0f && (f32)scrY >= -8.0f && (f32)scrY <= 160.0f)) {
