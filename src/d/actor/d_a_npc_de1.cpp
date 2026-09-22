@@ -907,18 +907,24 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
     return ((daNpc_De1_c*)actor)->CreateHeap();
 }
 cPhs_State daNpc_De1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_De1_c);
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, "De");
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
     }
-    if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
+    int prm = fopAcM_GetParam(this) & 0xFF;
+    if (!decideType(prm)) {
         return cPhs_ERROR_e;
     }
     if (l_HIO.mCount < 0) {
         l_HIO.mChild = mDoHIO_createChild("デクの木", &l_HIO);
     }
     l_HIO.mCount++;
+#if VERSION == VERSION_DEMO
+    fopAcM_SetupActor(this, daNpc_De1_c);
+#endif
     static u32 a_heap_size_tbl[] = {0x272E0};
     if (fopAcM_entrySolidHeap(this, CheckCreateHeap, a_heap_size_tbl[mType])) {
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
