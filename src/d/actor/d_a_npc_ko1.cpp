@@ -1919,7 +1919,7 @@ BOOL daNpc_Ko1_c::wait_6() {
 /* 00005088-000052D4       .text wait_7__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::wait_7() {
     fopAc_ac_c* a_partner = searchByID(mPartnerId);
-    JUT_ASSERT(0xB6B, a_partner != 0);
+    JUT_ASSERT(DEMO_SELECT(0xB5E, 0xB6B), a_partner != 0);
     if (mTalking) {
         if (chk_talk()) {
             if (chk_manzai_1()) {
@@ -1976,7 +1976,7 @@ BOOL daNpc_Ko1_c::wait_9() {
 /* 000053F8-00005524       .text wait_a__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::wait_a() {
     fopAc_ac_c* a_partner = searchByID(mPartnerId);
-    JUT_ASSERT(0xBC3, a_partner != 0);
+    JUT_ASSERT(DEMO_SELECT(0xBAF, 0xBC3), a_partner != 0);
     if (mTalking) {
         if (chk_talk()) {
             if (chk_manzai_1()) {
@@ -2155,7 +2155,7 @@ BOOL daNpc_Ko1_c::attk_2(signed char param_0, signed char param_1) {
 /* 00005C94-00005DEC       .text attk_3__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::attk_3() {
     fopAc_ac_c* a_partner = searchByID(mPartnerId);
-    JUT_ASSERT(0xCD2, a_partner != 0);
+    JUT_ASSERT(DEMO_SELECT(0xCB7, 0xCD2), a_partner != 0);
     mArrived = 0;
     if (field_0x6bc[0] == 1) {
         setStt(0x13);
@@ -2259,7 +2259,7 @@ BOOL daNpc_Ko1_c::talk_2() {
     int ready = 0;
     for (int i = 0; i < mPartnerNum; i++) {
         fopAc_ac_c* a_actor = searchByID((&mPartnerId)[i]);
-        JUT_ASSERT(0xD59, 0 != a_actor);
+        JUT_ASSERT(DEMO_SELECT(0xD3E, 0xD59), 0 != a_actor);
         daNpc_Ko1_c* npc = (daNpc_Ko1_c*)a_actor;
         if (npc->field_0x6bc[0] != 0) {
             npc->field_0x6bc[0] = 3;
@@ -2802,7 +2802,7 @@ BOOL daNpc_Ko1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) {
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == 0) {
             staff = isEventEntry();
         }
         if (staff >= 0) {
@@ -2822,10 +2822,12 @@ BOOL daNpc_Ko1_c::_execute() {
             mModelAngle = current.angle;
             shape_angle = mModelAngle;
         }
+#if VERSION > VERSION_DEMO
         if ((current.pos - mTargetPos).absXZ() > 3000.0f) {
             fopAcM_delete(this);
             return TRUE;
         }
+#endif
     }
     eventOrder();
     setMtx(false);
@@ -2838,7 +2840,10 @@ BOOL daNpc_Ko1_c::_execute() {
 /* 0000756C-000075F0       .text _delete__11daNpc_Ko1_cFv */
 BOOL daNpc_Ko1_c::_delete() {
     dComIfG_resDelete(&mPhs, "Ko");
-    if (heap != NULL) {
+#if VERSION > VERSION_DEMO
+    if (heap != NULL)
+#endif
+    {
         if (mpMorf != NULL) {
             mpMorf->stopZelAnime();
         }
@@ -2850,6 +2855,9 @@ BOOL daNpc_Ko1_c::_delete() {
         }
     }
     mRippleCallback.end();
+#if VERSION == VERSION_DEMO
+    l_HIO.removeHIO();
+#endif
     return TRUE;
 }
 
@@ -2860,15 +2868,20 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 
 /* 00007610-00007730       .text _create__11daNpc_Ko1_cFv */
 cPhs_State daNpc_Ko1_c::_create() {
-    fopAcM_SetupActor(this, daNpc_Ko1_c);
+    fopAcM_ct_Retail(this, daNpc_Ko1_c);
     static u32 a_size_tbl[] = {0x272E0, 0x272E0};
     cPhs_State phase = dComIfG_resLoad(&mPhs, "Ko");
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
     }
-    if (!charDecide(fopAcM_GetParam(this) & 0xFF)) {
+    u32 prm = fopAcM_GetParam(this) & 0xFF;
+    if (!charDecide(prm)) {
         return cPhs_ERROR_e;
     }
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("こども");
+    fopAcM_ct(this, daNpc_Ko1_c);
+#endif
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_size_tbl[mType])) {
         return cPhs_ERROR_e;
     }
@@ -2883,7 +2896,7 @@ cPhs_State daNpc_Ko1_c::_create() {
 /* 00007C2C-00007E9C       .text create_Anm__11daNpc_Ko1_cFv */
 J3DModelData* daNpc_Ko1_c::create_Anm() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Ko", dRes_ID_KO_BDL_KO_e);
-    JUT_ASSERT(0x10A6, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x107E, 0x10A6), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(
         a_mdl_dat, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectIDRes("Ko", dRes_ID_KO_BCK_KO_WAIT01_e),
@@ -2896,11 +2909,11 @@ J3DModelData* daNpc_Ko1_c::create_Anm() {
         return NULL;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0x10BA, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x1092, 0x10BA), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0x10BD, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x1095, 0x10BD), m_bbone_jnt_num >= 0);
     m_armR2_jnt_num = a_mdl_dat->getJointName()->getIndex("armR2");
-    JUT_ASSERT(0x10C0, m_armR2_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x1098, 0x10C0), m_armR2_jnt_num >= 0);
     return a_mdl_dat;
 }
 
@@ -2915,7 +2928,7 @@ J3DModelData* daNpc_Ko1_c::create_hed_Anm() {
         dRes_ID_KO_BCK_KOHEAD02_WAIT01_e,
     };
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Ko", a_hed_bdl_resID_tbl[mType]);
-    JUT_ASSERT(0x10D8, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x10B0, 0x10D8), a_mdl_dat != 0);
     mpHeadMorf = new mDoExt_McaMorf(
         a_mdl_dat, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectIDRes("Ko", a_hed_bck_resID_tbl[mType]),
@@ -2929,7 +2942,7 @@ J3DModelData* daNpc_Ko1_c::create_hed_Anm() {
     }
     if (mType == 0) {
         m_hed_2_jnt_num = a_mdl_dat->getJointName()->getIndex("head2");
-        JUT_ASSERT(0x10ED, m_hed_2_jnt_num >= 0);
+        JUT_ASSERT(DEMO_SELECT(0x10C5, 0x10ED), m_hed_2_jnt_num >= 0);
     }
     return a_mdl_dat;
 }
@@ -2937,7 +2950,7 @@ J3DModelData* daNpc_Ko1_c::create_hed_Anm() {
 /* 00008090-000082A4       .text create_bln_Anm__11daNpc_Ko1_cFv */
 J3DModelData* daNpc_Ko1_c::create_bln_Anm() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Ko", dRes_ID_KO_BDL_KO_BALLOON_e);
-    JUT_ASSERT(0x10FD, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x10D5, 0x10FD), a_mdl_dat != 0);
     mpBalloonMorf = new mDoExt_McaMorf(
         a_mdl_dat, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectIDRes("Ko", dRes_ID_KO_BCK_BALLOON_SLEEP04_e),
@@ -2950,9 +2963,9 @@ J3DModelData* daNpc_Ko1_c::create_bln_Anm() {
         return NULL;
     }
     m_bln_loc_jnt_num = a_mdl_dat->getJointName()->getIndex("balloon_loc");
-    JUT_ASSERT(0x1111, m_bln_loc_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x10E9, 0x1111), m_bln_loc_jnt_num >= 0);
     m_bln_jnt_num = a_mdl_dat->getJointName()->getIndex("ko_balloon");
-    JUT_ASSERT(0x1114, m_bln_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x10EC, 0x1114), m_bln_jnt_num >= 0);
     return a_mdl_dat;
 }
 
@@ -2962,7 +2975,7 @@ BOOL daNpc_Ko1_c::create_itm_Mdl() {
         return TRUE;
     }
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Ko", dRes_ID_KO_BDL_KOEDA_e);
-    JUT_ASSERT(0x1126, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x10FE, 0x1126), a_mdl_dat != 0);
     mpItemModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     if (mpItemModel == NULL) {
         return FALSE;
