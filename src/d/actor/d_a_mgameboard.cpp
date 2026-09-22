@@ -368,15 +368,8 @@ void daMgBoard_c::set_mtx() {
     }
 }
 
-static cXyz dummy_func() {
-    // There was an unused function here that got stripped out, but it still affected literal and weak function ordering.
-    f32* dummy = NULL;
-    *dummy = 0.8f;
-    *dummy = 0.75f;
-    *dummy = -0.75f;
-    cXyz temp(0.0f, 0.0f, 0.0f);
-    return temp;
-}
+// NONMATCHING - an unused function that was stripped here left the literals 0.8f, 0.75f, -0.75f and 0.0f in .rodata;
+// without it the later literal offsets (_execute, MinigameMain, CursorMove, __sinit) and the weak cXyz order differ.
 
 /* 00000E28-00000FD8       .text _execute__11daMgBoard_cFv */
 bool daMgBoard_c::_execute() {
