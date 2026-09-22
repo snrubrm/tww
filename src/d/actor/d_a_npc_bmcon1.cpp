@@ -757,57 +757,58 @@ u16 daNpcBmcon_c::next_msgStatus(u32* msg) {
     switch (*msg) {
     case 0x2AB4:
         *msg = 0x2AFF;
-        goto end_message;
+        break;
+    default:
+        if (mpMessage != NULL) {
+            mpMessage++;
+            switch (*mpMessage) {
+            case 0:
+                mpMessage = NULL;
+                status = 16;
+                break;
+            case 1:
+                if (mpCurrMsg->mSelectNum == 0) {
+                    if (dComIfGs_getRupee() < dComIfGp_getMessageRupee()) {
+                        mpMessage = l_msg_bmcon1_not_rupee;
+                    } else {
+                        mpMessage = l_msg_bmcon1_appear;
+                        dComIfGp_setItemRupeeCount(-dComIfGp_getMessageRupee());
+                    }
+                } else mpMessage = l_msg_bmcon1_not_appear;
+                *msg = *mpMessage;
+                break;
+            case 2:
+                if (mpCurrMsg->mSelectNum == 0) {
+                    if (dComIfGs_getRupee() < dComIfGp_getMessageRupee()) {
+                        mpMessage = l_msg_bmcon1_not_rupee;
+                    } else {
+                        mpMessage = l_msg_bmcon1_appear2;
+                        dComIfGp_setItemRupeeCount(-dComIfGp_getMessageRupee());
+                    }
+                } else mpMessage = l_msg_bmcon1_not_appear2;
+                *msg = *mpMessage;
+                break;
+            case 3:
+                dComIfGp_setItemMagicCount(dComIfGs_getMaxMagic());
+                mStartFlight = 1;
+                mpMessage = NULL;
+                status = 16;
+                break;
+            case 4:
+                mRewardFlags |= 1;
+                status = 16;
+                break;
+            case 5:
+                mRewardFlags |= 2;
+                status = 16;
+                break;
+            default:
+                *msg = *mpMessage;
+                break;
+            }
+        } else status = 16;
+        break;
     }
-    if (mpMessage != NULL) {
-        mpMessage++;
-        switch (*mpMessage) {
-        case 0:
-            mpMessage = NULL;
-            status = 16;
-            break;
-        case 1:
-            if (mpCurrMsg->mSelectNum == 0) {
-                if (dComIfGs_getRupee() < dComIfGp_getMessageRupee()) {
-                    mpMessage = l_msg_bmcon1_not_rupee;
-                } else {
-                    mpMessage = l_msg_bmcon1_appear;
-                    dComIfGp_setItemRupeeCount(-dComIfGp_getMessageRupee());
-                }
-            } else mpMessage = l_msg_bmcon1_not_appear;
-            *msg = *mpMessage;
-            break;
-        case 2:
-            if (mpCurrMsg->mSelectNum == 0) {
-                if (dComIfGs_getRupee() < dComIfGp_getMessageRupee()) {
-                    mpMessage = l_msg_bmcon1_not_rupee;
-                } else {
-                    mpMessage = l_msg_bmcon1_appear2;
-                    dComIfGp_setItemRupeeCount(-dComIfGp_getMessageRupee());
-                }
-            } else mpMessage = l_msg_bmcon1_not_appear2;
-            *msg = *mpMessage;
-            break;
-        case 3:
-            dComIfGp_setItemMagicCount(dComIfGs_getMaxMagic());
-            mStartFlight = 1;
-            mpMessage = NULL;
-            status = 16;
-            break;
-        case 4:
-            mRewardFlags |= 1;
-            status = 16;
-            break;
-        case 5:
-            mRewardFlags |= 2;
-            status = 16;
-            break;
-        default:
-            *msg = *mpMessage;
-            break;
-        }
-    } else status = 16;
-    end_message:
     return status;
 }
 
