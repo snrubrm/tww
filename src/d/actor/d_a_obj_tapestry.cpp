@@ -1256,7 +1256,9 @@ void daObjTapestryPacket_c::draw() {
     daObjTapestry_c* actor = (daObjTapestry_c*)getUserArea();
     daObjTapestryDrawVtx_c* vtx = &mDraw[mBuffer];
     j3dSys.reinitGX();
+#if VERSION > VERSION_JPN
     GXSetNumIndStages(0);
+#endif
     dKy_GxFog_tevstr_set(&actor->tevStr);
     setup_vtx(vtx);
     load_tex();
@@ -1272,7 +1274,9 @@ void daObjTapestryPacket_c::draw() {
     GXSetCullMode(GX_CULL_FRONT);
     GXSetArray(GX_VA_NRM, vtx->backNrm, sizeof(cXyz));
     GXCallDisplayList(m_draw_data.dl(), 0x180);
+#if VERSION > VERSION_JPN
     J3DShape::sOldVcdVatCmd = NULL;
+#endif
 }
 
 /* 000045C8-0000461C       .text chk_appear__15daObjTapestry_cFv */
@@ -1307,7 +1311,7 @@ bool daObjTapestry_c::create_heap() {
     bool ret = true;
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(l_arcname_Mcrtn, 4);
     if (modelData == NULL) {
-        JUT_ASSERT(0x8CD, 0);
+        JUT_ASSERT(VERSION_SELECT(0x8CA, 0x8CA, 0x8CD, 0x8CD), 0);
         ret = false;
     } else {
         mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
