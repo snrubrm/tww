@@ -1200,7 +1200,7 @@ void daShip_c::setCrashData(short param1) {
     s16 iVar5;
     if (!dComIfGp_event_runCheck()) {
         if (!daPy_getPlayerLinkActorClass()->checkNoDamageMode()
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
             && !daPy_getPlayerLinkActorClass()->checkNoControll()
 #endif
         ) {
