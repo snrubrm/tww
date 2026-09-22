@@ -713,7 +713,7 @@ void daBigelf_c::setAnm(signed char idx) {
     case 3:
         loopMode = 3;
         start = 0.0f;
-        speed = end;
+        speed = -1.0f;
         end = 100.0f;
         break;
     }
