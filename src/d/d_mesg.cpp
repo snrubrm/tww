@@ -38,6 +38,9 @@ int oldMesgCode;
 void* header2;
 bool headerFlag;
 short messageOffsetY;
+#if VERSION == VERSION_PAL
+u8 m_zenkaku;
+#endif
 u8 zenkaku;
 u16 zenkakuCode;
 int retFlag;
@@ -179,6 +182,9 @@ void dMesg_tSequenceProcessor::initialize(int param_1) {
     }
     s_strSizeFlag = false;
     m_strSizeFlag = false;
+#if VERSION == VERSION_PAL
+    m_zenkaku = 0;
+#endif
     dMesg_tMeasureProcessor processor(getControl(), param_1);
     processor.setBegin(field_0x3c, field_0x40);
     processor.process(NULL);
@@ -187,11 +193,25 @@ void dMesg_tSequenceProcessor::initialize(int param_1) {
     JMSMesgEntry_c stack_8c = *(JMSMesgEntry_c*)dMesg_gpControl->getMessageEntry(nowMesgCode);
 
     for (int i = 0; i < r31_2; i++) {
+#if VERSION == VERSION_PAL
+        if (dComIfGs_getPalLanguage() == 0) {
+            if (stack_8c.mTextAlignment != 3) {
+                field_0x7c[i] = 0;
+            } else {
+                field_0x7c[i] = mesgControl->getLineLength(i);
+            }
+        } else if (stack_8c.mTextAlignment == 1 || stack_8c.mMsgNo == 0x141) {
+            field_0x7c[i] = 0;
+        } else {
+            field_0x7c[i] = mesgControl->getLineLength(i);
+        }
+#else
         if (stack_8c.mTextAlignment != 3) {
             field_0x7c[i] = 0;
         } else {
             field_0x7c[i] = mesgControl->getLineLength(i);
         }
+#endif
     }
 
     mesgControl->setNowFontSize(mesgControl->getInitFontSize());
