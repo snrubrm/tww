@@ -1934,7 +1934,12 @@ void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
                     }
                     break;
                 case 1:
-                    if (mDoGac_SendEndCheck(2)) {
+#if VERSION == VERSION_DEMO
+                    if (mDoGaC_getDataStatus(1) == 0 || mDoGaC_getDataStatus(1) == 4)
+#else
+                    if (mDoGac_SendEndCheck(2))
+#endif
+                    {
                         if (mPlayerStayAgbMapTypeNow == 2) {
                             mAGBMapSendStatus = 4;
                         } else if (mAGBMapSendStopFlg == 0) {
@@ -1980,6 +1985,59 @@ void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
 }
 
 /* 80049F4C-8004A3A4       .text calcEnlargementSizeParameter__6dMap_cFff */
+#if VERSION == VERSION_DEMO
+void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
+    if ((u8)isEnableEnlargementScroll() && mNowRoomInfoP->getEnableFlg() & 2) {
+        f32 signX;
+        f32 limitZ;
+        f32 limitX;
+        f32 dz;
+        f32 signZ;
+        limitX = std::fabsf(mNowRoomInfoP->getStageMapInfoMap0_X1() - mNowRoomInfoP->getStageMapInfoMap0_XC()) * g_mapHIO.field_0xe8;
+        limitZ = std::fabsf(mNowRoomInfoP->getStageMapInfoMap0_Z1() - mNowRoomInfoP->getStageMapInfoMap0_ZC()) * g_mapHIO.field_0xe8;
+        param_1 -= mNowRoomInfoP->getStageMapInfoMap0_XC();
+        dz = param_2 - mNowRoomInfoP->getStageMapInfoMap0_ZC();
+        if (param_1 >= 0.0f) {
+            signX = 1.0f;
+        } else {
+            signX = -1.0f;
+        }
+        if (dz >= 0.0f) {
+            signZ = 1.0f;
+        } else {
+            signZ = -1.0f;
+        }
+        if (std::fabsf(param_1) > limitX) {
+            limitX = (std::fabsf(param_1) - limitX) * g_mapHIO.field_0xec;
+            if (limitX > std::fabsf(param_1)) {
+                limitX = std::fabsf(param_1);
+            }
+        } else {
+            limitX = 0.0f;
+        }
+        if (std::fabsf(dz) > limitZ) {
+            limitZ = (std::fabsf(dz) - limitZ) * g_mapHIO.field_0xec;
+            if (limitZ > std::fabsf(dz)) {
+                limitZ = std::fabsf(dz);
+            }
+        } else {
+            limitZ = 0.0f;
+        }
+        if (0.0f != limitX || 0.0f != limitZ) {
+            if (limitX > limitZ) {
+                limitZ = (limitX * std::fabsf(dz)) / std::fabsf(param_1);
+            } else {
+                limitX = (limitZ * std::fabsf(param_1)) / std::fabsf(dz);
+            }
+        }
+        mEnlargementSizeCenterX = mNowRoomInfoP->getStageMapInfoMap0_XC() + signX * limitX;
+        mEnlargementSizeCenterZ = mNowRoomInfoP->getStageMapInfoMap0_ZC() + signZ * limitZ;
+        mEnlargementSizeScaleX = mNowRoomInfoP->field_0x18;
+        mEnlargementSizeScaleZ = mNowRoomInfoP->field_0x1c;
+    }
+}
+
+#else
 void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
     if ((u8)isEnableEnlargementScroll() && mNowRoomInfoP->getEnableFlg() & 2) {
         f32 signX;
@@ -2029,6 +2087,7 @@ void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
         mEnlargementSizeScaleZ = mNowRoomInfoP->field_0x1c;
     }
 }
+#endif
 
 /* 8004A3A4-8004A478       .text calcScissor__6dMap_cFv */
 void dMap_c::calcScissor() {
@@ -2061,6 +2120,56 @@ void dMap_c::calcScissor() {
 }
 
 /* 8004A478-8004A6E8       .text mapMoveAll__6dMap_cFffif */
+#if VERSION == VERSION_DEMO
+void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
+    setPlayerStayAgbMapTypeNow(param_1, param_2);
+    u32 stageType = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo());
+    if (stageType != dStageType_FF1_e && stageType != dStageType_SEA_e) {
+        dComIfGs_onVisitedRoom(param_3);
+    }
+    if (!mNowRoomInfoP) {
+        setNowRoom(param_3);
+    }
+    if (!mNowRoomInfoP) {
+        JUT_ASSERT(5721, 0);
+    }
+    u8 tmp = dMap_GetFloorNo_WithRoom(param_3, param_4);
+    if (tmp != mNowFloorNo) {
+        u8 r30 = mNowRoomInfoP->field_0xc;
+        mNowFloorNo = tmp;
+        mRoomInfoCtrl.checkFloorMoveImageChangeRoom(tmp, tmp, param_3, 120, 120);
+        if (r30 != mNowRoomInfoP->field_0xc) {
+            mAGBMapSendStatus = 0;
+            mAGBMapSendStopFlg = false;
+        }
+    }
+    if (param_3 != mNowRoomInfoP->getRoomNo()) {
+        setNowRoom(param_3);
+    }
+    calcEnlargementSizeParameter(param_1, param_2);
+    mapAGBSendMapMain(param_1, param_2);
+    if (mMapDispMode == 1) {
+        if (mNowRoomInfoP->getEnableFlg() & 2) {
+            mNowCenterX = mEnlargementSizeCenterX;
+            mNowCenterZ = mEnlargementSizeCenterZ;
+            mNowScaleX = mEnlargementSizeScaleX;
+            mNowScaleZ = mEnlargementSizeScaleZ;
+        }
+    } else if (mNowRoomInfoP->getEnableFlg() & 1) {
+        mNowCenterX = param_1;
+        mNowCenterZ = param_2;
+        mNowScaleX = mNowRoomInfoP->field_0x20;
+        mNowScaleZ = mNowRoomInfoP->field_0x24;
+    }
+    calcScissor();
+    if (mNowRoomInfoP->mStageMapInfoP) {
+        mCompAlpha = ((u8)mNowRoomInfoP->mStageMapInfoP->field_0x34 * mAlpha) >> 8;
+    } else {
+        for (int i = 0; i < 1; i++) {}
+        mCompAlpha = 0;
+    }
+}
+#else
 void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
     setPlayerStayAgbMapTypeNow(param_1, param_2);
     u32 stageType = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo());
@@ -2122,6 +2231,7 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
         }
     }
 }
+#endif
 
 /* 8004A6E8-8004A760       .text mapDrawAll__6dMap_cFffif */
 void dMap_c::mapDrawAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
