@@ -50,8 +50,8 @@ public:
     s16 XyCheckCB(int);
     s16 XyEventCB(int);
     BOOL _createHeap();
-    BOOL jntHitCreateHeap();
-    BOOL checkTgHit();
+    bool jntHitCreateHeap();
+    bool checkTgHit();
     void offsetZero();
     void offsetDive();
     void offsetSwim();

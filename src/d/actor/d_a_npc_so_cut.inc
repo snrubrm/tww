@@ -590,7 +590,7 @@ void daNpc_So_c::cutMiniGameProc() {
             mSph.SetR(l_HIO.m3C);
             mSph.SetC(current.pos);
             dComIfG_Ccsp()->Set(&mSph);
-            if ((u8)checkTgHit()) {
+            if (checkTgHit()) {
                 mB7C++;
             }
         }
@@ -748,7 +748,7 @@ void daNpc_So_c::cutMiniGameProc() {
                     dComIfG_Ccsp()->Set(&mSph);
                 }
             }
-            if ((u8)checkTgHit()) {
+            if (checkTgHit()) {
                 mB7C++;
                 if (mB7C >= 10) {
                     mB7C = 10;

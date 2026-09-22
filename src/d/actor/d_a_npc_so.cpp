@@ -365,11 +365,11 @@ BOOL daNpc_So_c::_createHeap() {
         return FALSE;
     }
 
-    return (u8)jntHitCreateHeap() ? TRUE : FALSE;
+    return jntHitCreateHeap() ? TRUE : FALSE;
 }
 
 /* 00000A20-00000A84       .text jntHitCreateHeap__10daNpc_So_cFv */
-BOOL daNpc_So_c::jntHitCreateHeap() {
+bool daNpc_So_c::jntHitCreateHeap() {
     static Vec sph_offset[] = {
         {0.0f, 0.0f, 0.0f},
     };
@@ -411,7 +411,7 @@ BOOL daNpc_So_c::jntHitCreateHeap() {
 #include "d/actor/d_a_npc_so_cut.inc"
 
 /* 00000A84-00000C8C       .text checkTgHit__10daNpc_So_cFv */
-BOOL daNpc_So_c::checkTgHit() {
+bool daNpc_So_c::checkTgHit() {
     fopAc_ac_c* actor = dComIfGp_getPlayer(0);
     mStts2.Move();
     if (cLib_calcTimer(&mHitTimer) == 0 && mSph.ChkTgHit()) {
