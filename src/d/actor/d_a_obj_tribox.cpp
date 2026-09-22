@@ -821,7 +821,7 @@ void daObjTribox::Act_c::mode_correct_demoreq_init() {
 /* 00002F0C-00002FB4       .text mode_correct_demoreq__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::mode_correct_demoreq() {
     bool next = true;
-    if (dComIfGp_getPEvtManager()->getEventData(mEventIdx) != NULL) {
+    if (dComIfGp_evmng_existence(mEventIdx)) {
         if (eventInfo.checkCommandDemoAccrpt()) {
             mDemoAccept = 1;
         } else {
