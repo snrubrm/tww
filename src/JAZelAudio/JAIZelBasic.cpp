@@ -4051,7 +4051,11 @@ void JAIZelBasic::load1stDynamicWave() {
 #if VERSION > VERSION_DEMO
     field_0x00a8 = 1.0f;
 #endif
+#if VERSION <= VERSION_JPN
+    field_0x0032 = 0;
+#else
     if (!mpMainBgmSound || mMainBgmNum != JA_BGM_MORNING) field_0x0032 = 0;
+#endif
     field_0x00b9 = 0;
     field_0x021e = 1;
     field_0x022d = 0;
