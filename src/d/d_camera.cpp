@@ -7888,13 +7888,13 @@ static bool camera_draw(camera_process_class* i_this) {
 
     j3dSys.setViewMtx(i_this->view.mViewMtx);
     cMtx_inverse(i_this->view.mViewMtx, i_this->view.mInvViewMtx);
-    mDoAud_getCameraInfo(&i_this->view.mLookat.mEye, j3dSys.mViewMtx, camera_id);
+    mDoAud_getCameraInfo(fopCamM_GetEye_p(a_this), j3dSys.getViewMtx(), camera_id);
 
     dBgS_GndChk gndchk;
     gndchk.SetPos(&i_this->view.mLookat.mEye);
 
-    f32 ground_y = dComIfG_Bgsp()->GroundCross(&gndchk);
-    if (ground_y != -G_CM3D_F_INF) {
+    f32 ground_y;
+    if ((ground_y = dComIfG_Bgsp()->GroundCross(&gndchk)) != -G_CM3D_F_INF) {
         mDoAud_getCameraMapInfo(dComIfG_Bgsp()->GetMtrlSndId(gndchk));
         mDoAud_setCameraGroupInfo(dComIfG_Bgsp()->GetGrpSoundId(gndchk));
 

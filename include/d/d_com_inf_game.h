@@ -4385,7 +4385,11 @@ inline bool dComIfGp_att_chkEnemySound() {
  */
 
  inline void dComIfGp_map_draw(f32 x, f32 z, int roomNo, f32 y) {
+#if VERSION == VERSION_DEMO
+    dMap_c::drawTest_dummy(x, z, roomNo, y);
+#else
     dMap_c::draw(x, z, roomNo, y);
+#endif
 }
 
 inline void dComIfGp_map_mapBufferSendAGB(int param_0) {
