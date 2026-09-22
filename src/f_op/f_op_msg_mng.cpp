@@ -3548,7 +3548,6 @@ void fopMsgM_msgDataProc_c::colorAnime(J2DPicture* i_pic) {
 
 /* 800322B4-80034F3C       .text stringSet__21fopMsgM_msgDataProc_cFv */
 void fopMsgM_msgDataProc_c::stringSet() {
-    // demo: regswap on int r28
     s8 r30 = g_msgHIO.field_0x6c;
 
     field_0x60 = field_0x40;
@@ -3798,8 +3797,12 @@ void fopMsgM_msgDataProc_c::stringSet() {
                     if (mesgEntry->mTextboxType == 0xC)
 #endif
                     {
+#if VERSION == VERSION_DEMO
+                        if (((u8)player_name[r28] >> 4) == 8 || ((u8)player_name[r28] >> 4) == 9) {
+#else
                         int hi_nibble = ((u8)player_name[r28] >> 4);
                         if (hi_nibble == 8 || hi_nibble == 9) {
+#endif
                             int hi = (u8)player_name[r28];
                             field_0xD4[0] = (u8)player_name[r28++];
                             int lo = (u8)player_name[r28++];
