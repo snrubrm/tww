@@ -515,7 +515,7 @@ void dMenu_Item_c::checkMove() {
             if (dMeter_subWinFlag()) {
                 if (sel >= dInvSlot_ReserveFirst_e) {
                     if (m2405 == 2) {
-                        sel -= dInvSlot_ReserveFirst_e;
+                        sel = sel - dInvSlot_ReserveFirst_e;
                         m2030[i].mPosCenter.x = mE78[sel].mPosCenter.x;
                         m2030[i].mPosCenter.y = mE78[sel].mPosCenter.y;
                         m231C->insertChild(m1230.pane, m2030[i].pane);
@@ -527,7 +527,7 @@ void dMenu_Item_c::checkMove() {
                     }
                 } else if (sel >= dInvSlot_BaitFirst_e) {
                     if (m2405 == 1) {
-                        sel -= dInvSlot_BaitFirst_e;
+                        sel = sel - dInvSlot_BaitFirst_e;
                         m2030[i].mPosCenter.x = mE78[sel].mPosCenter.x;
                         m2030[i].mPosCenter.y = mE78[sel].mPosCenter.y;
                         m231C->insertChild(m1230.pane, m2030[i].pane);
@@ -539,7 +539,7 @@ void dMenu_Item_c::checkMove() {
                     }
                 } else if (sel >= dInvSlot_BeastFirst_e) {
                     if (m2405 == 0) {
-                        sel -= dInvSlot_BeastFirst_e;
+                        sel = sel - dInvSlot_BeastFirst_e;
                         m2030[i].mPosCenter.x = mE78[sel].mPosCenter.x;
                         m2030[i].mPosCenter.y = mE78[sel].mPosCenter.y;
                         m231C->insertChild(m1230.pane, m2030[i].pane);
