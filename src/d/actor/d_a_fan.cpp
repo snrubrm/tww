@@ -157,6 +157,16 @@ cPhs_State daFan_c::_create() {
     fopAcM_ct(this, daFan_c);
 
     mType = daFan_prm::getType(this);
+#if VERSION == VERSION_DEMO
+    cPhs_State rt1 = dComIfG_resLoad(&mPhs, m_arcname[mType]);
+    cPhs_State rt2 = dComIfG_resLoad(&mWindPhs, m_arcname2);
+    if (rt1 == cPhs_ERROR_e || rt2 == cPhs_ERROR_e)
+        return cPhs_ERROR_e;
+    if (rt1 != cPhs_COMPLEATE_e)
+        return rt1;
+    if (rt2 != cPhs_COMPLEATE_e)
+        return rt2;
+#else
     cPhs_State rt1 = dComIfG_resLoad(&mPhs, m_arcname[mType]);
     if (rt1 != cPhs_COMPLEATE_e)
         return rt1;
@@ -164,6 +174,7 @@ cPhs_State daFan_c::_create() {
     cPhs_State rt2 = dComIfG_resLoad(&mWindPhs, m_arcname2);
     if (rt2 != cPhs_COMPLEATE_e)
         return rt2;
+#endif
 
     if (rt1 == cPhs_COMPLEATE_e && rt2 == cPhs_COMPLEATE_e) {
         rt1 = MoveBGCreate(m_arcname[mType], m_dzbidx[mType], dBgS_MoveBGProc_TypicalRotY, m_heapsize[mType]);
