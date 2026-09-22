@@ -1964,7 +1964,9 @@ void dMenu_Item_c::_create() {
     outFont = new dDlst_2DOutFont_c();
     JUT_ASSERT(0xa5f, outFont != 0);
 
+#if VERSION > VERSION_JPN
     outFont->m74 = 1;
+#endif
 
     dMs_c = new dMenu_save_c();
     JUT_ASSERT(0xa63, dMs_c != 0);
