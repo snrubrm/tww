@@ -1480,10 +1480,10 @@ void dMesg_screenDataTalk_c::draw() {
 /* 801E40CC-801E48D0       .text createScreen__22dMesg_screenDataItem_cFv */
 void dMesg_screenDataItem_c::createScreen() {
     scrn = new J2DScreen();
-    JUT_ASSERT(2421, scrn != NULL);
+    JUT_ASSERT(VERSION_SELECT(2421, 2421, 2421, 2535), scrn != NULL);
 
     texBuffer = (ResTIMG*)mHeap->alloc(0xc00, 0x20);
-    JUT_ASSERT(2424, texBuffer != NULL);
+    JUT_ASSERT(VERSION_SELECT(2424, 2424, 2424, 2538), texBuffer != NULL);
 
     field_0x3e4 = NULL;
 #if VERSION == VERSION_DEMO
