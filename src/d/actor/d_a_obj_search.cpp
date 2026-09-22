@@ -373,7 +373,11 @@ void daObj_Search::Act_c::modeToSearch() {
 void daObj_Search::Act_c::modeToStopInit() {
     m7B0 = mLightAng[0].y;
     if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_0201)) {
+#if VERSION == VERSION_DEMO
+        mDoAud_seStart(JA_SE_OBJ_SEARCH_LIGHT_UP, &m600);
+#else
         mDoAud_seStart(JA_SE_OBJ_SEARCH_LIGHT_UP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+#endif
     }
 }
 
@@ -403,7 +407,11 @@ void daObj_Search::Act_c::modeToStop() {
                     evtMgr->cutEnd(staffId);
                 }
                 if (strcmp(cutName, "LIGHT_UP_SOUND") == 0) {
+#if VERSION == VERSION_DEMO
+                    mDoAud_seStart(JA_SE_OBJ_SEARCH_LIGHT_UP, &m600);
+#else
                     mDoAud_seStart(JA_SE_OBJ_SEARCH_LIGHT_UP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+#endif
                     evtMgr->cutEnd(staffId);
                 }
                 if (strcmp(cutName, "LIGHT_UP") == 0) {
@@ -504,9 +512,11 @@ void daObj_Search::Act_c::modeFind() {
                 s16 tgtAng = ang;
                 cLib_addCalcAngleS2(&mPlayerTurnY, tgtAng, 4, 0x400);
                 player->setPlayerPosAndAngle(&player->current.pos, mPlayerTurnY);
+#if VERSION > VERSION_DEMO
                 if (cLib_distanceAngleS(ang, mPlayerTurnY) < 0x500) {
                     player->cancelOriginalDemo();
                 }
+#endif
             }
             dComIfGp_evmng_cutEnd(staffId);
         }
@@ -684,9 +694,8 @@ void daObj_Search::Act_c::modeSearchBdk() {
         s16 yaw = cM_atan2s(aim.x, aim.z) - current.angle.y;
         int pitch = cM_atan2s(aim.y, std::sqrtf(aim.x * aim.x + aim.z * aim.z));
         s16 tgtY = yaw;
-        s16 tgtX = pitch;
         cLib_addCalcAngleS2(&mLightAng[0].y, tgtY, 10, 0x100);
-        cLib_addCalcAngleS2(&mLightAng[0].x, tgtX, 10, 0x100);
+        cLib_addCalcAngleS2(&mLightAng[0].x, pitch, 10, 0x100);
         mLightAng[1].y = mLightAng[0].y;
         mLightAng[1].x = -mLightAng[0].x;
     } else {
@@ -832,7 +841,11 @@ void daObj_Search::Act_c::CreateInit() {
     mpModel->calc();
 
     if (is_path_info()) {
+#if VERSION == VERSION_DEMO
+        mpPath = dPath_GetRoomPath(mPathId, current.roomNo);
+#else
         mpPath = dPath_GetRoomPath(mPathId, fopAcM_GetRoomNo(this));
+#endif
         dLib_pathMove(&mPathPos, &mPathPntIdx, mpPath, (f32)m_attr.m02, NULL, NULL);
         m60C[0] = mPathPos;
         cXyz dir = m60C[0] - mBeamStart[0];
@@ -862,7 +875,7 @@ cPhs_State daObj_Search::Act_c::_create() {
     cPhs_State phase = dComIfG_resLoad(&mPhase, m_arc_name);
     if (phase == cPhs_COMPLEATE_e) {
         SetArgData();
-        if (!fopAcM_entrySolidHeap(this, createHeap_CB, 0x4620)) {
+        if (!fopAcM_entrySolidHeap(this, createHeap_CB, DEMO_SELECT(0x4B40, 0x4620))) {
             return cPhs_ERROR_e;
         }
         CreateInit();
@@ -910,10 +923,13 @@ cPhs_State daObj_Search::Act_c::_create() {
         if (m8D0 == 5) {
             m77E = 0;
         } else {
+#if VERSION > VERSION_DEMO
             f32 time = dComIfGs_getTime();
             if (time < 240.0f && time > 60.0f) {
                 m77E = 0;
-            } else {
+            } else
+#endif
+            {
                 m77E = 0xFF;
             }
         }
@@ -927,6 +943,22 @@ cPhs_State daObj_Search::Act_c::_create() {
 
 /* 80100F9C-801010C4       .text smoke_set__Q212daObj_Search5Act_cFfi */
 void daObj_Search::Act_c::smoke_set(float rate, int timer) {
+#if VERSION == VERSION_DEMO
+    csXyz rot = csXyz(0, 0, 0);
+    mSmokePos = m600;
+    mSmokeRot = rot;
+    mpSmokeEmitter = dComIfGp_particle_setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &mSmokePos, &mSmokeRot, NULL, 0xB9, &mSmokeCb, fopAcM_GetRoomNo(this));
+    if (mpSmokeEmitter != NULL) {
+        mpSmokeEmitter->setRate(rate);
+        mpSmokeEmitter->setSpread(1.0f);
+        f32 dyn = 2.5f + REG12_F(10);
+        JGeometry::TVec3<f32> dynScale(dyn, dyn, dyn);
+        mpSmokeEmitter->setGlobalScale(dynScale);
+        f32 ptcl = 3.5f + REG12_F(11);
+        JGeometry::TVec3<f32> ptclScale(ptcl, ptcl, ptcl);
+        mpSmokeEmitter->setGlobalParticleScale(ptclScale);
+    }
+#else
     mSmokePos = m600;
     mSmokeRot.set(0, 0, 0);
     if (mSmokeCb.getEmitter() == NULL) {
@@ -942,6 +974,7 @@ void daObj_Search::Act_c::smoke_set(float rate, int timer) {
         JGeometry::TVec3<f32> ptclScale(ptcl, ptcl, ptcl);
         mSmokeCb.getEmitter()->setGlobalParticleScale(ptclScale);
     }
+#endif
     mSmokeTimer = timer;
 }
 
@@ -950,9 +983,19 @@ BOOL daObj_Search::Act_c::_execute() {
     if (m_attr.mSkipExecute) {
         return TRUE;
     }
+#if VERSION == VERSION_DEMO
+    if (mSmokeTimer == 0) {
+        mSmokeCb.remove();
+        mpSmokeEmitter = NULL;
+    } else if (mSmokeTimer < 0) {
+        mSmokeTimer = -1;
+    }
+    mSmokeTimer--;
+#else
     if (cLib_calcTimer(&mSmokeTimer) == 0) {
         mSmokeCb.remove();
     }
+#endif
     if (m8D0 != 6 && m8D0 != 5) {
         bk_class* bk = (bk_class*)fopAcM_SearchByID(mChildId);
         if (bk != NULL) {
@@ -978,6 +1021,17 @@ BOOL daObj_Search::Act_c::_execute() {
         m7A4 = 0;
     }
     f32 time = dComIfGs_getTime();
+#if VERSION == VERSION_DEMO
+    if (time > 240.0f || time < 60.0f) {
+        if (m860) {
+            m834 = 0;
+        } else {
+            m834 = 1;
+        }
+    } else {
+        m834 = 0;
+    }
+#else
     if (time < 240.0f && time > 60.0f) {
         m834 = 0;
     } else if (m860) {
@@ -985,6 +1039,7 @@ BOOL daObj_Search::Act_c::_execute() {
     } else {
         m834 = 1;
     }
+#endif
     if (m834) {
         cLib_chaseS(&m77E, 0xFF, REG12_S(0) + 0x14);
     } else {
@@ -1026,8 +1081,13 @@ void daObj_Search::Act_c::check_bk_control() {
 void daObj_Search::Act_c::set_mtx_base() {
     mpModel->setBaseScale(scale);
     mDoMtx_stack_c::transS(current.pos);
+#if VERSION == VERSION_DEMO
+    mDoMtx_stack_c::YrotM(current.angle.y);
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
+#else
     mDoMtx_YrotM(mDoMtx_stack_c::now, current.angle.y);
     mpModel->setBaseTRMtx(mDoMtx_stack_c::now);
+#endif
 }
 
 /* 801014E4-801018A8       .text set_mtx_light_A__Q212daObj_Search5Act_cFv */
@@ -1069,7 +1129,11 @@ void daObj_Search::Act_c::set_mtx_light_A() {
     }
     mDoMtx_XYZrotM(mDoMtx_stack_c::now, 0, 0, 0xC80);
     mDoMtx_stack_c::scaleM(scale.x, scale.y, 0.0001043f * m654);
+#if VERSION == VERSION_DEMO
+    mpBeamModel[0]->setBaseTRMtx(mDoMtx_stack_c::get());
+#else
     mpBeamModel[0]->setBaseTRMtx(mDoMtx_stack_c::now);
+#endif
     mDoMtx_copy(mDoMtx_stack_c::now, mAlphaMtx[0]);
 }
 
@@ -1107,7 +1171,11 @@ void daObj_Search::Act_c::set_mtx_light_B() {
     }
     mDoMtx_XYZrotM(mDoMtx_stack_c::now, 0, 0, 0xC80);
     mDoMtx_stack_c::scaleM(scale.x, scale.y, 0.0001043f * m658);
+#if VERSION == VERSION_DEMO
+    mpBeamModel[1]->setBaseTRMtx(mDoMtx_stack_c::get());
+#else
     mpBeamModel[1]->setBaseTRMtx(mDoMtx_stack_c::now);
+#endif
     mDoMtx_copy(mDoMtx_stack_c::now, mAlphaMtx[1]);
 }
 
@@ -1115,7 +1183,11 @@ void daObj_Search::Act_c::set_mtx_light_B() {
 void daObj_Search::Act_c::set_moveBG_mtx_base() {
     mpModel->setBaseScale(scale);
     mDoMtx_stack_c::transS(current.pos);
+#if VERSION == VERSION_DEMO
+    mDoMtx_stack_c::YrotM(current.angle.y);
+#else
     mDoMtx_YrotM(mDoMtx_stack_c::now, current.angle.y);
+#endif
     mDoMtx_copy(mDoMtx_stack_c::now, mBgMtx);
     mpBgW->Move();
 }
@@ -1257,11 +1329,20 @@ BOOL daObj_Search::Act_c::_draw() {
 
     if (mCullBase == 0) {
         if (mScaleType == 1) {
+#if VERSION == VERSION_DEMO
+            dScnKy_env_light_c* envLight = &g_env_light;
+            envLight->settingTevStruct(TEV_TYPE_BG0, &current.pos, &tevStr);
+            tevStr.mColorC0 = envLight->mActorC0;
+            tevStr.mColorK0.r = envLight->mActorK0.r;
+            tevStr.mColorK0.g = envLight->mActorK0.g;
+            tevStr.mColorK0.b = envLight->mActorK0.b;
+#else
             g_env_light.settingTevStruct(TEV_TYPE_BG0, &current.pos, &tevStr);
             tevStr.mColorC0 = g_env_light.mActorC0;
             tevStr.mColorK0.r = g_env_light.mActorK0.r;
             tevStr.mColorK0.g = g_env_light.mActorK0.g;
             tevStr.mColorK0.b = g_env_light.mActorK0.b;
+#endif
         } else {
             g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &tevStr);
         }
@@ -1314,9 +1395,11 @@ BOOL daObj_Search::Act_c::_delete() {
     }
     dComIfG_resDelete(&mPhase, m_arc_name);
     mSmokeCb.remove();
+#if VERSION > VERSION_DEMO
     if (mDoAud_checkSePlaying(JA_SE_MAJUTOU_ALERM)) {
         mDoAud_seStop(JA_SE_MAJUTOU_ALERM, 0);
     }
+#endif
     return TRUE;
 }
 
