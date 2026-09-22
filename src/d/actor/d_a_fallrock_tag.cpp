@@ -70,11 +70,16 @@ static BOOL daFallRockTag_Delete(daFallRockTag_c* i_this) {
 
 /* 000002EC-00000360       .text daFallRockTag_Create__FP10fopAc_ac_c */
 inline cPhs_State daFallRockTag_c::create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daFallRockTag_c);
+#endif
     cPhs_State phase = cDyl_LinkASync(fpcNm_FallRock_e);
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
     }
+#if VERSION == VERSION_DEMO
+    fopAcM_SetupActor(this, daFallRockTag_c);
+#endif
     mSchbit = fopAcM_GetParam(this);
     fopAcM_offDraw(this);
     return cPhs_COMPLEATE_e;
