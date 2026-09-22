@@ -363,13 +363,12 @@ static void hand_move(sss_class* i_this) {
         i_this->mEndPos += actor->speed;
         actor->speed.y -= 3.0f;
         i_this->mInvulnerabilityTimer = 5;
-        {
-            f32 x = i_this->mEndPos.x;
-            f32 y = i_this->mEndPos.y;
-            f32 z = i_this->mEndPos.z;
-            y += 200.0f;
-            ground.m_pos.set(x, y, z);
-        }
+        Vec pos;
+        pos.x = i_this->mEndPos.x;
+        pos.y = i_this->mEndPos.y;
+        pos.z = i_this->mEndPos.z;
+        pos.y += 200.0f;
+        ground.SetPos(&pos);
         i_this->mGroundY = dComIfG_Bgsp()->GroundCross(&ground);
         if (i_this->mGroundY == -G_CM3D_F_INF || i_this->mEndPos.y <= 10.0f + i_this->mGroundY) {
             i_this->mEndPos.y = 10.0f + i_this->mGroundY;
