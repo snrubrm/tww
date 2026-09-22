@@ -270,8 +270,8 @@ void GXSetViewportJitter(f32 left, f32 top, f32 wd, f32 ht, f32 nearz, f32 farz,
     gx->vpHt = ht;
     gx->vpNearz = nearz;
     gx->vpFarz = farz;
-    if (*(u8*)&gx->zOffset != 0) {
-        __GXSetRange(nearz, gx->zScale);
+    if (gx->fgRange != 0) {
+        __GXSetRange(nearz, gx->fgSideX);
     }
     reg = 0x5101A;
     GX_WRITE_U8(0x10);
