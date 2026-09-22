@@ -2245,7 +2245,7 @@ BOOL daNpc_Ko1_c::talk_1() {
                 setStt(0x15);
                 break;
             default:
-                setStt(*reinterpret_cast<s8*>(&m8A4));
+                setStt(m8A4);
                 m84E = 0x3C;
                 endEvent();
                 break;
@@ -2275,7 +2275,7 @@ BOOL daNpc_Ko1_c::talk_2() {
     bool all = ready == mPartnerNum;
     if (all) {
         field_0x6bc[0] = 0;
-        setStt(*reinterpret_cast<s8*>(&m8A4));
+        setStt(m8A4);
         endEvent();
     }
     return TRUE;
@@ -2310,7 +2310,7 @@ BOOL daNpc_Ko1_c::manzai() {
     }
     case 3:
         fopAcM_OffStatus(this, fopAcStts_UNK4000_e);
-        setStt(*reinterpret_cast<s8*>(&m8A4));
+        setStt(m8A4);
         field_0x6bc[0] = 0;
         break;
     }

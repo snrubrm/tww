@@ -245,7 +245,7 @@ public:
     /* 0x8A1 */ s8 mBalloonAnmIndex;
     /* 0x8A2 */ s8 mEventOrder;
     /* 0x8A3 */ s8 mState;
-    /* 0x8A4 */ u8 m8A4;
+    /* 0x8A4 */ s8 m8A4;
     /* 0x8A5 */ s8 mLookMode;
     /* 0x8A6 */ s8 mType;
     /* 0x8A7 */ s8 mStaff;
