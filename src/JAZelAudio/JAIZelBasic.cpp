@@ -4338,7 +4338,11 @@ void JAIZelBasic::processMorningToNormal() {
         field_0x0094 = 1.0;
         f32 tmp;
         if (checkOnOuterSea(&tmp) >= 2) {
+#if VERSION <= VERSION_JPN
+            bgmStart(JA_BGM_SEA, 0, 0);
+#else
             bgmStart(JA_BGM_SEA, 0, 1);
+#endif
         } else {
             startIsleBgm();
         }
