@@ -531,8 +531,10 @@ static u8 __THPReadScaneHeader() {
 }
 
 /* 00000B48-00000EFC       .text __THPReadQuantizationTable */
+#if VERSION > VERSION_DEMO
 #pragma push
 #pragma optimization_level 4
+#endif
 static u8 __THPReadQuantizationTable() {
     u16 length, id, i, row, col;
     f32 q_temp[64];
@@ -564,7 +566,9 @@ static u8 __THPReadQuantizationTable() {
 
     return 0;
 }
+#if VERSION > VERSION_DEMO
 #pragma pop
+#endif
 
 /* 00000EFC-000010E4       .text __THPReadHuffmanTableSpecification */
 static u8 __THPReadHuffmanTableSpecification() {
@@ -3413,7 +3417,9 @@ static void daMP_THPPlayerQuit() {
 /* 00004BD4-00004FB4       .text daMP_THPPlayerOpen__FPCci */
 static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
     s32 offset;
+#if VERSION > VERSION_DEMO
     s32 compOffset;
+#endif
     s32 i;
 
     if (!daMP_Initialized) {
@@ -3466,9 +3472,15 @@ static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
         return FALSE;
     }
 
+#if VERSION == VERSION_DEMO
+    offset = daMP_ActivePlayer.header.compInfoDataOffsets;
+
+    if (DVDReadPrio(&daMP_ActivePlayer.fileInfo, daMP_WorkBuffer, 0x20, offset, 2) < 0) {
+#else
     compOffset = daMP_ActivePlayer.header.compInfoDataOffsets;
 
     if (DVDReadPrio(&daMP_ActivePlayer.fileInfo, daMP_WorkBuffer, 0x20, compOffset, 2) < 0) {
+#endif
 #if VERSION > VERSION_DEMO
         OSReport("Fail to read the frame component infomation from THP file.\n");
 #endif
@@ -3477,7 +3489,9 @@ static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
     }
 
     memcpy(&daMP_ActivePlayer.compInfo, daMP_WorkBuffer, sizeof(THPFrameCompInfo));
+#if VERSION > VERSION_DEMO
     offset = compOffset;
+#endif
     offset += sizeof(THPFrameCompInfo);
 
     daMP_ActivePlayer.audioExist = 0;
@@ -3553,8 +3567,9 @@ static u32 daMP_THPPlayerCalcNeedMemory() {
         if (daMP_ActivePlayer.audioExist) {
             size += ALIGN_NEXT(daMP_ActivePlayer.header.audioMaxSamples * 4, 32) * THP_AUDIO_BUFFER_COUNT;
         }
-    
-        return size + 0x1000;
+
+        size += 0x1000;
+        return size;
     }
 
     return 0;
