@@ -302,24 +302,14 @@ void daNpc_Kg1_c::wait_action_init() {
 }
 
 void daNpc_Kg1_c::wait_action() {
-    int staff;
-    daMgBoard_c* board;
-    u8 rec_items[2];
-    s16 name;
-    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
-    staff = mgr->getMyStaffId("Kg1", NULL, 0);
-    name = fpcNm_MGBOARD_e;
-#if VERSION == VERSION_DEMO
-    board = (daMgBoard_c*)fopAcM_Search((fopAcIt_JudgeFunc)fpcSch_JudgeForPName, &name);
-#else
-    board = (daMgBoard_c*)fopAcIt_Judge((fopAcIt_JudgeFunc)fpcSch_JudgeForPName, &name);
-#endif
+    int staff = dComIfGp_evmng_getMyStaffId("Kg1");
+    fopAc_ac_c* board = fopAcM_SearchByName(fpcNm_MGBOARD_e);
     switch (mWaitMode) {
     case 0:
         m751 = 0;
         m_jnt.onHeadLock();
         m_jnt.onBackBoneLock();
-        if (board) board->clrGInfoDraw();
+        if (board) ((daMgBoard_c*)board)->clrGInfoDraw();
         clr_seq_flag();
         if (m731 != 0) m732 = 1;
         else m732 = 0;
@@ -350,8 +340,8 @@ void daNpc_Kg1_c::wait_action() {
     case 2:
         m751 = 0;
         if (board) {
-            board->reqStartGame();
-            board->setGInfoDraw();
+            ((daMgBoard_c*)board)->reqStartGame();
+            ((daMgBoard_c*)board)->setGInfoDraw();
         }
         mWaitMode = 3;
         fopAcM_seStart(this, JA_SE_PLAYSPOT_START, 0);
@@ -359,10 +349,10 @@ void daNpc_Kg1_c::wait_action() {
         break;
     case 3:
         if (m732 == 0 && board) {
-            mbGameEnd = board->checkEndGame() != 0;
+            mbGameEnd = ((daMgBoard_c*)board)->checkEndGame() != 0;
             if (mbGameEnd && cLib_calcTimer(&mEndGameTimer) == 0) {
-                mbDidClearGame = board->checkClearGame();
-                if (mbDidClearGame) mGameBoardScore = board->getScore();
+                mbDidClearGame = ((daMgBoard_c*)board)->checkClearGame();
+                if (mbDidClearGame) mGameBoardScore = ((daMgBoard_c*)board)->getScore();
                 else m74D = 4;
                 mEndGameTimer = 90;
                 m778 = 0;
@@ -376,11 +366,11 @@ void daNpc_Kg1_c::wait_action() {
         if (CPad_CHECK_TRIG_A(0)) {
             m779 = 0;
             dComIfGs_onEventBit(0x2540);
-            if (board) board->mbForceEnd = 1;
-            if (board) board->clrGInfoDraw();
+            if (board) ((daMgBoard_c*)board)->mbForceEnd = 1;
+            if (board) ((daMgBoard_c*)board)->clrGInfoDraw();
             mWaitMode = 5;
             m732 = 2;
-            mgr->cutEnd(staff);
+            dComIfGp_evmng_cutEnd(staff);
             dComIfGp_event_reset();
         }
         break;
@@ -417,11 +407,7 @@ void daNpc_Kg1_c::wait_action() {
         }
         break;
     case 7:
-#if VERSION == VERSION_DEMO
         if (dComIfGp_evmng_endCheck(m788)) {
-#else
-        if (mgr->endCheck(m788)) {
-#endif
             dComIfGp_event_reset();
             mPrizeGiven = 1;
             m732 = 2;
@@ -452,8 +438,7 @@ void daNpc_Kg1_c::wait_action() {
     case 9:
         if (m732 == 0) {
             m751 = 0;
-            static const u8 items[] = {0xF1, 0x06};
-            *(u16*)rec_items = *(u16*)items;
+            u8 rec_items[] = {dItemNo_COLLECT_MAP_14_e, dItemNo_ORANGE_RUPEE_e};
             u8 index = dComIfGs_getEventReg(0xFF07) - 1;
             if (index > 1) index = 1;
             mItemId = fopAcM_createItemForPresentDemo(&current.pos, rec_items[index], 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
@@ -462,11 +447,7 @@ void daNpc_Kg1_c::wait_action() {
         }
         break;
     case 10:
-#if VERSION == VERSION_DEMO
         if (dComIfGp_evmng_endCheck(m788)) {
-#else
-        if (mgr->endCheck(m788)) {
-#endif
             dComIfGp_event_reset();
             mRecordPrizeGiven = 1;
             m732 = 2;
