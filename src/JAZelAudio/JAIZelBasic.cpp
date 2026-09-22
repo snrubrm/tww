@@ -4267,7 +4267,9 @@ void JAIZelBasic::stSkyCloistersProcess() {
             }
             field_0x00b7 = 0;
         }
+#if VERSION > VERSION_JPN
         seStart(JA_SE_ATM_WIND_1, NULL, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+#endif
     }
 }
 
