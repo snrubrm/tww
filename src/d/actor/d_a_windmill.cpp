@@ -233,7 +233,7 @@ static BOOL nodeCallBack(J3DNode* node, int calcTiming) {
         J3DJoint* joint = (J3DJoint*)node;
         s32 jntNo = joint->getJntNo();
         J3DModel* model = j3dSys.getModel();
-        daWindMill_c* i_this = (daWindMill_c*) model->getUserArea();
+        daWindMill_c* i_this = (daWindMill_c*) j3dSys.getModel()->getUserArea();
 
         if (i_this) {
             i_this->mAngle[0] += i_this->mAngle[1];
