@@ -800,6 +800,9 @@ void dMesg_tMeasureProcessor::do_character(int param_1) {
     dMesg_tControl* mesgControl = (dMesg_tControl*)getControl();
     int r30 = field_0x50 - field_0x4c;
     bool r29 = false;
+#if VERSION == VERSION_PAL
+    static int number = 0;
+#endif
     if (param_1 == 10) {
         if (r30 >= 0 && r30 < linemax - 1) {
             retFlag++;
@@ -813,12 +816,23 @@ void dMesg_tMeasureProcessor::do_character(int param_1) {
         r29 = true;
         JMSMesgEntry_c stack_58 = *(JMSMesgEntry_c*)dMesg_gpControl->getMessageEntry(nowMesgCode);
         if (dComIfGs_getClearCount() == 0 && stack_58.mTextboxType == 12) {
+#if VERSION == VERSION_PAL
+            if (!m_zenkaku) {
+                number = param_1 << 8;
+                m_zenkaku = 1;
+                return;
+            }
+            param_1 |= number;
+#endif
             for (int i = 0; i < 97; i++) {
                 if (zfont[i][0] == u16(param_1)) {
                     param_1 = zfont[i][1];
                     break;
                 }
             }
+#if VERSION == VERSION_PAL
+            m_zenkaku = 0;
+#endif
         }
         mesgControl->setCharCode(param_1);
     }
