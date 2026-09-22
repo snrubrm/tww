@@ -310,6 +310,7 @@ bool daNpcMn_c::_delete() {
 }
 
 /* 00000FE4-00001154       .text _draw__9daNpcMn_cFv */
+// NONMATCHING - retail: the mpBagModel load is scheduled after the g_env_light address instead of before it
 bool daNpcMn_c::_draw() {
     if (dComIfGs_isTmpBit(0x408)) {
         return true;
@@ -321,13 +322,8 @@ bool daNpcMn_c::_draw() {
     mBtp.entry(data, mBtpFrame);
     mpMorf->updateDL();
     mBtp.remove(data);
-#if VERSION == VERSION_DEMO
     J3DModel* bagModel = mpBagModel;
     g_env_light.setLightTevColorType(bagModel, &tevStr);
-#else
-    J3DModel* bagModel = mpBagModel;
-    g_env_light.setLightTevColorType((bagModel, bagModel), &tevStr);
-#endif
     MtxP mtx = model->getAnmMtx(mBagJoint);
     MTXCopy(mtx, mpBagModel->getBaseTRMtx());
     mDoExt_modelUpdateDL(mpBagModel);
