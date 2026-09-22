@@ -16,6 +16,9 @@
 #include "JSystem/J2DGraph/J2DScreen.h"
 #include "JSystem/JUtility/JUTAssert.h"
 #include "SSystem/SComponent/c_math.h"
+#if VERSION == VERSION_PAL
+#include "stdio.h"
+#endif
 
 static s16 dMgtem_perfect_tex = 8;
 static s16 dMgtem_failed_tex = 8;
@@ -36,10 +39,47 @@ cPhs_State dMinigame_Terminater_c::_create() {
         dRes_info_c* resInfo = dComIfG_getObjectResInfo("Mgtem");
         JUT_ASSERT(0x66, resInfo != NULL);
 
+#if VERSION == VERSION_PAL
+        mHeap = mDoExt_createSolidHeapFromGameToCurrent(0xE230, 0x20);
+#else
         mHeap = mDoExt_createSolidHeapFromGameToCurrent(0xC0A0, 0x20);
+#endif
         if (mHeap != NULL) {
             mScrn = new dDlst_TerminaterScrnDraw_c();
+#if VERSION == VERSION_PAL
+            u8 lang = dComIfGs_getPalLanguage();
+            if (lang == 1) {
+                dMgtem_perfect_tex = 8;
+                dMgtem_failed_tex = 13;
+                dMgtem_yougot_tex = 10;
+                dMgtem_remain_tex = 15;
+            } else if (lang == 2) {
+                dMgtem_perfect_tex = 8;
+                dMgtem_failed_tex = 17;
+                dMgtem_yougot_tex = 13;
+                dMgtem_remain_tex = 12;
+            } else if (lang == 3) {
+                dMgtem_perfect_tex = 10;
+                dMgtem_failed_tex = 6;
+                dMgtem_yougot_tex = 9;
+                dMgtem_remain_tex = 14;
+            } else if (lang == 4) {
+                dMgtem_perfect_tex = 9;
+                dMgtem_failed_tex = 13;
+                dMgtem_yougot_tex = 11;
+                dMgtem_remain_tex = 14;
+            } else {
+                dMgtem_perfect_tex = 8;
+                dMgtem_failed_tex = 8;
+                dMgtem_yougot_tex = 6;
+                dMgtem_remain_tex = 13;
+            }
+            char buf[32];
+            sprintf(buf, "ship_race2_%d.blo", lang);
+            mScrn->setScreen(buf, resInfo->getArchive());
+#else
             mScrn->setScreen("ship_race2.blo", resInfo->getArchive());
+#endif
             mDoExt_restoreCurrentHeap();
             mDoExt_adjustSolidHeap(mHeap);
         } else {
@@ -134,6 +174,409 @@ void dDlst_TerminaterScrnDraw_c::setScreen(const char* i_layoutName, JKRArchive*
 
 /* 802073C4-8020789C       .text setScrnFailed__26dDlst_TerminaterScrnDraw_cFv */
 void dDlst_TerminaterScrnDraw_c::setScrnFailed() {
+#if VERSION == VERSION_PAL
+    if (dComIfGs_getPalLanguage() == 1) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            mpScrn->search(perfect[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 2) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            mpScrn->search(perfect[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 3) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+            'pet2',
+            'pee3',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            mpScrn->search(perfect[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 4) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+            'pet2',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            mpScrn->search(perfect[i])->hide();
+        }
+    } else {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            mpScrn->search(perfect[i])->hide();
+        }
+    }
+
+    static const u32 perfect_nt[] = {
+        'ntt0',
+        'ntt1',
+        'ntt2',
+        'ntt3',
+        'ntt4',
+        'ntt5',
+        'ntt6',
+        'ntt7',
+        'ntt8',
+        'ntt9',
+    };
+    static const u32 perfect_nk[] = {
+        'ntk0',
+        'ntk1',
+        'ntk2',
+        'ntk3',
+        'ntk4',
+        'ntk5',
+        'ntk6',
+        'ntk7',
+        'ntk8',
+        'ntk9',
+    };
+
+    if (dComIfGs_getPalLanguage() == 1) {
+        static const u32 failed[] = {
+            'faex',
+            '\0fam',
+            'fau2',
+            '\0fat',
+            '\0fad',
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            fopMsgM_setPaneData(&mFailed[i], mpScrn, failed[i]);
+            getRotate(&mFailed[i]);
+            mRemain[i].mUserArea = 0;
+            mRemainK[i].mUserArea = 0;
+        }
+    } else if (dComIfGs_getPalLanguage() == 2) {
+        static const u32 failed[] = {
+            'faex',
+            'fae3',
+            'fal2',
+            'fau2',
+            'fao2',
+            '\0fac',
+            'fae2',
+            '\0fat',
+            '\0fad',
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            fopMsgM_setPaneData(&mFailed[i], mpScrn, failed[i]);
+            getRotate(&mFailed[i]);
+            mRemain[i].mUserArea = 0;
+            mRemainK[i].mUserArea = 0;
+        }
+    } else if (dComIfGs_getPalLanguage() == 3) {
+        static const u32 failed[] = {
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            fopMsgM_setPaneData(&mFailed[i], mpScrn, failed[i]);
+            getRotate(&mFailed[i]);
+            mRemain[i].mUserArea = 0;
+            mRemainK[i].mUserArea = 0;
+        }
+    } else if (dComIfGs_getPalLanguage() == 4) {
+        static const u32 failed[] = {
+            'faex',
+            'fao2',
+            '\0fat',
+            'fau2',
+            '\0fad',
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            fopMsgM_setPaneData(&mFailed[i], mpScrn, failed[i]);
+            getRotate(&mFailed[i]);
+            mRemain[i].mUserArea = 0;
+            mRemainK[i].mUserArea = 0;
+        }
+    } else {
+        static const u32 failed[] = {
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            fopMsgM_setPaneData(&mFailed[i], mpScrn, failed[i]);
+            getRotate(&mFailed[i]);
+            mRemain[i].mUserArea = 0;
+            mRemainK[i].mUserArea = 0;
+        }
+    }
+
+    if (dComIfGs_getPalLanguage() == 1) {
+        static const u32 remaintime[] = {
+            '\0yoy',
+            'ret2',
+            'rei4',
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rkt2',
+            'rki4',
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_remain_tex + 1; i++) {
+            mpScrn->search(remaintime[i])->hide();
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            mpScrn->search(remaintimek[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 2) {
+        static const u32 remaintime[] = {
+            '\0yoy',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_remain_tex + 1; i++) {
+            mpScrn->search(remaintime[i])->hide();
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            mpScrn->search(remaintimek[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 3) {
+        static const u32 remaintime[] = {
+            '\0yoy',
+            'ree3',
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rke3',
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_remain_tex + 1; i++) {
+            mpScrn->search(remaintime[i])->hide();
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            mpScrn->search(remaintimek[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 4) {
+        static const u32 remaintime[] = {
+            '\0yoy',
+            'ree3',
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rke3',
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_remain_tex + 1; i++) {
+            mpScrn->search(remaintime[i])->hide();
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            mpScrn->search(remaintimek[i])->hide();
+        }
+    } else {
+        static const u32 remaintime[] = {
+            '\0yoy',
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_remain_tex + 1; i++) {
+            mpScrn->search(remaintime[i])->hide();
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            mpScrn->search(remaintimek[i])->hide();
+        }
+    }
+#else
     static const u32 perfect[] = {
         '\0pep',
         '\0pee',
@@ -211,6 +654,8 @@ void dDlst_TerminaterScrnDraw_c::setScrnFailed() {
         mpScrn->search(remaintimek[i])->hide();
     }
 
+#endif
+
     for (int i = 0; i < 10; i++) {
         mpScrn->search(perfect_nt[i])->hide();
         mpScrn->search(perfect_nk[i])->hide();
@@ -242,6 +687,453 @@ void dDlst_TerminaterScrnDraw_c::setScrnFailed() {
 
 /* 8020789C-8020805C       .text setScrnSuccess__26dDlst_TerminaterScrnDraw_cFii */
 void dDlst_TerminaterScrnDraw_c::setScrnSuccess(int i_rupee, int i_time) {
+#if VERSION == VERSION_PAL
+    if (dComIfGs_getPalLanguage() == 1) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            fopMsgM_setPaneData(&mPerfect[i], mpScrn->search(perfect[i]));
+        }
+    } else if (dComIfGs_getPalLanguage() == 2) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            fopMsgM_setPaneData(&mPerfect[i], mpScrn->search(perfect[i]));
+        }
+    } else if (dComIfGs_getPalLanguage() == 3) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+            'pet2',
+            'pee3',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            fopMsgM_setPaneData(&mPerfect[i], mpScrn->search(perfect[i]));
+        }
+    } else if (dComIfGs_getPalLanguage() == 4) {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+            'pet2',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            fopMsgM_setPaneData(&mPerfect[i], mpScrn->search(perfect[i]));
+        }
+    } else {
+        static const u32 perfect[] = {
+            '\0pep',
+            '\0pee',
+            '\0per',
+            '\0pef',
+            'pee2',
+            '\0pec',
+            '\0pet',
+            'peex',
+        };
+        for (int i = 0; i < dMgtem_perfect_tex; i++) {
+            fopMsgM_setPaneData(&mPerfect[i], mpScrn->search(perfect[i]));
+        }
+    }
+
+    static const u32 perfect_nt[] = {
+        'ntt0',
+        'ntt1',
+        'ntt2',
+        'ntt3',
+        'ntt4',
+        'ntt5',
+        'ntt6',
+        'ntt7',
+        'ntt8',
+        'ntt9',
+    };
+    static const u32 perfect_nk[] = {
+        'ntk0',
+        'ntk1',
+        'ntk2',
+        'ntk3',
+        'ntk4',
+        'ntk5',
+        'ntk6',
+        'ntk7',
+        'ntk8',
+        'ntk9',
+    };
+
+    if (dComIfGs_getPalLanguage() == 1) {
+        static const u32 failed[] = {
+            'faex',
+            '\0fam',
+            'fau2',
+            '\0fat',
+            '\0fad',
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            mpScrn->search(failed[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 2) {
+        static const u32 failed[] = {
+            'faex',
+            'fae3',
+            'fal2',
+            'fau2',
+            'fao2',
+            '\0fac',
+            'fae2',
+            '\0fat',
+            '\0fad',
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            mpScrn->search(failed[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 3) {
+        static const u32 failed[] = {
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            mpScrn->search(failed[i])->hide();
+        }
+    } else if (dComIfGs_getPalLanguage() == 4) {
+        static const u32 failed[] = {
+            'faex',
+            'fao2',
+            '\0fat',
+            'fau2',
+            '\0fad',
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            mpScrn->search(failed[i])->hide();
+        }
+    } else {
+        static const u32 failed[] = {
+            '\0fae',
+            '\0fal',
+            '\0fai',
+            '\0faa',
+            '\0faf',
+            '\0fau',
+            '\0fao',
+            '\0fay',
+        };
+        for (int i = 0; i < dMgtem_failed_tex; i++) {
+            mpScrn->search(failed[i])->hide();
+        }
+    }
+
+    if (dComIfGs_getPalLanguage() == 1) {
+        static const u32 yougot[] = {
+            '\0yoy',
+            'yoo1',
+            '\0you',
+            '\0yog',
+            'yoo2',
+            '\0yot',
+            '\0yol',
+            'yot2',
+            '\0yos',
+            'yot3',
+        };
+        static const u32 remaintime[] = {
+            'ret2',
+            'rei4',
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rkt2',
+            'rki4',
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_yougot_tex; i++) {
+            fopMsgM_setPaneData(&mYouGot[i], mpScrn, yougot[i]);
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            fopMsgM_setPaneData(&mRemain[i], mpScrn, remaintime[i]);
+            fopMsgM_setPaneData(&mRemainK[i], mpScrn, remaintimek[i]);
+        }
+    } else if (dComIfGs_getPalLanguage() == 2) {
+        static const u32 yougot[] = {
+            '\0yoy',
+            'yoo1',
+            '\0you',
+            '\0yog',
+            'yoo2',
+            '\0yot',
+            '\0yoe',
+            '\0yoz',
+            'yog2',
+            '\0yoa',
+            'yog3',
+            '\0yon',
+            'yoe2',
+        };
+        static const u32 remaintime[] = {
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_yougot_tex; i++) {
+            fopMsgM_setPaneData(&mYouGot[i], mpScrn, yougot[i]);
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            fopMsgM_setPaneData(&mRemain[i], mpScrn, remaintime[i]);
+            fopMsgM_setPaneData(&mRemainK[i], mpScrn, remaintimek[i]);
+        }
+    } else if (dComIfGs_getPalLanguage() == 3) {
+        static const u32 yougot[] = {
+            '\0yoy',
+            'yoo1',
+            '\0you',
+            '\0yog',
+            'yoo2',
+            '\0yot',
+            '\0yoa',
+            '\0yod',
+            'yoo3',
+        };
+        static const u32 remaintime[] = {
+            'ree3',
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rke3',
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_yougot_tex; i++) {
+            fopMsgM_setPaneData(&mYouGot[i], mpScrn, yougot[i]);
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            fopMsgM_setPaneData(&mRemain[i], mpScrn, remaintime[i]);
+            fopMsgM_setPaneData(&mRemainK[i], mpScrn, remaintimek[i]);
+        }
+    } else if (dComIfGs_getPalLanguage() == 4) {
+        static const u32 yougot[] = {
+            '\0yoy',
+            'yoo1',
+            '\0you',
+            '\0yog',
+            'yoo2',
+            '\0yot',
+            'yoex',
+            '\0yon',
+            'you2',
+            'yot2',
+            'yoo3',
+        };
+        static const u32 remaintime[] = {
+            'ree3',
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rke3',
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_yougot_tex; i++) {
+            fopMsgM_setPaneData(&mYouGot[i], mpScrn, yougot[i]);
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            fopMsgM_setPaneData(&mRemain[i], mpScrn, remaintime[i]);
+            fopMsgM_setPaneData(&mRemainK[i], mpScrn, remaintimek[i]);
+        }
+    } else {
+        static const u32 yougot[] = {
+            '\0yoy',
+            'yoo1',
+            '\0you',
+            '\0yog',
+            'yoo2',
+            '\0yot',
+        };
+        static const u32 remaintime[] = {
+            'ree2',
+            'rem2',
+            'rei3',
+            '\0ret',
+            '\0reg',
+            'ren2',
+            'rei2',
+            'ren1',
+            'rei1',
+            '\0rea',
+            'rem1',
+            'ree1',
+            '\0rer',
+        };
+        static const u32 remaintimek[] = {
+            'rke2',
+            'rkm2',
+            'rki3',
+            '\0rkt',
+            '\0rkg',
+            'rkn2',
+            'rki2',
+            'rkn1',
+            'rki1',
+            '\0rka',
+            'rkm1',
+            'rke1',
+            '\0rkr',
+        };
+        for (int i = 0; i < dMgtem_yougot_tex; i++) {
+            fopMsgM_setPaneData(&mYouGot[i], mpScrn, yougot[i]);
+        }
+        for (int i = 0; i < dMgtem_remain_tex; i++) {
+            fopMsgM_setPaneData(&mRemain[i], mpScrn, remaintime[i]);
+            fopMsgM_setPaneData(&mRemainK[i], mpScrn, remaintimek[i]);
+        }
+    }
+#else
     static const u32 perfect[] = {
         '\0pep',
         '\0pee',
@@ -323,6 +1215,8 @@ void dDlst_TerminaterScrnDraw_c::setScrnSuccess(int i_rupee, int i_time) {
         fopMsgM_setPaneData(&mRemain[i], mpScrn, remaintime[i]);
         fopMsgM_setPaneData(&mRemainK[i], mpScrn, remaintimek[i]);
     }
+
+#endif
 
     for (int i = 0; i < 10; i++) {
         fopMsgM_setPaneData(&mPerfectNt[i], mpScrn->search(perfect_nt[i]));
