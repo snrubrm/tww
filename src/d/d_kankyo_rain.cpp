@@ -270,6 +270,9 @@ void dKyr_wind_move() {
     f32 offsetY = DEMO_SELECT(900.0f, 1000.0f);
     f32 var_f22 = 0.2f;
 
+#if VERSION == VERSION_DEMO
+    s32 windMode = 0;
+#endif
     s32 windlineCount = envLight.mWindlineCount;
     if (dComIfGp_checkPlayerStatus1(0, daPyStts1_DEKU_LEAF_FLY_e)) {
         windlineCount = 10;
@@ -393,7 +396,11 @@ void dKyr_wind_move() {
                 windEff.mAngleY = cM_atan2s(windVec.y, windVec_absXZ);
 
                 windEff.field_0x28 = 0;
+#if VERSION == VERSION_DEMO
+                if (cM_rndF(1.0f) <= var_f22 && windMode == 0) {
+#else
                 if (cM_rndF(1.0f) <= var_f22) {
+#endif
                     windEff.field_0x32 = 1;
                 } else {
                     windEff.field_0x32 = 0;
@@ -486,7 +493,14 @@ void dKyr_wind_move() {
                         windEff.mpEmitter->deleteAllParticle();
                         windEff.mpEmitter->becomeInvalidEmitter();
                         windEff.mpEmitter = NULL;
+#if VERSION == VERSION_DEMO
+                        if (windMode == 2)
+                            windEff.mState = 3;
+                        else
+                            windEff.mState = 0;
+#else
                         windEff.mState = 0;
+#endif
                         if (pWind->mbHasCustomWindPower == TRUE)
                             windEff.mState = 4;
                     }
@@ -497,6 +511,10 @@ void dKyr_wind_move() {
 
             break;
         case 3:
+#if VERSION == VERSION_DEMO
+            if (windMode == 2)
+                break;
+#endif
             if (!pWind->mbHasCustomWindPower)
                 windEff.mState = 0;
             break;
@@ -1059,33 +1077,39 @@ void dKyr_rain_move() {
             var_f31 = 1.0f;
             if (sp34 || rain_packet->mOverheadFade < 1.0f) {
                 cXyz sp80;
+#if VERSION > VERSION_DEMO
                 f32 sp10 = 800.0f;
+#endif
                 sp80 = spC0;
                 sp80.y = camera->view.mLookat.mEye.y;
 
-                if (camera->view.mLookat.mEye.abs(sp80) < sp10) {
+                if (camera->view.mLookat.mEye.abs(sp80) < DEMO_SELECT(800.0f + REG3_F(0), sp10)) {
                     var_f31 *= rain_packet->mOverheadFade * 1.0f;
                 }
             }
 
             if (sp30 || rain_packet->mFwdFade1 < 1.0f) {
                 cXyz sp74;
+#if VERSION > VERSION_DEMO
                 f32 sp0C = 550.0f;
+#endif
                 sp74 = spC0;
                 sp74.y = sp9C.y;
 
-                if (sp9C.abs(sp74) < sp0C) {
+                if (sp9C.abs(sp74) < DEMO_SELECT(550.0f + REG3_F(1), sp0C)) {
                     var_f31 *= rain_packet->mFwdFade1;
                 }
             }
 
             if (sp2C || rain_packet->mFwdFade2 < 1.0f) {
                 cXyz sp68;
+#if VERSION > VERSION_DEMO
                 f32 sp08 = 550.0f;
+#endif
                 sp68 = spC0;
                 sp68.y = sp90.y;
 
-                if (sp90.abs(sp68) < sp08) {
+                if (sp90.abs(sp68) < DEMO_SELECT(550.0f + REG3_F(2), sp08)) {
                     var_f31 *= rain_packet->mFwdFade2;
                 }
             }
@@ -1127,6 +1151,7 @@ void dKyr_housi_move() {
     f32 var_f30 = -100000000.0f;
 
     cXyz sp54;
+    f32 var_f26;
 
     if (g_env_light.mHousiCount != 0 ||
         (g_env_light.mHousiCount == 0 && housi_packet->field_0x5ddc <= 0.0f))
@@ -1146,9 +1171,11 @@ void dKyr_housi_move() {
 
     dKy_set_eyevect_calc2(camera, &sp84, 800.0f, 800.0f);
     dKyw_get_wind_pow();
+    f32 seaY = -99999.9f;
 
     for (int i = housi_packet->mCount - 1; i >= 0; i--) {
-        f32 var_f26 = housi_packet->field_0x5ddc;
+        var_f26 = housi_packet->field_0x5ddc;
+        f32 step = 0.02f;
         effect = &housi_packet->mEffect[i];
 
         switch (housi_packet->mEffect[i].mStatus) {
@@ -1171,8 +1198,8 @@ void dKyr_housi_move() {
             effect->mSpeed.y = 0.0f;
             effect->mSpeed.z = 0.0f;
 
-            if (effect->mBasePos.y + effect->mPos.y < -100149.9f) {
-                effect->mPos.y = (-99999.9f - effect->mBasePos.y) + 10.0f;
+            if (effect->mBasePos.y + effect->mPos.y < seaY - 150.0f) {
+                effect->mPos.y = (seaY - effect->mBasePos.y) + 10.0f;
             }
 
             effect->mStatus++;
@@ -1180,16 +1207,12 @@ void dKyr_housi_move() {
         case 1:
         case 2:
         case 3:
-            f32 temp_f3 = 5.0f;
             if (effect->mStatus == 1) {
                 f32 temp_f0_5 = cM_fsin(effect->mScale.x);
 
-                f32 temp_f1 = temp_f3 * sp78.x;
-                effect->mPos.x += temp_f1 * effect->field_0x34;
-                f32 temp_f2 = temp_f3 * sp78.y;
-                effect->mPos.y += temp_f2 * effect->field_0x34;
-                f32 temp_f4 = temp_f3 * sp78.z;
-                effect->mPos.z += temp_f4 * effect->field_0x34;
+                effect->mPos.x += 5.0f * sp78.x * effect->field_0x34;
+                effect->mPos.y += 5.0f * sp78.y * effect->field_0x34;
+                effect->mPos.z += 5.0f * sp78.z * effect->field_0x34;
                 effect->mPos.y -= effect->field_0x34 * 0.6f;
 
                 effect->mPos.x += temp_f0_5 * effect->field_0x34;
@@ -1234,7 +1257,7 @@ void dKyr_housi_move() {
             f32 var_f1_4 = sp6C.abs(sp84);
 
             if (effect->field_0x3c == 0) {
-                if (var_f1_4 > 1000.0f || sp6C.y < -99979.9f) {
+                if (var_f1_4 > 1000.0f || sp6C.y < seaY + 20.0f) {
                     effect->field_0x3c = 10;
                     effect->mBasePos = sp84;
 
@@ -1272,7 +1295,7 @@ void dKyr_housi_move() {
             var_f26 = 0.0f;
         }
 
-        cLib_addCalc(&effect->mAlpha, var_f26, 0.5f, 0.02f, 0.00001f);
+        cLib_addCalc(&effect->mAlpha, var_f26, 0.5f, step, 0.00001f);
     }
 }
 
@@ -1479,7 +1502,8 @@ void dKyr_kazanbai_move() {
     sp90.SetPos(&sp30);
     f32 temp_f31 = dComIfG_Bgsp()->GroundCross(&sp90);
 
-    dKy_set_eyevect_calc2(camera, &sp6C, 800.0f, 800.0f);
+    f32 range = 800.0f;
+    dKy_set_eyevect_calc2(camera, &sp6C, range, range);
 
     if (snow_packet->mOldEyePos.abs(camera->view.mLookat.mEye) > 1500.0f) {
         snow_packet->mEffCount = 0;
@@ -1517,9 +1541,9 @@ void dKyr_kazanbai_move() {
             snow_packet->mEff[i].mBasePos.x = sp6C.x;
             snow_packet->mEff[i].mBasePos.y = sp6C.y;
             snow_packet->mEff[i].mBasePos.z = sp6C.z;
-            snow_packet->mEff[i].mPos.x = cM_rndFX(800.0f);
-            snow_packet->mEff[i].mPos.y = 800.0f;
-            snow_packet->mEff[i].mPos.z = cM_rndFX(800.0f);
+            snow_packet->mEff[i].mPos.x = cM_rndFX(range);
+            snow_packet->mEff[i].mPos.y = range;
+            snow_packet->mEff[i].mPos.z = cM_rndFX(range);
             snow_packet->mEff[i].mScale = 0.0f;
             snow_packet->mEff[i].mPosWaveX = cM_rndF(360.0f);
             snow_packet->mEff[i].mPosWaveZ = cM_rndF(360.0f);
@@ -1545,7 +1569,7 @@ void dKyr_kazanbai_move() {
             f32 temp_f0 = sp48.abs(sp6C);
 
             if (snow_packet->mEff[i].mTimer == 0) {
-                if (temp_f0 > 800.0f) {
+                if (temp_f0 > range) {
                     snow_packet->mEff[i].mTimer = 10;
                     snow_packet->mEff[i].mWindSpeed = speed;
                     snow_packet->mEff[i].mGravity = gravity;
@@ -1553,17 +1577,17 @@ void dKyr_kazanbai_move() {
                     snow_packet->mEff[i].mBasePos.y = sp6C.y;
                     snow_packet->mEff[i].mBasePos.z = sp6C.z;
 
-                    if (sp48.abs(sp6C) > 950.0f) {
-                        snow_packet->mEff[i].mPos.x = cM_rndFX(800.0f);
-                        snow_packet->mEff[i].mPos.y = cM_rndFX(800.0f);
-                        snow_packet->mEff[i].mPos.z = cM_rndFX(800.0f);
+                    if (sp48.abs(sp6C) > range + 150.0f) {
+                        snow_packet->mEff[i].mPos.x = cM_rndFX(range);
+                        snow_packet->mEff[i].mPos.y = cM_rndFX(range);
+                        snow_packet->mEff[i].mPos.z = cM_rndFX(range);
                     } else {
-                        f32 temp_f26_2 = cM_rndFX(40.0f);
+                        f32 temp_f26_2 = cM_rndFX(0.05f * range);
                         get_vectle_calc(&sp48, &sp6C, &sp3C);
 
-                        snow_packet->mEff[i].mPos.x = sp3C.x * (temp_f26_2 + 800.0f);
-                        snow_packet->mEff[i].mPos.y = sp3C.y * (temp_f26_2 + 800.0f);
-                        snow_packet->mEff[i].mPos.z = sp3C.z * (temp_f26_2 + 800.0f);
+                        snow_packet->mEff[i].mPos.x = sp3C.x * (range + temp_f26_2);
+                        snow_packet->mEff[i].mPos.y = sp3C.y * (range + temp_f26_2);
+                        snow_packet->mEff[i].mPos.z = sp3C.z * (range + temp_f26_2);
                     }
 
                     snow_packet->mEff[i].mStatus = 1;
@@ -1613,7 +1637,7 @@ void dKyr_kazanbai_move() {
             var_f26 = 0.0f;
         }
 
-        var_f26 = 1.0f - var_f26 / 800.0f;
+        var_f26 = 1.0f - var_f26 / range;
         if (var_f26 > 1.0f) {
             var_f26 = 1.0f;
         }
@@ -1622,16 +1646,14 @@ void dKyr_kazanbai_move() {
         }
         
         if (i >= g_env_light.mSnowCount - 1 || snow_packet->mEff[i].mStatus == 2) {
+            var_f26 = 0.0f;
             if (snow_packet->mEff[i].mStatus == 2) {
                 if (snow_packet->mEff[i].mTimer != 0) {
-                    var_f26 = 1.0f;
-                    cLib_addCalc(&snow_packet->mEff[i].mScale, var_f26, 0.5f, 0.1f, 0.00001f);
+                    cLib_addCalc(&snow_packet->mEff[i].mScale, 1.0f, 0.5f, 0.1f, 0.00001f);
                 } else {
-                    var_f26 = 0.0f;
                     cLib_addCalc(&snow_packet->mEff[i].mScale, var_f26, 0.1f, 0.03f, 0.00001f);
                 }
             } else {
-                var_f26 = 0.0f;
                 cLib_addCalc(&snow_packet->mEff[i].mScale, var_f26, 0.2f, 0.1f, 0.01f);
             }
         } else {
@@ -2026,8 +2048,6 @@ void wave_move() {
         }
     }
 }
-
-
 
 /* 80091964-80092294       .text cloud_shadow_move__Fv */
 #if VERSION <= VERSION_JPN
@@ -2983,9 +3003,6 @@ void poison_move() {
     g_env_light.mpPoisonPacket->mCount++;
 }
 
-
-
-
 /* 800937BC-800940D4       .text vrkumo_move__Fv */
 void vrkumo_move() {
     cXyz wind_vecpow = dKyw_get_wind_vecpow();
@@ -3186,7 +3203,6 @@ void vrkumo_move() {
     }
 }
 
-
 /* 800940D4-80094144       .text dKy_wave_chan_init__Fv */
 void dKy_wave_chan_init() {
     g_env_light.mWaveChan.mWaveCount = 0;
@@ -3278,6 +3294,15 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
 
         moonPos2 = *pPos;
     } else {
+#if VERSION == VERSION_DEMO
+        moonPos2.x = -(pPos->x - pCamera->view.mLookat.mEye.x);
+        moonPos2.y = -(pPos->y - pCamera->view.mLookat.mEye.y);
+        moonPos2.z = -(pPos->z - pCamera->view.mLookat.mEye.z);
+
+        moonPos2.x = moonPos2.x + pCamera->view.mLookat.mEye.x;
+        moonPos2.y = moonPos2.y + pCamera->view.mLookat.mEye.y;
+        moonPos2.z = moonPos2.z + pCamera->view.mLookat.mEye.z;
+#else
         moonPos.x = -(pPos->x - pCamera->view.mLookat.mEye.x);
         moonPos.y = -(pPos->y - pCamera->view.mLookat.mEye.y);
         moonPos.z = -(pPos->z - pCamera->view.mLookat.mEye.z);
@@ -3285,6 +3310,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         moonPos2.x = moonPos.x + pCamera->view.mLookat.mEye.x;
         moonPos2.y = moonPos.y + pCamera->view.mLookat.mEye.y;
         moonPos2.z = moonPos.z + pCamera->view.mLookat.mEye.z;
+#endif
     }
 
     dayofweek = dKy_get_dayofweek();
@@ -3356,6 +3382,22 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         f32 dayscale[7] = { 1.0f, 0.83f, 0.6f, 0.6f, 0.6f, 0.6f, 0.83f, };
 
         snap_sunmoon_proc(&moonPos2, texidx);
+#if VERSION == VERSION_DEMO
+        f32 heightRatio = (moonPos2.y - pCamera->view.mLookat.mEye.y) / 8000.0f;
+
+        f32 moon_distXZ = std::sqrtf(moonPos2.x*moonPos2.x + moonPos2.z*moonPos2.z);
+        f32 moon_theta = std::atan2f(moonPos2.x, moonPos2.z);
+        f32 moon_phi = std::atan2f(moonPos2.y, moon_distXZ);
+
+        dKyr_get_vectle_calc(&pCamera->view.mLookat.mEye, &pCamera->view.mLookat.mCenter, &camfwd);
+
+        f32 cam_distXZ = std::sqrtf(camfwd.x*camfwd.x + camfwd.z*camfwd.z);
+        f32 cam_theta = std::atan2f(camfwd.x, camfwd.z);
+        f32 cam_phi = std::atan2f(camfwd.y, cam_distXZ);
+
+        angle = heightRatio * (1.5f * ((moon_theta - cam_theta) / -8.0f));
+        angle = -50.0f + 360.0f * angle;
+#else
         dKyr_get_vectle_calc(&pCamera->view.mLookat.mEye, &pCamera->view.mLookat.mCenter, &camfwd);
 
         f32 cam_distXZ = std::sqrtf(camfwd.x*camfwd.x + camfwd.z*camfwd.z);
@@ -3367,6 +3409,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         f32 moon_phi = std::atan2f(moonPos.y, moon_distXZ);
 
         angle = 45.0f + (((moon_theta - cam_theta) / -8.0f) * moon_phi) * 360.0f;
+#endif
         MTXRotDeg(rotMtx, 'Z', angle);
         MTXConcat(camMtx, rotMtx, camMtx);
         GXLoadPosMtxImm(drawMtx, GX_PNMTX0);
@@ -3376,7 +3419,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         reg0.g = 0xFF;
         reg0.b = 0x94;
 
-        f32 size = 700.0f;
+        f32 size = DEMO_SELECT(750.0f, 700.0f);
         reg0.a = pSunPkt->mMoonAlpha * 255.0f;
         GXSetTevColor(GX_TEVREG0, reg0);
 
@@ -3467,7 +3510,12 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         f32 cam_theta = std::atan2f(camfwd.x, camfwd.z);
         f32 cam_phi = std::atan2f(camfwd.y, cam_distXZ);
 
+#if VERSION == VERSION_DEMO
+        angle = (sun_theta - cam_theta) / -8.0f;
+        angle = -50.0f + 360.0f * angle;
+#else
         angle = -50.0f + (360.0f * ((sun_theta - cam_theta) / -8.0f));
+#endif
         MTXRotDeg(rotMtx, 'Z', angle);
         MTXConcat(camMtx, rotMtx, camMtx);
         GXLoadPosMtxImm(drawMtx, GX_PNMTX0);
@@ -4802,7 +4850,6 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
 #endif
 }
 
-
 /* 800987B8-80098FF0       .text dKyr_drawSnow__FPA4_fPPUc */
 void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
     dKankyo_snow_Packet* snow_packet = g_env_light.mpSnowPacket;
@@ -5334,7 +5381,6 @@ void drawWave(Mtx drawMtx, u8** pImg) {
     J3DShape::resetVcdVatCache();
 #endif
 }
-
 
 /* 8009A5D4-8009AB88       .text drawCloudShadow__FPA4_fPPUc */
 void drawCloudShadow(Mtx drawMtx, u8** pImg) {
