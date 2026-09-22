@@ -376,7 +376,7 @@ actor_process_profile_definition g_profile_Obj_Mmrr = {
     /* Leaf SubMtd  */ &g_fopAc_Method.base,
     /* Draw Prio    */ fpcDwPi_Obj_Mmrr_e,
     /* Actor SubMtd */ &daObjMmrr::Mthd_Table,
-    /* Status       */ fopAcStts_CULL_e | fopAcStts_UNK4000_e | fopAcStts_UNK40000_e,
+    /* Status       */ DEMO_SELECT(0x04 | fopAcStts_SHOWMAP_e, 0) | fopAcStts_CULL_e | fopAcStts_UNK4000_e | fopAcStts_UNK40000_e,
     /* Group        */ fopAc_ACTOR_e,
     /* Cull Type    */ fopAc_CULLBOX_CUSTOM_e,
 };
