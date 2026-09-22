@@ -569,21 +569,11 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
 
                 f32 f29 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
                 int width = mesgControl->getMainFont()->getWidth(char_code);
-#if VERSION == VERSION_DEMO
                 if (field_0x44 == 0.0f) {
                     field_0x44 = width * f29;
                 } else {
                     field_0x44 += width * f29 + mesgControl->getCharSpace();
                 }
-#else
-                if (field_0x44 == 0.0f) {
-                    f32 temp2 = width * f29;
-                    field_0x44 = temp2;
-                } else {
-                    f32 temp2 = width * f29;
-                    field_0x44 += temp2 + mesgControl->getCharSpace();
-                }
-#endif
 #if VERSION == VERSION_DEMO
                 if (field_0x162) {
                     mMesg->text[0][field_0x5c] = 0;
