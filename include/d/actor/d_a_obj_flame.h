@@ -49,7 +49,7 @@ namespace daObjFlame {
         const AttrScale_c& attr_scl() const { return M_attr_scl[mType]; }
         int prm_get_haze() const { return daObj::PrmAbstract(this, PRM_HAZE_W, PRM_HAZE_S); }
         int prm_get_kiCycle() const { return daObj::PrmAbstract(this, PRM_KICYCLE_W, PRM_KICYCLE_S); }
-        int prm_get_kiNum() const { int n = daObj::PrmAbstract(this, PRM_KINUM_W, PRM_KINUM_S) + 1; return n == 32 ? 0 : n; }
+        int prm_get_kiNum() const { int n = daObj::PrmAbstract(this, PRM_KINUM_W, PRM_KINUM_S) + 1; if (n == 32) return 0; return n; }
         u8 prm_get_sch() const { return daObj::PrmAbstract(this, PRM_SCH_W, PRM_SCH_S); }
         int prm_get_scl() const { return daObj::PrmAbstract(this, PRM_SCALE_W, PRM_SCALE_S); }
         int prm_get_swSave() const { return daObj::PrmAbstract(this, PRM_SWITCH_W, PRM_SWITCH_S); }

@@ -341,7 +341,7 @@ void daObjFlame::Act_c::ki_make() {
                     m460 = attr_base().kiInterval - 1;
                     ++m464;
                     csXyz rot(0, cM_rndFX(32768.0f), 0);
-                    fopAcM_create(fpcNm_KI_e, 0xFFFF8002, &current.pos, current.roomNo, &rot);
+                    fopAcM_create(fpcNm_KI_e, 0xFFFF8002, &current.pos, fopAcM_GetRoomNo(this), &rot);
                 }
             } else {
                 m45A = 0;
