@@ -1152,7 +1152,7 @@ void JAIZelBasic::bgmStop(u32 i_fadeTime, s32 param_2) {
         }
         mSubBgmNum = -1;
         field_0x008c = 1.0f;
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
         field_0x00bb = 0;
         field_0x0206 = 0;
 #endif
@@ -1164,7 +1164,7 @@ void JAIZelBasic::bgmStop(u32 i_fadeTime, s32 param_2) {
     field_0x0064 = 0;
     field_0x0065 = 0;
     field_0x00b8 = 0;
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
     field_0x00bb = 0;
     field_0x0206 = 0;
 #endif
