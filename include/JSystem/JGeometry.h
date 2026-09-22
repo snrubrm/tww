@@ -406,8 +406,12 @@ template <>
 struct SMatrix33R<f32> {
     SMatrix33R() {}
 
-    f32 at(u32 i, u32 j) const { return mMtx[j][i]; }
-    f32& ref(u32 i, u32 j) { return mMtx[j][i]; }
+    typedef f32 ArrType[3];
+    operator ArrType*() { return mMtx; }
+    operator const ArrType*() const { return mMtx; }
+
+    f32 at(u32 i, u32 j) const { return (*this)[j][i]; }
+    f32& ref(u32 i, u32 j) { return (*this)[j][i]; }
 
     f32 mMtx[3][3];
 };

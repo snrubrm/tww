@@ -1600,8 +1600,6 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
 
                     JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33R<f32> > > mtx;
                     mtx.setXYZDir(side, dir, params->mAxis);
-                    f32* hack = &mtx.mMtx[0][0];
-                    (void)hack;
 
                     mtx.mult(v1);
                     mtx.mult(v2);
