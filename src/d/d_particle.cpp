@@ -220,7 +220,11 @@ J3DModel * dPa_modelControl_c::newModel(J3DModelData* modelData) {
                 matPacket->setMaterial(mat);
                 J3DShapePacket * shapePacket = j3dmodel->getShapePacket(mat->getShape()->getIndex());
                 matPacket->setInitShapePacket(shapePacket);
+#if VERSION == VERSION_PAL
+                matPacket->setShapePacket(shapePacket);
+#else
                 matPacket->addShapePacket(shapePacket);
+#endif
                 matPacket->setTexture(modelData->getTexture());
                 matPacket->setDisplayListObj(mat->getSharedDisplayListObj());
             }
