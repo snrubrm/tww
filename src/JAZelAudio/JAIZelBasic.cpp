@@ -340,7 +340,11 @@ void JAIZelBasic::zeldaGFrameWork() {
         }
     }
 
+#if VERSION <= VERSION_JPN
+    if (field_0x0224 == 0x12 || field_0x0224 == 0x55) {
+#else
     if (field_0x0224 == 0x12 || field_0x0224 == 0x55 || field_0x0224 == 0x13) {
+#endif
         f32 height = 0.0f;
         f32 vol;
         if (field_0x022d == 1) {
@@ -532,7 +536,9 @@ void JAIZelBasic::zeldaGFrameWork() {
             seStart(JA_SE_ATM_BWD_WIND, NULL, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
             break;
         case 9:
+#if VERSION > VERSION_JPN
         case 0x40:
+#endif
             if (checkStreamPlaying(JA_STRM_DEMO_MJ_SISTER) == 0) {
                 f32 height = 0.0f;
                 if (mAudioCamera->field_0x0) {
@@ -560,9 +566,11 @@ void JAIZelBasic::zeldaGFrameWork() {
                 seStart(JA_SE_ATM_VS_GANON_WFALL, NULL, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
             }
             break;
+#if VERSION > VERSION_JPN
         case 0x5A:
             seStart(JA_SE_ATM_D24_WIND, NULL, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
             break;
+#endif
         }
     }
 
