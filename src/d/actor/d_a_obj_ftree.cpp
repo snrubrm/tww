@@ -894,15 +894,15 @@ BOOL daObjFtree::Act_c::process_init(int proc, s16 param) {
         &Act_c::action_waitS_init,
         &Act_c::action_waitM_init,
         &Act_c::action_waitL_init,
-        &Act_c::action_pikupikuS_init,
-        &Act_c::action_pikupikuM_init,
-        &Act_c::action_pikupikuL_init,
         &Act_c::action_changeSL_init,
         &Act_c::action_changeSL2_init,
         &Act_c::action_changeLS_init,
         &Act_c::action_changeLS2_init,
         &Act_c::action_changeSM_init,
         &Act_c::action_changeMS_init,
+        &Act_c::action_pikupikuS_init,
+        &Act_c::action_pikupikuM_init,
+        &Act_c::action_pikupikuL_init,
     };
     if (proc >= 0 && proc < 13 && (this->*init_table[proc])(param)) {
         mJointTargetMX = 0;
@@ -923,15 +923,15 @@ void daObjFtree::Act_c::process_main() {
         &Act_c::action_waitS_main,
         &Act_c::action_waitM_main,
         &Act_c::action_waitL_main,
-        &Act_c::action_pikupikuS_main,
-        &Act_c::action_pikupikuM_main,
-        &Act_c::action_pikupikuL_main,
         &Act_c::action_changeSL_main,
         &Act_c::action_changeSL2_main,
         &Act_c::action_changeLS_main,
         &Act_c::action_changeLS2_main,
         &Act_c::action_changeSM_main,
         &Act_c::action_changeMS_main,
+        &Act_c::action_pikupikuS_main,
+        &Act_c::action_pikupikuM_main,
+        &Act_c::action_pikupikuL_main,
     };
     if (mMode >= 0 && mMode < 13) {
         (this->*main_table[mMode])();
