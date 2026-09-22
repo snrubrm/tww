@@ -1379,7 +1379,7 @@ u8 daNpcMn_c::getPosNo() {
 
 /* 00003CD8-00003CE8       .text isChangePos__9daNpcMn_cFUc */
 BOOL daNpcMn_c::isChangePos(u8 pos) {
-    return (u8)(pos == 0);
+    return pos == 0;
 }
 
 /* 00003CE8-00003D08       .text daNpc_MnCreate__FPv */
