@@ -580,7 +580,7 @@ void daNpcAuction_c::privateCut() {
                     break;
                 }
             }
-            BOOL done;
+            bool done;
             switch (mCutAct) {
             case 0:
                 done = eventMain();
@@ -589,10 +589,10 @@ void daNpcAuction_c::privateCut() {
                 done = eventMesSet();
                 break;
             default:
-                done = TRUE;
+                done = true;
                 break;
             }
-            if ((u8)done) {
+            if (done) {
                 dComIfGp_evmng_cutEnd(staffIdx);
             }
         }
@@ -605,7 +605,7 @@ void daNpcAuction_c::eventMainInit() {
 }
 
 /* 00001554-00001888       .text eventMain__14daNpcAuction_cFv */
-BOOL daNpcAuction_c::eventMain() {
+bool daNpcAuction_c::eventMain() {
     daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
     u8 flags = auction->m834;
     if (flags & 0x04) {
@@ -682,8 +682,8 @@ void daNpcAuction_c::eventMesSetInit(int staff) {
 }
 
 /* 000018FC-00001930       .text eventMesSet__14daNpcAuction_cFv */
-BOOL daNpcAuction_c::eventMesSet() {
-    return talk(0) == fopMsgStts_BOX_CLOSED_e ? TRUE : FALSE;
+bool daNpcAuction_c::eventMesSet() {
+    return talk(0) == fopMsgStts_BOX_CLOSED_e;
 }
 
 /* 00001930-00001938       .text XyCheckCB__14daNpcAuction_cFi */

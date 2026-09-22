@@ -43,9 +43,9 @@ public:
     void eventMove();
     void privateCut();
     void eventMainInit();
-    BOOL eventMain();
+    bool eventMain();
     void eventMesSetInit(int);
-    BOOL eventMesSet();
+    bool eventMesSet();
     s16 XyCheckCB(int);
     s16 XyEventCB(int);
     u16 next_msgStatus(u32*);
