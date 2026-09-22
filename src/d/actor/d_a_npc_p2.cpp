@@ -89,7 +89,7 @@ public:
     /* 0x284 */ f32 m284;
 };  // Size: 0x288
 
-STATIC_ASSERT(sizeof(daNpc_P2_HIO_c) == 0x288);
+STATIC_ASSERT(sizeof(daNpc_P2_HIO_c) == DEMO_SELECT(0x28C, 0x288));
 
 static daNpc_P2_HIO_c l_HIO;
 
