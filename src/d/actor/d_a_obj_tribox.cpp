@@ -446,7 +446,7 @@ void daObjTribox::Act_c::eff_smoke_pos() {
     i0 %= 3;
     i1 %= 3;
 
-    mDoMtx_YrotS(mDoMtx_stack_c::now, shape_angle.y);
+    mDoMtx_stack_c::YrotS(shape_angle.y);
     cXyz v0;
     mDoMtx_stack_c::multVecSR(&M_post[i0], &v0);
     cXyz v1;
