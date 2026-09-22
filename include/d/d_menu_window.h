@@ -77,7 +77,9 @@ public:
     /* 0x011C */ char* dummy[2];
     /* 0x0124 */ u8 field_0x124[0x128 - 0x124];
     /* 0x0128 */ void* buffer_p[33];
+#if VERSION > VERSION_JPN
     /* 0x01AC */ char* title_p;
+#endif
     /* 0x01B0 */ u16 field_0x1B0;
     /* 0x01B2 */ u8 field_0x1B2;
     /* 0x01B3 */ u8 field_0x1B3[0x1B5 - 0x1B3];
