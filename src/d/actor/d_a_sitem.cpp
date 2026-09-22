@@ -19,14 +19,10 @@ static void hand_draw(sitem_class* i_this) {
         g_env_light.setLightTevColorType(model, &i_this->tevStr);
         mDoExt_modelUpdateDL(model);
     }
-    GXColor color = {0, 180, 50, 255};
-    GXColor& c = color;
-    i_this->mLine.update(10, c, &i_this->tevStr);
+    i_this->mLine.update(10, (GXColor){0, 180, 50, 255}, &i_this->tevStr);
     dComIfGd_set3DlineMat(&i_this->mLine);
     if (i_this->mCutLength > 0.1f) {
-        GXColor color = {0, 180, 50, 255};
-        GXColor& c = color;
-        i_this->mCutLine.update(5, c, &i_this->tevStr);
+        i_this->mCutLine.update(5, (GXColor){0, 180, 50, 255}, &i_this->tevStr);
         dComIfGd_set3DlineMat(&i_this->mCutLine);
     }
 }
