@@ -1568,8 +1568,10 @@ void dPa_trackEcallBack::execute(JPABaseEmitter* emitter) {
         }
     } else {
         emitter->setGlobalTranslation(mpPos->x, mpPos->y, mpPos->z);
-        s16 y = mVel >= 0.0f ? mpRot->y : (s16)(mpRot->y + 0x8000);
-        JGeometry::TVec3<s16> rot(0, (int)y, 0);
+        JGeometry::TVec3<s16> rot;
+        rot.x = 0;
+        rot.y = mVel >= 0.0f ? mpRot->y : (s16)(mpRot->y + 0x8000);
+        rot.z = 0;
         emitter->setGlobalRotation(rot);
         s16 local_38 = emitter->getGlobalAlpha();
         if (std::fabsf(mVel) > mMinVel) {
@@ -1594,6 +1596,7 @@ void dPa_trackEcallBack::execute(JPABaseEmitter* emitter) {
 void dPa_trackEcallBack::draw(JPABaseEmitter* emitter) {
     f32 f27;
     f32 f31;
+    f32 f29;
     f32 f30;
     u32 r28 = emitter->getParticleList()->getNumLinks();
     if (r28 < 6) {
@@ -1603,6 +1606,7 @@ void dPa_trackEcallBack::draw(JPABaseEmitter* emitter) {
         GXSetZMode(GX_DISABLE, GX_NEVER, GX_DISABLE);
     }
     r28 = r28 * (1.0f / 3.0f);
+    f29 = 0.5f;
     f30 = 1.0f / (r28 - 1);
     GXSetCullMode(GX_CULL_NONE);
     Mtx local_bc;
@@ -1629,7 +1633,7 @@ void dPa_trackEcallBack::draw(JPABaseEmitter* emitter) {
                 GXPosition3f32(mPos[j].x, mPos[j].y, mPos[j].z);
                 GXTexCoord2f32(f27, f31 - f30);
                 mPos[j].set(local_c8);
-                f27 += 0.5f;
+                f27 += f29;
                 link = link->getNext();
             }
             GXEnd();
