@@ -28,6 +28,9 @@
 
 namespace {
 static const char l_arcname_Mcrtn[] = "Mcrtn";
+#if VERSION == VERSION_DEMO
+static const char l_arcname_Cloth[] = "Cloth";
+#endif
 
 static const dCcD_SrcTri l_tri_src = {
     {
@@ -421,11 +424,16 @@ void daObjTapestryPLight_c::setPointLight(cXyz pos, csXyz angle) {
 
 /* 00000490-00000600       .text execute__22daObjTapestryFireEff_cFP14JPABaseEmitter */
 void daObjTapestryFireEff_c::execute(JPABaseEmitter* emitter) {
+#if VERSION == VERSION_DEMO
+    f32 lim = attr().m50;
+    cXyz vel = mSpd * attr().m4C;
+#else
     daObjTapestry_Attr_c a = attr();
     daObjTapestry_Attr_c b = a;
     f32 lim = b.m50;
     daObjTapestry_Attr_c c = a;
     cXyz vel = mSpd * c.m4C;
+#endif
     vel.x = cLib_minMaxLimit<f32>(vel.x, -lim, lim);
     vel.z = cLib_minMaxLimit<f32>(vel.z, -lim, lim);
     emitter->setDirection(JGeometry::TVec3<f32>(vel.x, 0.1f, vel.z));
@@ -652,10 +660,15 @@ void daObjTapestryPacket_c::calc_acc_spring(int row, int col) {
 
 /* 000014FC-000015B8       .text calc_acc_gravity__21daObjTapestryPacket_cFv */
 void daObjTapestryPacket_c::calc_acc_gravity() {
+#if VERSION == VERSION_DEMO
+    f32 g = 0.0011111111f * attr().mGravity;
+    mAcc.y += g * attr().m00;
+#else
     daObjTapestry_Attr_c a = attr();
     daObjTapestry_Attr_c b = a;
     daObjTapestry_Attr_c c = a;
     mAcc.y += 0.0011111111f * b.mGravity * c.m00;
+#endif
 }
 
 /* 000015B8-00001858       .text calc_acc_wave__21daObjTapestryPacket_cFii */
@@ -1281,16 +1294,22 @@ void daObjTapestryPacket_c::draw() {
 
 /* 000045C8-0000461C       .text chk_appear__15daObjTapestry_cFv */
 bool daObjTapestry_c::chk_appear() {
+#if VERSION == VERSION_DEMO
+    int sw = param_get_swSave();
+    bool r = dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(this));
+    return !r;
+#else
     fopAc_ac_c* i_this = this;
     int sw = daObj::PrmAbstract(i_this, PRM_SWSAVE_W, PRM_SWSAVE_S);
     return !dComIfGs_isSwitch(sw, i_this->home.roomNo);
+#endif
 }
 
 /* 0000461C-000046A8       .text set_mtx__15daObjTapestry_cFv */
 void daObjTapestry_c::set_mtx() {
     mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::ZXYrotM(shape_angle);
-    mpModel->setBaseTRMtx(mDoMtx_stack_c::now);
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
     mDoMtx_stack_c::scaleM(scale.x, scale.y, scale.z);
     mDoMtx_copy(mDoMtx_stack_c::now, mMtx);
 }
@@ -1326,7 +1345,19 @@ bool daObjTapestry_c::create_heap() {
 
 /* 00004800-0000482C       .text create_res_load__15daObjTapestry_cFv */
 cPhs_State daObjTapestry_c::create_res_load() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase = dComIfG_resLoad(&mPhase, l_arcname_Mcrtn);
+    cPhs_State phase2 = dComIfG_resLoad(&mClothPhase, l_arcname_Cloth);
+    cPhs_State ret = cPhs_INIT_e;
+    if (phase == cPhs_COMPLEATE_e && phase2 == cPhs_COMPLEATE_e) {
+        ret = cPhs_COMPLEATE_e;
+    } else if (phase == cPhs_ERROR_e || phase2 == cPhs_ERROR_e) {
+        ret = cPhs_ERROR_e;
+    }
+    return ret;
+#else
     return dComIfG_resLoad(&mPhase, l_arcname_Mcrtn);
+#endif
 }
 
 /* 0000482C-000048C8       .text init_cc__15daObjTapestry_cFv */
@@ -1455,7 +1486,7 @@ cPhs_State daObjTapestry_c::_create() {
     fopAcM_SetupActor(this, daObjTapestry_c);
     cPhs_State phase = create_res_load();
     if (phase == cPhs_COMPLEATE_e) {
-        if (fopAcM_entrySolidHeap(this, solidHeapCB, 0x8A0)) {
+        if (fopAcM_entrySolidHeap(this, solidHeapCB, DEMO_SELECT(0, 0x8A0))) {
             if (dComIfG_Bgsp()->Regist(mpBgW, this)) {
                 phase = cPhs_ERROR_e;
             } else {
@@ -1491,6 +1522,13 @@ cPhs_State daObjTapestry_c::_create() {
 /* 00005560-00005628       .text _delete__15daObjTapestry_cFv */
 bool daObjTapestry_c::_delete() {
     mPacket.eff_delete();
+#if VERSION == VERSION_DEMO
+    dComIfG_resDeleteDemo(&mPhase, l_arcname_Mcrtn);
+    dComIfG_resDeleteDemo(&mClothPhase, l_arcname_Cloth);
+    if (mpBgW != NULL && mpBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpBgW);
+    }
+#else
     dComIfG_resDelete(&mPhase, l_arcname_Mcrtn);
     if (heap != NULL && mpBgW != NULL) {
         if (mpBgW->ChkUsed()) {
@@ -1498,6 +1536,7 @@ bool daObjTapestry_c::_delete() {
         }
         mpBgW = NULL;
     }
+#endif
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
         l_HIO.mNo = -1;
@@ -1514,7 +1553,8 @@ void daObjTapestry_c::wait_act_proc() {
         if (mpBgW != NULL && mpBgW->ChkUsed()) {
             dComIfG_Bgsp()->Release(mpBgW);
         }
-        if (dComIfGp_getPEvtManager()->getEventData(mEventIdx) == NULL) {
+        s16 idx = mEventIdx;
+        if (dComIfGp_getPEvtManager()->getEventData(idx) == NULL) {
             action = 2;
         }
         setup_action(action);
@@ -1547,7 +1587,7 @@ void daObjTapestry_c::burn_act_proc() {
         int done = cLib_chaseF(&m1AB0, 0.0f, attr().m44);
         if (prev >= 0.8f && m1AB0 < 0.8f) {
             int sw = param_get_swSave();
-            dComIfGs_onSwitch(sw, home.roomNo);
+            dComIfGs_onSwitch(sw, DEMO_SELECT(fopAcM_GetHomeRoomNo(this), home.roomNo));
         }
         if (prev >= 0.5f && m1AB0 < 0.5f) {
             mPacket.eff_end();
@@ -1561,7 +1601,7 @@ void daObjTapestry_c::burn_act_proc() {
 /* 000058D8-00005984       .text burn_act_init_proc__15daObjTapestry_cFv */
 void daObjTapestry_c::burn_act_init_proc() {
     mTimer = attr().m48;
-    mDoAud_seStart(0x69C1, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(0x69C1, &eyePos, 0, dComIfGp_getReverb(DEMO_SELECT(fopAcM_GetRoomNo(this), current.roomNo)));
 }
 
 /* 00005984-00005994       .text fine_act_init_proc__15daObjTapestry_cFv */

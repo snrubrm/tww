@@ -246,6 +246,9 @@ public:
 
 public:
     /* 0x0290 */ request_of_phase_process_class mPhase;
+#if VERSION == VERSION_DEMO
+    /* 0x0298 */ request_of_phase_process_class mClothPhase;
+#endif
     /* 0x0298 */ daObjTapestryPacket_c mPacket;
     /* 0x1758 */ J3DModel* mpModel;
     /* 0x175C */ dBgW* mpBgW;
@@ -260,6 +263,6 @@ public:
     /* 0x1AC0 */ int mAction;
 };  // Size: 0x1AC4
 
-STATIC_ASSERT(sizeof(daObjTapestry_c) == 0x1AC4);
+STATIC_ASSERT(sizeof(daObjTapestry_c) == DEMO_SELECT(0x1ACC, 0x1AC4));
 
 #endif /* D_A_OBJ_TAPESTRY_H */
