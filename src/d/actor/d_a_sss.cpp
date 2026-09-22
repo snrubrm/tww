@@ -23,11 +23,13 @@ static void hand_draw(sss_class* i_this) {
     g_env_light.setLightTevColorType(i_this->mpMorf->getModel(), &actor->tevStr);
     i_this->mpMorf->updateDL();
     GXColor color = {255, 255, 255, 255};
-    i_this->mLine.update(10, color, &actor->tevStr);
+    GXColor& c = color;
+    i_this->mLine.update(10, c, &actor->tevStr);
     dComIfGd_set3DlineMat(&i_this->mLine);
     if (i_this->mCutLength > 0.1f) {
         GXColor cutColor = {255, 255, 255, 255};
-        i_this->mCutLine.update(5, cutColor, &actor->tevStr);
+        GXColor& c2 = cutColor;
+        i_this->mCutLine.update(5, c2, &actor->tevStr);
         dComIfGd_set3DlineMat(&i_this->mCutLine);
     }
 }
@@ -56,12 +58,13 @@ static void hand_open(sss_class* i_this) {
 /* 00000348-00000444       .text hand_mtx_set__FP9sss_class */
 static void hand_mtx_set(sss_class* i_this) {
     MtxTrans(i_this->mHandPos.x, i_this->mHandPos.y, i_this->mHandPos.z, false);
-    mDoMtx_XrotM(*calc_mtx, i_this->mHandAngle.x);
-    mDoMtx_YrotM(*calc_mtx, i_this->mHandAngle.y);
-    mDoMtx_XrotM(*calc_mtx, REG12_S(1) - 0x4000);
+    cMtx_XrotM(*calc_mtx, i_this->mHandAngle.x);
+    cMtx_YrotM(*calc_mtx, i_this->mHandAngle.y);
+    cMtx_XrotM(*calc_mtx, REG12_S(1) - 0x4000);
     MtxScale(0.5f, 0.2f + REG0_F(0), 0.5f, true);
     MtxTrans(0.0f, -130.0f + REG12_F(3), 0.0f, true);
-    i_this->mpMorf->getModel()->setBaseTRMtx(*calc_mtx);
+    J3DModel* model = i_this->mpMorf->getModel();
+    model->setBaseTRMtx(*calc_mtx);
 }
 
 /* 00000444-000004CC       .text control3__FP9sss_class */
@@ -76,15 +79,14 @@ static void control3(sss_class* i_this) {
 /* 000004CC-00000804       .text control1__FP9sss_class */
 static void control1(sss_class* i_this) {
     int i;
-    f32 x, y, z;
+    f32 x, y, z, scale;
     int angleY, angleX;
     static f32 g_d[] = {50.0f, 50.0f, 35.0f, 25.0f, 15.0f, 9.0f, 6.0f, 6.0f, 6.0f, 6.0f};
     cXyz offset, movement, stretch, rotated;
-    f32 scale = 1.0f;
     i_this->mSegments[0].mPos = i_this->current.pos;
     sss_s* segment = &i_this->mSegments[1];
-    mDoMtx_YrotS(*calc_mtx, i_this->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, i_this->current.angle.x);
+    cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
+    cMtx_XrotM(*calc_mtx, i_this->current.angle.x);
     offset.x = 0.0f;
     offset.y = 0.0f;
     offset.z = i_this->mStretch;
@@ -96,14 +98,15 @@ static void control1(sss_class* i_this) {
         movement.y = g_d[i];
         movement.z = sway * cM_scos(i_this->mFrame * (REG0_S(7) + 800) + i * (REG0_S(8) + 4000));
         MtxPosition(&movement, &rotated);
+        scale = 1.0f;
         x = rotated.x * scale + (segment->mPos.x - segment[-1].mPos.x + stretch.x * scale);
         y = rotated.y * scale + (segment->mPos.y - segment[-1].mPos.y + stretch.y * scale);
         z = rotated.z * scale + (segment->mPos.z - segment[-1].mPos.z + stretch.z * scale);
         angleY = cM_atan2s(x, z);
         angleX = (s16)-cM_atan2s(y, std::sqrtf(x * x + z * z));
         MtxPush();
-        mDoMtx_YrotS(*calc_mtx, angleY);
-        mDoMtx_XrotM(*calc_mtx, angleX);
+        cMtx_YrotS(*calc_mtx, angleY);
+        cMtx_XrotM(*calc_mtx, angleX);
         MtxPosition(&offset, &movement);
         MtxPull();
         segment->mPos = segment[-1].mPos + movement;
@@ -128,8 +131,8 @@ static void control2(sss_class* i_this) {
         z = segment->mPos.z - segment[1].mPos.z;
         angleY = cM_atan2s(x, z);
         angleX = (s16)-cM_atan2s(y, std::sqrtf(x * x + z * z));
-        mDoMtx_YrotS(*calc_mtx, angleY);
-        mDoMtx_XrotM(*calc_mtx, angleX);
+        cMtx_YrotS(*calc_mtx, angleY);
+        cMtx_XrotM(*calc_mtx, angleX);
         if (i == 8) {
             offset.z = i_this->mSegmentLength - 10.0f;
             if (offset.z < 0.0f) offset.z = 0.0f;
@@ -154,8 +157,8 @@ static void cut_control1(sss_class* i_this) {
     cXyz offset, movement, rotated;
     i_this->mCutSegments[0].mPos = i_this->current.pos;
     sss_s* segment = &i_this->mCutSegments[1];
-    mDoMtx_YrotS(*calc_mtx, i_this->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, i_this->current.angle.x);
+    cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
+    cMtx_XrotM(*calc_mtx, i_this->current.angle.x);
     // The original only initializes the longitudinal component here.
     offset.z = i_this->mCutLength;
     f32 sway = 50.0f + REG0_F(18);
@@ -170,8 +173,8 @@ static void cut_control1(sss_class* i_this) {
         angleY = cM_atan2s(x, z);
         angleX = (s16)-cM_atan2s(y, std::sqrtf(x * x + z * z));
         MtxPush();
-        mDoMtx_YrotS(*calc_mtx, angleY);
-        mDoMtx_XrotM(*calc_mtx, angleX);
+        cMtx_YrotS(*calc_mtx, angleY);
+        cMtx_XrotM(*calc_mtx, angleX);
         MtxPosition(&offset, &movement);
         MtxPull();
         segment->mPos = segment[-1].mPos + movement;
@@ -216,8 +219,8 @@ static void cut_control2(sss_class* i_this) {
         z = swayOffset.z + (segment->mPos.z - segment[1].mPos.z);
         angleY = cM_atan2s(x, z);
         angleX = (s16)-cM_atan2s(y, std::sqrtf(x * x + z * z));
-        mDoMtx_YrotS(*calc_mtx, angleY);
-        mDoMtx_XrotM(*calc_mtx, angleX);
+        cMtx_YrotS(*calc_mtx, angleY);
+        cMtx_XrotM(*calc_mtx, angleX);
         if (i == 8) {
             offset.z = i_this->mSegmentLength - 10.0f;
             if (offset.z < 0.0f) offset.z = 0.0f;
@@ -252,9 +255,14 @@ static void cut_control2(sss_class* i_this) {
 /* 000014F4-00002614       .text hand_move__FP9sss_class */
 static void hand_move(sss_class* i_this) {
     fopAc_ac_c* actor = i_this;
+#if VERSION == VERSION_DEMO
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    fopAc_ac_c* link = dComIfGp_getLinkPlayer();
+#else
     fopAc_ac_c* player_ac = dComIfGp_getPlayer(0);
     fopAc_ac_c* link = dComIfGp_getLinkPlayer();
     daPy_py_c* player = (daPy_py_c*)player_ac;
+#endif
     s8 emerged;
     cXyz offset, rotated, target, center;
     dBgS_GndChk ground;
@@ -272,8 +280,8 @@ static void hand_move(sss_class* i_this) {
     f32 sway = 5.0f;
     if (i_this->mRange != 0xFF) range = 10.0f * i_this->mRange;
     else range = 1000.0f;
-    mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
+    cMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    cMtx_XrotM(*calc_mtx, actor->current.angle.x);
     emerged = 0;
     switch (i_this->mAction) {
     case 0:
@@ -322,7 +330,11 @@ static void hand_move(sss_class* i_this) {
             actor->speedF = 0.0f;
         }
         offset = target - i_this->mEndPos;
+#if VERSION == VERSION_DEMO
+        if (offset.abs() < 20.0f && player == link) {
+#else
         if (offset.abs() < 20.0f && player_ac == link) {
+#endif
             i_this->mAction = 3;
             hand_close(i_this);
             fopAcM_seStart(actor, JA_SE_OBJ_SVINE_GRASP, 0);
@@ -365,10 +377,11 @@ static void hand_move(sss_class* i_this) {
         actor->speed.y -= 3.0f;
         i_this->mInvulnerabilityTimer = 5;
         {
+            f32 x = i_this->mEndPos.x;
             f32 y = i_this->mEndPos.y;
             f32 z = i_this->mEndPos.z;
             y += 200.0f;
-            ground.m_pos.set(i_this->mEndPos.x, y, z);
+            ground.m_pos.set(x, y, z);
         }
         i_this->mGroundY = dComIfG_Bgsp()->GroundCross(&ground);
         if (i_this->mGroundY == -G_CM3D_F_INF || i_this->mEndPos.y <= 10.0f + i_this->mGroundY) {
@@ -400,7 +413,7 @@ static void hand_move(sss_class* i_this) {
     if (!cut) {
         cLib_addCalc2(&actor->speedF, targetSpeed, 1.0f, speedStep);
         if (i_this->mKnockback > 1.0f && i_this->mAction != 3) {
-            mDoMtx_YrotS(*calc_mtx, i_this->mKnockbackAngle);
+            cMtx_YrotS(*calc_mtx, i_this->mKnockbackAngle);
             offset.x = 0.0f;
             offset.y = 100.0f + REG6_F(9);
             offset.z = i_this->mKnockback;
@@ -527,7 +540,7 @@ static BOOL daSss_IsDelete(sss_class*) {
 
 /* 000026A4-00002720       .text daSss_Delete__FP9sss_class */
 static BOOL daSss_Delete(sss_class* i_this) {
-    dComIfG_resDelete(&i_this->mPhase, "Sss");
+    dComIfG_resDeleteDemo(&i_this->mPhase, "Sss");
     if (i_this->mpCutEmitter) i_this->mpCutEmitter->becomeInvalidEmitter();
     if (i_this->mpEndEmitter) i_this->mpEndEmitter->becomeInvalidEmitter();
     return TRUE;
