@@ -4567,8 +4567,10 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
     color1.a = 0xFF;
 
     f32 f26 = 3.0f;
+#if VERSION > VERSION_DEMO
     f32 ratio = 0.4f;
     f32 spd = 500.0f;
+#endif
 
     if (dComIfGd_getView() != NULL) {
         MTXInverse(dComIfGd_getViewRotMtx(), camMtx);
@@ -4643,8 +4645,8 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                         sp88.z = snow_packet->mEff[temp_r4].mBasePos.z + snow_packet->mEff[temp_r4].mPos.z;
 
                         f32 f22 = 0.0f;
-                        color0.a = 0xFF;
                         u32 _255 = 0xFF;
+                        color0.a = _255;
 
                         if (i == 1) {
                             if (!(sp88.y > temp_f20) || !(sp88.y < temp_f20 + 200.0f)) {
@@ -4663,9 +4665,9 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                             color1.r = 0;
                             color1.g = 0;
                             color1.b = 0;
-                        } else if (temp_r4 < (int)(snow_packet->mEffCount * ratio)) {
+                        } else if (temp_r4 < (int)(snow_packet->mEffCount * DEMO_SELECT(0.4f, ratio))) {
                             f32 tmpk = temp_r4 * 4000;
-                            f32 temp_f2 = std::fabsf(cM_scos(tmpk + (f32)(g_Counter.mCounter0 * spd)));
+                            f32 temp_f2 = std::fabsf(cM_scos(tmpk + (f32)(g_Counter.mCounter0 * DEMO_SELECT(500.0f, spd))));
                             u32 _69 = 0x45;
                             color0.r = (f32)_69 + (temp_f2 * ((f32)_255 - (f32)_69));
                             u32 _60 = 0x3C;
@@ -4799,6 +4801,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
     J3DShape::resetVcdVatCache();
 #endif
 }
+
 
 /* 800987B8-80098FF0       .text dKyr_drawSnow__FPA4_fPPUc */
 void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
@@ -5312,14 +5315,17 @@ void drawWave(Mtx drawMtx, u8** pImg) {
             };
 
             GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+
+            s16 tc = 0xFA;
+
             GXPosition3f32(pos[0].x + add_table[j].x, pos[0].y + add_table[j].y, pos[0].z + add_table[j].z);
             GXTexCoord2s16(0, 0);
             GXPosition3f32(pos[1].x + add_table[j].x, pos[1].y + add_table[j].y, pos[1].z + add_table[j].z);
-            GXTexCoord2s16(0xFA, 0);
+            GXTexCoord2s16(tc, 0);
             GXPosition3f32(pos[2].x + add_table[j].x, pos[2].y + add_table[j].y, pos[2].z + add_table[j].z);
-            GXTexCoord2s16(0xFA, 0xFA);
+            GXTexCoord2s16(tc, tc);
             GXPosition3f32(pos[3].x + add_table[j].x, pos[3].y + add_table[j].y, pos[3].z + add_table[j].z);
-            GXTexCoord2s16(0, 0xFA);
+            GXTexCoord2s16(0, tc);
             GXEnd();
         }
     }
@@ -5328,6 +5334,7 @@ void drawWave(Mtx drawMtx, u8** pImg) {
     J3DShape::resetVcdVatCache();
 #endif
 }
+
 
 /* 8009A5D4-8009AB88       .text drawCloudShadow__FPA4_fPPUc */
 void drawCloudShadow(Mtx drawMtx, u8** pImg) {
