@@ -155,7 +155,7 @@ cPhs_State daObjBarrel::Act_c::_create() {
 
 /* 00000780-000007B0       .text _delete__Q211daObjBarrel5Act_cFv */
 bool daObjBarrel::Act_c::_delete() {
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return true;
 }
 
