@@ -88,6 +88,7 @@ public:
     /* 0x13D4 */ JPABaseEmitter* mpAttackEff[6];
     /* 0x13EC */ JPABaseEmitter* mp13EC;
     /* 0x13F0 */ JPABaseEmitter* mp13F0[2];
+#if VERSION > VERSION_DEMO
     /* 0x13F8 */ s16 mFlashTimer[15];
     /* 0x1416 */ u8 m1416[0x1426 - 0x1416];
     /* 0x1426 */ s16 m1426;
@@ -98,6 +99,7 @@ public:
     /* 0x146C */ u8 m146C[0x14A8 - 0x146C];
     /* 0x14A8 */ cXyz m14A8[15];
     /* 0x155C */ s16 m155C;
+#endif
     /* 0x155E */ s16 m155E;
     /* 0x1560 */ s16 m1560;
     /* 0x1562 */ s8 m1562;
@@ -110,7 +112,9 @@ public:
     /* 0x15A0 */ f32 m15A0;
     /* 0x15A4 */ f32 m15A4;
     /* 0x15A8 */ f32 m15A8;
+#if VERSION > VERSION_DEMO
     /* 0x15AC */ f32 m15AC;
+#endif
     /* 0x15B0 */ u8 m15B0;
     /* 0x15B1 */ u8 m15B1[0x15B4 - 0x15B1];
     /* 0x15B4 */ dPa_rippleEcallBack mRippleCb;
@@ -119,7 +123,7 @@ public:
     /* 0x15E1 */ u8 m15E1[0x15E4 - 0x15E1];
 };
 
-STATIC_ASSERT(sizeof(gnd_class) == 0x15E4);
+STATIC_ASSERT(sizeof(gnd_class) == DEMO_SELECT(0x147C, 0x15E4));
 
 class daGnd_HIO_c : public JORReflexible {
 public:

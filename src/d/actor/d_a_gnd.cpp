@@ -231,12 +231,12 @@ static void setRipple(gnd_class* i_this) {
             dComIfG_Bgsp()->GetAttributeCode(i_this->mAcch.m_gnd) == dBgS_Attr_WATER_e &&
             i_this->mRippleCb.getEmitter() == NULL)
         {
-            static cXyz scale(1.0f, 1.0f, 1.0f);
+            static cXyz ripple_scale(1.0f, 1.0f, 1.0f);
             dComIfGp_particle_setShipTail(
-                dPa_name::ID_AK_JN_HAMON00, &i_this->current.pos, NULL, &scale, 0xFF, &i_this->mRippleCb
+                dPa_name::ID_AK_JN_HAMON00, &i_this->current.pos, NULL, &ripple_scale, 0xFF, &i_this->mRippleCb
             );
             if (i_this->mRippleCb.getEmitter() != NULL) {
-                i_this->mRippleCb.setRate(0.0f);
+                i_this->mRippleCb.setRate(DEMO_SELECT(1.8f, 0.0f));
             }
         }
     } else {
@@ -261,14 +261,11 @@ static void attack_eff_set(gnd_class* i_this, int param_2) {
     fopAc_ac_c* actor = i_this;
 
     for (int i = 0; i < 6; i++) {
-        u32 id = attack_eff_id[param_2 * 6 + i];
-        if (id == 0) {
-            continue;
-        }
-
-        i_this->mpAttackEff[i] = dComIfGp_particle_set(id, &actor->current.pos);
-        if (i <= 3) {
-            i_this->mpAttackEff[i]->setGlobalPrmColor(i_this->mPrmColorR, i_this->mPrmColorG, i_this->mPrmColorB);
+        if (attack_eff_id[param_2 * 6 + i] != 0) {
+            i_this->mpAttackEff[i] = dComIfGp_particle_set(attack_eff_id[param_2 * 6 + i], &actor->current.pos);
+            if (i <= 3) {
+                i_this->mpAttackEff[i]->setGlobalPrmColor(i_this->mPrmColorR, i_this->mPrmColorG, i_this->mPrmColorB);
+            }
         }
     }
 }
@@ -352,18 +349,24 @@ static void* z_s_sub(void* param_1, void*) {
 static BOOL daGnd_Draw(gnd_class* i_this) {
     fopAc_ac_c* actor = i_this;
 
+#if VERSION > VERSION_DEMO
     s16 blure = i_this->m155C;
     if (blure > 1) {
         mDoGph_gInf_c::setBlureRate(blure);
         mDoGph_gInf_c::onBlure();
     } else if (blure == 1) {
+#if VERSION > VERSION_DEMO
         i_this->m155C = 0;
+#endif
         mDoGph_gInf_c::offBlure();
     }
+
+#endif
 
     J3DModel* model = i_this->mpMorf->getModel();
     g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &actor->current.pos, &actor->tevStr);
 
+#if VERSION > VERSION_DEMO
     s16 add = i_this->m142C;
     if (add != 0) {
         s16 fog_r = actor->tevStr.mFogColor.r + i_this->m1426;
@@ -393,6 +396,7 @@ static BOOL daGnd_Draw(gnd_class* i_this) {
         actor->tevStr.mFogColor.b = (u8)fog_b;
         actor->tevStr.mFogStartZ += i_this->m1428;
     }
+#endif
 
     g_env_light.setLightTevColorType(model, &actor->tevStr);
     J3DModelData* modelData = model->getModelData();
@@ -507,9 +511,13 @@ static void ke_move(gnd_class* i_this) {
         if (dComIfGp_evmng_startCheck("endhr") && dComIfGp_demo_get()->getFrameNoMsg() >= 0x12C) {
             len = 0.0f;
         }
+#if VERSION == VERSION_DEMO
+        offset.set(-20.0f + REG0_F(4), ke_set_offsetxz[i], ke_set_offsetxz[i]);
+#else
         offset.x = -20.0f + REG0_F(4);
         offset.y = ke_set_offsetxz[i];
         offset.z = ke_set_offsetxz[i];
+#endif
         MtxPosition(&offset, &ke->mPos[0]);
         ke_control(i_this, ke, len);
         ke_pos_set(i_this, ke, i);
@@ -524,7 +532,7 @@ static void pos_move(gnd_class* i_this, s8 param_2) {
     if (param_2 == 0) {
         vec = *(cXyz*)&i_this->m2D4 - actor->current.pos;
         s16 angY = cM_atan2s(vec.x, vec.z);
-        cLib_addCalcAngleS2(&actor->current.angle.y, angY, 5, i_this->m2F0 * i_this->m2F4);
+        cLib_addCalcAngleS2(&actor->current.angle.y, angY, DEMO_SELECT(REG0_S(3) + 5, 5), i_this->m2F0 * i_this->m2F4);
         cLib_addCalc2(&i_this->m2F4, 1.0f, 1.0f, 0.05f);
     }
 
@@ -694,8 +702,12 @@ static void move0(gnd_class* i_this) {
     }
     pos_move(i_this, 0);
     i_this->m2F0 = 2000.0f;
+#if VERSION == VERSION_DEMO
+    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 2, 0x1000);
+#else
     s16 target = actor->current.angle.y;
     cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, 0x1000);
+#endif
 }
 
 /* 00001974-000028D0       .text attack0__FP9gnd_class */
@@ -1023,8 +1035,12 @@ static void attack0(gnd_class* i_this) {
     }
     i_this->m2F0 = 2000.0f;
     if (turn_player == 0) {
+#if VERSION == VERSION_DEMO
+        cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 4, 0x2000);
+#else
         s16 target = actor->current.angle.y;
         cLib_addCalcAngleS2(&actor->shape_angle.y, target, 4, 0x2000);
+#endif
     } else {
         s16 target = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         cLib_addCalcAngleS2(&actor->shape_angle.y, target, 4, (s16)(turn_player << 12));
@@ -1095,8 +1111,12 @@ static void attack1(gnd_class* i_this) {
 
     i_this->m2F8 = l_HIO.m14;
     pos_move(i_this, 0);
+#if VERSION == VERSION_DEMO
+    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 2, 0x1000);
+#else
     s16 target = actor->current.angle.y;
     cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, 0x1000);
+#endif
     if (done) {
         i_this->m2CE = 0;
         i_this->m2D0 = 0;
@@ -1172,9 +1192,13 @@ static void attackPZ(gnd_class* i_this) {
     case 0:
         if (dist > 1000.0f + REG6_F(1)) {
             cMtx_YrotS(*calc_mtx, ang);
+#if VERSION == VERSION_DEMO
+            offset.set(0.0f, 0.0f, -(1000.0f + REG0_F(1)));
+#else
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = -(1000.0f + REG0_F(1));
+#endif
             MtxPosition(&offset, &result);
             pz->current.pos = actor->current.pos + result;
         }
@@ -1273,7 +1297,9 @@ static void attackPZ(gnd_class* i_this) {
         break;
     case 11:
         if (frame == REG0_S(5) + 2) {
+#if VERSION > VERSION_DEMO
             i_this->m155C = 150;
+#endif
             ((daPz_c*)zelda)->mTalkState = 1;
             fopAc_ac_c* p = pz;
             mDoAud_seStart(JA_SE_LK_LAST_HIT, &p->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(p)));
@@ -1296,14 +1322,22 @@ static void attackPZ(gnd_class* i_this) {
 
     actor->speedF = i_this->m2F8;
     cMtx_YrotS(*calc_mtx, i_this->m31A);
+#if VERSION == VERSION_DEMO
+    offset.set(-20.0f + REG0_F(16), 0.0f, 100.0f + REG0_F(17));
+#else
     offset.x = -20.0f + REG0_F(16);
     offset.y = 0.0f;
     offset.z = 100.0f + REG0_F(17);
+#endif
     MtxPosition(&offset, &result);
     i_this->m2D4 = pz->current.pos + result;
     pos_move(i_this, 0);
+#if VERSION == VERSION_DEMO
+    cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 4, 0x2000);
+#else
     s16 shape_target = actor->current.angle.y;
     cLib_addCalcAngleS2(&actor->shape_angle.y, shape_target, 4, 0x2000);
+#endif
     if (done != 0) {
         cLib_addCalc2(&actor->current.pos.x, i_this->m2D4.x, 0.2f, std::fabsf(i_this->m2E0.x));
         cLib_addCalc2(&actor->current.pos.z, i_this->m2D4.z, 0.2f, std::fabsf(i_this->m2E0.z));
@@ -1382,6 +1416,7 @@ static void defence0(gnd_class* i_this) {
 
     switch (i_this->m2D0) {
     case 0:
+#if VERSION > VERSION_DEMO
         if (i_this->m3D8 == 2) {
             f32 dy = player->current.pos.y - i_this->mAcch.GetGroundH();
             if (dy > 300.0f + REG0_F(19)) {
@@ -1390,6 +1425,7 @@ static void defence0(gnd_class* i_this) {
                 goto defence_anm;
             }
         }
+#endif
         if ((player->getCutType() == 0xF && cM_rndF(1.0f) < 0.8f) ||
             (i_this->m3DB == 1 && cM_rndF(1.0f) < 0.05f && i_this->m3D8 == 2))
         {
@@ -1398,9 +1434,16 @@ static void defence0(gnd_class* i_this) {
             ang += REG0_S(4);
             i_this->m3DE = ang + 0x7800;
         }
+#if VERSION == VERSION_DEMO
+        else if (player->current.pos.y - i_this->mAcch.GetGroundH() > 50.0f) {
+            i_this->m3DC = 0;
+        }
+        anm_init(i_this, bougyo_d[i_this->m3DC], 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+#else
     defence_anm:
         anm_init(i_this, bougyo_d[i_this->m3DC], 4.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
     defence_jump_init:
+#endif
         i_this->m3DA = 0;
         if (l_HIO.m46 != 0 && i_this->m3DC != 5 && i_this->m3D5 >= 3 && cM_rndF(1.0f) < 0.2f) {
             if (cM_rndF(1.0f) < 0.5f) {
@@ -1425,6 +1468,7 @@ static void defence0(gnd_class* i_this) {
         i_this->m2D0 = 10;
         break;
     case 10:
+#if VERSION > VERSION_DEMO
         if (i_this->m3D8 == 2) {
             f32 dy = player->current.pos.y - i_this->mAcch.GetGroundH();
             if (dy > 300.0f + REG0_F(19) && i_this->m3DC != 0) {
@@ -1434,6 +1478,7 @@ static void defence0(gnd_class* i_this) {
                 goto defence_jump_init;
             }
         }
+#endif
         actor->gravity = -4.0f + REG0_F(11);
         if (checkGround(i_this, 0.0f)) {
             i_this->m2F8 = 0.0f;
@@ -1563,8 +1608,12 @@ static void defence0(gnd_class* i_this) {
         s16 target = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, (s16)(REG0_S(8) + 0x2000));
     } else {
+#if VERSION == VERSION_DEMO
+        cLib_addCalcAngleS2(&actor->shape_angle.y, i_this->m3DE, 2, (s16)(REG0_S(8) + 0x2000));
+#else
         s16 target = i_this->m3DE;
         cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, (s16)(REG0_S(8) + 0x2000));
+#endif
     }
     i_this->m13B8[0] = 10;
     i_this->m13B8[1] = 11;
@@ -1605,6 +1654,9 @@ static void finish(gnd_class* i_this) {
 /* 00004330-00004760       .text damage__FP9gnd_class */
 static void damage(gnd_class* i_this) {
     fopAc_ac_c* actor = i_this;
+#if VERSION == VERSION_DEMO
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+#endif
 
     i_this->m13CE = 0;
     if (i_this->m3D9 != 0) {
@@ -1658,7 +1710,11 @@ static void damage(gnd_class* i_this) {
             i_this->m302[1] = 30;
         }
     stun_common:
+#if VERSION == VERSION_DEMO
+        if (actor->health < 30 && i_this->m3D8 == 2) {
+#else
         if (i_this->m155E == 0 && i_this->m302[0] < 30 && actor->health < 0x19 && i_this->m3D8 == 2) {
+#endif
             if (player_view_check(i_this, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)))) {
                 f32 dist = fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0));
                 if (dist < l_HIO.m78) {
@@ -1823,6 +1879,7 @@ static void damage_check(gnd_class* i_this) {
     if (light_arrow != 0 && atInfo.mpActor != NULL) {
         dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDLIGHTARROW00, atInfo.pParticlePos, &atInfo.mpActor->current.angle, NULL);
         dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDLIGHTARROW01, atInfo.pParticlePos, &atInfo.mpActor->current.angle, NULL);
+#if VERSION > VERSION_DEMO
         i_this->m142E = 1;
         i_this->m142C = REG8_S(4) + 30;
         for (int j = 0; j < 15; j++) {
@@ -1830,7 +1887,10 @@ static void damage_check(gnd_class* i_this) {
             i_this->m14A8[j].y = cM_rndFX(30.0f);
             i_this->m14A8[j].z = cM_rndFX(30.0f);
         }
+#endif
+#if VERSION > VERSION_DEMO
         i_this->m15AC = 20.0f + REG0_F(19);
+#endif
     } else if (player->getCutType() == 5 || player->getCutType() == 0xF) {
         dComIfGp_particle_set(dPa_name::ID_AK_SN_GNDASPECIALHIT00, atInfo.pParticlePos, &actor->shape_angle, NULL);
     } else {
@@ -1840,6 +1900,27 @@ static void damage_check(gnd_class* i_this) {
         }
     }
 
+#if VERSION == VERSION_DEMO
+    if (actor->health <= 30) {
+        if (l_HIO.m10 == 1) {
+            actor->health = 30;
+            l_HIO.m10 = 2;
+            i_this->m3D9 = 2;
+        }
+    } else if (actor->health <= 60) {
+        if (l_HIO.m10 == 0) {
+            if (fopAcM_GetName(atInfo.mpActor) == fpcNm_ARROW_e) {
+                JUTReport(440, 240, "YA HIT2 ");
+                if (((daArrow_c*)atInfo.mpActor)->mbSetByZelda) {
+                    i_this->m3D9 = 1;
+                    JUTReport(440, 260, "YA HIT3 ");
+                }
+            } else {
+                actor->health = 60;
+            }
+        }
+    }
+#else
     if (actor->health <= 0x19) {
         if (i_this->m3D8 == 1) {
             actor->health = 0x19;
@@ -1861,6 +1942,7 @@ static void damage_check(gnd_class* i_this) {
     if (actor->health < 0) {
         actor->health = 0;
     }
+#endif
 
     if (i_this->m2CE != 11) {
         i_this->m2CE = 11;
@@ -1897,11 +1979,13 @@ static void demowait(gnd_class* i_this) {
     i_this->m13CE = 0;
 }
 
+#if VERSION > VERSION_DEMO
 /* 000050B0-000050C8       .text yawait__FP9gnd_class */
 static void yawait(gnd_class* i_this) {
     i_this->current.pos.y = 0.0f;
     i_this->m13CE = 0;
 }
+#endif
 
 /* 000050C8-000054F0       .text gnd_move__FP9gnd_class */
 static void gnd_move(gnd_class* i_this) {
@@ -1938,9 +2022,11 @@ static void gnd_move(gnd_class* i_this) {
     case 20:
         demowait(i_this);
         break;
+#if VERSION > VERSION_DEMO
     case 21:
         yawait(i_this);
         break;
+#endif
     case 30:
         finish(i_this);
         return;
@@ -2001,7 +2087,7 @@ static void gnd_move(gnd_class* i_this) {
                 i_this->m3DB = 0;
                 i_this->m3DC = 0;
             }
-            i_this->m302[0] = 10;
+            i_this->m302[0] = DEMO_SELECT(REG0_S(3) + 10, 10);
         }
     }
 
@@ -2029,6 +2115,7 @@ static void gnd_move(gnd_class* i_this) {
 static f32 f_fovy[] = {
     66.75f, 64.25f, 64.25f, 44.25f, 44.25f,
 };
+#if VERSION > VERSION_DEMO
 static u32 eff_d[] = {
     0x2F, 0x3C, 0x3D, 0x3E, 0x09, 0x0B, 0x0E, 0x11, 0x0D, 0x10, 0x1D, 0x20, 0x23, 0x1F, 0x22,
 };
@@ -2038,6 +2125,7 @@ static u32 fl_check_d[] = {
 static f32 fl_scale[] = {
     1.0f, 2.0f, 2.0f, 2.0f, 2.0f, 1.0f, 1.0f, 0.8f, 0.8f, 0.8f, 1.0f, 1.0f, 0.8f, 0.8f, 0.8f,
 };
+#endif
 
 static cXyz f_ctr[] = {
     cXyz(-34.5f, 129.7f, -26.3f),
@@ -2083,7 +2171,9 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m15A4 = 55.0f;
         i_this->m15A0 = 0.0f;
         player->changeOriginalDemo();
+#if VERSION > VERSION_DEMO
         i_this->m15AC = 0.0f;
+#endif
         i_this->m15A4 = 55.0f + REG0_F(6);
         i_this->m157C.x = 400.0f + REG0_F(0);
         i_this->m157C.y = 100.0f + REG0_F(1);
@@ -2097,7 +2187,9 @@ static void demo_camera(gnd_class* i_this) {
         i_this->shape_angle.y = ang + 0x4000 + REG0_S(0);
         i_this->current.angle.y = i_this->shape_angle.y;
         if (i_this->m1560 > REG0_S(1) + 0x19) {
+#if VERSION > VERSION_DEMO
             i_this->m155C = 0x82;
+#endif
             cLib_addCalc2(&i_this->m157C.x, 130.0f + REG0_F(6), 0.6f, 270.0f * i_this->m15A0);
             cLib_addCalc2(&i_this->m157C.y, 230.0f + REG0_F(7), 0.6f, 80.0f * i_this->m15A0);
             cLib_addCalc2(&i_this->m157C.z, REG0_F(8), 0.6f, 100.0f * i_this->m15A0);
@@ -2118,7 +2210,9 @@ static void demo_camera(gnd_class* i_this) {
         if (i_this->m1560 > REG0_S(2) + 0x3C) {
             i_this->m155E++;
             i_this->m1560 = 0;
+#if VERSION > VERSION_DEMO
             i_this->m155C = 0x32;
+#endif
         }
         break;
     }
@@ -2158,7 +2252,9 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m1570 = player->current.pos;
         i_this->m1570.y += 90.0f + REG0_F(7);
         cLib_addCalc2(&i_this->m15A4, 55.0f, 0.8f, 10.0f);
+#if VERSION > VERSION_DEMO
         i_this->m155C = 0x32;
+#endif
         if (l_HIO.m88 == 0) {
             if (i_this->m1560 == 5) {
                 player->changeDemoMode(daPy_demo_c::DEMO_S_SURP_e);
@@ -2222,7 +2318,9 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m1570.y += REG0_F(7) - 30.0f;
         zelda->mTalkState = 2;
         i_this->m2CE = 0x14;
+#if VERSION > VERSION_DEMO
         i_this->m15AC = 0.0f;
+#endif
         // fallthrough
     case 11: {
         cLib_addCalc2(&i_this->m1570.x, pz->eyePos.x, 0.1f, 20.0f);
@@ -2257,8 +2355,12 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m15A0 = 0.0f;
         player->changeOriginalDemo();
         dComIfGp_getVibration().StartShock(REG0_S(2) + 8, -0x21, cXyz(0.0f, 1.0f, 0.0f));
+#if VERSION > VERSION_DEMO
         i_this->m15AC = 5.0f + REG0_F(18);
+#endif
+#if VERSION > VERSION_DEMO
         i_this->m155C = 0x64;
+#endif
         // fallthrough
     case 0x15:
         i_this->m1570 = player->current.pos;
@@ -2399,11 +2501,16 @@ static void demo_camera(gnd_class* i_this) {
         dComIfGp_event_onEventFlag(8);
         i_this->m155E = 0;
         player->cancelOriginalDemo();
+#if VERSION > VERSION_DEMO
         i_this->m155C = 1;
+#endif
         break;
     }
 
     if (i_this->m155E != 0) {
+#if VERSION == VERSION_DEMO
+        camera->mCamera.Set(i_this->m1570, i_this->m1564, i_this->m15A4, 0);
+#else
         f32 shake_x = i_this->m15AC * cM_ssin(i_this->m1560 * 0x3500);
         f32 shake_y = i_this->m15AC * cM_scos(i_this->m1560 * 0x3900);
         cXyz eye;
@@ -2417,11 +2524,13 @@ static void demo_camera(gnd_class* i_this) {
         s16 bank = (s16)(bank_extra + 7.5f * (i_this->m15AC * cM_scos(i_this->m2CC * 0x1C00)));
         camera->mCamera.Set(center, eye, bank, i_this->m15A4);
         cLib_addCalc0(&i_this->m15AC, 1.0f, 1.0f + REG0_F(16));
+#endif
         JUTReport(0x19A, 0x1AE, "K SUB  COUNT  %d", i_this->m1560);
         i_this->m1560++;
     }
 }
 
+#if VERSION > VERSION_DEMO
 /* 00006B04-00006D0C       .text body_flash__FP9gnd_class */
 static void body_flash(gnd_class* i_this) {
     J3DModel* model = i_this->mpMorf->getModel();
@@ -2457,6 +2566,7 @@ static void body_flash(gnd_class* i_this) {
         }
     }
 }
+#endif
 
 /* 00006D0C-000076B8       .text daGnd_Execute__FP9gnd_class */
 static BOOL daGnd_Execute(gnd_class* i_this) {
@@ -2488,26 +2598,34 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
         return TRUE;
     }
 
+#if VERSION > VERSION_DEMO
     setRipple(i_this);
+#endif
 
     if (pz == NULL) {
         pz = (fopAc_ac_c*)fpcEx_Search(z_s_sub, i_this);
     }
 
+#if VERSION == VERSION_DEMO
+    i_this->m3D8 = l_HIO.m10;
+#else
     if (l_HIO.m10 != 0) {
         i_this->m3D8 = l_HIO.m10 - 1;
     }
+#endif
 
     if (actor->stealItemBitNo == 0x23) {
         actor->stealItemBitNo++;
         mDoAud_changeBgmStatus(2);
     }
 
+#if VERSION > VERSION_DEMO
     if ((u8)fopAcM_GetParam(actor) == 0x23) {
         i_this->m2CE = 0x15;
         i_this->m155E = 0x14;
         fopAcM_SetParam(actor, 0);
     }
+#endif
 
     i_this->m2CC++;
 
@@ -2525,9 +2643,11 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
     if (i_this->m318 != 0) {
         i_this->m318--;
     }
+#if VERSION > VERSION_DEMO
     if (i_this->m142C != 0) {
         i_this->m142C--;
     }
+#endif
 
     if (l_HIO.m05 == 0) {
         gnd_move(i_this);
@@ -2601,13 +2721,25 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
 
             if (i_this->m13B8[i] == 3) {
                 MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
+#if VERSION == VERSION_DEMO
+                cMtx_YrotM(*calc_mtx, actor->shape_angle.y);
+                offset.set(REG0_F(14), 100.0f + REG0_F(15), 300.0f + REG0_F(16));
+#else
                 mDoMtx_YrotM(*calc_mtx, actor->shape_angle.y);
                 offset.x = REG0_F(14);
                 offset.y = 100.0f + REG0_F(15);
                 offset.z = 300.0f + REG0_F(16);
+#endif
                 i_this->m13BC[i] = at_spl_d[l_HIO.m84];
             } else if (i_this->m13B8[i] >= 10) {
                 MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
+#if VERSION == VERSION_DEMO
+                if (i_this->m13B8[i] == 10) {
+                    offset.set(0.0f, 60.0f + REG0_F(15), 0.0f);
+                } else {
+                    offset.set(0.0f, 230.0f + REG0_F(16), 0.0f);
+                }
+#else
                 if (i_this->m13B8[i] == 10) {
                     offset.x = 0.0f;
                     offset.y = 60.0f + REG0_F(15);
@@ -2617,6 +2749,7 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
                     offset.y = 230.0f + REG0_F(16);
                     offset.z = 0.0f;
                 }
+#endif
                 i_this->m13C4[i] = 100.0f + REG0_F(17);
                 if (l_HIO.m45 != 0) {
                     i_this->mWeponSph[i].OffTgShield();
@@ -2627,9 +2760,13 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
                 }
             } else {
                 MTXCopy(model->getAnmMtx(w_d[i]), *calc_mtx);
+#if VERSION == VERSION_DEMO
+                offset.set(50.0f + REG0_F(9), REG0_F(10), REG0_F(11));
+#else
                 offset.x = 50.0f + REG0_F(9);
                 offset.y = REG0_F(10);
                 offset.z = REG0_F(11);
+#endif
                 i_this->m13BC[i] = at_spl_d[l_HIO.m82];
                 if (i_this->m13B8[i] == 4) {
                     i_this->mWeponSph[i].SetAtHitMark(dCcG_AtHitMark_Big_e);
@@ -2694,7 +2831,9 @@ static BOOL daGnd_Execute(gnd_class* i_this) {
     demo_camera(i_this);
     ke_move(i_this);
     attack_eff_move(i_this);
+#if VERSION > VERSION_DEMO
     body_flash(i_this);
+#endif
     return TRUE;
 }
 
@@ -2705,7 +2844,7 @@ static BOOL daGnd_IsDelete(gnd_class*) {
 
 /* 000076C0-00007738       .text daGnd_Delete__FP9gnd_class */
 static BOOL daGnd_Delete(gnd_class* i_this) {
-    dComIfG_resDelete(&i_this->mPhase, "Gnd");
+    dComIfG_resDeleteDemo(&i_this->mPhase, "Gnd");
     i_this->mRippleCb.end();
     if (i_this->mHioSet != 0) {
         hio_set = false;
@@ -2929,7 +3068,11 @@ static cPhs_State daGnd_Create(fopAc_ac_c* a_this) {
         if (!hio_set) {
             i_this->mHioSet = 1;
             hio_set = true;
+#if VERSION == VERSION_DEMO
+            l_HIO.mNo = mDoHIO_createChild("ガノンＤ", &l_HIO);
+#else
             l_HIO.mNo = mDoHIO_createChild("ガノンｄ", &l_HIO);
+#endif
         }
 
         i_this->initBt(400.0f + REG0_F(6), 150.0f + REG0_F(5));
@@ -2958,8 +3101,8 @@ static cPhs_State daGnd_Create(fopAc_ac_c* a_this) {
         }
 
         daGnd_Execute(i_this);
-        a_this->max_health = 0x4B;
-        a_this->health = 0x4B;
+        a_this->max_health = DEMO_SELECT(90, 0x4B);
+        a_this->health = DEMO_SELECT(90, 0x4B);
         if (i_this->m2B4 != 0) {
             mDoAud_bgmStart(JA_BGM_GANON_BATTLE);
         }
