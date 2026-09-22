@@ -173,7 +173,9 @@ void daObjHami2::Act_c::daObjHami2_close_demo() {
     mGateAngle -= 0x100;
     if (mGateAngle <= 0) {
         mGateAngle = 0;
+#if VERSION > VERSION_DEMO
         dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
+#endif
         dComIfGp_event_reset();
         mState = 0;
     }
