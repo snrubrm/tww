@@ -3271,13 +3271,9 @@ BOOL daNpc_Cb1_c::execute() {
         cLib_addCalcPosXZ(&m88C, temp2, 0.5f, temp3, 0.5f);
         if(dComIfGp_getPlayer(0) == this) {
 #if VERSION <= VERSION_JPN
-            int r4 = dActStts_BLANK_e;
-            dComIfGp_setDoStatus(r4);
+            dComIfGp_setDoStatus(dActStts_BLANK_e);
             dComIfGp_setAStatus(dActStts_HIDDEN_e);
-            if(mAcch.ChkGroundHit() != false) {
-                r4 = dActStts_RETURN_e;
-            }
-            dComIfGp_setRStatusForce(r4);
+            dComIfGp_setRStatusForce(mAcch.ChkGroundHit() ? dActStts_RETURN_e : dActStts_BLANK_e);
 #else
             if(mAcch.ChkGroundHit()) {
                 dComIfGp_setRStatusForce(dActStts_RETURN_e);
