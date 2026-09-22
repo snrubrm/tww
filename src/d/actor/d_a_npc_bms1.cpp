@@ -451,7 +451,7 @@ u16 daNpc_Bms1_c::next_msgStatus(u32* msg) {
         if (dComIfGp_checkMesgCancelButton()) * msg = previous - 3;
         else if (l_msg->mSelectNum == 0) {
             int price = dComIfGp_getMessageRupee();
-            u8 error = dShop_BoughtErrorStatus(&mShopItems, 0, price);
+            u8 error = dShop_BoughtErrorStatus(&mShopItems, 0, DEMO_SELECT(-1, price));
             if (error & 0x20) * msg = 0x278E;
             else if (error & 4) * msg = 0x278F;
             else {
@@ -493,11 +493,13 @@ void daNpc_Bms1_c::setCollision() {
     cXyz offset(0.0f, 0.0f, 0.0f), pos;
     offset.z = -16.0f;
     MtxTrans(current.pos.x, current.pos.y, current.pos.z, 0);
-    mDoMtx_YrotM(*calc_mtx, mInitialAngle.y);
+    cMtx_YrotM(*calc_mtx, mInitialAngle.y);
     MtxPosition(&offset, &pos);
+    f32 r = 46.0f;
+    f32 h = 130.0f;
     mCyl.SetC(pos);
-    mCyl.SetR(46.0f);
-    mCyl.SetH(130.0f);
+    mCyl.SetR(r);
+    mCyl.SetH(h);
     dComIfG_Ccsp()->Set(&mCyl);
 }
 
@@ -858,9 +860,14 @@ BOOL daNpc_Bms1_c::evn_head_swing_init(int) {
 
 BOOL daNpc_Bms1_c::privateCut() {
     const char* name = mEventCut.getActorName();
+#if VERSION == VERSION_DEMO
+    dEvent_manager_c& evm = g_dComIfG_gameInfo.play.getEvtManager();
+    int staff = evm.getMyStaffId(name, NULL, 0);
+#else
     int staff;
     dEvent_manager_c& evm = g_dComIfG_gameInfo.play.getEvtManager();
     staff = evm.getMyStaffId(name, NULL, 0);
+#endif
     if (staff == -1) return FALSE;
     static const char* cut_name_tbl[] = {
         "TALKMSG", "CONTINUE_TALK", "VIBLATE", "HEADSWING"
@@ -980,8 +987,11 @@ BOOL daNpc_Bms1_c::_execute() {
 
 BOOL daNpc_Bms1_c::_delete() {
     if (mSkipped == 1) return TRUE;
-    dComIfG_resDelete(&mPhs, m_arcname);
-    if (heap && mpMorf) mpMorf->stopZelAnime();
+    dComIfG_resDeleteDemo(&mPhs, m_arcname);
+#if VERSION > VERSION_DEMO
+    if (heap)
+#endif
+    if (mpMorf) mpMorf->stopZelAnime();
     if (l_HIO.m08 >= 0 &&-- l_HIO.m08 < 0) mDoHIO_deleteChild(l_HIO.m04);
     return TRUE;
 }
@@ -991,7 +1001,7 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 }
 
 cPhs_State daNpc_Bms1_c::_create() {
-    fopAcM_SetupActor(this, daNpc_Bms1_c);
+    fopAcM_ct_Retail(this, daNpc_Bms1_c);
     mType = fopAcM_GetParam(this) >> 24;
     if (mType == 0) {
         if (dComIfGs_isEventBit(0xA02) && !checkItemGet(0x69, 1)) {
@@ -1008,6 +1018,7 @@ cPhs_State daNpc_Bms1_c::_create() {
     }
     cPhs_State phase = dComIfG_resLoad(&mPhs, m_arcname);
     if (phase == cPhs_COMPLEATE_e) {
+        fopAcM_ct_Demo(this, daNpc_Bms1_c);
         switch (mType) {
         case 0:
             mType = 0;
@@ -1043,20 +1054,20 @@ BOOL daNpc_Bms1_c::CreateHeap() {
         return FALSE;
     }
     m_head_jnt_num = body->getJointName()->getIndex("head");
-    JUT_ASSERT(0x823, m_head_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x820, 0x823), m_head_jnt_num >= 0);
     m_backbone_jnt_num = body->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0x826, m_backbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x823, 0x826), m_backbone_jnt_num >= 0);
     if (mType == 0) {
         m_leg_jnt_num = body->getJointName()->getIndex("center");
-        JUT_ASSERT(0x82B, m_leg_jnt_num >= 0);
+        JUT_ASSERT(DEMO_SELECT(0x828, 0x82B), m_leg_jnt_num >= 0);
     }
     J3DModelData* head = (J3DModelData*) dComIfG_getObjectRes(m_arcname, dRes_INDEX_BMS_BDL_BY_HEAD_e);
     mpHeadModel = mDoExt_J3DModel__create(head, 0x80000, 0x11020002);
     if (!mpHeadModel) return FALSE;
     m_hairL_jnt_num = head->getJointName()->getIndex("hairL");
-    JUT_ASSERT(0x83E, m_hairL_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x83B, 0x83E), m_hairL_jnt_num >= 0);
     m_hairR_jnt_num = head->getJointName()->getIndex("hairR");
-    JUT_ASSERT(0x841, m_hairR_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x83E, 0x841), m_hairR_jnt_num >= 0);
     mBtpNo = 1;
     if (!initTexPatternAnm(false)) return FALSE;
     switch (mType) {
