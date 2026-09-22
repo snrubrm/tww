@@ -13,6 +13,7 @@
 #include "m_Do/m_Do_controller_pad.h"
 #include "SSystem/SComponent/c_lib.h"
 #include "JSystem/JUtility/JUTAssert.h"
+#include "JSystem/JUtility/JUTReport.h"
 #if VERSION >= VERSION_USA
 #include "res/Object/Kaisen_e.h"
 #define MGBOARD_RES(name) dRes_INDEX_KAISEN_E_##name##_e
@@ -245,25 +246,31 @@ BOOL daMgBoard_c::CreateHeap() {
 
 /* 00000804-00000904       .text set_2dposition__11daMgBoard_cFv */
 void daMgBoard_c::set_2dposition() {
+    f32 x = 523.0f;
     f32 y = 115.0f;
+    f32 step = 47.0f;
     for (int i = 0; i < 3; ++i) {
-        mpSquidIcon[i]->setPosition(523.0f, y);
-        y += 47.0f;
+        mpSquidIcon[i]->setPosition(x, y);
+        y += step;
     }
-    f32 x = 95.0f;
+    f32 bombX = 95.0f;
     f32 bombY = 120.0f;
+    f32 startY = bombY;
+    f32 bombStep = 35.0f;
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 8; ++j) {
-            mpBombIcons[j + i * 8]->setPosition(x, bombY);
-            bombY += 35.0f;
+            mpBombIcons[j + i * 8]->setPosition(bombX, bombY);
+            bombY += bombStep;
         }
-        x -= 35.0f;
-        bombY = 120.0f;
+        bombX -= bombStep;
+        bombY = startY;
     }
-    mpMinigameDList->setTitlePos(282.0f, 70.0f);
-    mpMinigameDList->setScorePos(440.0f, 60.0f);
-    mpMinigameDList->setTitleAlpha(255);
-    f32 scoreAlpha = 80.5f;
+    u8 titleAlpha = 255;
+    u8 scoreAlpha = 255;
+    s16 tx = 282, ty = 70, sx = 440, sy = 60;
+    mpMinigameDList->setTitlePos(tx, ty);
+    mpMinigameDList->setScorePos(sx, sy);
+    mpMinigameDList->setTitleAlpha(titleAlpha);
     mpMinigameDList->setScoreAlpha(scoreAlpha);
 }
 
@@ -373,8 +380,10 @@ static cXyz dummy_func() {
 
 /* 00000E28-00000FD8       .text _execute__11daMgBoard_cFv */
 bool daMgBoard_c::_execute() {
-    u8 highScore = dComIfGs_getEventReg(0xBEFF);
-    int score = mSeaFightGame.mScore;
+    int score;
+    int highScore;
+    highScore = dComIfGs_getEventReg(0xBEFF);
+    score = mSeaFightGame.mScore;
     mpNumber0->setValue(highScore);
     mpNumber1->setValue(score);
     set_2dposition();
@@ -466,6 +475,11 @@ BOOL daMgBoard_c::MinigameMain() {
             mpBombIcons[score - 1]->offBeforeTex();
         }
     }
+#if VERSION == VERSION_DEMO
+    int nearEnemy = mSeaFightGame.getNearEnemy(mLastFirePosX, mLastFirePosY);
+    JUTReport(480, 380, "NEAR ENEMY");
+    JUTReport(490, 400, "%d\n", nearEnemy);
+#endif
     set_mtx();
     return TRUE;
 }
@@ -506,7 +520,9 @@ void daMgBoard_c::CursorMove() {
 
 /* 000013C4-000014C8       .text daMgBoard_Create__FPv */
 cPhs_State daMgBoard_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daMgBoard_c);
+#endif
 #if VERSION == VERSION_PAL
     sprintf(m_arcname, "Kaisen_%d", dComIfGs_getPalLanguage());
 #elif VERSION > VERSION_JPN
@@ -514,6 +530,9 @@ cPhs_State daMgBoard_c::_create() {
 #endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, m_arcname);
     if (phase == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(this, daMgBoard_c);
+#endif
         if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x4E000)) {
             phase = cPhs_ERROR_e;
         }
@@ -530,8 +549,10 @@ static cPhs_State daMgBoard_Create(void* i_this) {
 
 /* 000014C8-00001518       .text daMgBoard_Delete__FPv */
 bool daMgBoard_c::_delete() {
-    dComIfG_resDelete(&mPhase, m_arcname);
+    dComIfG_resDeleteDemo(&mPhase, m_arcname);
+#if VERSION > VERSION_DEMO
     mDoAud_seDeleteObject(&mNPCPos);
+#endif
     return true;
 }
 
