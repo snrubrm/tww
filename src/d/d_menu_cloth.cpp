@@ -7,6 +7,7 @@
 #include "d/d_menu_cloth.h"
 
 #include "assets/l_matDL__d_menu_cloth.h"
+#include "d/d_s_play.h"
 
 static daCLOTH_HIO_c l_HIO;
 
@@ -645,7 +646,7 @@ void dMCloth_c::ShadowTevSetting() {
 /* 8019ADD4-8019B670       .text draw__9dMCloth_cFf8_GXColor8_GXColorUc */
 void dMCloth_c::draw(float, GXColor clothColor, GXColor shadowColor, unsigned char) {
     cXyz* pPos = getPos();
-    cXyz* pPos2 = mShadowPosArr;
+    cXyz* pPos2 = getShadowPos();
     for (int y = 0; y < INNER_SIZE; y++) {
         for (int x = 0; x < INNER_SIZE; x++) {
             *pPos2 = *pPos;
@@ -759,7 +760,11 @@ void dMCloth_c::draw(float, GXColor clothColor, GXColor shadowColor, unsigned ch
     switch (mClothType) {
     case MENU_CLOTH_TYPE_FILE_SELECT:
     case MENU_CLOTH_TYPE_CLOTH_ONLY: {
+#if VERSION == VERSION_DEMO
+        mDoMtx_stack_c::transS(HIO_CHILD.pos.x + -275.0f + REG10_F(1), HIO_CHILD.pos.y - 75.0f + REG10_F(0), HIO_CHILD.pos.z + -3800.0f);
+#else
         mDoMtx_stack_c::transS(HIO_CHILD.pos.x + -275.0f, HIO_CHILD.pos.y - 75.0f, HIO_CHILD.pos.z + -3800.0f);
+#endif
         mDoMtx_stack_c::XrotM(mRot.x);
         mDoMtx_stack_c::YrotM(mRot.y);
         mDoMtx_stack_c::ZrotM(mRot.z);
@@ -793,7 +798,7 @@ void dMCloth_c::draw(float, GXColor clothColor, GXColor shadowColor, unsigned ch
 
     GXSetCullMode(GX_CULL_BACK);
     ShadowTevSetting();
-    GXSetArray(GX_VA_POS, mShadowPosArr, sizeof(cXyz));
+    GXSetArray(GX_VA_POS, getShadowPos(), sizeof(cXyz));
     plot_shadow(0.0f, 0.0f, 1.0f, 1.0f);
 
     TevSetting();
