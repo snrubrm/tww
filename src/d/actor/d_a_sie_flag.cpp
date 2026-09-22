@@ -136,8 +136,16 @@ cPhs_State daSie_Flag_c::_create() {
     if (rt2 != cPhs_COMPLEATE_e) {
         return rt2;
     }
-
-    fopAcM_ct(this, daSie_Flag_c);
+    cPhs_State rt3 = cPhs_COMPLEATE_e;
+    if (rt3 == cPhs_COMPLEATE_e) {
+        fopAcM_ct(this, daSie_Flag_c);
+        if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x1020)) {
+            rt3 = CreateInit();
+        } else {
+            rt3 = cPhs_ERROR_e;
+        }
+    }
+    return rt3;
 #else
     fopAcM_ct(this, daSie_Flag_c);
     
@@ -150,13 +158,13 @@ cPhs_State daSie_Flag_c::_create() {
     if (result != cPhs_COMPLEATE_e) {
         return result;
     }
-#endif
 
     if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x1020)) {
         return CreateInit();
     } else {
         return cPhs_ERROR_e;
     }
+#endif
 }
 
 /* 00000814-00000864       .text _delete__12daSie_Flag_cFv */
