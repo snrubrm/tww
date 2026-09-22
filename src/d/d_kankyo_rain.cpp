@@ -3004,6 +3004,7 @@ void poison_move() {
 }
 
 /* 800937BC-800940D4       .text vrkumo_move__Fv */
+// NONMATCHING - demo only: small instruction-order difference around the distance ratio
 void vrkumo_move() {
     cXyz wind_vecpow = dKyw_get_wind_vecpow();
     dKankyo_vrkumo_Packet* vrkumo_packet = g_env_light.mpVrkumoPacket;
@@ -3150,8 +3151,8 @@ void vrkumo_move() {
         sp74.y = 0.0f;
 
         f32 sp24 = sp74.abs();
-        f32 f2;
-        f32 sp20 = 1.0f - (f2 = sp24 / 15000.0f);
+        f32 sp20 = 1.0f - sp24 / 15000.0f;
+        f32 f2 = sp24 / 15000.0f;
         if (sp20 < 0.0f) {
             sp20 = 0.0f;
         }
