@@ -2356,8 +2356,15 @@ void dMap_c::point2GridAndLocal(f32 param_1, f32 param_2, s8* i_gridX_p, s8* i_g
     }
     *i_gridX_p = x;
     *i_gridY_p = y;
+#if VERSION == VERSION_DEMO
+    s16 lx = param_1 - x * 100000.0f;
+    s16 ly = param_2 - y * 100000.0f;
+    *i_localX_p = lx;
+    *i_localY_p = ly;
+#else
     *i_localX_p = param_1 - x * 100000.0f;
     *i_localY_p = param_2 - y * 100000.0f;
+#endif
 }
 
 /* 8004ABB0-8004AC44       .text getCheckPointUseGrid__6dMap_cFScSc */
@@ -2666,7 +2673,7 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
                     mAGBPointValueAll++;
                     break;
                 default:
-                    JUT_ASSERT(VERSION_SELECT(6661, 6645, 6661, 6661), 0);
+                    JUT_ASSERT(VERSION_SELECT(7060, 6645, 6661, 6661), 0);
                     break;
                 }
             }
@@ -2809,7 +2816,6 @@ void dMap_c::drawPointAgbCursor(f32 param_1, f32 param_2) {
 }
 #else
 void dMap_c::drawPointAgbCursor(f32 param_1, f32 param_2) {
-    /* Nonmatching */
     GXColor color;
     BOOL flash = agbFlashCheck();
     if (flash) {
@@ -3440,10 +3446,19 @@ void dMap_c::drawPointSingle(u8 param_1, f32 param_2, f32 param_3, f32 param_4, 
 
 /* 8004D0A4-8004D260       .text drawActorPointMiniMap__6dMap_cFP10fopAc_ac_c */
 void dMap_c::drawActorPointMiniMap(fopAc_ac_c* actor) {
-    /* Nonmatching */
+#if VERSION == VERSION_DEMO
+    if (!fopAcM_CheckStatus(actor, fopAcStts_SHOWMAP_e)) {
+        return;
+    }
+    // Redundant duplicate check (required to match)
+    if (!fopAcM_CheckStatus(actor, fopAcStts_SHOWMAP_e)) {
+        return;
+    }
+#else
     if (mNowRoomInfoP == NULL) {
         return;
     }
+#endif
 
     int acsType;
     s16 angle;
@@ -3587,8 +3602,11 @@ void dMap_c::mapSetPointAll() {
 
 /* 8004D5F8-8004D9BC       .text mapBufferSendAGB__6dMap_cFi */
 void dMap_c::mapBufferSendAGB(int) {
-    /* Nonmatching */
+#if VERSION == VERSION_DEMO
+    {
+#else
     if (dComIfGp_roomControl_getStayNo() < 0 || mNowRoomInfoP != NULL) {
+#endif
         mapSetPointAll();
         if (!dComIfGp_isEnableNextStage()) {
             if (getKindMapType() == 1) {
@@ -4678,7 +4696,11 @@ void dMap_Dmap_c::draw() {
                 GXTexCoord2f32(1.0f, f23_2);
                 GXTexCoord2f32(1.0f, -f23_2);
                 GXTexCoord2f32(1.0f, 0.0f);
+#if VERSION == VERSION_DEMO
+                GXTexCoord2f32((4.0f + (g_mapHIO.field_0xa - 4)) - f23, f25);
+#else
                 GXTexCoord2f32(6.0f - f23, f25);
+#endif
                 GXTexCoord2f32(1.0f, f29);
                 GXPosition3s16(r24, r22, 0);
                 GXTexCoord2f32(f27, f26);
@@ -4687,7 +4709,11 @@ void dMap_Dmap_c::draw() {
                 GXTexCoord2f32(1.0f, 1.0f + f23_2);
                 GXTexCoord2f32(1.0f, 1.0f - f23_2);
                 GXTexCoord2f32(1.0f, 1.0f);
+#if VERSION == VERSION_DEMO
+                GXTexCoord2f32((4.0f + (g_mapHIO.field_0xa - 4)) - f23, 4.0f + (g_mapHIO.field_0xa - 4));
+#else
                 GXTexCoord2f32(6.0f - f23, 6.0f);
+#endif
                 GXTexCoord2f32(1.0f, f28);
                 GXPosition3s16(r25, r22, 0);
                 GXTexCoord2f32(0.0f, f26);
@@ -4696,7 +4722,11 @@ void dMap_Dmap_c::draw() {
                 GXTexCoord2f32(0.0f, 1.0f + f23_2);
                 GXTexCoord2f32(0.0f, 1.0f - f23_2);
                 GXTexCoord2f32(0.0f, 1.0f);
+#if VERSION == VERSION_DEMO
+                GXTexCoord2f32(0.0f, 4.0f + (g_mapHIO.field_0xa - 4));
+#else
                 GXTexCoord2f32(0.0f, 6.0f);
+#endif
                 GXTexCoord2f32(0.0f, f28);
                 GXEnd();
             }
