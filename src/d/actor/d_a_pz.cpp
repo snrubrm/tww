@@ -2220,7 +2220,7 @@ void daPz_c::bodyDraw() {
         }
     }
 
-    ((J3DMaterial*)mRootJoint)->makeDisplayList();
+    mRootJoint->entryIn();
     j3dSys.getDrawBuffer(0)->entryImm(&mOffCupOnAup2, 0);
 
     mBtkAnm.entry(modelData);
@@ -2234,7 +2234,7 @@ void daPz_c::bodyDraw() {
     mEyebrowShape[2]->show();
     mEyebrowShape[5]->show();
 
-    ((J3DMaterial*)mRootJoint)->makeDisplayList();
+    mRootJoint->entryIn();
     mBtkAnm.remove(modelData);
 
     mEyeShape[2]->hide();
@@ -2246,7 +2246,7 @@ void daPz_c::bodyDraw() {
         mFaceShape[i]->show();
     }
 
-    ((J3DMaterial*)mRootJoint)->makeDisplayList();
+    mRootJoint->entryIn();
     j3dSys.getDrawBuffer(0)->entryImm(&mOnCupOffAup1, 0);
 
     for (int i = 0; i < 4; i++) {
@@ -2258,7 +2258,7 @@ void daPz_c::bodyDraw() {
     mEyebrowShape[1]->show();
     mEyebrowShape[4]->show();
 
-    ((J3DMaterial*)mRootJoint)->makeDisplayList();
+    mRootJoint->entryIn();
     j3dSys.getDrawBuffer(0)->entryImm(&mOffCupOnAup1, 0);
 
     mEyeShape[1]->hide();
