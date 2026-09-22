@@ -1009,7 +1009,7 @@ bool dCamera_c::uniformTransEvCamera() {
         }
         getEvIntData(&work->mBSpCurve, "BSpCurve", 1);
         if (work->mBSpCurve != 0) {
-            ((d2DBSplinePath*)((u8*)this + 0x4C8))->Init(4, work->mTimer);
+            mEventData.mSpline2DPath.Init(4, work->mTimer);
         }
         getEvXyzData(&work->mEye, "Eye", mEye);
         getEvXyzData(&work->mCenter, "Center", mCenter);

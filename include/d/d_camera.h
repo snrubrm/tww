@@ -91,9 +91,9 @@ public:
         /* 0x024 */ int field_0x24;
         /* 0x028 */ int field_0x28;
         /* 0x02C */ dCamera__EventParam mEventParams[8];
-        /* 0x0EC */ dStage_Event_dt_c* field_0xec;
-        /* 0x0F0 */ d2DBSplinePath mSpline2DPath;
-    };  // Size: 0x124
+        /* 0x0CC */ dStage_Event_dt_c* field_0xec;
+        /* 0x0D0 */ d2DBSplinePath mSpline2DPath;
+    };  // Size: 0x114
 
     struct dCamera_monitoring_things {
         /* 0x00 */ cXyz mPos;
