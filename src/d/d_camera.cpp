@@ -2262,9 +2262,9 @@ cSAngle dCamera_c::forwardCheckAngle() {
     }
 
     if (local_1b8 >= cSAngle::_0 && local_1bc >= cSAngle::_0) {
-        ret = (local_1b8 < local_1bc) == false ? -local_1b8 : -local_1bc;
+        ret = local_1b8 >= local_1bc ? -local_1b8 : -local_1bc;
     } else if (local_1b8 <= cSAngle::_0 && local_1bc <= cSAngle::_0) {
-        ret = (local_1b8 > local_1bc) == false ? -local_1b8 : -local_1bc;
+        ret = local_1b8 <= local_1bc ? -local_1b8 : -local_1bc;
     } else {
         ret = -local_1b8;
     }
