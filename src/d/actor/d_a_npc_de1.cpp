@@ -845,13 +845,13 @@ u8 daNpc_De1_c::demo() {
     }
     return mDemo;
 }
-// Debug drawing colors retained in the original actor.
-extern const GXColor l_de1DebugRed1 = {255, 0, 0, 128};
-extern const GXColor l_de1DebugBlue1 = {0, 0, 255, 128};
-extern const GXColor l_de1DebugRed2 = {255, 0, 0, 128};
-extern const GXColor l_de1DebugBlue2 = {0, 0, 255, 128};
-extern const GXColor l_de1DebugGreen = {0, 255, 0, 128};
 BOOL daNpc_De1_c::_draw() {
+    // Unused colors, needed for the .rodata section to match.
+    GXColor red1 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor blue1 = {0x00, 0x00, 0xFF, 0x80};
+    GXColor red2 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor blue2 = {0x00, 0x00, 0xFF, 0x80};
+    GXColor green = {0x00, 0xFF, 0x00, 0x80};
     J3DModel* model = mpMorf->getModel();
     g_env_light.settingTevStruct(1, &current.pos, &tevStr);
     g_env_light.setLightTevColorType(model, &tevStr);
