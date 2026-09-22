@@ -202,15 +202,9 @@ bool daNpc_Gp1_c::iniTexPttrnAnm(bool modify) {
 void daNpc_Gp1_c::plyTexPttrnAnm() {
     if (mTexIndex != 0 || cLib_calcTimer(&mBlinkTimer) == 0) {
         mBtpFrame++;
-#if VERSION == VERSION_DEMO
-        s16 max = m_hed_tex_pttrn->getFrameMax();
-        if (mBtpFrame >= max) {
-#else
-        int max = m_hed_tex_pttrn->getFrameMax();
-        if (mBtpFrame >= (s16)max) {
-#endif
+        if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) {
             if (mTexIndex != 0) {
-                mBtpFrame = max;
+                mBtpFrame = m_hed_tex_pttrn->getFrameMax();
             } else {
                 mBlinkTimer = 30 + cM_rndF(60.0f);
                 mBtpFrame = 0;
