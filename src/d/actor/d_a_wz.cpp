@@ -2426,6 +2426,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
     if (i_this->mBehaviorType == 0xFF) {
         i_this->mBehaviorType = 0;
     }
+#if VERSION > VERSION_JPN
     if (i_this->mBehaviorType == 2) {
         i_this->mBehaviorType = 1;
         i_this->mIsMiniBoss = true;
@@ -2437,6 +2438,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
     if (i_this->mEnemySummonTableIndex == 0xFF) {
         i_this->mEnemySummonTableIndex = 0;
     }
+#endif
 
     cPhs_State phase_state;
     if (i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR && i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR_2) {
@@ -2445,6 +2447,17 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         phase_state = dComIfG_resLoad(&i_this->mPhase, "WZB");
     }
 
+#if VERSION <= VERSION_JPN
+    if (phase_state == cPhs_COMPLEATE_e) {
+        if (i_this->mBehaviorType == 2) {
+            i_this->mBehaviorType = 1;
+            i_this->mIsMiniBoss = true;
+        }
+        if (i_this->mBehaviorType == 3) {
+            i_this->mBehaviorType = 0;
+            i_this->m351 = true;
+        }
+#else
 #if VERSION == VERSION_PAL
     if (phase_state == cPhs_COMPLEATE_e) {
 #endif
@@ -2482,6 +2495,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         return phase_state;
     }
 #endif
+#endif
 
     if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
             if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
@@ -2501,8 +2515,10 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             }
         } else {
             if (!fopAcM_entrySolidHeap(i_this, useHeapInit2, 0xCC0)) {
+#if VERSION > VERSION_JPN
                 wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
                 parent->mHasChildActor = 0;
+#endif
                 return cPhs_ERROR_e;
             }
             if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR_2) {
@@ -2511,14 +2527,18 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             J3DModelData* modelData = i_this->mpMorf->getModel()->getModelData();
             J3DTexture* texture = modelData->getTexture();
             if (texture == NULL) {
+#if VERSION > VERSION_JPN
                 wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
                 parent->mHasChildActor = 0;
+#endif
                 return cPhs_ERROR_e;
             }
             JUTNameTab* textureName = modelData->getTextureName();
             if (textureName == NULL) {
+#if VERSION > VERSION_JPN
                 wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
                 parent->mHasChildActor = 0;
+#endif
                 return cPhs_ERROR_e;
             }
             for (u16 i = 0; i < texture->getNum(); i++) {
@@ -2531,6 +2551,11 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
 
         i_this->current.angle.z = 0;
         i_this->shape_angle.z = 0;
+#if VERSION <= VERSION_JPN
+        if (i_this->mEnemySummonTableIndex == 0xFF) {
+            i_this->mEnemySummonTableIndex = 0;
+        }
+#endif
         i_this->attention_info.flags = 0;
         fopAcM_SetMtx(i_this, i_this->mpMorf->getModel()->getBaseTRMtx());
         fopAcM_setCullSizeBox(i_this, -100.0f, -50.0f, -50.0f, 100.0f, 200.0f, 100.0f);
@@ -2550,6 +2575,11 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
                 i_this->itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("wiz_s", 0);
                 i_this->mHasChildActor = 0;
                 i_this->mSummonTableType = i_this->mEnemySummonTableIndex;
+#if VERSION <= VERSION_JPN
+                if (REG8_S(6) != 0) {
+                    i_this->mSummonTableType = (s16)(REG8_S(6) - 1);
+                }
+#endif
                 if (i_this->mIsMiniBoss == true) {
                     i_this->mSummonTableType = 7;
                     fopAcM_OnStatus(i_this, fopAcStts_BOSS_e);
@@ -2561,10 +2591,21 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
                 }
                 break;
             }
+#if VERSION <= VERSION_JPN
+            if (REG12_S(2) != 0) {
+                i_this->max_health = 1;
+                i_this->health = 1;
+            }
+            if (REG12_S(8) != 0) {
+                i_this->max_health = 0x32;
+                i_this->health = 0x32;
+            }
+#else
             if (REG8_S(1) != 0) {
                 i_this->max_health = 0x7F;
                 i_this->health = 0x7F;
             }
+#endif
             if (i_this->mPathIndex != 0xFF) {
                 i_this->mpRoomPath = dPath_GetRoomPath(i_this->mPathIndex, fopAcM_GetRoomNo(i_this));
                 if (i_this->mpRoomPath != NULL) {
@@ -2625,6 +2666,33 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             i_this->mMode = 0xC8;
         }
 
+#if VERSION <= VERSION_JPN
+        if (i_this->mBehaviorType > WZ_TYPE_DAMAGE_BALL_FIRE) {
+            i_this->mBallSph.SetAtType(AT_TYPE_MACHETE);
+            i_this->mRelatedId = i_this->parentActorID;
+            if (i_this->mRelatedId == fpcM_ERROR_PROCESS_ID_e) {
+                return cPhs_ERROR_e;
+            }
+            wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
+            if (parent != NULL) {
+                if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR) {
+                    i_this->mRelatedId = parent->mRelatedId;
+                    parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
+                    if (parent == NULL) {
+                        return cPhs_ERROR_e;
+                    }
+                }
+                i_this->mPathTarget = parent->mPathTarget;
+                i_this->mPathPointIdx = parent->mPathPointIdx;
+                i_this->mHasChildActor = parent->mHasChildActor;
+                i_this->mSummonWave = parent->mSummonWave;
+                i_this->mSummonTableType = parent->mSummonTableType;
+            } else {
+                return cPhs_ERROR_e;
+            }
+        }
+#endif
+
         if (i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR && i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR_2) {
             i_this->mAcch.Set(
                 fopAcM_GetPosition_p(i_this),
@@ -2641,8 +2709,10 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         if (i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_FIRE || i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_ICE) {
             dKy_plight_set(&i_this->mPLight);
         }
-#if VERSION == VERSION_PAL
+#if VERSION == VERSION_PAL || VERSION <= VERSION_JPN
     }
+#endif
+#if VERSION == VERSION_PAL
 
     if (phase_state == cPhs_ERROR_e) {
         if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR) {
