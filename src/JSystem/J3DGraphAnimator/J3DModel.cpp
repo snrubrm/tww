@@ -84,7 +84,7 @@ s32 J3DModel::entryModelData(J3DModelData* pModelData, u32 modelFlag, u32 mtxBuf
         mpWeightEnvMtx = new Mtx[pModelData->getWEvlpMtxNum()];
     }
 
-#if VERSION <= VERSION_JPN
+#if VERSION == VERSION_JPN
     if (pModelData->getJointNum() != 0) {
         if (mpScaleFlagArr == NULL)
             return J3DErrType_OutOfMemory;
@@ -677,7 +677,7 @@ void J3DModel::calcWeightEnvelopeMtx() {
     }
 }
 
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
 #pragma push
 #pragma optimization_level 0
 #endif
@@ -782,7 +782,7 @@ void J3DModel::calcDrawMtx() {
     case 0: {
         MtxP viewMtx = j3dSys.getViewMtx();
         for (i = 0; i < mModelData->getDrawFullWgtMtxNum(); i++) {
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
             MTXConcat(viewMtx, getAnmMtx(mModelData->getDrawMtxIndex(i)), getDrawMtx(i));
 #else
             u16 drawMtxIdx = mModelData->getDrawMtxIndex(i);
@@ -805,7 +805,7 @@ void J3DModel::calcDrawMtx() {
     case 2:
         calcViewBaseMtx(j3dSys.getViewMtx(), mBaseScale, mBaseTransformMtx, mViewBaseMtx);
         for (i = 0; i < mModelData->getDrawFullWgtMtxNum(); i++) {
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
             MTXConcat(mViewBaseMtx, getAnmMtx(mModelData->getDrawMtxIndex(i)), getDrawMtx(i));
 #else
             u16 drawMtxIdx = mModelData->getDrawMtxIndex(i);
@@ -970,6 +970,6 @@ void J3DModel::prepareShapePackets() {
     }
 }
 
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
 #pragma pop
 #endif

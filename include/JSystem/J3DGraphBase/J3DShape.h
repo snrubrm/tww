@@ -97,7 +97,7 @@ public:
 
     void onFlag(u32 flag) { mFlags |= flag; }
     void offFlag(u32 flag) { mFlags &= ~flag; }
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
     bool checkFlag(u32 flag) const { return (mFlags & flag) ? true : false; }
 #else
     bool checkFlag(u32 flag) const { return !!(mFlags & flag); }
@@ -120,7 +120,7 @@ public:
     GXVtxDescList* getVtxDesc() const { return mVtxDesc; }
 
     J3DMaterial* getMaterial() const { return mMaterial; }
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
     u16 getIndex() const { return mIndex; }
 #else
     u32 getIndex() const { return mIndex; }

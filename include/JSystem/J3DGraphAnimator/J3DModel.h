@@ -94,7 +94,7 @@ public:
 
     void onFlag(u32 flag) { mFlags |= flag; }
     void offFlag(u32 flag) { mFlags &= ~flag; }
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
     BOOL checkFlag(u32 flag) const { return (mFlags & flag) ? TRUE : FALSE; }
 #else
     bool checkFlag(u32 flag) const { return (mFlags & flag) ? true : false; }
@@ -131,7 +131,7 @@ public:
     J3DShapePacket* getShapePacketArray() { return mpShapePacket; }
     Mtx* getDrawMtxPtr() { return mpDrawMtxBuf[1][mCurrentViewNo]; }
     Mtx33* getNrmMtxPtr() { return mpNrmMtxBuf[1][mCurrentViewNo]; }
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
     Mtx& getDrawMtx(int idx) { return mpDrawMtxBuf[1][mCurrentViewNo][idx]; }
     Mtx33& getNrmMtx(int idx) { return mpNrmMtxBuf[1][mCurrentViewNo][idx]; }
     void setNrmMtx(int idx, Mtx m) { J3DPSMtx33CopyFrom34(m, mpNrmMtxBuf[1][mCurrentViewNo][idx]); }
