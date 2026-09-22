@@ -1082,7 +1082,7 @@ config.libs = [
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DMaterialAnm.cpp"),
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DVisibility.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/J3DGraphAnimator/J3DCluster.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/J3DGraphAnimator/J3DJoint.cpp"),
+            Object(NonMatching, "JSystem/J3DGraphAnimator/J3DJoint.cpp"),
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DNode.cpp"),
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DMaterialAttach.cpp"),
         ],
