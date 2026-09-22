@@ -3102,11 +3102,7 @@ static cPhs_State daGnd_Create(fopAc_ac_c* a_this) {
         if (!hio_set) {
             i_this->mHioSet = 1;
             hio_set = true;
-#if VERSION == VERSION_DEMO
             l_HIO.mNo = mDoHIO_createChild("ガノンＤ", &l_HIO);
-#else
-            l_HIO.mNo = mDoHIO_createChild("ガノンｄ", &l_HIO);
-#endif
         }
 
         i_this->initBt(400.0f + REG0_F(6), 150.0f + REG0_F(5));
