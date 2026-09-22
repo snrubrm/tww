@@ -4152,7 +4152,9 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
         }
 
         GXSetCullMode(GX_CULL_NONE);
+#if VERSION > VERSION_JPN
         GXSetClipMode(GX_CLIP_DISABLE);
+#endif
         GXSetNumIndStages(0);
 
         GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
