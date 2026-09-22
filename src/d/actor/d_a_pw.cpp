@@ -191,6 +191,21 @@ void kantera_break(pw_class* i_this) {
     }
 }
 
+#if VERSION == VERSION_DEMO
+/* 000007CC-000008B0       .text Big_pow_down_check__FP8pw_class */
+void Big_pow_down_check(pw_class* i_this) {
+    if (i_this->mJalhallaID) {
+        fopAc_ac_c* actor = fopAcM_SearchByID(i_this->mJalhallaID);
+        if (actor != NULL) {
+            actor->health = actor->health - 1;
+            if (actor->health <= 0) {
+                i_this->m344 = 1;
+            }
+        }
+    }
+}
+#endif
+
 /* 000006F4-000007CC       .text Big_pow_gattai_check__FP8pw_class */
 BOOL Big_pow_gattai_check(pw_class* i_this) {
     if (i_this->mJalhallaID != fpcM_ERROR_PROCESS_ID_e) {
@@ -218,20 +233,8 @@ BOOL Big_pow_gattai_check(pw_class* i_this) {
     return FALSE;
 }
 
+#if VERSION > VERSION_DEMO
 /* 000007CC-000008B0       .text Big_pow_down_check__FP8pw_class */
-#if VERSION == VERSION_DEMO
-void Big_pow_down_check(pw_class* i_this) {
-    if (i_this->mJalhallaID) {
-        fopAc_ac_c* actor = fopAcM_SearchByID(i_this->mJalhallaID);
-        if (actor != NULL) {
-            actor->health = actor->health - 1;
-            if (actor->health <= 0) {
-                i_this->m344 = 1;
-            }
-        }
-    }
-}
-#else
 BOOL Big_pow_down_check(pw_class* i_this) {
     if (i_this->health > 0) {
         return FALSE;
