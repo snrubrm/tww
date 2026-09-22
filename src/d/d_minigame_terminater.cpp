@@ -20,10 +20,17 @@
 #include "stdio.h"
 #endif
 
+#if VERSION <= VERSION_JPN
+static const s16 dMgtem_perfect_tex = 8;
+static const s16 dMgtem_failed_tex = 9;
+static const s16 dMgtem_yougot_tex = 6;
+static const s16 dMgtem_remain_tex = 13;
+#else
 static s16 dMgtem_perfect_tex = 8;
 static s16 dMgtem_failed_tex = 8;
 static s16 dMgtem_yougot_tex = 6;
 static s16 dMgtem_remain_tex = 13;
+#endif
 
 struct fopMsg_prm_MGameTerm : public fopMsg_prm_class {
     /* 0x1C */ u32 mTime;
@@ -37,13 +44,9 @@ cPhs_State dMinigame_Terminater_c::_create() {
     cPhs_State phase_state = dComIfG_resLoad(&mPhs, "Mgtem");
     if (phase_state == cPhs_COMPLEATE_e) {
         dRes_info_c* resInfo = dComIfG_getObjectResInfo("Mgtem");
-        JUT_ASSERT(0x66, resInfo != NULL);
+        JUT_ASSERT(VERSION_SELECT(59, 59, 102, 102), resInfo != NULL);
 
-#if VERSION == VERSION_PAL
-        mHeap = mDoExt_createSolidHeapFromGameToCurrent(0xE230, 0x20);
-#else
-        mHeap = mDoExt_createSolidHeapFromGameToCurrent(0xC0A0, 0x20);
-#endif
+        mHeap = mDoExt_createSolidHeapFromGameToCurrent(VERSION_SELECT(0xBE20, 0xBCA0, 0xC0A0, 0xE230), 0x20);
         if (mHeap != NULL) {
             mScrn = new dDlst_TerminaterScrnDraw_c();
 #if VERSION == VERSION_PAL
@@ -173,6 +176,102 @@ void dDlst_TerminaterScrnDraw_c::setScreen(const char* i_layoutName, JKRArchive*
 }
 
 /* 802073C4-8020789C       .text setScrnFailed__26dDlst_TerminaterScrnDraw_cFv */
+#if VERSION <= VERSION_JPN
+void dDlst_TerminaterScrnDraw_c::setScrnFailed() {
+    static const u32 perfect[] = {
+        '\0pep',
+        '\0pee',
+        '\0per',
+        '\0pef',
+        'pee2',
+        '\0pec',
+        '\0pet',
+        'peex',
+    };
+    static const u32 perfect_nt[] = {
+        'ntt0', 'ntt1', 'ntt2', 'ntt3', 'ntt4', 'ntt5', 'ntt6', 'ntt7', 'ntt8', 'ntt9',
+    };
+    static const u32 perfect_nk[] = {
+        'ntk0', 'ntk1', 'ntk2', 'ntk3', 'ntk4', 'ntk5', 'ntk6', 'ntk7', 'ntk8', 'ntk9',
+    };
+
+    for (int i = 0; i < dMgtem_perfect_tex; i++) {
+        mpScrn->search(perfect[i])->hide();
+    }
+
+    for (int i = 0; i < 10; i++) {
+        mpScrn->search(perfect_nt[i])->hide();
+        mpScrn->search(perfect_nk[i])->hide();
+    }
+
+    mpScrn->search('dmpe')->hide();
+
+    fopMsgM_setPaneData(&mFailed[0], mpScrn->search('\0fad'));
+    fopMsgM_setPaneData(&mFailed[1], mpScrn->search('\0fae'));
+    fopMsgM_setPaneData(&mFailed[2], mpScrn->search('\0fal'));
+    fopMsgM_setPaneData(&mFailed[3], mpScrn->search('\0fai'));
+    fopMsgM_setPaneData(&mFailed[4], mpScrn->search('\0faa'));
+    fopMsgM_setPaneData(&mFailed[5], mpScrn->search('\0faf'));
+    fopMsgM_setPaneData(&mFailed[6], mpScrn->search('\0fau'));
+    fopMsgM_setPaneData(&mFailed[7], mpScrn->search('\0fao'));
+    fopMsgM_setPaneData(&mFailed[8], mpScrn->search('\0fay'));
+
+    for (int i = 0; i < dMgtem_failed_tex; i++) {
+        getRotate(&mFailed[i]);
+        mRemain[i].mUserArea = 0;
+        mRemainK[i].mUserArea = 0;
+    }
+
+    mpScrn->search('\0yoy')->hide();
+    mpScrn->search('ree2')->hide();
+    mpScrn->search('rem2')->hide();
+    mpScrn->search('rei3')->hide();
+    mpScrn->search('\0ret')->hide();
+    mpScrn->search('\0reg')->hide();
+    mpScrn->search('ren2')->hide();
+    mpScrn->search('rei2')->hide();
+    mpScrn->search('ren1')->hide();
+    mpScrn->search('rei1')->hide();
+    mpScrn->search('\0rea')->hide();
+    mpScrn->search('rem1')->hide();
+    mpScrn->search('ree1')->hide();
+    mpScrn->search('\0rer')->hide();
+    mpScrn->search('rke2')->hide();
+    mpScrn->search('rkm2')->hide();
+    mpScrn->search('rki3')->hide();
+    mpScrn->search('\0rkt')->hide();
+    mpScrn->search('\0rkg')->hide();
+    mpScrn->search('rkn2')->hide();
+    mpScrn->search('rki2')->hide();
+    mpScrn->search('rkn1')->hide();
+    mpScrn->search('rki1')->hide();
+    mpScrn->search('\0rka')->hide();
+    mpScrn->search('rkm1')->hide();
+    mpScrn->search('rke1')->hide();
+    mpScrn->search('\0rkr')->hide();
+    mpScrn->search('num6')->hide();
+    mpScrn->search('num5')->hide();
+    mpScrn->search('num4')->hide();
+    mpScrn->search('num3')->hide();
+    mpScrn->search('num2')->hide();
+    mpScrn->search('num1')->hide();
+    mpScrn->search('nmd2')->hide();
+    mpScrn->search('nmd1')->hide();
+    mpScrn->search('nuk6')->hide();
+    mpScrn->search('nuk5')->hide();
+    mpScrn->search('nuk4')->hide();
+    mpScrn->search('nuk3')->hide();
+    mpScrn->search('nuk2')->hide();
+    mpScrn->search('nuk1')->hide();
+    mpScrn->search('ndk2')->hide();
+    mpScrn->search('ndk1')->hide();
+    mpScrn->search('\0rpx')->hide();
+    mpScrn->search('rpxk')->hide();
+    mpScrn->search('nt00')->hide();
+    mpScrn->search('nk00')->hide();
+    mpScrn->search('dmmy')->hide();
+}
+#else
 void dDlst_TerminaterScrnDraw_c::setScrnFailed() {
 #if VERSION == VERSION_PAL
     if (dComIfGs_getPalLanguage() == 1) {
@@ -684,10 +783,84 @@ void dDlst_TerminaterScrnDraw_c::setScrnFailed() {
     mpScrn->search('nk00')->hide();
     mpScrn->search('dmmy')->hide();
 }
+#endif
 
 /* 8020789C-8020805C       .text setScrnSuccess__26dDlst_TerminaterScrnDraw_cFii */
 void dDlst_TerminaterScrnDraw_c::setScrnSuccess(int i_rupee, int i_time) {
-#if VERSION == VERSION_PAL
+#if VERSION <= VERSION_JPN
+    static const u32 perfect[] = {
+        '\0pep',
+        '\0pee',
+        '\0per',
+        '\0pef',
+        'pee2',
+        '\0pec',
+        '\0pet',
+        'peex',
+    };
+    static const u32 perfect_nt[] = {
+        'ntt0', 'ntt1', 'ntt2', 'ntt3', 'ntt4', 'ntt5', 'ntt6', 'ntt7', 'ntt8', 'ntt9',
+    };
+    static const u32 perfect_nk[] = {
+        'ntk0', 'ntk1', 'ntk2', 'ntk3', 'ntk4', 'ntk5', 'ntk6', 'ntk7', 'ntk8', 'ntk9',
+    };
+
+    for (int i = 0; i < dMgtem_perfect_tex; i++) {
+        fopMsgM_setPaneData(&mPerfect[i], mpScrn->search(perfect[i]));
+    }
+
+    for (int i = 0; i < 10; i++) {
+        fopMsgM_setPaneData(&mPerfectNt[i], mpScrn->search(perfect_nt[i]));
+        fopMsgM_setPaneData(&mPerfectNk[i], mpScrn->search(perfect_nk[i]));
+    }
+
+    fopMsgM_setPaneData(&mDmpe, mpScrn->search('dmpe'));
+
+    mpScrn->search('\0fad')->hide();
+    mpScrn->search('\0fae')->hide();
+    mpScrn->search('\0fal')->hide();
+    mpScrn->search('\0fai')->hide();
+    mpScrn->search('\0faa')->hide();
+    mpScrn->search('\0faf')->hide();
+    mpScrn->search('\0fau')->hide();
+    mpScrn->search('\0fao')->hide();
+    mpScrn->search('\0fay')->hide();
+
+    fopMsgM_setPaneData(&mYouGot[0], mpScrn->search('\0yoy'));
+    fopMsgM_setPaneData(&mYouGot[1], mpScrn->search('yoo1'));
+    fopMsgM_setPaneData(&mYouGot[2], mpScrn->search('\0you'));
+    fopMsgM_setPaneData(&mYouGot[3], mpScrn->search('\0yog'));
+    fopMsgM_setPaneData(&mYouGot[4], mpScrn->search('yoo2'));
+    fopMsgM_setPaneData(&mYouGot[5], mpScrn->search('\0yot'));
+
+    fopMsgM_setPaneData(&mRemain[0], mpScrn->search('ree2'));
+    fopMsgM_setPaneData(&mRemain[1], mpScrn->search('rem2'));
+    fopMsgM_setPaneData(&mRemain[2], mpScrn->search('rei3'));
+    fopMsgM_setPaneData(&mRemain[3], mpScrn->search('\0ret'));
+    fopMsgM_setPaneData(&mRemain[4], mpScrn->search('\0reg'));
+    fopMsgM_setPaneData(&mRemain[5], mpScrn->search('ren2'));
+    fopMsgM_setPaneData(&mRemain[6], mpScrn->search('rei2'));
+    fopMsgM_setPaneData(&mRemain[7], mpScrn->search('ren1'));
+    fopMsgM_setPaneData(&mRemain[8], mpScrn->search('rei1'));
+    fopMsgM_setPaneData(&mRemain[9], mpScrn->search('\0rea'));
+    fopMsgM_setPaneData(&mRemain[10], mpScrn->search('rem1'));
+    fopMsgM_setPaneData(&mRemain[11], mpScrn->search('ree1'));
+    fopMsgM_setPaneData(&mRemain[12], mpScrn->search('\0rer'));
+
+    fopMsgM_setPaneData(&mRemainK[0], mpScrn->search('rke2'));
+    fopMsgM_setPaneData(&mRemainK[1], mpScrn->search('rkm2'));
+    fopMsgM_setPaneData(&mRemainK[2], mpScrn->search('rki3'));
+    fopMsgM_setPaneData(&mRemainK[3], mpScrn->search('\0rkt'));
+    fopMsgM_setPaneData(&mRemainK[4], mpScrn->search('\0rkg'));
+    fopMsgM_setPaneData(&mRemainK[5], mpScrn->search('rkn2'));
+    fopMsgM_setPaneData(&mRemainK[6], mpScrn->search('rki2'));
+    fopMsgM_setPaneData(&mRemainK[7], mpScrn->search('rkn1'));
+    fopMsgM_setPaneData(&mRemainK[8], mpScrn->search('rki1'));
+    fopMsgM_setPaneData(&mRemainK[9], mpScrn->search('\0rka'));
+    fopMsgM_setPaneData(&mRemainK[10], mpScrn->search('rkm1'));
+    fopMsgM_setPaneData(&mRemainK[11], mpScrn->search('rke1'));
+    fopMsgM_setPaneData(&mRemainK[12], mpScrn->search('\0rkr'));
+#elif VERSION == VERSION_PAL
     if (dComIfGs_getPalLanguage() == 1) {
         static const u32 perfect[] = {
             '\0pep',
@@ -1218,12 +1391,14 @@ void dDlst_TerminaterScrnDraw_c::setScrnSuccess(int i_rupee, int i_time) {
 
 #endif
 
+#if VERSION > VERSION_JPN
     for (int i = 0; i < 10; i++) {
         fopMsgM_setPaneData(&mPerfectNt[i], mpScrn->search(perfect_nt[i]));
         fopMsgM_setPaneData(&mPerfectNk[i], mpScrn->search(perfect_nk[i]));
     }
 
     fopMsgM_setPaneData(&mDmpe, mpScrn->search('dmpe'));
+#endif
     fopMsgM_setPaneData(&mNum[0], mpScrn->search('num6'));
     fopMsgM_setPaneData(&mNum[1], mpScrn->search('num5'));
     fopMsgM_setPaneData(&mNum[2], mpScrn->search('nmd2'));
