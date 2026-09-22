@@ -60,7 +60,7 @@ BOOL daObjMsdan::Act_c::Mthd_Execute() {
         break;
     case 0: {
         int sw = prm_get_swSave();
-        if (dComIfGs_isSwitch(sw, home.roomNo)) {
+        if (dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(this))) {
             if (prm_get_size()) {
                 mState = 3;
             } else if (prm_get_sound()) {
