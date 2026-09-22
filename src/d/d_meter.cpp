@@ -6349,7 +6349,7 @@ void dMeter_swimInit(sub_meter_class* i_Meter) {
     texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getSwimResArchive();
     texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "tekari.bti", pArchive2);
-    JUT_ASSERT(11498, texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(11498, 11498, 11498, 11497), texture1 != NULL && texture2 != NULL);
     tekari.init(texture1, texture2, 1.0f, 1.0f);
 }
 
