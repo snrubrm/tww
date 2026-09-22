@@ -490,12 +490,12 @@ bool dNpc_PathRun_c::chkInside(cXyz* param_1) {
     cXyz point, point2, point3;
 
     setNearPathIndx(param_1, 0.0f);
-    point2 = getPoint(mIdx);
+    point2 = getPoint(getIdx());
     decIdxLoop();
-    point = getPoint(mIdx);
+    point = getPoint(getIdx());
     incIdxLoop();
     incIdxLoop();
-    point3 = getPoint(mIdx);
+    point3 = getPoint(getIdx());
 
     s16 angle1 = cLib_targetAngleY(&point2, &point);
     s16 angle2 = cLib_targetAngleY(&point2, param_1);
