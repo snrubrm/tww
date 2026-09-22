@@ -9,35 +9,68 @@ class daObjHtetu1Splash_c {
 public:
     bool chk_stop() { return !mPlaying; }
     void delete_s() {
+#if VERSION == VERSION_DEMO
+        if (mpEmitter != NULL) {
+            mSplashCb.remove();
+            mpEmitter = NULL;
+            mPlaying = false;
+        }
+#else
         if (mSplashCb.getEmitter() != NULL) {
             mSplashCb.remove();
             mPlaying = false;
         }
+#endif
     }
     s16 get_timer() { return mTimer; }
     void play_particle() {
+#if VERSION == VERSION_DEMO
+        if (mpEmitter != NULL) {
+            mpEmitter->playCreateParticle();
+            mPlaying = true;
+        }
+#else
         if (mSplashCb.getEmitter() != NULL) {
             mSplashCb.getEmitter()->playCreateParticle();
             mPlaying = true;
         }
+#endif
     }
     void set_pos_y(float y) { mPosition.y = y; }
     void stop_particle() {
+#if VERSION == VERSION_DEMO
+        if (mpEmitter != NULL) {
+            mpEmitter->stopCreateParticle();
+            mPlaying = false;
+        }
+#else
         if (mSplashCb.getEmitter() != NULL) {
             mSplashCb.getEmitter()->stopCreateParticle();
             mPlaying = false;
         }
+#endif
     }
     void sub_timer() { mTimer--; }
     void timer_play_particle(short timer) {
+#if VERSION == VERSION_DEMO
+        if (mpEmitter != NULL) {
+            mpEmitter->playCreateParticle();
+            mPlaying = true;
+            mTimer = timer;
+        }
+#else
         if (mSplashCb.getEmitter() != NULL) {
             mSplashCb.getEmitter()->playCreateParticle();
             mPlaying = true;
             mTimer = timer;
         }
+#endif
     }
     void create_s(unsigned short, cXyz*, csXyz*, dKy_tevstr_c*);
 
+#if VERSION == VERSION_DEMO
+    /* 0x00 */ JPABaseEmitter* mpEmitter;
+#endif
     /* 0x00 */ dPa_followEcallBack mSplashCb;
     /* 0x14 */ cXyz mPosition;
     /* 0x20 */ csXyz mAngle;

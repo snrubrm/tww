@@ -23,8 +23,13 @@ const char daObjHtetu1_c::M_arcname[] = "Htetu1";
 void daObjHtetu1Splash_c::create_s(unsigned short id, cXyz* pos, csXyz* angle, dKy_tevstr_c* tev) {
     mPosition = *pos;
     mAngle = *angle;
+#if VERSION == VERSION_DEMO
+    mpEmitter = dComIfGp_particle_set(id, &mPosition, &mAngle, NULL, 255, &mSplashCb);
+    mpEmitter->setGlobalPrmColor(tev->mColorC0.r, tev->mColorC0.g, tev->mColorC0.b);
+#else
     dComIfGp_particle_set(id, &mPosition, &mAngle, NULL, 255, &mSplashCb);
     if (mSplashCb.getEmitter() != NULL) mSplashCb.getEmitter()->setGlobalPrmColor(tev->mColorC0.r, tev->mColorC0.g, tev->mColorC0.b);
+#endif
     stop_particle();
     mPlaying = false;
     mTimer = -2;
