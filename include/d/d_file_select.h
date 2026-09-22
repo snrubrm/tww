@@ -340,6 +340,21 @@ private:
     /* 0x3942 */ u8 field_0x3942[0x3944 - 0x3942];
     /* 0x3944 */ f32 field_0x3944;
     /* 0x3948 */ f32 field_0x3948;
+#if VERSION == VERSION_PAL
+    u8 pad2[0x32]; // TODO
+public:
+    /* 0x3CC6 */ u8 field_0x3cc6;
+    u8 getLanguage() { return field_0x3cc6; }
+    u8 pad3[0xC]; // TODO
+    /* 0x3CD3 */ u8 field_0x3cd3;
+    /* 0x3CD4 */ JKRArchive* mBmgArchive[5];
+
+    void setBmgArchive(JKRArchive** arc) {
+        for (int i = 0; i < 5; i++) {
+            mBmgArchive[i] = arc[i];
+        }
+    }
+#endif
 };
 
 #endif
