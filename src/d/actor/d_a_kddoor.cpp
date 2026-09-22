@@ -224,9 +224,9 @@ static BOOL nodeCB(J3DNode* node, int phase) {
         dDoor_ssk_sub_c* sub = (dDoor_ssk_sub_c*)model->getUserArea();
         if (sub != NULL && joint > 0 && joint <= 3) {
             MTXCopy(model->getAnmMtx(joint), *calc_mtx);
-            cMtx_YrotM(*calc_mtx, (s16)(int)(2000.0f * cM_ssin(joint * 20000 + sub->mAngle * sub->mWaveSpeed * 2)));
-            cMtx_XrotM(*calc_mtx, (s16)(int)(2000.0f * cM_ssin(sub->mAngle * 650 + joint * 12000)));
-            cMtx_ZrotM(*calc_mtx, (s16)(int)(4000.0f * cM_ssin(joint * 15000 + sub->mAngle * sub->mWaveSpeed)));
+            cMtx_YrotM(*calc_mtx, (int)(2000.0f * cM_ssin(joint * 20000 + sub->mAngle * sub->mWaveSpeed * 2)));
+            cMtx_XrotM(*calc_mtx, (int)(2000.0f * cM_ssin(sub->mAngle * 650 + joint * 12000)));
+            cMtx_ZrotM(*calc_mtx, (int)(4000.0f * cM_ssin(joint * 15000 + sub->mAngle * sub->mWaveSpeed)));
             model->setAnmMtx(joint, *calc_mtx);
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
