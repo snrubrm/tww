@@ -307,22 +307,6 @@ public:
         } follow;
         struct {
             /* 0x378 */ int m378;
-            /* 0x37C */ u8 m37C[0x380 - 0x37C];
-            /* 0x380 */ int m380;
-            /* 0x384 */ f32 m384;
-            /* 0x388 */ int m388;
-            /* 0x38C */ u8 m38C;
-            /* 0x390 */ cXyz m390;
-            /* 0x39C */ u8 m39C;
-            /* 0x3A0 */ f32 m3A0;
-            /* 0x3A4 */ f32 m3A4;
-            /* 0x3A8 */ cSGlobe m3A8;
-            /* 0x3B0 */ f32 m3B0;
-            /* 0x3B4 */ f32 m3B4;
-            /* 0x3B8 */ f32 m3B8;
-        } lockon;
-        struct {
-            /* 0x378 */ int m378;
             /* 0x37C */ u8 m37C;
             /* 0x37D */ u8 m37D;
             /* 0x380 */ int m380;
