@@ -365,13 +365,15 @@ void daObjKanoke_c::executeYureYoko() {
 
 /* 00001358-00001544       .text executeOpenYoko__13daObjKanoke_cFv */
 void daObjKanoke_c::executeOpenYoko() {
+    f32 slide_max = 100.0f;
+    s16 angle_min = -5600;
     mLidOffset.x += 4.0f;
-    mPivot.x = 100.0f - mLidOffset.x;
-    if (mLidOffset.x > 100.0f) {
+    mPivot.x = slide_max - mLidOffset.x;
+    if (mLidOffset.x > slide_max) {
         mLidAngle.z += mAngularSpeed;
         mAngularSpeed -= 100;
-        if (mLidAngle.z <= -5600) {
-            mLidAngle.z = -5600;
+        if (mLidAngle.z <= angle_min) {
+            mLidAngle.z = angle_min;
             mMode = 3;
             mDoMtx_stack_c::YrotS(shape_angle.y);
             mDoMtx_stack_c::transM(100.0f, 75.0f, 0.0f);
@@ -384,9 +386,13 @@ void daObjKanoke_c::executeOpenYoko() {
             cXyz pos = mLidOffset + daObjKanoke_Yoko_pfs[0];
             MTXMultVec(mtx, &pos, &pos);
             mSmokePos = pos + current.pos;
+#if VERSION == VERSION_DEMO
+            dComIfGp_particle_setToon(0xa181, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
+#else
             if (!mSmoke.getEmitter()) {
                 dComIfGp_particle_setToon(0xa181, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
             }
+#endif
             if (mSmoke.getEmitter()) {
                 mSmoke.getEmitter()->becomeImmortalEmitter();
             }
