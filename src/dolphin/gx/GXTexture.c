@@ -327,7 +327,7 @@ void GXInitTlutObj(GXTlutObj* obj, void* table, GXTlutFmt format, u16 numEntries
     GX_SET_REG(internal->address, ((u32)table & 0x3FFFFFFF) >> 5, 11, 31);
     GX_SET_REG(internal->address, 100, 0, 7);
 
-    *(u16*)&internal->numEntries = numEntries;
+    internal->numEntries = numEntries;
 }
 
 void GXLoadTlut(GXTlutObj* obj, u32 tlut_name) {
