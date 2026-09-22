@@ -1362,7 +1362,12 @@ cPhs_State phase_1(dScnPly_ply_c* i_this) {
 
 /* 802359DC-80235ABC       .text phase_2__FP13dScnPly_ply_c */
 cPhs_State phase_2(dScnPly_ply_c* i_this) {
+#if VERSION == VERSION_DEMO
+    const char* stage = "Stage";
+    int rt = dComIfG_syncStageRes(stage);
+#else
     int rt = dComIfG_syncStageRes("Stage");
+#endif
     JUT_ASSERT(VERSION_SELECT(3253, 3470, 3485, 3485), rt >= 0)
 
     if (rt != 0) {
