@@ -3122,7 +3122,7 @@ void mDoExt_initFontCommon(JUTFont** p_font, ResFONT** p_resfont, JKRHeap* p_hea
     JUT_ASSERT(VERSION_SELECT(6575, 6668, 6685, 6685), mDoExt_font != NULL);
 }
 
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
 JUTFont* mDoExt_font0;
 JUTFont* mDoExt_font1;
 s32 mDoExt_font0_getCount;
