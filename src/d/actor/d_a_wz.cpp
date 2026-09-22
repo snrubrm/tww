@@ -517,13 +517,8 @@ void BG_check(wz_class* i_this) {
     i_this->old.pos.y += i_this->mCorrectionOffsetY;
 }
 
-static BOOL wz_line_check(wz_class* i_this, cXyz* i_pos) {
-    dBgS_LinChk linChk;
-    cXyz start = i_this->current.pos;
-    start.y += 100.0f;
-    linChk.Set(&start, i_pos, i_this);
-    return dComIfG_Bgsp()->LineCross(&linChk);
-}
+// NONMATCHING - the original had a function here (stripped by the linker) that used a dBgS_LinChk and the
+// constant 100.0f; without it the weak LinChk dtors and the 100.0f .rodata entry are placed differently.
 
 /* 00001728-00001780       .text fuwafuwa_calc__FP8wz_class */
 void fuwafuwa_calc(wz_class* i_this) {
@@ -532,6 +527,7 @@ void fuwafuwa_calc(wz_class* i_this) {
 }
 
 /* 00001780-00001B38       .text weapon_shoot__FP8wz_classUc */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 void weapon_shoot(wz_class* i_this, unsigned char type) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
@@ -608,6 +604,7 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
 }
 
 /* 00001B38-00002528       .text action_dousa__FP8wz_class */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 void action_dousa(wz_class* i_this) {
     static GXColor eff_prm_color_dt[] = {
         {0xFF, 0x47, 0x00, 0xFF},
@@ -878,6 +875,7 @@ void action_dousa(wz_class* i_this) {
 }
 
 /* 00002528-00002E3C       .text action_itai__FP8wz_class */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 void action_itai(wz_class* i_this) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
@@ -1118,6 +1116,7 @@ void action_itai(wz_class* i_this) {
 }
 
 /* 00002E3C-000047C8       .text action_demo__FP8wz_class */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 void action_demo(wz_class* i_this) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player_ac = daPy_getPlayerActorClass();
@@ -1667,6 +1666,7 @@ void next_tama_move(wz_class* i_this, cXyz pos) {
 }
 
 /* 00004810-00004BF4       .text summon_call_sub__FP8wz_class */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 void summon_call_sub(wz_class* i_this) {
     static s16 enemy_name_dt[] = {
         fpcNm_KI_e, 0x7FFF, fpcNm_MT_e, 0x7FFF, fpcNm_MT_e, fpcNm_KI_e, fpcNm_KI_e, 0x7FFF,
@@ -1894,6 +1894,7 @@ BOOL sea_water_check(wz_class* i_this) {
 }
 
 /* 00004D18-00005760       .text action_tama_dousa__FP8wz_class */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 void action_tama_dousa(wz_class* i_this) {
     fopAc_ac_c* actor = i_this;
     csXyz angle = actor->current.angle;
@@ -2232,6 +2233,7 @@ void action_summon_dousa(wz_class* i_this) {
 }
 
 /* 00005B64-00006108       .text daWZ_Execute__FP8wz_class */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 static BOOL daWZ_Execute(wz_class* i_this) {
     if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
         if (i_this->mEnableSpawnSwitch != 0xFF) {
@@ -2539,6 +2541,7 @@ static BOOL useHeapInit2(fopAc_ac_c* i_this) {
 }
 
 /* 00006888-000071C4       .text daWZ_Create__FP10fopAc_ac_c */
+// NONMATCHING - .rodata offsets, see the note after BG_check
 static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
     static dCcD_SrcCyl body_co_cyl_src = {
         // dCcD_SrcGObjInf
