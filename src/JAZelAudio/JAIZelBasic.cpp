@@ -2272,7 +2272,9 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
             field_0x0208 = 1;
         }
         break;
+#if VERSION > VERSION_JPN
     case JA_SE_PRE_TAKT:
+#endif
     case JA_SE_LK_WAPR_EFF_WARP:
     case JA_SE_CM_BWD_LAST_EXPLODE:
     case JA_SE_OBJ_LUPY_IN_POT:
@@ -2410,9 +2412,11 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (isDemo() == TRUE) {
             i_seNum = JA_SE_DEMO_MSG_END;
         }
+#if VERSION > VERSION_JPN
         if (checkSePlaying(JA_SE_TAKT_MATCHED) == TRUE) {
             return NULL;
         }
+#endif
         if (field_0x00be != 0) {
             return NULL;
         }
