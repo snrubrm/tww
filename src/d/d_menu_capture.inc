@@ -79,8 +79,7 @@ void dDlst_MENU_CLOTH_c::draw() {
     Mtx44 mtx;
 
     const view_port_class* viewport = dComIfGp_getCurrentViewport();
-    f32 ratio = g_HIO.mAspectRatio;
-    C_MTXPerspective(mtx, 30.0f, viewport->mWidth / viewport->mHeight * ratio, 1.0f, 100000.0f);
+    C_MTXPerspective(mtx, 30.0f, viewport->mWidth / viewport->mHeight * fapGmHIO_getAspectRatio(), 1.0f, 100000.0f);
 
     GXSetProjection(mtx, GX_PERSPECTIVE);
 
