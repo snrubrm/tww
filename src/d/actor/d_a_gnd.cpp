@@ -24,6 +24,7 @@
 #include "f_op/f_op_actor_mng.h"
 #include "m_Do/m_Do_audio.h"
 #include "m_Do/m_Do_hostIO.h"
+#include "m_Do/m_Do_controller_pad.h"
 #include "JSystem/JParticle/JPAEmitter.h"
 #include "JSystem/JUtility/JUTReport.h"
 #include "res/Object/Gnd.h"
@@ -225,6 +226,8 @@ static BOOL checkGround(gnd_class* i_this, f32 param_2) {
 }
 
 /* 000003EC-00000510       .text setRipple__FP9gnd_class */
+// The demo never calls this, so the linker dead-strips its code out of the REL. Its function-scope
+// static and its pooled float constant survive in .bss/.rodata, so it has to stay for the demo too.
 static void setRipple(gnd_class* i_this) {
     if (checkGround(i_this, 0.0f)) {
         if (i_this->mAcch.ChkGroundHit() &&
@@ -429,7 +432,12 @@ static BOOL daGnd_Draw(gnd_class* i_this) {
 
     if (l_HIO.m07 != 0) {
         GXColor color = {0xFF, 0x64, 0x00, 0xFF};
+#if VERSION == VERSION_DEMO
+        GXColor& line_color = color;
+        i_this->mLineMat.update(20, 2.25f + REG0_F(3), line_color, 2, &actor->tevStr);
+#else
         i_this->mLineMat.update(20, 2.25f + REG0_F(3), color, 2, &actor->tevStr);
+#endif
         dComIfGd_set3DlineMat(&i_this->mLineMat);
     }
 
@@ -2204,7 +2212,7 @@ static void demo_camera(gnd_class* i_this) {
             i_this->m1588.z = REG0_F(5);
         }
         MtxTrans(i_this->current.pos.x, i_this->current.pos.y, i_this->current.pos.z, 0);
-        mDoMtx_YrotM(*calc_mtx, i_this->shape_angle.y);
+        DEMO_SELECT(cMtx_YrotM, mDoMtx_YrotM)(*calc_mtx, i_this->shape_angle.y);
         MtxPosition(&i_this->m157C, &i_this->m1564);
         MtxPosition(&i_this->m1588, &i_this->m1570);
         if (i_this->m1560 > REG0_S(2) + 0x3C) {
@@ -2217,11 +2225,11 @@ static void demo_camera(gnd_class* i_this) {
         break;
     }
     case 3:
-        if (i_this->m1560 == 10) {
+        if (i_this->m1560 == DEMO_SELECT(REG0_S(3) + 10, 10)) {
             i_this->m2D0++;
         }
         MtxTrans(pz->current.pos.x, pz->current.pos.y, pz->current.pos.z, 0);
-        mDoMtx_YrotM(*calc_mtx, pz->shape_angle.y);
+        DEMO_SELECT(cMtx_YrotM, mDoMtx_YrotM)(*calc_mtx, pz->shape_angle.y);
         i_this->m157C.x = 100.0f + REG0_F(10);
         i_this->m157C.y = 50.0f + REG0_F(11);
         i_this->m157C.z = REG0_F(12) - 300.0f;
@@ -2244,9 +2252,13 @@ static void demo_camera(gnd_class* i_this) {
         // fallthrough
     case 5:
         cMtx_YrotS(*calc_mtx, player->shape_angle.y);
+#if VERSION == VERSION_DEMO
+        offset.set(-50.0f + REG0_F(4), 50.0f + REG0_F(5), 100.0f + REG0_F(6));
+#else
         offset.x = -50.0f + REG0_F(4);
         offset.y = 50.0f + REG0_F(5);
         offset.z = 100.0f + REG0_F(6);
+#endif
         MtxPosition(&offset, &sp);
         i_this->m1564 = player->current.pos + sp;
         i_this->m1570 = player->current.pos;
@@ -2289,7 +2301,13 @@ static void demo_camera(gnd_class* i_this) {
             i_this->current.angle.y = i_this->shape_angle.y;
             i_this->m302[1] = l_HIO.m68;
             i_this->m155E = 0x96;
+#if VERSION == VERSION_DEMO
+            if (l_HIO.m10 == 0) {
+                l_HIO.m10 = 1;
+            }
+#else
             i_this->m3D8 = 1;
+#endif
         }
         break;
     case 10:
@@ -2309,9 +2327,13 @@ static void demo_camera(gnd_class* i_this) {
         i_this->m15A0 = 0.0f;
         player->changeOriginalDemo();
         cMtx_YrotS(*calc_mtx, pz->shape_angle.y);
+#if VERSION == VERSION_DEMO
+        offset.set(150.0f + REG0_F(4), 50.0f + REG0_F(5), 150.0f + REG0_F(6));
+#else
         offset.x = 150.0f + REG0_F(4);
         offset.y = 50.0f + REG0_F(5);
         offset.z = 150.0f + REG0_F(6);
+#endif
         MtxPosition(&offset, &sp);
         i_this->m1564 = pz->current.pos + sp;
         i_this->m1570 = pz->eyePos;
@@ -2337,10 +2359,15 @@ static void demo_camera(gnd_class* i_this) {
             i_this->m302[1] = l_HIO.m68;
             i_this->m155E = 0x96;
             zelda->m0740 = 1;
+#if VERSION == VERSION_DEMO
+            l_HIO.m10 = 2;
+#else
             i_this->m3D8 = 2;
+#endif
         }
         break;
     }
+#if VERSION > VERSION_DEMO
     case 0x14:
         if (!i_this->eventInfo.checkCommandDemoAccrpt()) {
             fopAcM_orderPotentialEvent(i_this, dEvtCnd_CANTALK_e, 0xFFFF, 0);
@@ -2400,6 +2427,7 @@ static void demo_camera(gnd_class* i_this) {
             i_this->m155E = 0x96;
         }
         break;
+#endif
     case 0x64:
         if (!i_this->eventInfo.checkCommandDemoAccrpt()) {
             fopAcM_orderPotentialEvent(i_this, dEvtCnd_UNK2_e, 0xFFFF, 0);
@@ -2451,7 +2479,7 @@ static void demo_camera(gnd_class* i_this) {
             mDoAud_seStart(JA_SE_LK_SW_CRT_HIT, &i_this->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(i_this)));
             dComIfGp_getVibration().StartShock(REG0_S(2) + 4, -0x21, cXyz(0.0f, 1.0f, 0.0f));
         }
-        if (i_this->m1560 == 0x13 || i_this->m1560 == REG0_S(4) + 0x27 ||
+        if (i_this->m1560 == DEMO_SELECT(REG0_S(3) + 0x13, 0x13) || i_this->m1560 == REG0_S(4) + 0x27 ||
             i_this->m1560 == REG0_S(5) + 0x43 || i_this->m1560 == REG0_S(6) + 0x45)
         {
             i_this->m1562++;
@@ -2492,6 +2520,12 @@ static void demo_camera(gnd_class* i_this) {
         if (i_this->m1560 == 0x7C) {
             dComIfGp_setNextStage("GTower", 2, 0, 9, 0.0f, 0, 1, 7);
         }
+#if VERSION == VERSION_DEMO
+        if (CPad_CHECK_TRIG_DOWN(0)) {
+            player->cancelOriginalDemo();
+            i_this->m155E--;
+        }
+#endif
         break;
     }
     case 0x96:
