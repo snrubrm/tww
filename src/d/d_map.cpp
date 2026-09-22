@@ -90,6 +90,9 @@ dMap_2DPoint_c dMap_c::mPointFriend[3];
 dMap_2DT2_c dMap_c::mShip;
 dMap_CollectPoint dMap_c::mCollectPointData[64];
 s8 dMap_c::mCollectPointDataLinkList[21];
+#if VERSION == VERSION_PAL
+u8 dMap_img[0xC00] ALIGN_DECL(32);
+#endif
 
 u8 dMap_c::mCompAlpha;
 u8 dMap_c::mAlpha;
@@ -1097,7 +1100,14 @@ void dMap_c::create() {
         mFrameTexture[i].setScroll(cord[i][0], cord[i][1], cord[i][2], cord[i][3]);
         mFrameTex[i].init(1, &mFrameTexture[i]);
     }
+#if VERSION == VERSION_PAL
+    char buf[20];
+    sprintf(buf, "camera_free_%d.bti", dComIfGs_getPalLanguage());
+    JKRReadTypeResource(dMap_img, 0xC00, 'TIMG', buf, dComIfGp_getActionIconArchive());
+    timg = (ResTIMG*)dMap_img;
+#else
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_FREE_e));
+#endif
     JUT_ASSERT(VERSION_SELECT(3476, 3476, 3476, 3476), timg != NULL);
     mIconFreeTexture.init(timg, 10, (GXColor){255, 210, 0, 255});
     mIconFreeTexture.field_0x0 = 1;
