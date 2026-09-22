@@ -586,7 +586,7 @@ void daObjSwpush::Act_c::mode_u_l() {
                 }
             } 
             if (mVibTimer != 0) {
-                dComIfGp_getVibration().StartShock(4, -0x21, cXyz(0.0f, 1.0f, 0.0f));
+                dComIfGp_getVibration().StartShock(DEMO_SELECT(2, 4), DEMO_SELECT(1, -0x21), cXyz(0.0f, 1.0f, 0.0f));
             }
         }
         fopAcM_seStart(this, JA_SE_OBJ_FOOT_SW_ON, 0);
