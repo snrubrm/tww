@@ -422,6 +422,7 @@ f32 dDlst_2DOutFont_c::iconset(int i_iconNo, char** param_1) {
 }
 
 /* 800C9D5C-800CA8A8       .text messageSet__17dDlst_2DOutFont_cFUl */
+// NONMATCHING - the copied SJIS/ruby bytes are sign-extended into separate registers in the target
 void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
     fopMsgM_itemMsgGet_c msgGet;
     mesg_header* head_p = msgGet.getMesgHeader(i_msgNo);
@@ -468,13 +469,11 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
                         var_r30 = (u8)message[4];
 
                         for (; i < var_r27; i += 2) {
-                            u8 t0 = var_r25[0];
-                            s8 temp_r0_2 = t0;
-                            var_r24[0] = t0;
+                            char temp_r0_2 = var_r25[0];
+                            var_r24[0] = temp_r0_2;
 
-                            u8 t1 = var_r25[1];
-                            s8 temp_r3_6 = t1;
-                            var_r24[1] = t1;
+                            char temp_r3_6 = var_r25[1];
+                            var_r24[1] = temp_r3_6;
 
                             var_r25 += 2;
                             var_r24 += 2;
@@ -537,13 +536,11 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
 #if VERSION < VERSION_PAL
             int hi_nibble = ((u8)*message >> 4) & 0xF;
             if (hi_nibble == 8 || hi_nibble == 9) {
-                u8 t0 = *(u8*)message;
-                s8 temp_r4_2 = t0;
-                *(dst++) = t0;
+                char temp_r4_2 = message[0];
+                *(dst++) = temp_r4_2;
 
-                u8 t1 = message[1];
-                s8 temp_r5 = t1;
-                *(dst++) = t1;
+                char temp_r5 = message[1];
+                *(dst++) = temp_r5;
 
                 message += 2;
                 m68 += charWidth(((u8)temp_r4_2 << 8) | (u8)temp_r5);
@@ -573,9 +570,8 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
             } else
 #endif
             {
-                u8 t = *(u8*)message;
-                s8 var_r5_2 = t;
-                *(dst++) = t;
+                char var_r5_2 = *message;
+                *(dst++) = var_r5_2;
                 message++;
 
                 if (var_r5_2 == '\n') {
