@@ -16,7 +16,7 @@ class sub_meter_class;
 class dMeter_HIO_c : public JORReflexible {
 public:
     dMeter_HIO_c();
-    virtual ~dMeter_HIO_c();
+    inline virtual ~dMeter_HIO_c();
 
     void genMessage(JORMContext* ctx);
 
@@ -183,7 +183,7 @@ public:
 class dMeter_menuHIO_c : public JORReflexible {
 public:
     dMeter_menuHIO_c();
-    virtual ~dMeter_menuHIO_c();
+    inline virtual ~dMeter_menuHIO_c();
 
     void genMessage(JORMContext* ctx);
 
@@ -286,7 +286,7 @@ public:
 class dMeter_msg_HIO_c : public JORReflexible {
 public:
     dMeter_msg_HIO_c();
-    virtual ~dMeter_msg_HIO_c();
+    inline virtual ~dMeter_msg_HIO_c();
 
     void genMessage(JORMContext* ctx);
 
@@ -381,7 +381,7 @@ public:
 class dMeter_message_HIO_c : public JORReflexible {
 public:
     dMeter_message_HIO_c();
-    virtual ~dMeter_message_HIO_c();
+    inline virtual ~dMeter_message_HIO_c();
 
     void genMessage(JORMContext* ctx);
 
@@ -460,20 +460,20 @@ public:
 
 class dDlst_2DMETER1_c : public dDlst_base_c {
 public:
-    virtual ~dDlst_2DMETER1_c();
+    inline virtual ~dDlst_2DMETER1_c();
     virtual void draw();
 };
 
 class dDlst_2DMETER2_c : public dDlst_base_c {
 public:
-    virtual ~dDlst_2DMETER2_c();
+    inline virtual ~dDlst_2DMETER2_c();
     virtual void draw();
 };
 
 class dMeter_map_HIO_c : public JORReflexible {
 public:
     dMeter_map_HIO_c();
-    virtual ~dMeter_map_HIO_c();
+    inline virtual ~dMeter_map_HIO_c();
 
     void genMessage(JORMContext* ctx);
 
@@ -492,8 +492,8 @@ public:
 
 class mapCtrlDisp_c {
 public:
-    inline void initMapCtrlDisp();
-    inline void moveMapCtrlDisp();
+    void initMapCtrlDisp();
+    void moveMapCtrlDisp();
 
     void Create() {}
     void Delete() {}
@@ -520,7 +520,7 @@ public:
 
 class dMeter_info_c {
 public:
-    ~dMeter_info_c() {}
+    inline ~dMeter_info_c();
 
     /* 0x00 */ u8 field_0x0;
     /* 0x01 */ u8 mButtonIconMode;
