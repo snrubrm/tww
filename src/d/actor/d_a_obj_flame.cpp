@@ -86,10 +86,10 @@ void daObjFlame::Act_c::set_switch() {
     if (mType == 1) {
         if (mModeProc == 3 || mModeProc == 4) {
             int sw = prm_get_swSave();
-            dComIfGs_onSwitch(sw, home.roomNo);
+            dComIfGs_onSwitch(sw, fopAcM_GetHomeRoomNo(this));
         } else {
             int sw = prm_get_swSave();
-            dComIfGs_offSwitch(sw, home.roomNo);
+            dComIfGs_offSwitch(sw, fopAcM_GetHomeRoomNo(this));
         }
     }
 }
