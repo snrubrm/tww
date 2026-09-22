@@ -5206,8 +5206,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
             cXyz rel = relationalPos(mpPlayerActor, &posOffset);
             f32 distEye = cXyz(mEye - rel).abs() - val10;
             f32 distCenter = cXyz(mCenter - rel).abs() - val10;
-            f32 dist = distEye > distCenter ? distEye : distCenter;
-            dist = std::fabsf(dist);
+            f32 dist = std::fabsf(distEye > distCenter ? distEye : distCenter);
 
             f32 height = get_actor_height(mpPlayerActor);
             dist /= height < 10.0f ? 10.0f : height;
@@ -5247,7 +5246,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
 #endif
             mViewCache.mCenter = lin_chk.GetCross();
-            mViewCache.mCenter += plane->mNormal;
+            mViewCache.mCenter += *plane->GetNP();
         }
 
         f32 spR = limitf(mViewCache.mDirection.R(), val11, val10);
@@ -5304,7 +5303,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
         cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
 #endif
         mViewCache.mCenter = lin_chk.GetCross();
-        mViewCache.mCenter += plane->mNormal;
+        mViewCache.mCenter += *plane->GetNP();
     }
 
     cSGlobe globe(mViewCache.mEye - mViewCache.mCenter);
