@@ -610,7 +610,9 @@ void daNpc_So_c::cutTurnProc() {
 
 /* 00007114-00007324       .text cutMiniGameWarpStart__10daNpc_So_cFv */
 void daNpc_So_c::cutMiniGameWarpStart() {
+#if VERSION > VERSION_JPN
     JAIZelBasic::getInterface()->field_0x00bf = 1;
+#endif
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getLinkPlayer();
     player->changeOriginalDemo();
     daShip_c* const ship = dComIfGp_getShipActor();
@@ -657,7 +659,9 @@ void daNpc_So_c::cutMiniGameWarpProc() {
 
 /* 00007438-00007524       .text cutMiniGameReturnStart__10daNpc_So_cFv */
 void daNpc_So_c::cutMiniGameReturnStart() {
+#if VERSION > VERSION_JPN
     JAIZelBasic::getInterface()->field_0x00bf = 0;
+#endif
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getLinkPlayer();
     player->changeOriginalDemo();
     daShip_c* ship = (daShip_c*)fopAcM_SearchByName(fpcNm_SHIP_e);

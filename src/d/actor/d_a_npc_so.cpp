@@ -77,7 +77,7 @@ public:
     /* 0x98 */ JntHit_HIO_c mJntHit;
 };  // Size: 0xC4
 
-STATIC_ASSERT(sizeof(daNpc_So_HIO_c) == 0xC4);
+STATIC_ASSERT(sizeof(daNpc_So_HIO_c) == DEMO_SELECT(0xC8, 0xC4));
 
 static daNpc_So_HIO_c l_HIO;
 
