@@ -1,15 +1,11 @@
 The Legend of Zelda: The Wind Waker  
-[![Build Status]][actions] [![Progress]][progress site] [![DOL Progress]][progress site] [![RELs Progress]][progress site] [![Discord Badge]][discord]
+[![Build Status]][actions]
 =============
 
-[Build Status]: https://github.com/zeldaret/tww/actions/workflows/build.yml/badge.svg
-[actions]: https://github.com/zeldaret/tww/actions/workflows/build.yml
-[Progress]: https://decomp.dev/zeldaret/tww.svg?mode=shield&measure=code&label=Code&category=all
-[DOL Progress]: https://decomp.dev/zeldaret/tww.svg?mode=shield&measure=code&label=DOL&category=dol
-[RELs Progress]: https://decomp.dev/zeldaret/tww.svg?mode=shield&measure=code&label=RELs&category=modules
-[progress site]: https://zeldaret.github.io/tww/
-[Discord Badge]: https://img.shields.io/discord/688807550715560050?color=%237289DA&logo=discord&logoColor=%23FFFFFF
-[discord]: https://discord.com/invite/DqwyCBYKqf/
+[Build Status]: https://github.com/snrubrm/tww/actions/workflows/build.yml/badge.svg
+[actions]: https://github.com/snrubrm/tww/actions/workflows/build.yml
+
+This is a fork of [zeldaret/tww](https://github.com/zeldaret/tww) that accepts AI-assisted decompilation (see [Contributing](#contributing)). Work here is not submitted upstream.
 
 A work-in-progress decompilation of The Legend of Zelda: The Wind Waker for GameCube.
 
@@ -21,6 +17,18 @@ All GameCube versions are supported:
 - `GZLP01`: Rev 0 (PAL)
 - `GZLJ01`: Rev 0 (JPN)
 - `D44J01`: Kiosk demo (JPN)
+
+Progress
+========
+
+Matched functions per version, from each version's `build/<version>/report.json`:
+
+| Version | Matched functions |
+|---|---|
+| `GZLE01` (USA) | 39,321 / 39,324 |
+| `GZLP01` (PAL) | 39,303 / 39,305 |
+| `GZLJ01` (JPN) | 39,248 / 39,258 |
+| `D44J01` (demo) | 39,170 / 39,273 |
 
 Dependencies
 ============
@@ -56,7 +64,7 @@ Building
 
 - Clone the repository:
   ```
-  git clone https://github.com/zeldaret/tww.git
+  git clone https://github.com/snrubrm/tww.git
   ```
 
 - Copy your game's disc image to `orig/GZLE01`.
@@ -67,7 +75,7 @@ Building
   ```
   python configure.py
   ```
-  To use a version other than `GZLE01` (USA), specify `--version GZLJ01` (JPN) or `--version GZLP01` (PAL).
+  To use a version other than `GZLE01` (USA), specify `--version GZLJ01` (JPN), `--version GZLP01` (PAL) or `--version D44J01` (kiosk demo).
 
 - Build:
   ```
