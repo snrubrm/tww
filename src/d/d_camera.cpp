@@ -7409,8 +7409,10 @@ f32 dCamera_c::shakeCamera() {
     f32 fVar6 = 0.0f;
 
     if (m554 < m550) {
-        int uVar5 = (m548[m554 >> 3] << 8) | m548[(m554 >> 3) + 1];;
-        int uVar4 = 1 << (15 - (m554 & 7));
+        int byte = m554 >> 3;
+        int bit = m554 & 7;
+        int uVar5 = (m548[byte] << 8) | m548[byte + 1];
+        int uVar4 = 1 << (15 - bit);
         f32 fVar7 = 1.0f;
         for (int i = 0; i < 4; i++) {
             if (uVar4 & uVar5) {
