@@ -257,12 +257,7 @@ BOOL skull_atari_check(bl_class* i_this) {
 
     i_this->current.angle.y = fopAcM_searchPlayerAngleY(actor) + 0x8000;
     u8 no_kill = 0;
-#if VERSION == VERSION_DEMO
     i_this->mHitTimer = 8;
-#else
-    s16 hit_timer = 8;
-    i_this->mHitTimer = hit_timer;
-#endif
     i_this->m2D4 = 0;
 
     switch (hitObj->GetAtType()) {
@@ -578,12 +573,7 @@ BOOL red_body_atari_check(bl_class* i_this) {
     i_this->current.angle.y = fopAcM_searchPlayerAngleY(actor) + 0x8000;
     u8 no_kill = 0;
     cXyz hitPos = *i_this->mSph.GetTgHitPosP();
-#if VERSION == VERSION_DEMO
     i_this->mHitTimer = 8;
-#else
-    s16 hit_timer = 8;
-    i_this->mHitTimer = hit_timer;
-#endif
     i_this->m2D4 = 0;
 
     switch (hitObj->GetAtType()) {
@@ -610,7 +600,7 @@ BOOL red_body_atari_check(bl_class* i_this) {
         }
         break;
     case AT_TYPE_SWORD:
-        i_this->m2D4 = DEMO_SELECT(8, hit_timer);
+        i_this->m2D4 = 8;
         fopAcM_seStart(actor, JA_SE_LK_SW_HIT_S, 0x33);
         if (player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EA ||
             player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EB ||
