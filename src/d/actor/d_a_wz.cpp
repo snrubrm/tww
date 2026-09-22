@@ -2082,17 +2082,25 @@ static BOOL daWZ_Execute(wz_class* i_this) {
         i_this->mPLight.mColor.r = 300.0f + REG0_F(3);
         i_this->mPLight.mColor.g = 50.0f + REG0_F(4);
         i_this->mPLight.mColor.b = REG0_F(5);
+#if VERSION > VERSION_JPN
         i_this->mPLight.mPower = 550.0f + REG0_F(9);
         i_this->mPLight.mFluctuation = 200.0f + REG0_F(10);
+#endif
         break;
     case WZ_TYPE_DAMAGE_BALL_ICE:
         i_this->mPLight.mColor.r = 300.0f + REG0_F(6);
         i_this->mPLight.mColor.g = 300.0f + REG0_F(7);
         i_this->mPLight.mColor.b = 20.0f + REG0_F(8);
+#if VERSION > VERSION_JPN
         i_this->mPLight.mPower = 550.0f + REG0_F(9);
         i_this->mPLight.mFluctuation = 200.0f + REG0_F(10);
+#endif
         break;
     }
+#if VERSION <= VERSION_JPN
+    i_this->mPLight.mPower = 550.0f + REG0_F(9);
+    i_this->mPLight.mFluctuation = 200.0f + REG0_F(10);
+#endif
 
     if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
         fopAcM_setGbaName(i_this, 0x3C, 0x11, 0x2F);
