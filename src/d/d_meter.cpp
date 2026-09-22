@@ -3656,7 +3656,7 @@ void dMeter_enemyInit(sub_meter_class* i_Meter) {
 void dMeter_enemyMove(sub_meter_class* i_Meter) {
     dAttention_c* attention = &dComIfGp_getAttention();
     stage_stag_info_class* stage_info = dComIfGp_getStageStagInfo();
-    JUT_ASSERT(7176, stage_info != NULL);
+    JUT_ASSERT(VERSION_SELECT(7176, 7176, 7176, 7175), stage_info != NULL);
     if (attention != NULL) {
         if (!dMenu_flag() && !dComIfGp_event_runCheck() && attention->LockonTarget(0) != NULL && attention->LockonTarget(0)->max_health > 0.0f &&
             dComIfGs_isCollect(4, 1) != 0 && (attention->LockonTruth() & 0xFF) != 0 && attention->LockonTarget(0)->group == fopAc_ENEMY_e &&
