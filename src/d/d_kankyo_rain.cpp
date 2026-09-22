@@ -4679,8 +4679,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                         sp88.z = snow_packet->mEff[temp_r4].mBasePos.z + snow_packet->mEff[temp_r4].mPos.z;
 
                         f32 f22 = 0.0f;
-                        u32 _255 = 0xFF;
-                        color0.a = _255;
+                        color0.a = 0xFF;
 
                         if (i == 1) {
                             if (!(sp88.y > temp_f20) || !(sp88.y < temp_f20 + 200.0f)) {
@@ -4707,30 +4706,39 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
 #endif
                             if (temp_r4 < (int)(snow_packet->mEffCount * ratio)) {
                                 f32 temp_f2 = std::fabsf(cM_scos(temp_r4 * 4000 + (f32)(g_Counter.mCounter0 * spd)));
-                                u32 _69 = 0x45;
-                                color0.r = (f32)_69 + (temp_f2 * ((f32)_255 - (f32)_69));
-                                u32 _60 = 0x3C;
-                                u32 _0 = 0x00;
-                                color0.g = (f32)_60 + (temp_f2 * ((f32)_0 - (f32)_60));
-                                u32 _39 = 0x27;
-                                color0.b = (f32)_39 + (temp_f2 * ((f32)_0 - (f32)_39));
-
-                                u32 _124 = 0x7C;
-                                color1.r = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
-                                color1.g = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
-                                u32 _104 = 0x68;
-                                color1.b = (f32)_104 + (temp_f2 * ((f32)_0 - (f32)_104));
+                                u8 from, to;
+                                from = 0x45;
+                                to = 0xFF;
+                                color0.r = from + temp_f2 * ((f32)to - (f32)from);
+                                from = 0x3C;
+                                to = 0x00;
+                                color0.g = from + temp_f2 * ((f32)to - (f32)from);
+                                from = 0x27;
+                                to = 0x00;
+                                color0.b = from + temp_f2 * ((f32)to - (f32)from);
+                                from = 0x7C;
+                                to = 0xFF;
+                                color1.r = from + temp_f2 * ((f32)to - (f32)from);
+                                from = 0x7C;
+                                to = 0xFF;
+                                color1.g = from + temp_f2 * ((f32)to - (f32)from);
+                                from = 0x68;
+                                to = 0x00;
+                                color1.b = from + temp_f2 * ((f32)to - (f32)from);
 
                                 temp_f2 *= temp_f2;
-                                color0.r = temp_f2 * (f32)_255;
-                                color0.g = temp_f2 * (f32)_0;
-                                _0 = 0;
-                                color0.b = temp_f2 * (f32)_0;
-
-                                color1.r = temp_f2 * (f32)_255;
-                                color1.g = temp_f2 * (f32)_255;
-                                _0 = 0;
-                                color1.b = temp_f2 * _0;
+                                to = 0xFF;
+                                color0.r = temp_f2 * (f32)to;
+                                to = 0x00;
+                                color0.g = temp_f2 * (f32)to;
+                                to = 0x00;
+                                color0.b = temp_f2 * (f32)to;
+                                to = 0xFF;
+                                color1.r = temp_f2 * (f32)to;
+                                to = 0xFF;
+                                color1.g = temp_f2 * (f32)to;
+                                to = 0x00;
+                                color1.b = temp_f2 * (f32)to;
                             } else {
                                 color0.r = 0x45;
                                 color0.g = 0x3C;
