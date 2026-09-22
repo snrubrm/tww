@@ -601,11 +601,18 @@ BOOL daNpc_Ac1_c::_execute() {
 
 BOOL daNpc_Ac1_c::_delete() {
     dComIfG_resDelete(&mPhs, "Ac");
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) mpMorf->stopZelAnime();
+    if (mpWingMorf != NULL) mpWingMorf->stopZelAnime();
+    if (mpArmMorf != NULL) mpArmMorf->stopZelAnime();
+    l_HIO.removeHIO();
+#else
     if (heap != NULL) {
         if (mpMorf != NULL) mpMorf->stopZelAnime();
         if (mpWingMorf != NULL) mpWingMorf->stopZelAnime();
         if (mpArmMorf != NULL) mpArmMorf->stopZelAnime();
     }
+#endif
     return TRUE;
 }
 
