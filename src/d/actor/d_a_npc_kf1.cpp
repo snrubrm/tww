@@ -551,16 +551,9 @@ void daNpc_Kf1_c::create_rupee(cXyz pos, int count) {
     counter = g_Counter.mCounter0;
     for (i = 0; i < count; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
-#if VERSION == VERSION_DEMO
         random = offsets[counter % 3] + (cM_rndF(30.0f) - 15.0f);
-        s16 scaled = (s16)((s16)random * (0x7FFF / 180.0f));
-#else
-        random = cM_rndF(30.0f) - 15.0f;
-        f32 off = offsets[counter % 3];
-        random = off + random;
-        s16 scaled = (s16)random;
+        s16 scaled = random;
         scaled = scaled * (0x7FFF / 180.0f);
-#endif
         angle.y = current.angle.y + scaled;
         room = current.roomNo;
         a_actor_p = fopAcM_createItemForKP2(&pos, 4, room, NULL, NULL, 13.0f + cM_rndFX(2.0f), 31.0f + cM_rndFX(4.0f), -2.0f, 1);
