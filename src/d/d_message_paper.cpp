@@ -138,8 +138,13 @@ dmsg3_3d_c::~dmsg3_3d_c() {
 /* 801EB79C-801EB808       .text set_mtx__10dmsg3_3d_cFv */
 void dmsg3_3d_c::set_mtx() {
     mDoMtx_stack_c::transS(0.0f, 0.0f, 0.0f);
+#if VERSION == VERSION_DEMO
+    mDoMtx_stack_c::ZXYrotM(mRot.x, mRot.y, mRot.z);
+    mModel->setBaseTRMtx(mDoMtx_stack_c::get());
+#else
     mDoMtx_ZXYrotM(mDoMtx_stack_c::now, mRot.x, mRot.y, mRot.z);
     mModel->setBaseTRMtx(mDoMtx_stack_c::now);
+#endif
 }
 
 /* 801EB808-801EB840       .text exec__10dmsg3_3d_cFv */
@@ -297,7 +302,7 @@ void dMsg3_fontdataInit(sub_msg3_class* i_Msg) {
     JUT_ASSERT(628, i_Msg->mx != NULL);
 
     i_Msg->rx = mDoExt_getRubyFont();
-    JUT_ASSERT(VERSION_SELECT(631, 630, 631, 631), i_Msg->rx != NULL);
+    JUT_ASSERT(VERSION_SELECT(630, 630, 631, 631), i_Msg->rx != NULL);
 }
 
 /* 801EBE94-801EBED8       .text dMsg3_screenDataSet__FP14sub_msg3_classUc */
@@ -493,12 +498,26 @@ inline int dMsg3_getShiftY(sub_msg3_class* i_Msg, u8 i_index) {
 
 /* 801EC8CC-801EC97C       .text dMsg3_textPosition__FP14sub_msg3_classUc */
 void dMsg3_textPosition(sub_msg3_class* i_Msg, u8 i_index) {
+#if VERSION == VERSION_DEMO
+    int r7 = 0;
+    int temp_r0 = dMsg3_getShiftY(i_Msg, i_index);
+    f32 y;
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, y);
+#else
     f32 r7 = 0.0f;
     int temp_r0 = dMsg3_getShiftY(i_Msg, i_index);
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
+#endif
 }
 
 /* 801EC97C-801EC9F0       .text dMsg3_rubySet__FP14sub_msg3_class */
@@ -1152,10 +1171,10 @@ static cPhs_State dMsg3_Create(msg_class* i_this) {
     }
 
     i_Msg->Tex[0] = (ResTIMG*)i_Msg->Heap->alloc(0x11800, 0x20);
-    JUT_ASSERT(VERSION_SELECT(2188, 2185, 2188, 2188), i_Msg->Tex[0] != NULL);
+    JUT_ASSERT(VERSION_SELECT(2185, 2185, 2188, 2188), i_Msg->Tex[0] != NULL);
 
     i_Msg->Tex[1] = (ResTIMG*)i_Msg->Heap->alloc(0x11800, 0x20);
-    JUT_ASSERT(VERSION_SELECT(2190, 2187, 2190, 2190), i_Msg->Tex[1] != NULL);
+    JUT_ASSERT(VERSION_SELECT(2187, 2187, 2190, 2190), i_Msg->Tex[1] != NULL);
 
     dMsg3_fontdataInit(i_Msg);
 
@@ -1177,20 +1196,20 @@ static cPhs_State dMsg3_Create(msg_class* i_this) {
 
     for (u8 i = 0; i < 3; i++) {
         i_Msg->output_text[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(VERSION_SELECT(2213, 2210, 2213, 2213), i_Msg->output_text[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2210, 2210, 2213, 2213), i_Msg->output_text[i] != NULL);
 
         i_Msg->output_ruby[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(VERSION_SELECT(2216, 2213, 2216, 2216), i_Msg->output_ruby[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2213, 2213, 2216, 2216), i_Msg->output_ruby[i] != NULL);
 
         i_Msg->output_textSdw[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(VERSION_SELECT(2219, 2216, 2219, 2219), i_Msg->output_textSdw[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2216, 2216, 2219, 2219), i_Msg->output_textSdw[i] != NULL);
 
         i_Msg->output_rubySdw[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(VERSION_SELECT(2222, 2219, 2222, 2222), i_Msg->output_rubySdw[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2219, 2219, 2222, 2222), i_Msg->output_rubySdw[i] != NULL);
     }
 
     i_Msg->head_p = i_Msg->msgGet.getMesgHeader(i_this->mMsgNo);
-    JUT_ASSERT(VERSION_SELECT(2227, 2224, 2227, 2227), i_Msg->head_p);
+    JUT_ASSERT(VERSION_SELECT(2224, 2224, 2227, 2227), i_Msg->head_p);
 
     i_Msg->message = (char*)i_Msg->msgGet.getMessage(i_Msg->head_p);
     i_Msg->mesgEntry = i_Msg->msgGet.getMesgEntry(i_Msg->head_p);
