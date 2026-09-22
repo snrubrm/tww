@@ -43,13 +43,13 @@ static BOOL nodeCB_Head(J3DNode* node, int phase) {
 
 /* 000001E4-000002D8       .text _nodeCB_Head__11daNpc_Kf1_cFP7J3DNodeP8J3DModel */
 void daNpc_Kf1_c::_nodeCB_Head(J3DNode* node, J3DModel* model) {
-    static cXyz a_eye_pos_offst(30.0f, 30.0f, 0.0f);
+    static cXyz a_eye_pos_off(30.0f, 30.0f, 0.0f);
     int joint = ((J3DJoint*)node)->getJntNo();
     mDoMtx_stack_c::copy(model->getAnmMtx(joint));
     mHeadPos.x = mDoMtx_stack_c::get()[0][3];
     mHeadPos.y = mDoMtx_stack_c::get()[1][3];
     mHeadPos.z = mDoMtx_stack_c::get()[2][3];
-    mDoMtx_stack_c::multVec(&a_eye_pos_offst, &mEyeLocal);
+    mDoMtx_stack_c::multVec(&a_eye_pos_off, &mEyeLocal);
     cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
     model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
@@ -1417,9 +1417,6 @@ void daNpc_Kf1_c::shadowDraw() {
 
 /* 00003884-0000397C       .text _draw__11daNpc_Kf1_cFv */
 BOOL daNpc_Kf1_c::_draw() {
-    static const GXColor a_debug_red = {255, 0, 0, 128};
-    static const GXColor a_debug_blue = {0, 0, 255, 128};
-    static const GXColor a_debug_yellow = {255, 255, 0, 128};
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     if (mHidden || mNoDraw) {
@@ -1436,6 +1433,11 @@ BOOL daNpc_Kf1_c::_draw() {
     }
     shadowDraw();
     dSnap_RegistFig(DSNAP_TYPE_UNK59, this, 1.0f, 1.0f, 1.0f);
+    if (l_HIO.mPrm.mDebug) {
+        GXColor red = {255, 0, 0, 128};
+        GXColor blue = {0, 0, 255, 128};
+        GXColor yellow = {255, 255, 0, 128};
+    }
     return TRUE;
 }
 
