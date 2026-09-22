@@ -460,6 +460,7 @@ void daObj_Search::Act_c::modeFindInit() {
 }
 
 /* 800FEF80-800FF44C       .text modeFind__Q212daObj_Search5Act_cFv */
+// NONMATCHING - instruction order: the target materialises the yaw += 0x8000 addi after the pitch negation
 void daObj_Search::Act_c::modeFind() {
     dComIfGp_evmng_getEventIdx("Search_Light_Find");
     dComIfGp_evmng_getEventIdx("Search_Light_Find_With_Barrel");
@@ -481,7 +482,7 @@ void daObj_Search::Act_c::modeFind() {
     } else {
         yaw += 0x8000;
         pitch = -pitch;
-        mLightAng[0].y = (s16)yaw; // fakematch: cast keeps the += lazy so its addi lands after the pitch negation
+        mLightAng[0].y = yaw;
     }
     cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
     cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
@@ -540,6 +541,7 @@ void daObj_Search::Act_c::modeFind2ndInit() {
 }
 
 /* 800FF49C-800FF7A4       .text modeFind2nd__Q212daObj_Search5Act_cFv */
+// NONMATCHING - instruction order: the target materialises the yaw += 0x8000 addi after the pitch negation
 void daObj_Search::Act_c::modeFind2nd() {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     player_check();
@@ -582,7 +584,7 @@ void daObj_Search::Act_c::modeFind2nd() {
     } else {
         yaw += 0x8000;
         pitch = -pitch;
-        mLightAng[0].y = (s16)yaw; // fakematch: cast keeps the += lazy so its addi lands after the pitch negation
+        mLightAng[0].y = yaw;
     }
     cLib_addCalcAngleS2(&mLightAng[m830].y, yaw, 10, 0x400);
     cLib_addCalcAngleS2(&mLightAng[m830].x, pitch, 10, 0x400);
