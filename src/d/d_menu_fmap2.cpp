@@ -2158,7 +2158,7 @@ void dMenu_Fmap2_c::playerPointGridAnime(fopMsgM_pane_class* pane) {
         return;
     }
     f32 tmp = fopMsgM_valueIncrease(g_mf2HIO.field_0x16, field_0x27be, 2);
-    if ((s8)field_0x27bf == 0) {
+    if (field_0x27bf == 0) {
         tmp = 1.0f - tmp;
     }
     black.r = g_mf2HIO.field_0x9 + tmp * (g_mf2HIO.field_0x11 - g_mf2HIO.field_0x9);
