@@ -1813,7 +1813,7 @@ config.libs = [
     ActorRel(Matching, "d_a_ph"),
     ActorRel(Matching, "d_a_pt"),
     ActorRel(Matching, "d_a_pw"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_pz"),
+    ActorRel(MatchingFor("D44J01"), "d_a_pz"),
     ActorRel(Matching,    "d_a_sail"),
     ActorRel(Matching,    "d_a_salvage_tbox"),
     ActorRel(Matching,    "d_a_scene_change"),

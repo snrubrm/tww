@@ -123,9 +123,7 @@ public:
     void modeFollow();
     void modeProc(Proc_e, int);
     bool _execute();
-#if VERSION == VERSION_DEMO
     void debugDraw();
-#endif
     void bowDraw();
     void bodyDraw();
     void drawShadow();

@@ -2167,7 +2167,6 @@ bool daPz_c::_execute() {
     return true;
 }
 
-#if VERSION == VERSION_DEMO
 /* 00005BC4-00005C84       .text debugDraw__6daPz_cFv */
 void daPz_c::debugDraw() {
     static const GXColor color_ok = {0x00, 0xFF, 0x00, 0x80};
@@ -2180,22 +2179,11 @@ void daPz_c::debugDraw() {
     pos.y += 20.0f;
     dLib_debugDrawFan(pos, shape_angle.y, l_HIO.m54, l_HIO.m58, color);
     dLib_debugDrawAxis(mWaistMtx, 50.0f);
-}
-
-static void dummy() {
-#else
-static void dummy() {
-    static const GXColor color_ok = {0x00, 0xFF, 0x00, 0x80};
-    static const GXColor color_ng = {0xFF, 0x00, 0x00, 0x80};
-#endif
     GXColor c1 = {0xFF, 0xFF, 0x00, 0x80};
     GXColor c2 = {0xFF, 0x00, 0x00, 0x80};
     GXColor c3 = {0xFF, 0xFF, 0x00, 0x80};
     GXColor c4 = {0x00, 0x00, 0xFF, 0x80};
     GXColor c5 = {0xFF, 0x00, 0xFF, 0x80};
-#if VERSION > VERSION_DEMO
-    f32 debug_dist[1] = {10000.0f};
-#endif
 }
 
 /* 000060D8-00006154       .text bowDraw__6daPz_cFv */
@@ -2315,6 +2303,7 @@ void daPz_c::bodyDraw() {
 }
 
 /* 00006600-000066D8       .text drawShadow__6daPz_cFv */
+// NONMATCHING - retail .rodata offsets: the unreferenced 10000.0f that retail's (stripped) debugDraw left at 0x33C is missing
 void daPz_c::drawShadow() {
     cXyz pos(current.pos.x, current.pos.y + 100.0f + REG8_F(18), current.pos.z);
     mShadowId = dComIfGd_setShadow(
@@ -2389,6 +2378,7 @@ void daPz_c::bodyCreateInit() {
 }
 
 /* 00006974-00006BAC       .text createInit__6daPz_cFv */
+// NONMATCHING - retail .rodata offsets: the unreferenced 10000.0f that retail's (stripped) debugDraw left at 0x33C is missing
 void daPz_c::createInit() {
     static u8 fire_j[] = {7, 2, 12, 13, 17, 18, 22, 23, 25, 26};
     static f32 fire_sc[] = {2.0f, 2.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f};
