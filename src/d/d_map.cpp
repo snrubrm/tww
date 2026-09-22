@@ -2120,6 +2120,7 @@ void dMap_c::calcScissor() {
 }
 
 /* 8004A478-8004A6E8       .text mapMoveAll__6dMap_cFffif */
+// NONMATCHING - the mCompAlpha if/else is merged into one conditional store; the original keeps a stb in each branch.
 #if VERSION == VERSION_DEMO
 void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
     setPlayerStayAgbMapTypeNow(param_1, param_2);
@@ -2165,7 +2166,6 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
     if (mNowRoomInfoP->mStageMapInfoP) {
         mCompAlpha = ((u8)mNowRoomInfoP->mStageMapInfoP->field_0x34 * mAlpha) >> 8;
     } else {
-        for (int i = 0; i < 1; i++) {}
         mCompAlpha = 0;
     }
 }
@@ -2217,7 +2217,6 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
             if (mNowRoomInfoP->mStageMapInfoP) {
                 mCompAlpha = ((u8)mNowRoomInfoP->mStageMapInfoP->field_0x34 * mAlpha) >> 8;
             } else {
-                for (int i = 0; i < 1; i++) {}
                 mCompAlpha = 0;
             }
 #if VERSION > VERSION_DEMO
