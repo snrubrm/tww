@@ -2221,7 +2221,7 @@ BOOL daShip_c::procZevDemo() {
                 f32 fVar17 = local_70.absXZ();
 
                 if (!dComIfGp_evmng_getMyFloatP(mEvtStaffId, "rad")) {
-                    JUT_ASSERT(DEMO_SELECT(3722, 3741), 0);
+                    JUT_ASSERT(VERSION_SELECT(3722, 3724, 3741, 3741), 0);
                 }
 
                 f32 fVar3 = *dComIfGp_evmng_getMyFloatP(mEvtStaffId, "rad");
