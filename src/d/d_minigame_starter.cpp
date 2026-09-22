@@ -265,49 +265,44 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
 BOOL dDlst_StarterScrnDraw_c::anime2() {
     BOOL rt = FALSE;
 
-    int var_r31;
-    s16 temp_r6;
-    s16 var_r27;
-    s16 temp_r7;
-    int var_r30;
-
-    var_r30 = cdFrame4;
-    var_r31 = (s16)(var_r30 + cdFrame5);
-    temp_r6 = var_r31 + cdFrame6;
-    var_r27 = temp_r6 + cdFrame7;
-    temp_r7 = var_r27 + cdFrame8;
+    s16 fr[5];
+    fr[0] = cdFrame4;
+    fr[1] = fr[0] + cdFrame5;
+    fr[2] = fr[1] + cdFrame6;
+    fr[3] = fr[2] + cdFrame7;
+    fr[4] = fr[3] + cdFrame8;
 
     field_0x008[0].mUserArea++;
 
-    f32 angle;
-    f32 scaleAdj;
     f32 alpha;
+    f32 angle;
     f32 var_f31;
+    f32 scaleAdj;
 
     s16 temp_r0 = field_0x008[0].mUserArea;
-    if (temp_r0 <= var_r30) {
-        var_f31 = SQUARE((f32)temp_r0) / SQUARE((f32)var_r30);
+    if (temp_r0 <= fr[0]) {
+        var_f31 = SQUARE((f32)temp_r0) / SQUARE((f32)fr[0]);
         alpha = var_f31;
         scaleAdj = 3.0f - var_f31 * 2.2f;
         angle = 90.0f - var_f31 * 65.0f;
         scaleAnime(scaleAdj * g_menuHIO.field_0x14);
         setRotate(&field_0x190, angle);
         fopMsgM_setNowAlpha(&field_0x008[0], alpha);
-    } else if (temp_r0 <= var_r31) {
-        var_f31 = acc(var_r31, temp_r0, var_r30);
+    } else if (temp_r0 <= fr[1]) {
+        var_f31 = acc(fr[1], temp_r0, fr[0]);
         scaleAdj = 0.8f - var_f31 * -0.19999999f;
         scaleAnime(scaleAdj * g_menuHIO.field_0x14);
 
-        if (field_0x008[0].mUserArea == var_r31) {
+        if (field_0x008[0].mUserArea == fr[1]) {
             mDoAud_seStart(JA_SE_SGAME_COUNT_GO, NULL);
         }
-    } else if (temp_r0 > temp_r6) {
-        if (temp_r0 <= var_r27) {
-            var_f31 = acc(var_r27, temp_r0, temp_r6);
+    } else if (temp_r0 > fr[2]) {
+        if (temp_r0 <= fr[3]) {
+            var_f31 = acc(fr[3], temp_r0, fr[2]);
             angle = 25.0f - var_f31 * -35.0f;
             setRotate(&field_0x190, angle);
-        } else if (temp_r0 < temp_r7) {
-            var_f31 = acc(temp_r7, temp_r0, var_r27);
+        } else if (temp_r0 < fr[4]) {
+            var_f31 = acc(fr[4], temp_r0, fr[3]);
             scaleAdj = 1.0f - var_f31 * 0.5f;
             angle = 60.0f - var_f31 * -210.0f;
             scaleAnime(scaleAdj * g_menuHIO.field_0x14);
