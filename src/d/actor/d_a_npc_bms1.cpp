@@ -286,14 +286,8 @@ BOOL daNpc_Bms1_c::initTexPatternAnm(bool modify) {
 
 void daNpc_Bms1_c::playTexPatternAnm() {
     if (cLib_calcTimer(&mBtpTimer) == 0) {
-#if VERSION == VERSION_DEMO
-        s16 end = m_head_tex_pattern->getFrameMax();
-        if (mBtpFrame >= end) {
-#else
-        int end = m_head_tex_pattern->getFrameMax();
-        if (mBtpFrame >= (s16) end) {
-#endif
-            mBtpFrame -= end;
+        if (mBtpFrame >= m_head_tex_pattern->getFrameMax()) {
+            mBtpFrame -= m_head_tex_pattern->getFrameMax();
             mBtpTimer = 30.0f + cM_rndF(100.0f);
         } else mBtpFrame++;
     }
