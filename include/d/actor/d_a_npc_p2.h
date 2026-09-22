@@ -23,7 +23,17 @@ public:
             mAttnSetCount++;
         }
     }
-    void setAction(ActionFunc, void*) {}
+    void setAction(ActionFunc action, void* arg) {
+        if (mActionFunc != action) {
+            if (mActionFunc) {
+                m808 = -1;
+                (this->*mActionFunc)(NULL);
+            }
+            mActionFunc = action;
+            m808 = 0;
+            (this->*mActionFunc)(arg);
+        }
+    }
     void setEyeStopFlag() { mEyeStopFlag = true; }
 
     BOOL initTexPatternAnm(bool);

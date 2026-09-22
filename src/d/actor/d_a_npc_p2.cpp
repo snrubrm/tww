@@ -1615,76 +1615,22 @@ void daNpc_P2_c::createInit() {
         if (!strcmp(dComIfGp_getStartStageName(), "Asoko")) {
             if (m291 == 0) {
                 if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0808)) {
-                    ActionFunc action = &daNpc_P2_c::intro_action;
-                    if (mActionFunc != action) {
-                        if (mActionFunc) {
-                            m808 = -1;
-                            (this->*mActionFunc)(NULL);
-                        }
-                        mActionFunc = action;
-                        m808 = 0;
-                        (this->*mActionFunc)(NULL);
-                    }
+                    setAction(&daNpc_P2_c::intro_action, NULL);
                 } else {
-                    ActionFunc action = &daNpc_P2_c::wait_action;
-                    if (mActionFunc != action) {
-                        if (mActionFunc) {
-                            m808 = -1;
-                            (this->*mActionFunc)(NULL);
-                        }
-                        mActionFunc = action;
-                        m808 = 0;
-                        (this->*mActionFunc)(NULL);
-                    }
+                    setAction(&daNpc_P2_c::wait_action, NULL);
                 }
             } else if (m291 == 1) {
                 if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_0F02)) {
-                    ActionFunc action = &daNpc_P2_c::intro_action;
-                    if (mActionFunc != action) {
-                        if (mActionFunc) {
-                            m808 = -1;
-                            (this->*mActionFunc)(NULL);
-                        }
-                        mActionFunc = action;
-                        m808 = 0;
-                        (this->*mActionFunc)(NULL);
-                    }
+                    setAction(&daNpc_P2_c::intro_action, NULL);
                 } else {
-                    ActionFunc action = &daNpc_P2_c::wait_action;
-                    if (mActionFunc != action) {
-                        if (mActionFunc) {
-                            m808 = -1;
-                            (this->*mActionFunc)(NULL);
-                        }
-                        mActionFunc = action;
-                        m808 = 0;
-                        (this->*mActionFunc)(NULL);
-                    }
+                    setAction(&daNpc_P2_c::wait_action, NULL);
                 }
             }
         } else {
-            ActionFunc action = &daNpc_P2_c::wait_action;
-            if (mActionFunc != action) {
-                if (mActionFunc) {
-                    m808 = -1;
-                    (this->*mActionFunc)(NULL);
-                }
-                mActionFunc = action;
-                m808 = 0;
-                (this->*mActionFunc)(NULL);
-            }
+            setAction(&daNpc_P2_c::wait_action, NULL);
         }
     } else {
-        ActionFunc action = &daNpc_P2_c::wait_action;
-        if (mActionFunc != action) {
-            if (mActionFunc) {
-                m808 = -1;
-                (this->*mActionFunc)(NULL);
-            }
-            mActionFunc = action;
-            m808 = 0;
-            (this->*mActionFunc)(NULL);
-        }
+        setAction(&daNpc_P2_c::wait_action, NULL);
     }
 
     mAttnPos = current.pos;
