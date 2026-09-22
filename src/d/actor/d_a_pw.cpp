@@ -285,7 +285,7 @@ BOOL body_atari_check(pw_class* i_this) {
     }
     if (dComIfGp_getDetect().chk_light(&i_this->current.pos)) {
         i_this->mHitByWhat = 9;
-        if (i_this->m39A != 0xFF && i_this->m382 == 0 && i_this->m346 != -1 && i_this->mMode != 0x37 &&
+        if (i_this->m39A != 0xFF && i_this->m378[5] == 0 && i_this->m346 != -1 && i_this->mMode != 0x37 &&
             i_this->mMode != 0x3C && i_this->mMode != 0x3D && i_this->mJalhallaID == fpcM_ERROR_PROCESS_ID_e)
         {
             i_this->mAction = 2;
@@ -690,7 +690,7 @@ void kantera_calc(pw_class* i_this) {
     if (i_this->m346 <= 0) {
         return;
     }
-    if (i_this->m382 != 0) {
+    if (i_this->m378[5] != 0) {
         return;
     }
 #endif
@@ -951,7 +951,7 @@ void next_dousa_check(pw_class* i_this) {
         i_this->mAction = 1;
         i_this->mMode = 0x20;
     } else {
-        i_this->m37C = cM_rndF(70.0f) + 70.0f;
+        i_this->m378[2] = cM_rndF(70.0f) + 70.0f;
         if (i_this->mPathIndex == 0xFF) {
             i_this->m2F0.x = actor->current.pos.x;
             i_this->m2F0.z = actor->current.pos.z;
@@ -1049,7 +1049,7 @@ void action_dousa(pw_class* i_this) {
 #endif
         if (i_this->mKanteraID != fpcM_ERROR_PROCESS_ID_e) {
 #if VERSION > VERSION_DEMO
-            i_this->m382 = 5;
+            i_this->m378[5] = 5;
 #endif
             switch (i_this->mBehaviorType) {
             case InvisibleAtStart:
@@ -1095,7 +1095,7 @@ void action_dousa(pw_class* i_this) {
                 first_mode_change(i_this);
 #else
                 first_mode_change(i_this);
-                i_this->m382 = 3;
+                i_this->m378[5] = 3;
                 i_this->m346 = 1;
 #endif
                 i_this->mMode = 0xD;
@@ -1124,7 +1124,7 @@ void action_dousa(pw_class* i_this) {
         }
         break;
     case 8:
-        i_this->m380 = 2;
+        i_this->m378[4] = 2;
 #if VERSION > VERSION_DEMO
         i_this->m346 = 1;
 #endif
@@ -1139,7 +1139,7 @@ void action_dousa(pw_class* i_this) {
         }
         i_this->m340 = 0;
         i_this->m341 = 0;
-        i_this->m378 = cM_rndF(60.0f) + 60.0f;
+        i_this->m378[0] = cM_rndF(60.0f) + 60.0f;
         if (DEMO_SELECT(i_this->m346 != 0, i_this->m346 == 1)) {
             if (i_this->mBckIdx != dRes_INDEX_PW_BCK_WAIT1_e) {
                 anm_init(i_this, dRes_INDEX_PW_BCK_WAIT1_e, 7.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
@@ -1151,13 +1151,13 @@ void action_dousa(pw_class* i_this) {
         // Fall-through
     case 14:
         cLib_addCalc0(&i_this->speedF, 1.0f, 1.0f);
-        if (i_this->m378) {
+        if (i_this->m378[0]) {
             break;
         }
         i_this->mMode += 1;
         // Fall-through
     case 15:
-        i_this->m378 = cM_rndF(120.0f) + 120.0f;
+        i_this->m378[0] = cM_rndF(120.0f) + 120.0f;
         if (DEMO_SELECT(i_this->m346 != 0, i_this->m346 == 1)) {
             if (i_this->mBckIdx != dRes_INDEX_PW_BCK_IDOU1_e) {
                 anm_init(i_this, dRes_INDEX_PW_BCK_IDOU1_e, 7.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
@@ -1177,10 +1177,10 @@ void action_dousa(pw_class* i_this) {
     case 16:
         i_this->speedF = 5.0f;
         move_sound(i_this);
-        if (i_this->m37A == 0) {
+        if (i_this->m378[1] == 0) {
             if (Line_check(i_this, i_this->current.pos, 0) || hani_check(i_this)) {
-                i_this->m37A = 10;
-            } else if (i_this->m378 == 0) {
+                i_this->m378[1] = 10;
+            } else if (i_this->m378[0] == 0) {
                 i_this->mMode = 0xF;
             }
         }
@@ -1239,7 +1239,7 @@ void action_dousa(pw_class* i_this) {
         // Fall-through
     case 90:
         i_this->speedF = 12.0f;
-        i_this->m378 = 0x168;
+        i_this->m378[0] = 0x168;
         if (i_this->mJalhallaID != fpcM_ERROR_PROCESS_ID_e) {
             i_this->speedF = 9.0f + REG0_F(1);
         }
@@ -1257,17 +1257,17 @@ void action_dousa(pw_class* i_this) {
         if (i_this->mpMorf->checkFrame(0.0f)) {
             fopAcM_monsSeStart(i_this, JA_SE_CV_PW_RUN, 0);
         }
-        if (i_this->m37E == 0) {
+        if (i_this->m378[3] == 0) {
             i_this->m38C += (s16)cM_rndFX(16384.0f);
-            i_this->m37E = cM_rndF(15.0f) + 15.0f;
+            i_this->m378[3] = cM_rndF(15.0f) + 15.0f;
         }
-        if (i_this->m37A == 0) {
+        if (i_this->m378[1] == 0) {
             if (Line_check(i_this, i_this->current.pos, 0) || hani_check(i_this)) {
-                i_this->m37A = cM_rndF(20.0f) + 20.0f;
-                i_this->m37E = cM_rndF(20.0f) + 20.0f;
+                i_this->m378[1] = cM_rndF(20.0f) + 20.0f;
+                i_this->m378[3] = cM_rndF(20.0f) + 20.0f;
             }
         }
-        if (i_this->m378 == 0 && i_this->mJalhallaID == fpcM_ERROR_PROCESS_ID_e &&
+        if (i_this->m378[0] == 0 && i_this->mJalhallaID == fpcM_ERROR_PROCESS_ID_e &&
             !dComIfGp_getDetect().chk_light(&i_this->current.pos))
         {
             ((pw_cyl_access_c*)&i_this->mCyl)->OffTgNoConHit();
@@ -1375,7 +1375,7 @@ void action_dousa(pw_class* i_this) {
     if (i_this->mMode <= 11) {
         return;
     }
-    if (i_this->m37C == 0 && i_this->mMode < 90) {
+    if (i_this->m378[2] == 0 && i_this->mMode < 90) {
         if (i_this->mMode == 14 || i_this->mMode == 16 || i_this->mMode == 20) {
 #if VERSION == VERSION_DEMO
             if (!hani_check(i_this)) {
@@ -1444,7 +1444,7 @@ void action_kougeki(pw_class* i_this) {
             i_this->mMode = 33;
         } else {
             anm_init(i_this, dRes_INDEX_PW_BCK_TORITUKI1_e, 3.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
-            i_this->m378 = 100;
+            i_this->m378[0] = 100;
             i_this->mMode = 40;
         }
         break;
@@ -1495,8 +1495,8 @@ void action_kougeki(pw_class* i_this) {
     case 40:
         cLib_addCalc0(&actor->speedF, 1.0f, 0.3f);
         i_this->m38C = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
-        if (i_this->m378 == 0) {
-            i_this->m378 = 300;
+        if (i_this->m378[0] == 0) {
+            i_this->m378[0] = 300;
             anm_init(i_this, dRes_INDEX_PW_BCK_TORITUKI2_e, 4.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
             fopAcM_monsSeStart(actor, JA_SE_CV_PW_GO_CURSE, 0);
             i_this->mMode += 1;
@@ -1514,13 +1514,13 @@ void action_kougeki(pw_class* i_this) {
         }
         cLib_addCalc2(&actor->speedF, 15.0f, 1.0f, 3.0f);
         move_sound(i_this);
-        if (i_this->m378 == 0) {
+        if (i_this->m378[0] == 0) {
             anm_init(i_this, dRes_INDEX_PW_BCK_IKIGIRE1_e, 6.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
             i_this->mMode = 36;
             break;
         }
         if (Line_check(i_this, player->current.pos, 1)) {
-            i_this->m37C = cM_rndF(70.0f) + 70.0f;
+            i_this->m378[2] = cM_rndF(70.0f) + 70.0f;
             if (i_this->mPathIndex == 0xFF) {
                 i_this->m2F0.x = actor->current.pos.x;
                 i_this->m2F0.z = actor->current.pos.z;
@@ -1548,7 +1548,7 @@ void action_kougeki(pw_class* i_this) {
         } else if (i_this->mBckIdx != dRes_INDEX_PW_BCK_WAIT2_e) {
             anm_init(i_this, dRes_INDEX_PW_BCK_WAIT2_e, 7.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
         }
-        i_this->m37C = cM_rndF(70.0f) + 70.0f;
+        i_this->m378[2] = cM_rndF(70.0f) + 70.0f;
         i_this->m320 = actor->current.pos;
         i_this->m392 = 0;
         i_this->m340 = 0;
@@ -1559,7 +1559,7 @@ void action_kougeki(pw_class* i_this) {
         kyori_sub(i_this);
         i_this->m38C = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         cLib_addCalc0(&actor->speedF, 1.0f, 1.0f);
-        if (i_this->m37C == 0) {
+        if (i_this->m378[2] == 0) {
             actor->speedF = 0.0f;
             next_dousa_check(i_this);
         }
@@ -1570,7 +1570,7 @@ void action_kougeki(pw_class* i_this) {
 
     if (i_this->m346 == 0) {
         if (TORITUKI_ON == true) {
-            i_this->m37C = cM_rndF(70.0f) + 70.0f;
+            i_this->m378[2] = cM_rndF(70.0f) + 70.0f;
             if (i_this->mPathIndex == 0xFF) {
                 i_this->m2F0.x = actor->current.pos.x;
                 i_this->m2F0.z = actor->current.pos.z;
@@ -1620,7 +1620,7 @@ void action_itai(pw_class* i_this) {
         i_this->m38E = 0;
         i_this->m39A = 200;
         i_this->m39C = 200;
-        i_this->m37E = 3;
+        i_this->m378[3] = 3;
         if (i_this->m398 == 0) {
             kantera_break(i_this);
         }
@@ -1647,13 +1647,13 @@ void action_itai(pw_class* i_this) {
         if (i_this->mBckIdx != dRes_INDEX_PW_BCK_DOKI1_e) {
             anm_init(i_this, dRes_INDEX_PW_BCK_DOKI1_e, 3.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
         }
-        i_this->m378 = 30;
+        i_this->m378[0] = 30;
         actor->speedF = 0.0f;
         i_this->mMode += 1;
         // Fall-through
     case 53:
         if (i_this->mHitByWhat == 9 || i_this->mHitByWhat == 10) {
-            i_this->m378 = 10;
+            i_this->m378[0] = 10;
             i_this->m39A += 5;
             if (i_this->m33F == 0) {
                 i_this->m33F = 1;
@@ -1701,7 +1701,7 @@ void action_itai(pw_class* i_this) {
         break;
     case 54:
         i_this->m340 = 1;
-        i_this->m380 = 0;
+        i_this->m378[4] = 0;
 #if VERSION == VERSION_DEMO
         if (i_this->m5C0_demo) {
             i_this->m5C0_demo->becomeInvalidEmitter();
@@ -1769,7 +1769,7 @@ void action_itai(pw_class* i_this) {
             enemy_piyo_set(actor);
             fopAcM_seStart(actor, JA_SE_CM_MD_PIYO, 0);
 #if VERSION > VERSION_DEMO
-            i_this->m378 = REG0_S(7) + 75;
+            i_this->m378[0] = REG0_S(7) + 75;
 #endif
         }
         anm_init(i_this, dRes_INDEX_PW_BCK_KIZETU1_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
@@ -1784,7 +1784,7 @@ void action_itai(pw_class* i_this) {
             break;
         }
 #else
-        if (i_this->m378 != 0) {
+        if (i_this->m378[0] != 0) {
             break;
         }
 #endif
@@ -1841,7 +1841,7 @@ void action_itai(pw_class* i_this) {
     }
 
     if (i_this->mMode <= 51) {
-        if (i_this->m37E == 0) {
+        if (i_this->m378[3] == 0) {
             alpha_anime(i_this);
         }
         fuwafuwa_calc(i_this);
@@ -1895,12 +1895,12 @@ void action_demo(pw_class* i_this) {
             i_this->shape_angle.y = 0;
             i_this->shape_angle.z = 0;
             i_this->shape_angle.y = player->shape_angle.y;
-            i_this->m378 = 30;
+            i_this->m378[0] = 30;
             i_this->mMode += 1;
         }
         break;
     case 0x49:
-        if (i_this->m378 == 0) {
+        if (i_this->m378[0] == 0) {
 #if VERSION > VERSION_DEMO
             daPy_py_c* player2 = (daPy_py_c*)dComIfGp_getLinkPlayer();
 #endif
@@ -1947,7 +1947,7 @@ void action_torituku(pw_class* i_this) {
         for (int i = 0; i < 4; i++) {
             i_this->m384[i] = 0;
         }
-        i_this->m378 = 300;
+        i_this->m378[0] = 300;
         i_this->m33E = 1;
         fopAcM_OnStatus(actor, fopAcStts_UNK4000_e);
         player->onConfuse();
@@ -1960,12 +1960,12 @@ void action_torituku(pw_class* i_this) {
         i_this->current.pos = pos;
         i_this->shape_angle.y += 1000;
 #if VERSION == VERSION_DEMO
-        if (i_this->m378 == 0 || dComIfGp_getDetect().chk_light(&i_this->current.pos) ||
+        if (i_this->m378[0] == 0 || dComIfGp_getDetect().chk_light(&i_this->current.pos) ||
             dComIfGp_checkPlayerStatus1(0, daPyStts1_UNK2000_e) || player->getDamageWaitTimer() ||
             player->checkFairyUse())
         {
 #else
-        if (i_this->m378 == 0 || dComIfGp_getDetect().chk_light(&i_this->current.pos) ||
+        if (i_this->m378[0] == 0 || dComIfGp_getDetect().chk_light(&i_this->current.pos) ||
             dComIfGp_checkPlayerStatus1(0, daPyStts1_UNK2000_e) || player->getDamageWaitTimer() ||
             player != player2 || player->checkFairyUse())
         {
@@ -2021,22 +2021,22 @@ void action_big_demo(pw_class* i_this) {
             if (i_this->mpMorf->checkFrame(0.0f)) {
                 fopAcM_monsSeStart(actor, JA_SE_CV_PW_RUN, 0);
             }
-            if (i_this->m37E == 0) {
+            if (i_this->m378[3] == 0) {
                 i_this->m38C += (s16)cM_rndFX(16384.0f);
-                i_this->m37E = cM_rndF(15.0f) + 15.0f;
+                i_this->m378[3] = cM_rndF(15.0f) + 15.0f;
             }
-            if (i_this->m37A == 0) {
+            if (i_this->m378[1] == 0) {
                 if (Line_check(i_this, actor->current.pos, 0)) {
-                    i_this->m37A = cM_rndF(20.0f) + 20.0f;
-                    i_this->m37E = cM_rndF(20.0f) + 20.0f;
+                    i_this->m378[1] = cM_rndF(20.0f) + 20.0f;
+                    i_this->m378[3] = cM_rndF(20.0f) + 20.0f;
                 } else {
                     f32 dx = i_this->m2F0.x - actor->current.pos.x;
                     f32 dz = i_this->m2F0.z - actor->current.pos.z;
                     f32 dist = std::sqrtf(dx * dx + dz * dz);
                     if (dist > 1000.0f + REG9_F(6)) {
                         i_this->m38C = cM_atan2s(dx, dz);
-                        i_this->m37A = cM_rndF(20.0f) + 20.0f;
-                        i_this->m37E = cM_rndF(20.0f) + 20.0f;
+                        i_this->m378[1] = cM_rndF(20.0f) + 20.0f;
+                        i_this->m378[3] = cM_rndF(20.0f) + 20.0f;
                     }
                 }
             }
@@ -2178,22 +2178,22 @@ void action_big_demo(pw_class* i_this) {
             if (i_this->mpMorf->checkFrame(0.0f)) {
                 fopAcM_monsSeStart(actor, JA_SE_CV_PW_RUN, 0);
             }
-            if (i_this->m37E == 0) {
+            if (i_this->m378[3] == 0) {
                 i_this->m38C += (s16)cM_rndFX(16384.0f);
-                i_this->m37E = cM_rndF(15.0f) + 15.0f;
+                i_this->m378[3] = cM_rndF(15.0f) + 15.0f;
             }
-            if (i_this->m37A == 0) {
+            if (i_this->m378[1] == 0) {
                 if (Line_check(i_this, actor->current.pos, 0)) {
-                    i_this->m37A = cM_rndF(20.0f) + 20.0f;
-                    i_this->m37E = cM_rndF(20.0f) + 20.0f;
+                    i_this->m378[1] = cM_rndF(20.0f) + 20.0f;
+                    i_this->m378[3] = cM_rndF(20.0f) + 20.0f;
                 } else {
                     f32 dx = i_this->m2F0.x - actor->current.pos.x;
                     f32 dz = i_this->m2F0.z - actor->current.pos.z;
                     f32 dist = std::sqrtf(dx * dx + dz * dz);
                     if (dist > 1000.0f + REG9_F(6)) {
                         i_this->m38C = cM_atan2s(dx, dz);
-                        i_this->m37A = cM_rndF(20.0f) + 20.0f;
-                        i_this->m37E = cM_rndF(20.0f) + 20.0f;
+                        i_this->m378[1] = cM_rndF(20.0f) + 20.0f;
+                        i_this->m378[3] = cM_rndF(20.0f) + 20.0f;
                     }
                 }
             }
@@ -2321,8 +2321,8 @@ static BOOL daPW_Execute(pw_class* i_this) {
     }
 
     for (int i = 0; i < DEMO_SELECT(5, 6); i++) {
-        if ((&i_this->m378)[i] != 0) {
-            (&i_this->m378)[i]--;
+        if (i_this->m378[i] != 0) {
+            i_this->m378[i]--;
         }
     }
 
@@ -2360,7 +2360,7 @@ static BOOL daPW_Execute(pw_class* i_this) {
     }
 
 #if VERSION == VERSION_DEMO
-    if (i_this->mMode >= 2 && i_this->m380 == 0) {
+    if (i_this->mMode >= 2 && i_this->m378[4] == 0) {
         i_this->mpMorf->play(&i_this->current.pos, 0, 0);
     }
 #endif
@@ -2444,7 +2444,7 @@ static BOOL daPW_Execute(pw_class* i_this) {
     }
 
 #if VERSION > VERSION_DEMO
-    if (i_this->mMode >= 2 && i_this->m380 == 0) {
+    if (i_this->mMode >= 2 && i_this->m378[4] == 0) {
         if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF) {
             s8 roomNo = fopAcM_GetRoomNo(i_this);
             u32 mtrlSndId;
@@ -2465,7 +2465,7 @@ static BOOL daPW_Execute(pw_class* i_this) {
     if (DEMO_SELECT(i_this->m346 != 0, i_this->m346 == 1)) {
         kantera_calc(i_this);
 #if VERSION > VERSION_DEMO
-        if (i_this->m382 != 0) {
+        if (i_this->m378[5] != 0) {
             return TRUE;
         }
 #endif
