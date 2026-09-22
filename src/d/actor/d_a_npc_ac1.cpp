@@ -402,7 +402,12 @@ bool daNpc_Ac1_c::chkAttention() {
 }
 
 void daNpc_Ac1_c::setAttention(bool force) {
+#if VERSION == VERSION_DEMO
+    f32 offset = l_HIO.mPrm.mAttentionOffsetY;
+    attention_info.position.set(current.pos.x, current.pos.y + offset, current.pos.z);
+#else
     attention_info.position.set(current.pos.x, current.pos.y + l_HIO.mPrm.mAttentionOffsetY, current.pos.z);
+#endif
     if (mUpdateEye || force) eyePos.set(mEyePos.x, mEyePos.y, mEyePos.z);
 }
 
