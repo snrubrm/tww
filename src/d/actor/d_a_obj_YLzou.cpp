@@ -8,6 +8,9 @@
 #include "d/d_com_inf_game.h"
 #include "f_op/f_op_actor_mng.h"
 #include "JSystem/JUtility/JUTAssert.h"
+#if VERSION == VERSION_DEMO
+#include "m_Do/m_Do_hostIO.h"
+#endif
 
 namespace {
     const char l_arcname[] = "YLzou";
@@ -17,6 +20,53 @@ namespace {
     const char* l_demo_name[] = {NULL, l_move_ylzou_demo_name, l_go_up_stairs_demo_name, l_go_up_stairs_demo2_name};
 }
 
+#if VERSION == VERSION_DEMO
+class daObjYLzou_HIO_c : public JORReflexible {
+public:
+    daObjYLzou_HIO_c();
+    virtual ~daObjYLzou_HIO_c() {}
+
+    void genMessage(JORMContext*) {}
+
+public:
+    /* 0x04 */ s8 mNo;
+    /* 0x08 */ f32 mMaxSpeed;
+    /* 0x0C */ f32 mAccel;
+    /* 0x10 */ f32 mSmokeScale;
+    /* 0x14 */ f32 mVibAngleStep;
+    /* 0x18 */ f32 mVibAmplitudeStep;
+    /* 0x1C */ f32 mVibAmplitudeMax;
+    /* 0x20 */ f32 mVibAmplitudeMin;
+    /* 0x24 */ u8 m24;
+    /* 0x25 */ u8 m25;
+    /* 0x26 */ u8 m26;
+    /* 0x27 */ u8 m27;
+    /* 0x28 */ u8 m28;
+    /* 0x29 */ u8 m29;
+    /* 0x2A */ u8 m2A;
+};
+
+static daObjYLzou_HIO_c l_HIO;
+
+/* 000000EC-0000015C       .text __ct__16daObjYLzou_HIO_cFv */
+daObjYLzou_HIO_c::daObjYLzou_HIO_c() {
+    mNo = -1;
+    mMaxSpeed = 6.0f;
+    mAccel = 0.1f;
+    mSmokeScale = 2.0f;
+    mVibAngleStep = 16384.0f;
+    mVibAmplitudeStep = 0.05f;
+    mVibAmplitudeMax = 0.8f;
+    m24 = 0;
+    m25 = 0;
+    m26 = 0;
+    m27 = 0;
+    m28 = 0;
+    m29 = 0;
+    m2A = 0;
+}
+#endif
+
 /* 000000EC-000002B8       .text set_start_type__12daObjYLzou_cFv */
 void daObjYLzou_c::set_start_type() {
     int type = 0;
@@ -24,7 +74,7 @@ void daObjYLzou_c::set_start_type() {
     u8 opened = 0;
     int action;
     if (!dComIfGs_isEventBit(0x2d04)) {
-        if (mSwitch != 0xff && !dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+        if (mSwitch != 0xff && !dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this))) {
             action = 0;
             demo = 1;
         } else {
@@ -99,7 +149,7 @@ bool daObjYLzou_c::create_heap() {
     static int dzb_table[] = {8, 9};
     J3DModelData* data = (J3DModelData*)dComIfG_getObjectRes(l_arcname, bdl_table[mType]);
     if (!data) {
-        JUT_ASSERT(408, 0);
+        JUT_ASSERT(DEMO_SELECT(404, 408), 0);
         result = false;
     } else {
         mpModel = mDoExt_J3DModel__create(data, 0x80000, 0x11000022);
@@ -131,6 +181,9 @@ void daObjYLzou_c::eff_set_slip_smoke_pos() {
 void daObjYLzou_c::eff_smoke_slip_start() {
     static cXyz scl(2.0f, 2.0f, 2.0f);
     eff_set_slip_smoke_pos();
+#if VERSION == VERSION_DEMO
+    scl.set((s16)l_HIO.mSmokeScale, (s16)l_HIO.mSmokeScale, (s16)l_HIO.mSmokeScale);
+#endif
     for (int i = 0; i < 2; ++i) {
         s8 roomNo = fopAcM_GetRoomNo(this);
         JPABaseEmitter* emitter = dComIfGp_particle_setToon(0x2022, &mSmoke[i].mPos, &mSmoke[i].mAngle, &scl, 0xb9, &mSmoke[i], roomNo);
@@ -178,22 +231,43 @@ void daObjYLzou_c::vib_proc() {
     }
     switch (mVibState) {
     case 1:
+#if VERSION == VERSION_DEMO
+        mVibAngle += (s16)l_HIO.mVibAngleStep;
+        mVibAmplitude += l_HIO.mVibAmplitudeStep;
+        if (mVibAmplitude > l_HIO.mVibAmplitudeMax) {
+            mVibAmplitude = l_HIO.mVibAmplitudeMax;
+        }
+#else
         mVibAngle += 0x4000;
         mVibAmplitude += 0.05f;
         if (mVibAmplitude > 0.8f) {
             mVibAmplitude = 0.8f;
         }
+#endif
         break;
     case 2:
+#if VERSION == VERSION_DEMO
+        mVibAngle += (s16)l_HIO.mVibAngleStep;
+        mVibAmplitude -= l_HIO.mVibAmplitudeStep;
+        if (mVibAmplitude < l_HIO.mVibAmplitudeMin) {
+            mVibAmplitude = l_HIO.mVibAmplitudeMin;
+        }
+#else
         mVibAngle += 0x4000;
         mVibAmplitude -= 0.05f;
         if (mVibAmplitude < 0.4f) {
             mVibAmplitude = 0.4f;
         }
+#endif
         break;
     default:
+#if VERSION == VERSION_DEMO
+        mVibAngle += (s16)l_HIO.mVibAngleStep;
+        mVibAmplitude -= 2.0f * l_HIO.mVibAmplitudeStep;
+#else
         mVibAngle += 0x4000;
         mVibAmplitude -= 0.1f;
+#endif
         if (mVibAmplitude < 0.0f) {
             mVibAmplitude = 0.0f;
         }
@@ -223,6 +297,11 @@ cPhs_State daObjYLzou_c::_create() {
             phase = cPhs_ERROR_e;
         }
     }
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mNo < 0) {
+        l_HIO.mNo = mDoHIO_createChild("勇者像", &l_HIO);
+    }
+#endif
     return phase;
 }
 
@@ -230,20 +309,39 @@ cPhs_State daObjYLzou_c::_create() {
 bool daObjYLzou_c::_delete() {
     dComIfG_resDelete(&mPhase, l_arcname);
     eff_smoke_slip_remove();
+#if VERSION == VERSION_DEMO
+    if (mpBgW) {
+        if (mpBgW->ChkUsed()) {
+            dComIfG_Bgsp()->Release(mpBgW);
+        }
+    }
+    if (l_HIO.mNo >= 0) {
+        mDoHIO_deleteChild(l_HIO.mNo);
+        l_HIO.mNo = -1;
+    }
+#else
     if (heap && mpBgW) {
         if (mpBgW->ChkUsed()) {
             dComIfG_Bgsp()->Release(mpBgW);
         }
         mpBgW = NULL;
     }
+#endif
     return true;
 }
 
 /* 00000B7C-00000BD8       .text move_ylzou_demo_start_wait_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_start_wait_act_proc() {
-    if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, home.roomNo) == 1) {
+    if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this)) == 1) {
         setup_action(1);
     }
+#if VERSION == VERSION_DEMO
+    if (l_HIO.m24 == 1) {
+        setup_action(4);
+    } else if (l_HIO.m26 == 1) {
+        setup_action(1);
+    }
+#endif
 }
 
 /* 00000BD8-00000C70       .text demo_regist_wait_act_proc__12daObjYLzou_cFv */
@@ -261,7 +359,11 @@ void daObjYLzou_c::demo_regist_wait_act_proc() {
 
 /* 00000C70-00000D18       .text demo_vib_start_wait_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_vib_start_wait_act_proc() {
+#if VERSION == VERSION_DEMO
+    if (dComIfGp_evmng_existence(mEventIdx)) {
+#else
     if (dComIfGp_getPEvtManager()->getEventData(mEventIdx)) {
+#endif
         int staff = dComIfGp_evmng_getMyStaffId("YLzou");
         if (staff != -1 && !strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff), "Vibrate")) {
             setup_action(mActionIdx + 1);
@@ -271,7 +373,11 @@ void daObjYLzou_c::demo_vib_start_wait_act_proc() {
 
 /* 00000D18-00000E08       .text demo_vib_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_vib_act_proc() {
+#if VERSION == VERSION_DEMO
+    if (dComIfGp_evmng_existence(mEventIdx)) {
+#else
     if (dComIfGp_getPEvtManager()->getEventData(mEventIdx)) {
+#endif
         int staff = dComIfGp_evmng_getMyStaffId("YLzou");
         if (staff != -1 && !strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff), "Move")) {
             setup_action(mActionIdx + 1);
@@ -283,13 +389,35 @@ void daObjYLzou_c::demo_vib_act_proc() {
 /* 00000E08-00000F0C       .text move_ylzou_demo_move_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_move_act_proc() {
     if (current.pos.z < -680.0f + home.pos.z) {
+#if VERSION == VERSION_DEMO
+        if (l_HIO.m24 == 1) {
+            l_HIO.m24 = 0;
+            speedF = 0.0f;
+            mSmokeNext = 0;
+            dComIfGp_getVibration().StopQuake(-1);
+            mVibNext = 0;
+            setup_action(6);
+        } else {
+            l_HIO.m26 = 0;
+            fopAcM_seStartCurrent(this, 0x6a27, 0);
+            setup_action(5);
+        }
+#else
         fopAcM_seStartCurrent(this, 0x6a27, 0);
         setup_action(5);
+#endif
     } else {
+#if VERSION == VERSION_DEMO
+        speedF += l_HIO.mAccel;
+        if (speedF > l_HIO.mMaxSpeed) {
+            speedF = l_HIO.mMaxSpeed;
+        }
+#else
         speedF += 0.1f;
         if (speedF > 6.0f) {
             speedF = 6.0f;
         }
+#endif
         fopAcM_seStartCurrent(this, 0x6226, 0);
     }
 }
@@ -298,12 +426,22 @@ void daObjYLzou_c::move_ylzou_demo_move_act_proc() {
 void daObjYLzou_c::go_up_stairs_demo_move_act_proc() {
     if (current.pos.z > home.pos.z) {
         fopAcM_seStartCurrent(this, 0x6a27, 0);
+#if VERSION == VERSION_DEMO
+        l_HIO.m24 = 0;
+#endif
         setup_action(10);
     } else {
+#if VERSION == VERSION_DEMO
+        speedF += l_HIO.mAccel;
+        if (speedF > l_HIO.mMaxSpeed) {
+            speedF = l_HIO.mMaxSpeed;
+        }
+#else
         speedF += 0.1f;
         if (speedF > 6.0f) {
             speedF = 6.0f;
         }
+#endif
         fopAcM_seStartCurrent(this, 0x6226, 0);
     }
 }
@@ -323,6 +461,12 @@ void daObjYLzou_c::demo_end_wait_act_proc() {
 
 /* 000010A8-000010AC       .text wait_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::wait_act_proc() {
+#if VERSION == VERSION_DEMO
+    if (l_HIO.m25 == 1) {
+        dComIfGs_offEventBit(0x3820);
+        setup_action(0);
+    }
+#endif
 }
 
 /* 000010AC-000010D8       .text move_ylzou_demo_start_wait_act_init_proc__12daObjYLzou_cFv */
@@ -364,7 +508,10 @@ void daObjYLzou_c::move_ylzou_demo_move_act_init_proc() {
 void daObjYLzou_c::demo_end_wait_act_init_proc() {
     speedF = 0.0f;
     mSmokeNext = 0;
-    if (mDemo != 3) {
+#if VERSION > VERSION_DEMO
+    if (mDemo != 3)
+#endif
+    {
         dComIfGp_getVibration().StopQuake(-1);
         dComIfGp_getVibration().StartShock(8, 1, cXyz(0.0f, 1.0f, 0.0f));
     }
@@ -447,6 +594,24 @@ bool daObjYLzou_c::_execute() {
         mpBgW->Move();
     }
     (this->*mAction)();
+#if VERSION == VERSION_DEMO
+    if (l_HIO.m29 == 1) {
+        if (l_HIO.m27 == 1) {
+            mSmokeNext = 1;
+        } else {
+            mSmokeNext = 0;
+        }
+    }
+    if (l_HIO.m2A == 1) {
+        if (l_HIO.m28 == 1) {
+            dComIfGp_getVibration().StartQuake(6, 1, cXyz(0.0f, 1.0f, 0.0f));
+            mVibNext = 1;
+        } else {
+            dComIfGp_getVibration().StopQuake(-1);
+            mVibNext = 0;
+        }
+    }
+#endif
     eff_smoke_proc();
     vib_proc();
     return true;
