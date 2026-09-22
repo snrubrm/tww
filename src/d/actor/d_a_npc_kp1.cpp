@@ -713,8 +713,9 @@ void daNpc_Kp1_c::shadowDraw() {
 }
 
 BOOL daNpc_Kp1_c::_draw() {
-    static const GXColor debugRed = {255, 0, 0, 128};
-    static const GXColor debugBlue = {0, 0, 255, 128};
+    // Unused colors, needed for the .rodata section to match.
+    GXColor red = {0xFF, 0x00, 0x00, 0x80};
+    GXColor blue = {0x00, 0x00, 0xFF, 0x80};
     J3DModel* letter;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
