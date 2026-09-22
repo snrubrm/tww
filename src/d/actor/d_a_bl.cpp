@@ -1597,9 +1597,11 @@ void action_normal_skull(bl_class* i_this) {
         if (i_this->mAcch.ChkGroundHit() || i_this->mAcch.ChkWallHit()) {
             actor->speed.setall(0.0f);
             if (i_this->mEnemyFire.mFireDuration == 0) {
+#if VERSION > VERSION_JPN
                 actor->speedF = 0.0f;
                 actor->health = 0;
                 actor->attention_info.flags = 0;
+#endif
                 i_this->m306 = 0x68;
             }
         }
@@ -1626,8 +1628,13 @@ void action_normal_skull(bl_class* i_this) {
         i_this->mSph.OffTgSetBit();
         i_this->mSph.OffCoSetBit();
         i_this->mSph.ClrTgHit();
+#if VERSION <= VERSION_JPN
+        actor->scale.setall(0.0f);
+        i_this->m31C = 0.0f;
+#else
         i_this->m31C = 0.0f;
         actor->scale.setall(0.0f);
+#endif
         i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1] = 0xB4;
         i_this->m2EE = 0xA;
         i_this->m306++;
@@ -1648,7 +1655,11 @@ void action_normal_skull(bl_class* i_this) {
         break;
     }
 
+#if VERSION <= VERSION_JPN
+    i_this->mYOffset = 24.0f + REG8_F(0);
+#else
     i_this->mYOffset = 24.0f;
+#endif
     skull_atari_check(i_this);
 }
 
