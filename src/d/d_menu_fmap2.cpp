@@ -2275,6 +2275,7 @@ void dMenu_Fmap2_c::changeCmapName() {
     }
 #if VERSION > VERSION_DEMO
 #if VERSION <= VERSION_JPN
+    // Unsigned range test: a signed `cmapNo >= 1 && cmapNo <= 8` compiles to two compares here.
     if ((u32)(cmapNo - 1) <= 7 || cmapNo == 11 || cmapNo == 24 || cmapNo == 36 || cmapNo == 48) {
 #else
     if (cmapNo <= 8) {
