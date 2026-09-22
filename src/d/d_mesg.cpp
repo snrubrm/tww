@@ -1754,14 +1754,14 @@ void dMesg_screenDataItem_c::cornerMove() {
 /* 801E5938-801E5ADC       .text dMesg_initialize__FP14sub_mesg_class */
 void dMesg_initialize(sub_mesg_class* i_Msg) {
     dMesg_gpResourceContainer = new JMessage::TResourceContainer();
-    JUT_ASSERT(2901, dMesg_gpResourceContainer != NULL);
+    JUT_ASSERT(VERSION_SELECT(2901, 2901, 2901, 3015), dMesg_gpResourceContainer != NULL);
 
     dMesg_gpControl = dComIfGp_demo_get()->getMesgControl();
     dMesg_gpSequenceProcessor = new dMesg_tSequenceProcessor(dMesg_gpControl);
-    JUT_ASSERT(2906, dMesg_gpSequenceProcessor != NULL);
+    JUT_ASSERT(VERSION_SELECT(2906, 2906, 2906, 3020), dMesg_gpSequenceProcessor != NULL);
 
     dMesg_gpRenderingProcessor = new dMesg_tRenderingProcessor(dMesg_gpControl);
-    JUT_ASSERT(2909, dMesg_gpRenderingProcessor != NULL);
+    JUT_ASSERT(VERSION_SELECT(2909, 2909, 2909, 3023), dMesg_gpRenderingProcessor != NULL);
 
     dMesg_gpControl->mResourceContainer = dMesg_gpResourceContainer;
     dMesg_gpControl->setSequenceProcessor(dMesg_gpSequenceProcessor);
