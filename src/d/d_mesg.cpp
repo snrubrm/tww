@@ -2195,14 +2195,14 @@ static BOOL dMsg_Delete(sub_mesg_class* i_Msg) {
 static cPhs_State dMsg_Create(msg_class* i_this) {
     sub_mesg_class* i_Msg = (sub_mesg_class*)i_this;
     i_Msg->heap = fopMsgM_createExpHeap(0xb6b5);
-    JUT_ASSERT(3864, i_Msg->heap != NULL);
+    JUT_ASSERT(VERSION_SELECT(3864, 3864, 3864, 3983), i_Msg->heap != NULL);
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(i_Msg->heap);
 
     dMesg_gpFont = mDoExt_getMesgFont();
-    JUT_ASSERT(3869, dMesg_gpFont != NULL);
+    JUT_ASSERT(VERSION_SELECT(3869, 3869, 3869, 3988), dMesg_gpFont != NULL);
 
     dMesg_gpRFont = mDoExt_getRubyFont();
-    JUT_ASSERT(3872, dMesg_gpRFont != NULL);
+    JUT_ASSERT(VERSION_SELECT(3872, 3872, 3872, 3991), dMesg_gpRFont != NULL);
 
     dMesg_initialize(i_Msg);
     dMesg_parse();
