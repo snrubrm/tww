@@ -4713,41 +4713,51 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                             color1.r = 0;
                             color1.g = 0;
                             color1.b = 0;
-                        } else if (temp_r4 < (int)(snow_packet->mEffCount * DEMO_SELECT(0.4f, ratio))) {
-                            f32 tmpk = temp_r4 * 4000;
-                            f32 temp_f2 = std::fabsf(cM_scos(tmpk + (f32)(g_Counter.mCounter0 * DEMO_SELECT(500.0f, spd))));
-                            u32 _69 = 0x45;
-                            color0.r = (f32)_69 + (temp_f2 * ((f32)_255 - (f32)_69));
-                            u32 _60 = 0x3C;
-                            u32 _0 = 0x00;
-                            color0.g = (f32)_60 + (temp_f2 * ((f32)_0 - (f32)_60));
-                            u32 _39 = 0x27;
-                            color0.b = (f32)_39 + (temp_f2 * ((f32)_0 - (f32)_39));
-
-                            u32 _124 = 0x7C;
-                            color1.r = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
-                            color1.g = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
-                            u32 _104 = 0x68;
-                            color1.b = (f32)_104 + (temp_f2 * ((f32)_0 - (f32)_104));
-
-                            temp_f2 *= temp_f2;
-                            color0.r = temp_f2 * (f32)_255;
-                            color0.g = temp_f2 * (f32)_0;
-                            _0 = 0;
-                            color0.b = temp_f2 * (f32)_0;
-
-                            color1.r = temp_f2 * (f32)_255;
-                            color1.g = temp_f2 * (f32)_255;
-                            _0 = 0;
-                            color1.b = temp_f2 * _0;
                         } else {
-                            color0.r = 0x45;
-                            color0.g = 0x3C;
-                            color0.b = 0x27;
+#if VERSION == VERSION_DEMO
+                            f32 ratio;
+                            f32 spd = 500.0f;
+                            ratio = 0.4f;
+#endif
+                            if (temp_r4 < (int)(snow_packet->mEffCount * ratio)) {
+                                f32 tmpk = temp_r4 * 4000;
+                                f32 temp_f2 = std::fabsf(cM_scos(tmpk + (f32)(g_Counter.mCounter0 * spd)));
+                                u32 _69 = 0x45;
+                                color0.r = (f32)_69 + (temp_f2 * ((f32)_255 - (f32)_69));
+                                u32 _60 = 0x3C;
+                                u32 _0 = 0x00;
+                                color0.g = (f32)_60 + (temp_f2 * ((f32)_0 - (f32)_60));
+                                u32 _39 = 0x27;
+                                color0.b = (f32)_39 + (temp_f2 * ((f32)_0 - (f32)_39));
 
-                            color1.r = 0x7C;
-                            color1.g = 0x7C;
-                            color1.b = 0x68;
+                                u32 _124 = 0x7C;
+                                color1.r = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
+                                _124 = 0x7C;
+                                color1.g = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
+                                u32 _104 = 0x68;
+                                color1.b = (f32)_104 + (temp_f2 * ((f32)_0 - (f32)_104));
+
+                                temp_f2 *= temp_f2;
+                                color0.r = temp_f2 * (f32)_255;
+                                color0.g = temp_f2 * (f32)_0;
+                                _0 = 0;
+                                color0.b = temp_f2 * (f32)_0;
+
+                                _255 = 0xFF;
+                                color1.r = temp_f2 * (f32)_255;
+                                _255 = 0xFF;
+                                color1.g = temp_f2 * (f32)_255;
+                                _0 = 0;
+                                color1.b = temp_f2 * _0;
+                            } else {
+                                color0.r = 0x45;
+                                color0.g = 0x3C;
+                                color0.b = 0x27;
+
+                                color1.r = 0x7C;
+                                color1.g = 0x7C;
+                                color1.b = 0x68;
+                            }
                         }
 
                         if (j == 1 || snow_packet->mEff[temp_r4].mStatus == 2) {
