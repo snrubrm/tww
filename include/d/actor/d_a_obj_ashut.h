@@ -9,7 +9,7 @@ namespace daObjAshut {
         enum Mode_e { Mode_UPPER, Mode_U_L, Mode_LOWER, Mode_L_U, Mode_DEMOREQ, Mode_NONE };
         enum Prm_e { PRM_SWSAVE_W = 8, PRM_SWSAVE_S = 0, PRM_EVID_W = 8, PRM_EVID_S = 8 };
     
-        BOOL is_switch() const;
+        BOOL is_switch();
         u8 prm_get_evId() const { return daObj::PrmAbstract(this, PRM_EVID_W, PRM_EVID_S); }
         s32 prm_get_swSave() const { return daObj::PrmAbstract(this, PRM_SWSAVE_W, PRM_SWSAVE_S); }
     

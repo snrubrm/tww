@@ -39,9 +39,8 @@ inline const Attr_c& attr() { return L_attr; }
 const char daObjAshut::Act_c::M_arcname[] = "Ashut";
 Mtx daObjAshut::Act_c::M_tmp_mtx;
 
-inline BOOL daObjAshut::Act_c::is_switch() const {
-    s32 sw = prm_get_swSave();
-    return dComIfGs_isSwitch(sw, home.roomNo);
+inline BOOL daObjAshut::Act_c::is_switch() {
+    return fopAcM_isSwitch(this, prm_get_swSave());
 }
 
 /* 00000078-0000012C       .text CreateHeap__Q210daObjAshut5Act_cFv */
