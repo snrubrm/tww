@@ -920,11 +920,11 @@ void J3DModel::calcBBoard() {
 
 /* 802EF414-802EF5D8       .text prepareShapePackets__8J3DModelFv */
 void J3DModel::prepareShapePackets() {
-    u16 shapeNum = getModelData()->getShapeNum();
+    u16 shapeNum = mModelData->getShapeNum();
 
     for (u16 i = 0; i < shapeNum; i++) {
-        J3DShape *pShape = getModelData()->getShapeNodePointer(i);
-        J3DShapePacket* pkt = getShapePacket(i);
+        J3DShape *pShape = mModelData->getShapeNodePointer(i);
+        J3DShapePacket* pkt = &mpShapePacket[i];
         pkt->setScaleFlagArray(mpScaleFlagArr);
         pkt->setDrawMtx(mpDrawMtxBuf[1]);
         pkt->setNrmMtx(mpNrmMtxBuf[1]);
@@ -932,8 +932,8 @@ void J3DModel::prepareShapePackets() {
     }
 
     for (u16 i = 0; i < shapeNum; i++) {
-        J3DShape *pShape = getModelData()->getShapeNodePointer(i);
-        J3DShapePacket* pkt = getShapePacket(i);
+        J3DShape *pShape = mModelData->getShapeNodePointer(i);
+        J3DShapePacket* pkt = &mpShapePacket[i];
 
         if (checkFlag(J3DMdlFlag_SkinPosCpu))
             pShape->onFlag(J3DShpFlag_SkinPosCpu);
@@ -948,16 +948,15 @@ void J3DModel::prepareShapePackets() {
         if (getMtxCalcMode() == 2)
             pkt->setBaseMtxPtr(&mViewBaseMtx);
         else
-            pkt->setBaseMtxPtr(&j3dSys.mViewMtx);
+            pkt->setBaseMtxPtr((Mtx*)j3dSys.getViewMtx());
     }
 
     if (getModelData()->checkBumpFlag() == 1) {
-        for (s32 i = 0; i < getModelData()->getMaterialNum(); i++) {
-            J3DMaterial* pMaterial = getModelData()->getMaterialNodePointer(i);
-            if (pMaterial->getTexGenBlock()->getNBTScale()->mbHasScale == 1) {
-                u16 shapeIdx = pMaterial->getShape()->getIndex();
-                u32 bumpMtxOffs = pMaterial->getShape()->getBumpMtxOffset();
-                mpShapePacket[shapeIdx].setNrmMtx(mpBumpMtxArr[1][bumpMtxOffs]);
+        for (s32 i = 0; i < mModelData->getMaterialNum(); i++) {
+            J3DMaterial* pMaterial = mModelData->getMaterialNodePointer(i);
+            if (pMaterial->getNBTScale()->mbHasScale == 1) {
+                J3DShapePacket* pkt = &mpShapePacket[pMaterial->getShape()->getIndex()];
+                pkt->setNrmMtx(mpBumpMtxArr[1][pMaterial->getShape()->getBumpMtxOffset()]);
             }
         }
     }
