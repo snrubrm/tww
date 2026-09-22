@@ -1855,6 +1855,20 @@ cXyz dCamera_c::relationalPos(fopAc_ac_c* i_actor1, fopAc_ac_c* i_actor2, cXyz* 
     return ret;
 }
 
+/* 8016C55C-8016C578       .text eyePos__9dCamera_cFP10fopAc_ac_c */
+inline cXyz dCamera_c::eyePos(fopAc_ac_c* i_actor) {
+    return i_actor->eyePos;
+}
+
+/* 8016C5A4-8016C5D0       .text heightOf__9dCamera_cFP10fopAc_ac_c */
+inline f32 dCamera_c::heightOf(fopAc_ac_c* i_actor) {
+    if (is_player(i_actor)) {
+        return ((daPy_py_c*)i_actor)->getHeight();
+    } else {
+        return (i_actor->eyePos.y - i_actor->current.pos.y) * 1.1f;
+    }
+}
+
 /* 801656AC-80165720       .text setDMCAngle__9dCamera_cFv */
 void dCamera_c::setDMCAngle() {
     mDMCSystem.field_0x0 = 1;
@@ -3558,20 +3572,6 @@ bool dCamera_c::followCamera(s32 param_1) {
     }
 
     return true;
-}
-
-/* 8016C55C-8016C578       .text eyePos__9dCamera_cFP10fopAc_ac_c */
-cXyz dCamera_c::eyePos(fopAc_ac_c* i_actor) {
-    return i_actor->eyePos;
-}
-
-/* 8016C5A4-8016C5D0       .text heightOf__9dCamera_cFP10fopAc_ac_c */
-f32 dCamera_c::heightOf(fopAc_ac_c* i_actor) {
-    if (is_player(i_actor)) {
-        return ((daPy_py_c*)i_actor)->getHeight();
-    } else {
-        return (i_actor->eyePos.y - i_actor->current.pos.y) * 1.1f;
-    }
 }
 
 /* 8016C618-8016D824       .text lockonCamera__9dCamera_cFl */
