@@ -14,6 +14,7 @@
 #include "f_op/f_op_camera.h"
 #include "m_Do/m_Do_controller_pad.h"
 #include "m_Do/m_Do_hostIO.h"
+#include "d/d_s_play.h"
 
 class daNpc_Bmsw_HIO_c : public JORReflexible {
 public:
@@ -135,7 +136,11 @@ static BOOL nodeCallBack(J3DNode* node, int calcTiming) {
             static cXyz a_att_pos_offst(0.0f, 0.0f, 0.0f);
             static cXyz a_eye_pos_offst(26.0f, 26.0f, 0.0f);
 
+#if VERSION == VERSION_DEMO
+            int jointNo = joint->getJntNo();
+#else
             u16 jointNo = joint->getJntNo();
+#endif
             mDoMtx_stack_c::copy(model->getAnmMtx(jointNo));
 
             if (jointNo == i_this->m_neck_jnt_num) {
@@ -169,7 +174,11 @@ static BOOL nodeCallBackArm(J3DNode* node, int calcTiming) {
 
         if (i_this != NULL) {
             static cXyz a_eff_pos_offst(0.0f, 0.0f, 0.0f);
+#if VERSION == VERSION_DEMO
+            int jointNo = joint->getJntNo();
+#else
             u16 jointNo = joint->getJntNo();
+#endif
 
             mDoMtx_stack_c::copy(model->getAnmMtx(jointNo));
             if (jointNo == i_this->m_ArmL) {
@@ -247,7 +256,11 @@ static u32 daNpc_Bmsw_getGameEndMsg(s16 rupees) {
 BOOL daNpc_Bmsw_c::initTexPatternAnm(bool i_modify) {
     J3DModelData* modelData = field_0x6D4->getModelData();
 
+#if VERSION == VERSION_DEMO
+    m_head_tex_pattern = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Bmsw", (int)l_btp_ix_tbl[field_0x9D4]);
+#else
     m_head_tex_pattern = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Bmsw", (u16)l_btp_ix_tbl[field_0x9D4]);
+#endif
     JUT_ASSERT(385, m_head_tex_pattern != NULL);
 
     if (!field_0x7F8.init(modelData, m_head_tex_pattern, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, i_modify, FALSE)) {
@@ -634,7 +647,11 @@ void daNpc_Bmsw_c::set_mtx() {
     field_0x6D8->setBaseTRMtx(model->getAnmMtx(m_jnt.getBackboneJntNum()));
 
     if (field_0x9D5 == 6 || field_0x9D5 == 5) {
+#if VERSION == VERSION_DEMO
+        if ((field_0x9D5 == 5 && mpMorfHand->getFrame() < 18.0f + REG10_F(5)) || (field_0x9D5 == 6 && mpMorfHand->getFrame() < 18.0f)) {
+#else
         if ((field_0x9D5 == 5 && mpMorfHand->getFrame() < 18.0f) || (field_0x9D5 == 6 && mpMorfHand->getFrame() < 18.0f)) {
+#endif
             mDoMtx_stack_c::copy(mpMorfHand->getModel()->getAnmMtx(m_handR));
             mDoMtx_stack_c::transM(24.77f, -3.73f, 22.69f);
             mDoMtx_stack_c::XYZrotM(0x45B4, -0x2BE7, 0xE6C);
@@ -1044,7 +1061,11 @@ BOOL daNpc_Bmsw_c::_draw() {
     mDoExt_modelUpdateDL(field_0x6D8);
 
     if (field_0x9D5 == 5 || field_0x9D5 == 6) {
+#if VERSION == VERSION_DEMO
+        g_env_light.settingTevStruct(REG10_S(9), &current.pos, &field_0x6E0);
+#else
         g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &field_0x6E0);
+#endif
 
         field_0x6E0.mColorK0.r = l_HIO.r_1;
         field_0x6E0.mColorK0.g = l_HIO.g_1;
@@ -1108,6 +1129,11 @@ BOOL daNpc_Bmsw_c::_execute() {
 BOOL daNpc_Bmsw_c::_delete() {
     dComIfG_resDelete(&mPhs, "Bmsw");
 
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+#else
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
@@ -1115,6 +1141,7 @@ BOOL daNpc_Bmsw_c::_delete() {
     mSwMail0.SeDelete();
     mSwMail1.SeDelete();
     mSwMail2.SeDelete();
+#endif
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
         l_HIO.mNo = -1;
@@ -1136,9 +1163,15 @@ cPhs_State daNpc_Bmsw_c::_create() {
         fopAcM_create(
             "Btsw",
             fopAcM_GetParam(this),
+#if VERSION == VERSION_DEMO
+            &current.pos,
+            fopAcM_GetRoomNo(this),
+            &current.angle
+#else
             fopAcM_GetPosition_p(this),
             fopAcM_GetRoomNo(this),
             fopAcM_GetAngle_p(this)
+#endif
         );
         return cPhs_ERROR_e;
     }
@@ -1164,7 +1197,7 @@ cPhs_State daNpc_Bmsw_c::_create() {
 /* 00003524-00003CB0       .text CreateHeap__12daNpc_Bmsw_cFv */
 BOOL daNpc_Bmsw_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*) dComIfG_getObjectIDRes("Bmsw", dRes_ID_BMSW_BDL_BM_e);
-    JUT_ASSERT(1499, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(1495, 1499), modelData != NULL);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
@@ -1185,13 +1218,13 @@ BOOL daNpc_Bmsw_c::CreateHeap() {
     }
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(1513, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(1509, 1513), m_jnt.getHeadJntNum() >= 0);
     m_neck_jnt_num = modelData->getJointName()->getIndex("neck");
-    JUT_ASSERT(1515, m_neck_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(1511, 1515), m_neck_jnt_num >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
     m_body_ArmL = modelData->getJointName()->getIndex("armL");
     m_body_ArmR = modelData->getJointName()->getIndex("armR");
-    JUT_ASSERT(1519, m_body_ArmL >= 0 || m_body_ArmR >= 0);
+    JUT_ASSERT(DEMO_SELECT(1515, 1519), m_body_ArmL >= 0 || m_body_ArmR >= 0);
 
     J3DModelData* headModelData = (J3DModelData*) dComIfG_getObjectIDRes("Bmsw", dRes_ID_BMSW_BDL_BMHEAD11_e);
     field_0x6D4 = mDoExt_J3DModel__create(headModelData, 0x80000,0x11020022);
@@ -1222,8 +1255,8 @@ BOOL daNpc_Bmsw_c::CreateHeap() {
     m_ArmR = armModelData->getJointName()->getIndex("armRloc");
     m_handL = armModelData->getJointName()->getIndex("handL");
     m_handR = armModelData->getJointName()->getIndex("handR");
-    JUT_ASSERT(1555, m_ArmL >= 0 || m_ArmR >= 0);
-    JUT_ASSERT(1556, m_handL >= 0 || m_handR >= 0);
+    JUT_ASSERT(DEMO_SELECT(1551, 1555), m_ArmL >= 0 || m_ArmR >= 0);
+    JUT_ASSERT(DEMO_SELECT(1552, 1556), m_handL >= 0 || m_handR >= 0);
 
     J3DModelData* bagModelData = (J3DModelData*) dComIfG_getObjectIDRes("Bmsw", dRes_ID_BMSW_BDL_BM_BAG_e);
     field_0x6D8 = mDoExt_J3DModel__create(bagModelData, 0, 0x11020203);
@@ -1475,12 +1508,25 @@ void SwMail_c::Appear() {
     }
 
     cXyz vec = *field_0x5C;
+#if VERSION == VERSION_DEMO
+    diff = diff * (120.0f + REG10_F(0));
+    vec += diff;
+#else
     diff = diff * 120.0f;
     vec += diff;
+#endif
 
+#if VERSION == VERSION_DEMO
+    vec.y -= 40.0f + REG10_F(1);
+#else
     vec.y -= 40.0f;
+#endif
     field_0x48.x = field_0x4E.x;
+#if VERSION == VERSION_DEMO
+    field_0x48.y = field_0x4E.y + new_y + REG10_S(1);
+#else
     field_0x48.y = field_0x4E.y + new_y;
+#endif
     cLib_addCalcAngleS2(&field_0x48.z, field_0x4E.z, 4, 0x1000);
 
     if (std::abs(cLib_addCalcPos(&field_0x24, vec, 0.25f, 30.0f, 2.5f)) < 2.5f) {
@@ -1504,11 +1550,24 @@ void SwMail_c::Wait() {
     }
 
     field_0x24 = *field_0x5C;
+#if VERSION == VERSION_DEMO
+    diff = diff * (120.0f + REG10_F(0));
+    field_0x24 += diff;
+#else
     diff = diff * 120.0f;
     field_0x24 += diff;
+#endif
 
+#if VERSION == VERSION_DEMO
+    field_0x24.y -= 40.0f + REG10_F(1);
+#else
     field_0x24.y -= 40.0f;
+#endif
+#if VERSION == VERSION_DEMO
+    field_0x48.set((s16)field_0x4E.x, field_0x4E.y + new_y + REG10_S(1), field_0x4E.z + REG10_S(2));
+#else
     field_0x48.set(field_0x4E.x, field_0x4E.y + new_y, field_0x4E.z);
+#endif
     set_mtx();
 }
 
@@ -1528,7 +1587,11 @@ void SwMail_c::Throw() {
         s16 y_angle = cLib_targetAngleY(field_0x58, field_0x5C);
 
         cXyz multVec;
+#if VERSION == VERSION_DEMO
+        cXyz vec(REG10_F(2) - 40.0f, REG10_F(3) - 50.0f, 100.0f * REG10_F(4));
+#else
         cXyz vec(-40.0f, -50.0f, 0.0f);
+#endif
         mDoMtx_stack_c::ZXYrotS(x_angle, y_angle, 0);
         mDoMtx_stack_c::multVec(&vec, &multVec);
         multVec += *field_0x5C;
@@ -1544,14 +1607,26 @@ void SwMail_c::Throw() {
     } else {
         s16 x_angle = cLib_targetAngleX(&field_0x30, field_0x5C);
         field_0x48.x = -x_angle;
+#if VERSION == VERSION_DEMO
+        field_0x48.y += (s16)((field_0x54 * 0x80) + 0x1000);
+#else
         s16 new_y = (field_0x54 * 0x80) + 0x1000;
         field_0x48.y += new_y;
+#endif
         field_0x48.z = 0;
 
         f32 pos_step = cLib_addCalcPos(&field_0x24, field_0x30, 0.5f, l_HIO.field_0x44, 1.0f);
 
+#if VERSION == VERSION_DEMO
+        field_0x4E.x += REG10_S(0) + 4000;
+#else
         field_0x4E.x += 4000;
+#endif
+#if VERSION == VERSION_DEMO
+        field_0x3C.y = (1.0f - cM_scos(field_0x4E.x)) * (20.0f + REG10_F(10));
+#else
         field_0x3C.y = (1.0f - cM_scos(field_0x4E.x)) * 20.0f;
+#endif
 
         if (pos_step < 1.0f) {
             mDoAud_seStart(JA_SE_LETTER_IN_BOX, &field_0x24);
@@ -1592,7 +1667,11 @@ void SwMail_c::End() {
             s16 target;
             if (field_0x24.y > 720.0f) {
                 target = -0x4000;
+#if VERSION == VERSION_DEMO
+                field_0x30.y -= 3.0f + REG10_F(11);
+#else
                 field_0x30.y -= 3.0f;
+#endif
             } else {
                 target = 0;
                 field_0x30.y *= 0.6f;
@@ -1605,7 +1684,11 @@ void SwMail_c::End() {
                 field_0x24.y = 700.0f;
             }
 
+#if VERSION == VERSION_DEMO
+            cLib_addCalcAngleS2(&field_0x48.x, target, 2, 0x800 + REG10_S(3));
+#else
             cLib_addCalcAngleS2(&field_0x48.x, target, 2, 0x800);
+#endif
         }
         field_0x30 *= 0.9f;
         field_0x24 += field_0x30;
@@ -1613,10 +1696,12 @@ void SwMail_c::End() {
     set_mtx_throw();
 }
 
+#if VERSION > VERSION_DEMO
 /* 00004B34-00004B68       .text SeDelete__8SwMail_cFv */
 void SwMail_c::SeDelete() {
     mDoAud_seDeleteObject((Vec*) &field_0x24);
 }
+#endif
 
 /* 00004B68-00004B90       .text move__8SwMail_cFv */
 void SwMail_c::move() {
