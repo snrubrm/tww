@@ -594,6 +594,7 @@ fpc_ProcID fopMsgM_messageSet(u32 i_msgNo);
 fpc_ProcID fopMsgM_scopeMessageSet(u32 i_msgNo);
 int fopMsgM_messageSetDemo(u32 i_msgNo);
 msg_class* fopMsgM_SearchByID(fpc_ProcID i_pid);
+BOOL fopMsgM_IsExecuting(fpc_ProcID i_pid);
 char* fopMsgM_messageGet(char* i_dest, u32 i_msgNo);
 char* fopMsgM_passwordGet(char* i_dest, u32 i_msgNo);
 fpc_ProcID fop_Timer_create(s16 i_procName, u8 i_mode, u16 i_limitTimeMs, u8 i_showType, u8 i_iconType, f32 i_posX, f32 i_posY, f32 i_rupeePosX, f32 i_rupeePosY, fopMsgCreateFunc i_createFunc);

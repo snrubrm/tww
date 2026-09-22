@@ -69,8 +69,10 @@ u8 dMeter_itemMode;
 u8 dMeter_collectMode;
 fpc_ProcID dMeter_windID = fpcM_ERROR_PROCESS_ID_e;
 u8 dMeter_windStatus;
+#if VERSION > VERSION_DEMO
 u8 rupy_soundSetFlag;
 u8 rupy_soundOnFlag;
+#endif
 mapCtrlDisp_c dMeter_mMapCtrlDisp;
 dDlst_2DMETER1_c meter1;
 dDlst_2DMETER2_c meter2;
@@ -3325,6 +3327,13 @@ void dMeter_xyTrans(sub_meter_class* i_Meter) {
         }
         moveStatus = 1;
     } else if (dMenu_flag() && (dMenu_getPushMenuButton() == 1 || (dMenu_getMenuStatus() == 1 && dMenu_getPushMenuButton() == 0))) {
+#if VERSION == VERSION_DEMO
+        if (moveStatus != 2) {
+            moveFlag = 1;
+            dMeter_offBit8(&i_Meter->field_0x3026, 4);
+        }
+        moveStatus = 2;
+#else
         if (dMenu_getItemMode() == 0) {
             if (moveStatus != 2) {
                 moveFlag = 1;
@@ -3338,6 +3347,7 @@ void dMeter_xyTrans(sub_meter_class* i_Meter) {
             }
             moveStatus = 1;
         }
+#endif
     } else {
         if (i_Meter->mStatusFlags & dMtrStts_UNK20_e) {
             if (dMeter_Info.mButtonIconMode == 0 || dMeter_Info.mButtonIconMode == 1 || dMeter_Info.mButtonIconMode == 2 || dMeter_Info.mButtonIconMode == 3) {
@@ -3728,9 +3738,9 @@ void dMeter_enemyInit(sub_meter_class* i_Meter) {
 
 /* 801F7B90-801F80C4       .text dMeter_enemyMove__FP15sub_meter_class */
 void dMeter_enemyMove(sub_meter_class* i_Meter) {
-    dAttention_c* attention = &dComIfGp_getAttention();
+    dAttention_c* attention = &g_dComIfG_gameInfo.play.getAttention();
     stage_stag_info_class* stage_info = dComIfGp_getStageStagInfo();
-    JUT_ASSERT(VERSION_SELECT(7176, 7055, 7176, 7175), stage_info != NULL);
+    JUT_ASSERT(VERSION_SELECT(6950, 7055, 7176, 7175), stage_info != NULL);
     if (attention != NULL) {
         if (!dMenu_flag() && !dComIfGp_event_runCheck() && attention->LockonTarget(0) != NULL && attention->LockonTarget(0)->max_health > 0.0f &&
             dComIfGs_isCollect(4, 1) != 0 && (attention->LockonTruth() & 0xFF) != 0 && attention->LockonTarget(0)->group == fopAc_ENEMY_e &&
@@ -3746,6 +3756,14 @@ void dMeter_enemyMove(sub_meter_class* i_Meter) {
             dMeter_zakoEnemyHide(i_Meter);
         }
     }
+#if VERSION == VERSION_DEMO
+    if (!dMenu_flag() && !dComIfGp_event_runCheck() && dComIfGs_isStageBossDemo() != 0 && dComIfGs_isStageBossEnemy() == 0 &&
+        !(i_Meter->mStatusFlags & dMtrStts_UNK80_e) && !(i_Meter->mStatusFlags & dMtrStts_UNK20000_e) &&
+        (dStage_stagInfo_GetSTType(stage_info) == dStageType_BOSS_e || fopAcM_SearchByName(fpcNm_BDK_e) != NULL) &&
+        dComIfGs_isCollect(4, 1) != 0)
+    {
+        {
+#else
     if (!dMenu_flag() && dComIfGs_isCollect(4, 1) != 0 && !dComIfGp_event_runCheck() &&
         !(i_Meter->mStatusFlags & dMtrStts_UNK80_e) && !(i_Meter->mStatusFlags & dMtrStts_UNK20000_e) &&
         (dStage_stagInfo_GetSTType(stage_info) == dStageType_BOSS_e || fopAcM_SearchByName(fpcNm_BDK_e) != NULL))
@@ -3756,6 +3774,7 @@ void dMeter_enemyMove(sub_meter_class* i_Meter) {
             strcmp(dComIfGp_getStartStageName(), "Xboss2") == 0 ||
             strcmp(dComIfGp_getStartStageName(), "Xboss3") == 0)
         {
+#endif
             fopAc_ac_c* pfVar3;
             if (fopAcM_SearchByName(fpcNm_BTD_e) != NULL) {
                 pfVar3 = fopAcM_SearchByName(fpcNm_BTD_e);
@@ -4133,6 +4152,24 @@ void dMeter_magicGaugeMove(sub_meter_class* i_Meter) {
         dMeter_magicChange(i_Meter, i_Meter->field_0x3016 / 100.0f);
 #endif
     }
+#if VERSION == VERSION_DEMO
+    if (dComIfGp_getItemMaxMagicCount() != 0 || i_Meter->field_0x0f38[2].mUserArea == 0) {
+        sVar4 = dComIfGs_getMaxMagic() + dComIfGp_getItemMaxMagicCount();
+        if (sVar4 > 0x20) {
+            sVar4 = 0x20;
+        }
+        dComIfGs_setMaxMagic(sVar4);
+        g_dComIfG_gameInfo.play.mItemMaxMagicCount = 0;
+        if (dComIfGs_getMaxMagic() <= 0x10) {
+            dMeter_magicLength(i_Meter, 0.5f);
+        } else if (dComIfGs_getMaxMagic() <= 0x18) {
+            dMeter_magicLength(i_Meter, 0.75f);
+        } else {
+            dMeter_magicLength(i_Meter, 1.0f);
+        }
+        i_Meter->field_0x0f38[2].mUserArea = 1;
+    }
+#else
     if (dComIfGp_getItemMaxMagicCount() != 0) {
         sVar4 = dComIfGs_getMaxMagic() + dComIfGp_getItemMaxMagicCount();
         if (sVar4 > 0x20) {
@@ -4141,6 +4178,7 @@ void dMeter_magicGaugeMove(sub_meter_class* i_Meter) {
         dComIfGs_setMaxMagic(sVar4);
         g_dComIfG_gameInfo.play.mItemMaxMagicCount = 0;
     }
+#endif
 #if VERSION > VERSION_DEMO
     if (i_Meter->field_0x3018 != dComIfGs_getMaxMagic() || i_Meter->field_0x0f38[2].mUserArea == 0) {
         if (i_Meter->field_0x3018 < dComIfGs_getMaxMagic()) {
@@ -4361,18 +4399,18 @@ void dMeter_magicTransNowInit(sub_meter_class* i_Meter) {
 
 #if VERSION == VERSION_DEMO
 void dMeter_magicInitTrans(sub_meter_class* i_Meter, f32 param_1, f32 param_2) {
-    /* Nonmatching - regalloc */
+    f32 x = param_1;
     f32 y;
     if (dComIfGs_getMaxLife() <= 0x2B) {
         y = -22.0f + param_2;
     } else {
         y = param_2;
     }
-    fopMsgM_paneTrans(&i_Meter->field_0x10f8, param_1, y);
-    fopMsgM_paneTrans(&i_Meter->field_0x11a0, param_1, y);
-    fopMsgM_paneTrans(&i_Meter->field_0x11d8, param_1, y);
+    fopMsgM_paneTrans(&i_Meter->field_0x10f8, x, y);
+    fopMsgM_paneTrans(&i_Meter->field_0x11a0, x, y);
+    fopMsgM_paneTrans(&i_Meter->field_0x11d8, x, y);
     for (s32 i = 0; i < 8; i++) {
-        fopMsgM_paneTrans(&i_Meter->field_0x0f38[i], param_1, y);
+        fopMsgM_paneTrans(&i_Meter->field_0x0f38[i], x, y);
     }
 }
 #else
@@ -4426,6 +4464,9 @@ void dMeter_magicTransScale(sub_meter_class* i_Meter, f32 param_2, f32 param_3, 
         i_Meter->field_0x0f38[i].mPosCenter.y =
             (param_3 +
              (i_Meter->field_0x11a0.mPosCenterOrig.y + (param_4 * (i_Meter->field_0x0f38[i].mPosCenterOrig.y - i_Meter->field_0x11a0.mPosCenterOrig.y))));
+#if VERSION == VERSION_DEMO
+        fopMsgM_paneScaleXY(&i_Meter->field_0x0f38[i], param_4);
+#else
         i_Meter->field_0x0f38[i].mPosCenter.x -= ((i_Meter->field_0x0f38[i].mSizeOrig.x * param_4) / 2.0f);
         i_Meter->field_0x0f38[i].mSize.x = param_4 * i_Meter->field_0x0f38[i].pane->getWidth();
         i_Meter->field_0x0f38[i].mSize.y = param_4 * i_Meter->field_0x0f38[i].pane->getHeight();
@@ -4433,6 +4474,7 @@ void dMeter_magicTransScale(sub_meter_class* i_Meter, f32 param_2, f32 param_3, 
         fopMsgM_cposMove(&i_Meter->field_0x0f38[i]);
         i_Meter->field_0x0f38[i].mSize.x = i_Meter->field_0x0f38[i].mSizeOrig.x;
         i_Meter->field_0x0f38[i].mSize.y = i_Meter->field_0x0f38[i].mSizeOrig.y;
+#endif
     }
 }
 
@@ -4874,8 +4916,9 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
     dVar12 = dMap_getMapDispPosLeftUpY() - 0x152;
     cXyz* pcVar4 = dKyw_get_wind_vec();
     iVar3 = cM_atan2s(pcVar4->x, pcVar4->z);
+    f32 angle = (iVar3 * 180.0f) / 0x8000;
     i_Meter->field_0x02f8.pane->rotate(
-        i_Meter->field_0x02f8.mSizeOrig.x, i_Meter->field_0x02f8.mSizeOrig.y / 2.0f, ROTATE_Z, (iVar3 * 180.0f) / 0x8000 - 180.0f
+        i_Meter->field_0x02f8.mSizeOrig.x, i_Meter->field_0x02f8.mSizeOrig.y / 2.0f, ROTATE_Z, angle - 180.0f
     );
     fopMsgM_paneTrans(&i_Meter->field_0x02c0, x, y);
     fopMsgM_paneTrans(&i_Meter->field_0x02f8, (dVar13 - 7.0f) + g_meterHIO.field_0x64, (dVar12 + 9.0f) + g_meterHIO.field_0x66);
@@ -4885,6 +4928,17 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
     dVar13 = fopMsgM_valueIncrease(5, 5 - i_Meter->field_0x02c0.mUserArea, 0);
     fopMsgM_setNowAlpha(&i_Meter->field_0x02c0, dVar13);
     dMap_c::setMapAlpha(dVar13 * 255.0f);
+#if VERSION == VERSION_DEMO
+    if (!dKyw_gbwind_use_check()) {
+        fopMsgM_setNowAlphaZero(&i_Meter->field_0x02f8);
+    } else {
+        fopMsgM_setNowAlpha(&i_Meter->field_0x02f8, dVar13);
+    }
+
+    for (s32 i = 0; i < 3; i++) {
+        fopMsgM_setNowAlpha(&i_Meter->field_0x0100[i], dVar13);
+    }
+#else
     if (!dKyw_gbwind_use_check() || dMenu_flag()) {
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x02f8);
     } else {
@@ -4898,27 +4952,32 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
             fopMsgM_setNowAlphaZero(&i_Meter->field_0x0100[i]);
         }
     }
+#endif
 }
 
 /* 801FBB28-801FBC70       .text dMeter_magicLength__FP15sub_meter_classf */
 void dMeter_magicLength(sub_meter_class* i_Meter, f32 param_2) {
+#if VERSION == VERSION_DEMO
+    i_Meter->field_0x10f8.mSize.x = i_Meter->field_0x10f8.mSizeOrig.x * param_2;
+#else
     f32 dVar1 = (i_Meter->field_0x0f38[0].mSizeOrig.x * 8.0f);
     i_Meter->field_0x10f8.mSize.x = (dVar1 * param_2) + (i_Meter->field_0x10f8.mSizeOrig.x - dVar1);
+#endif
     i_Meter->field_0x10f8.mPosCenter.x = i_Meter->field_0x10f8.mPosTopLeftOrig.x + i_Meter->field_0x10f8.mSize.x / 2.0f;
     fopMsgM_cposMove(&i_Meter->field_0x10f8);
     ((MyPicture*)i_Meter->field_0x11a0.pane)->m134 = 1;
     ((MyPicture*)i_Meter->field_0x11a0.pane)->m124 = 0.0f;
     ((MyPicture*)i_Meter->field_0x11a0.pane)->m128 = 0.0f;
-    ((MyPicture*)i_Meter->field_0x11a0.pane)->m12C = 1.6875f;
-    ((MyPicture*)i_Meter->field_0x11a0.pane)->m130 = 0.8125f;
+    ((MyPicture*)i_Meter->field_0x11a0.pane)->m12C = DEMO_SELECT(1.688f, 1.6875f);
+    ((MyPicture*)i_Meter->field_0x11a0.pane)->m130 = DEMO_SELECT(0.8f, 0.8125f);
     i_Meter->field_0x11a0.mSize.x = i_Meter->field_0x10f8.mSize.x + (i_Meter->field_0x11a0.mSizeOrig.x - i_Meter->field_0x10f8.mSizeOrig.x);
     i_Meter->field_0x11a0.mPosCenter.x = i_Meter->field_0x11a0.mPosTopLeftOrig.x + i_Meter->field_0x11a0.mSize.x / 2.0f;
     fopMsgM_cposMove(&i_Meter->field_0x11a0);
     ((MyPicture*)i_Meter->field_0x1130.pane)->m134 = 1;
     ((MyPicture*)i_Meter->field_0x1130.pane)->m124 = 0.0f;
-    ((MyPicture*)i_Meter->field_0x1130.pane)->m128 = 0.0f;
-    ((MyPicture*)i_Meter->field_0x1130.pane)->m12C = 1.6875f;
-    ((MyPicture*)i_Meter->field_0x1130.pane)->m130 = 0.8125f;
+    ((MyPicture*)i_Meter->field_0x1130.pane)->m128 = DEMO_SELECT(0.2f, 0.0f);
+    ((MyPicture*)i_Meter->field_0x1130.pane)->m12C = DEMO_SELECT(1.688f, 1.6875f);
+    ((MyPicture*)i_Meter->field_0x1130.pane)->m130 = DEMO_SELECT(1.0f, 0.8125f);
     i_Meter->field_0x1130.mSize.x = i_Meter->field_0x10f8.mSize.x + (i_Meter->field_0x1130.mSizeOrig.x - i_Meter->field_0x10f8.mSizeOrig.x);
     i_Meter->field_0x1130.mPosCenter.x = i_Meter->field_0x1130.mPosTopLeftOrig.x + i_Meter->field_0x1130.mSize.x / 2.0f;
     fopMsgM_cposMove(&i_Meter->field_0x1130);
@@ -5090,6 +5149,12 @@ void dMeter_rupyInit(sub_meter_class* i_Meter) {
 void dMeter_rupyMove(sub_meter_class* i_Meter) {
     int local_28[4];
     char acStack_38[16];
+#if VERSION == VERSION_DEMO
+    static u8 soundSetFlag = 0;
+    static u8 soundOnFlag = 0;
+#define rupy_soundSetFlag soundSetFlag
+#define rupy_soundOnFlag soundOnFlag
+#endif
 
     if (i_Meter->field_0x19f0[1].mUserArea != dComIfGs_getWalletSize()) {
         dMeter_walletChange(i_Meter);
@@ -5167,6 +5232,10 @@ void dMeter_rupyMove(sub_meter_class* i_Meter) {
     }
     dMeter_rupyAlpha(i_Meter);
 }
+#if VERSION == VERSION_DEMO
+#undef rupy_soundSetFlag
+#undef rupy_soundOnFlag
+#endif
 
 /* 801FC624-801FC85C       .text dMeter_walletChange__FP15sub_meter_class */
 void dMeter_walletChange(sub_meter_class* i_Meter) {
@@ -5305,9 +5374,18 @@ void dMeter_keyMove(sub_meter_class* i_Meter) {
     int local_38[2];
     char acStack_30[24];
 
+#if VERSION == VERSION_DEMO
+    dComIfG_inf_c* info = &g_dComIfG_gameInfo;
+    if (dStage_stagInfo_ChkKeyDisp(info->play.getStage().getStagInfo())) {
+#else
     if (dStage_stagInfo_ChkKeyDisp(dComIfGp_getStageStagInfo())) {
+#endif
         if (dComIfGp_getItemKeyNumCount() != 0) {
+#if VERSION == VERSION_DEMO
+            sVar1 = info->save.getMemory().getBit().getKeyNum() + dComIfGp_getItemKeyNumCount();
+#else
             sVar1 = dComIfGs_getKeyNum() + dComIfGp_getItemKeyNumCount();
+#endif
             if (sVar1 > 99) {
                 sVar1 = 99;
             } else if (sVar1 < 0) {
@@ -5411,8 +5489,10 @@ void dMeter_compassGetOnProc(sub_meter_class* i_Meter) {
         dMeter_compassAnimeMove(i_Meter);
         break;
     }
-    f32 dVar3 = (-(s16)(fopAcM_SearchByName(fpcNm_SHIP_e)->shape_angle.y + 0x8000) * 180.0f) / 0x8000;
-    dMeter_compassRotate(&i_Meter->field_0x1670, &i_Meter->field_0x16a8, (-dComIfGs_getTime() - 90.0f));
+    s16 angle = fopAcM_SearchByName(fpcNm_SHIP_e)->shape_angle.y + 0x8000;
+    f32 dVar3 = (-angle * 180.0f) / 0x8000;
+    f32 time = -dComIfGs_getTime() - 90.0f;
+    dMeter_compassRotate(&i_Meter->field_0x1670, &i_Meter->field_0x16a8, time);
     dMeter_compassRotate(&i_Meter->field_0x1248, &i_Meter->field_0x12f0, dVar3);
     dMeter_compassRotate(&i_Meter->field_0x1280, &i_Meter->field_0x12f0, dVar3);
     dMeter_clockMove(i_Meter);
@@ -5939,9 +6019,11 @@ void dMeter_clockMultiMove(sub_meter_class* i_Meter) {
     for (s32 i = 0; i < 3; i++) {
         s16 sVar4 = i_Meter->field_0x1948.mPosTopLeftOrig.x + i_Meter->field_0x1830.mPosTopLeftOrig.x;
         s16 sVar5 = i_Meter->field_0x1948.mPosTopLeftOrig.y + i_Meter->field_0x1830.mPosTopLeftOrig.y;
+        s16 x2 = sVar4 + i_Meter->field_0x1830.mSizeOrig.x;
+        s16 y2 = sVar5 + i_Meter->field_0x1830.mSizeOrig.y;
         s16 fVar1 = i_Meter->field_0x1868[i].mPosCenter.x;
         s16 fVar2 = i_Meter->field_0x1868[i].mPosCenter.y;
-        clock[i].setPos(sVar4, sVar5, sVar4 + i_Meter->field_0x1830.mSizeOrig.x, sVar5 + i_Meter->field_0x1830.mSizeOrig.y);
+        clock[i].setPos(sVar4, sVar5, x2, y2);
         GXColor color1 = {0xFF, 0xFF, 0xFF, 0xFF};
         clock[i].mBlack.r = color1.r;
         clock[i].mBlack.g = color1.g;
@@ -6238,9 +6320,7 @@ void dMeter_arwMove(sub_meter_class* i_Meter) {
     for (s32 i = 0; i < 2; i++) {
         if (i_Meter->field_0x2f24[i] != NULL) {
             i_Meter->field_0x2f24[i]->playDrawParticle();
-            f32 x = i_Meter->field_0x29b0[1].mPosCenter.x - 320.0f;
-            f32 y = i_Meter->field_0x29b0[1].mPosCenter.y - 240.0f;
-            i_Meter->field_0x2f24[i]->setGlobalTranslation(x, y, 0.0f);
+            i_Meter->field_0x2f24[i]->setGlobalTranslation(i_Meter->field_0x29b0[1].mPosCenter.x - 320.0f, i_Meter->field_0x29b0[1].mPosCenter.y - 240.0f, 0.0f);
             i_Meter->field_0x2f24[i]->setGlobalAlpha(i_Meter->field_0x2940[i].mNowAlpha);
         }
     }
@@ -6745,8 +6825,10 @@ void dMeter_swimMainBlink(sub_meter_class* i_Meter) {
 void dMeter_swimMainDown(sub_meter_class* i_Meter) {
     s16 sVar1;
 
+    s16 max = i_Meter->field_0x2d30.mUserArea;
     sVar1 = (s16)dComIfGp_getItemTimeCount();
-    dMeter_paneBottomScaleY(&i_Meter->field_0x2d30, ((f32)sVar1 / (f32)i_Meter->field_0x2d30.mUserArea));
+    f32 ratio = (f32)sVar1 / (f32)max;
+    dMeter_paneBottomScaleY(&i_Meter->field_0x2d30, ratio);
     i_Meter->field_0x2da0.mPosTopLeft.y =
         (i_Meter->field_0x2d30.mPosCenterOrig.y - i_Meter->field_0x2d30.mSizeOrig.y / 2.0f) - i_Meter->field_0x2d30.mPosTopLeft.y;
     i_Meter->field_0x2da0.mPosCenter.y = i_Meter->field_0x2da0.mPosTopLeft.y + i_Meter->field_0x2da0.mSize.y / 2.0f;
@@ -7027,7 +7109,8 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
             color2.a = (dVar7 * (white[7] - white[3])) + white[3];
             ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setBlack(color1);
             ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setWhite(color2);
-            if (iVar6 == 10) {
+            s16 max = 10;
+            if (max == iVar6) {
                 i_Meter->field_0x2e10[i].mUserArea = 2;
             }
         } else if (i_Meter->field_0x2e10[i].mUserArea == 2) {
@@ -7510,11 +7593,21 @@ static BOOL dMeter_Delete(sub_meter_class* i_Meter) {
     } else {
         g_dComIfG_gameInfo.play.field_0x497a = 1;
     }
+#if VERSION > VERSION_DEMO
     if (rupy_soundOnFlag != 0) {
         mDoAud_seStart(JA_SE_LUPY_INC_CNT_2);
         rupy_soundSetFlag = 0;
         rupy_soundOnFlag = 0;
     }
+#endif
+#if VERSION == VERSION_DEMO
+    if (fopMsgM_IsExecuting(dMeter_windID)) {
+        msg_class* pmVar2 = fopMsgM_SearchByID(dMeter_windID);
+        fopMsgM_Delete(pmVar2);
+        dMeter_windID = fpcM_ERROR_PROCESS_ID_e;
+        dMeter_windStatus = 0;
+    }
+#else
     if (dMeter_windID != fpcM_ERROR_PROCESS_ID_e) {
         if (fopMsgM_SearchByID(dMeter_windID) != NULL) {
             msg_class* pmVar2 = fopMsgM_SearchByID(dMeter_windID);
@@ -7526,6 +7619,7 @@ static BOOL dMeter_Delete(sub_meter_class* i_Meter) {
             dMeter_windStatus = 0;
         }
     }
+#endif
     if (i_Meter->mpRupyParticle != NULL) {
         i_Meter->mpRupyParticle->becomeInvalidEmitter();
         i_Meter->mpRupyParticle->quitImmortalEmitter();
@@ -7568,9 +7662,13 @@ static BOOL dMeter_Delete(sub_meter_class* i_Meter) {
         sScrTimer2 = NULL;
     }
     delete sChoiceRoad;
+#if VERSION > VERSION_DEMO
     sChoiceRoad = NULL;
+#endif
     delete moveItemPane;
+#if VERSION > VERSION_DEMO
     moveItemPane = NULL;
+#endif
     mDoExt_setCurrentHeap(pJVar1);
     fopMsgM_destroyExpHeap(i_Meter->heap);
     mDoHIO_deleteChild(g_meterHIO.mNo);
