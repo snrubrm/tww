@@ -603,7 +603,7 @@ void daMozo_c::setAnm(int i_anm, float i_morf) {
         mode = J3DFrameCtrl::EMode_NONE;
         start = 0.0f;
         end = -1.0f;
-        speed = start;
+        speed = 0.0f;
         break;
     case 1:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
