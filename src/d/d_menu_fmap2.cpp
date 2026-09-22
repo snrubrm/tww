@@ -369,6 +369,38 @@ void dMenu_Fmap2_c::screenSet() {
         field_0x27c0[i] = ((J2DTextBox*)field_0xe1c[i].pane)->getStringPtr();
         field_0x27c0[i][0] = 0;
     }
+#if VERSION == VERSION_PAL
+    f32 nameSizeX;
+    f32 textSizeX;
+    switch (dComIfGs_getPalLanguage()) {
+    case 0:
+        nameSizeX = 23.0f;
+        textSizeX = 20.0f;
+        break;
+    case 1:
+        nameSizeX = 23.0f;
+        textSizeX = 19.0f;
+        break;
+    case 2:
+        nameSizeX = 18.0f;
+        textSizeX = 18.0f;
+        break;
+    case 3:
+        nameSizeX = 18.0f;
+        textSizeX = 19.0f;
+        break;
+    case 4:
+        nameSizeX = 19.0f;
+        textSizeX = 18.0f;
+        break;
+    }
+    for (i = 0; i < 4; i++) {
+        ((J2DTextBox*)field_0x1484[i].pane)->setFontSize(nameSizeX, 27.0f);
+    }
+    for (i = 0; i < 2; i++) {
+        ((J2DTextBox*)field_0xe1c[i].pane)->setFontSize(textSizeX, 26.0f);
+    }
+#endif
 }
 
 /* 801BCC74-801BD258       .text initialize__13dMenu_Fmap2_cFv */
