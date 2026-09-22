@@ -22,14 +22,10 @@ static void hand_draw(sss_class* i_this) {
     fopAc_ac_c* actor = i_this;
     g_env_light.setLightTevColorType(i_this->mpMorf->getModel(), &actor->tevStr);
     i_this->mpMorf->updateDL();
-    GXColor color = {255, 255, 255, 255};
-    GXColor& c = color;
-    i_this->mLine.update(10, c, &actor->tevStr);
+    i_this->mLine.update(10, (GXColor){255, 255, 255, 255}, &actor->tevStr);
     dComIfGd_set3DlineMat(&i_this->mLine);
     if (i_this->mCutLength > 0.1f) {
-        GXColor cutColor = {255, 255, 255, 255};
-        GXColor& c2 = cutColor;
-        i_this->mCutLine.update(5, c2, &actor->tevStr);
+        i_this->mCutLine.update(5, (GXColor){255, 255, 255, 255}, &actor->tevStr);
         dComIfGd_set3DlineMat(&i_this->mCutLine);
     }
 }
