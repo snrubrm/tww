@@ -887,12 +887,12 @@ void J3DModel::calcBumpMtx() {
 /* 802EF2B0-802EF414       .text calcBBoard__8J3DModelFv */
 void J3DModel::calcBBoard() {
     if (getModelData()->checkBBoardFlag()) {
-        for (u16 i = 0; i < getModelData()->getDrawMtxNum(); i++) {
-            if (getModelData()->getDrawMtxFlag(i) != 0)
+        for (u16 i = 0; i < mModelData->getDrawMtxNum(); i++) {
+            if (mModelData->getDrawMtxFlag(i) != 0)
                 continue;
 
-            u8 mtxType = getModelData()->getJointNodePointer(getModelData()->getDrawMtxIndex(i))->getMtxType();
-            if (mtxType == J3DJntMtxType_BBoard) {
+            u16 idx = mModelData->getDrawMtxIndex(i);
+            if (mModelData->getJointNodePointer(idx)->getMtxType() == J3DJntMtxType_BBoard) {
                 Mtx& drawMtx = getDrawMtx(i);
                 J3DCalcBBoardMtx(drawMtx);
                 Mtx33& nrmMtx = getNrmMtx(i);
@@ -908,7 +908,7 @@ void J3DModel::calcBBoard() {
                 nrmMtx[2][0] = 0.0f;
                 nrmMtx[2][1] = 0.0f;
                 nrmMtx[2][2] = 1.0f / drawMtx[2][2];
-            } else if (mtxType == J3DJntMtxType_YBBoard) {
+            } else if (mModelData->getJointNodePointer(idx)->getMtxType() == J3DJntMtxType_YBBoard) {
                 Mtx& drawMtx = getDrawMtx(i);
                 J3DCalcYBBoardMtx(drawMtx);
                 Mtx33& nrmMtx = getNrmMtx(i);
