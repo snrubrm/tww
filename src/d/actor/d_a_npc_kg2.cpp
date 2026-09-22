@@ -139,7 +139,12 @@ void daNpc_Kg2_c::set_mtx() {
     if (mDrawPlate) {
         mDoMtx_stack_c::copy(model->getAnmMtx(m_handL_num));
         mDoMtx_stack_c::transM(23.46f, -22.26f, -47.05f);
+#if VERSION == VERSION_DEMO
+        // The demo passes the unwrapped value 0xB100 here, which only a float -> s16 conversion reproduces.
+        mDoMtx_stack_c::XYZrotM(0x1F4B, cM_deg2s(248.90625f), 0x1F4B);
+#else
         mDoMtx_stack_c::XYZrotM(0x1F4B, -0x4F00, 0x1F4B);
+#endif
         mpPlateModel->setBaseTRMtx(mDoMtx_stack_c::get());
     }
 }
