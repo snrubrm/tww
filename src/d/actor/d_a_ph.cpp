@@ -125,10 +125,8 @@ static BOOL daPH_Draw(ph_class* i_this) {
 
     if (i_this->mEnemyIce.mFreezeTimer > 20) {
         dMat_control_c::iceEntryDL(i_this->mpBodyMorf, -1, &i_this->mBodyInvisibleModel);
-        f32 x = i_this->m02FC.x;
-        f32 zero = 0.0f;
-        if (x != zero) {
-            if (i_this->m037C == zero) {
+        if (i_this->m02FC.x) {
+            if (!i_this->m037C) {
                 dMat_control_c::iceEntryDL(i_this->mpPropellerMorf, -1, &i_this->mPropellerInvisibleModel);
             }
         }
@@ -411,9 +409,7 @@ BOOL body_atari_check(ph_class* i_this) {
         skipAtCheck = 1;
 #endif
         if (i_this->mType == 0) {
-            f32 x = i_this->m02FC.x;
-            f32 zero = 0.0f;
-            if (x != zero && i_this->m037C == zero) {
+            if (i_this->m02FC.x && !i_this->m037C) {
                 actor->stealItemLeft = i_this->m0344;
 #if VERSION > VERSION_JPN
                 if (i_this->m0374 != dRes_INDEX_PH_BCK_PFLY_e) {
@@ -527,9 +523,7 @@ BOOL body_atari_check(ph_class* i_this) {
         }
 #else
         {
-            f32 x = i_this->m02FC.x;
-            f32 zero = 0.0f;
-            if (x != zero) {
+            if (i_this->m02FC.x) {
                 i_this->mPropellerEnemyFire.mFireDuration = 100;
             }
         }
@@ -596,9 +590,7 @@ BOOL body_atari_check(ph_class* i_this) {
         if (i_this->mType == 0) {
             i_this->m0340 = 9;
             skipAtCheck = 1;
-            f32 x = i_this->m02FC.x;
-            f32 zero = 0.0f;
-            if (x != zero && i_this->m037C == zero) {
+            if (i_this->m02FC.x && !i_this->m037C) {
                 dScnPly_ply_c::nextPauseTimer = 2;
                 i_this->m033F = 2;
                 i_this->m0346 = 0x14;
@@ -611,9 +603,7 @@ BOOL body_atari_check(ph_class* i_this) {
         break;
     case AT_TYPE_BOOMERANG:
         if (i_this->m033F != 2) {
-            f32 x = i_this->m02FC.x;
-            f32 zero = 0.0f;
-            if (x != zero && i_this->m037C == zero) {
+            if (i_this->m02FC.x && !i_this->m037C) {
                 i_this->m0340 = 4;
                 mDoAud_onEnemyDamage();
                 dScnPly_ply_c::nextPauseTimer = 2;
@@ -764,10 +754,8 @@ void shibuki_set(ph_class* i_this, cXyz pos, float scale) {
     if (i_this->m033F == 2) {
         fopAcM_seStart(i_this, JA_SE_CM_SH_LANDING_SEA, 0);
     } else {
-        f32 x = i_this->m02FC.x;
-        f32 zero = 0.0f;
-        if (x != zero) {
-            if (i_this->m037C == zero) {
+        if (i_this->m02FC.x) {
+            if (!i_this->m037C) {
                 fopAcM_seStart(i_this, JA_SE_CM_SH_RIPPLE, 0);
             }
         }
@@ -2057,10 +2045,8 @@ void BG_check(ph_class* i_this) {
 
     if (i_this->mType == 0) {
         f32 wallR = 40.0f;
-        f32 x = i_this->m02FC.x;
-        f32 zero = 0.0f;
-        if (x != zero) {
-            if (i_this->m037C == zero) {
+        if (i_this->m02FC.x) {
+            if (!i_this->m037C) {
                 wallR = 100.0f;
             }
         }
@@ -2137,10 +2123,8 @@ static BOOL daPH_Execute(ph_class* i_this) {
     if (enemy_ice(&i_this->mEnemyIce)) {
         i_this->mpBodyMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::now);
         i_this->mpBodyMorf->calc();
-        f32 x = i_this->m02FC.x;
-        f32 zero = 0.0f;
-        if (x != zero) {
-            if (i_this->m037C == zero) {
+        if (i_this->m02FC.x) {
+            if (!i_this->m037C) {
                 if (i_this->mType == 1) {
                     i_this->m02FC.setall(i_this->m03A0);
                 } else {
