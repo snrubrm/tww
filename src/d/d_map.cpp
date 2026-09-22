@@ -2933,6 +2933,160 @@ void dMap_c::drawPointShip(f32 param_1, f32 param_2, s16 param_3, f32 param_4, f
 #endif
 
 /* 8004C144-8004CC7C       .text drawPointGc__6dMap_cFUcfffScsUcUcUcUc */
+#if VERSION == VERSION_DEMO
+void dMap_c::drawPointGc(u8 kind, f32 posX, f32 posY, f32 posZ, s8 roomNo, s16 angle, u8 param_7, u8 gbaName, u8 param_9, u8 gcName) {
+    if (kind == MAP_POINT_NONE) return;
+
+    if (mNowRoomInfoP == NULL || mNowRoomInfoP->getEnableFlg() == 0) {
+        return;
+    }
+
+    if (roomNo != -1 && roomNo != mNowRoomInfoP->getRoomNo()){
+        return;
+    }
+
+    u8 floorNo = dMap_GetFloorNo_WithRoom(roomNo, posY);
+
+    if (kind != MAP_POINT_PLAYER && kind != MAP_POINT_AGB_CURSOR && (IsFloorNo(floorNo) == 0 || IsFloorNo(mNowFloorNo) == 0 || mNowFloorNo != floorNo)) {
+        return;
+    }
+
+    if (mMapDispMode == MAP_DISP_MINI && kind != MAP_POINT_PLAYER &&
+        kind != MAP_POINT_AGB_CURSOR && kind != MAP_POINT_TBOX && kind != MAP_POINT_DOOR &&
+        kind != MAP_POINT_RESTART && kind != MAP_POINT_SHIP && kind != MAP_POINT_FRIEND) return;
+
+    s16 dispX = mNowScaleX * (posX - mNowCenterX);
+    s16 dispY = mNowScaleZ * (posZ - mNowCenterZ);
+
+    u8 size;
+    if (kind == MAP_POINT_AGB_CURSOR) {
+        size = 0x10;
+    } else {
+        size = 4;
+    }
+    u8 halfSize = size / 2;
+
+    if ((s16)dispX + halfSize >= -MAP_VIEW_HALF && dispX - halfSize <= MAP_VIEW_HALF && dispY + halfSize >= -MAP_VIEW_HALF && dispY - halfSize <= MAP_VIEW_HALF) {
+
+        dispX += (s16)(mDispPosLeftUpX + MAP_VIEW_CENTER);
+        dispY += (s16)(mDispPosLeftUpY + MAP_VIEW_CENTER);
+
+
+        switch (kind) {
+            case MAP_POINT_PLAYER:
+                drawPointPlayer(dispX, dispY, angle);
+                break;
+
+            case MAP_POINT_ENEMY:
+                if (getKindMapType() == MAP_KIND_DUNGEON && dComIfGs_isDungeonItemCompass()) {
+                    drawPointEnemy(dispX, dispY);
+                    }
+                    break;
+            case MAP_POINT_ENEMY_ID:
+                if (getKindMapType() == MAP_KIND_UNK) {
+                    if (gcName == 0x18) {
+                        drawPointEnemy(dispX, dispY);
+                    }
+                } else if (getKindMapType() == MAP_KIND_DUNGEON) {
+                    if (gcName == 0x17) {
+                        if (dComIfGs_isDungeonItemCompass()) {
+                            drawPointEnemy(dispX, dispY);
+                        }
+                    } else {
+                        drawPointEnemy(dispX, dispY);
+                    }
+                }
+                break;
+            case MAP_POINT_SHIP:
+                if (getKindMapType() == MAP_KIND_DUNGEON) {
+                    if (mMapDispMode == MAP_DISP_FULL) {
+                        drawPointShip(dispX, dispY, angle, g_mapHIO.field_0x50, g_mapHIO.field_0x54);
+                    } else {
+                        drawPointShip(dispX, dispY, angle, g_mapHIO.field_0x58, g_mapHIO.field_0x5c);
+                    }
+                } else if (getKindMapType() == MAP_KIND_UNK) {
+                    if (mMapDispMode == MAP_DISP_FULL) {
+                        drawPointShip(dispX, dispY, angle, g_mapHIO.field_0x60, g_mapHIO.field_0x64);
+                    } else {
+                        drawPointShip(dispX, dispY, angle, g_mapHIO.field_0x68, g_mapHIO.field_0x6c);
+                    }
+                }
+                break;
+            case MAP_POINT_AGB_CURSOR:
+                if (param_7 == 0) {
+                    drawPointAgbCursor(dispX, dispY);
+                }
+                break;
+            case MAP_POINT_TBOX:
+                if (param_7 != 0xF && param_7 != 0x10) {
+                    if (getKindMapType() == MAP_KIND_DUNGEON) {
+                        if (dComIfGs_isDungeonItemCompass()) {
+                            if (mMapDispMode == MAP_DISP_FULL) {
+                                drawPointTbox(dispX, dispY, g_mapHIO.field_0x78, g_mapHIO.field_0x7c);
+                            } else {
+                                drawPointTbox(dispX, dispY, g_mapHIO.field_0x80, g_mapHIO.field_0x84);
+                            }
+                        }
+                    } else if (getKindMapType() == MAP_KIND_UNK && mMapDispMode == MAP_DISP_FULL) {
+                        drawPointTbox(dispX, dispY, g_mapHIO.field_0x78, g_mapHIO.field_0x7c);
+                    }
+                }
+                break;
+            case MAP_POINT_DOOR:
+                if (getKindMapType() == MAP_KIND_DUNGEON) {
+                    if (mMapDispMode == MAP_DISP_FULL) {
+                        drawPointDoor(dispX, dispY, g_mapHIO.field_0x90, g_mapHIO.field_0x94, angle, mCompAlpha);
+                    } else {
+                        drawPointDoor(dispX, dispY, g_mapHIO.field_0x98, g_mapHIO.field_0x9c, angle, mAlpha);
+                    }
+                } else if (getKindMapType() == MAP_KIND_UNK) {
+                    if (mNowRoomInfoP->getRoomNo() == 1) {
+                        if (mMapDispMode == MAP_DISP_FULL) {
+                            drawPointDoor(dispX, dispY, g_mapHIO.field_0x90, g_mapHIO.field_0x94, angle, mCompAlpha);
+                        } else {
+                            drawPointDoor(dispX, dispY, g_mapHIO.field_0x98, g_mapHIO.field_0x9c, angle, mAlpha);
+                        }
+                    } else if (mMapDispMode == MAP_DISP_FULL) {
+                        drawPointDoor(dispX, dispY, g_mapHIO.field_0xa0, g_mapHIO.field_0xa4, angle, mAlpha);
+                    }
+                }
+                break;
+            case MAP_POINT_RESTART:
+                if (getKindMapType() == MAP_KIND_DUNGEON) {
+                    if (mMapDispMode == MAP_DISP_FULL) {
+                        drawPointRestart(dispX, dispY, angle, g_mapHIO.field_0xac, g_mapHIO.field_0xb0);
+                    } else {
+                        drawPointRestart(dispX, dispY, angle, g_mapHIO.field_0xb4, g_mapHIO.field_0xb8);
+                    }
+                } else if (getKindMapType() == MAP_KIND_UNK) {
+                    if (mMapDispMode == MAP_DISP_FULL) {
+                        drawPointRestart(dispX, dispY, angle, g_mapHIO.field_0xbc, g_mapHIO.field_0xc0);
+                    } else {
+                        drawPointRestart(dispX, dispY, angle, g_mapHIO.field_0xc4, g_mapHIO.field_0xc8);
+                    }
+                }
+                break;
+            case MAP_POINT_FRIEND:
+                if (getKindMapType() == MAP_KIND_DUNGEON) {
+                    if (dComIfGs_isDungeonItemCompass()) {
+                        if (mMapDispMode == MAP_DISP_FULL) {
+                            drawPointFriend(dispX, dispY, g_mapHIO.field_0xd4);
+                        } else {
+                            drawPointFriend(dispX, dispY, g_mapHIO.field_0xd8);
+                        }
+                    }
+                } else if (getKindMapType() == MAP_KIND_UNK) {
+                    if (mMapDispMode == MAP_DISP_FULL) {
+                        drawPointFriend(dispX, dispY, g_mapHIO.field_0xdc);
+                    } else {
+                        drawPointFriend(dispX, dispY, g_mapHIO.field_0xe0);
+                    }
+                }
+                break;
+            }
+    }
+}
+#else
 void dMap_c::drawPointGc(u8 kind, f32 posX, f32 posY, f32 posZ, s8 roomNo, s16 angle, u8 param_7, u8 gbaName, u8 param_9, u8 gcName) {
     if (kind == MAP_POINT_NONE) return;
 
@@ -3085,13 +3239,18 @@ void dMap_c::drawPointGc(u8 kind, f32 posX, f32 posY, f32 posZ, s8 roomNo, s16 a
             }
     }
 }
+#endif
 
 /* 8004CC7C-8004CD68       .text drawPointMain__6dMap_cFUcUcfffScsUcUcUcUc */
 void dMap_c::drawPointMain(u8 pointType,u8 param_2, f32 posX,f32 posY, f32 posZ,s8 param_6,s16 param_7,u8 param_8,u8 mGbaName,u8 param_10,u8 param_11)
 {
+#if VERSION == VERSION_DEMO
+    drawPointAgb(pointType, posX, posY, posZ, param_6, param_7, param_8, mGbaName, param_10, param_11);
+#else
     if (mDoGaC_GbaLink() != 0 && mDoGac_SendStatusCheck(3) != 0) {
         drawPointAgb(pointType, posX, posY, posZ, param_6, param_7, param_8, mGbaName, param_10, param_11);
     }
+#endif
     drawPointGc(param_2, posX, posY, posZ, param_6, param_7, param_8, mGbaName, param_10, param_11);
 }
 
