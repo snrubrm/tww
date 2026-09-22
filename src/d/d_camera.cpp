@@ -5638,6 +5638,8 @@ bool dCamera_c::hookshotCamera(s32 param_1) {
 
 /* 80173E40-80174E98       .text tornadoCamera__9dCamera_cFl */
 bool dCamera_c::tornadoCamera(s32 param_1) {
+    f32 offsetX = -200.0f;
+    f32 offsetY = 500.0f;
     f32 val5 = mCamParam.Val(param_1, 5);
     f32 val0 = mCamParam.Val(param_1, 0);
     f32 val1 = mCamParam.Val(param_1, 1);
@@ -5768,8 +5770,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         } else {
             ry = dCamMath::rationalBezierRatio(mStickCPosYLast, 1.0f);
         }
-        f32 offsetX = -200.0f;
-        f32 offsetY = 500.0f;
+
         work->m398.x += 0.25f * (ratio * offsetX - work->m398.x);
         work->m398.y += 0.25f * (ry * offsetY - work->m398.y);
         posOffset.x += work->m398.x;
