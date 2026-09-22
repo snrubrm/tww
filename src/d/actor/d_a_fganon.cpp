@@ -976,7 +976,7 @@ void fail(fganon_class* i_this) {
             linChk.Set(&offset, &transformedPos, a_this);
 
             MtxP mtx = i_this->mpMorf->getModel()->getAnmMtx(BPG_JNT_J_BPG_ITEM1_e);
-            cMtx_copy(mtx, *calc_mtx);
+            MTXCopy(mtx, *calc_mtx);
             
             offset.x = 0.0f;
             offset.y = 0.0f;
