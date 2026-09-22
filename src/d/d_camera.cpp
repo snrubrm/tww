@@ -4904,7 +4904,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
             mWork.subject.m38C = 0.0f;
 
             mWork.subject.m39C = mViewCache.mFovy;
-            *(int*)&mWork.subject.m398 = 0;
+            mWork.subject.m398 = 0;
             mWork.subject.m390 = 0.0f;
         }
 
