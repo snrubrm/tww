@@ -7,6 +7,7 @@
 #include "d/d_map.h"
 #include "d/actor/d_a_agb.h"
 #include "d/d_com_inf_game.h"
+#include "d/d_door.h"
 #include "d/d_stage.h"
 #include "dolphin/gx/GX.h"
 #include "dolphin/gx/GXEnum.h"
@@ -3478,7 +3479,7 @@ void dMap_c::drawActorPointMiniMap(fopAc_ac_c* actor) {
         angle = actor->shape_angle.y;
     } else if (agbType == 0x11) {
         if (acsType != 0xB) {
-            roomNo = *(s8*)((u8*)actor + 0x2CC);
+            roomNo = ((dDoor_info_c*)actor)->mRoomNo;
         }
         angle = actor->home.angle.y;
     } else if (agbType == 1) {
