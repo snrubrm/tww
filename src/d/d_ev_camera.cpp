@@ -2158,7 +2158,7 @@ bool dCamera_c::maptoolIdEvCamera() {
     }
 
     int mapToolId;
-    int roomNo = *(s8*)&mEventData.field_0xec->field_0x14;
+    int roomNo = mEventData.field_0xec->field_0x14;
     mapToolId = mEventData.field_0xec->field_0x10;
     u32 seTimer = -1;
     if (mEventData.field_0xec->field_0x12 != 0xFF) {
