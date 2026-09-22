@@ -150,7 +150,7 @@ void daNpc_Kp1_c::playTexPatternAnm() {
         advance = cLib_calcTimer(&mBlinkTimer) ? false : true;
     }
     if (advance) {
-        int end = m_head_tex_pattern->getFrameMax();
+        s16 end = m_head_tex_pattern->getFrameMax();
         if (++mBtpFrame >= end) {
             if (mTexNo != 0) {
                 mBtpFrame = m_head_tex_pattern->getFrameMax();
@@ -679,7 +679,7 @@ u8 daNpc_Kp1_c::demo() {
     } else {
         mDemo = 1;
         dDemo_actor_c* actor = dComIfGp_demo_getActor(demoActorID);
-        int end = m_head_tex_pattern->getFrameMax();
+        s16 end = m_head_tex_pattern->getFrameMax();
         if (++mBtpFrame >= end) {
             mBtpFrame = m_head_tex_pattern->getFrameMax();
         }
@@ -715,6 +715,7 @@ void daNpc_Kp1_c::shadowDraw() {
 BOOL daNpc_Kp1_c::_draw() {
     static const GXColor debugRed = {255, 0, 0, 128};
     static const GXColor debugBlue = {0, 0, 255, 128};
+    J3DModel* letter;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     g_env_light.settingTevStruct(0, &current.pos, &tevStr);
@@ -722,7 +723,6 @@ BOOL daNpc_Kp1_c::_draw() {
     mBtp.entry(data, mBtpFrame);
     mpMorf->entryDL();
     mBtp.remove(data);
-    J3DModel* letter;
     switch (mLetterMode) {
     case 1:
         letter = mpLetterModel;
@@ -770,9 +770,16 @@ BOOL daNpc_Kp1_c::_execute() {
 
 BOOL daNpc_Kp1_c::_delete() {
     dComIfG_resDelete(&mPhase, "Kp");
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+    l_HIO.removeHIO();
+#else
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return TRUE;
 }
 
@@ -781,14 +788,21 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 }
 
 cPhs_State daNpc_Kp1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Kp1_c);
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, "Kp");
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
     }
-    if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
+    int type = fopAcM_GetParam(this) & 0xFF;
+    if (!decideType(type)) {
         return cPhs_ERROR_e;
     }
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("金持ちマギ−");
+    fopAcM_SetupActor(this, daNpc_Kp1_c);
+#endif
     static u32 a_heap_size_tbl[] = {0x272E0};
     if (fopAcM_entrySolidHeap(this, CheckCreateHeap, a_heap_size_tbl[mType])) {
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -802,27 +816,27 @@ cPhs_State daNpc_Kp1_c::_create() {
 
 int daNpc_Kp1_c::CreateHeap() {
     J3DModelData* a_mdl_data = (J3DModelData*)dComIfG_getObjectIDRes("Kp", dRes_ID_KP_BDL_KP_e);
-    JUT_ASSERT(0x62C, a_mdl_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x627, 0x62C), a_mdl_data != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_data, NULL, NULL,
     (J3DAnmTransform*)dComIfG_getObjectIDRes("Kp", dRes_ID_KP_BCK_WAIT01_e),
     J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, 1, NULL, 0x80000, 0x11020002);
     if (mpMorf != NULL) {
         if (mpMorf->getModel() != NULL) {
             m_head_jnt_num = a_mdl_data->getJointName()->getIndex("head");
-            JUT_ASSERT(0x63F, m_head_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(0x63A, 0x63F), m_head_jnt_num >= 0);
             m_backbone_jnt_num = a_mdl_data->getJointName()->getIndex("backbone");
-            JUT_ASSERT(0x641, m_backbone_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(0x63C, 0x641), m_backbone_jnt_num >= 0);
             m_handL_jnt_num = a_mdl_data->getJointName()->getIndex("handL");
-            JUT_ASSERT(0x643, m_handL_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(0x63E, 0x643), m_handL_jnt_num >= 0);
             static s8 a_tex_pattern_num_tbl[] = {0};
             mTexNo = a_tex_pattern_num_tbl[mType];
             if (initTexPatternAnm(false)) {
                 J3DModelData* a_itm_mdl_data = (J3DModelData*)dComIfG_getObjectIDRes("Kp", dRes_ID_KP_BDL_LT_01_e);
-                JUT_ASSERT(0x655, a_itm_mdl_data != 0);
+                JUT_ASSERT(DEMO_SELECT(0x650, 0x655), a_itm_mdl_data != 0);
                 mpLetterModel = mDoExt_J3DModel__create(a_itm_mdl_data, 0x80000, 0x11000002);
                 if (mpLetterModel != NULL) {
                     a_itm_mdl_data = (J3DModelData*)dComIfG_getObjectIDRes("Kp", dRes_ID_KP_BDL_LT_02_e);
-                    JUT_ASSERT(0x65F, a_itm_mdl_data != 0);
+                    JUT_ASSERT(DEMO_SELECT(0x65A, 0x65F), a_itm_mdl_data != 0);
                     mpOpenLetterModel = mDoExt_J3DModel__create(a_itm_mdl_data, 0x80000, 0x11000002);
                     if (mpOpenLetterModel != NULL) {
                         for (u16 i = 0; i < a_mdl_data->getJointNum(); i++) {
@@ -832,7 +846,7 @@ int daNpc_Kp1_c::CreateHeap() {
                         }
                         mpMorf->getModel()->setUserArea((u32)this);
                         mAcchCir.SetWall(30.0f, 60.0f);
-                        mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+                        mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
                         return TRUE;
                     }
                 }
