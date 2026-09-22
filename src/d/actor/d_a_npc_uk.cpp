@@ -788,7 +788,7 @@ void daNpc_Uk_c::setAttention(bool force) {
 u8 daNpc_Uk_c::getLookBackMode() {
     daNpc_Mk_c* leader = (daNpc_Mk_c*)fopAcM_SearchByID(mLeaderID);
 
-    if (leader != NULL && (int)(u8)mState == 2) {
+    if (leader != NULL && mState == 2) {
         if (mVisitMode == 8 || mVisitMode == 4) {
             return 3;
         }
@@ -818,7 +818,7 @@ u8 daNpc_Uk_c::getLookBackMode() {
         return 1;
     }
 
-    if ((int)(u8)mState == 2 && (mVisitMode == 6 || mVisitMode == 7)) {
+    if (mState == 2 && (mVisitMode == 6 || mVisitMode == 7)) {
         return 1;
     }
 
@@ -893,7 +893,7 @@ void daNpc_Uk_c::lookBack() {
 
 /* 0000218C-00002254       .text getStaffName__10daNpc_Uk_cFv */
 char* daNpc_Uk_c::getStaffName() {
-    if ((int)(u8)mType == TYPE_MINIGAME) {
+    if (mType == TYPE_MINIGAME) {
         switch (getShapeType()) {
         case 0:
             return "UkB2";
@@ -1279,7 +1279,7 @@ bool daNpc_Uk_c::runaway() {
         setFlag(0x20);
     }
 
-    if ((int)(u8)mAnmIdx == 4) {
+    if (mAnmIdx == 4) {
         cLib_chaseF(&speedF, mMkStatic.getSpeedF(15.0f, 18.0f), 2.8f);
     }
 
@@ -1764,7 +1764,7 @@ BOOL daNpc_Uk_c::hind_action(void*) {
     } else if (mActionStatus != ACTION_ENDING) {
         clrFlag(0x60);
 
-        if ((int)(u8)mType == TYPE_MINIGAME && chkGameStart()) {
+        if (mType == TYPE_MINIGAME && chkGameStart()) {
             setAction(&daNpc_Uk_c::seek_action, NULL);
             clrFlag(0x10);
             fopAcM_OnStatus(this, fopAcStts_SHOWMAP_e);
