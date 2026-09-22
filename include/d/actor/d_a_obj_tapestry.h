@@ -111,8 +111,8 @@ class daObjTapestryDrawData_c {
 public:
     daObjTapestryDrawData_c();
 
-    u8* dl() { return mDl; }
-    const u8* dl() const { return mDl; }
+    u8* dl() { return m_dl; }
+    const u8* dl() const { return m_dl; }
     u32 dl_size() const { return 0x185; }
     f32* tex_coord() { return &mTex[0][0][0]; }
 
@@ -121,7 +121,7 @@ public:
 
 public:
     /* 0x000 */ f32 mTex[8][6][2];
-    /* 0x180 */ u8 mDl[0x1A0] __attribute__((aligned(32)));
+    /* 0x180 */ u8 m_dl[0x1A0] __attribute__((aligned(32)));
 };  // Size: 0x320
 
 STATIC_ASSERT(sizeof(daObjTapestryDrawData_c) == 0x320);

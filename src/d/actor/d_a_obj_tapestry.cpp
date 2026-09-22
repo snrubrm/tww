@@ -458,13 +458,15 @@ void daObjTapestryDrawData_c::ct_tex() {
     }
 }
 
+static const int l_dl_size = 0x185;
+
 /* 000006C8-00000878       .text ct_dl__23daObjTapestryDrawData_cFv */
 void daObjTapestryDrawData_c::ct_dl() {
     static const u8 begin_data[] = {0x98, 0x00, 0x0C};
     int now = 0;
     u8 idx8;
     for (int y = 0; y < 7; y++) {
-        memcpy(mDl + now, begin_data, 3);
+        memcpy(m_dl + now, begin_data, 3);
         int idx_base[2] = {0, 0};
         idx_base[0] = y * 6;
         idx_base[1] = (y + 1) * 6;
@@ -476,31 +478,23 @@ void daObjTapestryDrawData_c::ct_dl() {
                 idx8 = idx;
                 tmp[0] = idx;
                 tmp[1] = idx8;
-                memcpy(mDl + now, tmp, 2);
+                memcpy(m_dl + now, tmp, 2);
                 static const u8 tmp_clr[1] = {0};
                 int n2 = now + 2;
-                memcpy(&mDl[n2], tmp_clr, 1);
+                memcpy(&m_dl[n2], tmp_clr, 1);
                 u8 b[1] = {0};
                 b[0] = idx8;
                 int n3 = now + 3;
-                memcpy(&mDl[n3], b, 1);
+                memcpy(&m_dl[n3], b, 1);
                 now += 4;
             }
         }
     }
     for (int i = 0; i < 0x20; i++) {
-        mDl[now++] = 0;
+        m_dl[now++] = 0;
     }
-    ((reinterpret_cast<u32>(mDl) & 0x1f) == 0)
-        ? (void)0
-        : (JUTAssertion::showAssert(JUTAssertion::getSDevice(), "d_a_obj_tapestry.cpp", 0x25A,
-                                    "(reinterpret_cast<u32>(m_dl) & 0x1f) == 0"),
-           OSPanic("d_a_obj_tapestry.cpp", 0x25A, "Halt"));
-    (now == 0x185)
-        ? (void)0
-        : (JUTAssertion::showAssert(JUTAssertion::getSDevice(), "d_a_obj_tapestry.cpp", 0x25B,
-                                    "now == l_dl_size"),
-           OSPanic("d_a_obj_tapestry.cpp", 0x25B, "Halt"));
+    JUT_ASSERT(0x25A, (reinterpret_cast<u32>(m_dl) & 0x1f) == 0);
+    JUT_ASSERT(0x25B, now == l_dl_size);
 }
 
 /* 00000878-00000C44       .text __ct__21daObjTapestryPacket_cFv */
