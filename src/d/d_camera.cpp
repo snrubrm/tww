@@ -4814,8 +4814,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
             end = 10;
         }
 
-        const int framesLeft = end - m108;
-        const f32 t = 1.0f / (f32)framesLeft;
+        const f32 t = 1.0f / (f32)(int)(end - m108);
 
         cXyz targetPos;
 
@@ -4875,7 +4874,11 @@ bool dCamera_c::subjectCamera(s32 param_1) {
                     mViewCache.mFovy = mWork.subject.m3A0 + p1 * (mWork.subject.m39C - mWork.subject.m3A0);
                 }
             } else {
+#if VERSION == VERSION_DEMO
+                if (m108 >= (u32)(end - 6) - 1) {
+#else
                 if (m108 >= (u32)(end - 7)) {
+#endif
                     if (check_owner_action(mPadId, daPyStts0_TELESCOPE_LOOK_e)) {
                         setComStat(dCamAttnStts_TELESCOPE_LOOK_e);
                     }
@@ -5022,13 +5025,10 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         // zoom control block
         f32 a = 0.0f;
         f32 b = 0.0f;
-        p1 = mStickCPosYLast;
-        bool stickPos = p1 > 0.0f;
-        if (stickPos) {
-            a = dCamMath::rationalBezierRatio(p1, mCamSetup.mCurveWeight);
-        }
-        if (!stickPos) {
-            b = dCamMath::rationalBezierRatio(-p1, mCamSetup.mCurveWeight);
+        if (mStickCPosYLast > 0.0f) {
+            a = dCamMath::rationalBezierRatio(mStickCPosYLast, mCamSetup.CurveWeight());
+        } else {
+            b = dCamMath::rationalBezierRatio(-mStickCPosYLast, mCamSetup.CurveWeight());
         }
 
         f32 next = mWork.subject.m38C + p26 * (a - b) * 0.1f;
@@ -5062,7 +5062,9 @@ bool dCamera_c::subjectCamera(s32 param_1) {
         f32 focus = 1.0f - (std::fabsf(a - b) * -511.0f);
         setComZoomForcus(focus);
 
+#if VERSION > VERSION_DEMO
         mDoGph_gInf_c::mAutoForcus = 0;
+#endif
     } else {
         mViewCache.mFovy += p20 * (p25 - mViewCache.mFovy);
     }
