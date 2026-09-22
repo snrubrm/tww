@@ -328,7 +328,7 @@ public:
     void calcEmitterGlobalTranslation(JGeometry::TVec3<f32>& out) { calcEmitterGlobalPosition(out); }
 
     // TODO
-    void setEmitterRotation(const JGeometry::TVec3<s16>&) {}
+    void setEmitterRotation(const JGeometry::TVec3<s16>& rot) { mEmitterRot.set(rot); }
 
     static JPAEmitterInfo emtrInfo;
 
