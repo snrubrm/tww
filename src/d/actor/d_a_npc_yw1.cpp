@@ -1122,10 +1122,10 @@ u8 daNpc_Yw1_c::demo() {
         if (!mDemo) {
             mDemo = true;
             mKeepShapeAngle = false;
-            m_jnt.mAngles[0][1] = 0;
-            m_jnt.mAngles[0][0] = 0;
-            m_jnt.mAngles[1][1] = 0;
-            m_jnt.mAngles[1][0] = 0;
+            m_jnt.setHead_y(0);
+            m_jnt.setHead_x(0);
+            m_jnt.setBackBone_y(0);
+            m_jnt.setBackBone_x(0);
         }
         dDemo_actor_c* actor = dComIfGp_demo_getActor(demoActorID);
         if (mBtpAnm.getBtpAnm()) {
