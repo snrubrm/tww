@@ -139,9 +139,15 @@ static BOOL daSyan_Execute(syan_class* i_this) {
             if (!i_this->emtrEnabled[i]) {
                 i_this->emtrEnabled[i] = true;
                 static cXyz fire_scale(0.7f, 0.7f, 0.7f);
+#if VERSION == VERSION_DEMO
+                i_this->emtr[i] = dComIfGp_particle_set(dPa_name::ID_AK_JN_TORCH, &i_this->partPos[i], NULL, &fire_scale, 0xFF, &i_this->emtrCallBack[i]);
+            } else {
+                JPABaseEmitter* emtr = i_this->emtr[i];
+#else
                 dComIfGp_particle_set(dPa_name::ID_AK_JN_TORCH, &i_this->partPos[i], NULL, &fire_scale, 0xFF, &i_this->emtrCallBack[i]);
             } else {
                 JPABaseEmitter* emtr = i_this->emtrCallBack[i].getEmitter();
+#endif
                 if (emtr != NULL) {
                     JGeometry::TVec3<f32> dir;
                     dir.x = (REG0_F(3) + -0.03f) * (i_this->partPos[i].x - i_this->partPosOld[i].x);
@@ -154,13 +160,17 @@ static BOOL daSyan_Execute(syan_class* i_this) {
                     dir.y = 0.1f;
                     emtr->setDirection(dir);
 
+                    JGeometry::TVec3<f32> scale(1.0f, 1.0f, 1.0f);
                     f32 dirMag = std::sqrtf(dir.x*dir.x + dir.z*dir.z);
-                    f32 scaleY = (REG0_F(12) + 2.0f) * dirMag + 1.0f;
-                    if (scaleY > REG0_F(13) + 4.0f)
-                        scaleY = REG0_F(13) + 4.0f;
+                    scale.y = (REG0_F(12) + 2.0f) * dirMag + 1.0f;
+                    if (scale.y > REG0_F(13) + 4.0f)
+                        scale.y = REG0_F(13) + 4.0f;
 
-                    JGeometry::TVec3<f32> scale(1.0f, scaleY, 1.0f);
+#if VERSION == VERSION_DEMO
+                    i_this->emtr[i]->setGlobalParticleScale(scale);
+#else
                     i_this->emtrCallBack[i].getEmitter()->setGlobalParticleScale(scale);
+#endif
 
                     cXyz pos(i_this->partPos[i].x, i_this->partPos[i].y + REG0_F(7) + 20.0f, i_this->partPos[i].z);
                     dComIfGp_particle_setSimple(dPa_name::ID_AK_JP_O_KAGEROU00, &pos);
