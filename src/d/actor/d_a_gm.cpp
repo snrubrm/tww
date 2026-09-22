@@ -399,61 +399,26 @@ BOOL body_atari_check(gm_class* i_this) {
     case AT_TYPE_SWORD: {
         fopAcM_seStart(actor, JA_SE_LK_SW_CRT_HIT, 0x20);
         i_this->m2D1 = 0;
-        u8 cutType = player->getCutType();
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_EA) {
-            goto sword_smash;
+        if (player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EA ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EB ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_CUT_TURN ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_CUT_ROLL ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_JUMPCUT_SWORD ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_JUMPCUT_STICK ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_JUMPCUT_MACHETE ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_BT_JUMPCUT ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_BT_ROLLCUT ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_JUMPCUT_CLUB ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_JUMPCUT_DN_SWORD ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_JUMPCUT_SPEAR ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EXA ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EXB ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EXMJ ||
+            player->getCutType() == daPy_py_c::CUT_TYPE_CUT_KESA)
+        {
+            i_this->m2D1 = 1;
         }
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_EB) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_TURN) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_ROLL) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SWORD) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_STICK) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_MACHETE) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_BT_JUMPCUT) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_BT_ROLLCUT) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_CLUB) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_DN_SWORD) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_JUMPCUT_SPEAR) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_EXA) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_EXB) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_EXMJ) {
-            goto sword_smash;
-        }
-        if (cutType == daPy_py_c::CUT_TYPE_CUT_KESA) {
-            goto sword_smash;
-        }
-        break;
-    sword_smash:
-        i_this->m2D1 = 1;
         break;
     }
     case AT_TYPE_WIND:
@@ -1712,22 +1677,12 @@ void action_ground_attack(gm_class* i_this) {
             enemy_piyo_set(actor);
             fopAcM_seStart(actor, JA_SE_CM_MD_PIYO, 0);
         }
-        if (i_this->m2D1 != 4) {
-            if (i_this->mpMorf->isStop()) {
-                goto case81_anm;
-            }
+        if ((i_this->m2D1 != 4 && i_this->mpMorf->isStop()) || (i_this->m2D1 == 4 && i_this->m2EC == 0)) {
+            anm_init(i_this, dRes_INDEX_GM_BCK_G_WALK_e, 2.0f, J3DFrameCtrl::EMode_LOOP, 2.0f, -1);
+            i_this->mpBrkGm->setFrame(0.0f);
+            i_this->mBrkMode = 0;
+            i_this->mAction++;
         }
-        if (i_this->m2D1 != 4) {
-            break;
-        }
-        if (i_this->m2EC != 0) {
-            break;
-        }
-    case81_anm:
-        anm_init(i_this, dRes_INDEX_GM_BCK_G_WALK_e, 2.0f, J3DFrameCtrl::EMode_LOOP, 2.0f, -1);
-        i_this->mpBrkGm->setFrame(0.0f);
-        i_this->mBrkMode = 0;
-        i_this->mAction++;
         break;
     case 82:
         fopAcM_seStart(actor, JA_SE_CM_GM_FOOTNOTE, 0);
