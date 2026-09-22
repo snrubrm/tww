@@ -112,6 +112,8 @@ static void setToonTex(J3DModelData* pModel) {
 
 /* 8006DCEC-8006DFD4       .text setToonTex__FP16J3DMaterialTable */
 static void setToonTex(J3DMaterialTable* pMaterialTable) {
+    J3DMaterial * pMaterial;
+    J3DTevBlock * pTevBlock;
     J3DTexture * pTexture = pMaterialTable->getTexture();
     if (pTexture != NULL) {
         JUTNameTab * pTextureName = pMaterialTable->getTextureName();
@@ -127,8 +129,8 @@ static void setToonTex(J3DMaterialTable* pMaterialTable) {
             }
 
             for (u16 i = 0; i < pMaterialTable->getMaterialNum() ; i++) {
-                J3DMaterial * pMaterial = pMaterialTable->getMaterialNodePointer(i);
-                J3DTevBlock * pTevBlock = pMaterial->getTevBlock();
+                pMaterial = pMaterialTable->getMaterialNodePointer(i);
+                pTevBlock = pMaterial->getTevBlock();
 
                 if (pTevBlock != NULL) {
                     GXColorS10 * pTev3 = &pTevBlock->getTevColor(3)->mColor;
