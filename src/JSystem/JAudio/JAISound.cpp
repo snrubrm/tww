@@ -217,12 +217,12 @@ void JAISound::setPrepareFlag(u8 param_1) {
 f32 JAISound::setDistanceVolumeCommon(f32 param_1, u8 param_2) {
     f32 var1;
     if (field_0x8 != 4) {
-        var1 = mPositionInfo[field_0x8].field_0x18;
+        var1 = mPositionInfo[field_0x8].mDistance;
     } else {
-        var1 = mPositionInfo[0].field_0x18;
+        var1 = mPositionInfo[0].mDistance;
         for (u8 i = 1; i < JAIGlobalParameter::audioCameraMax; i++) {
-            if (mPositionInfo[i].field_0x18 < var1) {
-                var1 = mPositionInfo[i].field_0x18;
+            if (mPositionInfo[i].mDistance < var1) {
+                var1 = mPositionInfo[i].mDistance;
             }
         }
     }
@@ -256,9 +256,9 @@ f32 JAISound::setDistancePanCommon() {
     f32 result;
     if (JAIGlobalParameter::audioCameraMax == 1) {
         PositionInfo_t* position = mPositionInfo;
-        f32 x = fabs(position->field_0x0);
+        f32 x = fabs(position->mPos.x);
         f32 panX = x;
-        f32 z = fabs(position->field_0x8);
+        f32 z = fabs(position->mPos.z);
         f32 panZ = z;
         if (x < 1.0f && z < 1.0f) {
             return 0.5f;
@@ -270,16 +270,16 @@ f32 JAISound::setDistancePanCommon() {
             panZ = JAIGlobalParameter::panDistanceMax;
         }
         f32 pan;
-        if (position->field_0x0 == 0.0f && position->field_0x8 == 0.0f) {
+        if (position->mPos.x == 0.0f && position->mPos.z == 0.0f) {
             pan = 0.5f;
-        } else if (position->field_0x0 > 0.0f && panX >= panZ) {
+        } else if (position->mPos.x > 0.0f && panX >= panZ) {
             pan = 1.0f - (JAIGlobalParameter::panDistance2Max - panX) /
                 (JAIGlobalParameter::panAngleParameter * (JAIGlobalParameter::panDistance2Max - panZ));
-        } else if (position->field_0x0 <= 0.0f && panX >= panZ) {
+        } else if (position->mPos.x <= 0.0f && panX >= panZ) {
             pan = (JAIGlobalParameter::panDistance2Max - panX) /
                 (JAIGlobalParameter::panAngleParameter * (JAIGlobalParameter::panDistance2Max - panZ));
         } else {
-            pan = 0.5f + position->field_0x0 / (JAIGlobalParameter::panAngleParameter2 * panZ);
+            pan = 0.5f + position->mPos.x / (JAIGlobalParameter::panAngleParameter2 * panZ);
         }
         result = pan;
     } else if (field_0x8 != 4) {
@@ -292,15 +292,15 @@ f32 JAISound::setDistancePanCommon() {
 
 /* 80298F8C-80299178       .text setPositionDopplarCommon__8JAISoundFUl */
 f32 JAISound::setPositionDopplarCommon(u32 scale) {
-    Vec* position = (Vec*)mPositionInfo;
+    PositionInfo_t* position = mPositionInfo;
     Vec* camera = JAIBasic::msBasic->mAudioCamera[0].field_0x0;
     Vec* oldCamera = JAIBasic::msBasic->mAudioCamera[0].field_0x4;
-    f32 dx = camera->x - position->x;
-    f32 dy = camera->y - position->y;
-    f32 dz = camera->z - position->z;
-    f32 vx = (camera->x - oldCamera->x) - (position->x - position[1].x);
-    f32 vy = (camera->y - oldCamera->y) - (position->y - position[1].y);
-    f32 vz = (camera->z - oldCamera->z) - (position->z - position[1].z);
+    f32 dx = camera->x - position->mPos.x;
+    f32 dy = camera->y - position->mPos.y;
+    f32 dz = camera->z - position->mPos.z;
+    f32 vx = (camera->x - oldCamera->x) - (position->mPos.x - position->mPrevPos.x);
+    f32 vy = (camera->y - oldCamera->y) - (position->mPos.y - position->mPrevPos.y);
+    f32 vz = (camera->z - oldCamera->z) - (position->mPos.z - position->mPrevPos.z);
     f32 distanceSquared = dz * dz + (dx * dx + dy * dy);
     f32 distance = std::sqrtf(distanceSquared);
     f32 nextX = dx + vx;
@@ -652,7 +652,7 @@ void JAISound::setSeDistancePitch(u8 time) {
     }
     if ((getSwBit() & 0x4000) && !(getSwBit() & 2) && !(getSwBit() & 0x300) &&
         JAIGlobalParameter::audioCameraMax == 1) {
-        f32 distance = mPositionInfo[0].field_0x18;
+        f32 distance = mPositionInfo[0].mDistance;
         if (distance >= JAIGlobalParameter::distanceMax) {
             pitch += JAIGlobalParameter::seDistancepitchMax;
         } else {
@@ -681,7 +681,7 @@ void JAISound::setSePositionDopplar() {
 void JAISound::setSeDistanceFxmix(u8 time) {
     u16 fxmix = JAIGlobalParameter::seDefaultFx;
     if (!(getSwBit() & 4) && JAIGlobalParameter::audioCameraMax == 1) {
-        f32 distance = mPositionInfo[0].field_0x18;
+        f32 distance = mPositionInfo[0].mDistance;
         if (distance < JAIGlobalParameter::distanceMax) {
             fxmix = JAIGlobalParameter::seDistanceFxParameter * (distance / JAIGlobalParameter::distanceMax);
         } else {
@@ -701,16 +701,16 @@ void JAISound::setSeDistanceFir(u8) {}
 void JAISound::setSeDistanceDolby(u8 time) {
     PositionInfo_t* position = mPositionInfo;
     f32 dolby;
-    if (field_0x28 == NULL || position->field_0x8 < JAIGlobalParameter::seDolbyFrontDistanceMax) {
+    if (field_0x28 == NULL || position->mPos.z < JAIGlobalParameter::seDolbyFrontDistanceMax) {
         dolby = 0.0f;
-    } else if (position->field_0x8 < 0.0f) {
+    } else if (position->mPos.z < 0.0f) {
         dolby = JAIGlobalParameter::seDolbyCenterValue *
-            (JAIGlobalParameter::seDolbyFrontDistanceMax - position->field_0x8) /
+            (JAIGlobalParameter::seDolbyFrontDistanceMax - position->mPos.z) /
             JAIGlobalParameter::seDolbyFrontDistanceMax;
-    } else if (position->field_0x8 < JAIGlobalParameter::seDolbyBehindDistanceMax) {
+    } else if (position->mPos.z < JAIGlobalParameter::seDolbyBehindDistanceMax) {
         dolby = JAIGlobalParameter::seDolbyCenterValue +
             (127.0f - JAIGlobalParameter::seDolbyCenterValue) *
-            (position->field_0x8 / JAIGlobalParameter::seDolbyBehindDistanceMax);
+            (position->mPos.z / JAIGlobalParameter::seDolbyBehindDistanceMax);
     } else {
         dolby = 127.0f;
     }

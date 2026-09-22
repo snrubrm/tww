@@ -13,12 +13,12 @@ JAIZelSound::JAIZelSound() {}
 f32 JAIZelSound::setDistanceVolumeCommon(f32 f30, u8 r31) {
     f32 f31;
     if (field_0x8 != 4) {
-        f31 = mPositionInfo[field_0x8].field_0x18;
+        f31 = mPositionInfo[field_0x8].mDistance;
     } else {
-        f31 = mPositionInfo[0].field_0x18;
+        f31 = mPositionInfo[0].mDistance;
         for (u8 i = 1; i < JAIGlobalParameter::getParamAudioCameraMax(); i++) {
-            if (mPositionInfo[i].field_0x18 < f31) {
-                f31 = mPositionInfo[i].field_0x18;
+            if (mPositionInfo[i].mDistance < f31) {
+                f31 = mPositionInfo[i].mDistance;
             }
         }
     }
@@ -93,17 +93,17 @@ void JAIZelSound::setSeDistanceDolby(u8 r30) {
     
     PositionInfo_t* posInf = &mPositionInfo[0];
     f32 f0;
-    if (field_0x28 == 0 || posInf->field_0x8 < JAIGlobalParameter::getParamSeDolbyFrontDistanceMax()) {
+    if (field_0x28 == 0 || posInf->mPos.z < JAIGlobalParameter::getParamSeDolbyFrontDistanceMax()) {
         f0 = 0.0f;
-    } else if (posInf->field_0x8 < 0.0f) {
+    } else if (posInf->mPos.z < 0.0f) {
         f0 = (
             JAIGlobalParameter::getParamSeDolbyCenterValue() *
-            (JAIGlobalParameter::getParamSeDolbyFrontDistanceMax() - posInf->field_0x8)
+            (JAIGlobalParameter::getParamSeDolbyFrontDistanceMax() - posInf->mPos.z)
         ) / JAIGlobalParameter::getParamSeDolbyFrontDistanceMax();
-    } else if (posInf->field_0x8 < JAIGlobalParameter::getParamSeDolbyBehindDistanceMax()) {
+    } else if (posInf->mPos.z < JAIGlobalParameter::getParamSeDolbyBehindDistanceMax()) {
         f0 = JAIGlobalParameter::getParamSeDolbyCenterValue() + (
             (127.0f - JAIGlobalParameter::getParamSeDolbyCenterValue()) *
-            (posInf->field_0x8 / JAIGlobalParameter::getParamSeDolbyBehindDistanceMax())
+            (posInf->mPos.z / JAIGlobalParameter::getParamSeDolbyBehindDistanceMax())
         );
     } else {
         f0 = 127.0f;

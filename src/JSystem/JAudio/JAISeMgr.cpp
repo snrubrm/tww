@@ -175,15 +175,14 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 }
                 for (u8 camera = first; camera < last; camera++) {
                     JAISound::PositionInfo_t* position = &sound->mPositionInfo[camera];
-                    Vec* current = (Vec*)position;
-                    Vec* previous = (Vec*)((u8*)position + 0xC);
-                    *previous = *current;
+                    Vec* current = &position->mPos;
+                    position->mPrevPos = *current;
                     if (sound->field_0x28 == NULL) {
                         *current = Const::dummyZeroVec;
                     } else {
                         PSMTXMultVec(JAIBasic::msBasic->mAudioCamera[camera].field_0x8, sound->field_0x28, current);
                     }
-                    position->field_0x18 = current->z * current->z + (current->x * current->x + current->y * current->y);
+                    position->mDistance = current->z * current->z + (current->x * current->x + current->y * current->y);
                     s16 priority = sound->getInfoPriority();
                     if (sound->field_0xa != 0) {
                         priority += sound->field_0xa;
@@ -193,15 +192,15 @@ void JAInter::SeMgr::checkNextFrameSe() {
                             priority = 255;
                         }
                     }
-                    sound->field_0x10 = (u32)(position->field_0x18 / scale) +
+                    sound->field_0x10 = (u32)(position->mDistance / scale) +
                         (u32)((255 - priority) * (255 - priority) * 5776 / scale);
                     if (current->z > 0.0f) {
                         u32 penalty = (u32)(6.0f * current->z / scale);
                         penalty += sound->field_0x10;
                         sound->field_0x10 = penalty;
                     }
-                    if (camera == 0 || position->field_0x18 < nearest) {
-                        nearest = position->field_0x18;
+                    if (camera == 0 || position->mDistance < nearest) {
+                        nearest = position->mDistance;
                     }
                 }
                 if (sound->field_0x8 == 4) {
@@ -336,7 +335,7 @@ void JAInter::SeMgr::checkPlayingSe() {
                 root->readPortApp(port, &command);
                 JAISound::PositionInfo_t* positions = sound->mPositionInfo;
                 for (value = 0; (u8)value < JAIGlobalParameter::getParamAudioCameraMax(); value++) {
-                    positions[(u8)value].field_0x18 = std::sqrtf(positions[(u8)value].field_0x18);
+                    positions[(u8)value].mDistance = std::sqrtf(positions[(u8)value].mDistance);
                 }
                 if (sound->mState == 2) {
                     u32 flags = sound->getSwBit();
@@ -376,9 +375,9 @@ void JAInter::SeMgr::checkPlayingSe() {
                     u16 wait;
                     if (JAIGlobalParameter::getParamAudioCameraMax() == 1 && sound->checkSwBit(0x1000)) {
                         positions = sound->mPositionInfo;
-                        if (positions[0].field_0x18 < JAIGlobalParameter::getParamDistanceMax()) {
+                        if (positions[0].mDistance < JAIGlobalParameter::getParamDistanceMax()) {
                             u32 maximum = (u32)JAIGlobalParameter::getParamDistanceMax();
-                            u32 distance = (u32)sound->mPositionInfo[0].field_0x18;
+                            u32 distance = (u32)sound->mPositionInfo[0].mDistance;
                             u32 waitMax = JAIGlobalParameter::getParamSeDistanceWaitMax();
                             wait = waitMax * distance / maximum;
                         } else {
@@ -705,8 +704,8 @@ void JAInter::SeMgr::storeSeBuffer(JAISound** handle, JAInter::Actor* actor, u32
                 last = sound->field_0x8 + 1;
             }
             for (u8 i = first; i < last; i++) {
-                if (sound->mPositionInfo[i].field_0x18 >= distance) {
-                    distance = sound->mPositionInfo[i].field_0x18;
+                if (sound->mPositionInfo[i].mDistance >= distance) {
+                    distance = sound->mPositionInfo[i].mDistance;
                 }
             }
             if (sound->mState != 1 && farthest <= distance) {

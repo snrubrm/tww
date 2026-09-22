@@ -437,9 +437,8 @@ void JAInter::SequenceMgr::checkPlayingSeqTrack(u32 track) {
         }
         for (u32 i = first; i < last; i++) {
             JAISound::PositionInfo_t* position = &update->field_0x48->mPositionInfo[i];
-            Vec* current = (Vec*)position;
-            Vec* previous = (Vec*)position->field_0xc;
-            *previous = *current;
+            Vec* current = &position->mPos;
+            position->mPrevPos = *current;
             JAInter::Camera* cameras = JAIBasic::msBasic->getAudioCamera();
             Vec* source = update->field_0x48->getTrans();
             PSMTXMultVec(cameras[i].field_0x8, source, current);
@@ -452,7 +451,7 @@ void JAInter::SequenceMgr::checkPlayingSeqTrack(u32 track) {
                 volatile f32 result = squared * guess;
                 squared = result;
             }
-            position->field_0x18 = squared;
+            position->mDistance = squared;
             f32 volume = update->field_0x48->setDistanceVolumeCommon(JAIGlobalParameter::getParamDistanceMax(), 0);
             update->field_0x48->setSeqInterVolume(4, (u8)(127.0f * volume), JAIGlobalParameter::getParamDistanceParameterMoveTime());
             f32 pan = update->field_0x48->setDistancePanCommon();
