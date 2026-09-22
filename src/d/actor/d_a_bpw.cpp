@@ -1261,7 +1261,7 @@ void action_dousa(bpw_class* i_this) {
     cLib_addCalc0(&i_this->m48C, 1.0f, 10.0f);
     if ((((i_this->mActionState != 10) && (i_this->mActionState != 0xb)) && (i_this->mActionState != 0xc)) && (i_this->mActionState != 0xd)) {
         if (i_this->mActionState != 6) {
-            i_this->m476 = fopAcM_searchPlayerAngleY(actor);
+            i_this->m476 = fopAcM_searchPlayerAngleY(DEMO_SELECT(&i_this->actor, actor));
         }
         alpha_anime(i_this);
         fuwafuwa_calc(i_this);
@@ -2072,6 +2072,9 @@ void action_bunri_dousa(bpw_class* i_this) {
     cXyz sp70;
     f32 f1;
     f32 f2;
+#if VERSION == VERSION_DEMO
+    s8 hpAmountToEndPhaseAt;
+#endif
 
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
@@ -2105,11 +2108,10 @@ void action_bunri_dousa(bpw_class* i_this) {
         uVar14 = (s16)cM_rndF(4.99f);
         u32 uVar2 = uVar14 << 9 | 0xFF000003;
         for (i = 0; i < actor->health; i++) {
-            f32 maxPoeSpread = ((s16)pwSpreadAmount * 0.25f);
-            i_this->mChildPoeIds[i] = fopAcM_createChild(fpcNm_PW_e, fopAcM_GetID(i_this), uVar2, &local_58, fopAcM_GetRoomNo(actor), &pwAngle);
+            i_this->mChildPoeIds[i] = fopAcM_createChild(fpcNm_PW_e, fpcM_GetID(i_this), uVar2, &local_58, fopAcM_GetRoomNo(actor), &pwAngle);
             currRandomAngle += pwSpreadAmount;
             pwAngle.y = (s16)currRandomAngle;
-            pwAngle.y += (int)cM_rndFX((f32)maxPoeSpread);
+            pwAngle.y += (int)cM_rndFX((s16)pwSpreadAmount * 0.25f);
             uVar14++;
             if (uVar14 > 5) {
                 uVar14 = 0;
@@ -2137,7 +2139,9 @@ void action_bunri_dousa(bpw_class* i_this) {
         i_this->mActionState++;
     }
     case ACTION_STATE_SEPARATE_BUNRI_DOUSA_EXECUTE: {
+#if VERSION > VERSION_DEMO
         s8 hpAmountToEndPhaseAt;
+#endif
         switch (i_this->m3F6) {
         case 0:
             hpAmountToEndPhaseAt = 10;
@@ -2369,7 +2373,7 @@ void action_bunri_dousa(bpw_class* i_this) {
         }
         for (i = 0; i < actor->max_health; i++) {
             childPoe = (pw_class*)fopAcM_SearchByID(i_this->mChildPoeIds[i]);
-            if ((childPoe != NULL) && (childPoe->m344 != 0)) {
+            if ((childPoe != NULL) && (DEMO_SELECT(childPoe->m345, childPoe->m344) != 0)) {
                 childPoe->actor_status |= fopAcStts_UNK4000_e;
                 i_this->m462 = i;
                 i_this->m424 = childPoe->current.pos;
@@ -2922,13 +2926,17 @@ void action_bunri_dousa(bpw_class* i_this) {
             i_this->m418.z = (f32)(i_this->m3F0 * cM_scos(i_this->m3F4));
             break;
         }
+#if VERSION == VERSION_DEMO
+        if (REG9_F(13)) {
+#else
         fVar2 = 0.0f;
         if (REG9_F(13) != fVar2) {
+#endif
             i_this->mActionState = 0x87;
             i_this->mSomeCountdownTimers[0] = 0;
             break;
         }
-        if (REG9_F(12) != fVar2) {
+        if (DEMO_SELECT(REG9_F(12), REG9_F(12) != fVar2)) {
             i_this->mActionState = 0x87;
             REG9_F(12) = 0.0f;
             i_this->mSomeCountdownTimers[0] = 0;
