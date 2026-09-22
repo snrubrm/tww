@@ -83,7 +83,7 @@ BOOL daSaku_c::saku_draw_sub(int id) {
     if (m_heap[id][0] && mModel[id][0] && mAlpha[id][0]) {
         g_env_light.settingTevStruct(0, &current.pos, &tevStr);
         g_env_light.setLightTevColorType(mModel[id][0], &tevStr);
-        matAlphaAnim(mModel[id][0]->getModelData(), mAlpha[id][0], zWrite);
+        matAlphaAnim(mModel[id][0]->getModelData(), (u8)mAlpha[id][0], zWrite);
         dComIfGd_setListBG();
         mDoExt_modelUpdateDL(mModel[id][0]);
         dComIfGd_setList();
@@ -100,6 +100,12 @@ BOOL daSaku_c::saku_draw_sub(int id) {
     return TRUE;
 }
 
+#if VERSION == VERSION_DEMO
+static inline u32 chkAtType(cCcD_Obj* hit, u32 type) {
+    return hit->GetAtType() & type;
+}
+#endif
+
 /* 000003A8-00000590       .text mode_break_none__8daSaku_cFi */
 BOOL daSaku_c::mode_break_none(int id) {
     u32 fire = 0, brokenHit = 0;
@@ -115,24 +121,24 @@ BOOL daSaku_c::mode_break_none(int id) {
             if (hit) {
 #if VERSION == VERSION_DEMO
                 if (mSturdinessType == 0) {
-                    brokenHit |= ((hit->GetAtType() & AT_TYPE_SWORD) ||
-                                  (hit->GetAtType() & AT_TYPE_UNK8) ||
-                                  (hit->GetAtType() & AT_TYPE_BOMB) ||
-                                  (hit->GetAtType() & AT_TYPE_MACHETE) ||
-                                  (hit->GetAtType() & AT_TYPE_UNK800) ||
-                                  (hit->GetAtType() & AT_TYPE_DARKNUT_SWORD) ||
-                                  (hit->GetAtType() & AT_TYPE_MOBLIN_SPEAR) ||
-                                  (hit->GetAtType() & AT_TYPE_SKULL_HAMMER));
+                    brokenHit |= (chkAtType(hit, AT_TYPE_SWORD) ||
+                                  chkAtType(hit, AT_TYPE_UNK8) ||
+                                  chkAtType(hit, AT_TYPE_BOMB) ||
+                                  chkAtType(hit, AT_TYPE_MACHETE) ||
+                                  chkAtType(hit, AT_TYPE_UNK800) ||
+                                  chkAtType(hit, AT_TYPE_DARKNUT_SWORD) ||
+                                  chkAtType(hit, AT_TYPE_MOBLIN_SPEAR) ||
+                                  chkAtType(hit, AT_TYPE_SKULL_HAMMER));
                 } else if (mSturdinessType == 1) {
-                    brokenHit |= ((hit->GetAtType() & AT_TYPE_MACHETE) ||
-                                  (hit->GetAtType() & AT_TYPE_BOMB) ||
-                                  (hit->GetAtType() & AT_TYPE_UNK800) ||
-                                  (hit->GetAtType() & AT_TYPE_DARKNUT_SWORD));
+                    brokenHit |= (chkAtType(hit, AT_TYPE_MACHETE) ||
+                                  chkAtType(hit, AT_TYPE_BOMB) ||
+                                  chkAtType(hit, AT_TYPE_UNK800) ||
+                                  chkAtType(hit, AT_TYPE_DARKNUT_SWORD));
                 }
                 if (brokenHit) {
                     dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
                 }
-                fire |= ((hit->GetAtType() & AT_TYPE_FIRE) || (hit->GetAtType() & AT_TYPE_UNK20000) || (hit->GetAtType() & AT_TYPE_FIRE_ARROW));
+                fire |= (chkAtType(hit, AT_TYPE_FIRE) || chkAtType(hit, AT_TYPE_UNK20000) || chkAtType(hit, AT_TYPE_FIRE_ARROW));
 #else
                 if (mSturdinessType == 0) {
                     brokenHit |= bool(hit->ChkAtType(AT_TYPE_SWORD) ||
@@ -491,7 +497,11 @@ BOOL daSaku_c::MoveBGResist(int heap_id, int saku_id) {
 BOOL daSaku_c::setEffFire(int) {
     cXyz pos = current.pos;
     dComIfGp_particle_set(0x045c, &pos, &current.angle);
+#if VERSION == VERSION_DEMO
+    g_dComIfG_gameInfo.play.getParticle()->set(0, 0x245e, &pos, &current.angle, NULL, m_smoke_alpha, NULL, -1, NULL, NULL, NULL);
+#else
     dComIfGp_particle_set(0x245e, &pos, &current.angle, NULL, m_smoke_alpha);
+#endif
     mParticleTimer[0] = mParticleTimer[1] = 1;
     fopAcM_seStart(this, JA_SE_OBJ_BURN_WRAILING, 0);
     return TRUE;
