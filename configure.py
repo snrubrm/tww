@@ -1792,7 +1792,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_obj_rflw"),
     ActorRel(Matching,    "d_a_obj_rforce"),
     ActorRel(Matching,    "d_a_obj_smplbg"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_obj_tapestry"),
+    ActorRel(NonMatching, "d_a_obj_tapestry"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_obj_tntrap"),
     ActorRel(Matching,    "d_a_obj_tower"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_obj_trap"),

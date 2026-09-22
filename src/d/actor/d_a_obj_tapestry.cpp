@@ -936,17 +936,8 @@ void daObjTapestryPacket_c::calc_fire_leap(int row, int col) {
     }
 }
 
-static inline void calc_fire_leap_row(daObjTapestryPacket_c* p, const int& r, int col, int left, int right, bool left_ok, bool right_ok) {
-    p->calc_fire_leap(r, col);
-    if (left_ok) {
-        p->calc_fire_leap(r, left);
-    }
-    if (right_ok) {
-        p->calc_fire_leap(r, right);
-    }
-}
-
 /* 00003008-0000331C       .text calc_fire__21daObjTapestryPacket_cFv */
+// NONMATCHING - regalloc: the target keeps the up/down row in a separate copy register (r18) for the neighbour calc_fire_leap calls
 void daObjTapestryPacket_c::calc_fire() {
     if (m1454) {
         int row = (int)(7.0f * m145C);
@@ -993,10 +984,22 @@ void daObjTapestryPacket_c::calc_fire() {
 #else
             if (up >= 0) {
 #endif
-                calc_fire_leap_row(this, up, col, left, right, left_ok, right_ok);
+                calc_fire_leap(up, col);
+                if (left_ok) {
+                    calc_fire_leap(up, left);
+                }
+                if (right_ok) {
+                    calc_fire_leap(up, right);
+                }
             }
             if (down_ok) {
-                calc_fire_leap_row(this, down, col, left, right, left_ok, right_ok);
+                calc_fire_leap(down, col);
+                if (left_ok) {
+                    calc_fire_leap(down, left);
+                }
+                if (right_ok) {
+                    calc_fire_leap(down, right);
+                }
             }
             if (left_ok) {
                 calc_fire_leap(row, left);
@@ -1147,11 +1150,8 @@ void daObjTapestryPacket_c::eff_end() {
     mPLight.plight_delete();
 }
 
-static inline u8 get_alpha(daObjTapestryWork_c* work, int row, int col) {
-    return work->alpha[row][col];
-}
-
 /* 000039C0-00003CC0       .text eff_pos__21daObjTapestryPacket_cFv */
+// NONMATCHING - regalloc/addressing of the alpha[row][col] load (target adds col to the row base before the 0x1030 offset)
 void daObjTapestryPacket_c::eff_pos() {
     if (mFireCount > 0) {
         daObjTapestryDrawVtx_c prev = mDraw[mBuffer ^ 1];
@@ -1159,7 +1159,7 @@ void daObjTapestryPacket_c::eff_pos() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 6; col++) {
                 if (mWork.alpha[row][col] != 0xFF) {
-                    u8 idx = get_alpha(&mWork, row, col);
+                    u8 idx = mWork.alpha[row][col];
                     cXyz world;
                     mDoMtx_multVec(mMtx, &now.pos[row][col], &world);
                     mFire[idx].set_pos(world);
