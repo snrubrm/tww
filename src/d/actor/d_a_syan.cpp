@@ -184,9 +184,17 @@ static BOOL daSyan_IsDelete(syan_class* i_this) {
 
 /* 00000CA8-00000D1C       .text daSyan_Delete__FP10syan_class */
 static BOOL daSyan_Delete(syan_class* i_this) {
-    dComIfG_resDelete(&i_this->mPhs, "Syan");
+    dComIfG_resDeleteDemo(&i_this->mPhs, "Syan");
+#if VERSION == VERSION_DEMO
+    for (s32 i = 0; i < (s32)ARRAY_SIZE(i_this->emtrCallBack); i++) {
+        if (i_this->emtr[i] != NULL) {
+            i_this->emtrCallBack[i].remove();
+        }
+    }
+#else
     for (s32 i = 0; i < (s32)ARRAY_SIZE(i_this->emtrCallBack); i++)
         i_this->emtrCallBack[i].remove();
+#endif
     return TRUE;
 }
 
