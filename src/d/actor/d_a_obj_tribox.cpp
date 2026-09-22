@@ -93,12 +93,12 @@ BOOL daObjTribox::Act_c::solidHeapCB(fopAc_ac_c* i_this) {
 /* 000001C8-000004B0       .text create_heap__Q211daObjTribox5Act_cFv */
 u8 daObjTribox::Act_c::create_heap() {
     J3DModelData* model_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BDL_MTRYB_e);
-    JUT_ASSERT(0x140, model_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x14e, 0x140), model_data != 0);
 
     mpModel = mDoExt_J3DModel__create(model_data, 0x80000, 0x11000022);
 
     cBgD_t* bgw_data = (cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_DZB_MTRYB_e);
-    JUT_ASSERT(0x149, bgw_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x157, 0x149), bgw_data != 0);
 
     if (mpModel != NULL) {
         mpBgW = dBgW_NewSet(bgw_data, cBgW::MOVE_BG_e, &mpModel->getBaseTRMtx());
@@ -107,27 +107,33 @@ u8 daObjTribox::Act_c::create_heap() {
     }
 
     J3DModelData* model_ytfbl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BDL_YTFBL00_e);
-    JUT_ASSERT(0x159, model_ytfbl_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x167, 0x159), model_ytfbl_data != 0);
 
     mpYtfbl = mDoExt_J3DModel__create(model_ytfbl_data, 0x80000, 0x11000022);
 
     J3DAnmTevRegKey* brk_app_data = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BRK_YTFBL00_APP_e);
-    JUT_ASSERT(0x163, brk_app_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x171, 0x163), brk_app_data != 0);
 
     BOOL brk_app = mBrkApp.init(model_ytfbl_data, brk_app_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
 
     J3DAnmTevRegKey* brk_cmn_data = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BRK_YTFBL00_CMN_e);
-    JUT_ASSERT(0x16d, brk_cmn_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x17b, 0x16d), brk_cmn_data != 0);
 
     BOOL brk_cmn = mBrkCmn.init(model_ytfbl_data, brk_cmn_data, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0);
 
+#if VERSION == VERSION_DEMO
+    u8 success = false;
+#else
     bool success = false;
+#endif
     if (mpModel != NULL && mpBgW != NULL && mpYtfbl != NULL && brk_app && brk_cmn) {
         success = true;
     }
+#if VERSION > VERSION_DEMO
     if (!success) {
         mpBgW = NULL;
     }
+#endif
     return success;
 }
 
