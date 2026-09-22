@@ -35,6 +35,7 @@ static daGy_HIO_c l_HIO;
 #define mHeadSph mSph[5]
 #endif
 
+#if VERSION > VERSION_DEMO
 static dCcD_SrcSph l_sph_head_src = {
     // dCcD_SrcGObjInf
     {
@@ -63,7 +64,7 @@ static dCcD_SrcSph l_sph_head_src = {
         /* Radius */ 180.0f,
     }},
 };
-
+#endif
 
 static dCcD_SrcSph l_sph_src = {
     // dCcD_SrcGObjInf
@@ -263,6 +264,9 @@ void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
         offset.y = l_HIO.mD8;
         offset.z = l_HIO.mDC;
         mDoMtx_stack_c::multVec(&offset, &mD08);
+#if VERSION == VERSION_DEMO
+        mDoMtx_stack_c::multVecZero(&m11C4[jntNo]);
+#endif
     }
 
     Mtx mtx;
@@ -286,18 +290,27 @@ void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
             if (m2B0 == 3 && m928 == 1) {
                 mCEC.y += l_HIO.mA4;
             }
+#if VERSION == VERSION_DEMO
+            cXyz pos = m11C4[jntNo];
+            cXyz to = mCEC - pos;
+            cXyz from = mD08 - pos;
+#else
             cXyz to = mCEC - mD08;
             cXyz from = mD08 - mD08;
+#endif
             Quaternion quat;
             daObj::quat_rotVec(&quat, from, to);
-            C_QUATSlerp(&mCF8, &quat, &mCF8, l_HIO.m188);
+            mDoMtx_quatSlerp(&mCF8, &quat, &mCF8, l_HIO.m188);
         } else {
-            C_QUATSlerp(&mCF8, &ZeroQuat, &mCF8, l_HIO.m188);
+            mDoMtx_quatSlerp(&mCF8, &ZeroQuat, &mCF8, l_HIO.m188);
         }
         mDoMtx_stack_c::quatM(&mCF8);
     }
 
     mDoMtx_stack_c::concat(mtx);
+#if VERSION == VERSION_DEMO
+    mDoMtx_stack_c::multVecZero(&m11C4[jntNo]);
+#endif
 
     if (jntNo == GY_JNT_J_GY_ATAMA1_e) {
         cXyz offset(0.0f, 0.0f, 0.0f);
@@ -323,13 +336,18 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 /* 000008A8-00000AAC       .text _createHeap__6daGy_cFv */
 BOOL daGy_c::_createHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_GY_BMD_GY_e);
-    JUT_ASSERT(0x377, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x347, 0x377), modelData != 0);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
         NULL, NULL,
+#if VERSION == VERSION_DEMO
+        NULL,
+        -1,
+#else
         (J3DAnmTransformKey*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_GY_BCK_SWIM1_e),
         J3DFrameCtrl::EMode_LOOP,
+#endif
         1.0f,
         0,
         -1,
@@ -532,8 +550,7 @@ void daGy_c::setCollision() {
     dComIfG_Ccsp()->Set(&mCps);
 
     if (m2B0 == 3) {
-        int frame = mpMorf->getFrame();
-        if (mPrmIdx == 0xB && frame < 0x12) {
+        if (mPrmIdx == 0xB) {
             mHeadSph.OnAtSetBit();
             mHeadSph.OnAtHitBit();
             mHeadSph.SetAtAtp(2);
@@ -553,7 +570,7 @@ void daGy_c::setCollision() {
                 if (fopAcM_GetName(ac) == fpcNm_SHIP_e) {
                     mHeadSph.OnAtSetBit();
                     mHeadSph.OnAtHitBit();
-                    mHeadSph.SetAtAtp(2);
+                    mHeadSph.SetAtAtp(0);
                     mHeadSph.SetAtSpl(dCcG_At_Spl_UNK1);
                     mHeadSph.SetAtSe(6);
                 }
@@ -974,7 +991,8 @@ void daGy_c::modeAttackPlayer() {
         m4EC = l_HIO.mC4;
         mAimSpeedF = l_HIO.m58;
         cLib_addCalcAngleS2(&current.angle.y, cLib_targetAngleY(&current.pos, &player->current.pos), 8, 0x400);
-        if ((mD08 - player->current.pos).absXZ() < l_HIO.m148) {
+        f32 dist = (mD08 - player->current.pos).absXZ();
+        if (dist < l_HIO.m148) {
             mPrmIdx = 0xA;
             m928 += 1;
         }
@@ -1042,7 +1060,8 @@ void daGy_c::modeAttackBack() {
     m4E8 = l_HIO.mA0;
     mAimSpeedF = 0.0f;
     cLib_addCalcAngleS2(&m8F4, 0, 4, 0x800);
-    if ((current.pos - m904).absXZ() > l_HIO.m144) {
+    f32 dist = (current.pos - m904).absXZ();
+    if (dist > l_HIO.m144) {
         setAimSpeedF();
         if (mPrmIdx == 1) {
             modeWithCircleInit();
@@ -1101,10 +1120,9 @@ void daGy_c::modeDeleteInit() {
     fopAcM_OffStatus(this, fopAcStts_SHOWMAP_e);
     attention_info.flags &= ~fopAc_Attn_LOCKON_BATTLE_e;
 
-    dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
-    int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
+    int n = dComIfGs_getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
     n = cLib_maxLimit<int>(n, 0xFF) & 0xFF;
-    pEvent->setEventReg(dSv_event_flag_c::UNK_7EFF, n);
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_7EFF, n);
 
     m2B0 = 8;
     mPrmIdx = 8;
@@ -1249,6 +1267,7 @@ void daGy_c::setWave() {
     f32 splash_target;
     f32 wave_speed;
     f32 max_speed = l_HIO.m24;
+    f32 one = 1.0f;
     s8 prm = mPrmIdx;
 
     /* Keep orig cmpwi 5/8/9/6 chain; last compare is bne to the non-zero path. */
@@ -1269,11 +1288,8 @@ wave_zero:
     splash_target = 0.0f;
     goto wave_ready;
 wave_nz:
-    {
-        f32 one = 1.0f;
-        wave_speed = l_HIO.m18 * one;
-        splash_target = l_HIO.m10;
-    }
+    wave_speed = l_HIO.m18 * one;
+    splash_target = l_HIO.m10;
 wave_ready:
 
     switch (m2B0) {
@@ -1310,8 +1326,8 @@ wave_ready:
     mD7C.setPitch(1.0f + l_HIO.m20);
     mD18.setPitch(1.0f - l_HIO.m20);
 
-    cXyz collapse0(l_HIO.m28, l_HIO.m2C, l_HIO.m30);
-    cXyz collapse1(l_HIO.m34, l_HIO.m38, l_HIO.m3C);
+    cXyz collapse0 = *(cXyz*)&l_HIO.m28;
+    cXyz collapse1 = *(cXyz*)&l_HIO.m34;
     cXyz collapse0_l = collapse0;
     cXyz collapse1_l = collapse1;
     mD7C.setAnchor(&collapse0, &collapse1);
@@ -1652,7 +1668,8 @@ bool daGy_c::_execute() {
         } else if (f31 >= 1.0f) {
             f31 = 1.0f;
         }
-        fopAcM_seStart(this, JA_SE_CM_GY_CRUISING, (s8)(s32)(100.0f * f31));
+        s8 vol = 100.0f * f31;
+        fopAcM_seStart(this, JA_SE_CM_GY_CRUISING, vol);
         if (mPrmIdx == 1) {
             f32 play = f31 * l_HIO.m04;
             f32 res;
@@ -1821,7 +1838,7 @@ void daGy_c::createInit() {
     setMtx();
     mpMorf->calc();
     mAcchCir.SetWall(30.0f, 30.0f);
-    mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
     mAcch.SetWallNone();
     mAcch.SetRoofNone();
     gravity = -2.5f;
@@ -1835,8 +1852,9 @@ void daGy_c::createInit() {
             fopAcM_GetName(actor) == fpcNm_GY_CTRLB_e)
         {
             mpCtrl = (daGy_Ctrl_c*)actor;
-            m2AC = mpCtrl->m31C;
-            mpCtrl->m31C++;
+            daGy_Ctrl_c* ctrl = mpCtrl;
+            m2AC = ctrl->m31C;
+            ctrl->m31C += 1;
         }
     }
 
