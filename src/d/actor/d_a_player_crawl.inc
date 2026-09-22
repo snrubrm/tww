@@ -221,7 +221,7 @@ BOOL daPy_lk_c::checkCrawlSideWall(cXyz* param_1, cXyz* param_2, cXyz* param_3, 
         mLinkLinChk.Set(&local_78, &local_90, this);
         if (dComIfG_Bgsp()->LineCross(&mLinkLinChk)) {
             *param_4 = mLinkLinChk.GetCross();
-            plane = dComIfG_Bgsp()->GetTriPla(mLinkLinChk);
+            plane = dComIfG_Bgsp()->GetTriPla(mLinkLinChk.GetBgIndex(), mLinkLinChk.GetPolyIndex());
             *param_6 = cM_atan2s(plane->GetNP()->x, plane->GetNP()->z);
             cXyz local_9c = *param_3 - *param_4;
             f32 temp_f31 = local_9c.abs2XZ();
