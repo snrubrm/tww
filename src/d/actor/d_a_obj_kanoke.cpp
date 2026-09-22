@@ -224,6 +224,16 @@ cPhs_State daObjKanoke_c::createInit() {
 
 /* 00000B28-00000C0C       .text _delete__13daObjKanoke_cFv */
 BOOL daObjKanoke_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mpBodyBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpBodyBgW);
+    }
+    if (mpLidBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpLidBgW);
+    }
+    for (int i = 0; i < 2; ++i) {
+    }
+#else
     if (heap) {
         if (mpBodyBgW && mpBodyBgW->ChkUsed()) {
             dComIfG_Bgsp()->Release(mpBodyBgW);
@@ -232,8 +242,9 @@ BOOL daObjKanoke_c::_delete() {
             dComIfG_Bgsp()->Release(mpLidBgW);
         }
     }
+#endif
     mSmoke.end();
-    dComIfG_resDelete(&mPhase, "Mkanoke");
+    dComIfG_resDeleteDemo(&mPhase, "Mkanoke");
     return TRUE;
 }
 
