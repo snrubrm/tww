@@ -196,9 +196,14 @@ bool daNpc_Ac1_c::iniTexPttrnAnm(bool modify) {
 void daNpc_Ac1_c::plyTexPttrnAnm() {
     if (mBtpNo != 0 || cLib_calcTimer(&mBtpTimer) == 0) {
         mBtpFrame++;
+#if VERSION == VERSION_DEMO
+        if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) {
+            if (mBtpNo != 0) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
+#else
         int end = m_hed_tex_pttrn->getFrameMax();
         if (mBtpFrame >= (s16)end) {
             if (mBtpNo != 0) mBtpFrame = end;
+#endif
             else {
                 mBtpTimer = 30.0f + cM_rndF(60.0f);
                 mBtpFrame = 0;
