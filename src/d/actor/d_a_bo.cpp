@@ -830,15 +830,15 @@ void bo_move(bo_class* i_this) {
         }
         break;
     case 3: {
-        f32 f27 = 27.0f;
-        f32 f38 = 38.0f;
-        f32 f55 = 55.0f;
+        f32 hitStartFrame = 27.0f;
+        f32 hitEndFrame = 38.0f;
+        f32 aimEndFrame = 55.0f;
         if (i_this->mCurrBckIdx == dRes_INDEX_BO_BCK_ATTACK1_e) {
             f32 frame = i_this->mpMorfUP->getFrame();
-            if (frame < f27 || frame >= f55) {
+            if (frame < hitStartFrame || frame >= aimEndFrame) {
                 i_this->m34E = fopAcM_searchActorAngleY(actor, player);
-            } else if (frame < f38) {
-                if (f27 == frame) {
+            } else if (frame < hitEndFrame) {
+                if (hitStartFrame == frame) {
                     i_this->mHeadSph.OnAtSetBit();
                     i_this->mHeadSph.OnAtHitBit();
                     fopAcM_seStart(actor, JA_SE_CM_BV_ATTACK, 0);
@@ -880,8 +880,8 @@ void bo_move(bo_class* i_this) {
         } else {
             i_this->m3D0->setGlobalRTMatrix(i_this->mpMorfUP->getModel()->getAnmMtx(BO_UE1_JNT_J_BOKOBABA_AGO_e));
         }
-        f32 f39 = 39.0f;
-        if (i_this->mpMorfUP->getFrame() > f39) {
+        f32 atEndFrame = 39.0f;
+        if (i_this->mpMorfUP->getFrame() > atEndFrame) {
             i_this->mHeadSph.SetAtSpl(dCcG_At_Spl_UNK0);
             i_this->mHeadSph.OffAtSetBit();
             i_this->mHeadSph.ClrAtSet();
