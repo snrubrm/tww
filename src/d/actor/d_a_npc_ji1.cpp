@@ -880,6 +880,9 @@ u32 daNpc_Ji1_c::getMsg1stType() {
                 return 0x964;
             }
 
+#if VERSION == VERSION_DEMO
+            if(REG10_S(6) == 0)
+#endif
             dComIfGs_onEventBit(dSv_event_flag_c::UNK_0640);
             return 0x961;
         }
@@ -1517,7 +1520,7 @@ void daNpc_Ji1_c::createItem() {
         dComIfGs_onEventBit(dSv_event_flag_c::UNK_0F10);
     }
 
-    fpc_ProcID itemPID = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, current.roomNo);
+    fpc_ProcID itemPID = fopAcM_createItemForPresentDemo(&current.pos, itemNo, 0, -1, DEMO_SELECT(-1, current.roomNo));
     if(itemPID != fpcM_ERROR_PROCESS_ID_e) {
         dComIfGp_event_setItemPartnerId(itemPID);
     }
@@ -1844,6 +1847,10 @@ u32 daNpc_Ji1_c::evn_head_swing_init(int staffIdx) {
         value = *pData;
     }
 
+#if VERSION == VERSION_DEMO
+    s16 swingX = REG10_S(0) + 0x1400;
+    s16 swingY = REG10_S(1) + 0x1000;
+#endif
     switch(value) {
         case 0:
             mHeadAnm.swing_horizone_init(2, 0x1000, 0x1000, 1);
@@ -1852,7 +1859,11 @@ u32 daNpc_Ji1_c::evn_head_swing_init(int staffIdx) {
             mHeadAnm.swing_vertical_init(2, 0x1000, 0x800, 1);
             break;
         case 2:
+#if VERSION == VERSION_DEMO
+            mHeadAnm.swing_vertical_init(1, swingX, swingY, 1);
+#else
             mHeadAnm.swing_vertical_init(1, 0x1400, 0x1000, 1);
+#endif
             break;
     }
 
@@ -1888,10 +1899,17 @@ u32 daNpc_Ji1_c::evn_harpoon_proc_init(int staffIdx) {
 /* 00005008-00005078       .text evn_RollAtControl_init__11daNpc_Ji1_cFi */
 u32 daNpc_Ji1_c::evn_RollAtControl_init(int staffIdx) {
     daPy_py_c* player = daPy_getPlayerActorClass();
+#if VERSION == VERSION_DEMO
+    field_0xD18 = 400.0f + REG10_F(1);
+    field_0xD16 = cLib_targetAngleY(&current.pos, &player->current.pos);
+    field_0xD16 += REG10_S(1) + 0x2000;
+    field_0xC30 = REG10_S(2) + 30;
+#else
     field_0xD18 = 400.0f;
     field_0xD16 = cLib_targetAngleY(&current.pos, &player->current.pos);
     field_0xD16 += 0x2000;
     field_0xC30 = 30;
+#endif
     field_0xD68 = 0;
 
     return 1;
@@ -1901,8 +1919,13 @@ u32 daNpc_Ji1_c::evn_RollAtControl_init(int staffIdx) {
 u32 daNpc_Ji1_c::evn_RollAtControl() {
     static cXyz hit_scale(1.25f, 1.25f, 1.25f);
 
+#if VERSION == VERSION_DEMO
+    field_0xD16 += (s16)(REG10_S(0) + 0x540);
+    cLib_chaseF(&field_0xD18, 0.0f, 1.0f + REG10_F(0));
+#else
     field_0xD16 += 0x540;
     cLib_chaseF(&field_0xD18, 0.0f, 1.0f);
+#endif
     field_0xD1C = current.pos;
     field_0xD1C.x += field_0xD18 * cM_ssin(field_0xD16);
     field_0xD1C.z += field_0xD18 * cM_scos(field_0xD16);
@@ -2138,7 +2161,23 @@ u32 daNpc_Ji1_c::privateCut() {
 /* 000057DC-000058B8       .text setParticle__11daNpc_Ji1_cFiff */
 u32 daNpc_Ji1_c::setParticle(int max, f32 rate, f32 spread) {
 #if VERSION == VERSION_DEMO
-#endif
+    if (field_0x320_demo) {
+        dtParticle();
+    }
+    if (field_0x320_demo == NULL) {
+        field_0x320_demo = dComIfGp_particle_setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &current.pos, 0, 0, 0xB9, &field_0x2E0, fopAcM_GetRoomNo(this));
+        if (field_0x320_demo) {
+            field_0x320_demo->setRate(rate);
+            field_0x320_demo->setSpread(spread);
+            field_0x320_demo->setRandomDirectionSpeed(1.5f);
+            field_0x320_demo->setMaxFrame(max);
+
+            return true;
+        }
+    }
+
+    return false;
+#else
     dtParticle();
     if(field_0x2E0.getEmitter() == 0) {
         JPABaseEmitter* emitter = dComIfGp_particle_setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &current.pos, 0, 0, 0xB9, &field_0x2E0, fopAcM_GetRoomNo(this));
@@ -2153,17 +2192,46 @@ u32 daNpc_Ji1_c::setParticle(int max, f32 rate, f32 spread) {
     }
 
     return false;
+#endif
 }
 
 /* 000058B8-000058F0       .text dtParticle__11daNpc_Ji1_cFv */
 void daNpc_Ji1_c::dtParticle() {
+#if VERSION == VERSION_DEMO
+    if(field_0x320_demo) {
+        field_0x2E0.remove();
+        field_0x320_demo = NULL;
+    }
+#else
     if(field_0x2E0.getEmitter()) {
         field_0x2E0.remove();
     }
+#endif
 }
 
 /* 000058F0-000059E8       .text setParticleAT__11daNpc_Ji1_cFiff */
 u32 daNpc_Ji1_c::setParticleAT(int max, f32 rate, f32 spread) {
+#if VERSION == VERSION_DEMO
+    if(field_0x324_demo == NULL) {
+        field_0x324_demo = dComIfGp_particle_setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &field_0x320, 0, 0, 0xB9, &field_0x300, fopAcM_GetRoomNo(this));
+        if(field_0x324_demo) {
+            JGeometry::TVec3<f32> scaleVec;
+            scaleVec.x = 2.0f;
+            scaleVec.y = 2.0f;
+            scaleVec.z = 2.0f;
+            field_0x324_demo->setGlobalParticleScale(scaleVec);
+            field_0x324_demo->setVolumeSweep(0.15f);
+            field_0x324_demo->setRate(rate);
+            field_0x324_demo->setSpread(spread);
+            field_0x324_demo->setRandomDirectionSpeed(1.5f);
+            field_0x324_demo->setMaxFrame(max);
+
+            return true;
+        }
+    }
+
+    return false;
+#else
     if(field_0x300.getEmitter() == 0) {
         JPABaseEmitter* emitter = dComIfGp_particle_setToon(dPa_name::ID_AK_JT_ELEMENTSMOKE00, &field_0x320, 0, 0, 0xB9, &field_0x300, fopAcM_GetRoomNo(this));
         if(field_0x300.getEmitter()) {
@@ -2183,13 +2251,21 @@ u32 daNpc_Ji1_c::setParticleAT(int max, f32 rate, f32 spread) {
     }
 
     return false;
+#endif
 }
 
 /* 000059E8-00005A20       .text dtParticleAT__11daNpc_Ji1_cFv */
 void daNpc_Ji1_c::dtParticleAT() {
+#if VERSION == VERSION_DEMO
+    if(field_0x324_demo) {
+        field_0x300.remove();
+        field_0x324_demo = NULL;
+    }
+#else
     if(field_0x300.getEmitter()) {
         field_0x300.remove();
     }
+#endif
 }
 
 /* 00005A20-00005F30       .text startspeakAction__11daNpc_Ji1_cFPv */
@@ -2568,7 +2644,8 @@ BOOL daNpc_Ji1_c::teachMove(f32 param_1) {
     }
 
     f32 temp12 = (temp8 - current.pos).absXZ();
-    if(temp12 > 25.0f) {
+    bool far = temp12 > 25.0f;
+    if(far) {
         cLib_addCalcPos2(&current.pos, temp8, 0.1f, temp3 * param_1);
         if(temp3 > 1.0f) {
             temp13 = TRUE;
@@ -2697,7 +2774,8 @@ BOOL daNpc_Ji1_c::MoveToPlayer(f32 param_1, u8 param_2) {
         temp.z -= param_1 * cM_scos(temp3);
 
         f32 temp12 = (temp - current.pos).absXZ();
-        if(temp12 > 25.0f) {
+        bool far = temp12 > 25.0f;
+        if(far) {
             cLib_addCalcPos2(&current.pos, temp, 0.1f, temp2);
             if(temp2 > 1.0f) {
                 temp13 = TRUE;
@@ -3315,18 +3393,19 @@ BOOL daNpc_Ji1_c::battleMove(f32 param_1) {
     cXyz temp8 = (home.pos * 0.3f) + (player->current.pos * 0.7f);
     temp8.y = 0.0f;
 
+    f32 range = 150.0f;
     if(checkAction(&daNpc_Ji1_c::speakBadAction)) {
         temp3 = 10.0f;
     }
     else {
-        if(temp3 > 150.0f) {
-            temp3 = (temp3 / 150.0f - 1.0f) * 5.0f + 0.5f;
+        if(temp3 > range) {
+            temp3 = (temp3 / range - 1.0f) * 5.0f + 0.5f;
         }
         else {
             temp3 = 2.5f;
             temp8 = player->current.pos;
-            temp8.x -= 150.0f * cM_ssin(temp5);
-            temp8.z -= 150.0f * cM_scos(temp5);
+            temp8.x -= range * cM_ssin(temp5);
+            temp8.z -= range * cM_scos(temp5);
         }
     }
 
@@ -3505,7 +3584,7 @@ void daNpc_Ji1_c::battleSubActionTateAttackInit() {
 BOOL daNpc_Ji1_c::battleSubActionTateAttack() {
     s16 temp = cLib_targetAngleY(&current.pos, &dComIfGp_getPlayer(0)->current.pos);
     f32 frame = mpOrcaMorf->getFrame();
-    field_0x29C = 5.0f;
+    field_0x29C = DEMO_SELECT(0.0f, 5.0f);
     field_0x2A0 = 20.0f;
     field_0x298 = 500.0f;
     field_0x2A8 = 2;
@@ -3548,7 +3627,7 @@ BOOL daNpc_Ji1_c::battleSubActionTateAttack() {
         field_0x320.y = 0.0f;
     }
     else if(frame < 23.0f) {
-        cLib_addCalcAngleS2(&current.angle.y, temp, 4, 0x400);
+        cLib_addCalcAngleS2(&current.angle.y, temp, 4, DEMO_SELECT(0x600, 0x400));
         field_0xD38 = current.pos;
     }
 
@@ -3615,10 +3694,17 @@ BOOL daNpc_Ji1_c::battleSubActionYokoAttack() {
     
     if(frame > 25.0f && frame < 35.0f) {
         battleAtSet();
+#if VERSION == VERSION_DEMO
+        field_0x32C -= REG10_S(5) + 0x1400;
+        field_0x320 = current.pos;
+        field_0x320.x += (200.0f + REG10_F(2)) * cM_ssin(field_0x32C);
+        field_0x320.z += (200.0f + REG10_F(2)) * cM_scos(field_0x32C);
+#else
         field_0x32C -= 0x1400;
         field_0x320 = current.pos;
         field_0x320.x += cM_ssin(field_0x32C) * 200.0f;
         field_0x320.z += cM_scos(field_0x32C) * 200.0f;
+#endif
     }
     else if(frame < 15.0f) {
         cLib_addCalcAngleS2(&current.angle.y, temp, 4, 0x600);
@@ -3660,7 +3746,8 @@ BOOL daNpc_Ji1_c::battleSubActionJump() {
         temp3.x -= field_0xC9C * cM_ssin(current.angle.y);
         temp3.z -= field_0xC9C * cM_scos(current.angle.y);
 
-        cLib_addCalcPosXZ(&current.pos, temp3, 0.8f, 10.0f, 1.0f);
+        f32 temp4 = 10.0f;
+        cLib_addCalcPosXZ(&current.pos, temp3, 0.8f, temp4, 1.0f);
 
         if(mpOrcaMorf->checkFrame(mpOrcaMorf->getEndFrame() - 1.0f)) {
             field_0xD6C = 0;
@@ -3701,7 +3788,7 @@ BOOL daNpc_Ji1_c::battleSubActionJump() {
 /* 0000B5EC-0000B67C       .text battleSubActionDamageInit__11daNpc_Ji1_cFv */
 void daNpc_Ji1_c::battleSubActionDamageInit() {
     setAnm(0x19, 0.0f, 1);
-    mpOrcaMorf->setPlaySpeed(1.5f);
+    mpOrcaMorf->setPlaySpeed(DEMO_SELECT(1.5f + REG10_F(7), 1.5f));
     field_0xC9C = 0.0f;
     field_0xD38 = current.pos;
     setSubAction(&daNpc_Ji1_c::battleSubActionDamage);
@@ -3838,8 +3925,12 @@ BOOL daNpc_Ji1_c::battleAtSet() {
     f32 cos = cM_scos(current.angle.y);
 
     if(mAnimation == 0x14) {
+#if VERSION == VERSION_DEMO
+        field_0xA40.SetR(85.0f);
+#else
         field_0xA40.SetR(REG10_F(9) + 85.0f);
         field_0xB90.y = field_0xB78.y = REG10_F(10) + 40.0f;
+#endif
         field_0xA40.SetStartEnd(field_0xB90, field_0xB78);
         field_0xA40.CalcVec(&temp);
         if(!temp.normalizeRS()) {
@@ -3991,7 +4082,11 @@ BOOL daNpc_Ji1_c::battleGuardCheck() {
             ) {
                 fopAcM_seStart(this, JA_SE_LK_SW_CRT_HIT, 0);
 
+#if VERSION == VERSION_DEMO
+                static cXyz scale(1.25f + REG10_F(25), 1.25f + REG10_F(25), 1.25f + REG10_F(25));
+#else
                 static cXyz scale(1.25f, 1.25f, 1.25f);
+#endif
                 if(field_0xC24 == daPy_py_c::CUT_TYPE_BT_JUMPCUT) {
                     setHitParticle(&scale, JA_SE_CV_JI_FUTTOBI);
                 }
@@ -4565,6 +4660,22 @@ static BOOL nodeCallBack2(J3DNode* node, int calcTiming) {
         s32 jntNo = joint->getJntNo();
 
         if(i_this) {
+#if VERSION == VERSION_DEMO
+            MTXCopy(model->getAnmMtx(jntNo), *calc_mtx);
+            if(jntNo == i_this->hair1JointNo) {
+                cMtx_ZrotM(*calc_mtx, i_this->field_0xBAA + i_this->field_0xBD2);
+                cMtx_YrotM(*calc_mtx, i_this->field_0xBAC);
+            }
+            else if(jntNo == i_this->hair2JointNo) {
+                cMtx_ZrotM(*calc_mtx, i_this->field_0xBAE + i_this->field_0xBD4);
+                cMtx_YrotM(*calc_mtx, i_this->field_0xBB0);
+            }
+            else {
+                cMtx_ZrotM(*calc_mtx, i_this->field_0xBB2 + i_this->field_0xBD6);
+                cMtx_YrotM(*calc_mtx, i_this->field_0xBB4);
+            }
+
+#else
             cMtx_copy(model->getAnmMtx(jntNo), *calc_mtx);
             if(jntNo == i_this->hair1JointNo) {
                 mDoMtx_ZrotM(*calc_mtx, i_this->field_0xBAA + i_this->field_0xBD2);
@@ -4579,6 +4690,7 @@ static BOOL nodeCallBack2(J3DNode* node, int calcTiming) {
                 mDoMtx_YrotM(*calc_mtx, i_this->field_0xBB4);
             }
 
+#endif
             model->setAnmMtx(jntNo, *calc_mtx);
             cMtx_copy(*calc_mtx, J3DSys::mCurrentMtx);
         }
@@ -4600,12 +4712,41 @@ static BOOL nodeCallBack3(J3DNode* node, int calcTiming) {
         s32 jntNo = joint->getJntNo();
         mDoMtx_stack_c::copy(model->getAnmMtx(jntNo));
         s16 temp = i_this->field_0xBA2 * cM_ssin(i_this->field_0xBA4);
+#if VERSION == VERSION_DEMO
+        if(jntNo == i_this->armLJointNo) {
+            switch(REG10_S(8)) {
+            case 0:
+                mDoMtx_stack_c::XrotM(temp);
+                break;
+            case 1:
+                mDoMtx_stack_c::YrotM(temp);
+                break;
+            case 2:
+                mDoMtx_stack_c::ZrotM(temp);
+                break;
+            }
+        }
+        else if(jntNo == i_this->armRJointNo) {
+            switch(REG10_S(9)) {
+            case 0:
+                mDoMtx_stack_c::XrotM(temp);
+                break;
+            case 1:
+                mDoMtx_stack_c::YrotM(temp);
+                break;
+            case 2:
+                mDoMtx_stack_c::ZrotM(temp);
+                break;
+            }
+        }
+#else
         if(jntNo == i_this->armLJointNo) {
             mDoMtx_stack_c::XrotM(temp);
         }
         else if(jntNo == i_this->armRJointNo) {
             mDoMtx_stack_c::XrotM(temp);
         }
+#endif
 
         model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
         cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
@@ -4662,19 +4803,19 @@ BOOL daNpc_Ji1_c::CreateHeap() {
     mpOrcaMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(VERSION_SELECT(0x15AB, 0x15AB, 0x15AB, 0x15B7), m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x157A, 0x15AB, 0x15AB, 0x15B7), m_jnt.getHeadJntNum() >= 0);
 
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone1"));
-    JUT_ASSERT(VERSION_SELECT(0x15B0, 0x15B0, 0x15B0, 0x15BC), m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x157F, 0x15B0, 0x15B0, 0x15BC), m_jnt.getBackboneJntNum() >= 0);
 
     armLJointNo = modelData->getJointName()->getIndex("armL1");
-    JUT_ASSERT(VERSION_SELECT(0x15B4, 0x15B4, 0x15B4, 0x15C0), armLJointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x1583, 0x15B4, 0x15B4, 0x15C0), armLJointNo >= 0);
 
     armRJointNo = modelData->getJointName()->getIndex("armR1");
-    JUT_ASSERT(VERSION_SELECT(0x15B7, 0x15B7, 0x15B7, 0x15C3), armRJointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x1586, 0x15B7, 0x15B7, 0x15C3), armRJointNo >= 0);
 
     handRJointNo = modelData->getJointName()->getIndex("handR");
-    JUT_ASSERT(VERSION_SELECT(0x15BA, 0x15BA, 0x15BA, 0x15C6), handRJointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x1589, 0x15BA, 0x15BA, 0x15C6), handRJointNo >= 0);
 
     mpSpearMorf = new mDoExt_McaMorf(
         (J3DModelData*)(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BDL_JI_YARI_e)),
@@ -4695,10 +4836,10 @@ BOOL daNpc_Ji1_c::CreateHeap() {
     mpTearsModel = mDoExt_J3DModel__create(modelData2, 0, 0x11020203);
 
     J3DAnmTevRegKey* a_brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BRK_YJITR00_e));
-    JUT_ASSERT(VERSION_SELECT(0x15CD, 0x15CD, 0x15CD, 0x15D9), a_brk != NULL);
+    JUT_ASSERT(VERSION_SELECT(0x159C, 0x15CD, 0x15CD, 0x15D9), a_brk != NULL);
 
     J3DAnmTextureSRTKey* a_btk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BTK_YJITR00_e));
-    JUT_ASSERT(VERSION_SELECT(0x15D0, 0x15D0, 0x15D0, 0x15DC), a_btk != NULL);
+    JUT_ASSERT(VERSION_SELECT(0x159F, 0x15D0, 0x15D0, 0x15DC), a_btk != NULL);
 
     int temp1 = mCryBrk.init(modelData2, a_brk, false, J3DFrameCtrl::EMode_LOOP);
     int temp2 = mCryBtk.init(modelData2, a_btk, false, J3DFrameCtrl::EMode_LOOP);
@@ -4708,7 +4849,7 @@ BOOL daNpc_Ji1_c::CreateHeap() {
     }
 
     headTexPattern = (J3DAnmTexPattern*)(dComIfG_getObjectRes("Ji", dRes_INDEX_JI_BTP_JI_e));
-    JUT_ASSERT(VERSION_SELECT(0x15D8, 0x15D8, 0x15D8, 0x15E4), headTexPattern != NULL);
+    JUT_ASSERT(VERSION_SELECT(0x15A7, 0x15D8, 0x15D8, 0x15E4), headTexPattern != NULL);
 
     temp2 = mBlinkAnim.init(modelData, headTexPattern, TRUE, J3DFrameCtrl::EMode_LOOP);
 #if VERSION > VERSION_DEMO
@@ -4718,11 +4859,11 @@ BOOL daNpc_Ji1_c::CreateHeap() {
 #endif
 
     hair1JointNo = modelData->getJointName()->getIndex("hair1");
-    JUT_ASSERT(VERSION_SELECT(0x15DF, 0x15DF, 0x15DF, 0x15EB), hair1JointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15AD, 0x15DF, 0x15DF, 0x15EB), hair1JointNo >= 0);
     hair2JointNo = modelData->getJointName()->getIndex("hair2");
-    JUT_ASSERT(VERSION_SELECT(0x15E1, 0x15E1, 0x15E1, 0x15ED), hair2JointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15AF, 0x15E1, 0x15E1, 0x15ED), hair2JointNo >= 0);
     hair3JointNo = modelData->getJointName()->getIndex("hair3");
-    JUT_ASSERT(VERSION_SELECT(0x15E3, 0x15E3, 0x15E3, 0x15EF), hair3JointNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x15B1, 0x15E3, 0x15E3, 0x15EF), hair3JointNo >= 0);
 
     for(u16 i = 0; i < modelData->getJointNum(); i++) {
         if(i == hair1JointNo || i == hair2JointNo || i == hair3JointNo) {
