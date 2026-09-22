@@ -58,7 +58,7 @@ void daNpc_Pf1_c::_nodeCB_Head(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::YrotM(-m_jnt.getHead_y());
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 static BOOL nodeCB_BackBone(J3DNode* node, int timing) {
@@ -74,7 +74,7 @@ void daNpc_Pf1_c::_nodeCB_BackBone(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::XrotM(m_jnt.getBackbone_y());
     mDoMtx_stack_c::ZrotM(m_jnt.getBackbone_x());
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
@@ -90,7 +90,7 @@ bool daNpc_Pf1_c::init_PF1_0() {
 }
 
 bool daNpc_Pf1_c::createInit() {
-    mEventIdx[0] = dComIfGp_evmng_getEventIdx(l_evn_tbl[0]);
+    mEventIdx[0] = dComIfGp_getPEvtManager()->getEventIdx(l_evn_tbl[0], 0xFF);
     mEventCut.setActorInfo2("Pf1", this);
     int weight = 255;
     u8 path = (fopAcM_GetParam(this) >> 16) & 0xFF;
@@ -102,7 +102,7 @@ bool daNpc_Pf1_c::createInit() {
             set_pthPoint(0);
         } else return false;
     }
-    if (!mPath.isPath()) return false;
+    if (mPath.isPath() == false) return false;
     attention_info.flags = 10;
     switch (mSubType) {
     case 0: default:
@@ -555,7 +555,7 @@ bool daNpc_Pf1_c::startEvent_check() {
 }
 
 void daNpc_Pf1_c::set_pthPoint(u8 point) {
-    if (mPath.isPath()) {
+    if (mPath.isPath() != false) {
         mPath.setIdx(point);
         current.pos = mPath.getPoint(mPath.getIdx());
         if (mPath.nextIdx()) {
@@ -601,7 +601,16 @@ BOOL daNpc_Pf1_c::wait_1() { return TRUE; }
 
 BOOL daNpc_Pf1_c::regret() {
     if (mTalking) {
+#if VERSION == VERSION_DEMO
+        if (chk_talk()) {
+            setStt(2);
+            mLookMode = 1;
+            mNoTurn = false;
+            m_jnt.setTrn();
+        }
+#else
         if (chk_talk()) setStt(2);
+#endif
         return TRUE;
     }
     if (!endEvent_check()) {
@@ -620,6 +629,11 @@ BOOL daNpc_Pf1_c::attk_1() {
         if (chk_talk()) {
             setStt(6);
             setStt(2);
+#if VERSION == VERSION_DEMO
+            mLookMode = 1;
+            mNoTurn = false;
+            m_jnt.setTrn();
+#endif
         }
         return TRUE;
     }
@@ -645,7 +659,8 @@ BOOL daNpc_Pf1_c::attk_1() {
     }
     s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getLinkPlayer()->current.pos);
     cLib_addCalcAngleS(&current.angle.y, angle, l_HIO.mPrm.mMoveTurnRate, l_HIO.mPrm.mMoveTurnSpeed, 0x80);
-    cLib_chaseF(&speedF, l_HIO.mPrm.mAttackSpeed, l_HIO.mPrm.mAttackAccel);
+    f32 target = l_HIO.mPrm.mAttackSpeed;
+    cLib_chaseF(&speedF, target, l_HIO.mPrm.mAttackAccel);
     f32 speed = speedF * l_HIO.mPrm.mAttackAnmSpeed;
     f32 rate = speed < 0.5f ? 0.5f : speed;
     mpMorf->setPlaySpeed(rate);
@@ -653,7 +668,7 @@ BOOL daNpc_Pf1_c::attk_1() {
 }
 
 BOOL daNpc_Pf1_c::walk_1() {
-    if (!mPath.isPath()) return TRUE;
+    if (mPath.isPath() == false) return TRUE;
     if (dPath_ChkClose(mPath.getPath())) {
         if (mPath.chkPointPass(current.pos, (u8)(mPath.getDir() != 0))) mPath.nextIdxAuto();
     } else return TRUE;
@@ -676,7 +691,14 @@ BOOL daNpc_Pf1_c::walk_1() {
     mpMorf->setPlaySpeed(rate);
     if ((int)(0.5f + speed) == 0 && (int)speedF == 0) {
         if (mTalking) {
-            if (chk_talk()) setStt(2);
+            if (chk_talk()) {
+                setStt(2);
+#if VERSION == VERSION_DEMO
+                mLookMode = 1;
+                mNoTurn = false;
+                m_jnt.setTrn();
+#endif
+            }
             return TRUE;
         }
         setStt(4);
@@ -691,7 +713,14 @@ BOOL daNpc_Pf1_c::walk_1() {
 
 BOOL daNpc_Pf1_c::wait_2() {
     if (mTalking) {
-        if (chk_talk()) setStt(2);
+        if (chk_talk()) {
+            setStt(2);
+#if VERSION == VERSION_DEMO
+            mLookMode = 1;
+            mNoTurn = false;
+            m_jnt.setTrn();
+#endif
+        }
         return TRUE;
     }
     if (!dComIfGs_isEventBit(0xB04) || (bool)(chk_areaIN(l_HIO.mPrm.mEndRadius, mInitialPos) == 0)) {
@@ -714,7 +743,14 @@ BOOL daNpc_Pf1_c::wait_3() {
     if (mTalking) {
         if (chk_talk()) {
             setStt(2);
+#if VERSION == VERSION_DEMO
+            mLookMode = 1;
+            mNoTurn = false;
             mReturnAngle = false;
+            m_jnt.setTrn();
+#else
+            mReturnAngle = false;
+#endif
         }
         return TRUE;
     }
@@ -737,8 +773,10 @@ BOOL daNpc_Pf1_c::wait_3() {
 
 BOOL daNpc_Pf1_c::talk_1() {
     BOOL moved = chk_parts_notMov();
+#if VERSION > VERSION_DEMO
     s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getLinkPlayer()->current.pos);
     cLib_addCalcAngleS(&current.angle.y, angle, 4, l_HIO.mPrm.mTurnSpeed, 0x80);
+#endif
     u16 status = talk(1);
     if (mpCurrMsg == NULL) return TRUE;
     if (status == 10 && mAnmEnd && mCurrMsgNo == 0x1B60) fopMsgM_messageSendOn();
