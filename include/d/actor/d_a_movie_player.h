@@ -69,7 +69,7 @@ public:
     /* 0x290 */ u32 (*mpGetMovieRestFrame)();
     /* 0x294 */ void (*mpSetPercentMovieVol)(f32);
 #if VERSION == VERSION_PAL
-    /* 0x29C */ u32 (*mpTHPGetTotalFrame)(void);
+    /* 0x298 */ u32 (*mpTHPGetTotalFrame)(void);
 #endif
 };
 

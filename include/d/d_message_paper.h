@@ -97,8 +97,16 @@ STATIC_ASSERT(sizeof(sub_msg3_class) == 0xEE8);
 
 #if VERSION == VERSION_PAL
 struct dMessage_Paper_c : public msg_class {
-    /* 0x0FC */ u8 m0FC[0x104 - 0x0FC];
+    cPhs_State _create();
+    BOOL _execute();
+    BOOL _draw();
+    BOOL _delete();
+
+    /* 0x0FC */ fpc_ProcID mMsgID;
+    /* 0x100 */ u8 mMsgFlag;
 };
+
+STATIC_ASSERT(sizeof(dMessage_Paper_c) == 0x104);
 #endif
 
 #endif /* D_MESSAGE_PAPER_H */

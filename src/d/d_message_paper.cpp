@@ -20,6 +20,7 @@
 #include "m_Do/m_Do_controller_pad.h"
 #include "m_Do/m_Do_graphic.h"
 #include "m_Do/m_Do_mtx.h"
+#include "d/actor/d_a_movie_player.h"
 #include "stdio.h"
 #include "string.h"
 
@@ -1191,24 +1192,95 @@ msg_process_profile_definition g_profile_MSG3 = {
 #endif
 
 #if VERSION == VERSION_PAL
-static BOOL dMessage_Paper_Draw(dMessage_Paper_c*) {
-    /* Nonmatching */
+struct dScnTitle_c {
+    static daMP_c* mMp;
+};
+
+u16 dMP_timer;
+
+/* 801F1FB0-801F2038       .text _create__16dMessage_Paper_cFv */
+cPhs_State dMessage_Paper_c::_create() {
+    mMsgID = fpcM_ERROR_PROCESS_ID_e;
+    mMsgFlag = 0;
+
+    JKRExpHeap* heap = fopMsgM_createExpHeap(0x73EA1);
+    JUT_ASSERT(59, heap != NULL);
+    dComIfGp_setExpHeap2D(heap);
+
+    return cPhs_COMPLEATE_e;
 }
 
-static BOOL dMessage_Paper_Execute(dMessage_Paper_c*) {
-    /* Nonmatching */
+/* 801F2038-801F21D4       .text _execute__16dMessage_Paper_cFv */
+BOOL dMessage_Paper_c::_execute() {
+    daMP_c* movie = dScnTitle_c::mMp;
+    if (movie != NULL && movie->mpGetMovieRestFrame() != -1) {
+        dMP_timer = movie->mpTHPGetTotalFrame() - movie->mpGetMovieRestFrame();
+
+        if (mMsgID == fpcM_ERROR_PROCESS_ID_e) {
+            if (dMP_timer >= 0x3592 && !(mMsgFlag & 8)) {
+                mMsgID = fopMsgM_messageSet(0x3561);
+                fopMsgM_demoMsgFlagOn();
+                mMsgFlag |= 8;
+            } else if (dMP_timer >= 0x351A && !(mMsgFlag & 4)) {
+                mMsgID = fopMsgM_messageSet(0x3560);
+                fopMsgM_demoMsgFlagOn();
+                mMsgFlag |= 4;
+            } else if (dMP_timer >= 0x34B6 && !(mMsgFlag & 2)) {
+                mMsgID = fopMsgM_messageSet(0x355F);
+                fopMsgM_demoMsgFlagOn();
+                mMsgFlag |= 2;
+            } else if (dMP_timer >= 0x347A && !(mMsgFlag & 1)) {
+                mMsgID = fopMsgM_messageSet(0x355E);
+                fopMsgM_demoMsgFlagOn();
+                mMsgFlag |= 1;
+            }
+        } else {
+            msg_class* msg = fopMsgM_SearchByID(mMsgID);
+            if (msg != NULL && msg->mStatus == fopMsgStts_BOX_CLOSED_e) {
+                msg->mStatus = fopMsgStts_MSG_DESTROYED_e;
+                mMsgID = fpcM_ERROR_PROCESS_ID_e;
+                dComIfGp_event_onEventFlag(8);
+            }
+        }
+    }
+
+    return TRUE;
 }
 
-static BOOL dMessage_Paper_IsDelete(dMessage_Paper_c*) {
-    /* Nonmatching */
+/* 801F21D4-801F21DC       .text _draw__16dMessage_Paper_cFv */
+BOOL dMessage_Paper_c::_draw() {
+    return TRUE;
 }
 
-static BOOL dMessage_Paper_Delete(dMessage_Paper_c*) {
-    /* Nonmatching */
+/* 801F21DC-801F220C       .text _delete__16dMessage_Paper_cFv */
+BOOL dMessage_Paper_c::_delete() {
+    fopMsgM_destroyExpHeap(dComIfGp_getExpHeap2D());
+    return TRUE;
 }
 
-static cPhs_State dMessage_Paper_Create(msg_class*) {
-    /* Nonmatching */
+/* 801F220C-801F222C       .text dMessage_Paper_Draw__FP16dMessage_Paper_c */
+BOOL dMessage_Paper_Draw(dMessage_Paper_c* i_this) {
+    return i_this->_draw();
+}
+
+/* 801F222C-801F224C       .text dMessage_Paper_Execute__FP16dMessage_Paper_c */
+BOOL dMessage_Paper_Execute(dMessage_Paper_c* i_this) {
+    return i_this->_execute();
+}
+
+/* 801F224C-801F2254       .text dMessage_Paper_IsDelete__FP16dMessage_Paper_c */
+BOOL dMessage_Paper_IsDelete(dMessage_Paper_c* i_this) {
+    return TRUE;
+}
+
+/* 801F2254-801F2274       .text dMessage_Paper_Delete__FP16dMessage_Paper_c */
+BOOL dMessage_Paper_Delete(dMessage_Paper_c* i_this) {
+    return i_this->_delete();
+}
+
+/* 801F2274-801F2294       .text dMessage_Paper_Create__FP9msg_class */
+cPhs_State dMessage_Paper_Create(msg_class* i_this) {
+    return static_cast<dMessage_Paper_c*>(i_this)->_create();
 }
 
 static msg_method_class l_dMessage_Paper_Method = {
