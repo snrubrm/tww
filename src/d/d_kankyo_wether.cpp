@@ -1351,8 +1351,9 @@ void dKyw_tact_wind_set_go() {
 
 /* 8008A890-8008A8B0       .text dKyw_get_tactwind_dir__Fv */
 int dKyw_get_tactwind_dir() {
+    dScnKy_env_light_c& env_light = dKy_getEnvlight();
     int ret = 0;
-    if ((g_env_light.mWind.mTactWindAngleFlags & 0x80) != 0) {
+    if ((env_light.mWind.mTactWindAngleFlags & 0x80) != 0) {
         ret = 1;
     }
 
