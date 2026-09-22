@@ -452,7 +452,7 @@ fopAc_ac_c* daNpc_De1_c::searchByID(fpc_ProcID id) {
 }
 
 void daNpc_De1_c::setDemoStartCenter() {
-    cXyz offset(l_HIO.mPrm.mDemoOffset);
+    cXyz offset(l_HIO.mPrm.mDemoOffset.x, l_HIO.mPrm.mDemoOffset.y, l_HIO.mPrm.mDemoOffset.z);
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::YrotM(current.angle.y);
     mDoMtx_stack_c::multVec(&offset, &mDemoCenter);
