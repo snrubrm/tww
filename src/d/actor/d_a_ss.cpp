@@ -18,10 +18,10 @@ static BOOL nodeCallBack(J3DNode* node, int phase) {
         if (i_this != NULL && joint == SW_JNT_EYE_e) {
             cXyz unused;
             PSMTXCopy(model->getAnmMtx(joint), *calc_mtx);
-            if (i_this->mWall != 0) mDoMtx_XrotM(*calc_mtx, 0x4000);
-            mDoMtx_YrotM(*calc_mtx, i_this->mEyeAngle.y);
-            mDoMtx_XrotM(*calc_mtx, i_this->mEyeAngle.x);
-            PSMTXCopy(*calc_mtx, model->getAnmMtx(joint));
+            if (i_this->mWall != 0) cMtx_XrotM(*calc_mtx, 0x4000);
+            cMtx_YrotM(*calc_mtx, i_this->mEyeAngle.y);
+            cMtx_XrotM(*calc_mtx, i_this->mEyeAngle.x);
+            model->setAnmMtx(joint, *calc_mtx);
             PSMTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -45,8 +45,7 @@ static BOOL daSs_Draw(ss_class* i_this) {
 
 static void anm_init(ss_class* i_this, int anm, float morph, unsigned char mode, float speed, int sound) {
     if (sound >= 0) {
-        void* soundData = dComIfG_getObjectRes("Bb", sound);
-        i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("Ss", anm), mode, morph, speed, 0.0f, -1.0f, soundData);
+        i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("Ss", anm), mode, morph, speed, 0.0f, -1.0f, dComIfG_getObjectRes("Bb", sound));
     } else {
         i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("Ss", anm), mode, morph, speed, 0.0f, -1.0f, NULL);
     }
@@ -60,7 +59,7 @@ static void hand_1_set(ss_class* i_this, ss_s* hand) {
     int i;
     dBgS_LinChk line;
     segment = hand->segments;
-    mDoMtx_YrotS(*calc_mtx, hand->angle.y);
+    cMtx_YrotS(*calc_mtx, hand->angle.y);
     step.x = 0.0f;
     step.y = 0.0f;
     step.z = 30.0f + REG0_F(7) - 10.0f;
@@ -76,8 +75,8 @@ static void hand_1_set(ss_class* i_this, ss_s* hand) {
             delta = start - segment->pos;
             MtxPush();
             s16 yaw = cM_atan2s(delta.x, delta.z);
-            mDoMtx_YrotS(*calc_mtx, yaw);
-            mDoMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
+            cMtx_YrotS(*calc_mtx, yaw);
+            cMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
             delta.x = 0.0f;
             delta.y = 0.0f;
             delta.z = 5.0f + REG8_F(8);
@@ -86,7 +85,7 @@ static void hand_1_set(ss_class* i_this, ss_s* hand) {
             MtxPull();
         }
         MtxPush();
-        mDoMtx_YrotM(*calc_mtx, angle);
+        cMtx_YrotM(*calc_mtx, angle);
         angle += (s16)cM_rndFX(6000.0f);
         MtxPosition(&step, &world);
         MtxPull();
@@ -103,13 +102,13 @@ static void hand_1_set_2(ss_class* i_this, ss_s* hand) {
     int i;
     dBgS_LinChk line;
     segment = hand->segments;
-    mDoMtx_YrotS(*calc_mtx, hand->angle.y);
+    cMtx_YrotS(*calc_mtx, hand->angle.y);
     step.x = 0.0f;
     step.y = 0.0f;
     step.z = -250.0f + REG12_F(6);
     MtxPosition(&step, &start);
     start += hand->pos;
-    mDoMtx_ZrotM(*calc_mtx, hand->angle.z);
+    cMtx_ZrotM(*calc_mtx, hand->angle.z);
     step.x = 0.0f;
     step.y = 30.0f + REG12_F(7) - 10.0f;
     step.z = 0.0f;
@@ -122,8 +121,8 @@ static void hand_1_set_2(ss_class* i_this, ss_s* hand) {
             delta = start - segment->pos;
             MtxPush();
             s16 yaw = cM_atan2s(delta.x, delta.z);
-            mDoMtx_YrotS(*calc_mtx, yaw);
-            mDoMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
+            cMtx_YrotS(*calc_mtx, yaw);
+            cMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
             delta.x = 0.0f;
             delta.y = 0.0f;
             delta.z = -5.0f + REG12_F(8);
@@ -132,7 +131,7 @@ static void hand_1_set_2(ss_class* i_this, ss_s* hand) {
             MtxPull();
         }
         MtxPush();
-        mDoMtx_ZrotM(*calc_mtx, angle);
+        cMtx_ZrotM(*calc_mtx, angle);
         angle += (s16)cM_rndFX(6000.0f);
         MtxPosition(&step, &world);
         MtxPull();
@@ -205,7 +204,7 @@ static void hand_1_move(ss_class* i_this, ss_s* hand) {
             hand->cutTimer = REG8_S(7) + 8;
         }
         speed.x = 0.0f;
-        mDoMtx_YrotS(*calc_mtx, hand->angle.y);
+        cMtx_YrotS(*calc_mtx, hand->angle.y);
         MtxPosition(&speed, &hand->speed);
     }
 }
@@ -227,8 +226,8 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
         for (; i < 20; i++, segment++) {
             delta = segment->pos - segment[-1].pos;
             int yaw = (s16)cM_atan2s(delta.x, delta.z);
-            mDoMtx_YrotS(*calc_mtx, yaw);
-            mDoMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
+            cMtx_YrotS(*calc_mtx, yaw);
+            cMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
             MtxPosition(&step, &delta);
             segment->pos = segment[-1].pos + delta;
         }
@@ -252,14 +251,14 @@ static void hand_1_cut(ss_class* i_this, ss_s* hand) {
         if (y < groundY + hand->sink) y = groundY + hand->sink;
         wave.z = -2.0f + REG8_F(17);
         wave.x = hand->wave * cM_ssin(hand->phase + i * hand->frequency);
-        mDoMtx_YrotS(*calc_mtx, hand->angle.y);
+        cMtx_YrotS(*calc_mtx, hand->angle.y);
         MtxPosition(&wave, &world);
         delta.x = world.x + (segment->pos.x - segment[1].pos.x);
         delta.y = y - segment[1].pos.y;
         delta.z = world.z + (segment->pos.z - segment[1].pos.z);
         int yaw = (s16)cM_atan2s(delta.x, delta.z);
-        mDoMtx_YrotS(*calc_mtx, yaw);
-        mDoMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
+        cMtx_YrotS(*calc_mtx, yaw);
+        cMtx_XrotM(*calc_mtx, -cM_atan2s(delta.y, std::sqrtf(delta.x * delta.x + delta.z * delta.z)));
         MtxPosition(&step, &delta);
         if (hand->cutTimer != 0 && i == 0) segment->pos = actor->home.pos;
         else segment->pos = segment[1].pos + delta;
@@ -319,7 +318,7 @@ static void hand_move(ss_class* i_this) {
         case 0:
             if (i_this->mWall == 1) {
                 i_this->mHands[i].angle.y = i_this->current.angle.y + 0x8000;
-                mDoMtx_YrotS(*calc_mtx, i_this->mHands[i].angle.y);
+                cMtx_YrotS(*calc_mtx, i_this->mHands[i].angle.y);
                 offset.x = 0.0f;
                 offset.y = 0.0f;
                 offset.z = -1000.0f;
@@ -518,9 +517,10 @@ static BOOL daSs_Execute(ss_class* i_this) {
     }
     i_this->mpMorf->play(&i_this->eyePos, 0, 0);
     MtxTrans(i_this->home.pos.x, i_this->home.pos.y, i_this->home.pos.z, false);
-    mDoMtx_YrotM(*calc_mtx, i_this->current.angle.y);
-    if (i_this->mWall != 0) mDoMtx_XrotM(*calc_mtx, REG8_S(5) - 0x4000);
-    i_this->mpMorf->getModel()->setBaseTRMtx(*calc_mtx);
+    cMtx_YrotM(*calc_mtx, i_this->current.angle.y);
+    if (i_this->mWall != 0) cMtx_XrotM(*calc_mtx, REG8_S(5) - 0x4000);
+    J3DModel* model = i_this->mpMorf->getModel();
+    model->setBaseTRMtx(*calc_mtx);
     cXyz delta(0.0f, 45.0f, 0.0f);
     MtxPosition(&delta, &i_this->eyePos);
     delta = player->eyePos - i_this->eyePos;
@@ -536,7 +536,7 @@ static BOOL daSs_Execute(ss_class* i_this) {
 static BOOL daSs_IsDelete(ss_class*) { return TRUE; }
 
 static BOOL daSs_Delete(ss_class* i_this) {
-    dComIfG_resDelete(&i_this->mPhase, "Ss");
+    dComIfG_resDeleteDemo(&i_this->mPhase, "Ss");
     return TRUE;
 }
 
