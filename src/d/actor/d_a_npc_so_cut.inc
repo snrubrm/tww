@@ -519,9 +519,7 @@ void daNpc_So_c::cutMiniGameProc() {
         setAnm(2, false);
         f32 mag = 1000.0f;
         mB8C = cM_rndF(400.0f) + mag;
-        f32 rnd = cM_rndF(mag);
-        f32 neg = -mag;
-        mB88 = neg / 2.0f + rnd;
+        mB88 = -mag / 2.0f + cM_rndF(mag);
         cXyz offset(mB88, 0.0f, mB8C);
         cXyz out(0.0f, 0.0f, 0.0f);
         mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
@@ -546,10 +544,7 @@ void daNpc_So_c::cutMiniGameProc() {
     }
     case 4: {
         f32 mag = 300.0f;
-        f32 rnd = cM_rndF(mag);
-        f32 neg = -mag;
-        rnd = neg / 2.0f + rnd;
-        mB88 = mB88 + rnd;
+        mB88 += -mag / 2.0f + cM_rndF(mag);
         cXyz offset(mB88, 0.0f, mB8C);
         cXyz out(0.0f, 0.0f, 0.0f);
         mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
@@ -673,10 +668,7 @@ void daNpc_So_c::cutMiniGameProc() {
         setAnm(2, false);
         f32 mag = 1000.0f;
         mB8C = cM_rndF(400.0f) + mag;
-        f32 rnd = cM_rndF(mag);
-        f32 half = 0.5f;
-        f32 mul = -mag * half;
-        mB88 = mul + rnd;
+        mB88 = -mag / 2.0f + cM_rndF(mag);
         cXyz offset(mB88, 0.0f, mB8C);
         cXyz out(0.0f, 0.0f, 0.0f);
         mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
@@ -701,11 +693,7 @@ void daNpc_So_c::cutMiniGameProc() {
     }
     case 4: {
         f32 mag = 300.0f;
-        f32 rnd = cM_rndF(mag);
-        f32 half = 0.5f;
-        f32 mul = -mag * half;
-        rnd = mul + rnd;
-        mB88 = mB88 + rnd;
+        mB88 += -mag / 2.0f + cM_rndF(mag);
         cXyz offset(mB88, 0.0f, mB8C);
         cXyz out(0.0f, 0.0f, 0.0f);
         mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
