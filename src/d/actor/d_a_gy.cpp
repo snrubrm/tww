@@ -1512,15 +1512,9 @@ bool daGy_c::_execute() {
         fopAc_ac_c* actor;
         if (fopAcM_SearchByID(parent_id, &actor)) {
             if (actor != NULL) {
-                if (fopAc_IsActor(actor)) {
-                    s16 name = fopAcM_GetName(actor);
-                    if (name == fpcNm_GY_CTRL_e || name == fpcNm_GY_CTRLB_e) {
-                        mpCtrl = (daGy_Ctrl_c*)actor;
-                    } else {
-                        goto lost_parent;
-                    }
+                if (fopAc_IsActor(actor) && (fopAcM_GetName(actor) == fpcNm_GY_CTRL_e || fopAcM_GetName(actor) == fpcNm_GY_CTRLB_e)) {
+                    mpCtrl = (daGy_Ctrl_c*)actor;
                 } else {
-                lost_parent:
                     if (cLib_calcTimer(&m8F0) == 0) {
                         fopAcM_delete(this);
                     }
@@ -1916,9 +1910,7 @@ cPhs_State daGy_c::_create() {
             fopAc_ac_c* actor;
             if (fopAcM_SearchByID(parent_id, &actor)) {
                 if (actor != NULL) {
-                if (fopAc_IsActor(actor)) {
-                    s16 name = fopAcM_GetName(actor);
-                    if (name == fpcNm_GY_CTRL_e || name == fpcNm_GY_CTRLB_e) {
+                    if (fopAc_IsActor(actor) && (fopAcM_GetName(actor) == fpcNm_GY_CTRL_e || fopAcM_GetName(actor) == fpcNm_GY_CTRLB_e)) {
                         mpCtrl = (daGy_Ctrl_c*)actor;
                         daGy_Ctrl_c* ctrl = mpCtrl;
                         m2AC = ctrl->m31C;
@@ -1927,12 +1919,8 @@ cPhs_State daGy_c::_create() {
                             fopAcM_setStageLayer(this);
                         }
                     } else {
-                        goto create_error;
+                        return cPhs_ERROR_e;
                     }
-                } else {
-                create_error:
-                    return cPhs_ERROR_e;
-                }
                 } else {
                     return cPhs_ERROR_e;
                 }
