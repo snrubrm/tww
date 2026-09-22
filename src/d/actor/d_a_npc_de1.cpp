@@ -888,9 +888,13 @@ BOOL daNpc_De1_c::_execute() {
 }
 
 BOOL daNpc_De1_c::_delete() {
-    dComIfG_resDelete(&mPhase, "De");
+    dComIfG_resDeleteDemo(&mPhase, "De");
     dComIfG_Bgsp()->Release(mpBgW);
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+#else
     if (heap != NULL && mpMorf != NULL) {
+#endif
         mpMorf->stopZelAnime();
     }
     del_pa_happa();
