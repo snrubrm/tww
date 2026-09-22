@@ -879,7 +879,7 @@ BOOL daNpc_Gk1_c::itemCreateHeap() {
 /* 00002BA8-00002C68       .text hat_CreateHeap__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::hat_CreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_GK_BDL_GK_HAT_e);
-    JUT_ASSERT(1614, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(1609, 1614), a_mdl_dat != 0);
     mpHatModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     if (mpHatModel == NULL) {
         return FALSE;
