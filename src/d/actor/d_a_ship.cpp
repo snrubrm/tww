@@ -3481,7 +3481,7 @@ void daShip_c::setHeadAnm() {
             newFileIndex = dRes_INDEX_SHIP_BCK_KYAKKAN1_e;
         } 
         else if (
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
                 (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3910) || dComIfGs_isEventBit(dSv_event_flag_c::UNK_2D02)) &&
 #endif
                  (mSph.ChkTgHit() || mCyl[0].ChkTgHit() ||
@@ -3495,7 +3495,7 @@ void daShip_c::setHeadAnm() {
     } 
     else {
         if (
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
             (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3910) || dComIfGs_isEventBit(dSv_event_flag_c::UNK_2D02)) &&
 #endif
             (mSph.ChkTgHit() || mCyl[0].ChkTgHit() ||
@@ -3511,7 +3511,7 @@ void daShip_c::setHeadAnm() {
         else if ((m03B4 == dRes_INDEX_SHIP_BCK_FN_LOOK_L_e || m03B4 == dRes_INDEX_SHIP_BCK_FN_LOOK_R_e) && 
                  std::fabsf(mpHeadAnm->getPlaySpeed()) < 0.01f && 
                  cM_rnd() < 0.4f && (g_Counter.mTimer & 0x1FF) == 0x1FF && 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
                  (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3910) || dComIfGs_isEventBit(dSv_event_flag_c::UNK_2D02)) &&
 #endif
                  !checkStateFlg(daSFLG_UNK40000000_e)) {
