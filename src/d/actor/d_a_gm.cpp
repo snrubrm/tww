@@ -211,13 +211,8 @@ static BOOL daGM_Draw(gm_class* i_this) {
     }
 
     J3DModelData* modelData = model->getModelData();
-#if VERSION == VERSION_DEMO
     J3DModel* shadowModel = i_this->mpShadowModel;
     int i;
-#else
-    int i;
-    J3DModel* shadowModel = i_this->mpShadowModel;
-#endif
     for (i = 0; i < modelData->getJointNum(); i++) {
 #if VERSION == VERSION_DEMO
         shadowModel->setAnmMtx(i, model->getAnmMtx(i));
@@ -268,22 +263,11 @@ static BOOL daGM_Draw(gm_class* i_this) {
 /* 00000908-00000A34       .text anm_init__FP8gm_classifUcfi */
 void anm_init(gm_class* i_this, int bckFileIdx, float morf, unsigned char loopMode, float speed, int soundFileIdx) {
     i_this->mBckIdx = bckFileIdx;
-#if VERSION == VERSION_DEMO
     if (soundFileIdx >= 0) {
         i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx), loopMode, morf, speed, 0.0f, -1.0f, dComIfG_getObjectRes("GM", soundFileIdx));
     } else {
         i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx), loopMode, morf, speed, 0.0f, -1.0f, NULL);
     }
-#else
-    if (soundFileIdx >= 0) {
-        void* soundAnm = dComIfG_getObjectRes("GM", soundFileIdx);
-        J3DAnmTransform* bckAnm = (J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx);
-        i_this->mpMorf->setAnm(bckAnm, loopMode, morf, speed, 0.0f, -1.0f, soundAnm);
-    } else {
-        J3DAnmTransform* bckAnm = (J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx);
-        i_this->mpMorf->setAnm(bckAnm, loopMode, morf, speed, 0.0f, -1.0f, NULL);
-    }
-#endif
 }
 
 /* 00000A34-00000D00       .text wing_cut_stat__FP8gm_class */
@@ -297,14 +281,14 @@ BOOL wing_cut_stat(gm_class* i_this) {
         cXyz(-144.0f, 72.0f, -30.0f),
     };
 
+    u32 parameters;
     int i = 0;
     int bit = 1;
     while (i < 4) {
         if ((i_this->mWingBits & bit) == 0) {
-            u32 parameters = (i + 1) | 0x100;
+            parameters = (i + 1) | 0x100;
             if (i_this->m2D0 == 4) {
-                parameters = i;
-                parameters = (parameters + 1) | 0x200;
+                parameters = (i + 1) | 0x200;
             }
 
             cMtx_YrotS(*calc_mtx, (int)actor->shape_angle.y);
@@ -672,12 +656,7 @@ BOOL fly_move(gm_class* i_this) {
 
         s16 camY = dCam_getAngleY((camera_class*)dComIfGp_getCamera(0));
         for (int i = 0; i < 2; i++) {
-#if VERSION == VERSION_DEMO
             cMtx_YrotS(*calc_mtx, camY + ang);
-#else
-            s16 rot = camY + ang;
-            cMtx_YrotS(*calc_mtx, rot);
-#endif
             cXyz offset;
             offset.x = 0.0f;
             offset.y = 0.0f;
@@ -808,8 +787,7 @@ void action_dousa(gm_class* i_this) {
                 actor->speedF = -25.0f;
                 i_this->mTimers[3] = 1;
             } else {
-                int dmgWait = ((daPy_py_c*)player)->mDamageWaitTimer;
-                if ((s16)dmgWait) {
+                if (((daPy_py_c*)player)->getDamageWaitTimer()) {
                     actor->speedF = -50.0f;
                     i_this->mTimers[3] = 1;
                 }
@@ -835,12 +813,7 @@ void action_dousa(gm_class* i_this) {
         }
     }
     if (i_this->mAction != 4) {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m434, 1, i_this->m334);
-#else
-        s16 step = i_this->m334;
-        cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m434, 1, step);
-#endif
         i_this->m334 = 1700.0f;
         cLib_addCalc2(&i_this->m334, 1700.0f, 1.0f, 3.0f);
         int yawTarget = cM_atan2s(dx, dz);
@@ -1073,14 +1046,7 @@ void action_totugeki(gm_class* i_this) {
                 cLib_addCalc2(&i_this->current.pos.z, pos.z, 1.0f, 10.0f);
             }
         }
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&i_this->shape_angle.y, i_this->current.angle.y, 1, 0x1000);
-#else
-        {
-            s16 shapeTarget = i_this->current.angle.y;
-            cLib_addCalcAngleS2(&i_this->shape_angle.y, shapeTarget, 1, 0x1000);
-        }
-#endif
         if (i_this->m2E2 != 0) {
             break;
         }
@@ -1182,14 +1148,7 @@ void action_totugeki(gm_class* i_this) {
                 offset = i_this->m384[0] - i_this->current.pos;
             }
             i_this->shape_angle.y = cM_atan2s(offset.x, offset.z) + 0x4000;
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&i_this->shape_angle.y, i_this->current.angle.y, 1, 0x1000);
-#else
-            {
-                s16 shapeTarget = i_this->current.angle.y;
-                cLib_addCalcAngleS2(&i_this->shape_angle.y, shapeTarget, 1, 0x1000);
-            }
-#endif
         }
         break;
     }
@@ -1317,12 +1276,7 @@ void action_kabehari(gm_class* i_this) {
         cLib_addCalc2(&actor->current.pos.z, pos.z, 1.0f, 10.0f);
         offset = i_this->m384[0] - i_this->m384[1];
         actor->current.angle.y = cM_atan2s(offset.x, offset.z) + 0x4000;
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x1000);
-#else
-        s16 shapeTarget = actor->current.angle.y;
-        cLib_addCalcAngleS2(&actor->shape_angle.y, shapeTarget, 1, 0x1000);
-#endif
     }
 }
 
@@ -1854,12 +1808,7 @@ void action_ground_attack(gm_class* i_this) {
         cLib_addCalcAngleS2(&actor->shape_angle.x, angTarget, 1, 0x800);
     }
     if (i_this->mAction != 81 && i_this->mAction != 101 && i_this->mAction != 85) {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x800);
-#else
-        s16 shapeTarget = actor->current.angle.y;
-        cLib_addCalcAngleS2(&actor->shape_angle.y, shapeTarget, 1, 0x800);
-#endif
     }
     if (i_this->mBckIdx != dRes_INDEX_GM_BCK_G_DEAD01_e && i_this->mBckIdx != dRes_INDEX_GM_BCK_G_DEAD02_e) {
         if (body_atari_check(i_this)) {
@@ -2000,7 +1949,6 @@ void action_demo(gm_class* i_this) {
         i_this->mAction++;
         break;
     case 207: {
-#if VERSION == VERSION_DEMO
         f32 step = 0.1f * std::fabsf(i_this->m45C.x - 80.0f);
         cLib_addCalc2(&i_this->m45C.x, 80.0f + REG12_F(1), 1.0f, step);
         step = 0.1f * std::fabsf(i_this->m45C.y - 605.0f);
@@ -2014,26 +1962,6 @@ void action_demo(gm_class* i_this) {
         step = 0.1f * std::fabsf(i_this->m450.z - 582.0f);
         cLib_addCalc2(&i_this->m450.z, 582.0f + REG12_F(6), 1.0f, step);
         f32 target;
-#else
-        f32 target = 80.0f;
-        f32 step = 0.1f * std::fabsf(i_this->m45C.x - target);
-        cLib_addCalc2(&i_this->m45C.x, target + REG12_F(1), 1.0f, step);
-        target = 605.0f;
-        step = 0.1f * std::fabsf(i_this->m45C.y - target);
-        cLib_addCalc2(&i_this->m45C.y, target + REG12_F(2), 1.0f, step);
-        target = 877.0f;
-        step = 0.1f * std::fabsf(i_this->m45C.z - target);
-        cLib_addCalc2(&i_this->m45C.z, target + REG12_F(3), 1.0f, step);
-        target = 76.0f;
-        step = 0.1f * std::fabsf(i_this->m450.x - target);
-        cLib_addCalc2(&i_this->m450.x, target + REG12_F(4), 1.0f, step);
-        target = 621.0f;
-        step = 0.1f * std::fabsf(i_this->m450.y - target);
-        cLib_addCalc2(&i_this->m450.y, target + REG12_F(5), 1.0f, step);
-        target = 582.0f;
-        step = 0.1f * std::fabsf(i_this->m450.z - target);
-        cLib_addCalc2(&i_this->m450.z, target + REG12_F(6), 1.0f, step);
-#endif
         if (i_this->m2E2 != 0) {
             break;
         }
@@ -2071,15 +1999,7 @@ void action_demo(gm_class* i_this) {
 #endif
         }
         cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x1000);
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 1280.0f + REG12_F(16));
-#else
-        {
-            s16 pitchTarget = 0;
-            s16 pitchMax = 1280.0f + REG12_F(16);
-            cLib_addCalcAngleS2(&actor->shape_angle.x, pitchTarget, 1, pitchMax);
-        }
-#endif
         f32 step = 50.0f + REG12_F(17);
         cLib_addCalc2(&i_this->m45C.x, actor->current.pos.x, 1.0f, step);
         cLib_addCalc2(&i_this->m45C.y, actor->current.pos.y + REG12_F(10), 1.0f, step);
@@ -2372,12 +2292,8 @@ static BOOL daGM_Execute(gm_class* i_this) {
 
         if (i_this->m2CD == 0) {
             if (enemy_ice(&i_this->mEnemyIce)) {
-#if VERSION == VERSION_DEMO
                 J3DModel* model = i_this->mpMorf->getModel();
                 model->setBaseTRMtx(mDoMtx_stack_c::get());
-#else
-                i_this->mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
-#endif
                 i_this->mpMorf->calc();
                 actor->attention_info.position = i_this->mAtamaPos;
                 actor->attention_info.position.y += 100.0f;
@@ -2444,12 +2360,7 @@ static BOOL daGM_Execute(gm_class* i_this) {
                 wing_ret_set(i_this);
             }
             if (i_this->m2D0 != 2) {
-#if VERSION == VERSION_DEMO
                 cLib_addCalcAngleS2(&actor->shape_angle.z, i_this->m436, 1, 0x100);
-#else
-                s16 zTarget = i_this->m436;
-                cLib_addCalcAngleS2(&actor->shape_angle.z, zTarget, 1, 0x100);
-#endif
                 s16 zero = 0;
                 cLib_addCalcAngleS2(&i_this->m436, zero, 1, 0x100);
             }
@@ -2457,16 +2368,7 @@ static BOOL daGM_Execute(gm_class* i_this) {
 
         if (i_this->m2EC == 0) {
             s8 roomNo = fopAcM_GetRoomNo(actor);
-#if VERSION == VERSION_DEMO
             u32 mtrlSndId = i_this->mAcch.ChkGroundHit() ? dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd) : 0;
-#else
-            u32 mtrlSndId;
-            if (i_this->mAcch.ChkGroundHit()) {
-                mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd);
-            } else {
-                mtrlSndId = 0;
-            }
-#endif
             i_this->mpMorf->play(&actor->eyePos, mtrlSndId, dComIfGp_getReverb(roomNo));
         }
 
