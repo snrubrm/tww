@@ -553,11 +553,11 @@ u8 daNpc_Pm1_c::demo() {
     }
     return mDemo;
 }
-// Retain the unused debug drawing colors present in the original actor.
-extern const GXColor l_pm1DebugRed = {255, 0, 0, 128};
-extern const GXColor l_pm1DebugBlue = {0, 0, 255, 128};
 /* 00001558-000016BC       .text _draw__11daNpc_Pm1_cFv */
 BOOL daNpc_Pm1_c::_draw() {
+    // Unused colors, needed for the .rodata section to match.
+    GXColor red = {0xFF, 0x00, 0x00, 0x80};
+    GXColor blue = {0x00, 0x00, 0xFF, 0x80};
     daNpc_Pm1_c* i_this = this;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
