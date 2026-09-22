@@ -4094,6 +4094,7 @@ void dMap_2DAGBScrDsp_c::draw() {
             continue;
         }
 
+        // Always equal here, but the demo binary still compares them (cmpw rN, rN).
         int srcY = tileY;
         texT0 = margin;
         texT1 = 1.0f - margin;
