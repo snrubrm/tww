@@ -708,7 +708,7 @@ int dRes_control_c::syncAllRes(dRes_info_c* pInfo, int infoNum) {
 int dRes_control_c::setStageRes(char const* pArcName, JKRHeap* pHeap) {
     char path[20];
     snprintf(path, sizeof(path), "/res/Stage/%s/", strcmp(dComIfGp_getStartStageName(), "ma2room") == 0 && dComIfGs_isEventBit(dSv_event_flag_c::UNK_1820) ? "ma3room" : dComIfGp_getStartStageName());
-    return setRes(pArcName, &mStageInfo[0], ARRAY_SIZE(mStageInfo), path, 1, pHeap);
+    return setRes(pArcName, &mStageInfo[0], ARRAY_SIZE(mStageInfo), path, DEMO_SELECT(0, 1), pHeap);
 }
 
 /* 8006F500-8006F580       .text dump__14dRes_control_cFv */
