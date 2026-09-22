@@ -309,9 +309,7 @@ void daNpc_So_c::cutEatesaFirstProc() {
     daShip_c* ship = dComIfGp_getShipActor();
     cXyz pos = actor->current.pos;
     if (ship != NULL) {
-        int tmp = ship->shape_angle.y + REG12_S(6);
-        tmp -= 0x4000;
-        s16 ang = tmp;
+        s16 ang = ship->shape_angle.y - 0x4000 + REG12_S(6);
         pos = ship->current.pos;
         pos.x += 260.0f * cM_ssin(ang);
         pos.z += 260.0f * cM_scos(ang);
@@ -633,9 +631,7 @@ void daNpc_So_c::cutMiniGameProc() {
     bool finished = false;
     daShip_c* ship = dComIfGp_getShipActor();
     if (ship != NULL) {
-        int tmp = ship->shape_angle.y + REG12_S(6);
-        tmp -= 0x4000;
-        ang = tmp;
+        ang = ship->shape_angle.y - 0x4000 + REG12_S(6);
         pos = ship->current.pos;
     }
 
@@ -872,9 +868,7 @@ void daNpc_So_c::cutMiniGameWarpStart() {
     player->setPlayerPosAndAngle(&mMinigamePos, playerAng);
     mSpeed = 0.0f;
     speedF = mSpeed;
-    int tmp = ship->shape_angle.y + REG12_S(6);
-    tmp -= 0x4000;
-    s16 ang = tmp;
+    s16 ang = ship->shape_angle.y - 0x4000 + REG12_S(6);
     current.pos = mMinigamePos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
@@ -901,9 +895,7 @@ void daNpc_So_c::cutMiniGameWarpProc() {
     current.pos.x += r * cM_ssin(ang);
     current.pos.z += r * cM_scos(ang);
 #else
-    int tmp = ship->shape_angle.y + REG12_S(6);
-    tmp -= 0x4000;
-    s16 ang = tmp;
+    s16 ang = ship->shape_angle.y - 0x4000 + REG12_S(6);
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
@@ -942,9 +934,7 @@ void daNpc_So_c::cutMiniGameReturnProc() {
     current.pos.x += r * cM_ssin(ang);
     current.pos.z += r * cM_scos(ang);
 #else
-    int tmp = ship->shape_angle.y + REG12_S(6);
-    tmp -= 0x4000;
-    s16 ang = tmp;
+    s16 ang = ship->shape_angle.y - 0x4000 + REG12_S(6);
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
@@ -1040,9 +1030,7 @@ void daNpc_So_c::cutMiniGamePlTurnProc() {
     current.pos.x += r * cM_ssin(ang);
     current.pos.z += r * cM_scos(ang);
 #else
-    int tmp = ship->shape_angle.y + REG12_S(6);
-    tmp -= 0x4000;
-    s16 ang = tmp;
+    s16 ang = ship->shape_angle.y - 0x4000 + REG12_S(6);
     current.pos = ship->current.pos;
     current.pos.x += 300.0f * cM_ssin(ang);
     current.pos.z += 300.0f * cM_scos(ang);
