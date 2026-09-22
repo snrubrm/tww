@@ -716,7 +716,7 @@ void dPa_control_c::swapFrameBufferTexture() {
 void dPa_control_c::createCommon(const void* param_1) {
     mCommonResMng = new (mHeap, 0) JPAResourceManager(param_1, mHeap);
     JUT_ASSERT(VERSION_SELECT(1312, 1312, 1313, 1314), mCommonResMng != NULL);
-    mCommonResMng->swapTexture(mDoGph_gInf_c::mFrameBufferTimg, "AK_kagerouSwap00");
+    mCommonResMng->swapTexture(mDoGph_gInf_c::getFrameBufferTimg(), "AK_kagerouSwap00");
     mEmitterMng = new(mHeap, 0) JPAEmitterManager(mCommonResMng, 3000, 150, 200, mHeap);
     JUT_ASSERT(VERSION_SELECT(1322, 1322, 1324, 1325), mEmitterMng != NULL);
     JKRHeap* oldHeap = mDoExt_setCurrentHeap(mHeap);
@@ -725,9 +725,7 @@ void dPa_control_c::createCommon(const void* param_1) {
     for (u16 i = 0; i < 8; i++) {
         u16 id = dPa_name::j_o_id[i];
         if (mCommonResMng->pEmtrRes->checkUserIndexDuplication(id)) {
-            u8 groupID = (id & 0x4000) ? dPtclGroup_Projection_e :
-                         dPtclGroup_Normal_e;
-            newSimple(id, groupID);
+            newSimple(id, (id & 0x4000) ? dPtclGroup_Projection_e : dPtclGroup_Normal_e);
         }
     }
     mNumSimpleCommon = mNumSimple;
@@ -744,13 +742,13 @@ void dPa_control_c::createRoomScene(const void* param_1) {
     mpData = param_1;
     mSceneResMng = new (mSceneHeap, 0) JPAResourceManager(mpData, mSceneHeap);
     JUT_ASSERT(VERSION_SELECT(1364, 1364, 1373, 1374), mSceneResMng != NULL);
-    mSceneResMng->swapTexture(mDoGph_gInf_c::mFrameBufferTimg, "AK_kagerouSwap00");
+    mSceneResMng->swapTexture(mDoGph_gInf_c::getFrameBufferTimg(), "AK_kagerouSwap00");
     mEmitterMng->pResMgrArray[1] = mSceneResMng;
     mDoExt_adjustSolidHeap(mSceneHeap);
     for (u16 i = 0; i < 34; i++) {
         u16 id = dPa_name::s_o_id[i];
         if (mSceneResMng->pEmtrRes->checkUserIndexDuplication(id)) {
-            u8 groupID = (id & 0x4000) ? dPtclGroup_Projection_e :
+            int groupID = (id & 0x4000) ? dPtclGroup_Projection_e :
                          (id & 0x2000) ? dPtclGroup_Toon_e :
                          dPtclGroup_Normal_e;
             newSimple(id, groupID);
@@ -803,7 +801,9 @@ void dPa_control_c::removeScene() {
     for (s32 i = 0; i < mNumSimpleCommon; i++)
         mSimpleCallbacks[i].mpBaseEmitter = NULL;
     mEmitterMng->forceDeleteAllEmitter();
+#if VERSION > VERSION_DEMO
     mModelControl->~dPa_modelControl_c();
+#endif
 }
 
 /* 8007D094-8007D0DC       .text calc3D__13dPa_control_cFv */
