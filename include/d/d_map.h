@@ -517,6 +517,10 @@ public:
     static void mapMoveAll(f32, f32, int, f32);
     static void mapDrawAll(f32, f32, int, f32);
     static void mapDrawIcon();
+#if VERSION == VERSION_DEMO
+    static void drawTest_dummy(f32, f32, int, f32);
+    static void drawTest(f32, f32, int, f32);
+#endif
     static void draw(f32, f32, int, f32);
 #if VERSION == VERSION_DEMO
     static void drawTest_dummy(f32, f32, int, f32);

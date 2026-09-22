@@ -69,9 +69,14 @@ enum {
 #define Floor_Num (Floor_5F - Floor_B5F + 1)
 #define Floor_Valid(no) (no >= 0) && (no < Floor_Num)
 
+#if VERSION == VERSION_DEMO
+dMap_RoomInfo_c dMap_c::mRoomInfo[20];
+#endif
 u8 dMap_c::mAgbSendBuf[130];
 u8 dMap_c::mAgbSendBufIsland[196];
+#if VERSION > VERSION_DEMO
 dMap_RoomInfo_c dMap_c::mRoomInfo[20];
+#endif
 dMap_2DMtMapSpcl_c dMap_c::mFrameTex[8];
 dMap_2DMtMapSpcl_tex_c dMap_c::mFrameTexture[8];
 dMap_2DMtMapSpcl_c dMap_c::mIconFreeTex;
@@ -159,7 +164,7 @@ dMap_RoomInfoCtrl_c dMap_c::mRoomInfoCtrl;
 dMap_RoomInfo_c* dMap_c::mNowRoomInfoP;
 
 #if VERSION == VERSION_DEMO
-class dMap_HIO_c {
+class dMap_HIO_c : public JORReflexible {
 public:
     dMap_HIO_c();
     virtual ~dMap_HIO_c() {}
@@ -1331,17 +1336,25 @@ void dMap_c::create() {
     mAlpha = 0;
     mapAGBSendStatInit();
     mAGBMapSendStatus = 0;
+#if VERSION == VERSION_DEMO
+    mDispPosLeftUpX = g_mapHIO.field_0x14;
+    mDispPosLeftUpY = g_mapHIO.field_0x16;
+    mDispSizeX = 120;
+    mDispSizeY = 120;
+    mIconFreePosX = g_mapHIO.field_0x14 + 60;
+#else
     mDispPosLeftUpX = 25;
     mDispPosLeftUpY = 338;
     mDispSizeX = 120;
     mDispSizeY = 120;
     mIconFreePosX = 85;
+#endif
     mIconFreePosY = 324;
     ResTIMG* timg;
     int i;
     for (i = 0; i < 8; i++) {
         timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", frameArcIdx[i]));
-        JUT_ASSERT(VERSION_SELECT(3450, 3446, 3450, 3450), timg != NULL);
+        JUT_ASSERT(VERSION_SELECT(3617, 3446, 3450, 3450), timg != NULL);
         mFrameTexture[i].init(timg, i + 2, (GXColor){255, 255, 255, 255});
         mFrameTexture[i].field_0x0 = 1;
         mFrameTexture[i].setScroll(cord[i][0], cord[i][1], cord[i][2], cord[i][3]);
@@ -1355,22 +1368,22 @@ void dMap_c::create() {
 #else
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_FREE_e));
 #endif
-    JUT_ASSERT(VERSION_SELECT(3476, 3460, 3476, 3476), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3631, 3460, 3476, 3476), timg != NULL);
     mIconFreeTexture.init(timg, 10, (GXColor){255, 210, 0, 255});
     mIconFreeTexture.field_0x0 = 1;
     mIconFreeTexture.setScroll(0.0f, 0.0f, 1.0f, 1.0f);
     mIconFreeTex.init(1, &mIconFreeTexture);
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_SELF_e));
-    JUT_ASSERT(VERSION_SELECT(3489, 3473, 3489, 3489), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3644, 3473, 3489, 3489), timg != NULL);
     mIconSelfTexture.init(timg, 10, (GXColor){255, 222, 255, 255});
     mIconSelfTexture.field_0x0 = 1;
     mIconSelfTexture.setScroll(0.0f, 0.0f, 1.0f, 1.0f);
     mIconSelfTex.init(1, &mIconSelfTexture);
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_F_SHIPICON_e));
-    JUT_ASSERT(VERSION_SELECT(3502, 3486, 3502, 3502), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3657, 3486, 3502, 3502), timg != NULL);
     mShip.init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0, 1.0f, 1.0f, 0);
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_TREASUREBOX_e));
-    JUT_ASSERT(VERSION_SELECT(3511, 3495, 3511, 3511), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3666, 3495, 3511, 3511), timg != NULL);
     for (i = 0; i < 8; i++) {
         mTbox[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
@@ -1379,6 +1392,9 @@ void dMap_c::create() {
         mDoor[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
     initPoint();
+#if VERSION == VERSION_DEMO
+    g_mapHIO.mNo = mDoHIO_createChild("マップ", &g_mapHIO);
+#endif
 }
 
 /* 8004826C-800482B4       .text isEnableEnlargementScroll__6dMap_cFv */
@@ -1406,6 +1422,9 @@ int dMap_c::getKindMapType() {
 /* 80048340-80048370       .text remove__6dMap_cFv */
 void dMap_c::remove() {
     mDoGaC_SendEntry(1, 1);
+#if VERSION == VERSION_DEMO
+    mDoHIO_deleteChild(g_mapHIO.mNo);
+#endif
 }
 
 /* 80048370-800484A4       .text setImage__6dMap_cFiif */
@@ -1435,6 +1454,9 @@ void dMap_c::setImage(int param_1, int param_2, f32 param_3) {
 
 /* 800484A4-800484F4       .text deleteImage__6dMap_cFi */
 void dMap_c::deleteImage(int param_1) {
+#if VERSION == VERSION_DEMO
+    mRoomInfoCtrl.deleteRoom(param_1);
+#else
     if (param_1 < 0) {
         return;
     }
@@ -1442,6 +1464,7 @@ void dMap_c::deleteImage(int param_1) {
     if (param_1 == dStage_roomControl_c::getStayNo()) {
         mNowRoomInfoP = NULL;
     }
+#endif
 }
 
 /* 800484F4-80048660       .text setNowRoom__6dMap_cFi */
@@ -1772,7 +1795,9 @@ BOOL dMap_c::isInDspArea(f32 param_1, f32 param_2, bool param_3) {
 
 /* 80049B1C-80049B64       .text mapAGBSendStatInit__6dMap_cFv */
 void dMap_c::mapAGBSendStatInit() {
+#if VERSION > VERSION_DEMO
     mAGBMapSendStopFlg = false;
+#endif
     memset(mAgbSendNowStageName, 0, sizeof(mAgbSendNowStageName));
     mAgbSendNowRoomNo = -1;
     mAgbSendNowDspFloorNo = -1;
@@ -2033,6 +2058,29 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
 
 /* 8004A6E8-8004A760       .text mapDrawAll__6dMap_cFffif */
 void dMap_c::mapDrawAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
+#if VERSION == VERSION_DEMO
+    if (mNowRoomInfoP) {
+        if (mNowRoomInfoP->getEnableFlg() == DSP_ENABLE_BOTH_SIZE && mDispPosLeftUpX < 650) {
+            if (mMapDispMode == 1) {
+                mapDrawEnlargementSize(mEnlargementSizeCenterX, mEnlargementSizeCenterZ, mEnlargementSizeScaleX, mEnlargementSizeScaleZ, mCompAlpha);
+            } else {
+                mapDrawRealSize(param_1, param_2, mCompAlpha);
+            }
+            mapDrawFrame(mCompAlpha);
+        }
+        if (mIconDispMode == dMapIconDisp_SELF_e) {
+            mapDrawIconSelf(mIconFreePosX, mIconFreePosY, mIconSelfAlpha);
+        } else if (mIconDispMode == dMapIconDisp_FREE_e) {
+            mapDrawIconFree(mIconFreePosX, mIconFreePosY, mIconFreeAlpha);
+        }
+        cXyz& restartPos = dComIfGs_getRestartRoomPos();
+        setCollectPoint(
+            20, 9,
+            restartPos.x, restartPos.y, restartPos.z,
+            dComIfGs_getRestartRoomNo(), dComIfGs_getRestartRoomAngleY(), 0, 0, 0, 0
+        );
+    }
+#else
     if (mNowRoomInfoP && mNowRoomInfoP->getEnableFlg() == DSP_ENABLE_BOTH_SIZE && mDispPosLeftUpX < 650) {
         if (mMapDispMode == 1) {
             mapDrawEnlargementSize(mEnlargementSizeCenterX, mEnlargementSizeCenterZ, mEnlargementSizeScaleX, mEnlargementSizeScaleZ, mCompAlpha);
@@ -2041,8 +2089,24 @@ void dMap_c::mapDrawAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
         }
         mapDrawFrame(mCompAlpha);
     }
+#endif
 }
 
+#if VERSION == VERSION_DEMO
+void dMap_c::drawTest_dummy(f32 param_1, f32 param_2, int param_3, f32 param_4) {
+    if (!g_mapHIO.field_0xd) {
+        draw(param_1, param_2, param_3, param_4);
+    }
+}
+
+void dMap_c::drawTest(f32 param_1, f32 param_2, int param_3, f32 param_4) {
+    if (g_mapHIO.field_0xd) {
+        draw(param_1, param_2, param_3, param_4);
+    }
+}
+#endif
+
+#if VERSION > VERSION_DEMO
 /* 8004A760-8004A7B4       .text mapDrawIcon__6dMap_cFv */
 void dMap_c::mapDrawIcon() {
     if (mIconDispMode == dMapIconDisp_SELF_e) {
@@ -2051,9 +2115,16 @@ void dMap_c::mapDrawIcon() {
         mapDrawIconFree(mIconFreePosX, mIconFreePosY, mIconFreeAlpha);
     }
 }
+#endif
 
 /* 8004A7B4-8004A82C       .text draw__6dMap_cFffif */
 void dMap_c::draw(f32 param_1, f32 param_2, int param_3, f32 param_4) {
+#if VERSION == VERSION_DEMO
+    if (g_HIO.field_0x09) {
+        mapMoveAll(param_1, param_2, param_3, param_4);
+        mapDrawAll(param_1, param_2, param_3, param_4);
+    }
+#else
     if (param_3 >= 0) {
         mapMoveAll(param_1, param_2, param_3, param_4);
         if (g_HIO.field_0x09) {
@@ -2061,6 +2132,7 @@ void dMap_c::draw(f32 param_1, f32 param_2, int param_3, f32 param_4) {
             mapDrawIcon();
         }
     }
+#endif
 }
 
 /* 8004A82C-8004A97C       .text point2Grid__6dMap_cFffPScPSc */
