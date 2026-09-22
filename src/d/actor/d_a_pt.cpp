@@ -303,22 +303,12 @@ BOOL next_pos_set(pt_class* i_this) {
 #else
         s16 ang = i_this->m2FC;
 #endif
-        if (i_this->mTimers[1] == 0) {
-            if (i_this->mEnableSpawnSwitch != 0xFF) {
-                if (!dComIfGs_isSwitch(i_this->mEnableSpawnSwitch, dStage_roomControl_c::getStayNo())) {
-                    goto flip_ang;
-                }
-            }
-            if (i_this->mDisableRespawnSwitch == 0xFF) {
-                goto noflip_ang;
-            }
-            if (!dComIfGs_isSwitch(i_this->mDisableRespawnSwitch, dStage_roomControl_c::getStayNo())) {
-                goto noflip_ang;
-            }
+        if (i_this->mTimers[1] != 0 ||
+            (i_this->mEnableSpawnSwitch != 0xFF && !dComIfGs_isSwitch(i_this->mEnableSpawnSwitch, dStage_roomControl_c::getStayNo())) ||
+            (i_this->mDisableRespawnSwitch != 0xFF && dComIfGs_isSwitch(i_this->mDisableRespawnSwitch, dStage_roomControl_c::getStayNo())))
+        {
+            ang += 0x8000;
         }
-    flip_ang:
-        ang += 0x8000;
-    noflip_ang:
         ang += (s16)cM_rndFX(4000.0f);
         mDoMtx_YrotS(*calc_mtx, ang);
         cMtx_XrotM(*calc_mtx, actor->current.angle.x);
