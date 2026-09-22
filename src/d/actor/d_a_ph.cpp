@@ -1262,6 +1262,9 @@ void ph_hane_move(ph_class* i_this) {
 /* 00002F50-00003768       .text ph_bunri_move__FP8ph_class */
 void ph_bunri_move(ph_class* i_this) {
     fopAc_ac_c* actor = i_this;
+#if VERSION == VERSION_DEMO
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+#endif
 
     switch (i_this->m0346) {
     case 0x14:
