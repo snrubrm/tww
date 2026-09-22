@@ -54,7 +54,9 @@ bool daTag_Ba1_c::createInit() {
     if (ret) {
         attention_info.flags = fopAc_Attn_ACTION_SPEAK_e;
         attention_info.distances[fopAc_Attn_TYPE_SPEAK_e] = 0x1A;
-        mEventIdTable[0] = dComIfGp_evmng_getEventIdx(l_evn_tbl[0]);
+        for (int i = 0; i < 1; i++) {
+            mEventIdTable[i] = dComIfGp_evmng_getEventIdx(l_evn_tbl[i]);
+        }
         eventInfo.setXyCheckCB((dEvt_info_c::CallbackFunc)daTag_Ba1_XyCheck_cB);
         eventInfo.setXyEventCB(daTag_Ba1_XyEvent_cB);
     }
@@ -69,7 +71,7 @@ BOOL daTag_Ba1_c::_draw() {
 /* 00000290-00000340       .text _execute__11daTag_Ba1_cFv */
 BOOL daTag_Ba1_c::_execute() {
     int staff_id = -1;
-    if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) {
+    if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) {
         staff_id = dComIfGp_evmng_getMyStaffId("TagBa1");
     }
     if (staff_id >= 0 && dComIfGp_evmng_endCheck(mEventIdTable[mEventIndex])) {
