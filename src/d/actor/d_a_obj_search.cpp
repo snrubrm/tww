@@ -701,7 +701,6 @@ void daObj_Search::Act_c::modeSearchBdk() {
     } else {
         static cXyz pos = cXyz(0.0f, 100.0f, 0.0f);
         cXyz offset = pos;
-        (void)offset;
 
         s16 pitch;
         if (mSearchSide == 1) {
