@@ -601,7 +601,8 @@ bool daObjBarrel::Act_c::damage_cc_proc() {
                     }
                 }
                 float ratio = windMag2 > 0.01f ? l_tgr_ratio : 0.0f;
-                mMove = windVec * ratio + hitNormal * (1.0f - ratio) * f1;
+                float inv = 1.0f - ratio;
+                mMove = windVec * ratio + hitNormal * inv * f1;
                 if (mMode == MODE_WAIT) {
                     if (shape_angle.z == 0) {
                         mode_jump_init();
