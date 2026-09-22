@@ -448,32 +448,15 @@ void dMsg2_yose_select(sub_msg2_class* i_Msg, u8 i_index) {
     dMsg2_textPosition(i_Msg, i_index);
 }
 
-inline int dMsg2_getShiftY(sub_msg2_class* i_Msg, u8 i_index) {
-    return i_Msg->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - i_Msg->field_0xecc[i_index]);
-}
-
 /* 801E86E8-801E8798       .text dMsg2_textPosition__FP14sub_msg2_classUc */
+// NONMATCHING - regalloc (retail: shift product in r7 instead of r0); demo converts y before loading each pane
 void dMsg2_textPosition(sub_msg2_class* i_Msg, u8 i_index) {
-#if VERSION == VERSION_DEMO
-    int r7 = 0;
-    int temp_r0 = dMsg2_getShiftY(i_Msg, i_index);
-    f32 y;
-    y = temp_r0;
-    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, y);
-    y = temp_r0;
-    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, y);
-    y = temp_r0;
-    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, y);
-    y = temp_r0;
-    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, y);
-#else
-    f32 r7 = 0.0f;
-    int temp_r0 = dMsg2_getShiftY(i_Msg, i_index);
-    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, temp_r0);
-    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, temp_r0);
-    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
-    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
-#endif
+    int x = 0;
+    int y = i_Msg->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - i_Msg->field_0xecc[i_index]);
+    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(x, y);
+    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(x, y);
+    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(x, y);
+    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(x, y);
 }
 
 /* 801E8798-801E880C       .text dMsg2_rubySet__FP14sub_msg2_class */
