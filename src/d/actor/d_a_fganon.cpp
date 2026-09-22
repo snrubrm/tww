@@ -1312,7 +1312,6 @@ void last_end(fganon_class* i_this) {
 /* 000056A4-00006288       .text damage_check__FP12fganon_class */
 void damage_check(fganon_class* i_this) {
     CcAtInfo atInfo;
-    cXyz* pPos;
 
     csXyz local_a0;
     cXyz local_44;
@@ -1451,8 +1450,7 @@ void damage_check(fganon_class* i_this) {
             if (i_this->mCyl.ChkTgHit()) {
                 if(((i_this->mAction == 8) || (i_this->mAction == 7)) || (i_this->mAction == 10)) {
                     atInfo.mpObj = i_this->mCyl.GetTgHitObj();
-                    pPos = i_this->mCyl.GetTgHitPosP();
-                    atInfo.pParticlePos = pPos;
+                    atInfo.pParticlePos = i_this->mCyl.GetTgHitPosP();
                     atInfo.mpActor = at_power_check(&atInfo);
                     if((atInfo.mpObj != NULL) && (atInfo.mpObj->ChkAtType(AT_TYPE_SWORD)) && (dComIfGs_getSelectEquip(0) == dItemNo_MASTER_SWORD_1_e ||
                                                                                               dComIfGs_getSelectEquip(0) == dItemNo_MASTER_SWORD_3_e ||
@@ -1481,7 +1479,7 @@ void damage_check(fganon_class* i_this) {
                         local_a0.x = 0.0f;
                         local_a0.y = fopAcM_searchPlayerAngleY(a_this);
 
-                        dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, pPos, &local_a0, &local_44);
+                        dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, i_this->mCyl.GetTgHitPosP(), &local_a0, &local_44);
 
                         if ((i_this->mAction == 7) || (i_this->mAction == 10)) {
                             i_this->mAction = 8;
