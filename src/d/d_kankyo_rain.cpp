@@ -13,6 +13,9 @@
 #include "d/d_kankyo_wether.h"
 #include "d/d_snap.h"
 #include "d/actor/d_a_player.h"
+#if VERSION == VERSION_DEMO
+#include "d/d_s_play.h"
+#endif
 #include "f_op/f_op_camera.h"
 #include "f_op/f_op_camera_mng.h"
 #include "f_op/f_op_kankyo_mng.h"
@@ -2027,7 +2030,7 @@ void wave_move() {
 
 
 /* 80091964-80092294       .text cloud_shadow_move__Fv */
-#if VERSION == VERSION_JPN
+#if VERSION <= VERSION_JPN
 void cloud_shadow_move() {
     dKankyo_cloud_Packet* pPkt = dKy_getEnvlight().mpMoyaPacket;
     camera_process_class* pCamera = (camera_process_class*)dComIfGp_getCamera(0);
@@ -2202,7 +2205,7 @@ void cloud_shadow_move() {
             }
         }
 
-        cLib_addCalc(&pPkt->mEff[i].mAlpha, alphaTarget * maxAlpha, 0.02f, 0.005f, 0.00000001f);
+        cLib_addCalc(&pPkt->mEff[i].mAlpha, alphaTarget * maxAlpha, 0.02f, DEMO_SELECT(0.01f, 0.005f), 0.00000001f);
     }
 }
 #else
@@ -3963,6 +3966,9 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
     GXSetCurrentMtx(GX_PNMTX0);
 
     for (s32 i = 0; i < pPkt->mRainCount; i++) {
+#if VERSION == VERSION_DEMO
+        f32 flipX = -1.0f;
+#endif
         f32 alpha = pPkt->mEff[i].mAlpha;
         if (alpha <= 0.0f)
             continue;
@@ -3982,10 +3988,16 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
         f32 size = 2.5f + (i / 250.0f);
         f32 speed = 5.0f + (dist * 70.0f);
         tilt.x = speed * ((windvec.x + (10.0f * (pPkt->mCenterDelta.x * pPkt->mCenterDeltaMul))) + (dummy.x + (0.08f * (i & 0x07))));
+#if VERSION == VERSION_DEMO
+        tilt.y = speed * ((windvec.y + (REG3_F(6) * (pPkt->mCenterDelta.y * pPkt->mCenterDeltaMul))) + dummy.y);
+#else
         tilt.y = speed * ((windvec.y + (pPkt->mCenterDelta.y * pPkt->mCenterDeltaMul)) + dummy.y);
+#endif
         tilt.z = speed * ((windvec.z + (10.0f * (pPkt->mCenterDelta.z * pPkt->mCenterDeltaMul))) + (dummy.z + (0.08f * (i & 0x03))));
 
+#if VERSION > VERSION_DEMO
         f32 flipX = -1.0f;
+#endif
         vp.x = -size * flipX;
         vp.y = 0.0f;
         vp.z = 0.0f;
@@ -4047,7 +4059,11 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
 
 /* 8009682C-80096D18       .text dKyr_drawSibuki__FPA4_fPPUc */
 void dKyr_drawSibuki(Mtx drawMtx, u8** pImg) {
+#if VERSION == VERSION_DEMO
+    camera_process_class *pCamera = (camera_process_class*)g_dComIfG_gameInfo.play.mCameraInfo[0].mpCamera;
+#else
     camera_process_class *pCamera = dComIfGp_getCamera(0);
+#endif
     dKankyo_rain_Packet * pPkt = g_env_light.mpRainPacket;
 
     if (g_env_light.mSnowCount == 0 && dComIfGd_getView() != NULL) {
@@ -4249,6 +4265,27 @@ void drawPoison(Mtx drawMtx, u8** pImg) {
 
         f32 cosR = std::fabsf(cM_scos(envLight.mpPoisonPacket->mCount * 500.0f + i * 4000));
         cosR *= cosR;
+#if VERSION == VERSION_DEMO
+        u8 from, to;
+        from = 95;
+        to = 45;
+        reg0.r = from + cosR * ((f32)to - (f32)from);
+        from = 186;
+        to = 136;
+        reg0.g = from + cosR * ((f32)to - (f32)from);
+        from = 226;
+        to = 170;
+        reg0.b = from + cosR * ((f32)to - (f32)from);
+        from = 115;
+        to = 109;
+        reg1.r = from + cosR * ((f32)to - (f32)from);
+        from = 206;
+        to = 60;
+        reg1.g = from + cosR * ((f32)to - (f32)from);
+        from = 255;
+        to = 205;
+        reg1.b = from + cosR * ((f32)to - (f32)from);
+#else
         f32 t50 = -50.0f;
         f32 t56 = -56.0f;
         f32 t6 = -6.0f;
@@ -4261,6 +4298,7 @@ void drawPoison(Mtx drawMtx, u8** pImg) {
         reg1.r = 115.0f + cosR * t6;
         reg1.g = 206.0f + cosR * t146;
         reg1.b = 255.0f + cosR * t50;
+#endif
 
         reg0.a = pPkt->mEff[i].mAlpha * 255.0f;
 
@@ -4340,6 +4378,7 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
     }
 
     f32 var_f25 = 255.0f;
+    f32 var_f27 = 3.0f;
 
     GXColor color_reg0;
     color_reg0.r = 0xE5;
@@ -4359,7 +4398,6 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
         return;
     }
 
-    f32 var_f27 = 3.0f;
 
     for (int i = 0; i < 2; i++) {
         dKyr_set_btitex(&spDC, (ResTIMG*)pImg[0]);
@@ -4429,8 +4467,8 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
                 ) {
                     continue;
                 }
-                color_reg0.a = housi_packet->mEffect[j].mAlpha * 40.0f *
-                                (1.0f - ((spD0.y - player->current.pos.y) / 100.0f));
+                f32 ratio = 1.0f - ((spD0.y - player->current.pos.y) / temp_f4);
+                color_reg0.a = housi_packet->mEffect[j].mAlpha * 40.0f * ratio;
                 spD0.y = player->current.pos.y - 20.0f;
             } else {
                 color_reg0.a = housi_packet->mEffect[j].mAlpha * var_f25;
@@ -4476,16 +4514,14 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
 
             GXBegin(GX_QUADS, GX_VTXFMT0, 4);
 
-            s16 var_r17 = 0x1FF;
-
             GXPosition3f32(pos[0].x, pos[0].y, pos[0].z);
             GXTexCoord2s16(0, 0);
             GXPosition3f32(pos[1].x, pos[1].y, pos[1].z);
-            GXTexCoord2s16(var_r17, 0);
+            GXTexCoord2s16(0x1FF, 0);
             GXPosition3f32(pos[2].x, pos[2].y, pos[2].z);
-            GXTexCoord2s16(var_r17, var_r17);
+            GXTexCoord2s16(0x1FF, 0x1FF);
             GXPosition3f32(pos[3].x, pos[3].y, pos[3].z);
-            GXTexCoord2s16(0, var_r17);
+            GXTexCoord2s16(0, 0x1FF);
             GXEnd();
         }
     }
@@ -4782,6 +4818,7 @@ void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
 
     GXColor color_reg0;
     GXColor color_reg1;
+    f32 eight;
 
     if (strcmp(dComIfGp_getStartStageName(), "Adanmae") != 0) {
         color_reg0.r = 0xFF;
@@ -4794,6 +4831,7 @@ void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
 
         color_reg0.a = 0x78;
         color_reg1.a = 0x78;
+        eight = 8.0f;
     } else {
         dKyr_drawKazanbai(drawMtx, pImg);
         return;
@@ -4845,16 +4883,15 @@ void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
     GXSetCurrentMtx(GX_PNMTX0);
 
     for (int i = 0; i < snow_packet->mEffCount; i++) {
-        f32 sp44 = -1.0f;
-
         sp7C.x = snow_packet->mEff[i].mBasePos.x + snow_packet->mEff[i].mPos.x;
         sp7C.y = snow_packet->mEff[i].mBasePos.y + snow_packet->mEff[i].mPos.y;
         sp7C.z = snow_packet->mEff[i].mBasePos.z + snow_packet->mEff[i].mPos.z;
 
         f32 var_f30;
+        f32 sp44 = -1.0f;
         f32 sp38 = 2.0f * (i / 250.0f) * snow_packet->field_0x36d0;
         f32 temp_f1 = snow_packet->mEff[i].mScale + (snow_packet->mEff[i].mScale - SQUARE(snow_packet->mEff[i].mScale));
-        var_f30 = temp_f1 * ((i / 250) + 8.0f);
+        var_f30 = temp_f1 * (eight + (i / 250));
 
         sp94.x = -var_f30 * sp44;
         sp94.y = var_f30 - sp38;
@@ -4888,7 +4925,9 @@ void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
         pos[3].y = sp7C.y + sp88.y;
         pos[3].z = sp7C.z + sp88.z;
 
-        for (int k = 0; k < 4; k++) {
+        int k;
+        u8 num;
+        for (k = 0, num = 4; k < num; k++) {
             static const cXyz add_table[] = {
                 cXyz(0.0f, 0.0f, 0.0f),
                 cXyz(150.0f, 75.0f, 0.0f),
