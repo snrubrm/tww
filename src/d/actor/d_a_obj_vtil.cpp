@@ -18,8 +18,13 @@
 
 const int daObjVtil_c::l_daObjVtil_bdl_idx_table[5] = {
     dRes_INDEX_VTIL_BDL_VTIL1_e, dRes_INDEX_VTIL_BDL_VTIL2_e,
+#if VERSION == VERSION_DEMO
+    dRes_INDEX_VTIL_BDL_VTIL3_e, dRes_INDEX_VTIL_BDL_VTIL4_e,
+    dRes_INDEX_VTIL_BDL_VTIL5_e,
+#else
     dRes_INDEX_VTIL_BDL_VTIL3_e, dRes_INDEX_VTIL_BDL_VTIL5_e,
     dRes_INDEX_VTIL_BDL_VTIL4_e,
+#endif
 };
 const int daObjVtil_c::l_daObjVtil_scene_no_table[5] = {3, 4, 5, 7, 6};
 const dCcD_SrcCyl daObjVtil_c::M_co_cyl_data = {
