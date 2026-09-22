@@ -381,6 +381,9 @@ void ho_move(daGrid_c* i_this) {
         0.65f, 0.55f, 0.4f, 0.25f, 0.1f, 0.0f,
     };
 
+#if VERSION == VERSION_DEMO
+    f32 temp_f29;
+#endif
     f32 temp_f31;
     f32 temp_f30;
 
@@ -424,7 +427,11 @@ void ho_move(daGrid_c* i_this) {
     cXyz sp28;
     MtxPosition(&sp34, &sp28);
 
+#if VERSION == VERSION_DEMO
+    temp_f29 = std::fabsf(sp28.z) + 0.02f;
+#else
     f32 temp_f29 = std::fabsf(sp28.z) + 0.02f;
+#endif
     sp34.x = 1.0f;
     sp34.z = 0.0f;
     MtxPosition(&sp34, &sp28);
