@@ -4640,6 +4640,7 @@ bool daNpcPeople_c::_delete() {
 }
 
 /* 0000158C-000018B8       .text _draw__13daNpcPeople_cFv */
+// NONMATCHING - regalloc: headModel and the .rodata base register are swapped (r29/r30)
 bool daNpcPeople_c::_draw() {
     J3DModel* bodyModel = mpMorf->getModel();
     J3DModel* headModel;
@@ -4660,7 +4661,7 @@ bool daNpcPeople_c::_draw() {
     }
 
     if(l_bmt_ix_tbl[mNpcNo] >= 0) {
-        mpMorf->updateDL((J3DMaterialTable*)dRes_control_c::getIDRes(l_arcname_tbl[mNpcNo], l_bmt_ix_tbl[mNpcNo], &g_dComIfG_gameInfo.mResControl.mObjectInfo[0], ARRAY_SIZE(g_dComIfG_gameInfo.mResControl.mObjectInfo)));
+        mpMorf->updateDL((J3DMaterialTable*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], l_bmt_ix_tbl[mNpcNo]));
     }
     else {
         mpMorf->updateDL();
