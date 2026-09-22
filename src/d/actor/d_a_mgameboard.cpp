@@ -503,7 +503,11 @@ void daMgBoard_c::CursorMove() {
 /* 000013C4-000014C8       .text daMgBoard_Create__FPv */
 cPhs_State daMgBoard_c::_create() {
     fopAcM_SetupActor(this, daMgBoard_c);
+#if VERSION == VERSION_PAL
+    sprintf(m_arcname, "Kaisen_%d", dComIfGs_getPalLanguage());
+#else
     strcpy(m_arcname, VERSION_SELECT("Kaisen", "Kaisen", "Kaisen_e", "Kaisen_e"));
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, m_arcname);
     if (phase == cPhs_COMPLEATE_e) {
         if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x4E000)) {
