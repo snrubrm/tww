@@ -938,23 +938,12 @@ BOOL water_check(pt_class* i_this) {
     dBgS_ObjGndChk_Spl gnd_chk;
     cXyz pillar_pos;
 
-    cXyz* p = gnd_chk.GetPointP();
-#if VERSION == VERSION_DEMO
-    f32 x = actor->current.pos.x;
-    f32 y = actor->current.pos.y;
-    f32 z = actor->current.pos.z;
-    y += 500.0f;
-    p->x = x;
-    p->y = y;
-    p->z = z;
-#else
-    f32 y = actor->current.pos.y;
-    f32 z = actor->current.pos.z;
-    y += 500.0f;
-    p->x = actor->current.pos.x;
-    p->y = y;
-    p->z = z;
-#endif
+    Vec pos;
+    pos.x = actor->current.pos.x;
+    pos.y = actor->current.pos.y;
+    pos.z = actor->current.pos.z;
+    pos.y += 500.0f;
+    gnd_chk.SetPos(&pos);
     f32 cross = dComIfG_Bgsp()->GroundCross(&gnd_chk);
     if (cross != -G_CM3D_F_INF && actor->current.pos.y <= cross) {
         return TRUE;
