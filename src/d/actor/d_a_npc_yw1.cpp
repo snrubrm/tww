@@ -510,9 +510,7 @@ bool daNpc_Yw1_c::chk_talk() {
 }
 
 bool daNpc_Yw1_c::chk_parts_notMov() {
-    bool result = false;
-    result = mOldHead == m_jnt.getHead_y() && mOldBackbone == m_jnt.getBackbone_y() && mOldAngle == current.angle.y;
-    return result;
+    return mOldHead == m_jnt.getHead_y() && mOldBackbone == m_jnt.getBackbone_y() && mOldAngle == current.angle.y;
 }
 
 fopAc_ac_c* daNpc_Yw1_c::searchByID(fpc_ProcID id, int* missing) {
