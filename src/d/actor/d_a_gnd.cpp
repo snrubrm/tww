@@ -1733,9 +1733,11 @@ static void damage_check(gnd_class* i_this) {
     if (i_this->mChestSph.ChkTgHit()) {
         s8 ignore_arrow = 0;
         atInfo.mpObj = i_this->mChestSph.GetTgHitObj();
+#if VERSION > VERSION_JPN
         if (atInfo.mpObj == NULL) {
             return;
         }
+#endif
 
         fopAc_ac_c* hit_ac = atInfo.mpObj->GetAc();
         if (hit_ac != NULL && fopAcM_GetName(hit_ac) == fpcNm_ARROW_e) {
