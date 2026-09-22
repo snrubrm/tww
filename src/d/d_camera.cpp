@@ -2850,19 +2850,19 @@ bool dCamera_c::followCamera2(s32 param_0) {
 
 /* 8016A110-8016C4F8       .text followCamera__9dCamera_cFl */
 bool dCamera_c::followCamera(s32 param_1) {
-    int iVar17;
+    s32 iVar17;
     bool bVar2;
     bool bVar3;
     bool bVar4;
     f32 fVar37;
     
-    f32 fVar38;
     f32 fVar40 = 0.9f;
+    f32 fVar38;
 
-    cSAngle acStack_490 = cSAngle(mCamSetup.m0A4);
+    cSAngle acStack_490 = cSAngle(mCamSetup.UnkAngle0A4());
 
-    iVar17 = mCamSetup.m0A8;
-    fVar38 = mCamSetup.mChargeLatitude;
+    iVar17 = mCamSetup.UnkTimer0A8();
+    fVar38 = mCamSetup.ChargeLatitude();
 
     cSAngle local_494(80.0f);
 
@@ -2981,6 +2981,13 @@ bool dCamera_c::followCamera(s32 param_1) {
         }
     }
     
+#if VERSION == VERSION_DEMO
+    if (m108 == 0) {
+        mWork.follow.m3AC = 0.0f;
+        mWork.follow.m3D9 = 0;
+    }
+#endif
+
     if (mCamParam.Flag(param_1, dCamPrmFlg_UNK200)) {
         bVar2 = true;
     }
@@ -2994,8 +3001,6 @@ bool dCamera_c::followCamera(s32 param_1) {
                 mWork.follow.m3D9 = 0;
             }
             
-            f32 temp_004 = 0.04f;
-
             if (mWork.follow.m3D9) {
                 fVar37 = -45.0f;
             }
@@ -3003,14 +3008,18 @@ bool dCamera_c::followCamera(s32 param_1) {
                 fVar37 = 45.0f;
             }
 
-            mWork.follow.m3AC += (fVar37 - mWork.follow.m3AC) * temp_004;
+            mWork.follow.m3AC += (fVar37 - mWork.follow.m3AC) * 0.04f;
     }
     else {
         mWork.follow.m3AC += (dVar19 - mWork.follow.m3AC) * 0.06f;
     }
     
 
+#if VERSION == VERSION_DEMO
+    cXyz local_314(mWork.follow.m3AC, dVar20, dVar21);
+#else
     cXyz local_314(mWork.follow.m3AC, dVar20, mWork.follow.m3B0);
+#endif
     if (m108 == 0) {
         mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
         mWork.follow.m378 = 'FLLW';
@@ -3150,7 +3159,11 @@ bool dCamera_c::followCamera(s32 param_1) {
     f32 fVar39 = mpPlayerActor->current.pos.y;
     fVar39 -= groundHeight(&player_pos);
 
+#if VERSION == VERSION_DEMO
+    if (m360 || check_owner_action(mPadId, daPyStts0_SWIM_e) || daNpc_kam_c::m_hyoi_kamome) {
+#else
     if ((m360 || check_owner_action(mPadId, daPyStts0_SWIM_e) || daNpc_kam_c::m_hyoi_kamome) && !check_owner_action(mPadId, daPyStts0_UNK200_e)) {
+#endif
         mWork.follow.m394 = 0.0f;
         mWork.follow.m388 = 0;
     }
@@ -3235,24 +3248,24 @@ bool dCamera_c::followCamera(s32 param_1) {
         mWork.follow.m3B8 = (1.0f - mWork.follow.m3B8) * dVar20;
     }
     else if (chkFlag(0x100000) || daNpc_Cb1_c::isFlying()) {
+        f32 rate = 0.2f;
         if (mWork.follow.m3D8) {
             mWork.follow.m3B8 = 0.05f;
         }
 
         mWork.follow.m3D8 = 0;
-        f32 rate = 0.2f;
         mWork.follow.m3B8 += (1.0f - mWork.follow.m3B8) * rate;
     }
     else if (daNpc_Md_c::isFlying() || daNpc_kam_c::m_hyoi_kamome) {
         mWork.follow.m3D8 = 1;
     }
     else if (check_owner_action1(mPadId, daPyStts1_UNK40000_e | daPyStts1_DEKU_LEAF_FAN_e)) {
+        f32 rate = 0.05f;
         if (mWork.follow.m3D8) {
             mWork.follow.m3B8 = 0.05f;
         }
 
         mWork.follow.m3D8 = 0;
-        f32 rate = 0.05f;
         mWork.follow.m3B8 += (0.5f - mWork.follow.m3B8) * rate;
     }
     else {
@@ -3273,7 +3286,11 @@ bool dCamera_c::followCamera(s32 param_1) {
         mWork.follow.m3B8 *= mStickMainValueLast;
         
         if (chkFlag(0x80000)) {
+#if VERSION == VERSION_DEMO
+            mWork.follow.m3B8 *= 0.5f + REG5_F(2);
+#else
             mWork.follow.m3B8 *= 0.5f;
+#endif
         }
         else {
             mWork.follow.m3B8 *= 0.1f;
@@ -3337,7 +3354,11 @@ bool dCamera_c::followCamera(s32 param_1) {
 
     cSAngle acStack_4b4;
     
+#if VERSION == VERSION_DEMO
+    if (chkFlag(0x80) && !chkFlag(0x80000) && mCurMode == 0) {
+#else
     if (chkFlag(0x80) && !chkFlag(0x80000) && mCurMode == 0 && mWork.follow.m38C == 0) {
+#endif
         acStack_4b4 = cSAngle(mDirection.U().Val()); 
     }
     else if (bVar2) {
@@ -3365,7 +3386,9 @@ bool dCamera_c::followCamera(s32 param_1) {
             mWork.follow.m3E0 = 1.0f;
         }
 
+#if VERSION > VERSION_DEMO
         mWork.follow.m3BC = mWork.follow.m3A0 = local_4bc.Degree();
+#endif
     }
     else {
         if (mWork.follow.m392 != 0) {
@@ -3376,7 +3399,11 @@ bool dCamera_c::followCamera(s32 param_1) {
 
         if (mCurMode == 1) {
             mWork.follow.m3E0 = 0.5f;
+#if VERSION == VERSION_DEMO
+            mWork.follow.m3A0 = mWork.follow.m3A0 + (mWork.follow.m3B8 * (dVar28 - mWork.follow.m3A0));
+#else
             mWork.follow.m3BC = mWork.follow.m3A0 = mWork.follow.m3A0 + (mWork.follow.m3B8 * (dVar28 - mWork.follow.m3A0));
+#endif
             local_4bc = cAngle::d2s(mWork.follow.m3A0);
             mWork.follow.m3E0 += (fVar40 - mWork.follow.m3E0) * 0.5f;
         }
@@ -3391,6 +3418,11 @@ bool dCamera_c::followCamera(s32 param_1) {
             mWork.follow.m3A0 += dVar29 * ((mWork.follow.m3BC + m148.Degree()) - mWork.follow.m3A0);
             local_4bc = cAngle::d2s(mWork.follow.m3A0);
 
+#if VERSION == VERSION_DEMO
+            if (chkFlag(0x80000) || REG5_S(4)) {
+                mWork.follow.m3E0 = 0.0f;
+            }
+#else
             if (chkFlag(0x80000)) {
                 mWork.follow.m3E0 = 0.0f;
             }
@@ -3400,6 +3432,7 @@ bool dCamera_c::followCamera(s32 param_1) {
             else if (mMonitor.field_0x0C.x < 0.01f && mCurMode == 0) {
                 mWork.follow.m3E0 += (0.1f - mWork.follow.m3E0) * 0.05f;
             }
+#endif
             else {
                 mWork.follow.m3E0 += step * (fVar40 - mWork.follow.m3E0);
             }
@@ -3407,7 +3440,11 @@ bool dCamera_c::followCamera(s32 param_1) {
         else {
             if (check_owner_action(mPadId, daPyStts0_UNK2000000_e) || check_owner_action1(mPadId, daPyStts1_UNK10000_e)) {
                 local_4bc = local_484.V();
+#if VERSION == VERSION_DEMO
+                mWork.follow.m3A0 = local_4bc.Degree();
+#else
                 mWork.follow.m3BC = mWork.follow.m3A0 = local_4bc.Degree();
+#endif
                 mWork.follow.m3E0 = 0.95f;
             }
             else if (isPlayerFlying(mPadId) || daNpc_kam_c::m_hyoi_kamome) {
@@ -3419,11 +3456,19 @@ bool dCamera_c::followCamera(s32 param_1) {
                     mWork.follow.m3E0 += (0.75f - mWork.follow.m3E0) * 0.15f;
                 }
 
+#if VERSION == VERSION_DEMO
+                mWork.follow.m3A0 = local_4bc.Degree();
+#else
                 mWork.follow.m3BC = mWork.follow.m3A0 = local_4bc.Degree();
+#endif
             }
             else {
                 local_4bc = local_484.V();
+#if VERSION == VERSION_DEMO
+                mWork.follow.m3A0 = local_4bc.Degree();
+#else
                 mWork.follow.m3BC = mWork.follow.m3A0 = local_4bc.Degree();
+#endif
                 mWork.follow.m3E0 = dCamMath::rationalBezierRatio(mWork.follow.m394, dVar30);
             }
         }
@@ -3446,7 +3491,7 @@ bool dCamera_c::followCamera(s32 param_1) {
     }
 #if VERSION == VERSION_DEMO
     if (mMonitor.field_0x0C.x > 0.01f || !push_any_key(mPadId) || REG5_S(1) == 0) {
-        mViewCache.mDirection.V(mViewCache.mDirection.U() + ((local_4bc - mViewCache.mDirection.U()) * mWork.follow.m3E0));
+        mViewCache.mDirection.V(mViewCache.mDirection.V() + ((local_4bc - mViewCache.mDirection.V()) * mWork.follow.m3E0));
     }
 #else
     mViewCache.mDirection.V(mViewCache.mDirection.V() + ((local_4bc - mViewCache.mDirection.V()) * mWork.follow.m3E0));
