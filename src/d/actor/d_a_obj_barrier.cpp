@@ -156,8 +156,9 @@ int daObjBarrier_c::solidHeapCB(fopAc_ac_c* i_this) {
 
 /* 000001B0-00000340       .text init__18daObjBarrier_anm_cFv */
 bool daObjBarrier_anm_c::init() {
+    J3DModelData* modelData;
     bool rt = true;
-    J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BDL_YCAGE00_e));
+    modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BDL_YCAGE00_e));
     J3DAnmTextureSRTKey* pbtk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BTK_YCAGE00_e));
     J3DAnmTevRegKey* pbrk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BRK_YCAGE00_e));
 
@@ -570,11 +571,15 @@ void daObjBarrier_ef_c::birth(fopAc_ac_c* i_hitActor, f32 i_radius, cXyz i_cente
 
 /* 000011B8-000013E0       .text init__17daObjBarrier_ef_cFv */
 bool daObjBarrier_ef_c::init() {
+    J3DModelData* modelData;
+    J3DAnmTextureSRTKey* pbtk;
+    J3DAnmTransform* pbck;
+    J3DAnmTevRegKey* pbrk;
     bool rt = true;
-    J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BDL_YHRBR00_e));
-    J3DAnmTextureSRTKey* pbtk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BTK_YHRBR00_e));
-    J3DAnmTransform* pbck = static_cast<J3DAnmTransform*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BCK_YHRBR00_e));
-    J3DAnmTevRegKey* pbrk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BRK_YHRBR00_e));
+    modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BDL_YHRBR00_e));
+    pbtk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BTK_YHRBR00_e));
+    pbck = static_cast<J3DAnmTransform*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BCK_YHRBR00_e));
+    pbrk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(l_arcname, dRes_INDEX_YCAGE_BRK_YHRBR00_e));
 
     if (modelData == NULL || pbtk == NULL || pbck == NULL || pbrk == NULL) {
         JUT_ASSERT(VERSION_SELECT(905, 918, 1016, 1016), FALSE);
