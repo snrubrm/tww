@@ -344,8 +344,7 @@ BOOL daBFlower_c::actLive() {
             cCcD_Obj* tg = mSph.GetTgHitObj();
             if (tg != NULL) {
                 if (tg->ChkAtType(AT_TYPE_BOMB)) {
-                    bool b = true;
-                    u32 prm = daBomb2::Act_c::prm_make(daBomb2::Start_UNK0_e, b);
+                    u32 prm = daBomb2::Act_c::prm_make(daBomb2::Start_UNK0_e, true);
                     mpBombActor = static_cast<fopAc_ac_c*>(fopAcM_fastCreate(
                         fpcNm_Bomb2_e, prm, &current.pos, fopAcM_GetRoomNo(this), &current.angle)
                     );
@@ -370,8 +369,7 @@ BOOL daBFlower_c::actLive() {
 
     if (fopAcM_checkCarryNow(this) && m58D != 0) {
         m58C = 0;
-        bool b = false;
-        u32 prm = daBomb2::Act_c::prm_make(daBomb2::Start_UNK2_e, b);
+        u32 prm = daBomb2::Act_c::prm_make(daBomb2::Start_UNK2_e, false);
         mpBombActor = static_cast<fopAc_ac_c*>(fopAcM_fastCreate(
             fpcNm_Bomb2_e, prm, &current.pos, fopAcM_GetRoomNo(this), &current.angle)
         );
