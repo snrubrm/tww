@@ -1352,7 +1352,7 @@ config.libs = [
     },
     {
         "lib": "TRK_MINNOW_DOLPHIN",
-        "mw_version": "GC/1.3.2",
+        "mw_version": "GC/1.3",
         "cflags": cflags_trk,
         "progress_category": "sdk",
         "host": False,
@@ -1377,7 +1377,7 @@ config.libs = [
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "TRK_MINNOW_DOLPHIN/Os/dolphin/dolphin_trk.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/ppc/Generic/mpc_7xx_603e.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Portable/main_TRK.c"),
-            Object(MatchingFor("GZLE01"), "TRK_MINNOW_DOLPHIN/Os/dolphin/dolphin_trk_glue.c"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "TRK_MINNOW_DOLPHIN/Os/dolphin/dolphin_trk_glue.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Os/dolphin/targcont.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/Os/dolphin/target_options.c"),
             Object(Matching,    "TRK_MINNOW_DOLPHIN/MetroTRK/Export/mslsupp.c"),

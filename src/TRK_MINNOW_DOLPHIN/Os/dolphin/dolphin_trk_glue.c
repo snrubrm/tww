@@ -78,31 +78,24 @@ static inline UARTError TRKReadUARTBuffer(void* data, u32 length) {
 }
 
 UARTError TRKReadUARTPoll(char* byte) {
-    struct {
-        int writePos;
-        int readPos;
-        int readCount;
-        BOOL framing;
-        char readBuf[0x110A];
-    } *state = (void*)&gWritePos;
     UARTError error = 4;
     int cnt;
 
-    if (state->readPos >= state->readCount) {
-        state->readPos = 0;
-        cnt = state->readCount = gDBCommTable.peek_func();
+    if (gReadPos >= gReadCount) {
+        gReadPos = 0;
+        cnt = gReadCount = gDBCommTable.peek_func();
         if (cnt > 0) {
             if (cnt > 0x110A) {
-                state->readCount = 0x110A;
+                gReadCount = 0x110A;
             }
-            error = TRKReadUARTBuffer(state->readBuf, state->readCount);
+            error = TRKReadUARTBuffer(gReadBuf, gReadCount);
             if (error != 0) {
-                state->readCount = 0;
+                gReadCount = 0;
             }
         }
     }
-    if (state->readPos < state->readCount) {
-        *byte = state->readBuf[state->readPos++];
+    if (gReadPos < gReadCount) {
+        *byte = gReadBuf[gReadPos++];
         error = 0;
     }
     return error;
