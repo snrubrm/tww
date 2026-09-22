@@ -148,7 +148,7 @@ void dmsg3_3d_c::draw() {
     dComIfGd_setList();
 }
 
-static inline u32 dMsg3_mkColor(u32 color, u8 alpha) { return alpha | color; }
+static inline u32 dMsg3_mkColor(u32 color, u8 alpha) { return color | alpha; }
 
 /* 801EB8DC-801EBA18       .text dMsg3_value_init__FP14sub_msg3_classUc */
 void dMsg3_value_init(sub_msg3_class* i_Msg, u8 i_index) {
