@@ -143,9 +143,14 @@ static BOOL daPH_Draw(ph_class* i_this) {
 
 /* 000003FC-000007C0       .text anm_init__FP8ph_classifUcfii */
 void anm_init(ph_class* i_this, int bckFileIdx, float morf, unsigned char loopMode, float speed, int soundFileIdx, int modelType) {
+#if VERSION <= VERSION_JPN
+    i_this->m0374 = bckFileIdx;
+#endif
     if (i_this->mType == 0) {
         if (modelType == 0) {
+#if VERSION > VERSION_JPN
             i_this->m0374 = bckFileIdx;
+#endif
             if (soundFileIdx >= 0) {
                 i_this->mpPropellerMorf->setAnm(
                     (J3DAnmTransform*)dComIfG_getObjectRes("PH", bckFileIdx),
