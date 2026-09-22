@@ -269,6 +269,6 @@ public:
     /* 0x0C */ hio_prm_c mPrm;
 };  // Size: 0x60
 
-STATIC_ASSERT(sizeof(daNpc_Kk1_HIO_c) == 0x60);
+STATIC_ASSERT(sizeof(daNpc_Kk1_HIO_c) == DEMO_SELECT(0x64, 0x60));
 
 #endif /* D_A_NPC_KK1_H */

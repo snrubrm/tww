@@ -2168,7 +2168,7 @@ u8 daNpc_Kk1_c::demo() {
             mBtpNo = 1;
             mBtpFrame = 0;
         }
-        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName, 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName);
     }
     return m7C6;
 }
