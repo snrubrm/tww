@@ -1794,7 +1794,6 @@ bool dCamera_c::watchActorEvCamera() {
             }
 
             cSAngle front = g0.U() - directionOf(work->mTarget);
-            cSAngle unused_angle;
             if (front < cSAngle(-work->mFrontAngle)) {
                 g0.U(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
             } else if (front > cSAngle(work->mFrontAngle)) {
@@ -1860,7 +1859,6 @@ bool dCamera_c::watchActorEvCamera() {
                 g.V(work->mZoomVAngle);
             }
             cSAngle ang = g.U() - directionOf(work->mTarget);
-            cSAngle unused_angle;
             if (ang < cSAngle(-work->mFrontAngle)) {
                 g.U(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
             } else if (ang > cSAngle(work->mFrontAngle)) {
@@ -1928,7 +1926,6 @@ bool dCamera_c::watchActorEvCamera() {
             cSGlobe g(attentionPos(mpPlayerActor) - work->mCenter);
             g.R(work->mZoomDist);
             cSAngle ang = g.U() - directionOf(work->mTarget);
-            cSAngle unused_angle;
             if (ang < cSAngle(-work->mFrontAngle)) {
                 g.U(directionOf(work->mTarget) + cSAngle(-work->mFrontAngle));
             } else if (ang > cSAngle(work->mFrontAngle)) {
