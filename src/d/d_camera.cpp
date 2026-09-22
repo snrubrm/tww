@@ -48,16 +48,6 @@ namespace {
         return fopAcM_GetName(actor) == fpcNm_PLAYER_e;
     }
 
-    inline static f32 get_actor_height(fopAc_ac_c* actor) {
-        if (is_player(actor)) {
-            f32 height = ((daPy_py_c*)actor)->getHeight();
-            return height;
-        } else {
-            f32 height = (actor->eyePos.y - actor->current.pos.y) * 1.1f;
-            return height;
-        }
-    }
-
     inline static bool isPlayerGuarding(u32 param_0) {
         return dComIfGp_checkPlayerStatus1(param_0, daPyStts1_UNK80000_e) || daNpc_Md_c::isMirror();
     }
@@ -1863,7 +1853,8 @@ inline cXyz dCamera_c::eyePos(fopAc_ac_c* i_actor) {
 /* 8016C5A4-8016C5D0       .text heightOf__9dCamera_cFP10fopAc_ac_c */
 inline f32 dCamera_c::heightOf(fopAc_ac_c* i_actor) {
     if (is_player(i_actor)) {
-        return ((daPy_py_c*)i_actor)->getHeight();
+        daPy_py_c* player = (daPy_py_c*)i_actor;
+        return player->getHeight();
     } else {
         return (i_actor->eyePos.y - i_actor->current.pos.y) * 1.1f;
     }
@@ -5213,7 +5204,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
             f32 distCenter = cXyz(mCenter - rel).abs() - val10;
             f32 dist = std::fabsf(distEye > distCenter ? distEye : distCenter);
 
-            f32 height = get_actor_height(mpPlayerActor);
+            f32 height = heightOf(mpPlayerActor);
             dist /= height < 10.0f ? 10.0f : height;
             work->m37C = (int)(timerScale * std::sqrtf(dist)) + 1;
             work->m380 = work->m37C * (work->m37C + 1) >> 1;
@@ -6201,7 +6192,7 @@ bool dCamera_c::hungCamera(s32 param_1) {
         f32 dist = cXyz(mCenter - relationalPos(mpPlayerActor, &posOffset)).abs();
         f32 f20 = val10 > dist ? val10 : dist;
 
-        f32 height = get_actor_height(mpPlayerActor);
+        f32 height = heightOf(mpPlayerActor);
         f20 /= height < 10.0f ? 10.0f : height;
 
         f32 angFac = std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
@@ -6394,7 +6385,7 @@ bool dCamera_c::vomitCamera(s32 param_1) {
             f20 = dist;
         }
 
-        f32 height = get_actor_height(mpPlayerActor);
+        f32 height = heightOf(mpPlayerActor);
         f20 /= height < 10.0f ? 10.0f : height;
 
         f32 angFac = (f32)fabs(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
@@ -6527,7 +6518,7 @@ bool dCamera_c::shieldCamera(s32 param_1) {
             f20 = dist;
         }
 
-        f32 height = get_actor_height(mpPlayerActor);
+        f32 height = heightOf(mpPlayerActor);
         f20 /= height < 10.0f ? 10.0f : height;
 
         f32 angFac = std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
@@ -7101,7 +7092,7 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
                 fVar16 = fVar15;
             }
 
-            f32 temp = get_actor_height(mpPlayerActor);
+            f32 temp = heightOf(mpPlayerActor);
             fVar16 = fVar16 / (temp < 10.0f ? 10.0f : temp);
 
             mWork.fixedPos.m378 = (s32)(fVar6 * std::sqrtf(fVar16)) + 1;
