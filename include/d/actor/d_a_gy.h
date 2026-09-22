@@ -247,6 +247,6 @@ public:
 }; // size = 0x19C
 
 STATIC_ASSERT(sizeof(daGy_c) == 0xE90);
-STATIC_ASSERT(sizeof(daGy_HIO_c) == 0x19C);
+STATIC_ASSERT(sizeof(daGy_HIO_c) == DEMO_SELECT(0x1A0, 0x19C));
 
 #endif /* D_A_GY_H */
