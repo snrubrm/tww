@@ -91,11 +91,17 @@ bool daObjHtetu1_c::_delete() {
         mQuakeTimer = -1;
     }
     for (int i = 0; i < 2; i++) mSplash[i].delete_s();
+#if VERSION == VERSION_DEMO
+    if (mpBgW != NULL && mpBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpBgW);
+    }
+#else
     if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) {
         dComIfG_Bgsp()->Release(mpBgW);
         mpBgW = NULL;
     }
-    dComIfG_resDelete(&mPhase, M_arcname);
+#endif
+    dComIfG_resDeleteDemo(&mPhase, M_arcname);
     return true;
 }
 
