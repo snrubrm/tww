@@ -176,22 +176,22 @@ dMap_HIO_c g_mapHIO;
 #endif
 
 static inline f32 getMapInfo_map1_X0(stage_map_info_class* i_mapInfoP) {
-    JUT_ASSERT(VERSION_SELECT(730, 719, 719, 719), i_mapInfoP != NULL);
+    JUT_ASSERT(VERSION_SELECT(730, 715, 719, 719), i_mapInfoP != NULL);
     return i_mapInfoP->field_0x18;
 }
 
 static inline f32 getMapInfo_map1_Z0(stage_map_info_class* i_mapInfoP) {
-    JUT_ASSERT(VERSION_SELECT(740, 725, 725, 725), i_mapInfoP != NULL);
+    JUT_ASSERT(VERSION_SELECT(740, 721, 725, 725), i_mapInfoP != NULL);
     return i_mapInfoP->field_0x1C;
 }
 
 static inline f32 getMapInfo_map1_X1(stage_map_info_class* i_mapInfoP) {
-    JUT_ASSERT(VERSION_SELECT(750, 731, 731, 731), i_mapInfoP != NULL);
+    JUT_ASSERT(VERSION_SELECT(750, 727, 731, 731), i_mapInfoP != NULL);
     return i_mapInfoP->field_0x20;
 }
 
 static inline f32 getMapInfo_map1_Z1(stage_map_info_class* i_mapInfoP) {
-    JUT_ASSERT(VERSION_SELECT(760, 737, 737, 737), i_mapInfoP != NULL);
+    JUT_ASSERT(VERSION_SELECT(760, 733, 737, 737), i_mapInfoP != NULL);
     return i_mapInfoP->field_0x24;
 }
 
@@ -210,7 +210,7 @@ static inline f32 getMapInfo_scale(stage_map_info_class* i_mapInfoP) {
 }
 
 static inline int gridPos2GridNo(int i_gridX, int i_gridY) {
-    JUT_ASSERT(VERSION_SELECT(1258, 1188, 1188, 1188), (i_gridX >= -3) && (i_gridX <= 3) && (i_gridY >= -3) && (i_gridY <= 3));
+    JUT_ASSERT(VERSION_SELECT(1258, 1184, 1188, 1188), (i_gridX >= -3) && (i_gridX <= 3) && (i_gridY >= -3) && (i_gridY <= 3));
     return i_gridX + 3 + (i_gridY + 3) * 7;
 }
 
@@ -252,7 +252,7 @@ static f32 mapOffsetY() {
         if (dComIfGp_getStage().getDMap() != NULL) {
             dStage_DMap_c* pinf = dComIfGp_getStage().getDMap();
             dStage_DMap_dt_c* entry = pinf->entries;
-            JUT_ASSERT(VERSION_SELECT(1415, 1415, 1415, 1415), pinf->num == 1);
+            JUT_ASSERT(VERSION_SELECT(1415, 1411, 1415, 1415), pinf->num == 1);
             for (int i = 0; i < pinf->num; i++, entry++)
                 ret = entry->offsetY;
         }
@@ -422,14 +422,14 @@ u8 dMap_RoomInfo_c::getRoomDspFloorNo(u8 i_no, BOOL search) {
     u8 dspFloorNo;
     int no = i_no - Floor_Base;
 #if VERSION > VERSION_DEMO
-    JUT_ASSERT(VERSION_SELECT(1794, 1794, 1794, 1794), Floor_Valid(no));
+    JUT_ASSERT(VERSION_SELECT(1794, 1790, 1794, 1794), Floor_Valid(no));
 #endif
 
     dspFloorNo = field_0x2[no];
     if (search && !IsFloorNo(dspFloorNo)) {
         while (!IsFloorNo(dspFloorNo) && --no >= 0) {
 #if VERSION > VERSION_DEMO
-            JUT_ASSERT(VERSION_SELECT(1807, 1807, 1807, 1807), Floor_Valid(no));
+            JUT_ASSERT(VERSION_SELECT(1807, 1803, 1807, 1807), Floor_Valid(no));
 #endif
             dspFloorNo = field_0x2[no];
         }
@@ -437,7 +437,7 @@ u8 dMap_RoomInfo_c::getRoomDspFloorNo(u8 i_no, BOOL search) {
         if (!IsFloorNo(dspFloorNo)) {
             while (!IsFloorNo(dspFloorNo) && ++no <= (Floor_Num - 1)) {
 #if VERSION > VERSION_DEMO
-                JUT_ASSERT(VERSION_SELECT(1816, 1816, 1816, 1816), Floor_Valid(no));
+                JUT_ASSERT(VERSION_SELECT(1816, 1812, 1816, 1816), Floor_Valid(no));
 #endif
                 dspFloorNo = field_0x2[no];
             }
@@ -571,7 +571,7 @@ BOOL dMap_RoomInfo_c::makeRoomDspFloorNoTbl(int i_roomNo) {
                     if (i_roomNo == floorData->field_0x05[j]) {
                         u8 r22 = getRoomImage(i_roomNo, floorNo, 1, NULL, NULL, NULL, NULL, NULL);
 #if VERSION > VERSION_DEMO
-                        JUT_ASSERT(VERSION_SELECT(2195, 2195, 2195, 2195), ((floorNo - Floor_B5F) >= 0) && ((floorNo - Floor_B5F) < (Floor_5F - Floor_B5F + 1)))
+                        JUT_ASSERT(VERSION_SELECT(2195, 2191, 2195, 2195), ((floorNo - Floor_B5F) >= 0) && ((floorNo - Floor_B5F) < (Floor_5F - Floor_B5F + 1)))
 #endif
                         field_0x2[floorNo - Floor_B5F] = r22;
                     }
@@ -591,7 +591,7 @@ dMap_RoomInfo_c* dMap_RoomInfo_c::roomEntryRoom(int i_roomNo, u8 param_2, int pa
 dMap_RoomInfo_c* dMap_RoomInfo_c::roomEntryRoom(int i_roomNo, u8 param_2, int param_3, u8 param_4, dMap_RoomInfo_c* param_5, s16 param_6, s16 param_7, f32 param_8)
 #endif
 {
-    JUT_ASSERT(VERSION_SELECT(2397, 2241, 2241, 2241), i_roomNo >= 0);
+    JUT_ASSERT(VERSION_SELECT(2397, 2237, 2241, 2241), i_roomNo >= 0);
     if (m_exist == 0) {
         field_0x1 = 0;
         mStageMapInfoP = NULL;
@@ -625,16 +625,16 @@ dMap_RoomInfo_c* dMap_RoomInfo_c::roomEntryRoom(int i_roomNo, u8 param_2, int pa
                     field_0x18 = param_6 / (l_mapInfoP->field_0x08 - l_mapInfoP->field_0x00);
                     field_0x1c = param_7 / (l_mapInfoP->field_0x0C - l_mapInfoP->field_0x04);
                 } else {
-                    JUT_ASSERT(VERSION_SELECT(2487, 2331, 2331, 2331), 0);
+                    JUT_ASSERT(VERSION_SELECT(2487, 2327, 2331, 2331), 0);
                 }
             } else {
                 field_0x44[0].field_0x0 = 0;
             }
             field_0x30.init(1, field_0x44);
             if ((local_60 & 1)) {
-                JUT_ASSERT(VERSION_SELECT(2502, 2346, 2346, 2346), l_mapDtP != NULL);
-                JUT_ASSERT(VERSION_SELECT(2503, 2347, 2347, 2347), l_image1P != NULL);
-                JUT_ASSERT(VERSION_SELECT(2504, 2348, 2348, 2348), l_mapInfoP != NULL);
+                JUT_ASSERT(VERSION_SELECT(2502, 2342, 2346, 2346), l_mapDtP != NULL);
+                JUT_ASSERT(VERSION_SELECT(2503, 2343, 2347, 2347), l_image1P != NULL);
+                JUT_ASSERT(VERSION_SELECT(2504, 2344, 2348, 2348), l_mapInfoP != NULL);
                 field_0x8c.setImage(l_image1P,l_mapDtP);
                 field_0x28 = mDoLib_cnvind16(l_mapDtP->field_0x0);
                 field_0x2c = mDoLib_cnvind16(l_mapDtP->field_0x2);
@@ -691,7 +691,7 @@ BOOL dMap_RoomInfo_c::Changeimage(u8 param_1, u8 param_2, int param_3, s16 param
     if (IsFloorNo(param_1)) {
         r26 = getRoomDspFloorNo(param_1, m_no == param_3);
     } else {
-        JUT_ASSERT(VERSION_SELECT(2606, 2453, 2453, 2453), 0);
+        JUT_ASSERT(VERSION_SELECT(2606, 2449, 2453, 2453), 0);
     }
     if (r26 == field_0xc) {
         return false;
@@ -882,12 +882,12 @@ void dMap_RoomInfo_c::roomDrawRoomRealSize(int param_1, int param_2, int param_3
 
 /* 80047834-8004793C       .text roomExistenceCheck__19dMap_RoomInfoCtrl_cFiPP15dMap_RoomInfo_c */
 bool dMap_RoomInfoCtrl_c::roomExistenceCheck(int i_no, dMap_RoomInfo_c** roomInfoPP) {
-    JUT_ASSERT(VERSION_SELECT(3075, 2947, 2947, 2947), roomInfoPP != NULL);
+    JUT_ASSERT(VERSION_SELECT(3075, 2943, 2947, 2947), roomInfoPP != NULL);
     bool ret = false;
     *roomInfoPP = NULL;
     dMap_RoomInfo_c* info = m_info;
     dMap_RoomInfo_c* roomInfoP = info;
-    JUT_ASSERT(VERSION_SELECT(3083, 2955, 2955, 2955), roomInfoP != NULL);
+    JUT_ASSERT(VERSION_SELECT(3083, 2951, 2955, 2955), roomInfoP != NULL);
     for (; !ret && roomInfoP != NULL; roomInfoP = roomInfoP->m_next) {
         if (roomInfoP->m_exist) {
             if (i_no == roomInfoP->m_no) {
@@ -927,7 +927,7 @@ dMap_RoomInfo_c* dMap_RoomInfoCtrl_c::ctrlEntryRoom(int i_no, u8 p1, int p2, u8 
 
     dMap_RoomInfo_c* prev = NULL;
     roomInfoP = m_info;
-    JUT_ASSERT(VERSION_SELECT(3196, 3069, 3069, 3069), roomInfoP != NULL);
+    JUT_ASSERT(VERSION_SELECT(3196, 3065, 3069, 3069), roomInfoP != NULL);
 
     if (roomInfoP == NULL)
         return NULL;
@@ -1094,7 +1094,7 @@ void dMap_c::create() {
     int i;
     for (i = 0; i < 8; i++) {
         timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", frameArcIdx[i]));
-        JUT_ASSERT(VERSION_SELECT(3450, 3450, 3450, 3450), timg != NULL);
+        JUT_ASSERT(VERSION_SELECT(3450, 3446, 3450, 3450), timg != NULL);
         mFrameTexture[i].init(timg, i + 2, (GXColor){255, 255, 255, 255});
         mFrameTexture[i].field_0x0 = 1;
         mFrameTexture[i].setScroll(cord[i][0], cord[i][1], cord[i][2], cord[i][3]);
@@ -1108,22 +1108,22 @@ void dMap_c::create() {
 #else
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_FREE_e));
 #endif
-    JUT_ASSERT(VERSION_SELECT(3476, 3476, 3476, 3476), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3476, 3460, 3476, 3476), timg != NULL);
     mIconFreeTexture.init(timg, 10, (GXColor){255, 210, 0, 255});
     mIconFreeTexture.field_0x0 = 1;
     mIconFreeTexture.setScroll(0.0f, 0.0f, 1.0f, 1.0f);
     mIconFreeTex.init(1, &mIconFreeTexture);
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_CAMERA_SELF_e));
-    JUT_ASSERT(VERSION_SELECT(3489, 3489, 3489, 3489), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3489, 3473, 3489, 3489), timg != NULL);
     mIconSelfTexture.init(timg, 10, (GXColor){255, 222, 255, 255});
     mIconSelfTexture.field_0x0 = 1;
     mIconSelfTexture.setScroll(0.0f, 0.0f, 1.0f, 1.0f);
     mIconSelfTex.init(1, &mIconSelfTexture);
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_F_SHIPICON_e));
-    JUT_ASSERT(VERSION_SELECT(3502, 3502, 3502, 3502), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3502, 3486, 3502, 3502), timg != NULL);
     mShip.init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0, 1.0f, 1.0f, 0);
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_TREASUREBOX_e));
-    JUT_ASSERT(VERSION_SELECT(3511, 3511, 3511, 3511), timg != NULL);
+    JUT_ASSERT(VERSION_SELECT(3511, 3495, 3511, 3511), timg != NULL);
     for (i = 0; i < 8; i++) {
         mTbox[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
@@ -1169,7 +1169,7 @@ void dMap_c::setImage(int param_1, int param_2, f32 param_3) {
     if (!IsFloorNo(mNowFloorNo)) {
         mNowFloorNo = dMap_GetFloorNo_WithRoom(param_2, param_3);
         if (!IsFloorNo(mNowFloorNo)) {
-            JUT_ASSERT(VERSION_SELECT(3882, 3694, 3694, 3694), 0);
+            JUT_ASSERT(VERSION_SELECT(3882, 3678, 3694, 3694), 0);
         }
     }
     u8 r31 = mNowFloorNo;
@@ -1179,7 +1179,7 @@ void dMap_c::setImage(int param_1, int param_2, f32 param_3) {
     if (!mRoomInfoCtrl.ctrlEntryRoom(param_1, dMap_GetFloorNo_WithRoom(param_2, param_3), param_2, r31, 120, 120, param_3))
 #endif
     {
-        JUT_ASSERT(VERSION_SELECT(3908, 3714, 3714, 3714), 0);
+        JUT_ASSERT(VERSION_SELECT(3908, 3698, 3714, 3714), 0);
     }
     if (!mNowRoomInfoP && param_1 == param_2 && param_2 != -1) {
         setNowRoom(param_2);
@@ -1606,8 +1606,8 @@ void dMap_c::mapAGBSendMapMain(f32 param_1, f32 param_2) {
                     }
                     break;
                 case 2:
-                    JUT_ASSERT(VERSION_SELECT(5274, 5051, 5051, 5051), mNowRoomInfoP != NULL);
-                    JUT_ASSERT(VERSION_SELECT(5275, 5052, 5052, 5052), (mNowRoomInfoP->getEnableFlg() & DSP_ENABLE_BOTH_SIZE) == DSP_ENABLE_BOTH_SIZE);
+                    JUT_ASSERT(VERSION_SELECT(5274, 5035, 5051, 5051), mNowRoomInfoP != NULL);
+                    JUT_ASSERT(VERSION_SELECT(5275, 5036, 5052, 5052), (mNowRoomInfoP->getEnableFlg() & DSP_ENABLE_BOTH_SIZE) == DSP_ENABLE_BOTH_SIZE);
                     if (mDoGac_SendStatusCheck(2)) {
                         memcpy(mAgbSendNowStageName, dComIfGp_getStartStageName(), sizeof(mAgbSendNowStageName));
                         mAgbSendNowRoomNo = mNowRoomInfoP->getRoomNo();
@@ -1818,8 +1818,8 @@ void dMap_c::draw(f32 param_1, f32 param_2, int param_3, f32 param_4) {
 
 /* 8004A82C-8004A97C       .text point2Grid__6dMap_cFffPScPSc */
 void dMap_c::point2Grid(f32 param_1, f32 param_2, s8* i_gridX_p, s8* i_gridY_p) {
-    JUT_ASSERT(VERSION_SELECT(6130, 5751, 5751, 5751), i_gridX_p != NULL);
-    JUT_ASSERT(VERSION_SELECT(6131, 5752, 5752, 5752), i_gridY_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(6130, 5735, 5751, 5751), i_gridX_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(6131, 5736, 5752, 5752), i_gridY_p != NULL);
     s8 x = floor(param_1 / 100000.0f + 0.5f);
     if (x < -3) {
         x = -3;
@@ -1840,10 +1840,10 @@ void dMap_c::point2Grid(f32 param_1, f32 param_2, s8* i_gridX_p, s8* i_gridY_p) 
 
 /* 8004A97C-8004ABB0       .text point2GridAndLocal__6dMap_cFffPScPScPsPs */
 void dMap_c::point2GridAndLocal(f32 param_1, f32 param_2, s8* i_gridX_p, s8* i_gridY_p, s16* i_localX_p, s16* i_localY_p) {
-    JUT_ASSERT(VERSION_SELECT(6182, 5803, 5803, 5803), i_gridX_p != NULL);
-    JUT_ASSERT(VERSION_SELECT(6183, 5804, 5804, 5804), i_gridY_p != NULL);
-    JUT_ASSERT(VERSION_SELECT(6184, 5805, 5805, 5805), i_localX_p != NULL);
-    JUT_ASSERT(VERSION_SELECT(6185, 5806, 5806, 5806), i_localY_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(6182, 5787, 5803, 5803), i_gridX_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(6183, 5788, 5804, 5804), i_gridY_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(6184, 5789, 5805, 5805), i_localX_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(6185, 5790, 5806, 5806), i_localY_p != NULL);
     s8 x = floor(param_1 / 100000.0f + 0.5f);
     s8 y = floor(param_2 / 100000.0f + 0.5f);
     if (x < -3) {
@@ -1911,12 +1911,12 @@ void dMap_c::setFmapChkDtPrm() {
 
 /* 8004AD00-8004ADC8       .text getFmapChkPntDtPnt__6dMap_cFi */
 FmapChkPnt* dMap_c::getFmapChkPntDtPnt(int i_param) {
-    JUT_ASSERT(VERSION_SELECT(6454, 6075, 6075, 6075), mFmapChkPntData_p != NULL);
+    JUT_ASSERT(VERSION_SELECT(6454, 6059, 6075, 6075), mFmapChkPntData_p != NULL);
     FmapChkPnt* ret = NULL;
     if (i_param >= 0 && i_param <= mFmapChkPntValue) {
         ret = &mFmapChkPntData_p[i_param];
     } else {
-        JUT_ASSERT(VERSION_SELECT(6461, 6082, 6082, 6082), 0)
+        JUT_ASSERT(VERSION_SELECT(6461, 6066, 6082, 6082), 0)
     };
     return ret;
 }
@@ -2071,7 +2071,7 @@ void dMap_c::setCollectPoint(u8 param_1, u8 param_2, f32 param_3, f32 param_4, f
     }
     int typeNo = param_1 - 1;
 #if VERSION > VERSION_DEMO
-    JUT_ASSERT(VERSION_SELECT(6441, 6441, 6441, 6441), (typeNo >= 0) && (typeNo < AGB_POINT_TYPE_NUM));
+    JUT_ASSERT(VERSION_SELECT(6441, 6425, 6441, 6441), (typeNo >= 0) && (typeNo < AGB_POINT_TYPE_NUM));
 #endif
     s8 var1 = mCollectPointDataLinkList[typeNo];
     mCollectPointDataLinkList[typeNo] = mCollectPointDataCnt;
@@ -2165,7 +2165,7 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
                     mAGBPointValueAll++;
                     break;
                 default:
-                    JUT_ASSERT(VERSION_SELECT(6661, 6661, 6661, 6661), 0);
+                    JUT_ASSERT(VERSION_SELECT(6661, 6645, 6661, 6661), 0);
                     break;
                 }
             }
@@ -2565,7 +2565,7 @@ void dMap_c::getTypeAgbGcFromTypeAcs(u8 i_typeAcs, u8* param_2, u8* param_3) {
         6, 4,
     };
 
-    JUT_ASSERT(VERSION_SELECT(8287, 7814, 7814, 7814), (i_typeAcs >= 0) && (i_typeAcs < ACS_MAP_POINT_TYPE_MAX));
+    JUT_ASSERT(VERSION_SELECT(8287, 7798, 7814, 7814), (i_typeAcs >= 0) && (i_typeAcs < ACS_MAP_POINT_TYPE_MAX));
     if (param_2) {
         *param_2 = statusMapNo2TypeNoTbl[i_typeAcs][0];
     }
@@ -2594,14 +2594,14 @@ void dMap_c::drawPointSingle(u8 param_1, f32 param_2, f32 param_3, f32 param_4, 
     int tmp = param_1 - 1;
     if (tmp < 0 || tmp >= sizeof(agbTbl)) {
 #if VERSION > VERSION_DEMO
-        JUT_ASSERT(VERSION_SELECT(7901, 7901, 7901, 7901), 0);
+        JUT_ASSERT(VERSION_SELECT(7901, 7885, 7901, 7901), 0);
 #endif
         return;
     }
     int r4 = agbTbl[tmp];
     if (r4 < 0) {
 #if VERSION > VERSION_DEMO
-        JUT_ASSERT(VERSION_SELECT(7908, 7908, 7908, 7908), 0);
+        JUT_ASSERT(VERSION_SELECT(7908, 7892, 7908, 7908), 0);
 #endif
         return;
     }
@@ -2743,7 +2743,7 @@ void dMap_c::mapSetPointAll() {
     for (int i = 0; i < sizeof(agbSetList); i++) {
         s8 typeNo = agbSetList[i] - 1;
 #if VERSION > VERSION_DEMO
-        JUT_ASSERT(VERSION_SELECT(8427, 8427, 8427, 8427), (typeNo >= 0) && (typeNo < AGB_POINT_TYPE_NUM));
+        JUT_ASSERT(VERSION_SELECT(8427, 8411, 8427, 8427), (typeNo >= 0) && (typeNo < AGB_POINT_TYPE_NUM));
 #endif
         for (s8 j = mCollectPointDataLinkList[typeNo]; j >= 0; j = mCollectPointData[j].field_0x16) {
             drawPointMain(
@@ -3560,11 +3560,11 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
     for (i = 0; i < 2; i++) {
         memset(&field_0x20[i][r29], 0, sizeof(dmap_dmap_tlut_s));
         GXInitTlutObj(&field_0x4b0[i][r29], &field_0x20[i][r29], GXTlutFmt(imageP->colorFormat), imageP->numColors);
-        JUT_ASSERT(VERSION_SELECT(10393, 10393, 10393, 10393), imageP->numColors == (16))
+        JUT_ASSERT(VERSION_SELECT(10393, 10377, 10393, 10393), imageP->numColors == (16))
     }
     GXInitTexObjCI(&field_0x370[r29], (u8*)imageP + imageP->imageOffset, imageP->width, imageP->height, GXCITexFmt(imageP->format), GXTexWrapMode(imageP->wrapS), GXTexWrapMode(imageP->wrapT), imageP->mipmapCount > 1 ? GX_TRUE : GX_FALSE, r29);
     GXInitTexObjLOD(&field_0x370[r29], GXTexFilter(imageP->minFilter), GXTexFilter(imageP->magFilter), imageP->minLOD * 0.125f, imageP->maxLOD * 0.125f, imageP->LODBias * 0.01f, imageP->biasClamp, imageP->doEdgeLOD, GXAnisotropy(imageP->maxAnisotropy));
-    JUT_ASSERT(VERSION_SELECT(10419, 10419, 10419, 10419), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+    JUT_ASSERT(VERSION_SELECT(10419, 10403, 10419, 10419), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
     for (i = 0; i < 2; i++) {
         setTlut(&field_0x20[i][r29], param_1, field_0x2b8, field_0x2b9, field_0x2ba);
     }
@@ -3590,11 +3590,11 @@ void dMap_Dmap_c::init(s16 param_1, s16 param_2, s16 param_3, s16 param_4, s16 p
     field_0x2ba = 0;
     field_0x36e = 0;
     mImageP = (ResTIMG*)JKRGetResource('TIMG', "dtmap_mask.bti", mpArc);
-    JUT_ASSERT(VERSION_SELECT(10504, 10504, 10504, 10504), mImageP != NULL);
+    JUT_ASSERT(VERSION_SELECT(10504, 10488, 10504, 10504), mImageP != NULL);
     mImageSeetP = (ResTIMG*)JKRGetResource('TIMG', "menu_note_02_2.bti", mpArc);
-    JUT_ASSERT(VERSION_SELECT(10511, 10511, 10511, 10511), mImageSeetP !=NULL);
+    JUT_ASSERT(VERSION_SELECT(10511, 10495, 10511, 10511), mImageSeetP !=NULL);
     mImageGridP = (ResTIMG*)JKRGetResource('TIMG', "grid_32.bti", mpArc);
-    JUT_ASSERT(VERSION_SELECT(10519, 10519, 10519, 10519), mImageGridP !=NULL);
+    JUT_ASSERT(VERSION_SELECT(10519, 10503, 10519, 10519), mImageGridP !=NULL);
     field_0x2b0 = (ResTIMG*)dComIfG_getStageRes("Stage", "dmap_back.bti");
     GXInitTexObj(&field_0x5c0, (u8*)mImageP + mImageP->imageOffset, mImageP->width, mImageP->height, GXTexFmt(mImageP->format), GXTexWrapMode(mImageP->wrapS), GXTexWrapMode(mImageP->wrapT), mImageP->mipmapCount > 1 ? GX_TRUE : GX_FALSE);
     GXInitTexObjLOD(&field_0x5c0, GXTexFilter(mImageP->minFilter), GXTexFilter(mImageP->magFilter), mImageP->minLOD * 0.125f, mImageP->maxLOD * 0.125f, mImageP->LODBias * 0.01f, mImageP->biasClamp, mImageP->doEdgeLOD, GXAnisotropy(mImageP->maxAnisotropy));
@@ -3626,7 +3626,7 @@ void dMap_Dmap_c::draw() {
     s16 r23;
     s16 r22;
     s16 r21;
-    JUT_ASSERT(VERSION_SELECT(10663, 10663, 10663, 10663), mMaskHeight != 0.0f);
+    JUT_ASSERT(VERSION_SELECT(10663, 10647, 10663, 10663), mMaskHeight != 0.0f);
     f32 f27 = field_0x368 / 64.0f;
     f32 f26 = field_0x36a / 64.0f;
     f32 f23 = 1.0f / GXGetTexObjWidth(&field_0x5e0);
