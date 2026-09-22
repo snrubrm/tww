@@ -39,7 +39,9 @@ public:
     /* 0x2DE */ u8 m2DE[0x2E2 - 0x2DE];
     /* 0x2E2 */ s16 m2E2;
     /* 0x2E4 */ int m2E4;
+#if VERSION > VERSION_DEMO
     /* 0x2E8 */ int mCurrBckIdx;
+#endif
     /* 0x2EC */ f32 m2EC;
     /* 0x2F0 */ f32 m2F0;
     /* 0x2F4 */ f32 m2F4;
@@ -91,6 +93,6 @@ public:
     /* 0xF5C */ mDoExt_invisibleModel mInvModel;
 };
 
-STATIC_ASSERT(sizeof(nz_class) == 0xF64);
+STATIC_ASSERT(sizeof(nz_class) == DEMO_SELECT(0xF60, 0xF64));
 
 #endif /* D_A_NZ_H */
