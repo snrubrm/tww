@@ -50,30 +50,7 @@ public:
     /* 0x68 */ f32 m68;
     /* 0x6C */ u8 m6C;
     /* 0x70 */ f32 m70;
-    /* 0x74 */ f32 m74;
-    /* 0x78 */ f32 m78;
-    /* 0x7C */ f32 m7C;
-    /* 0x80 */ f32 m80;
-    /* 0x84 */ f32 m84;
-    /* 0x88 */ f32 m88;
-    /* 0x8C */ f32 m8C;
-    /* 0x90 */ f32 m90;
-    /* 0x94 */ f32 m94;
-    /* 0x98 */ f32 m98;
-    /* 0x9C */ f32 m9C;
-    /* 0xA0 */ f32 mA0;
-    /* 0xA4 */ f32 mA4;
-    /* 0xA8 */ f32 mA8;
-    /* 0xAC */ f32 mAC;
-    /* 0xB0 */ f32 mB0;
-    /* 0xB4 */ f32 mB4;
-    /* 0xB8 */ f32 mB8;
-    /* 0xBC */ f32 mBC;
-    /* 0xC0 */ f32 mC0;
-    /* 0xC4 */ f32 mC4;
-    /* 0xC8 */ f32 mC8;
-    /* 0xCC */ f32 mCC;
-    /* 0xD0 */ f32 mD0;
+    /* 0x74 */ f32 m74[24];
 };  // Size: 0xD4
 
 STATIC_ASSERT(sizeof(daNpc_P2_childHIO_c) == 0xD4);
@@ -113,30 +90,30 @@ daNpc_P2_childHIO_c::daNpc_P2_childHIO_c() {
     m68 = 300.0f;
     m6C = 0;
     m70 = 5000.0f;
-    m74 = 0.0f;
-    m78 = 14.0f;
-    m7C = 8.0f;
-    m80 = 8.0f;
-    m84 = 4.0f;
-    m88 = 0.0f;
-    m8C = 4.0f;
-    m90 = 8.0f;
-    m94 = 6.0f;
-    m98 = 6.0f;
-    m9C = 2.0f;
-    mA0 = 20.0f;
-    mA4 = 20.0f;
-    mA8 = 8.0f;
-    mAC = 12.0f;
-    mB0 = 8.0f;
-    mB4 = 4.0f;
-    mB8 = 8.0f;
-    mBC = 8.0f;
-    mC0 = 8.0f;
-    mC4 = 8.0f;
-    mC8 = 8.0f;
-    mCC = 15.0f;
-    mD0 = 8.0f;
+    m74[0] = 0.0f;
+    m74[1] = 14.0f;
+    m74[2] = 8.0f;
+    m74[3] = 8.0f;
+    m74[4] = 4.0f;
+    m74[5] = 0.0f;
+    m74[6] = 4.0f;
+    m74[7] = 8.0f;
+    m74[8] = 6.0f;
+    m74[9] = 6.0f;
+    m74[10] = 2.0f;
+    m74[11] = 20.0f;
+    m74[12] = 20.0f;
+    m74[13] = 8.0f;
+    m74[14] = 12.0f;
+    m74[15] = 8.0f;
+    m74[16] = 4.0f;
+    m74[17] = 8.0f;
+    m74[18] = 8.0f;
+    m74[19] = 8.0f;
+    m74[20] = 8.0f;
+    m74[21] = 8.0f;
+    m74[22] = 15.0f;
+    m74[23] = 8.0f;
 }
 
 /* 00000248-000003E8       .text __ct__14daNpc_P2_HIO_cFv */
@@ -309,7 +286,7 @@ void daNpc_P2_c::setAnm() {
     };
 
     for (int i = 0; i < 24; i++) {
-        a_morf_frame_tbl[i] = (&l_HIO.mChild[mType].m74)[i];
+        a_morf_frame_tbl[i] = l_HIO.mChild[mType].m74[i];
     }
 
     if ((s8)m7D4 != (s8)mAnmNo) {
