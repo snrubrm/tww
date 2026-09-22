@@ -434,9 +434,8 @@ bool dCamera_c::getEvIntData(int* out, char* name) {
         }
         *out = *(int*)mEventData.mEventParams[idx].mValue;
     } else {
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        if (evmng->getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
-            *out = *(int*)evmng->getMySubstanceP(mEventData.mStaffIdx, name, dEvDtData_c::TYPE_INT);
+        if (dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
+            *out = *dComIfGp_evmng_getMyIntegerP(mEventData.mStaffIdx, name);
         } else {
             mEventData.field_0x10 = 1;
             return false;
@@ -454,9 +453,8 @@ char* dCamera_c::getEvStringPntData(char* name) {
         }
         return (char*)mEventData.mEventParams[idx].mValue;
     } else {
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        if (evmng->getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
-            return (char*)evmng->getMySubstanceP(mEventData.mStaffIdx, name, dEvDtData_c::TYPE_STRING);
+        if (dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
+            return dComIfGp_evmng_getMyStringP(mEventData.mStaffIdx, name);
         } else {
             mEventData.field_0x10 = 1;
             return NULL;
@@ -474,9 +472,8 @@ bool dCamera_c::getEvIntData(int* out, char* name, int defaultVal) {
             *out = *(int*)mEventData.mEventParams[idx].mValue;
         }
     } else {
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        if (evmng->getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
-            *out = *(int*)evmng->getMySubstanceP(mEventData.mStaffIdx, name, dEvDtData_c::TYPE_INT);
+        if (dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
+            *out = *dComIfGp_evmng_getMyIntegerP(mEventData.mStaffIdx, name);
         } else {
             *out = defaultVal;
             return false;
@@ -495,9 +492,8 @@ BOOL dCamera_c::getEvFloatData(f32* out, char* name, f32 defaultVal) {
             *out = *(f32*)mEventData.mEventParams[idx].mValue;
         }
     } else {
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        if (evmng->getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
-            *out = *(f32*)evmng->getMySubstanceP(mEventData.mStaffIdx, name, dEvDtData_c::TYPE_FLOAT);
+        if (dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
+            *out = *dComIfGp_evmng_getMyFloatP(mEventData.mStaffIdx, name);
         } else {
             *out = defaultVal;
             return false;
@@ -521,9 +517,8 @@ bool dCamera_c::getEvXyzData(cXyz* out, char* name, cXyz defaultVal) {
             out->z = src->z;
         }
     } else {
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        if (evmng->getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
-            cXyz* src = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, name, dEvDtData_c::TYPE_VEC);
+        if (dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
+            cXyz* src = dComIfGp_evmng_getMyXyzP(mEventData.mStaffIdx, name);
             out->x = src->x;
             out->y = src->y;
             out->z = src->z;
@@ -547,9 +542,8 @@ bool dCamera_c::getEvStringData(char* out, char* name, char* defaultVal) {
             strcpy(out, (char*)mEventData.mEventParams[idx].mValue);
         }
     } else {
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        if (evmng->getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
-            strcpy(out, (char*)evmng->getMySubstanceP(mEventData.mStaffIdx, name, dEvDtData_c::TYPE_STRING));
+        if (dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
+            strcpy(out, dComIfGp_evmng_getMyStringP(mEventData.mStaffIdx, name));
         } else {
             strcpy(out, defaultVal);
             return false;
@@ -567,9 +561,8 @@ char* dCamera_c::getEvStringPntData(char* name, char* defaultVal) {
         }
         return (char*)mEventData.mEventParams[idx].mValue;
     } else {
-        dEvent_manager_c* evmng = dComIfGp_getPEvtManager();
-        if (evmng->getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
-            return (char*)evmng->getMySubstanceP(mEventData.mStaffIdx, name, dEvDtData_c::TYPE_STRING);
+        if (dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, name) != 0) {
+            return dComIfGp_evmng_getMyStringP(mEventData.mStaffIdx, name);
         }
         return defaultVal;
     }
