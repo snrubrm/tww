@@ -604,7 +604,7 @@ BOOL daNpc_Pm1_c::_execute() {
 
 /* 00001818-0000189C       .text _delete__11daNpc_Pm1_cFv */
 BOOL daNpc_Pm1_c::_delete() {
-    dComIfG_resDelete(&mPhase, "Pm");
+    dComIfG_resDeleteDemo(&mPhase, "Pm");
     if (mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
