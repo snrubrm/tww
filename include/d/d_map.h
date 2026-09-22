@@ -389,16 +389,16 @@ public:
 
     void changeTlutDblBufNo() {
         mNowTlutDblBufNo = 1 - mNowTlutDblBufNo;
-        JUT_ASSERT(357, (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+        JUT_ASSERT(DEMO_SELECT(360, 357), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
     }
 
     int getLoadTlutDblBufNo() {
-        JUT_ASSERT(360, (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+        JUT_ASSERT(DEMO_SELECT(363, 360), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
         return mNowTlutDblBufNo;
     }
 
     void setTlutDblBufNo(int) {
-        JUT_ASSERT(368, (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+        JUT_ASSERT(DEMO_SELECT(371, 368), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
     }
 
     void setAlpha(u8 alpha) { field_0x2b6 = alpha; }

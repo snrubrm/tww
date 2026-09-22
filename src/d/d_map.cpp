@@ -4316,11 +4316,18 @@ void dMap_Dmap_c::setTlut(dmap_dmap_tlut_s* param_1, u8 param_2, u8 param_3, u8 
             }
             stage_stag_info_class* stageInfo = dComIfGp_getStage().getStagInfo();
             if ((stageInfo->mStageTypeAndSchbit >> 16 & 7) != 3 && *r29 == param_3) {
+#if VERSION == VERSION_DEMO
+                u8 r = flash_color.r + param_5 * (color_on.r - flash_color.r);
+                u8 g = flash_color.g + param_5 * (color_on.g - flash_color.g);
+                u8 b = flash_color.b + param_5 * (color_on.b - flash_color.b);
+                *r30 = ((r << 7) & 0x7C00) | ((g << 2) & 0x3E0) | ((b >> 3) & 0x1F) | 0x8000;
+#else
                 *r30 =
                     ((u16(flash_color.r + param_5 * (color_on.r - flash_color.r)) << 7) & 0x7C00) |
                     ((u16(flash_color.g + param_5 * (color_on.g - flash_color.g)) << 2) & 0x3E0) |
                     ((u16(flash_color.b + param_5 * (color_on.b - flash_color.b)) >> 3) & 0x1F) |
                     0x8000;
+#endif
                 continue;
             }
             if (!dComIfGs_isDungeonItemMap()) {
@@ -4375,8 +4382,7 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
         field_0x2bb[r29][i] = -1;
     }
     for (i = 0; i < 16; i++) {
-        u16* palette = (u16*)((u8*)imageP + imageP->paletteOffset);
-        u16 color = palette[i];
+        u16 color = ((u16*)((u8*)imageP + imageP->paletteOffset))[i];
         u32 j;
         for (j = 0; j < 16; j++) {
             if (color == l_indexColor[j]) {
@@ -4390,11 +4396,11 @@ void dMap_Dmap_c::setFloorTextureOne(u8 param_1) {
     for (i = 0; i < 2; i++) {
         memset(&field_0x20[i][r29], 0, sizeof(dmap_dmap_tlut_s));
         GXInitTlutObj(&field_0x4b0[i][r29], &field_0x20[i][r29], GXTlutFmt(imageP->colorFormat), imageP->numColors);
-        JUT_ASSERT(VERSION_SELECT(10393, 10377, 10393, 10393), imageP->numColors == (16))
+        JUT_ASSERT(VERSION_SELECT(10853, 10377, 10393, 10393), imageP->numColors == (16))
     }
     GXInitTexObjCI(&field_0x370[r29], (u8*)imageP + imageP->imageOffset, imageP->width, imageP->height, GXCITexFmt(imageP->format), GXTexWrapMode(imageP->wrapS), GXTexWrapMode(imageP->wrapT), imageP->mipmapCount > 1 ? GX_TRUE : GX_FALSE, r29);
     GXInitTexObjLOD(&field_0x370[r29], GXTexFilter(imageP->minFilter), GXTexFilter(imageP->magFilter), imageP->minLOD * 0.125f, imageP->maxLOD * 0.125f, imageP->LODBias * 0.01f, imageP->biasClamp, imageP->doEdgeLOD, GXAnisotropy(imageP->maxAnisotropy));
-    JUT_ASSERT(VERSION_SELECT(10419, 10403, 10419, 10419), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+    JUT_ASSERT(VERSION_SELECT(10879, 10403, 10419, 10419), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
     for (i = 0; i < 2; i++) {
         setTlut(&field_0x20[i][r29], param_1, field_0x2b8, field_0x2b9, field_0x2ba);
     }
@@ -4420,11 +4426,11 @@ void dMap_Dmap_c::init(s16 param_1, s16 param_2, s16 param_3, s16 param_4, s16 p
     field_0x2ba = 0;
     field_0x36e = 0;
     mImageP = (ResTIMG*)JKRGetResource('TIMG', "dtmap_mask.bti", mpArc);
-    JUT_ASSERT(VERSION_SELECT(10504, 10488, 10504, 10504), mImageP != NULL);
+    JUT_ASSERT(VERSION_SELECT(10968, 10488, 10504, 10504), mImageP != NULL);
     mImageSeetP = (ResTIMG*)JKRGetResource('TIMG', "menu_note_02_2.bti", mpArc);
-    JUT_ASSERT(VERSION_SELECT(10511, 10495, 10511, 10511), mImageSeetP !=NULL);
+    JUT_ASSERT(VERSION_SELECT(10975, 10495, 10511, 10511), mImageSeetP !=NULL);
     mImageGridP = (ResTIMG*)JKRGetResource('TIMG', "grid_32.bti", mpArc);
-    JUT_ASSERT(VERSION_SELECT(10519, 10503, 10519, 10519), mImageGridP !=NULL);
+    JUT_ASSERT(VERSION_SELECT(10983, 10503, 10519, 10519), mImageGridP !=NULL);
     field_0x2b0 = (ResTIMG*)dComIfG_getStageRes("Stage", "dmap_back.bti");
     GXInitTexObj(&field_0x5c0, (u8*)mImageP + mImageP->imageOffset, mImageP->width, mImageP->height, GXTexFmt(mImageP->format), GXTexWrapMode(mImageP->wrapS), GXTexWrapMode(mImageP->wrapT), mImageP->mipmapCount > 1 ? GX_TRUE : GX_FALSE);
     GXInitTexObjLOD(&field_0x5c0, GXTexFilter(mImageP->minFilter), GXTexFilter(mImageP->magFilter), mImageP->minLOD * 0.125f, mImageP->maxLOD * 0.125f, mImageP->LODBias * 0.01f, mImageP->biasClamp, mImageP->doEdgeLOD, GXAnisotropy(mImageP->maxAnisotropy));
@@ -4456,7 +4462,7 @@ void dMap_Dmap_c::draw() {
     s16 r23;
     s16 r22;
     s16 r21;
-    JUT_ASSERT(VERSION_SELECT(10663, 10647, 10663, 10663), mMaskHeight != 0.0f);
+    JUT_ASSERT(VERSION_SELECT(11127, 10647, 10663, 10663), mMaskHeight != 0.0f);
     f32 f27 = field_0x368 / 64.0f;
     f32 f26 = field_0x36a / 64.0f;
     f32 f23 = 1.0f / GXGetTexObjWidth(&field_0x5e0);
