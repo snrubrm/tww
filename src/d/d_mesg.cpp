@@ -472,6 +472,12 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
 #if VERSION > VERSION_JPN
             if (dComIfGs_getPalLanguage() == 1) {
                 // Specific msg nos that have the 's possessive after the player's name.
+#if VERSION == VERSION_PAL
+                if (sp38.mMsgNo == 0xc8b ||
+                    sp38.mMsgNo == 0x1d21 ||
+                    sp38.mMsgNo == 0x31d7
+                ) {
+#else
                 if (sp38.mMsgNo == 0x33b ||
                     sp38.mMsgNo == 0xc8b ||
                     sp38.mMsgNo == 0x1d21 ||
@@ -479,6 +485,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
                     sp38.mMsgNo == 0x37dd ||
                     sp38.mMsgNo == 0x37de
                 ) {
+#endif
                     char c = sp54[strlen(sp54) - 1];
                     if (c == 's' || c == 'S' || c == 'z' || c == 'Z' || c == 'x' || c == 'X') {
                         strcat(sp54, "'");
@@ -492,6 +499,27 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
             char sp14[3];
             while (sp54[r30]) {
                 int char_code;
+#if VERSION == VERSION_PAL
+                int byte = (u8)sp54[r30];
+                if (headerFlag) {
+                    if (byte >> 4 == 8 || byte >> 4 == 9) {
+                        sp14[0] = sp54[r30++];
+                        char_code = ((byte << 8) & ~0xFF);
+                        byte = (u8)sp54[r30];
+                        char_code |= (byte & 0xFF);
+                        sp14[1] = sp54[r30++];
+                        sp14[2] = 0;
+                    } else {
+                        char_code = byte;
+                        sp14[0] = sp54[r30++];
+                        sp14[1] = 0;
+                    }
+                } else {
+                    char_code = byte;
+                    sp14[0] = sp54[r30++];
+                    sp14[1] = 0;
+                }
+#else
                 u8 byte = sp54[r30];
                 if (byte >> 4 == 8 || byte >> 4 == 9) {
                     sp14[0] = sp54[r30++];
@@ -505,6 +533,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
                     sp14[0] = sp54[r30++];
                     sp14[1] = 0;
                 }
+#endif
 
                 f32 f29 = f32(mesgControl->getNowFontSize()) / f32(mesgControl->getMainFont()->getCellWidth());
                 int width = mesgControl->getMainFont()->getWidth(char_code);
@@ -573,7 +602,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
         case 29: {
             u8 r29_2 = param_1 - 10;
             s16 r30 = field_0x44 + mMesg->screen->getTextPosX(0) + 0.5f;
-            s16 r24 = field_0x70 * g_msgHIO.field_0x5e + (mMesg->screen->getTextPosY(0) + (g_msgHIO.field_0x5e * (4 - mesgControl->getLineCount())) / 2);
+            s16 r24 = field_0x70 * g_msgHIO.field_0x5e + (mMesg->screen->getTextPosY(0) + (g_msgHIO.field_0x5e * (4 - VERSION_SELECT(mesgControl->getLineCount(), mesgControl->getLineCount(), mesgControl->getLineCount(), (mesgControl->getLineCount() - retFlag)))) / 2);
             setCharacter();
             for (int i = 0; i < 18; i++) {
                 if (mMesg->outfont[i]->_set(r30, r24, mesgControl->getNowFontSize(), mNowColor, r29_2)) {
@@ -598,6 +627,27 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
             char sp10[3];
             while (sp28[r30]) {
                 int char_code;
+#if VERSION == VERSION_PAL
+                int byte = (u8)sp28[r30];
+                if (headerFlag) {
+                    if (byte >> 4 == 8 || byte >> 4 == 9) {
+                        sp10[0] = sp28[r30++];
+                        char_code = ((byte << 8) & ~0xFF);
+                        byte = (u8)sp28[r30];
+                        char_code |= (byte & 0xFF);
+                        sp10[1] = sp28[r30++];
+                        sp10[2] = 0;
+                    } else {
+                        char_code = byte;
+                        sp10[0] = sp28[r30++];
+                        sp10[1] = 0;
+                    }
+                } else {
+                    char_code = byte;
+                    sp10[0] = sp28[r30++];
+                    sp10[1] = 0;
+                }
+#else
                 u8 byte = sp28[r30];
                 if (byte >> 4 == 8 || byte >> 4 == 9) {
                     sp10[0] = sp28[r30++];
@@ -611,6 +661,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
                     sp10[0] = sp28[r30++];
                     sp10[1] = 0;
                 }
+#endif
 
                 int r25 = mesgControl->getNowFontSize();
                 f32 f29 = f32(r25) / f32(mesgControl->getMainFont()->getCellWidth());
