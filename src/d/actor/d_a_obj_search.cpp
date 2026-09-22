@@ -186,19 +186,19 @@ void daObj_Search::Act_c::_nodeControl(J3DNode* node, J3DModel* model) {
 
     switch (jntNo) {
     case S_SEARCH_JNT_LIGHTA_e:
-        mDoMtx_XrotM(mDoMtx_stack_c::now, mLightAng[0].y);
-        mDoMtx_YrotM(mDoMtx_stack_c::now, mLightAng[0].x);
+        mDoMtx_stack_c::XrotM(mLightAng[0].y);
+        mDoMtx_stack_c::YrotM(mLightAng[0].x);
         break;
     case S_SEARCH_JNT_LIGHTB_e:
-        mDoMtx_XrotM(mDoMtx_stack_c::now, mLightAng[1].y);
-        mDoMtx_YrotM(mDoMtx_stack_c::now, mLightAng[1].x);
+        mDoMtx_stack_c::XrotM(mLightAng[1].y);
+        mDoMtx_stack_c::YrotM(mLightAng[1].x);
         break;
     case S_SEARCH_JNT_SHAFT_e:
-        mDoMtx_YrotM(mDoMtx_stack_c::now, m7AE);
+        mDoMtx_stack_c::YrotM(m7AE);
         break;
     case S_SEARCH_JNT_HANDLE_e:
-        mDoMtx_YrotM(mDoMtx_stack_c::now, m7AE);
-        mDoMtx_XrotM(mDoMtx_stack_c::now, m7AC);
+        mDoMtx_stack_c::YrotM(m7AE);
+        mDoMtx_stack_c::XrotM(m7AC);
         break;
     }
 
@@ -207,15 +207,15 @@ void daObj_Search::Act_c::_nodeControl(J3DNode* node, J3DModel* model) {
         switch (jntNo) {
         case S_SEARCH_JNT_GEAR_S_e:
             m7AC = (s16)(m7AC + tmp * (2.0f + attr()->m1C));
-            mDoMtx_XrotM(mDoMtx_stack_c::now, m7AC);
+            mDoMtx_stack_c::XrotM(m7AC);
             break;
         case S_SEARCH_JNT_GEAR_M_e:
             m7AA = (s16)(m7AA - tmp * (1.5f + attr()->m18));
-            mDoMtx_XrotM(mDoMtx_stack_c::now, m7AA);
+            mDoMtx_stack_c::XrotM(m7AA);
             break;
         case S_SEARCH_JNT_GEAR_L_e:
             m7A8 = (s16)(m7A8 + tmp * (1.0f + attr()->m14));
-            mDoMtx_XrotM(mDoMtx_stack_c::now, m7A8);
+            mDoMtx_stack_c::XrotM(m7A8);
             break;
         }
     }
@@ -404,7 +404,7 @@ void daObj_Search::Act_c::modeToStop() {
                 }
                 char* cutName = evtMgr->getMyNowCutName(staffId);
                 if (strcmp(cutName, "BK_FIND") == 0) {
-                    evtMgr->cutEnd(staffId);
+                    dComIfGp_evmng_cutEnd(staffId);
                 }
                 if (strcmp(cutName, "LIGHT_UP_SOUND") == 0) {
 #if VERSION == VERSION_DEMO
@@ -412,7 +412,7 @@ void daObj_Search::Act_c::modeToStop() {
 #else
                     mDoAud_seStart(JA_SE_OBJ_SEARCH_LIGHT_UP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 #endif
-                    evtMgr->cutEnd(staffId);
+                    dComIfGp_evmng_cutEnd(staffId);
                 }
                 if (strcmp(cutName, "LIGHT_UP") == 0) {
                     if (abs(cLib_addCalcAngleS(&mLightAng[0].x, 0x2300, 0x1E, 0x300, 0x10)) < 0x100) {
@@ -423,7 +423,7 @@ void daObj_Search::Act_c::modeToStop() {
                     }
                     if (ang0 && ang1) {
                         smoke_set(5.0f, 10);
-                        evtMgr->cutEnd(staffId);
+                        dComIfGp_evmng_cutEnd(staffId);
                     }
                 }
             }
