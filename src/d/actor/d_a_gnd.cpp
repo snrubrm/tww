@@ -402,16 +402,12 @@ static BOOL daGnd_Draw(gnd_class* i_this) {
 #endif
 
     g_env_light.setLightTevColorType(model, &actor->tevStr);
-    J3DModelData* modelData = model->getModelData();
-    i_this->mpBrkAnm->entry(modelData, i_this->mpBrkAnm->getFrame());
-    modelData = model->getModelData();
-    i_this->mpBtkAnm->entry(modelData, i_this->mpBtkAnm->getFrame());
-    modelData = model->getModelData();
-    i_this->mpBtpAnm->entry(modelData, i_this->mpBtpAnm->getFrame());
+    i_this->mpBrkAnm->entry(model->getModelData());
+    i_this->mpBtkAnm->entry(model->getModelData());
+    i_this->mpBtpAnm->entry(model->getModelData());
     i_this->mpMorf->entryDL();
 
-    f32 z = actor->current.pos.z;
-    cXyz shadow_pos(actor->current.pos.x, 400.0f + actor->current.pos.y + REG0_F(18), z);
+    cXyz shadow_pos(actor->current.pos.x, 400.0f + actor->current.pos.y + REG0_F(18), actor->current.pos.z);
     i_this->mShadowId = dComIfGd_setShadow(
         i_this->mShadowId,
         1,
@@ -431,13 +427,7 @@ static BOOL daGnd_Draw(gnd_class* i_this) {
     dSnap_RegistFig(DSNAP_TYPE_UNKCE, actor, 1.0f, 1.0f, 1.0f);
 
     if (l_HIO.m07 != 0) {
-        GXColor color = {0xFF, 0x64, 0x00, 0xFF};
-#if VERSION == VERSION_DEMO
-        GXColor& line_color = color;
-        i_this->mLineMat.update(20, 2.25f + REG0_F(3), line_color, 2, &actor->tevStr);
-#else
-        i_this->mLineMat.update(20, 2.25f + REG0_F(3), color, 2, &actor->tevStr);
-#endif
+        i_this->mLineMat.update(20, 2.25f + REG0_F(3), (GXColor){0xFF, 0x64, 0x00, 0xFF}, 2, &actor->tevStr);
         dComIfGd_set3DlineMat(&i_this->mLineMat);
     }
 
@@ -710,12 +700,7 @@ static void move0(gnd_class* i_this) {
     }
     pos_move(i_this, 0);
     i_this->m2F0 = 2000.0f;
-#if VERSION == VERSION_DEMO
     cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 2, 0x1000);
-#else
-    s16 target = actor->current.angle.y;
-    cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, 0x1000);
-#endif
 }
 
 /* 00001974-000028D0       .text attack0__FP9gnd_class */
@@ -1043,12 +1028,7 @@ static void attack0(gnd_class* i_this) {
     }
     i_this->m2F0 = 2000.0f;
     if (turn_player == 0) {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 4, 0x2000);
-#else
-        s16 target = actor->current.angle.y;
-        cLib_addCalcAngleS2(&actor->shape_angle.y, target, 4, 0x2000);
-#endif
     } else {
         s16 target = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         cLib_addCalcAngleS2(&actor->shape_angle.y, target, 4, (s16)(turn_player << 12));
@@ -1119,12 +1099,7 @@ static void attack1(gnd_class* i_this) {
 
     i_this->m2F8 = l_HIO.m14;
     pos_move(i_this, 0);
-#if VERSION == VERSION_DEMO
     cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 2, 0x1000);
-#else
-    s16 target = actor->current.angle.y;
-    cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, 0x1000);
-#endif
     if (done) {
         i_this->m2CE = 0;
         i_this->m2D0 = 0;
@@ -1340,12 +1315,7 @@ static void attackPZ(gnd_class* i_this) {
     MtxPosition(&offset, &result);
     i_this->m2D4 = pz->current.pos + result;
     pos_move(i_this, 0);
-#if VERSION == VERSION_DEMO
     cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 4, 0x2000);
-#else
-    s16 shape_target = actor->current.angle.y;
-    cLib_addCalcAngleS2(&actor->shape_angle.y, shape_target, 4, 0x2000);
-#endif
     if (done != 0) {
         cLib_addCalc2(&actor->current.pos.x, i_this->m2D4.x, 0.2f, std::fabsf(i_this->m2E0.x));
         cLib_addCalc2(&actor->current.pos.z, i_this->m2D4.z, 0.2f, std::fabsf(i_this->m2E0.z));
@@ -1611,12 +1581,7 @@ static void defence0(gnd_class* i_this) {
         s16 target = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, (s16)(REG0_S(8) + 0x2000));
     } else {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.y, i_this->m3DE, 2, (s16)(REG0_S(8) + 0x2000));
-#else
-        s16 target = i_this->m3DE;
-        cLib_addCalcAngleS2(&actor->shape_angle.y, target, 2, (s16)(REG0_S(8) + 0x2000));
-#endif
     }
     i_this->m13B8[0] = 10;
     i_this->m13B8[1] = 11;
