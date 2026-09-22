@@ -1239,14 +1239,8 @@ BOOL daNpcMn_c::initTexPatternAnm(bool modify) {
 /* 000036D0-0000373C       .text playTexPatternAnm__9daNpcMn_cFv */
 void daNpcMn_c::playTexPatternAnm() {
     if (cLib_calcTimer(&mBlinkTimer) == 0) {
-#if VERSION == VERSION_DEMO
-        s16 max = m_head_tex_pattern->getFrameMax();
-        if (mBtpFrame >= max) {
-#else
-        int max = m_head_tex_pattern->getFrameMax();
-        if (mBtpFrame >= (s16)max) {
-#endif
-            mBtpFrame -= max;
+        if (mBtpFrame >= m_head_tex_pattern->getFrameMax()) {
+            mBtpFrame -= m_head_tex_pattern->getFrameMax();
             mBlinkTimer = 120;
         } else {
             mBtpFrame++;
