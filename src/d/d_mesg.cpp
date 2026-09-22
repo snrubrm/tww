@@ -1934,7 +1934,7 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
         for (int i = 0; i < 4; i++) {
             if (!i_Msg->text[i]) {
                 i_Msg->text[i] = (char*)i_Msg->field_0x100->alloc(1001, 4);
-                JUT_ASSERT(3304, i_Msg->text[i] != NULL);
+                JUT_ASSERT(VERSION_SELECT(3304, 3304, 3304, 3423), i_Msg->text[i] != NULL);
             }
         }
         if (!i_Msg->screen) {
@@ -1944,7 +1944,7 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
             } else {
                 i_Msg->screen = new dMesg_screenDataTalk_c();
             }
-            JUT_ASSERT(3317, i_Msg->screen != NULL);
+            JUT_ASSERT(VERSION_SELECT(3317, 3317, 3317, 3436), i_Msg->screen != NULL);
             i_Msg->screen->setMesg(i_Msg);
             i_Msg->screen->setHeap(i_Msg->field_0x100);
             if (headerFlag) {
@@ -1967,7 +1967,7 @@ void dMesg_waitProc(sub_mesg_class* i_Msg) {
         for (int i = 0; i < 18; i++) {
             if (!i_Msg->outfont[i]) {
                 i_Msg->outfont[i] = new dMesg_outFont_c();
-                JUT_ASSERT(3360, i_Msg->outfont[i]);
+                JUT_ASSERT(VERSION_SELECT(3360, 3360, 3360, 3479), i_Msg->outfont[i]);
                 i_Msg->outfont[i]->_create();
             }
         }
