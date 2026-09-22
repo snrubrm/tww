@@ -39,9 +39,8 @@ inline const Attr_c& attr() { return L_attr; }
 const char daObjAshut::Act_c::M_arcname[] = "Ashut";
 Mtx daObjAshut::Act_c::M_tmp_mtx;
 
-inline BOOL daObjAshut::Act_c::is_switch() const {
-    s32 sw = prm_get_swSave();
-    return dComIfGs_isSwitch(sw, home.roomNo);
+inline BOOL daObjAshut::Act_c::is_switch() {
+    return fopAcM_isSwitch(this, prm_get_swSave());
 }
 
 /* 00000078-0000012C       .text CreateHeap__Q210daObjAshut5Act_cFv */
@@ -71,7 +70,7 @@ cPhs_State daObjAshut::Act_c::Mthd_Create() {
     fopAcM_SetupActor(this, Act_c);
     cPhs_State phase_state = dComIfG_resLoad(&mPhs, M_arcname);
     if (phase_state == cPhs_COMPLEATE_e) {
-        phase_state = MoveBGCreate(M_arcname, dRes_INDEX_ASHUT_DZB_ASHUT_e, NULL, 0x760);
+        phase_state = MoveBGCreate(M_arcname, dRes_INDEX_ASHUT_DZB_ASHUT_e, NULL, DEMO_SELECT(0x8000, 0x760));
         JUT_ASSERT(312, (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
         if (is_switch() && mpBgW->ChkUsed()) dComIfG_Bgsp()->Release(mpBgW);
     }
@@ -86,7 +85,7 @@ BOOL daObjAshut::Act_c::Delete() {
 /* 00000390-000003DC       .text Mthd_Delete__Q210daObjAshut5Act_cFv */
 BOOL daObjAshut::Act_c::Mthd_Delete() {
     BOOL ret = MoveBGDelete();
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return ret;
 }
 
@@ -135,7 +134,7 @@ void daObjAshut::Act_c::mode_u_l_init() {
     mMode = Mode_U_L;
     mSpeed = 0.0f;
     mBounces = attr().fallBounces;
-    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_CL, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_CL, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 }
 
 /* 00000700-000007C0       .text mode_u_l__Q210daObjAshut5Act_cFv */
@@ -171,7 +170,7 @@ void daObjAshut::Act_c::mode_l_u_init() {
     mSpeed = 0.0f;
     mBounces = attr().riseBounces;
     mTimer = attr().riseTime;
-    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_OP, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_OP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 }
 
 /* 000008D4-00000A50       .text mode_l_u__Q210daObjAshut5Act_cFv */
@@ -195,7 +194,7 @@ void daObjAshut::Act_c::mode_l_u() {
 
 /* 00000A50-00000B0C       .text mode_demoreq_init__Q210daObjAshut5Act_cFQ310daObjAshut5Act_c6Mode_e */
 void daObjAshut::Act_c::mode_demoreq_init(daObjAshut::Act_c::Mode_e i_demo_next) {
-    JUT_ASSERT(546, (i_demo_next == Mode_U_L) || (i_demo_next == Mode_L_U));
+    JUT_ASSERT(DEMO_SELECT(544, 546), (i_demo_next == Mode_U_L) || (i_demo_next == Mode_L_U));
     if (mDemoAccepted) {
         if (i_demo_next == Mode_U_L) mode_u_l_init();
         else mode_l_u_init();

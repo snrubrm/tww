@@ -54,8 +54,10 @@ void dOvlpFd2_dlst_c::draw() {
     C_MTXPerspective(proj, 60.0f, fapGmHIO_getAspectRatio() * (4.0f/3.0f), 100.0f, 100000.0f);
     GXSetProjection(proj, GX_PERSPECTIVE);
 
+#if VERSION > VERSION_DEMO
     GXInitTexObj(mDoGph_gInf_c::getFrameBufferTexObj(), mDoGph_gInf_c::getFrameBufferTex(), 320, 240, GX_TF_RGBA8, GX_CLAMP, GX_CLAMP, GX_FALSE);
     GXInitTexObjLOD(mDoGph_gInf_c::getFrameBufferTexObj(), GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
+#endif
     GXLoadTexObj(mDoGph_gInf_c::getFrameBufferTexObj(), GX_TEXMAP0);
     GXSetNumChans(1);
                        
@@ -100,22 +102,34 @@ void dOvlpFd2_dlst_c::draw() {
     GXEnd();
 
     J2DOrthoGraph* graf = dComIfGp_getCurrentGrafPort();
+#if VERSION == VERSION_DEMO
+    graf->setOrtho(0.0f, 0.0f, (int)(640.0f * fapGmHIO_getAspectRatio()), 480.0f, -1.0f, 1.0f);
+#else
     graf->setOrtho(-9.0f, -21.0f, 659.0f, 524.0f, -1.0f, 1.0f);
+#endif
     graf->setup2D();
 }
 
 /* 80223D20-80223D84       .text __ct__10dOvlpFd2_cFv */
 dOvlpFd2_c::dOvlpFd2_c() {
-    mProc = &dOvlpFd2_c::execFirstSnap;
+    setExecute(&dOvlpFd2_c::execFirstSnap);
     dComIfGp_2dShowOff();
     mTimer = 2;
 }
 
 /* 80223D84-80223E18       .text execFirstSnap__10dOvlpFd2_cFv */
 void dOvlpFd2_c::execFirstSnap() {
+#if VERSION == VERSION_DEMO
+    if (mHasSnap && cLib_calcTimer(&mTimer) == 0) {
+        setExecute(&dOvlpFd2_c::execFadeOut);
+        fopOvlpM_Done(this);
+        dComIfGp_setWindowNum(0);
+        mTimer = -12;
+    }
+#else
     if (mHasSnap) {
         if (cLib_calcTimer(&mTimer) == 0) {
-            mProc = &dOvlpFd2_c::execFadeOut;
+            setExecute(&dOvlpFd2_c::execFadeOut);
             fopOvlpM_Done(this);
             mTimer = -12;
         }
@@ -124,6 +138,7 @@ void dOvlpFd2_c::execFirstSnap() {
         if (mDoGph_gInf_c::isMonotone())
             mDoGph_gInf_c::offMonotone();
     }
+#endif
 }
 
 /* 80223E18-80223F8C       .text execFadeOut__10dOvlpFd2_cFv */
@@ -132,14 +147,17 @@ void dOvlpFd2_c::execFadeOut() {
     cLib_chaseAngleS(&field_0x112, 2000, 100);
     s16 r5 = (((field_0x110 + 0x4000) & 0x8000) | 0x4000) - field_0x112;
     field_0x110 += field_0x112;
-    s16 r0_1 = r5 - field_0x110;
-    if (field_0x112 * r0_1 < 0) {
+    if (field_0x112 * (s16)(r5 - field_0x110) < 0) {
         if (mTimer == 0) {
             if (fopOvlpM_IsOutReq(this)) {
                 fopOvlpM_SceneIsStart();
-                mProc = &dOvlpFd2_c::execNextSnap;
+                setExecute(&dOvlpFd2_c::execNextSnap);
                 field_0x110 = -0x4000;
+#if VERSION == VERSION_DEMO
+                dComIfGp_2dShowOff();
+#else
                 mTimer = 15;
+#endif
             }
         }
     }
@@ -149,26 +167,35 @@ void dOvlpFd2_c::execFadeOut() {
             JUTFader* fader = JFWDisplay::getManager()->getFader();
             if (fader != NULL)
                 fader->startFadeOut(16);
-            mTimer = REG0_S(1) + 20;
+            mTimer = REG0_S(1) + DEMO_SELECT(16, 20);
         }
     } else {
         cLib_calcTimer(&mTimer);
     }
 
-    s16 r0_2 = REG0_S(0) + 0x800;
-    rotZ += r0_2;
+    rotZ += (s16)(REG0_S(0) + 0x800);
     cLib_addCalc2(&scale, REG0_F(1) + 1.0f, 1.0f, REG0_F(2) + 0.05f);
 }
 
 /* 80223F8C-80224034       .text execNextSnap__10dOvlpFd2_cFv */
 void dOvlpFd2_c::execNextSnap() {
+#if VERSION == VERSION_DEMO
+    field_0x110 += field_0x112;
+    setExecute(&dOvlpFd2_c::execFadeIn);
+    mHasSnap = false;
+    dComIfGp_setWindowNum(1);
+    JUTFader* fader = JFWDisplay::getManager()->getFader();
+    if (fader != NULL)
+        fader->startFadeIn(16);
+#else
     if (cLib_calcTimer(&mTimer) == 0 && !JFWDisplay::getManager()->getFader()->startFadeIn(16)) {
         field_0x110 += field_0x112;
         mHasSnap = false;
         dComIfGp_setWindowNum(1);
         dComIfGp_2dShowOff();
-        mProc = &dOvlpFd2_c::execFadeIn;
+        setExecute(&dOvlpFd2_c::execFadeIn);
     }
+#endif
 }
 
 /* 80224034-802240F4       .text execFadeIn__10dOvlpFd2_cFv */
@@ -177,6 +204,15 @@ void dOvlpFd2_c::execFadeIn() {
     rotZ -= r3;
     cLib_addCalc0(&scale, 1.0f, REG0_F(3) + 0.03f);
 
+#if VERSION == VERSION_DEMO
+    fopOvlpM_SceneIsStop();
+    dComIfGp_setWindowNum(0);
+    if (scale < 0.001f) {
+        fopOvlpM_Done(this);
+        dComIfGp_setWindowNum(1);
+        dComIfGp_2dShowOn();
+    }
+#else
     if (scale < 0.001f) {
         if (!field_0x11e) {
             fopOvlpM_SceneIsStart();
@@ -190,13 +226,18 @@ void dOvlpFd2_c::execFadeIn() {
         dComIfGp_setWindowNum(0);
         fopOvlpM_SceneIsStop();
     }
+#endif
 }
 
 void dOvlpFd2_c::draw() {
     if (!mHasSnap) {
         dComIfGd_set2DXlu(&dSnap_dlst);
         mHasSnap = true;
-    } else if (dComIfGp_getWindowNum() == 0) {
+    }
+#if VERSION > VERSION_DEMO
+    else if (dComIfGp_getWindowNum() == 0)
+#endif
+    {
         mDoMtx_stack_c::transS(0.0f, 0.0f, -420.f + REG0_F(0));
         mDoMtx_stack_c::ZrotM(rotZ);
         mDoMtx_stack_c::scaleM(1.0f, 1.0f + scale, 1.0f);
@@ -204,7 +245,9 @@ void dOvlpFd2_c::draw() {
         mDoMtx_copy(mDoMtx_stack_c::get(), dOvlpFd2_dlst.getMtx());
         dOvlpFd2_dlst.entry();
     }
+#if VERSION > VERSION_DEMO
     mDoGph_gInf_c::offBlure();
+#endif
 }
 
 /* 802240F4-80224200       .text dOvlpFd2_Draw__FP10dOvlpFd2_c */
@@ -231,7 +274,8 @@ static BOOL dOvlpFd2_Delete(dOvlpFd2_c*) {
 
 /* 8022423C-80224268       .text dOvlpFd2_Create__FPv */
 static cPhs_State dOvlpFd2_Create(void* i_this) {
-    new (i_this) dOvlpFd2_c();
+    overlap_task_class* ovlp = (overlap_task_class*)i_this;
+    new (ovlp) dOvlpFd2_c();
     return cPhs_COMPLEATE_e;
 }
 

@@ -41,6 +41,10 @@ public:
     /* 0x2AC */ mDoExt_btkAnm mWaterBtk;
     /* 0x2C0 */ mDoExt_brkAnm mMinamoBrk;
     /* 0x2D8 */ mDoExt_btkAnm mMinamoBtk;
+#if VERSION == VERSION_DEMO
+    /* 0x2EC */ JPABaseEmitter* mpEmitter00;
+    /* 0x2F0 */ JPABaseEmitter* mpEmitter01;
+#endif
     /* 0x2EC */ dPa_followEcallBack mEmitter00;
     /* 0x300 */ dPa_followEcallBack mEmitter01;
     /* 0x314 */ cXyz mEmitter00Pos;
@@ -56,6 +60,6 @@ public:
     /* 0x356 */ u8 mType;
 };
 
-STATIC_ASSERT(sizeof(daWfall_c) == 0x358);
+STATIC_ASSERT(sizeof(daWfall_c) == DEMO_SELECT(0x360, 0x358));
 
 #endif /* D_A_WATERFALL_H */

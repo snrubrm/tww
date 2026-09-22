@@ -30,9 +30,35 @@
 
 /* 000000EC-000001E8       .text smoke_set__FP8bo_class */
 void smoke_set(bo_class* i_this) {
+#if VERSION == VERSION_DEMO
+    f32 size = 3.0f;
+#endif
     GXColor color = {0xA0, 0xA0, 0x80, 0xFF};
 
     i_this->mSmokeCb.remove();
+#if VERSION == VERSION_DEMO
+    i_this->mSmokeEmitter = dComIfGp_particle_setToon(
+        dPa_name::ID_AK_JT_ELEMENTSMOKE01,
+        &i_this->m39C,
+        &i_this->shape_angle,
+        NULL,
+        0xB9,
+        &i_this->mSmokeCb,
+        fopAcM_GetRoomNo(i_this)
+    );
+
+    if (i_this->mSmokeEmitter != NULL) {
+        JGeometry::TVec3<f32> scale;
+        scale.x = scale.y = scale.z = size;
+        i_this->mSmokeEmitter->setGlobalParticleScale(scale);
+        i_this->mSmokeEmitter->setRate(30.0f);
+        i_this->mSmokeEmitter->setMaxFrame(1);
+        i_this->mSmokeEmitter->setAwayFromCenterSpeed(10.0f);
+        i_this->mSmokeEmitter->setAwayFromAxisSpeed(10.0f);
+        i_this->mSmokeEmitter->becomeImmortalEmitter();
+        i_this->mSmokeCb.setColor(color);
+    }
+#else
     dComIfGp_particle_setToon(
         dPa_name::ID_AK_JT_ELEMENTSMOKE01,
         &i_this->m39C,
@@ -55,7 +81,11 @@ void smoke_set(bo_class* i_this) {
         emitter->becomeImmortalEmitter();
         i_this->mSmokeCb.setColor(color);
     }
+#endif
 }
+
+// Likely fakematch: keeps the int->float conversion in its own temp.
+inline f32 scaleMul(f32 a, f32 b) { return a * b; }
 
 /* 000001E8-00000638       .text nodeCallBack_UP__FP7J3DNodei */
 static BOOL nodeCallBack_UP(J3DNode* node, int calcTiming) {
@@ -72,9 +102,9 @@ static BOOL nodeCallBack_UP(J3DNode* node, int calcTiming) {
 
             if (jntNo <= 10) {
                 f32 scale = jntNo * 0.025f;
-                mDoMtx_YrotM(*calc_mtx, i_this->m33A.y * scale);
-                mDoMtx_XrotM(*calc_mtx, i_this->m33A.x * scale);
-                mDoMtx_ZrotM(*calc_mtx, i_this->m33A.z * scale);
+                cMtx_YrotM(*calc_mtx, i_this->m33A.y * scale);
+                cMtx_XrotM(*calc_mtx, i_this->m33A.x * scale);
+                cMtx_ZrotM(*calc_mtx, i_this->m33A.z * scale);
                 changed = 1;
             }
 
@@ -111,16 +141,21 @@ static BOOL nodeCallBack_UP(J3DNode* node, int calcTiming) {
             }
 
             if (jntNo >= 5 && jntNo <= 7) {
-                f32 scale = (s16)(8 - jntNo);
-                scale *= 1.75f;
-                mDoMtx_YrotM(*calc_mtx, i_this->m352.y * scale);
-                mDoMtx_ZrotM(*calc_mtx, i_this->m352.z * scale);
+#if VERSION == VERSION_DEMO
+                s16 n = 8 - jntNo;
+                f32 scale = 1.75f;
+                scale = n * scale;
+#else
+                f32 scale = scaleMul((s16)(8 - jntNo), 1.75f);
+#endif
+                cMtx_YrotM(*calc_mtx, i_this->m352.y * scale);
+                cMtx_ZrotM(*calc_mtx, i_this->m352.z * scale);
                 changed = 1;
             }
 
             if (jntNo == 8) {
-                mDoMtx_YrotM(*calc_mtx, i_this->m334.y + REG12_S(3));
-                mDoMtx_XrotM(*calc_mtx, i_this->m334.z + REG12_S(5));
+                cMtx_YrotM(*calc_mtx, i_this->m334.y + REG12_S(3));
+                cMtx_XrotM(*calc_mtx, i_this->m334.z + REG12_S(5));
                 offset.x = 0.0f;
                 offset.y = 0.0f;
                 offset.z = 0.0f;
@@ -154,7 +189,7 @@ static BOOL nodeCallBack_UP(J3DNode* node, int calcTiming) {
             }
 
             if (changed) {
-                MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+                model->setAnmMtx(jntNo, *calc_mtx);
                 MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
             }
         }
@@ -216,7 +251,7 @@ void draw_SUB(bo_class* i_this) {
         mDoMtx_stack_c::XrotM(actor->shape_angle.x);
         mDoMtx_stack_c::ZrotM(actor->shape_angle.z);
         mDoMtx_stack_c::transM(0.0f, -i_this->m394, 0.0f);
-        i_this->mpMorfUP->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+        i_this->mpMorfUP->getModel()->setBaseTRMtx(mDoMtx_stack_c::now);
         i_this->mpMorfUP->calc();
 
         if (i_this->m2C0 == 0) {
@@ -229,7 +264,7 @@ void draw_SUB(bo_class* i_this) {
         mDoMtx_stack_c::YrotM(actor->current.angle.y);
         mDoMtx_stack_c::XrotM(actor->shape_angle.x);
         mDoMtx_stack_c::ZrotM(actor->shape_angle.z);
-        i_this->mpMorfDW->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+        i_this->mpMorfDW->getModel()->setBaseTRMtx(mDoMtx_stack_c::now);
         i_this->mpMorfDW->calc();
     }
 
@@ -482,7 +517,8 @@ BOOL head_atari_check(bo_class* i_this) {
         actor->attention_info.flags = 0;
         i_this->m2D0 = 3;
         {
-            u32 params = (i_this->m2C1 << 8) | 1;
+            u32 params = 1;
+            params |= i_this->m2C1 << 8;
             fopAcM_create(fpcNm_BO_e, params, &i_this->current.pos, fopAcM_GetRoomNo(i_this), &i_this->current.angle, &i_this->scale, 0);
         }
         break;
@@ -597,7 +633,8 @@ BOOL body_atari_check(bo_class* i_this) {
         actor->attention_info.flags = 0;
         i_this->m2D0 = 3;
         {
-            u32 params = (i_this->m2C1 << 8) | 1;
+            u32 params = 1;
+            params |= i_this->m2C1 << 8;
             fopAcM_create(fpcNm_BO_e, params, &i_this->current.pos, fopAcM_GetRoomNo(i_this), &i_this->current.angle, &i_this->scale, 0);
         }
         nokezori_damage_rtn(i_this);
@@ -660,7 +697,7 @@ BOOL damage_check(bo_class* i_this) {
         if (i_this->m2CA == 1) {
             nokezori_damage_rtn(i_this);
         } else {
-            if (REG8_F(11) != 0.0f && i_this->m2C5 == 4) {
+            if (REG8_F(11) && i_this->m2C5 == 4) {
                 return FALSE;
             }
 
@@ -771,11 +808,12 @@ void end_event_camera(fopAc_ac_c* actor) {
 /* 0000233C-00002FC4       .text bo_move__FP8bo_class */
 void bo_move(bo_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    daPy_py_c* player = (daPy_py_c*)g_dComIfG_gameInfo.play.mPlayerInfo[0].mpPlayer;
 
     switch (i_this->m2C5) {
     case 0:
-        if (fopAcM_searchActorDistance(actor, player) < 600.0f) {
+        f32 dist = 600.0f;
+        if (fopAcM_searchActorDistance(actor, player) < dist) {
             i_this->mBodyCyl.OnTgSetBit();
             i_this->mHeadSph.OnTgSetBit();
             i_this->mHeadSph.OnCoSetBit();
@@ -791,13 +829,16 @@ void bo_move(bo_class* i_this) {
             i_this->m2C5 = 1;
         }
         break;
-    case 3:
+    case 3: {
+        f32 f27 = 27.0f;
+        f32 f38 = 38.0f;
+        f32 f55 = 55.0f;
         if (i_this->mCurrBckIdx == dRes_INDEX_BO_BCK_ATTACK1_e) {
             f32 frame = i_this->mpMorfUP->getFrame();
-            if (frame < 27.0f || frame >= 55.0f) {
+            if (frame < f27 || frame >= f55) {
                 i_this->m34E = fopAcM_searchActorAngleY(actor, player);
-            } else if (frame < 38.0f) {
-                if (frame == 27.0f) {
+            } else if (frame < f38) {
+                if (f27 == frame) {
                     i_this->mHeadSph.OnAtSetBit();
                     i_this->mHeadSph.OnAtHitBit();
                     fopAcM_seStart(actor, JA_SE_CM_BV_ATTACK, 0);
@@ -825,6 +866,7 @@ void bo_move(bo_class* i_this) {
                 i_this->mHeadSph.SetAtSpl(dCcG_At_Spl_UNK0);
             }
         }
+    }
     case 6:
         if (i_this->mpMorfUP->isStop()) {
             i_this->m368 = cM_rndF(30.0f) + 30.0f;
@@ -838,7 +880,8 @@ void bo_move(bo_class* i_this) {
         } else {
             i_this->m3D0->setGlobalRTMatrix(i_this->mpMorfUP->getModel()->getAnmMtx(BO_UE1_JNT_J_BOKOBABA_AGO_e));
         }
-        if (i_this->mpMorfUP->getFrame() > 39.0f) {
+        f32 f39 = 39.0f;
+        if (i_this->mpMorfUP->getFrame() > f39) {
             i_this->mHeadSph.SetAtSpl(dCcG_At_Spl_UNK0);
             i_this->mHeadSph.OffAtSetBit();
             i_this->mHeadSph.ClrAtSet();
@@ -872,9 +915,11 @@ void bo_move(bo_class* i_this) {
                 i_this->mpMorfUP->setFrame(frame);
                 i_this->m366 = cM_rndF(60.0f) + 60.0f;
             }
-            if (i_this->m368 == 0 && fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 380.0f) {
+            f32 atkDist = 380.0f;
+            f32 rndLim = 0.5f;
+            if (i_this->m368 == 0 && fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < atkDist) {
                 anm_init(i_this, dRes_INDEX_BO_BCK_ATTACK1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1, 0);
-                if (cM_rnd() < 0.5f) {
+                if (cM_rnd() < rndLim) {
                     i_this->mHeadSph.SetAtAtp(0);
                     i_this->m2C4 = 1;
                     i_this->m2C5 = 0xA;
@@ -885,7 +930,9 @@ void bo_move(bo_class* i_this) {
                     fopAcM_monsSeStart(actor, JA_SE_CV_BV_ATTACK, 0);
                     i_this->m2C5 = 3;
                 }
-            } else if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > 900.0f) {
+            } else {
+                atkDist = 900.0f;
+                if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > atkDist) {
                 anm_init(i_this, dRes_INDEX_BO_BCK_MODORU_U1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1, 0);
                 anm_init(i_this, dRes_INDEX_BO_BCK_MODORU_S1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1, 1);
                 actor->attention_info.flags &= ~fopAc_Attn_LOCKON_BATTLE_e;
@@ -897,13 +944,15 @@ void bo_move(bo_class* i_this) {
                 i_this->mHeadSph.ClrTgHit();
                 angle_initial(i_this);
                 i_this->m2C5 = 0;
+                }
             }
             i_this->m34E = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         }
         break;
     case 4: {
         if (player->getCutType() == daPy_py_c::CUT_TYPE_CUT_R) {
-            mDoMtx_YrotS(*calc_mtx, i_this->m37E);
+            s16 rot = i_this->m37E;
+            mDoMtx_YrotS(*calc_mtx, rot);
         } else {
             s16 rot = -i_this->m37E;
             mDoMtx_YrotS(*calc_mtx, rot);
@@ -944,7 +993,7 @@ void bo_move(bo_class* i_this) {
             s16 ydiff = cLib_distanceAngleS(i_this->m33A.y, i_this->m340.y);
             if (ydiff < 0x100) {
                 i_this->m340.y ^= 0xFF00;
-                i_this->m340.y = i_this->m340.y * 0.1f;
+                i_this->m340.y *= 0.1f;
                 i_this->m372++;
                 if (i_this->m372 >= 0x10) {
                     i_this->m340.y = 0;
@@ -957,7 +1006,7 @@ void bo_move(bo_class* i_this) {
             s16 zdiff = cLib_distanceAngleS(i_this->m33A.z, i_this->m340.z);
             if (zdiff < 0x100) {
                 i_this->m340.z ^= 0xFF00;
-                i_this->m340.z = i_this->m340.z * 0.1f;
+                i_this->m340.z *= 0.1f;
                 i_this->m374++;
                 if (i_this->m374 >= 0x10) {
                     i_this->m340.z = 0;
@@ -969,7 +1018,8 @@ void bo_move(bo_class* i_this) {
         if (i_this->m340.y == 0 && i_this->m340.z == 0) {
             i_this->m376++;
         }
-        if (i_this->m376 > 0x1E) {
+        s16 lim = 0x1E;
+        if (i_this->m376 > lim) {
             wait_initial(i_this);
             i_this->m376 = 0;
             i_this->m398 = 1.0f;
@@ -985,15 +1035,27 @@ void bo_move(bo_class* i_this) {
         break;
     }
 
-    s16 targetY = i_this->m34E;
-    cLib_addCalcAngleS2(&i_this->m348, targetY, 1, 0x800);
-    s16 neckY = i_this->m340.y;
-    cLib_addCalcAngleS2(&i_this->m33A.y, neckY, 1, i_this->m37C);
-    s16 neckZ = i_this->m340.z;
-    cLib_addCalcAngleS2(&i_this->m33A.z, neckZ, 1, i_this->m37C);
+#if VERSION == VERSION_DEMO
+    i_this->setBtNowFrame(1000.0f);
+    if (i_this->m2C5 == 3 && i_this->mCurrBckIdx == dRes_INDEX_BO_BCK_ATTACK1_e) {
+        bool inRange = false;
+        f32 frame = i_this->mpMorfUP->getFrame();
+        if (frame >= 19.0f && frame <= 55.0f) {
+            inRange = true;
+        }
+        if (inRange) {
+            i_this->setBtNowFrame(5.0f);
+        }
+    }
+#endif
+
+    cLib_addCalcAngleS2(&i_this->m348, i_this->m34E, 1, 0x800);
+    cLib_addCalcAngleS2(&i_this->m33A.y, i_this->m340.y, 1, i_this->m37C);
+    cLib_addCalcAngleS2(&i_this->m33A.z, i_this->m340.z, 1, i_this->m37C);
     if (i_this->m2C5 == 4) {
         s16 lookDiff = cLib_distanceAngleS(fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)), i_this->m348);
-        if (lookDiff > 0x337F) {
+        s16 lim = 0x337F;
+        if (lookDiff > lim) {
             wait_initial(i_this);
             anm_init(i_this, dRes_INDEX_BO_BCK_MODORU_U1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1, 0);
             anm_init(i_this, dRes_INDEX_BO_BCK_MODORU_S1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1, 1);
@@ -1009,7 +1071,9 @@ void bo_move(bo_class* i_this) {
         }
     }
     if (i_this->m2C5 != 0 && i_this->m2C5 != 5) {
-        damage_check(i_this);
+        if (damage_check(i_this)) {
+            return;
+        }
     }
 }
 
@@ -1017,6 +1081,8 @@ void bo_move(bo_class* i_this) {
 void bo2_move(bo_class* i_this) {
     fopAc_ac_c* actor = i_this;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    f32 end;
+    f32 start;
     f32 stickX = g_mDoCPd_cpadInfo[0].mMainStickPosX;
     f32 stickY = g_mDoCPd_cpadInfo[0].mMainStickPosY;
 
@@ -1030,8 +1096,10 @@ void bo2_move(bo_class* i_this) {
         i_this->m2CC = 0;
         i_this->m2C5++;
         break;
-    case 0xB:
-        if (i_this->mpMorfUP->getFrame() >= 28.0f && i_this->mpMorfUP->getFrame() <= 33.0f) {
+    case 0xB: {
+        start = 28.0f;
+        end = 33.0f;
+        if (i_this->mpMorfUP->getFrame() >= start && i_this->mpMorfUP->getFrame() <= end) {
             if (i_this->mHeadSph.ChkAtHit()) {
                 fopAc_ac_c* hitAc = i_this->mHeadSph.GetAtHitAc();
                 if (hitAc != NULL && hitAc == player) {
@@ -1039,12 +1107,12 @@ void bo2_move(bo_class* i_this) {
                 }
             }
         }
-        if (i_this->mpMorfUP->checkFrame(27.0f)) {
+        if (i_this->mpMorfUP->checkFrame(start - 1.0f)) {
             i_this->mHeadSph.OnAtSetBit();
             i_this->mHeadSph.OnAtHitBit();
             fopAcM_monsSeStart(actor, JA_SE_CV_BV_BITE, 0);
         }
-        if (i_this->mpMorfUP->checkFrame(33.0f)) {
+        if (i_this->mpMorfUP->checkFrame(end)) {
             i_this->mHeadSph.OffAtSetBit();
             i_this->mHeadSph.ClrAtSet();
             i_this->mHeadSph.SetAtSpl(dCcG_At_Spl_UNK0);
@@ -1054,9 +1122,11 @@ void bo2_move(bo_class* i_this) {
             i_this->m368 = cM_rndF(30.0f) + 30.0f;
         }
         break;
-    case 0xC:
+    }
+    case 0xC: {
+        end = 33.0f;
         if (i_this->m2CC == 0) {
-            if (i_this->mpMorfUP->checkFrame(33.0f) || i_this->mpMorfUP->getFrame() >= 33.0f) {
+            if (i_this->mpMorfUP->checkFrame(end) || i_this->mpMorfUP->getFrame() >= end) {
                 player->changeOriginalDemo();
                 player->changeDemoMode(daPy_demo_c::DEMO_UNK_030_e);
                 s16 ang = cLib_distanceAngleS(player->shape_angle.y, fopAcM_searchActorAngleY(player, actor));
@@ -1081,6 +1151,7 @@ void bo2_move(bo_class* i_this) {
             i_this->m2C5++;
         }
         break;
+    }
     case 0xD:
         if (i_this->m3D8 == NULL) {
             i_this->m3D8 = dComIfGp_particle_set(dPa_name::ID_IT_SN_BKBABA_YODARE_WAIT00, &actor->current.pos);
@@ -1093,14 +1164,19 @@ void bo2_move(bo_class* i_this) {
             i_this->m3D8->setGlobalSRTMatrix(i_this->mpMorfUP->getModel()->getAnmMtx(BO_UE1_JNT_J_BOKOBABA_AGO_e));
         }
         if (i_this->m368 == 0) {
+#if VERSION == VERSION_DEMO
+            dComIfGp_setItemLifeCount(-1.0f);
+#else
             daPy_lk_c* link = daPy_getPlayerLinkActorClass();
             if (!link->checkNoDamageMode()) {
                 link->setDamagePoint(-1.0f);
             }
+#endif
             i_this->m368 = 0x1E;
         }
         i_this->m376++;
-        if (i_this->m376 > 0x78) {
+        s16 lim = 0x78;
+        if (i_this->m376 > lim) {
             i_this->m376 = 0;
             anm_init(i_this, dRes_INDEX_BO_BCK_HAKIDASU1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1, 0);
             fopAcM_monsSeStart(actor, JA_SE_CM_BV_LINK_OUT, 0);
@@ -1115,36 +1191,27 @@ void bo2_move(bo_class* i_this) {
                 emitter->setGlobalSRTMatrix(i_this->mpMorfUP->getModel()->getAnmMtx(BO_UE1_JNT_J_BOKOBABA_AGO_e));
             }
         }
-        int dirX = i_this->m2D4;
-        if (dirX > 0) {
-            if (stickX < 0.0f) {
-                i_this->m2D4 = -1;
-                i_this->m376 += 2;
-            }
-        } else if (dirX < 0) {
-            if (stickX > 0.0f) {
-                i_this->m2D4 = 1;
-                i_this->m376 += 2;
-            }
+        if (i_this->m2D4 > 0 && stickX < 0.0f) {
+            i_this->m2D4 = -1;
+            i_this->m376 += 2;
+        } else if (i_this->m2D4 < 0 && stickX > 0.0f) {
+            i_this->m2D4 = 1;
+            i_this->m376 += 2;
         }
-        int dirY = i_this->m2D8;
-        if (dirY > 0) {
-            if (stickY < 0.0f) {
-                i_this->m2D8 = -1;
-                i_this->m376 += 2;
-            }
-        } else if (dirY < 0) {
-            if (stickY > 0.0f) {
-                i_this->m2D8 = 1;
-                i_this->m376 += 2;
-            }
+        if (i_this->m2D8 > 0 && stickY < 0.0f) {
+            i_this->m2D8 = -1;
+            i_this->m376 += 2;
+        } else if (i_this->m2D8 < 0 && stickY > 0.0f) {
+            i_this->m2D8 = 1;
+            i_this->m376 += 2;
         }
         if (CPad_CHECK_TRIG_A(0)) {
             i_this->m376 += 2;
         }
         break;
-    case 0xE:
-        if (i_this->mpMorfUP->checkFrame(9.0f)) {
+    case 0xE: {
+        f32 f9 = 9.0f;
+        if (i_this->mpMorfUP->checkFrame(f9)) {
             player->current.angle.y = i_this->m348;
             player->changeDemoMode(daPy_demo_c::DEMO_LDAM_e);
             i_this->m2CC = 0;
@@ -1162,9 +1229,12 @@ void bo2_move(bo_class* i_this) {
         }
         break;
     }
+    }
 
     if (i_this->m2C5 < 0xC && i_this->m2CB == 0) {
-        damage_check(i_this);
+        if (damage_check(i_this)) {
+            return;
+        }
     }
 }
 
@@ -1226,12 +1296,19 @@ void bo3_move(bo_class* i_this) {
         break;
     }
 
+#if VERSION == VERSION_DEMO
+    JPABaseEmitter* emitter = i_this->mSmokeEmitter;
+#else
     JPABaseEmitter* emitter = i_this->mSmokeCb.getEmitter();
+#endif
     if (emitter != NULL && i_this->m36A == 0) {
         emitter->setGlobalAlpha(i_this->m376);
         i_this->m376 -= 4;
         if (i_this->m376 < 0) {
             i_this->mSmokeCb.remove();
+#if VERSION == VERSION_DEMO
+            i_this->mSmokeEmitter = NULL;
+#endif
         }
     }
 }
@@ -1303,18 +1380,25 @@ void bo4_move(bo_class* i_this) {
         break;
     }
     case 0x22:
-        if (i_this->m368 == 0 && i_this->mSmokeCb.getEmitter() == NULL) {
+        if (i_this->m368 == 0 && DEMO_SELECT(i_this->mSmokeEmitter, i_this->mSmokeCb.getEmitter()) == NULL) {
             fopAcM_delete(actor);
         }
         break;
     }
 
+#if VERSION == VERSION_DEMO
+    JPABaseEmitter* emitter = i_this->mSmokeEmitter;
+#else
     JPABaseEmitter* emitter = i_this->mSmokeCb.getEmitter();
+#endif
     if (emitter != NULL && i_this->m36A == 0) {
         emitter->setGlobalAlpha(i_this->m376);
         i_this->m376 -= 4;
         if (i_this->m376 < 0) {
             i_this->mSmokeCb.remove();
+#if VERSION == VERSION_DEMO
+            i_this->mSmokeEmitter = NULL;
+#endif
         }
     }
 }
@@ -1387,7 +1471,7 @@ static BOOL daBO_Execute(bo_class* i_this) {
     if (i_this->m2C0 == 0) {
         if (enemy_ice(&i_this->mEnemyIce)) {
             if (i_this->mEnemyIce.mLightShrinkTimer != 0) {
-                i_this->mpMorfUP->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+                i_this->mpMorfUP->getModel()->setBaseTRMtx(mDoMtx_stack_c::now);
                 i_this->mpMorfUP->calc();
             } else {
                 i_this->mHeadSph.SetC(i_this->m2E0);
@@ -1479,8 +1563,8 @@ static BOOL daBO_Execute(bo_class* i_this) {
 
     cLib_addCalc2(&actor->scale.y, i_this->m398, 1.0f, 0.0875f);
     i_this->mStts.SetWeight(0xFF);
-    mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
+    cMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    cMtx_XrotM(*calc_mtx, actor->current.angle.x);
     cXyz offset;
     cXyz moved;
     offset.x = 0.0f;
@@ -1565,7 +1649,11 @@ static BOOL daBO_Delete(bo_class* i_this) {
     }
 
     enemy_fire_remove(&i_this->mEnemyFire);
+#if VERSION == VERSION_DEMO
+    dComIfG_deleteObjectRes("BO");
+#else
     dComIfG_resDelete(&i_this->mPhase, "BO");
+#endif
     return TRUE;
 }
 
@@ -1594,7 +1682,7 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
     J3DModel* model;
     a_this->mpMorfUP->getModel()->setUserArea((u32)a_this);
     for (u16 i = 0; i < (model = a_this->mpMorfUP->getModel())->getModelData()->getJointNum(); i++) {
-        model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_UP);
+        a_this->mpMorfUP->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_UP);
     }
 
     if (a_this->m2C0 == 2) {
@@ -1625,7 +1713,7 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
 
         a_this->mpMorfDW->getModel()->setUserArea((u32)a_this);
         for (u16 i = 0; i < (model = a_this->mpMorfDW->getModel())->getModelData()->getJointNum(); i++) {
-            model->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_DW);
+            a_this->mpMorfDW->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_DW);
         }
     }
 
@@ -1640,7 +1728,9 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
 
 /* 00004D50-000050DC       .text daBO_Create__FP10fopAc_ac_c */
 static cPhs_State daBO_Create(fopAc_ac_c* i_this) {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(i_this, bo_class);
+#endif
     bo_class* a_this = (bo_class*)i_this;
 
     static dCcD_SrcSph head_co_sph_src = {
@@ -1733,6 +1823,9 @@ static cPhs_State daBO_Create(fopAc_ac_c* i_this) {
 
     cPhs_State phase_state = dComIfG_resLoad(&a_this->mPhase, "BO");
     if (phase_state == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(i_this, bo_class);
+#endif
         a_this->m2C0 = fopAcM_GetParam(i_this);
         a_this->m2C1 = fopAcM_GetParam(i_this) >> 8;
         if (a_this->m2C0 == 0xFF) {
@@ -1809,6 +1902,14 @@ static cPhs_State daBO_Create(fopAc_ac_c* i_this) {
             a_this->mpMorfUP->play(NULL, 0, 0);
             draw_SUB(a_this);
         }
+
+#if VERSION == VERSION_DEMO
+        if (a_this->m2C0 == 0) {
+            a_this->initBt(162.5f, 200.0f);
+            a_this->setBtAttackData(0.0f, 10.0f, 800.0f, fopEn_enemy_c::OPENING_VERTICAL_JUMP_PARRY);
+            a_this->setBtNowFrame(1000.0f);
+        }
+#endif
 
         daBO_Execute(a_this);
     }

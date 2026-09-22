@@ -9,6 +9,9 @@
 
 class daSaku_c : public fopAc_ac_c {
 public:
+#if VERSION == VERSION_DEMO
+    daSaku_c() : mSmoke(dust_color, NULL, 1) {}
+#endif
     bool chkFlag(u8 flag) { return mFlags & flag; }
     void setFlag(u8 flag) { mFlags |= flag; }
 
@@ -64,7 +67,11 @@ public:
     }
 
 public:
+#if VERSION == VERSION_DEMO
+    /* 0x290 */ dPa_smokeEcallBack mSmoke;
+#else
     /* 0x290 */ dPa_smokeEcallBack mSmoke[2];
+#endif
     /* 0x2D0 */ dCcD_Stts mStts;
     /* 0x30C */ dCcD_Cyl mCyl[2][3];
     /* 0xA2C */ cXyz mCylPos[2][3];
@@ -76,7 +83,11 @@ public:
     /* 0xE34 */ dBgW* mBgW[2][2];
     /* 0xE44 */ dBgW* mActiveBgW[2];
     /* 0xE4C */ Mtx mBgMtx[2];
+#if VERSION == VERSION_DEMO
+    /* 0xE8C */ JPABaseEmitter* mSmokeEmitter[2];
+#else
     /* 0xEAC */ int mSmokeActive[2];
+#endif
     /* 0xEB4 */ f32 mSmokeAlpha[2];
     /* 0xEBC */ int mParticleTimer[2];
     /* 0xEC4 */ cXyz mSmokePos[2];
@@ -93,6 +104,6 @@ public:
     /* 0xF04 */ u32 mTopHalfDestroyedSwitch;
 };
 
-STATIC_ASSERT(sizeof(daSaku_c) == 0xF08);
+STATIC_ASSERT(sizeof(daSaku_c) == DEMO_SELECT(0xEE8, 0xF08));
 
 #endif /* D_A_SAKU_H */

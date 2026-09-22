@@ -15,6 +15,7 @@ public:
     void closeInit();
     BOOL closeProc(dDoor_info_c*);
     dDoor_ssk_sub_c();
+    ~dDoor_ssk_sub_c() {}
     BOOL drawSet();
     void calcMtx(dDoor_info_c*, float, float, unsigned char);
 

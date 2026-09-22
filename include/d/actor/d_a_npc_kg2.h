@@ -18,6 +18,8 @@ public:
             mAction = action; mActionState = 0; (this->*mAction)(arg);
         }
     }
+    cXyz& getEyePos() { return mEyePos; }
+    cXyz& getAttentionBasePos() { return mAttentionBasePos; }
     static void setCanonGameResult(u8 result) { canon_game_result = result; }
     static void init() { canon_game_result = 0; }
     static s8 canon_game_result;

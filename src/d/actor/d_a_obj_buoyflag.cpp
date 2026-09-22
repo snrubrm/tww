@@ -149,7 +149,8 @@ inline void daObjBuoyflag::Packet_c::calc_pos_spring(int y, int x) {
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_gravity(int y, int x) {
     f32 ratio = 0.25f * (4 - y) + (1.0f / 6.0f) * x;
-    mForce += mGravity * (0.5f * (ratio * L_attr.gravity));
+    f32 g = 0.5f * (ratio * L_attr.gravity);
+    mForce += mGravity * g;
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
@@ -157,10 +158,17 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     f32 a = 0.25f * y - 0.5f;
     f32 b = (1.0f / 6.0f) * x;
     f32 distance = std::sqrtf(a * a + b * b);
+    s16 angle1 = 32768.0f * distance + mPhase[9];
+    s16 angle2 = 32768.0f * distance + mPhase[10];
+    s16 angle3 = 32768.0f * distance + mPhase[11];
+#if VERSION == VERSION_DEMO
+    f32 wave = 1.0f + (1.0f / 3.0f) * (cM_ssin(angle1) + cM_ssin(angle2) + cM_ssin(angle3));
+#else
     f32 wave = 1.0f + (1.0f / 3.0f) * (
-        jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[9]) >> jmaSinShift] +
-        jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[10]) >> jmaSinShift] +
-        jmaSinTable[(u16)(s16)(int)(32768.0f * distance + mPhase[11]) >> jmaSinShift]);
+        jmaSinTable[(u16)angle1 >> jmaSinShift] +
+        jmaSinTable[(u16)angle2 >> jmaSinShift] +
+        jmaSinTable[(u16)angle3 >> jmaSinShift]);
+#endif
     f32 dot = normal->inprod(mWind);
     f32 w = wave * L_attr.wave;
     mForce += *normal * (dot * (w * (1.0f / L_attr.windScale)));
@@ -193,12 +201,13 @@ void daObjBuoyflag::Packet_c::hasi_nrm_init() {
 
 /* 000001F8-00000744       .text draw_hata__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
 void daObjBuoyflag::Packet_c::draw_hata(Act_c* actor) {
-    // USA: texture setup instruction scheduling differs.
     dKy_tevstr_c* tev = &actor->tevStr;
     DrawVtx_c* draw = &mDraw[mBuffer];
     u8* texture = &Khata::l_k_hata01TEX[actor->prm_get_texture() * 0x800];
     j3dSys.reinitGX();
+#if VERSION > VERSION_JPN
     GXSetNumIndStages(0);
+#endif
     dKy_GxFog_tevstr_set(tev);
     dKy_setLight_mine(tev);
     GXClearVtxDesc();
@@ -216,7 +225,8 @@ void daObjBuoyflag::Packet_c::draw_hata(Act_c* actor) {
     GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
     GXLoadTexObj(&texObj, GX_TEXMAP0);
     ResTIMG* texInfo = (ResTIMG*)dComIfG_getObjectRes(L_arcname, dRes_INDEX_CLOTH_BTI_CLOTHTOON_e);
-    void* image = (u8*)texInfo + texInfo->imageOffset;
+    u8* image = (u8*)texInfo;
+    image += texInfo->imageOffset;
     GXInitTexObj(&texObj, image, texInfo->width, texInfo->height,
         GXTexFmt(texInfo->format), GXTexWrapMode(texInfo->wrapS), GXTexWrapMode(texInfo->wrapT), GXBool(texInfo->mipmapCount > 1));
     GXInitTexObjLOD(&texObj, GXTexFilter(texInfo->minFilter), GXTexFilter(texInfo->magFilter),
@@ -272,10 +282,11 @@ void daObjBuoyflag::Packet_c::draw_hata(Act_c* actor) {
 
 /* 00000744-00000C4C       .text draw_hasi__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
 void daObjBuoyflag::Packet_c::draw_hasi(Act_c* actor) {
-    // USA: texture setup instruction scheduling differs.
     dKy_tevstr_c* tev = &actor->tevStr;
     j3dSys.reinitGX();
+#if VERSION > VERSION_JPN
     GXSetNumIndStages(0);
+#endif
     dKy_GxFog_tevstr_set(tev);
     dKy_setLight_mine(tev);
     GXClearVtxDesc();
@@ -293,7 +304,8 @@ void daObjBuoyflag::Packet_c::draw_hasi(Act_c* actor) {
     GXInitTexObjLOD(&texObj, GX_LINEAR, GX_LINEAR, 0.0f, 0.0f, 0.0f, GX_FALSE, GX_FALSE, GX_ANISO_1);
     GXLoadTexObj(&texObj, GX_TEXMAP0);
     ResTIMG* texInfo = (ResTIMG*)dComIfG_getObjectRes(L_arcname, dRes_INDEX_CLOTH_BTI_CLOTHTOON_e);
-    void* image = (u8*)texInfo + texInfo->imageOffset;
+    u8* image = (u8*)texInfo;
+    image += texInfo->imageOffset;
     GXInitTexObj(&texObj, image, texInfo->width, texInfo->height,
         GXTexFmt(texInfo->format), GXTexWrapMode(texInfo->wrapS), GXTexWrapMode(texInfo->wrapT), GXBool(texInfo->mipmapCount > 1));
     GXInitTexObjLOD(&texObj, GXTexFilter(texInfo->minFilter), GXTexFilter(texInfo->magFilter),
@@ -349,7 +361,9 @@ void daObjBuoyflag::Packet_c::draw() {
     Act_c* actor = (Act_c*)getUserArea();
     if (actor->attr_type().flag) draw_hata(actor);
     draw_hasi(actor);
+#if VERSION > VERSION_JPN
     J3DShape::resetVcdVatCache();
+#endif
 }
 
 /* 00000CB8-00000F7C       .text init__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
@@ -420,7 +434,7 @@ void daObjBuoyflag::Packet_c::calc_wind_base(Act_c* actor) {
     cXyz motion(0.2f * (actor->m10C0[0][3] - actor->m1090[0][3]), 0.2f * (actor->m10C0[1][3] - actor->m1090[1][3]), 0.2f * (actor->m10C0[2][3] - actor->m1090[2][3]));
     f32 mag2 = motion.abs2();
     if (mag2 > 625.0f) {
-        motion *= 1.0f / std::sqrtf(mag2);
+        motion /= mag2;
         motion *= 25.0f;
     }
     wind += motion;
@@ -450,7 +464,6 @@ void daObjBuoyflag::Packet_c::calc_pos_spring_near(const cXyz* pos, const cXyz* 
 
 /* 000015FC-00001BC0       .text calc_pos__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
 void daObjBuoyflag::Packet_c::calc_pos(Act_c* actor) {
-    // USA: remaining differences are instruction scheduling and register allocation.
     DrawVtx_c* draw = &mDraw[mBuffer];
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
     calc_wind_base(actor);
@@ -462,7 +475,8 @@ void daObjBuoyflag::Packet_c::calc_pos(Act_c* actor) {
             calc_pos_gravity(y, x);
             calc_pos_wave(y, x);
             calc_pos_spd(y, x);
-            draw->pos[y][x] = prev->pos[y][x] + mMove.speed[y][x];
+            // Fakematch: the unsigned index keeps the speed address from being reused from calc_pos_spd.
+            draw->pos[y][x] = prev->pos[y][x] + mMove.speed[y][(u32)x];
         }
     }
 }
@@ -647,7 +661,7 @@ cPhs_State daObjBuoyflag::Act_c::_create() {
     return phase;
 }
 bool daObjBuoyflag::Act_c::_delete() {
-    dComIfG_resDelete(&mPhase, L_arcname);
+    dComIfG_resDeleteDemo(&mPhase, L_arcname);
     return true;
 }
 bool daObjBuoyflag::Act_c::_execute() {

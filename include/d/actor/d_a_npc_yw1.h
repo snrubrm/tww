@@ -84,7 +84,11 @@ public:
 
 public:
     /* 0x6C4 */ request_of_phase_process_class mPhs;
+#if VERSION > VERSION_JPN
     /* 0x6CC */ s8 m_hed_jnt_num, m_bbone_jnt_num, m_hair1, m_hair2, m_hair3;
+#else
+    /* 0x6CC */ s8 m_hed_jnt_num, m_bbone_jnt_num;
+#endif
     /* 0x6D4 */ u32 mShadow;
     /* 0x6D8 */ J3DModel* mpHeadModel;
     /* 0x6DC */ mDoExt_btpAnm mBtpAnm;
@@ -103,15 +107,21 @@ public:
     /* 0x770 */ s8 mAnmEnd, mAnmLoops;
     /* 0x772 */ u8 mItem;
     /* 0x773 */ bool mChangePotAnm, mPaidPot, mPotMissing, mPathEnd, mHidden, mKeepShapeAngle, m779, mInitialized, mAttention, mTalking, mTurnBody, mDemo;
+#if VERSION > VERSION_JPN
     /* 0x77F */ u8 m77F;
     /* 0x780 */ s16 mNeckX, mNeckY, mHairX, mHairY;
     /* 0x788 */ cXyz m788, mOldHeadPos;
     /* 0x7A0 */ s16 mHairVelX, mHairVelY, mHair2X, mHair2Y, mHair2VelX, mHair2VelY, mHair3X, mHair3Y, mHair3VelX, mHair3VelY, mHairPhase, mHairWave1, mHairWave2, mHairWave3;
+#endif
     /* 0x7BC */ s8 mCut;
     /* 0x7BD */ u8 mAnmAttr, mAnmTag;
     /* 0x7BF */ s8 mBtpNo, mAnmNo, mOrder, mState, mPreviousState, mLookMode, mType, mSubType, mActionState, mMsgAnmStarted;
 };
+#if VERSION > VERSION_JPN
 STATIC_ASSERT(sizeof(daNpc_Yw1_c) == 0x7CC);
+#else
+STATIC_ASSERT(sizeof(daNpc_Yw1_c) == 0x788);
+#endif
 struct Yw1Prm {
     s16 maxHeadX, maxHeadY, minHeadX, minHeadY;
     s16 maxBackX, maxBackY, minBackX, minBackY;

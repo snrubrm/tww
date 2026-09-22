@@ -220,7 +220,8 @@ BOOL daMbdoor_c::CreateInit() {
     int swbit = getSwbit();
     int type = getType();
     
-    if (dComIfG_Bgsp()->Regist(mpBgW, this)) {
+    int rt = dComIfG_Bgsp()->Regist(mpBgW, this);
+    if (rt) {
         JUT_ASSERT(334, FALSE);
     }
     field_0x2ac = true;

@@ -50,18 +50,22 @@ public:
     /* 0x468 */ s32 mSwitch;
     /* 0x46C */ LIGHT_INFLUENCE mLights[64];
     /* 0xC6C */ cXyz mLightPos[64];
-    /* 0xF6C */ u8 mUnused[0x100];
+    /* 0xF6C */ JPABaseEmitter* mpKageroEmitter[64];
     /* 0x106C */ f32 mLightStrength;
     /* 0x1070 */ void (daObjFirewall_c::*mAction)();
     /* 0x107C */ s16 mEvent;
     /* 0x107E */ u8 mSoundOn;
+#if VERSION == VERSION_DEMO
+    /* 0x107F */ u8 mBurning;
+#else
     /* 0x1080 */ cXyz mSoundPos[8];
     /* 0x10E0 */ u8 mSoundInitialized;
     /* 0x10E1 */ u8 mBurning;
+#endif
     /* 0x10E4 */ s32 mEventType;
     /* 0x10E8 */ s32 mVoiceIndex;
 };
 
-STATIC_ASSERT(sizeof(daObjFirewall_c) == 0x10EC);
+STATIC_ASSERT(sizeof(daObjFirewall_c) == DEMO_SELECT(0x1088, 0x10EC));
 
 #endif /* D_A_OBJ_FIREWALL_H */

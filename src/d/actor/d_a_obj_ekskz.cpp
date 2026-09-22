@@ -47,6 +47,25 @@ static dCcD_SrcCyl cyl_check_src = {
 
 /* 00000078-00000368       .text CreateHeap__Q210daObjEkskz5Act_cFv */
 BOOL daObjEkskz::Act_c::CreateHeap() {
+#if VERSION == VERSION_DEMO
+    J3DModelData* model_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BDL_EKSKZ_e);
+    JUT_ASSERT(144, model_data != NULL);
+    mpModel = mDoExt_J3DModel__create(model_data, 0, 0x11020203);
+    if (mpModel == NULL) return FALSE;
+    J3DModelData* model_data_eff = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BDL_YOCWD00_e);
+    JUT_ASSERT(155, model_data_eff != NULL);
+    mpModelEff = mDoExt_J3DModel__create(model_data_eff, 0, 0x11020203);
+    J3DAnmTransform* bck = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BCK_YOCWD00_e);
+    JUT_ASSERT(161, bck != NULL);
+    if (!mBckAnm.init(model_data_eff, bck, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false)) return FALSE;
+    J3DAnmTextureSRTKey* btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BTK_YOCWD00_e);
+    JUT_ASSERT(168, btk != NULL);
+    if (!mBtkAnm.init(model_data_eff, btk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0)) return FALSE;
+    J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_EKSKZ_BRK_YOCWD00_e);
+    JUT_ASSERT(175, brk != NULL);
+    if (!mBrkAnm.init(model_data_eff, brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) return FALSE;
+    return TRUE;
+#else
     J3DModelData* model_data_eff;
     J3DAnmTransform* bck;
     J3DAnmTextureSRTKey* btk;
@@ -71,6 +90,7 @@ BOOL daObjEkskz::Act_c::CreateHeap() {
     JUT_ASSERT(178, brk != NULL);
     if (!mBrkAnm.init(model_data_eff, brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) return FALSE;
     return TRUE;
+#endif
 }
 
 /* 00000368-0000054C       .text Create__Q210daObjEkskz5Act_cFv */
@@ -85,6 +105,19 @@ BOOL daObjEkskz::Act_c::Create() {
     m480 = 0;
     dKy_tevstr_init(&mTevStr, home.roomNo, 0xFF);
     s8 roomNo = fopAcM_GetRoomNo(this);
+#if VERSION == VERSION_DEMO
+    mpEmitter0 = dComIfGp_particle_setToon(dPa_name::ID_AK_ST_WINDOCTOPUS00, &current.pos, &current.angle, NULL, 160, &mSmokeCallback[0], roomNo);
+    roomNo = fopAcM_GetRoomNo(this);
+    mpEmitter1 = dComIfGp_particle_setToon(dPa_name::ID_AK_ST_WINDOCTOPUS01, &current.pos, &current.angle, NULL, 160, &mSmokeCallback[1], roomNo);
+    if (mpEmitter0 != NULL) {
+        mpEmitter0->setGlobalPrmColor(mTevStr.mColorK0.r, mTevStr.mColorK0.g, mTevStr.mColorK0.b);
+        mpEmitter0->setGlobalEnvColor(mTevStr.mColorK0.r, mTevStr.mColorK0.g, mTevStr.mColorK0.b);
+    }
+    if (mpEmitter1 != NULL) {
+        mpEmitter1->setGlobalPrmColor(mTevStr.mColorK0.r, mTevStr.mColorK0.g, mTevStr.mColorK0.b);
+        mpEmitter1->setGlobalEnvColor(mTevStr.mColorK0.r, mTevStr.mColorK0.g, mTevStr.mColorK0.b);
+    }
+#else
     dComIfGp_particle_setToon(dPa_name::ID_AK_ST_WINDOCTOPUS00, &current.pos, &current.angle, NULL, 160, &mSmokeCallback[0], roomNo);
     roomNo = fopAcM_GetRoomNo(this);
     dComIfGp_particle_setToon(dPa_name::ID_AK_ST_WINDOCTOPUS01, &current.pos, &current.angle, NULL, 160, &mSmokeCallback[1], roomNo);
@@ -99,6 +132,7 @@ BOOL daObjEkskz::Act_c::Create() {
     attention_info.distances[0] = 0x31;
     attention_info.position.y = 200.0f + current.pos.y;
     eyePos.y = attention_info.position.y;
+#endif
     return TRUE;
 }
 
@@ -113,7 +147,7 @@ cPhs_State daObjEkskz::Act_c::Mthd_Create() {
     cPhs_State phase_state = dComIfG_resLoad(&mPhs, M_arcname);
     if (phase_state == cPhs_COMPLEATE_e) {
         phase_state = MoveBGCreate(M_arcname, dRes_INDEX_EKSKZ_DZB_EKSKZ_e, NULL, 0x28A0);
-        JUT_ASSERT(318, (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
+        JUT_ASSERT(DEMO_SELECT(273, 318), (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
     }
     return phase_state;
 }
@@ -150,7 +184,9 @@ void daObjEkskz::Act_c::init_mtx() {
 
 /* 00000DC0-00000FFC       .text Execute__Q210daObjEkskz5Act_cFPPA3_A4_f */
 BOOL daObjEkskz::Act_c::Execute(Mtx** mtx) {
+#if VERSION > VERSION_DEMO
     attention_info.flags |= 1;
+#endif
     mBckAnm.play();
     mBtkAnm.play();
     dComIfG_Ccsp()->Set(&mCyl);
@@ -158,8 +194,13 @@ BOOL daObjEkskz::Act_c::Execute(Mtx** mtx) {
         mDoAud_seStart(JA_SE_READ_RIDDLE_1);
         fopAcM_onSwitch(this, prm_get_swSave());
         m480 = 1;
+#if VERSION == VERSION_DEMO
+        if (mpEmitter0 != NULL) mpEmitter0->becomeInvalidEmitter();
+        if (mpEmitter1 != NULL) mpEmitter1->becomeInvalidEmitter();
+#else
         mSmokeCallback[0].remove();
         mSmokeCallback[1].remove();
+#endif
         const u8 r = tevStr.mColorK0.r;
         const u8 g = tevStr.mColorK0.g;
         const u8 b = tevStr.mColorK0.b;
@@ -168,7 +209,11 @@ BOOL daObjEkskz::Act_c::Execute(Mtx** mtx) {
         mSmokeCallback[3].onWindOff();
         mSmokeCallback[3].setFollowOff();
         s8 roomNo = fopAcM_GetRoomNo(this);
+#if VERSION == VERSION_DEMO
+        mpEmitter3 = dComIfGp_particle_setToon(dPa_name::ID_AK_ST_BREAKOCTOPUSSMOKE00, &current.pos, &current.angle, NULL, 128, &mSmokeCallback[3], roomNo);
+#else
         dComIfGp_particle_setToon(dPa_name::ID_AK_ST_BREAKOCTOPUSSMOKE00, &current.pos, &current.angle, NULL, 128, &mSmokeCallback[3], roomNo);
+#endif
         mSmokeCallback[3].setTevStr(&mTevStr);
     }
     if (m480 == 1) {

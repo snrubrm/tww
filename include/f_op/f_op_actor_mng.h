@@ -111,6 +111,19 @@ public:
 typedef BOOL (*heapCallbackFunc)(fopAc_ac_c*);
 typedef int (*createFunc)(void*);
 
+// Needed by inline functions in d/d_stage.h, which is part of the precompiled header.
+inline u32 fopAcM_GetParam(void* pActor);
+
+#endif /* F_OP_ACTOR_MNG_H_ */
+
+// The rest of this header (including all of its inline functions) was not part of the
+// d/dolzel.h precompiled header in the original build. Its inlines behave like those of an
+// ordinary header: out-of-line copies that fail to inline go into trailing .text sections instead
+// of being emitted right after their first use. d/dolzel.h includes this header again right after
+// the PCH to pick up this part.
+#if !defined(F_OP_ACTOR_MNG_INLINES_H_) && !defined(DOLZEL_PCH_BUILD)
+#define F_OP_ACTOR_MNG_INLINES_H_
+
 inline s8 fopAcM_GetRoomNo(fopAc_ac_c* pActor) {
     return pActor->current.roomNo;
 }
@@ -684,7 +697,7 @@ inline void fopAcM_seStart(fopAc_ac_c* actor, u32 i_seNum, u32 param_2) {
 }
 
 inline void fopAcM_monsSeStart(fopAc_ac_c* actor, u32 i_seNum, u32 param_2) {
-    mDoAud_monsSeStart(i_seNum, &actor->eyePos, fopAcM_GetID(actor), 0, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
+    mDoAud_monsSeStart(i_seNum, &actor->eyePos, fopAcM_GetID(actor), param_2, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
 }
 
 inline void fopAcM_monsSeStart(fopAc_ac_c* actor, u32 i_seNum, Vec* i_sePos, u32 param_2) {
@@ -709,4 +722,4 @@ inline void fopAcM_orderOtherEvent(fopAc_ac_c* ac, char* event, u16 hind = -1) {
 s32 fopAcM_createHeap(fopAc_ac_c* i_this, u32 size, u32 align);
 void fopAcM_adjustHeap(fopAc_ac_c* i_this);
 
-#endif
+#endif /* F_OP_ACTOR_MNG_INLINES_H_ */

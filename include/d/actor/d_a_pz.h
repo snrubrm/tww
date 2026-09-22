@@ -123,6 +123,9 @@ public:
     void modeFollow();
     void modeProc(Proc_e, int);
     bool _execute();
+#if VERSION == VERSION_DEMO
+    void debugDraw();
+#endif
     void bowDraw();
     void bodyDraw();
     void drawShadow();
@@ -210,7 +213,7 @@ public:
     /* 0x0F58 */ cXyz mGanondorfPosEye;
     /* 0x0F64 */ u8 mbHasGanondorf;
     /* 0x0F65 */ u8 m0F65;
-    /* 0x0F66 */ u8 m0F66;
+    /* 0x0F66 */ bool m0F66;
     /* 0x0F67 */ u8 m0F67;
     /* 0x0F68 */ f32 mKnockback;
     /* 0x0F6C */ s16 mHitAngleY;
@@ -219,9 +222,11 @@ public:
     /* 0x0F74 */ u8 m0F74[0x0F78 - 0x0F74];
     /* 0x0F78 */ s16 mWaist2AngleZ;
     /* 0x0F7A */ s16 mWaist2AngleY;
+#if VERSION > VERSION_DEMO
     /* 0x0F7C */ int m0F7C;
     /* 0x0F80 */ u8 m0F80;
     /* 0x0F81 */ u8 m0F81;
+#endif
     /* 0x0F82 */ u8 mEventOrder;
     /* 0x0F83 */ u8 m0F83;
     /* 0x0F84 */ int mArg;
@@ -244,94 +249,6 @@ public:
     /* 0x1084 */ mDoExt_onCupOffAupPacket mOnCupOffAup2;
 };
 
-STATIC_ASSERT(sizeof(daPz_c) == 0x1094);
-
-class daPz_HIO_c : public mDoHIO_entry_c {
-public:
-    daPz_HIO_c();
-    virtual ~daPz_HIO_c() {}
-
-public:
-    /* 0x004 */ dNpc_HIO_c mNpc;
-    /* 0x02C */ u8 m2C;
-    /* 0x02D */ u8 m2D;
-    /* 0x02E */ u8 m2E;
-    /* 0x02F */ u8 m2F;
-    /* 0x030 */ u8 m30;
-    /* 0x031 */ u8 m31;
-    /* 0x032 */ u8 m32;
-    /* 0x033 */ u8 m33;
-    /* 0x034 */ u8 m34[10];
-    /* 0x03E */ u8 m3E[0x040 - 0x03E];
-    /* 0x040 */ f32 m40;
-    /* 0x044 */ f32 m44;
-    /* 0x048 */ f32 m48;
-    /* 0x04C */ f32 m4C;
-    /* 0x050 */ f32 m50;
-    /* 0x054 */ s16 m54;
-    /* 0x056 */ u8 m56[0x058 - 0x056];
-    /* 0x058 */ f32 m58;
-    /* 0x05C */ f32 m5C;
-    /* 0x060 */ u8 m60[0x064 - 0x060];
-    /* 0x064 */ f32 m64;
-    /* 0x068 */ f32 m68;
-    /* 0x06C */ u8 m6C[0x070 - 0x06C];
-    /* 0x070 */ f32 m70;
-    /* 0x074 */ f32 m74;
-    /* 0x078 */ u8 m78[0x07C - 0x078];
-    /* 0x07C */ f32 m7C;
-    /* 0x080 */ s16 m80;
-    /* 0x082 */ u8 m82[0x084 - 0x082];
-    /* 0x084 */ s16 m84;
-    /* 0x086 */ s16 m86;
-    /* 0x088 */ u8 m88[0x08A - 0x088];
-    /* 0x08A */ s16 m8A;
-    /* 0x08C */ s16 m8C;
-    /* 0x08E */ u8 m8E[0x090 - 0x08E];
-    /* 0x090 */ s16 m90;
-    /* 0x092 */ s16 m92;
-    /* 0x094 */ u8 m94[0x096 - 0x094];
-    /* 0x096 */ s16 m96;
-    /* 0x098 */ s16 m98;
-    /* 0x09A */ u8 m9A[0x09C - 0x09A];
-    /* 0x09C */ s16 m9C;
-    /* 0x09E */ u8 m9E[0x0A0 - 0x09E];
-    /* 0x0A0 */ f32 mA0;
-    /* 0x0A4 */ u8 mA4[0x0A8 - 0x0A4];
-    /* 0x0A8 */ f32 mA8;
-    /* 0x0AC */ f32 mAC;
-    /* 0x0B0 */ f32 mB0;
-    /* 0x0B4 */ f32 mB4;
-    /* 0x0B8 */ f32 mB8;
-    /* 0x0BC */ f32 mBC;
-    /* 0x0C0 */ f32 mC0;
-    /* 0x0C4 */ f32 mC4;
-    /* 0x0C8 */ f32 mC8;
-    /* 0x0CC */ s16 mCC;
-    /* 0x0CE */ u8 mCE[0x0D0 - 0x0CE];
-    /* 0x0D0 */ f32 mD0;
-    /* 0x0D4 */ f32 mD4;
-    /* 0x0D8 */ f32 mD8;
-    /* 0x0DC */ s16 mDC;
-    /* 0x0DE */ s16 mDE;
-    /* 0x0E0 */ s16 mE0;
-    /* 0x0E2 */ s16 mE2;
-    /* 0x0E4 */ s16 mE4;
-    /* 0x0E6 */ s16 mE6;
-    /* 0x0E8 */ s16 mE8;
-    /* 0x0EA */ u8 mEA[0x0EC - 0x0EA];
-    /* 0x0EC */ f32 mEC;
-    /* 0x0F0 */ f32 mF0;
-    /* 0x0F4 */ f32 mF4;
-    /* 0x0F8 */ s16 mF8;
-    /* 0x0FA */ u8 mFA[0x0FC - 0x0FA];
-    /* 0x0FC */ s16 mFC;
-    /* 0x0FE */ u8 mFE[0x100 - 0x0FE];
-    /* 0x100 */ f32 m100;
-    /* 0x104 */ u8 m104[0x108 - 0x104];
-    /* 0x108 */ f32 m108;
-};
-
-STATIC_ASSERT(sizeof(daPz_HIO_c) == 0x10C);
+STATIC_ASSERT(sizeof(daPz_c) == DEMO_SELECT(0x1090, 0x1094));
 
 #endif /* D_A_PZ_H */

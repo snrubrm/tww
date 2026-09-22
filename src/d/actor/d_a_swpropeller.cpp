@@ -55,7 +55,7 @@ static dCcD_SrcCyl l_cyl_src = {
 
 /* 00000078-000000B8       .text _delete__10daSwProp_cFv */
 bool daSwProp_c::_delete() {
-    dComIfG_resDelete(&mPhs, m_arcname[mType]);
+    dComIfG_resDeleteDemo(&mPhs, m_arcname[mType]);
     return true;
 }
 
@@ -67,7 +67,7 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 /* 000000D8-000001B8       .text CreateHeap__10daSwProp_cFv */
 BOOL daSwProp_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname[mType], m_bdlidx[mType]);
-    JUT_ASSERT(257, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(255, 257), modelData != NULL);
     mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpModel == NULL) return FALSE;
     mpModel->setUserArea((u32)this);
@@ -80,7 +80,7 @@ void daSwProp_c::CreateInit() {
     fopAcM_setCullSizeBox(this, -150.0f, -100.0f, -150.0f, 150.0f, 150.0f, 150.0f);
     cullSizeFar = 1.0f;
     mAcchCir.SetWall(30.0f, 30.0f);
-    mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
     mAcch.SetWallNone();
     mAcch.SetWaterNone();
     mAcch.SetRoofNone();
@@ -109,7 +109,7 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
             actor->mRotY += actor->mRotYVel;
             mDoMtx_stack_c::copy(model->getAnmMtx(jointNo));
             mDoMtx_stack_c::YrotM(actor->mRotY);
-            MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(jointNo));
+            model->setAnmMtx(jointNo, mDoMtx_stack_c::get());
             MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
         }
     }
@@ -138,6 +138,9 @@ void daSwProp_c::set_mtx() {
 
 /* 00000838-00000B60       .text _execute__10daSwProp_cFv */
 bool daSwProp_c::_execute() {
+#if VERSION == VERSION_DEMO
+    s16 maxRotYVel = 0x1000;
+#endif
     u8 windHit = 0;
     mAcch.CrrPos(*dComIfG_Bgsp());
     if (mCyl.ChkTgHit()) {
@@ -146,21 +149,21 @@ bool daSwProp_c::_execute() {
             if (hit->ChkAtType(AT_TYPE_WIND)) {
                 windHit = 1;
                 mRebounding = 0;
-                mDoAud_seStart(JA_SE_OBJ_PROP_SW_ON, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+                mDoAud_seStart(JA_SE_OBJ_PROP_SW_ON, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
             } else if (hit->ChkAtType(0xFF1DFEFF)) {
                 mRotYVel = 0x300;
                 mTargetRotYVel = -0.45f * mRotYVel;
                 mRebounding = 1;
                 if (hit->ChkAtType(AT_TYPE_SWORD) || hit->ChkAtType(AT_TYPE_SKULL_HAMMER) ||
                     hit->ChkAtType(AT_TYPE_MOBLIN_SPEAR) || hit->ChkAtType(AT_TYPE_MACHETE)) {
-                    if (mType == 1) daObj::HitSeStart(&current.pos, current.roomNo, &mCyl, 0xB);
-                    else if (mType == 0) daObj::HitSeStart(&current.pos, current.roomNo, &mCyl, 0x11);
+                    if (mType == 1) daObj::HitSeStart(&current.pos, fopAcM_GetRoomNo(this), &mCyl, 0xB);
+                    else if (mType == 0) daObj::HitSeStart(&current.pos, fopAcM_GetRoomNo(this), &mCyl, 0x11);
                 }
             }
         }
     }
     if (windHit) {
-        mRotYVel = 0x1000;
+        mRotYVel = DEMO_SELECT(maxRotYVel, 0x1000);
         mTargetRotYVel = 0;
     } else if (windHit != mWindHit) {
         fopAcM_revSwitch(this, m648);
@@ -175,7 +178,7 @@ bool daSwProp_c::_execute() {
             mRebounding = 0;
         }
     }
-    if (mType == 1) mDoAud_seStart(JA_SE_OBJ_KM_WINDMILL, &current.pos, 100.0f * (mRotYVel / 4096.0f));
+    if (mType == 1) mDoAud_seStart(JA_SE_OBJ_KM_WINDMILL, &current.pos, 100.0f * (mRotYVel / DEMO_SELECT((f32)maxRotYVel, 4096.0f)));
     mWindHit = windHit;
     set_mtx();
     cXyz center = current.pos;
@@ -191,7 +194,7 @@ bool daSwProp_c::_draw() {
     g_env_light.setLightTevColorType(mpModel, &tevStr);
     mDoExt_modelUpdateDL(mpModel);
     f32 groundY = mAcch.GetGroundH();
-    if (groundY != -1.0e9f) {
+    if (groundY != DEMO_SELECT(-G_CM3D_F_INF, -1.0e9f)) {
         dComIfGd_setSimpleShadow2(&current.pos, groundY, 65.0f, mAcch.m_gnd,
             0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }

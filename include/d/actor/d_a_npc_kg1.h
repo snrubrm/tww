@@ -15,6 +15,8 @@ public:
     void getAttentionBasePos() { attention_info.position.set(current.pos.x, current.pos.y + 190.0f, current.pos.z); }
     void getEyePos() { eyePos.set(current.pos.x, current.pos.y + 150.0f, current.pos.z); }
     void setAction(void (daNpc_Kg1_c::*action)()) { mAction = action; }
+    cXyz* getHeadPosP() { return &mHeadPos; }
+    cXyz* getLookPosP() { return &mLookPos; }
 
     void lookBack();
     BOOL chkAttention();
@@ -89,19 +91,5 @@ public:
 };
 
 STATIC_ASSERT(sizeof(daNpc_Kg1_c) == 0x78C);
-
-class daNpc_Kg1_HIO_c : public JORReflexible {
-public:
-    daNpc_Kg1_HIO_c();
-
-public:
-    virtual ~daNpc_Kg1_HIO_c() {}
-    s8 mChild;
-    int mCount;
-    u8 m0C;
-    dNpc_HIO_c mNpc[1];
-    u8 m38;
-    u8 m39;
-};
 
 #endif /* D_A_NPC_KG1_H */

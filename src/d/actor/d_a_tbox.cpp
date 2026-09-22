@@ -762,9 +762,13 @@ s32 daTbox_c::demoProc() {
     };
 
     int actionIdx = dComIfGp_evmng_getMyActIdx(mStaffId, action_table, ARRAY_SIZE(action_table), FALSE, 0);
+#if VERSION == VERSION_DEMO
+    if (dComIfGp_evmng_getIsAddvance(mStaffId)) {
+#else
     BOOL bIsAdvance = dComIfGp_evmng_getIsAddvance(mStaffId);
 
     if (bIsAdvance) {
+#endif
         mHasOpenAnmFinished = false;
 
         switch (actionIdx) {

@@ -10,7 +10,15 @@
 #undef LR
 
 #define EXCEPTIONMASK_ADDR 0x80000044
+#if VERSION == VERSION_DEMO
+#define DB_STACK_ADDR 0x80402dc0
+#elif VERSION == VERSION_JPN
+#define DB_STACK_ADDR 0x80402488
+#elif VERSION == VERSION_USA
 #define DB_STACK_ADDR 0x8040efa8
+#else
+#define DB_STACK_ADDR 0x80416808
+#endif
 
 static u32 lc_base;
 
@@ -54,29 +62,19 @@ __declspec(section ".init") void TRK_copy_vector(u32 offset) {
     TRK_flush_cache(destPtr, 0x100);
 }
 
-__declspec(section ".init") void __TRK_copy_vectors(void) {
-    u32 r3 = lc_base;
-    u32* isrOffsetPtr;
+static void TRK_copy_vectors_by_mask(u32* maskPtr) {
     int i;
-    u32 r29;
+    u32 mask = *maskPtr;
 
-    if (r3 <= 0x44 && r3 + 0x4000 > 0x44 && gTRKCPUState.Extended1.DBAT3U & 3) {
-        r3 = 0x44;
-    } else {
-        r3 = EXCEPTIONMASK_ADDR;
-    }
-
-    i = 0;
-    r29 = *(u32*)r3;
-    isrOffsetPtr = TRK_ISR_OFFSETS;
-
-    do {
-        if (r29 & (1 << i)) {
-            TRK_copy_vector(isrOffsetPtr[i]);
+    for (i = 0; i <= 14; i++) {
+        if (mask & (1 << i)) {
+            TRK_copy_vector(TRK_ISR_OFFSETS[i]);
         }
+    }
+}
 
-        i++;
-    } while (i <= 14);
+__declspec(section ".init") void __TRK_copy_vectors(void) {
+    TRK_copy_vectors_by_mask((u32*)TRKTargetTranslate(0x44));
 }
 
 DSError TRKInitializeTarget() {

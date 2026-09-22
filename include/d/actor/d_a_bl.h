@@ -38,12 +38,27 @@ public:
     /* 0x2F0 */ s16 mFireClrTimer;
     /* 0x2F2 */ s16 m2F2;
     /* 0x2F4 */ s16 mHitTimer;
+#if VERSION == VERSION_DEMO
+    /* 0x2F6 */ s16 m2F8[3];
+    /* 0x2FC */ s16 m300;
+    /* 0x2FE */ s16 m302;
+    /* 0x300 */ s16 m304;
+    /* 0x302 */ s16 m306;
+#elif VERSION <= VERSION_JPN
+    /* 0x2F6 */ s16 m2F6;
+    /* 0x2F8 */ s16 m2F8[3];
+    /* 0x2FE */ s16 m300;
+    /* 0x300 */ s16 m302;
+    /* 0x302 */ s16 m304;
+    /* 0x304 */ s16 m306;
+#else
     /* 0x2F6 */ s16 m2F6;
     /* 0x2F8 */ s16 m2F8[4];
     /* 0x300 */ s16 m300;
     /* 0x302 */ s16 m302;
     /* 0x304 */ s16 m304;
     /* 0x306 */ s16 m306;
+#endif
     /* 0x308 */ int mCurrBckIdx;
     /* 0x30C */ u8 m30C[0x310 - 0x30C];
     /* 0x310 */ f32 m310;
@@ -67,6 +82,6 @@ public:
     /* 0xCF0 */ mDoExt_invisibleModel mInvisModel;
 };
 
-STATIC_ASSERT(sizeof(bl_class) == 0xCF8);
+STATIC_ASSERT(sizeof(bl_class) == DEMO_SELECT(0xCF4, 0xCF8));
 
 #endif /* D_A_BL_H */

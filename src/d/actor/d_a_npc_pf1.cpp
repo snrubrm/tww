@@ -19,7 +19,7 @@
 #include "SSystem/SComponent/c_counter.h"
 #include "m_Do/m_Do_audio.h"
 
-STATIC_ASSERT(sizeof(daNpc_Pf1_c) == 0x7C0);
+STATIC_ASSERT(sizeof(daNpc_Pf1_c) == DEMO_SELECT(0x7C8, 0x7C0));
 static daNpc_Pf1_HIO_c l_HIO;
 static fopAc_ac_c* l_check_inf[20];
 static int l_check_wrk;
@@ -58,7 +58,7 @@ void daNpc_Pf1_c::_nodeCB_Head(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::YrotM(-m_jnt.getHead_y());
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 static BOOL nodeCB_BackBone(J3DNode* node, int timing) {
@@ -74,7 +74,7 @@ void daNpc_Pf1_c::_nodeCB_BackBone(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::XrotM(m_jnt.getBackbone_y());
     mDoMtx_stack_c::ZrotM(m_jnt.getBackbone_x());
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
@@ -90,7 +90,7 @@ bool daNpc_Pf1_c::init_PF1_0() {
 }
 
 bool daNpc_Pf1_c::createInit() {
-    mEventIdx[0] = dComIfGp_evmng_getEventIdx(l_evn_tbl[0]);
+    mEventIdx[0] = dComIfGp_getPEvtManager()->getEventIdx(l_evn_tbl[0], 0xFF);
     mEventCut.setActorInfo2("Pf1", this);
     int weight = 255;
     u8 path = (fopAcM_GetParam(this) >> 16) & 0xFF;
@@ -102,7 +102,7 @@ bool daNpc_Pf1_c::createInit() {
             set_pthPoint(0);
         } else return false;
     }
-    if (!mPath.isPath()) return false;
+    if (mPath.isPath() == false) return false;
     attention_info.flags = 10;
     switch (mSubType) {
     case 0: default:
@@ -333,9 +333,10 @@ void daNpc_Pf1_c::eventOrder() {
 void daNpc_Pf1_c::checkOrder() {
     if (eventInfo.getCommand() == dEvtCmd_INDEMO_e) {
         if (dComIfGp_evmng_startCheck(mEventIdx[mEventNo]) && mOrder >= 3) {
-            // Dummy volatile load keeps orig's vestigial `lha mEventNo`; the following dead `cmpwi r0,0` still DCE's.
-            switch (*(volatile s16*)&mEventNo) {
-            case 0: break;
+            switch (mEventNo) {
+            case 0:
+                for (int i = 0; i < 1; i++) {}
+                break;
             }
             mOrder = 0;
             mAnmAttr = 0xFF;
@@ -438,8 +439,17 @@ void daNpc_Pf1_c::privateCut(int staff) {
         dComIfGp_evmng_cutEnd(staff);
         return;
     }
-    dComIfGp_evmng_getIsAddvance(staff);
-    dComIfGp_evmng_cutEnd(staff);
+    if (dComIfGp_evmng_getIsAddvance(staff)) {
+        switch (mCut) {
+        case 0: break;
+        }
+    }
+    bool done;
+    switch (mCut) {
+    case 0:
+    default: done = true; break;
+    }
+    if (done) dComIfGp_evmng_cutEnd(staff);
 }
 
 void daNpc_Pf1_c::endEvent() {
@@ -545,7 +555,7 @@ bool daNpc_Pf1_c::startEvent_check() {
 }
 
 void daNpc_Pf1_c::set_pthPoint(u8 point) {
-    if (mPath.isPath()) {
+    if (mPath.isPath() != false) {
         mPath.setIdx(point);
         current.pos = mPath.getPoint(mPath.getIdx());
         if (mPath.nextIdx()) {
@@ -571,16 +581,36 @@ void daNpc_Pf1_c::setBikon(cXyz offset) {
     mDoMtx_stack_c::YrotM(current.angle.y);
     cXyz pos;
     mDoMtx_stack_c::multVec(&offset, &pos);
+#if VERSION == VERSION_DEMO
+    mpBikonEmitter = dComIfGp_particle_set(0x8152, &pos);
+#else
     dComIfGp_particle_set(0x8152, &pos);
+#endif
 }
 
-void daNpc_Pf1_c::delBikon() {}
+void daNpc_Pf1_c::delBikon() {
+#if VERSION == VERSION_DEMO
+    if (mpBikonEmitter != NULL) {
+        mpBikonEmitter->becomeInvalidEmitter();
+        mpBikonEmitter = NULL;
+    }
+#endif
+}
 
 BOOL daNpc_Pf1_c::wait_1() { return TRUE; }
 
 BOOL daNpc_Pf1_c::regret() {
     if (mTalking) {
+#if VERSION == VERSION_DEMO
+        if (chk_talk()) {
+            setStt(2);
+            mLookMode = 1;
+            mNoTurn = false;
+            m_jnt.setTrn();
+        }
+#else
         if (chk_talk()) setStt(2);
+#endif
         return TRUE;
     }
     if (!endEvent_check()) {
@@ -599,6 +629,11 @@ BOOL daNpc_Pf1_c::attk_1() {
         if (chk_talk()) {
             setStt(6);
             setStt(2);
+#if VERSION == VERSION_DEMO
+            mLookMode = 1;
+            mNoTurn = false;
+            m_jnt.setTrn();
+#endif
         }
         return TRUE;
     }
@@ -624,7 +659,8 @@ BOOL daNpc_Pf1_c::attk_1() {
     }
     s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getLinkPlayer()->current.pos);
     cLib_addCalcAngleS(&current.angle.y, angle, l_HIO.mPrm.mMoveTurnRate, l_HIO.mPrm.mMoveTurnSpeed, 0x80);
-    cLib_chaseF(&speedF, l_HIO.mPrm.mAttackSpeed, l_HIO.mPrm.mAttackAccel);
+    f32 target = l_HIO.mPrm.mAttackSpeed;
+    cLib_chaseF(&speedF, target, l_HIO.mPrm.mAttackAccel);
     f32 speed = speedF * l_HIO.mPrm.mAttackAnmSpeed;
     f32 rate = speed < 0.5f ? 0.5f : speed;
     mpMorf->setPlaySpeed(rate);
@@ -632,7 +668,7 @@ BOOL daNpc_Pf1_c::attk_1() {
 }
 
 BOOL daNpc_Pf1_c::walk_1() {
-    if (!mPath.isPath()) return TRUE;
+    if (mPath.isPath() == false) return TRUE;
     if (dPath_ChkClose(mPath.getPath())) {
         if (mPath.chkPointPass(current.pos, (u8)(mPath.getDir() != 0))) mPath.nextIdxAuto();
     } else return TRUE;
@@ -655,7 +691,14 @@ BOOL daNpc_Pf1_c::walk_1() {
     mpMorf->setPlaySpeed(rate);
     if ((int)(0.5f + speed) == 0 && (int)speedF == 0) {
         if (mTalking) {
-            if (chk_talk()) setStt(2);
+            if (chk_talk()) {
+                setStt(2);
+#if VERSION == VERSION_DEMO
+                mLookMode = 1;
+                mNoTurn = false;
+                m_jnt.setTrn();
+#endif
+            }
             return TRUE;
         }
         setStt(4);
@@ -670,7 +713,14 @@ BOOL daNpc_Pf1_c::walk_1() {
 
 BOOL daNpc_Pf1_c::wait_2() {
     if (mTalking) {
-        if (chk_talk()) setStt(2);
+        if (chk_talk()) {
+            setStt(2);
+#if VERSION == VERSION_DEMO
+            mLookMode = 1;
+            mNoTurn = false;
+            m_jnt.setTrn();
+#endif
+        }
         return TRUE;
     }
     if (!dComIfGs_isEventBit(0xB04) || (bool)(chk_areaIN(l_HIO.mPrm.mEndRadius, mInitialPos) == 0)) {
@@ -693,7 +743,14 @@ BOOL daNpc_Pf1_c::wait_3() {
     if (mTalking) {
         if (chk_talk()) {
             setStt(2);
+#if VERSION == VERSION_DEMO
+            mLookMode = 1;
+            mNoTurn = false;
             mReturnAngle = false;
+            m_jnt.setTrn();
+#else
+            mReturnAngle = false;
+#endif
         }
         return TRUE;
     }
@@ -716,8 +773,10 @@ BOOL daNpc_Pf1_c::wait_3() {
 
 BOOL daNpc_Pf1_c::talk_1() {
     BOOL moved = chk_parts_notMov();
+#if VERSION > VERSION_DEMO
     s16 angle = cLib_targetAngleY(&current.pos, &dComIfGp_getLinkPlayer()->current.pos);
     cLib_addCalcAngleS(&current.angle.y, angle, 4, l_HIO.mPrm.mTurnSpeed, 0x80);
+#endif
     u16 status = talk(1);
     if (mpCurrMsg == NULL) return TRUE;
     if (status == 10 && mAnmEnd && mCurrMsgNo == 0x1B60) fopMsgM_messageSendOn();
@@ -825,14 +884,14 @@ BOOL daNpc_Pf1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) staff = isEventEntry();
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) staff = isEventEntry();
         if (staff >= 0) event_proc(staff);
         else (this->*mAction)(NULL);
         field_0x6ba = 0;
         lookBack();
         fopAcM_posMoveF(this, mStts.GetCCMoveP());
         mObjAcch.CrrPos(*dComIfG_Bgsp());
-        if (mObjAcch.GetGroundH() != -1000000000.0f) {
+        if (mObjAcch.GetGroundH() != DEMO_SELECT(-G_CM3D_F_INF, -1000000000.0f)) {
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd);
             if (plane != NULL) mGroundNormal = *plane->GetNP();
         }
@@ -851,14 +910,43 @@ BOOL daNpc_Pf1_c::_execute() {
 }
 
 BOOL daNpc_Pf1_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mLoaded) {
+        l_HIO.removeHIO();
+        dComIfG_resDelete(&mPhs, mArcName);
+        cDyl_Unlink(fpcNm_TAMA_e);
+        delBikon();
+        if (mpMorf != NULL) mpMorf->stopZelAnime();
+    }
+    return TRUE;
+#else
     cDyl_Unlink(fpcNm_TAMA_e);
     dComIfG_resDelete(&mPhs, mArcName);
     delBikon();
     if (heap != NULL && mpMorf != NULL) mpMorf->stopZelAnime();
     return TRUE;
+#endif
 }
 
 cPhs_State daNpc_Pf1_c::_create() {
+#if VERSION == VERSION_DEMO
+    if (!decideType(fopAcM_GetParam(this) & 0xFF)) return cPhs_ERROR_e;
+    cPhs_State phase = dComIfG_resLoad(&mPhs, mArcName);
+    mLoaded = phase == cPhs_COMPLEATE_e;
+    if (!mLoaded) return phase;
+    l_HIO.entryHIO("貧乏マギ−の父");
+    fopAcM_SetupActor(this, daNpc_Pf1_c);
+    static u32 a_siz_tbl[] = {0, 0};
+    if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_siz_tbl[mType])) {
+        mLoaded = false;
+        return cPhs_ERROR_e;
+    }
+    fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
+    fopAcM_setCullSizeBox(this, -100.0f, -20.0f, -80.0f, 100.0f, 180.0f, 140.0f);
+    if (!createInit()) return cPhs_ERROR_e;
+    cDyl_Link(fpcNm_TAMA_e);
+    return phase;
+#else
     fopAcM_SetupActor(this, daNpc_Pf1_c);
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) return cPhs_ERROR_e;
     cPhs_State phase = dComIfG_resLoad(&mPhs, mArcName);
@@ -872,11 +960,12 @@ cPhs_State daNpc_Pf1_c::_create() {
     fopAcM_setCullSizeBox(this, -100.0f, -20.0f, -80.0f, 100.0f, 180.0f, 140.0f);
     if (!createInit()) return cPhs_ERROR_e;
     return phase;
+#endif
 }
 
 BOOL daNpc_Pf1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_PF_BDL_PF_e);
-    JUT_ASSERT(0x803, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x7F8, 0x803), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, 1, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) return FALSE;
     if (mpMorf->getModel() == NULL) {
@@ -888,9 +977,9 @@ BOOL daNpc_Pf1_c::bodyCreateHeap() {
         return FALSE;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0x817, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x80C, 0x817), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone1");
-    JUT_ASSERT(0x819, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x80E, 0x819), m_bbone_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->setUserArea((u32)this);
@@ -900,7 +989,10 @@ BOOL daNpc_Pf1_c::bodyCreateHeap() {
 BOOL daNpc_Pf1_c::CreateHeap() {
     if (!bodyCreateHeap()) return FALSE;
     mAcchCir.SetWall(30.0f, 100.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    cXyz* speed_p = &speed;
+    cXyz* old_pos_p = &old.pos;
+    cXyz* current_pos_p = &current.pos;
+    mObjAcch.Set(current_pos_p, old_pos_p, this, 1, &mAcchCir, speed_p, NULL, NULL);
     return TRUE;
 }
 

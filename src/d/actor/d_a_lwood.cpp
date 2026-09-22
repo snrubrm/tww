@@ -21,7 +21,7 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 /* 00000098-00000194       .text CreateHeap__9daLwood_cFv */
 BOOL daLwood_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_LWOOD_BDL_ALWD_e);
-    JUT_ASSERT(0xb9, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(0xb2, 0xb9), modelData != NULL);
     mModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mModel == NULL)
         return FALSE;
@@ -69,6 +69,17 @@ static BOOL nodeCallBack(J3DNode* joint, int calcTiming) {
         J3DModel* model = j3dSys.getModel();
         daLwood_c* i_this = (daLwood_c*)model->getUserArea();
         if (i_this != NULL) {
+#if VERSION == VERSION_DEMO
+            int spd = 300;
+            cXyz windSpeed = daObj::get_wind_spd(i_this, 100.0f);
+            f32 sy = cM_ssin(i_this->getYureTimer() * 300);
+            int amp = 10;
+            s16 r2 = amp * (windSpeed.x * sy);
+            f32 cy = cM_scos(i_this->getYureTimer() * 300);
+            s16 r0 = amp * (windSpeed.z * cy);
+            int amp2 = 250;
+            s16 r1 = amp2 * fabs(cM_ssin(i_this->getYureTimer() * spd) + 1.0f);
+#else
             cXyz windSpeed = daObj::get_wind_spd(i_this, 100.0f);
             f32 sy = cM_ssin(i_this->getYureTimer() * 300);
             s16 r2 = windSpeed.x * sy * 10.0f;
@@ -79,6 +90,7 @@ static BOOL nodeCallBack(J3DNode* joint, int calcTiming) {
             // needs to be a double assignment for some reason. An unused temp variable is enough.
             s16 faketemp;
             s16 r1 = faketemp = fabs(sy + 1.0f) * 250.0f;
+#endif
 
             s16 p1 = i_this->getYureScale() * r2;
             s16 p2 = i_this->getYureScale() * r0;
@@ -127,10 +139,12 @@ cPhs_State daLwood_c::_create() {
 }
 
 bool daLwood_c::_delete() {
+#if VERSION > VERSION_DEMO
     if (heap != NULL)
+#endif
         dComIfG_Bgsp()->Release(mpBgW);
 
-    dComIfG_resDelete(&mPhs, m_arcname);
+    dComIfG_resDeleteDemo(&mPhs, m_arcname);
     return TRUE;
 }
 

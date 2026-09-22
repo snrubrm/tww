@@ -307,8 +307,13 @@ void daBoko_c::setFlameEffect() {
         pJVar5->setDirection(s);
 
         s = current.pos - old.pos;
-        const f32 f5 = 1.0f; // TODO: nonmatching for demo
+#if VERSION > VERSION_DEMO
+        const f32 f5 = 1.0f;
+#endif
         f32 fVar11 = (REG0_F(12) + 0.05f) * std::sqrtf(SQUARE(s.x) + SQUARE(s.y) + SQUARE(s.z)) + 1.0f;
+#if VERSION == VERSION_DEMO
+        f32 f5 = 1.0f;
+#endif
         if (fVar11 > REG0_F(13) + 2.0f) {
             fVar11 = REG0_F(13) + 2.0f;
         }

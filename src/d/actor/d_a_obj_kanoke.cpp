@@ -132,7 +132,9 @@ cPhs_State daObjKanoke_c::_create() {
         if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x2400)) {
             return createInit();
         }
+#if VERSION > VERSION_DEMO
         mpBodyBgW = mpLidBgW = NULL;
+#endif
         return cPhs_ERROR_e;
     }
     return phase;
@@ -179,7 +181,7 @@ cPhs_State daObjKanoke_c::createInit() {
         return cPhs_ERROR_e;
     }
     if (mSwitch != 0xff) {
-        if (dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+        if (dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this))) {
             mMode = 7;
             if (mType == 0) {
                 if (dComIfG_Bgsp()->Regist(mpLidBgW, this)) {
@@ -222,6 +224,16 @@ cPhs_State daObjKanoke_c::createInit() {
 
 /* 00000B28-00000C0C       .text _delete__13daObjKanoke_cFv */
 BOOL daObjKanoke_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mpBodyBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpBodyBgW);
+    }
+    if (mpLidBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpLidBgW);
+    }
+    for (int i = 0; i < 2; ++i) {
+    }
+#else
     if (heap) {
         if (mpBodyBgW && mpBodyBgW->ChkUsed()) {
             dComIfG_Bgsp()->Release(mpBodyBgW);
@@ -230,8 +242,9 @@ BOOL daObjKanoke_c::_delete() {
             dComIfG_Bgsp()->Release(mpLidBgW);
         }
     }
+#endif
     mSmoke.end();
-    dComIfG_resDelete(&mPhase, "Mkanoke");
+    dComIfG_resDeleteDemo(&mPhase, "Mkanoke");
     return TRUE;
 }
 
@@ -278,7 +291,7 @@ BOOL daObjKanoke_c::_execute() {
 /* 00000E7C-0000122C       .text executeNormal__13daObjKanoke_cFv */
 void daObjKanoke_c::executeNormal() {
     bool open = false;
-    if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+    if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this))) {
         open = true;
     } else if (dComIfGp_getDetect().chk_light(&current.pos) || mBodyCps.ChkTgHit()) {
         ++mLightTimer;
@@ -299,7 +312,7 @@ void daObjKanoke_c::executeNormal() {
     if (open) {
         mBodyCps.ClrTgHit();
         if (mSwitch != 0xff) {
-            dComIfGs_onSwitch(mSwitch, home.roomNo);
+            dComIfGs_onSwitch(mSwitch, fopAcM_GetHomeRoomNo(this));
         }
         mAngularSpeed = 0;
         if (getPrmYure()) {
@@ -352,13 +365,15 @@ void daObjKanoke_c::executeYureYoko() {
 
 /* 00001358-00001544       .text executeOpenYoko__13daObjKanoke_cFv */
 void daObjKanoke_c::executeOpenYoko() {
+    f32 slide_max = 100.0f;
+    s16 angle_min = -5600;
     mLidOffset.x += 4.0f;
-    mPivot.x = 100.0f - mLidOffset.x;
-    if (mLidOffset.x > 100.0f) {
+    mPivot.x = slide_max - mLidOffset.x;
+    if (mLidOffset.x > slide_max) {
         mLidAngle.z += mAngularSpeed;
         mAngularSpeed -= 100;
-        if (mLidAngle.z <= -5600) {
-            mLidAngle.z = -5600;
+        if (mLidAngle.z <= angle_min) {
+            mLidAngle.z = angle_min;
             mMode = 3;
             mDoMtx_stack_c::YrotS(shape_angle.y);
             mDoMtx_stack_c::transM(100.0f, 75.0f, 0.0f);
@@ -371,9 +386,13 @@ void daObjKanoke_c::executeOpenYoko() {
             cXyz pos = mLidOffset + daObjKanoke_Yoko_pfs[0];
             MTXMultVec(mtx, &pos, &pos);
             mSmokePos = pos + current.pos;
+#if VERSION == VERSION_DEMO
+            dComIfGp_particle_setToon(0xa181, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
+#else
             if (!mSmoke.getEmitter()) {
                 dComIfGp_particle_setToon(0xa181, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
             }
+#endif
             if (mSmoke.getEmitter()) {
                 mSmoke.getEmitter()->becomeImmortalEmitter();
             }
@@ -438,9 +457,13 @@ void daObjKanoke_c::executeOpenTate() {
         mSmokeAngle.set(0, shape_angle.y, 0);
         mpEmitter[0] = dComIfGp_particle_set(0x817f, &mSmokePos, &mSmokeAngle, NULL, 0xff, NULL, -1, &tevStr.mColorK0, &tevStr.mColorK0);
         mAlpha = 180.0f;
+#if VERSION == VERSION_DEMO
+        dComIfGp_particle_setToon(0xa180, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
+#else
         if (!mSmoke.getEmitter()) {
             dComIfGp_particle_setToon(0xa180, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
         }
+#endif
         if (mSmoke.getEmitter()) {
             mSmoke.getEmitter()->becomeImmortalEmitter();
         }

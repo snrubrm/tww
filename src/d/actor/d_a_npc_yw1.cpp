@@ -40,6 +40,7 @@ daNpc_Yw1_HIO_c::daNpc_Yw1_HIO_c() {
 inline daNpc_Yw1_childHIO_c::~daNpc_Yw1_childHIO_c() {
 }
 
+#if VERSION > VERSION_JPN
 static BOOL nodeCB_Hair(J3DNode* node, int timing) {
     if (timing == 0) {
         J3DModel* model = j3dSys.getModel();
@@ -66,6 +67,7 @@ void daNpc_Yw1_c::_nodeCB_Hair(J3DNode* node, J3DModel* model) {
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
     MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
 }
+#endif
 
 static BOOL nodeCB_Head(J3DNode* node, int timing) {
     if (timing == 0) {
@@ -87,7 +89,7 @@ void daNpc_Yw1_c::_nodeCB_Head(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
     mDoMtx_stack_c::multVec(&a_eye_pos_off, &mEyePos);
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 static BOOL nodeCB_BackBone(J3DNode* node, int timing) {
@@ -106,7 +108,7 @@ void daNpc_Yw1_c::_nodeCB_BackBone(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::XrotM(angle);
     mDoMtx_stack_c::ZrotM(-m_jnt.getBackbone_x());
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
@@ -123,9 +125,10 @@ static void* searchActor_Bm1(void* actor, void*) {
 
 bool daNpc_Yw1_c::init_YW1_0() {
     if (!dComIfGs_isEventBit(0x520) && !dComIfGs_isEventBit(1)) {
-        if (!mPath.isPath()) return false;
+        if (mPath.isPath() == false) return false;
         mChangePotAnm = true;
-        mPotID = fopAcM_create(fpcNm_TSUBO_e, 0x7F063F, &current.pos, fopAcM_GetRoomNo(this), NULL, NULL, -1, NULL);
+        u32 prm = 0x7F063F;
+        mPotID = fopAcM_create(fpcNm_TSUBO_e, prm, &current.pos, fopAcM_GetRoomNo(this), NULL, NULL, -1, NULL);
         set_action(&daNpc_Yw1_c::wait_action1, NULL);
         set_pthPoint(0);
         return mPotID != fpcM_ERROR_PROCESS_ID_e;
@@ -135,7 +138,9 @@ bool daNpc_Yw1_c::init_YW1_0() {
 
 bool daNpc_Yw1_c::init_YW1_1() {
     if (!dComIfGs_isEventBit(0x520)) {
+#if VERSION > VERSION_DEMO
         if (!dComIfGs_isEventBit(1)) fopAcM_SetStatus(this, actor_status & ~ 0x3F);
+#endif
         set_action(&daNpc_Yw1_c::wait_action2, NULL);
         mHidden = true;
         return true;
@@ -153,10 +158,11 @@ bool daNpc_Yw1_c::init_YW1_2() {
 
 bool daNpc_Yw1_c::init_YW1_3() {
     if (dComIfGs_isEventBit(0x520) && dKy_daynight_check() == 0) {
-        if (!mPath.isPath()) return false;
+        if (mPath.isPath() == false) return false;
         if (dComIfGs_isEventBit(0x2A20)) {
             mChangePotAnm = true;
-            mPotID = fopAcM_create(fpcNm_TSUBO_e, 0x7F063F, &current.pos, fopAcM_GetRoomNo(this), NULL, NULL, -1, NULL);
+            u32 prm = 0x7F063F;
+            mPotID = fopAcM_create(fpcNm_TSUBO_e, prm, &current.pos, fopAcM_GetRoomNo(this), NULL, NULL, -1, NULL);
             set_action(&daNpc_Yw1_c::wait_action1, NULL);
             set_pthPoint(0);
             return mPotID != fpcM_ERROR_PROCESS_ID_e;
@@ -246,7 +252,9 @@ void daNpc_Yw1_c::setMtx(bool force) {
     mDoMtx_stack_c::ZXYrotM(mModelAngle);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
     mpMorf->calc();
+#if VERSION > VERSION_JPN
     setHairAngle();
+#endif
     mpHeadModel->setBaseTRMtx(mpMorf->getModel()->getAnmMtx(m_hed_jnt_num));
     mpHeadModel->calc();
     upLift();
@@ -276,8 +284,9 @@ int daNpc_Yw1_c::btpResID(int index) {
 bool daNpc_Yw1_c::init_texPttrnAnm(s8 index, bool modify) {
     J3DModel* model = mpHeadModel;
     if (index < 0) return false;
-    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Yw", btpResID(index));
-    JUT_ASSERT(0x28A, a_btp != 0);
+    int res = btpResID(index);
+    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Yw", res);
+    JUT_ASSERT(VERSION_SELECT(0x25E, 0x25F, 0x28A, 0x28A), a_btp != 0);
     mBtpNo = index;
     mTexFrame = 0;
     mBlinkTimer = 0;
@@ -287,7 +296,7 @@ bool daNpc_Yw1_c::init_texPttrnAnm(s8 index, bool modify) {
 void daNpc_Yw1_c::play_texPttrnAnm() {
     if (mBtpNo == 0 && cLib_calcTimer(&mBlinkTimer) != 0) return;
     mTexFrame++;
-    int end = mBtpAnm.getBtpAnm()->getFrameMax();
+    s16 end = mBtpAnm.getBtpAnm()->getFrameMax();
     if (mTexFrame >= end) {
         if (mBtpNo != 0) mTexFrame = end;
         else {
@@ -502,7 +511,7 @@ bool daNpc_Yw1_c::chk_talk() {
 
 bool daNpc_Yw1_c::chk_parts_notMov() {
     bool result = false;
-    if (mOldHead == m_jnt.getHead_y() && mOldBackbone == m_jnt.getBackbone_y() && mOldAngle == current.angle.y) result = true;
+    result = mOldHead == m_jnt.getHead_y() && mOldBackbone == m_jnt.getBackbone_y() && mOldAngle == current.angle.y;
     return result;
 }
 
@@ -628,7 +637,8 @@ void daNpc_Yw1_c::privateCut(int staff) {
         if (mCut == -1) dComIfGp_evmng_cutEnd(staff);
         else {
             dComIfGp_evmng_getIsAddvance(staff);
-            dComIfGp_evmng_cutEnd(staff);
+            bool end = true;
+            if (end) dComIfGp_evmng_cutEnd(staff);
         }
     }
 }
@@ -718,7 +728,7 @@ bool daNpc_Yw1_c::chk_areaIN(f32 radius, f32 height, s16 angle, cXyz pos) {
 }
 
 void daNpc_Yw1_c::set_pthPoint(u8 index) {
-    if (mPath.isPath()) {
+    if (mPath.isPath() != false) {
         mPath.setIdx(index);
         current.pos = mPath.getPoint(mPath.getIdx());
         if (mPath.nextIdx()) {
@@ -728,6 +738,7 @@ void daNpc_Yw1_c::set_pthPoint(u8 index) {
     }
 }
 
+#if VERSION > VERSION_JPN
 static const Vec l_eye_offset = {
     15.0f, 10.0f, 0.0f
 };
@@ -763,10 +774,10 @@ void daNpc_Yw1_c::setHairAngle() {
     MTXMultVecSR(mpMorf->getModel()->getAnmMtx(m_hed_jnt_num), &l_neck_top, &top);
     s16 oldNeckX = mNeckX, oldNeckY = mNeckY;
     if (top.y < 0.0f) {
-        mNeckX = cM_atan2s(front.y, -cXyz(front.x, 0.0f, front.z).abs());
+        mNeckX = cM_atan2s(front.y, -front.absXZ());
         mNeckY = cM_atan2s(front.x, front.z) + 0x8000;
     } else {
-        mNeckX = cM_atan2s(front.y, cXyz(front.x, 0.0f, front.z).abs());
+        mNeckX = cM_atan2s(front.y, front.absXZ());
         mNeckY = cM_atan2s(front.x, front.z);
     }
     if (std::fabsf(front.y) > 0.7f) mNeckY = oldNeckY;
@@ -790,8 +801,7 @@ void daNpc_Yw1_c::setHairAngle() {
     s16 nDX = neckDX;
     s16 nDY = neckDY;
     cLib_addCalcAngleS2(&mHairX, targetX, 5, 0x400);
-    s16 hairX = mHairX;
-    mHairX = hairX + nDX + mHairVelX;
+    mHairX = mHairVelX + nDX + mHairX;
     s16 targetY = cM_atan2s(-(delta.x * cos - delta.z * sin), std::sqrtf(projected * projected + delta.y * delta.y));
     if (targetY > 0x3800) targetY = 0x3800;
     else if (targetY < -0x3800) targetY = -0x3800;
@@ -799,30 +809,32 @@ void daNpc_Yw1_c::setHairAngle() {
     mHairY += mHairVelY - nDY;
     mHairVelX = 0.2f * (s16)(mHairX - oldX);
     mHairVelY = 0.2f * (s16)(mHairY - oldY);
-    s16 dx = mHairX - oldX, dy = mHairY - oldY;
-    mHair2X -= dx;
-    mHair2Y -= dy;
-    s16 old2X = mHair2X, old2Y = mHair2Y;
+    oldX = mHairX - oldX;
+    oldY = mHairY - oldY;
+    mHair2X -= oldX;
+    mHair2Y -= oldY;
+    oldX = mHair2X;
+    oldY = mHair2Y;
     cLib_addCalcAngleS2(&mHair2X, 0, 5, 0x400);
     cLib_addCalcAngleS2(&mHair2Y, 0, 5, 0x400);
-    mHair2X = mHair2X + nDX + mHair2VelX;
+    mHair2X = mHair2VelX + nDX + mHair2X;
     mHair2Y += mHair2VelY - nDY;
-    mHair2VelX = 0.2f * (s16)(mHair2X - old2X);
-    mHair2VelY = 0.2f * (s16)(mHair2Y - old2Y);
-    dx = mHair2X - old2X;
-    dy = mHair2Y - old2Y;
-    mHair3X -= dx;
-    mHair3Y -= dy;
-    s16 old3X = mHair3X, old3Y = mHair3Y;
+    mHair2VelX = 0.2f * (s16)(mHair2X - oldX);
+    mHair2VelY = 0.2f * (s16)(mHair2Y - oldY);
+    oldX = mHair2X - oldX;
+    oldY = mHair2Y - oldY;
+    mHair3X -= oldX;
+    mHair3Y -= oldY;
+    oldX = mHair3X;
+    oldY = mHair3Y;
     cLib_addCalcAngleS2(&mHair3X, 0, 5, 0x400);
     cLib_addCalcAngleS2(&mHair3Y, 0, 5, 0x400);
-    mHair3X = mHair3X + nDX + mHair3VelX;
+    mHair3X = mHair3VelX + nDX + mHair3X;
     mHair3Y += mHair3VelY - nDY;
-    mHair3VelX = 0.2f * (s16)(mHair3X - old3X);
-    mHair3VelY = 0.2f * (s16)(mHair3Y - old3Y);
+    mHair3VelX = 0.2f * (s16)(mHair3X - oldX);
+    mHair3VelY = 0.2f * (s16)(mHair3Y - oldY);
     f32 distance = mOldHeadPos.abs(pos);
-    f32 wave = windPower + 0.65f * distance;
-    wave = wave * 0.25f;
+    f32 wave = (windPower + 0.65f * distance) / 4.0f;
     if (wave > 1.0f) wave = 1.0f;
     s16 phaseStep = 1500.0f + 4096.0f * wave;
     mHairPhase += phaseStep;
@@ -831,6 +843,7 @@ void daNpc_Yw1_c::setHairAngle() {
     mHairWave3 = 7568.0f * wave * cM_scos(mHairPhase - 6.0f * phaseStep);
     mOldHeadPos = pos;
 }
+#endif
 
 bool daNpc_Yw1_c::chk_brkTsubo() {
     if (mPotMissing) {
@@ -1119,7 +1132,7 @@ u8 daNpc_Yw1_c::demo() {
         dDemo_actor_c* actor = dComIfGp_demo_getActor(demoActorID);
         if (mBtpAnm.getBtpAnm()) {
             mTexFrame++;
-            int end = mBtpAnm.getBtpAnm()->getFrameMax();
+            s16 end = mBtpAnm.getBtpAnm()->getFrameMax();
             if (mTexFrame >= end) mTexFrame = end;
         }
         J3DAnmTexPattern* btp = actor->getP_BtpData("Yw");
@@ -1139,7 +1152,11 @@ void daNpc_Yw1_c::shadowDraw() {
     cXyz pos(current.pos.x, 150.0f + current.pos.y, current.pos.z);
     mShadow = dComIfGd_setShadow(mShadow, 1, mpMorf->getModel(), &pos, 800.0f, 40.0f, current.pos.y, mObjAcch.GetGroundH(), mObjAcch.m_gnd, &tevStr, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     if (mShadow) {
+#if VERSION == VERSION_DEMO
+        if (missing == 0 && pot) dComIfGd_addRealShadow(mShadow, pot->model);
+#else
         if (missing == 0 && pot && pot->model) dComIfGd_addRealShadow(mShadow, pot->model);
+#endif
         dComIfGd_addRealShadow(mShadow, mpHeadModel);
     }
 }
@@ -1183,7 +1200,9 @@ BOOL daNpc_Yw1_c::_execute() {
     m_jnt.setParam(l_HIO.mChild[mType].mPrm.maxBackX, l_HIO.mChild[mType].mPrm.maxBackY, l_HIO.mChild[mType].mPrm.minBackX, l_HIO.mChild[mType].mPrm.minBackY, l_HIO.mChild[mType].mPrm.maxHeadX, l_HIO.mChild[mType].mPrm.maxHeadY, l_HIO.mChild[mType].mPrm.minHeadX, l_HIO.mChild[mType].mPrm.minHeadY, l_HIO.mChild[mType].mPrm.maxTurn);
     if (mHidden && demoActorID == 0) {
         if (dComIfGs_isEventBit(1)) {
+#if VERSION > VERSION_DEMO
             if (mSubType == 1) fopAcM_SetStatus(this, (actor_status & ~ 0x3F) | 0x28);
+#endif
             mHidden = false;
         } else return TRUE;
     }
@@ -1191,7 +1210,7 @@ BOOL daNpc_Yw1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) staff = isEventEntry();
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) staff = isEventEntry();
         if (staff >= 0) event_proc(staff);
         else (this->*mAction)(NULL);
         fopAcM_posMoveF(this, mStts.GetCCMoveP());
@@ -1210,15 +1229,29 @@ BOOL daNpc_Yw1_c::_execute() {
 
 BOOL daNpc_Yw1_c::_delete() {
     dComIfG_resDelete(&mPhs, "Yw");
+#if VERSION == VERSION_DEMO
+    if (mpMorf) mpMorf->stopZelAnime();
+    l_HIO.removeHIO();
+#else
     if (heap && mpMorf) mpMorf->stopZelAnime();
+#endif
     return TRUE;
 }
 
 cPhs_State daNpc_Yw1_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase = dComIfG_resLoad(&mPhs, "Yw");
+    if (phase != cPhs_COMPLEATE_e) return phase;
+    int type = fopAcM_GetParam(this) & 255;
+    if (!decideType(type)) return cPhs_ERROR_e;
+    l_HIO.entryHIO("壷娘");
+    fopAcM_SetupActor(this, daNpc_Yw1_c);
+#else
     fopAcM_SetupActor(this, daNpc_Yw1_c);
     cPhs_State phase = dComIfG_resLoad(&mPhs, "Yw");
     if (phase != cPhs_COMPLEATE_e) return phase;
     if (!decideType(fopAcM_GetParam(this) & 255)) return cPhs_ERROR_e;
+#endif
     static u32 a_siz_tbl[] = {
         0
     };
@@ -1231,7 +1264,7 @@ cPhs_State daNpc_Yw1_c::_create() {
 
 int daNpc_Yw1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*) dComIfG_getObjectIDRes("Yw", dRes_ID_YW_BDL_YW_e);
-    JUT_ASSERT(0x96F, a_mdl_dat != 0);
+    JUT_ASSERT(VERSION_SELECT(0x873, 0x87A, 0x96F, 0x96F), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, 1, NULL, 0x80000, 0x11020022);
     if (!mpMorf) return 0;
     if (!mpMorf->getModel()) {
@@ -1239,9 +1272,9 @@ int daNpc_Yw1_c::bodyCreateHeap() {
         return 0;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0x97D, m_hed_jnt_num >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x881, 0x888, 0x97D, 0x97D), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0x97F, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x883, 0x88A, 0x97F, 0x97F), m_bbone_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->setUserArea((u32) this);
@@ -1256,10 +1289,11 @@ int daNpc_Yw1_c::headCreateHeap() {
         0
     };
     J3DModelData* a_mdl_dat = (J3DModelData*) dComIfG_getObjectIDRes("Yw", a_hed_bdl_resID_tbl[mType]);
-    JUT_ASSERT(0x99C, a_mdl_dat != 0);
+    JUT_ASSERT(VERSION_SELECT(0x8A0, 0x8A7, 0x99C, 0x99C), a_mdl_dat != 0);
     mpHeadModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x15020022);
     if (!mpHeadModel) return 0;
     if (!init_texPttrnAnm(a_tex_pttrn_num_tbl[mType], false)) return 0;
+#if VERSION > VERSION_JPN
     m_hair1 = a_mdl_dat->getJointName()->getIndex("hair1");
     JUT_ASSERT(0x9AD, m_hair1 >= 0);
     m_hair2 = a_mdl_dat->getJointName()->getIndex("hair2");
@@ -1270,6 +1304,7 @@ int daNpc_Yw1_c::headCreateHeap() {
     mpHeadModel->getModelData()->getJointNodePointer(m_hair2)->setCallBack(nodeCB_Hair);
     mpHeadModel->getModelData()->getJointNodePointer(m_hair3)->setCallBack(nodeCB_Hair);
     mpHeadModel->setUserArea((u32) this);
+#endif
     return 1;
 }
 
@@ -1280,7 +1315,7 @@ int daNpc_Yw1_c::CreateHeap() {
         return 0;
     }
     mAcchCir.SetWall(30.0f, 30.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
     return 1;
 }
 

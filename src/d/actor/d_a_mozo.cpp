@@ -3,11 +3,13 @@
  * Enemy - Moblin Statue / モ石像 (Mo Sekizou)
  */
 
-#include "d/dolzel_rel.h" // IWYU pragma: keep
+// This TU does not use the dolzel_rel precompiled header (no weak @3569 .bss object, no .rodata pooling).
+#include "weak_bss_936_to_1036.h" // IWYU pragma: keep
 #include "d/actor/d_a_mozo.h"
 #include "d/actor/d_a_beam.h"
 #include "d/actor/d_a_player.h"
 #include "d/d_a_obj.h"
+#include "d/d_s_play.h"
 #include "res/Object/Mozo.h"
 #include "f_op/f_op_actor_mng.h"
 #include "JSystem/J3DGraphAnimator/J3DJoint.h"
@@ -51,8 +53,48 @@ static dCcD_SrcCps cps_src = {
     }},
 };
 
-static daMozo_HIO_c l_HIO;
-u8 daMozo_c::m_event_flag;
+class daMozo_childHIO_c {
+public:
+    virtual ~daMozo_childHIO_c() {}
+
+    /* 0x04 */ f32 m04;
+    /* 0x08 */ f32 m08;
+    /* 0x0C */ s16 m0C;
+    /* 0x0E */ s16 m0E;
+    /* 0x10 */ u8 m10;
+    /* 0x11 */ u8 m11[0x14 - 0x11];
+};  // Size: 0x14
+
+STATIC_ASSERT(sizeof(daMozo_childHIO_c) == 0x14);
+
+class daMozo_BeamChildHIO_c : public daMozo_childHIO_c {
+public:
+    virtual ~daMozo_BeamChildHIO_c() {}
+};
+
+class daMozo_FireChildHIO_c : public daMozo_childHIO_c {
+public:
+    virtual ~daMozo_FireChildHIO_c() {}
+};
+
+class daMozo_HIO_c : public JORReflexible {
+public:
+    daMozo_HIO_c();
+    virtual ~daMozo_HIO_c() {}
+
+    void genMessage(JORMContext* ctx) { UNUSED(ctx); }
+
+public:
+    /* 0x04 */ s8 mNo;
+    /* 0x08 */ int m08;
+    /* 0x0C */ daMozo_childHIO_c* mpBeamChild;
+    /* 0x10 */ daMozo_childHIO_c* mpFireChild;
+    /* 0x14 */ daMozo_BeamChildHIO_c mBeamChild;
+    /* 0x28 */ daMozo_FireChildHIO_c mFireChild;
+    /* 0x3C */ cXyz mTargetOffset;
+};  // Size: 0x48
+
+STATIC_ASSERT(sizeof(daMozo_HIO_c) == 0x48);
 
 /* 000000EC-000001D0       .text __ct__12daMozo_HIO_cFv */
 daMozo_HIO_c::daMozo_HIO_c() {
@@ -74,6 +116,9 @@ daMozo_HIO_c::daMozo_HIO_c() {
     mpFireChild->m0E = 0x2800;
     mpFireChild->m10 = 0;
 }
+
+static daMozo_HIO_c l_HIO;
+u8 daMozo_c::m_event_flag;
 
 /* 000002D0-00000568       .text daMozo_nodeCallBackBeam__FP8daMozo_cP8J3DModelP7J3DNodei */
 static BOOL daMozo_nodeCallBackBeam(daMozo_c* i_this, J3DModel* model, J3DNode* node, int calcTiming) {
@@ -283,8 +328,7 @@ void daMozo_c::search_beam_proc() {
             cXyz dir = mBeamEnd - mBeamStart;
             csXyz angle = csXyz::Zero;
             angle.y = cM_atan2s(dir.x, dir.z);
-            cXyz xz(dir.x, 0.0f, dir.z);
-            angle.x = cM_atan2s(-dir.y, xz.abs());
+            angle.x = cM_atan2s(-dir.y, dir.absXZ());
 
             if (!beam1->beamCheck()) {
                 beam1->beamOn();
@@ -359,7 +403,7 @@ void daMozo_c::search_fire_proc() {
     anime_proc();
 
     if (mAnm == 1 || mAnm == 3) {
-        if (mAnimMorf->getFrame() > mAnimMorf->getEndFrame() - 50.0f) {
+        if (mAnimMorf->getFrame() > DEMO_SELECT(REG10_F(10), 0.0f) + (mAnimMorf->getEndFrame() - 50.0f)) {
             if (mFireEmitter0 == NULL) {
                 mFireEmitter0 = dComIfGp_particle_set(dPa_name::ID_AK_SN_MOZFIRE00, &current.pos);
             }
@@ -368,8 +412,13 @@ void daMozo_c::search_fire_proc() {
             }
 
             mDoMtx_stack_c::copy(mAnimMorf->getModel()->getAnmMtx(MOZ_JNT_ATAMA_J_e));
+#if VERSION == VERSION_DEMO
+            mDoMtx_stack_c::XYZrotM(0x640 + REG10_S(0), 0x4000 + REG10_S(1), REG10_S(2));
+            mDoMtx_stack_c::transM(0.0f, 50.0f + REG10_F(0), 52.0f + REG10_F(1));
+#else
             mDoMtx_stack_c::XYZrotM(0x640, 0x4000, 0);
             mDoMtx_stack_c::transM(0.0f, 50.0f, 52.0f);
+#endif
             if (mFireEmitter0 != NULL) {
                 mFireEmitter0->setGlobalRTMatrix(mDoMtx_stack_c::get());
             }
@@ -382,14 +431,17 @@ void daMozo_c::search_fire_proc() {
                 dir = cXyz::Zero;
             }
             cXyz scaled = dir;
+#if VERSION == VERSION_DEMO
+            f32 length = mFireTimer * (45.0f + REG10_F(5));
+            f32 radius = mFireTimer * (3.0f + REG10_F(7));
+            length = cLib_maxLimit<f32>(length, 600.0f + REG10_F(6));
+            radius = cLib_maxLimit<f32>(radius, 80.0f + REG10_F(8));
+#else
             f32 length = 45.0f * mFireTimer;
             f32 radius = 3.0f * mFireTimer;
-            if (length > 600.0f) {
-                length = 600.0f;
-            }
-            if (radius > 80.0f) {
-                radius = 80.0f;
-            }
+            length = cLib_maxLimit<f32>(length, 600.0f);
+            radius = cLib_maxLimit<f32>(radius, 80.0f);
+#endif
             scaled *= length;
             scaled += mFireStart;
             mCps.cM3dGCps::Set(mFireStart, scaled, radius);
@@ -438,14 +490,17 @@ void daMozo_c::towait_proc() {
     anime_proc();
 
     if (mType == 0) {
-        if (beam1 == NULL || beam2 == NULL) {
+        if (beam1 == NULL) {
+            return;
+        }
+        if (beam2 == NULL) {
             return;
         }
 
         if (beam1->beamCheck()) {
             beam1->beamOff();
         }
-        BOOL done1;
+        int done1;
         if (beam1->m5F4 == 1) {
             if (beam1->m588 < 5.0f) {
                 beam1->m588 += 1.0f;
@@ -453,22 +508,22 @@ void daMozo_c::towait_proc() {
             if (beam1->m5A8 < 4.0f) {
                 beam1->m5A8 += 1.0f;
                 done1 = FALSE;
-            } else {
-                beam1->m5A8 = 0.0f;
-                beam1->m588 = 0.0f;
-                beam1->m5F4 = 0;
-                done1 = TRUE;
+                goto end1;
             }
+            beam1->m5A8 = 0.0f;
+            beam1->m588 = 0.0f;
+            beam1->m5F4 = 0;
         } else {
             beam1->m588 = 0.0f;
             beam1->m5A8 = 0.0f;
-            done1 = TRUE;
         }
+        done1 = TRUE;
+    end1:
 
         if (beam2->beamCheck()) {
             beam2->beamOff();
         }
-        BOOL done2;
+        int done2;
         if (beam2->m5F4 == 1) {
             if (beam2->m588 < 5.0f) {
                 beam2->m588 += 1.0f;
@@ -476,17 +531,17 @@ void daMozo_c::towait_proc() {
             if (beam2->m5A8 < 4.0f) {
                 beam2->m5A8 += 1.0f;
                 done2 = FALSE;
-            } else {
-                beam2->m5A8 = 0.0f;
-                beam2->m588 = 0.0f;
-                beam2->m5F4 = 0;
-                done2 = TRUE;
+                goto end2;
             }
+            beam2->m5A8 = 0.0f;
+            beam2->m588 = 0.0f;
+            beam2->m5F4 = 0;
         } else {
             beam2->m588 = 0.0f;
             beam2->m5A8 = 0.0f;
-            done2 = TRUE;
         }
+        done2 = TRUE;
+    end2:
 
         if (done1 && done2 && mQuatRotation.w > 0.99f && mAnimMorf->getFrame() < 25.0f &&
             mBrkAnm.getFrame() < 1.0f && mBtkAnm.getFrame() < 1.0f)
@@ -515,20 +570,19 @@ BOOL daMozo_c::checkRange(int param) {
         return FALSE;
     }
 
-    daMozo_childHIO_c* child = (&l_HIO.mpBeamChild)[mType];
     f32 range;
     s16 maxAngle;
     if (param == 0) {
-        range = child->m04;
-        maxAngle = child->m0C;
+        range = (&l_HIO.mpBeamChild)[mType]->m04;
+        maxAngle = (&l_HIO.mpBeamChild)[mType]->m0C;
     } else {
-        range = child->m08;
-        maxAngle = child->m0E;
+        range = (&l_HIO.mpBeamChild)[mType]->m08;
+        maxAngle = (&l_HIO.mpBeamChild)[mType]->m0E;
     }
 
     cXyz dir(cM_ssin(current.angle.y), 0.0f, cM_scos(current.angle.y));
     f32 inprod = delta.inprod(dir);
-    if (cLib_distanceAngleS(fopAcM_searchActorAngleY(this, player), current.angle.y) < maxAngle &&
+    if (cLib_distanceAngleS(fopAcM_searchActorAngleY(this, dComIfGp_getPlayer(0)), current.angle.y) < maxAngle &&
         dist < range && inprod > 200.0f)
     {
         return TRUE;
@@ -540,36 +594,42 @@ BOOL daMozo_c::checkRange(int param) {
 void daMozo_c::setAnm(int i_anm, float i_morf) {
     mAnm = i_anm;
     J3DAnmTransform* bck;
-    f32 speed;
     f32 start;
     f32 end;
+    f32 speed;
+    int mode;
     switch (i_anm) {
     case 0:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 0.0f;
         end = -1.0f;
-        speed = 0.0f;
+        speed = start;
         break;
     case 1:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 0.0f;
         end = -1.0f;
         speed = 1.0f;
         break;
     case 2:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 24.0f;
         end = 36.0f;
         speed = -0.25f;
         break;
     case 3:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 25.0f;
         end = -1.0f;
         speed = 1.0f;
         break;
     case 4:
         bck = (J3DAnmTransform*)dComIfG_getObjectRes("Mozo", dRes_INDEX_MOZO_BCK_MOZ_e);
+        mode = J3DFrameCtrl::EMode_NONE;
         start = 32.0f;
         end = 36.0f;
         speed = -0.25f;
@@ -577,7 +637,7 @@ void daMozo_c::setAnm(int i_anm, float i_morf) {
     default:
         return;
     }
-    mAnimMorf->setAnm(bck, J3DFrameCtrl::EMode_NONE, i_morf, speed, start, end, NULL);
+    mAnimMorf->setAnm(bck, mode, i_morf, speed, start, end, NULL);
 }
 
 /* 00001F70-00002228       .text CreateInit__8daMozo_cFv */
@@ -609,10 +669,10 @@ cPhs_State daMozo_c::CreateInit() {
     if (mType == 0) {
         cXyz beamScale(1.5f, 1.5f, 20.0f);
         mBeamID1 = fopAcM_createChild(
-            fpcNm_Beam_e, fopAcM_GetID(this), 0, &mBeamLStart, fopAcM_GetRoomNo(this), NULL, &beamScale, -1, NULL
+            fpcNm_Beam_e, fopAcM_GetID(this), 0, &mBeamLStart, tevStr.mRoomNo, NULL, &beamScale, -1, NULL
         );
         mBeamID2 = fopAcM_createChild(
-            fpcNm_Beam_e, fopAcM_GetID(this), 0x30000000, &mBeamRStart, fopAcM_GetRoomNo(this), NULL, &beamScale, -1, NULL
+            fpcNm_Beam_e, fopAcM_GetID(this), 0x30000000, &mBeamRStart, tevStr.mRoomNo, NULL, &beamScale, -1, NULL
         );
     } else {
         mStts.Init(0xFF, 0xFF, this);
@@ -634,11 +694,18 @@ cPhs_State daMozo_c::CreateInit() {
 
 /* 00002228-000023B0       .text _create__8daMozo_cFv */
 cPhs_State daMozo_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State result = dComIfG_resLoad(&mPhs, "Mozo");
+
+    if (result == cPhs_COMPLEATE_e) {
+        fopAcM_SetupActor(this, daMozo_c);
+#else
     fopAcM_ct(this, daMozo_c);
 
     cPhs_State result = dComIfG_resLoad(&mPhs, "Mozo");
 
     if (result == cPhs_COMPLEATE_e) {
+#endif
         if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x1AA0)) {
             result = CreateInit();
             _execute();
@@ -652,7 +719,7 @@ cPhs_State daMozo_c::_create() {
 
 /* 000023B0-0000242C       .text _delete__8daMozo_cFv */
 bool daMozo_c::_delete() {
-    dComIfG_resDelete(&mPhs, "Mozo");
+    dComIfG_resDeleteDemo(&mPhs, "Mozo");
     mDoAud_seDeleteObject(&mSePos);
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);

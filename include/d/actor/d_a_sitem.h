@@ -49,10 +49,13 @@ public:
     /* 0xB10 */ s16 mHitAngle;
     /* 0xB14 */ dBgS_AcchCir mAcchCir;
     /* 0xB54 */ dBgS_ObjAcch mAcch;
+#if VERSION == VERSION_DEMO
+    /* 0xD18 */ JPABaseEmitter* mpSmokeEmitter[2];
+#endif
     /* 0xD18 */ dPa_followEcallBack mSmoke[2];
     /* 0xD40 */ csXyz mSmokeAngle[2];
     /* 0xD4C */ s8 mSmokeActive;
 };
 
-STATIC_ASSERT(sizeof(sitem_class) == 0xD50);
+STATIC_ASSERT(sizeof(sitem_class) == DEMO_SELECT(0xD58, 0xD50));
 #endif /* D_A_SITEM_H */

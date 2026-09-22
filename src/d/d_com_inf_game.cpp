@@ -512,11 +512,16 @@ BOOL dComIfG_resetToOpening(scene_class* i_scene) {
         return FALSE;
     }
 
+#if VERSION == VERSION_DEMO
+    if (dComIfG_changeOpeningScene(i_scene, 8)) {
+        mDoAud_zelAudio_c::getInterface()->resetProcess();
+        mDoAud_zelAudio_c::onResetFlag();
+    }
+#else
     dComIfG_changeOpeningScene(i_scene, 8);
-#if VERSION > VERSION_DEMO
     mDoAud_bgmStop(30);
-#endif
     mDoAud_resetProcess();
+#endif
     return TRUE;
 }
 
@@ -1217,12 +1222,21 @@ int dComIfGd_setShadow(u32 id, s8 shouldFade, J3DModel* pModel, cXyz* pPos, f32 
         return 0;
     }
 
+#if VERSION == VERSION_DEMO
+    id = dComIfGd_setRealShadow2(id, shouldFade, pModel, pPos, casterSize, y - groundY, pTevStr);
+    if (id == 0) {
+        cXyz pos(pPos->x, y, pPos->z);
+        dComIfGd_setSimpleShadow2(&pos, groundY, scaleXZ, pFloorPoly, rotY, scaleZ, pTexObj);
+    }
+    return id;
+#else
     int sid = dComIfGd_setRealShadow2(id, shouldFade, pModel, pPos, casterSize, y - groundY, pTevStr);
     if (sid == 0) {
         cXyz pos(pPos->x, y, pPos->z);
         dComIfGd_setSimpleShadow2(&pos, groundY, scaleXZ, pFloorPoly, rotY, scaleZ, pTexObj);
     }
     return sid;
+#endif
 }
 
 static void dummy() {
@@ -1347,8 +1361,9 @@ void dComIfGs_setGameStartStage() {
                 strcpy(stage_name, dComIfGp_getStartStageName());
             } else {
                 stage_scls_info_class* scls_p;
-                if (dComIfGp_getShipActor() != NULL) {
-                    scls_p = dComIfGd_getMeshSceneList(dComIfGp_getShipActor()->current.pos);
+                daShip_c* ship = dComIfGp_getShipActor();
+                if (ship != NULL) {
+                    scls_p = dComIfGd_getMeshSceneList(ship->current.pos);
                 } else {
                     scls_p = dComIfGd_getMeshSceneList(player_p->current.pos);
                 }
@@ -1425,6 +1440,24 @@ void dComIfGs_copyPlayerRecollectionData() {
         return;
     }
 
+#if VERSION == VERSION_DEMO
+    u8* buffer = (u8*)&stts;
+    u8* start = buffer;
+    memcpy(buffer, dComIfGs_getpPlayerStatusA(), sizeof(stts.mRecollectStatusA));
+    buffer += sizeof(stts.mRecollectStatusA);
+    memcpy(buffer, dComIfGs_getpItem(), sizeof(stts.mRecollectItem));
+    buffer += sizeof(stts.mRecollectItem);
+    memcpy(buffer, &dComIfGs_getpItemRecord()->mItemRecord2, sizeof(stts.mRecollectItemRecord));
+    buffer += sizeof(stts.mRecollectItemRecord);
+    memcpy(buffer, &dComIfGs_getpItemMax()->mItemMax2, sizeof(stts.mRecollectItemMax));
+    buffer += sizeof(stts.mRecollectItemMax);
+    memcpy(buffer, dComIfGs_getpBagItem(), sizeof(stts.mRecollectBagItem));
+    buffer += sizeof(stts.mRecollectBagItem);
+    memcpy(buffer, dComIfGs_getpBagItemRecord(), sizeof(stts.mRecollectBagItemRecord));
+    buffer += sizeof(stts.mRecollectBagItemRecord);
+    memcpy(buffer, dComIfGs_getpCollect(), sizeof(stts.mRecollectCollect));
+    memcpy(dComIfGs_getpPlayerStatusC(tbl), start, sizeof(stts));
+#else
     u8* buffer = (u8*)&stts;
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectStatusA),       dComIfGs_getpPlayerStatusA(),             sizeof(stts.mRecollectStatusA));
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectItem),          dComIfGs_getpItem(),                      sizeof(stts.mRecollectItem));
@@ -1434,6 +1467,7 @@ void dComIfGs_copyPlayerRecollectionData() {
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectBagItemRecord), dComIfGs_getpBagItemRecord(),             sizeof(stts.mRecollectBagItemRecord));
     memcpy(buffer + offsetof(dSv_player_status_c_c, mRecollectCollect),       dComIfGs_getpCollect(),                   sizeof(stts.mRecollectCollect));
     memcpy(dComIfGs_getpPlayerStatusC(tbl), &stts, sizeof(stts));
+#endif
 }
 
 /* 80054E9C-80055318       .text dComIfGs_setPlayerRecollectionData__Fv */
@@ -1508,6 +1542,37 @@ void dComIfGs_setPlayerRecollectionData() {
     tmp_item.mItems[dInvSlot_BOTTLE3_e] = dComIfGs_getItem(dInvSlot_BOTTLE3_e);
     tmp_item.mItems[dInvSlot_CAMERA_e]  = dComIfGs_getItem(dInvSlot_CAMERA_e);
 
+#if VERSION == VERSION_DEMO
+    u8* buffer = (u8*)dComIfGp_getPlayerInfoBuffer();
+    memcpy(buffer, dComIfGs_getpPlayerStatusA(), sizeof(dSv_player_status_a_c));
+    buffer += sizeof(dSv_player_status_a_c);
+    memcpy(buffer, dComIfGs_getpItem(), sizeof(dSv_player_item_c));
+    buffer += sizeof(dSv_player_item_c);
+    memcpy(buffer, &dComIfGs_getpItemRecord()->mItemRecord2, sizeof(dSv_player_item_record2_c));
+    buffer += sizeof(dSv_player_item_record2_c);
+    memcpy(buffer, &dComIfGs_getpItemMax()->mItemMax2, sizeof(dSv_player_item_max2_c));
+    buffer += sizeof(dSv_player_item_max2_c);
+    memcpy(buffer, dComIfGs_getpBagItem(), sizeof(dSv_player_bag_item_c));
+    buffer += sizeof(dSv_player_bag_item_c);
+    memcpy(buffer, dComIfGs_getpBagItemRecord(), sizeof(dSv_player_bag_item_record_c));
+    buffer += sizeof(dSv_player_bag_item_record_c);
+    memcpy(buffer, dComIfGs_getpCollect(), sizeof(dSv_player_collect_c));
+
+    u8* stts = (u8*)dComIfGs_getpPlayerStatusC(tbl);
+    memcpy(dComIfGs_getpPlayerStatusA(), stts, sizeof(dSv_player_status_a_c));
+    stts += sizeof(dSv_player_status_a_c);
+    memcpy(dComIfGs_getpItem(), stts, sizeof(dSv_player_item_c));
+    stts += sizeof(dSv_player_item_c);
+    memcpy(&dComIfGs_getpItemRecord()->mItemRecord2, stts, sizeof(dSv_player_item_record2_c));
+    stts += sizeof(dSv_player_item_record2_c);
+    memcpy(&dComIfGs_getpItemMax()->mItemMax2, stts, sizeof(dSv_player_item_max2_c));
+    stts += sizeof(dSv_player_item_max2_c);
+    memcpy(dComIfGs_getpBagItem(), stts, sizeof(dSv_player_bag_item_c));
+    stts += sizeof(dSv_player_bag_item_c);
+    memcpy(dComIfGs_getpBagItemRecord(), stts, sizeof(dSv_player_bag_item_record_c));
+    stts += sizeof(dSv_player_bag_item_record_c);
+    memcpy(dComIfGs_getpCollect(), stts, sizeof(dSv_player_collect_c));
+#else
     // TODO: This matches but could probably be cleaned up somehow.
     dSv_player_status_c_c* stts = dComIfGs_getpPlayerStatusC(tbl);
     u32 buffer = (u32)dComIfGp_getPlayerInfoBuffer();
@@ -1526,6 +1591,7 @@ void dComIfGs_setPlayerRecollectionData() {
     memcpy(dComIfGs_getpBagItem(),                   &stts->mRecollectBagItem,       sizeof(stts->mRecollectBagItem));
     memcpy(dComIfGs_getpBagItemRecord(),             &stts->mRecollectBagItemRecord, sizeof(stts->mRecollectBagItemRecord));
     memcpy(dComIfGs_getpCollect(),                   &stts->mRecollectCollect,       sizeof(stts->mRecollectCollect));
+#endif
 
     dComIfGs_setMaxLife(tmp_sttsA.mMaxLife);
     dComIfGs_setLife(tmp_sttsA.mLife);
@@ -1618,6 +1684,22 @@ void dComIfGs_revPlayerRecollectionData() {
     tmp_item.mItems[dInvSlot_BOTTLE3_e] = dComIfGs_getItem(dInvSlot_BOTTLE3_e);
     tmp_item.mItems[dInvSlot_CAMERA_e]  = dComIfGs_getItem(dInvSlot_CAMERA_e);
 
+#if VERSION == VERSION_DEMO
+    u8* buffer = (u8*)dComIfGp_getPlayerInfoBuffer();
+    memcpy(dComIfGs_getpPlayerStatusA(), buffer, sizeof(dSv_player_status_a_c));
+    buffer += sizeof(dSv_player_status_a_c);
+    memcpy(dComIfGs_getpItem(), buffer, sizeof(dSv_player_item_c));
+    buffer += sizeof(dSv_player_item_c);
+    memcpy(&dComIfGs_getpItemRecord()->mItemRecord2, buffer, sizeof(dSv_player_item_record2_c));
+    buffer += sizeof(dSv_player_item_record2_c);
+    memcpy(&dComIfGs_getpItemMax()->mItemMax2, buffer, sizeof(dSv_player_item_max2_c));
+    buffer += sizeof(dSv_player_item_max2_c);
+    memcpy(dComIfGs_getpBagItem(), buffer, sizeof(dSv_player_bag_item_c));
+    buffer += sizeof(dSv_player_bag_item_c);
+    memcpy(dComIfGs_getpBagItemRecord(), buffer, sizeof(dSv_player_bag_item_record_c));
+    buffer += sizeof(dSv_player_bag_item_record_c);
+    memcpy(dComIfGs_getpCollect(), buffer, sizeof(dSv_player_collect_c));
+#else
     // TODO: This matches but could probably be cleaned up somehow.
     u32 buffer = (u32)dComIfGp_getPlayerInfoBuffer();
     memcpy(dComIfGs_getpPlayerStatusA(),             (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectStatusA)),       sizeof(dSv_player_status_c_c().mRecollectStatusA));
@@ -1627,6 +1709,7 @@ void dComIfGs_revPlayerRecollectionData() {
     memcpy(dComIfGs_getpBagItem(),                   (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectBagItem)),       sizeof(dSv_player_status_c_c().mRecollectBagItem));
     memcpy(dComIfGs_getpBagItemRecord(),             (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectBagItemRecord)), sizeof(dSv_player_status_c_c().mRecollectBagItemRecord));
     memcpy(dComIfGs_getpCollect(),                   (void*)(buffer + offsetof(dSv_player_status_c_c, mRecollectCollect)),       sizeof(dSv_player_status_c_c().mRecollectCollect));
+#endif
 
     dComIfGs_setMaxLife(tmp_sttsA.mMaxLife);
     dComIfGs_setLife(tmp_sttsA.mLife);
@@ -1717,6 +1800,39 @@ void dComIfGs_exchangePlayerRecollectionData() {
     tmp_item.mItems[dInvSlot_BOTTLE3_e] = dComIfGs_getItem(dInvSlot_BOTTLE3_e);
     tmp_item.mItems[dInvSlot_CAMERA_e]  = dComIfGs_getItem(dInvSlot_CAMERA_e);
 
+#if VERSION == VERSION_DEMO
+    dSv_player_status_c_c stts;
+    memcpy(&stts, dComIfGp_getPlayerInfoBuffer(), sizeof(stts));
+    u8* buffer = (u8*)dComIfGp_getPlayerInfoBuffer();
+    memcpy(buffer, dComIfGs_getpPlayerStatusA(), sizeof(dSv_player_status_a_c));
+    buffer += sizeof(dSv_player_status_a_c);
+    memcpy(buffer, dComIfGs_getpItem(), sizeof(dSv_player_item_c));
+    buffer += sizeof(dSv_player_item_c);
+    memcpy(buffer, &dComIfGs_getpItemRecord()->mItemRecord2, sizeof(dSv_player_item_record2_c));
+    buffer += sizeof(dSv_player_item_record2_c);
+    memcpy(buffer, &dComIfGs_getpItemMax()->mItemMax2, sizeof(dSv_player_item_max2_c));
+    buffer += sizeof(dSv_player_item_max2_c);
+    memcpy(buffer, dComIfGs_getpBagItem(), sizeof(dSv_player_bag_item_c));
+    buffer += sizeof(dSv_player_bag_item_c);
+    memcpy(buffer, dComIfGs_getpBagItemRecord(), sizeof(dSv_player_bag_item_record_c));
+    buffer += sizeof(dSv_player_bag_item_record_c);
+    memcpy(buffer, dComIfGs_getpCollect(), sizeof(dSv_player_collect_c));
+
+    u8* stts_buffer = (u8*)&stts;
+    memcpy(dComIfGs_getpPlayerStatusA(), stts_buffer, sizeof(dSv_player_status_a_c));
+    stts_buffer += sizeof(dSv_player_status_a_c);
+    memcpy(dComIfGs_getpItem(), stts_buffer, sizeof(dSv_player_item_c));
+    stts_buffer += sizeof(dSv_player_item_c);
+    memcpy(&dComIfGs_getpItemRecord()->mItemRecord2, stts_buffer, sizeof(dSv_player_item_record2_c));
+    stts_buffer += sizeof(dSv_player_item_record2_c);
+    memcpy(&dComIfGs_getpItemMax()->mItemMax2, stts_buffer, sizeof(dSv_player_item_max2_c));
+    stts_buffer += sizeof(dSv_player_item_max2_c);
+    memcpy(dComIfGs_getpBagItem(), stts_buffer, sizeof(dSv_player_bag_item_c));
+    stts_buffer += sizeof(dSv_player_bag_item_c);
+    memcpy(dComIfGs_getpBagItemRecord(), stts_buffer, sizeof(dSv_player_bag_item_record_c));
+    stts_buffer += sizeof(dSv_player_bag_item_record_c);
+    memcpy(dComIfGs_getpCollect(), stts_buffer, sizeof(dSv_player_collect_c));
+#else
     // TODO: This matches but could probably be cleaned up somehow.
     dSv_player_status_c_c stts;
     memcpy(&stts, dComIfGp_getPlayerInfoBuffer(), sizeof(stts));
@@ -1737,6 +1853,7 @@ void dComIfGs_exchangePlayerRecollectionData() {
     memcpy(dComIfGs_getpBagItem(),                   stts_buffer + offsetof(dSv_player_status_c_c, mRecollectBagItem),       sizeof(stts.mRecollectBagItem));
     memcpy(dComIfGs_getpBagItemRecord(),             stts_buffer + offsetof(dSv_player_status_c_c, mRecollectBagItemRecord), sizeof(stts.mRecollectBagItemRecord));
     memcpy(dComIfGs_getpCollect(),                   stts_buffer + offsetof(dSv_player_status_c_c, mRecollectCollect),       sizeof(stts.mRecollectCollect));
+#endif
 
     dComIfGs_setMaxLife(tmp_sttsA.mMaxLife);
     dComIfGs_setLife(tmp_sttsA.mLife);

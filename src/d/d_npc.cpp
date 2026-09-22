@@ -490,12 +490,12 @@ bool dNpc_PathRun_c::chkInside(cXyz* param_1) {
     cXyz point, point2, point3;
 
     setNearPathIndx(param_1, 0.0f);
-    point2 = getPoint(mIdx);
+    point2 = getPoint(getIdx());
     decIdxLoop();
-    point = getPoint(mIdx);
+    point = getPoint(getIdx());
     incIdxLoop();
     incIdxLoop();
-    point3 = getPoint(mIdx);
+    point3 = getPoint(getIdx());
 
     s16 angle1 = cLib_targetAngleY(&point2, &point);
     s16 angle2 = cLib_targetAngleY(&point2, param_1);
@@ -864,17 +864,18 @@ void dNpc_JntCtrl_c::lookAtTarget_2(s16* r26, cXyz* r29, cXyz r24, s16 r7, s16 r
     }
     
     deltaY = targetY - *r26;
+    s16 turnY = deltaY;
     if (0 <= field_0x32) {
         if (deltaY >= field_0x32 || field_0x32 == 0) {
-            turn_fromHead2Backbone(deltaY, &r1_08[1], &r1_08[0]);
+            turn_fromHead2Backbone(turnY, &r1_08[1], &r1_08[0]);
         } else {
-            turn_fromBackbone2Head(deltaY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
+            turn_fromBackbone2Head(turnY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
         }
     } else {
         if (deltaY <= field_0x32 || field_0x32 == 0) {
-            turn_fromHead2Backbone(deltaY, &r1_08[1], &r1_08[0]);
+            turn_fromHead2Backbone(turnY, &r1_08[1], &r1_08[0]);
         } else {
-            turn_fromBackbone2Head(deltaY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
+            turn_fromBackbone2Head(turnY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
         }
     }
     
@@ -940,12 +941,7 @@ bool dNpc_chkAttn(fopAc_ac_c* i_this, cXyz destPos, f32 param_3, f32 param_4, f3
         temp += param_4;
     }
 
-    bool ret = false;
-    if(dist <= temp && abs(angle_diff) <= cM_deg2s(param_5)) {
-        ret = true;
-    }
-
-    return ret;
+    return dist <= temp && abs(angle_diff) <= cM_deg2s(param_5);
 }
 
 static void dummyfunc(dStage_dPath_c* i_pathInf) {

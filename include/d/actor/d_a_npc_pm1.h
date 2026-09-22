@@ -114,26 +114,6 @@ public:
     /* 0x7D6 */ s8 mMessageState;
 };
 
-class daNpc_Pm1_HIO_c : public JORReflexible {
-public:
-    struct hio_prm_c {
-        s16 mMaxHeadX, mMaxHeadY;
-        s16 mMinHeadX, mMinHeadY;
-        s16 mMaxBackboneX, mMaxBackboneY;
-        s16 mMinBackboneX, mMinBackboneY;
-        s16 mMaxTurnStep, mTurnSpeed;
-        f32 mAttentionYOffset, mUnused;
-    };
-    daNpc_Pm1_HIO_c();
-    virtual ~daNpc_Pm1_HIO_c() {}
-    void genMessage(JORMContext*) {}
-
-public:
-    s8 mNo;
-    int mCount;
-    hio_prm_c mPrm;
-};
-
 STATIC_ASSERT(sizeof(daNpc_Pm1_c) == 0x7D8);
 
 #endif /* D_A_NPC_PM1_H */

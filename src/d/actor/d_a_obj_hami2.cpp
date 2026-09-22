@@ -24,8 +24,8 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
         daObjHami2::Act_c* actor = (daObjHami2::Act_c*)model->getUserArea();
         if (actor != NULL) {
             MTXCopy(model->getAnmMtx(jointNo), *calc_mtx);
-            mDoMtx_YrotM(*calc_mtx, actor->mGateAngle);
-            MTXCopy(*calc_mtx, model->getAnmMtx(jointNo));
+            cMtx_YrotM(*calc_mtx, actor->mGateAngle);
+            model->setAnmMtx(jointNo, *calc_mtx);
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -35,12 +35,14 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
 /* 0000012C-0000032C       .text CreateHeap__Q210daObjHami25Act_cFv */
 BOOL daObjHami2::Act_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_HAMI2_BDL_HAMI2_e);
-    JUT_ASSERT(104, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(103, 104), modelData != NULL);
     mModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     if (mModel != NULL) {
+        const char* jointName;
         JUTNameTab* names = mModel->getModelData()->getJointName();
         for (u16 i = 0; i < mModel->getModelData()->getJointNum(); i++) {
-            if (!strcmp("mono1", names->getName(i))) {
+            jointName = names->getName(i);
+            if (strcmp("mono1", jointName) == 0) {
                 mModel->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
                 break;
             }
@@ -86,7 +88,7 @@ cPhs_State daObjHami2::Act_c::Mthd_Create() {
     if (phase_state == cPhs_COMPLEATE_e) {
         phase_state = MoveBGCreate(M_arcname, dRes_INDEX_HAMI2_DZB_HAMI2B_e, dBgS_MoveBGProc_TypicalRotY, 0x34E0);
         dComIfG_Bgsp()->Regist(mStaticBg, this);
-        JUT_ASSERT(200, (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
+        JUT_ASSERT(DEMO_SELECT(199, 200), (phase_state == cPhs_COMPLEATE_e) || (phase_state == cPhs_ERROR_e));
     }
     return phase_state;
 }
@@ -98,11 +100,15 @@ BOOL daObjHami2::Act_c::Delete() {
 
 /* 00000548-000005E8       .text Mthd_Delete__Q210daObjHami25Act_cFv */
 BOOL daObjHami2::Act_c::Mthd_Delete() {
+#if VERSION == VERSION_DEMO
+    dComIfG_Bgsp()->Release(mStaticBg);
+#else
     if (heap != NULL && mStaticBg != NULL && mStaticBg->ChkUsed()) {
         dComIfG_Bgsp()->Release(mStaticBg);
     }
+#endif
     BOOL result = MoveBGDelete();
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return result;
 }
 
@@ -133,7 +139,7 @@ void daObjHami2::Act_c::daObjHami2_close_stop() {
 void daObjHami2::Act_c::daObjHami2_open_demo_wait() {
     if (eventInfo.checkCommandDemoAccrpt()) {
         mState = 2;
-        mDoAud_seStart(JA_SE_OBJ_KAITEN_AMI_OPEN, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_KAITEN_AMI_OPEN, 0);
         mDoAud_seStart(JA_SE_READ_RIDDLE_1);
     } else {
         fopAcM_orderOtherEventId(this, mOpenEvent);
@@ -146,7 +152,9 @@ void daObjHami2::Act_c::daObjHami2_open_demo() {
     if (mGateAngle >= 0x4000) {
         mGateAngle = 0x4000;
         mState = 3;
+#if VERSION > VERSION_DEMO
         dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
+#endif
         dComIfGp_event_reset();
     }
 }
@@ -173,7 +181,9 @@ void daObjHami2::Act_c::daObjHami2_close_demo() {
     mGateAngle -= 0x100;
     if (mGateAngle <= 0) {
         mGateAngle = 0;
+#if VERSION > VERSION_DEMO
         dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
+#endif
         dComIfGp_event_reset();
         mState = 0;
     }

@@ -39,7 +39,9 @@ static u8 dMsg2_tex_i4_color[] = {
 };
 
 /* 801E73B4-801E74F4       .text dMsg2_value_init__FP14sub_msg2_classUc */
-// NONMATCHING - weird stuff with color OR'ing
+// NONMATCHING - regalloc only: `color` and the first alpha are swapped (r7/r8) on retail; matches D44J01 (non-const getters).
+// Retail needs `color` created as a compiler temp before the four alpha temps; only register-steering forms (inline helpers or
+// `const u32&` reference locals) achieve that, so they are intentionally not used.
 void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     static const u32 colorTable[] = {
         0x00000000,
@@ -59,24 +61,27 @@ void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     char rubySdw_buf[32];
 
     const u32 color = colorTable[i_Msg->colorNo];
-    int i = i_index;
+    int i = (u8)i_index;
 
-    u8 a = i_Msg->msgDataProc[i].getCharAlpha();
-    u8 b = i_Msg->msgDataProc[i].getGradAlpha();
-    u8 c = i_Msg->msgDataProc[i].getRCharAlpha();
-    u8 d = i_Msg->msgDataProc[i].getRGradAlpha();
+    u8 ca = i_Msg->msgDataProc[i].getCharAlpha();
+    u8 cb = i_Msg->msgDataProc[i].getGradAlpha();
+    u8 cc = i_Msg->msgDataProc[i].getRCharAlpha();
+    u8 cd = i_Msg->msgDataProc[i].getRGradAlpha();
+    u32 x0 = color;
+    x0 |= ca;
+    u32 x1 = color;
+    x1 |= cb;
+    u32 x2 = color;
+    x2 |= cc;
+    u32 x3 = color;
+    x3 |= cd;
+    u32 a = i_Msg->msgDataProc[i].getCharAlpha() & 0xFF;
+    u32 b = i_Msg->msgDataProc[i].getGradAlpha() & 0xFF;
+    u32 c = i_Msg->msgDataProc[i].getRCharAlpha() & 0xFF;
+    u32 d = i_Msg->msgDataProc[i].getRGradAlpha() & 0xFF;
 
-    u32 ca = color;
-    ca |= a;
-    u32 cb = color;
-    cb |= b;
-    u32 cc = color;
-    cc |= c;
-    u32 cd = color;
-    cd |= d;
-
-    sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", ca, cb);
-    sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", cc, cd);
+    sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", x0, x1);
+    sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", x2, x3);
     sprintf(textSdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", a, b);
     sprintf(rubySdw_buf, "\x1b""CC[%08x]\x1bGC[%08x]", c, d);
 
@@ -219,7 +224,6 @@ void dMsg2_screenDataSet(sub_msg2_class* i_Msg, u8 i_index) {
 }
 
 /* 801E7AB8-801E8154       .text dMsg2_screenDataInit__FP14sub_msg2_classUc */
-// NONMATCHING - USA/PAL-only regalloc and load issues
 void dMsg2_screenDataInit(sub_msg2_class* i_Msg, u8 i_index) {
     fopMsgM_setPaneData(&i_Msg->text_pane[i_index], sScreen2[i_index]->search('tx23'));
     fopMsgM_setPaneData(&i_Msg->ruby_pane[i_index], sScreen2[i_index]->search('tx29'));
@@ -298,8 +302,9 @@ void dMsg2_screenDataInit(sub_msg2_class* i_Msg, u8 i_index) {
         ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setFontSize(fontSize);
     }
 #else
-    fontSize.mSizeX = g_msgHIO.field_0x70;
-    fontSize.mSizeY = g_msgHIO.field_0x70;
+    int size = g_msgHIO.field_0x70;
+    fontSize.mSizeX = size;
+    fontSize.mSizeY = size;
 
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setFontSize(fontSize);
     ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setFontSize(fontSize);
@@ -449,15 +454,32 @@ void dMsg2_yose_select(sub_msg2_class* i_Msg, u8 i_index) {
     dMsg2_textPosition(i_Msg, i_index);
 }
 
+inline int dMsg2_getShiftY(sub_msg2_class* i_Msg, u8 i_index) {
+    return i_Msg->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - i_Msg->field_0xecc[i_index]);
+}
+
 /* 801E86E8-801E8798       .text dMsg2_textPosition__FP14sub_msg2_classUc */
-// NONMATCHING - small reg alloc
 void dMsg2_textPosition(sub_msg2_class* i_Msg, u8 i_index) {
+#if VERSION == VERSION_DEMO
+    int r7 = 0;
+    int temp_r0 = dMsg2_getShiftY(i_Msg, i_index);
+    f32 y;
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, y);
+    y = temp_r0;
+    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, y);
+#else
     f32 r7 = 0.0f;
-    int temp_r0 = i_Msg->field_0xeb0 * (3 - i_Msg->field_0xecc[i_index]);
+    int temp_r0 = dMsg2_getShiftY(i_Msg, i_index);
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
     ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(r7, temp_r0);
+#endif
 }
 
 /* 801E8798-801E880C       .text dMsg2_rubySet__FP14sub_msg2_class */
@@ -518,33 +540,36 @@ void dMsg2_aimAlphaSqrt(sub_msg2_class* i_Msg, int param_0, int param_1) {
 }
 
 /* 801E8B90-801E8C2C       .text dMsg2_kankyoBrightness__Fv */
-u8 dMsg2_kankyoBrightness() {
+int dMsg2_kankyoBrightness() {
     GXColorS10* difcol = dKy_Get_DifCol();
     return (difcol->r * 0.299f) + (difcol->g * 0.587f) + (difcol->b * 0.114f);
 }
 
 /* 801E8C2C-801E8C78       .text dMsg2_aimBrightness__Fv */
-// NONMATCHING
 u8 dMsg2_aimBrightness() {
     int brightness = dMsg2_kankyoBrightness();
-    u8 field = g_messageHIO.field_0x29;
-    return ((u8)brightness <= field) ? 0xFF : (u8)(0xFF - (brightness - field));
+    u8 b = brightness;
+    u8 result;
+    if (b <= g_messageHIO.field_0x29) {
+        result = 0xFF;
+    } else {
+        result = 0xFF - (brightness - g_messageHIO.field_0x29);
+    }
+    return result;
 }
 
 /* 801E8C78-801E9054       .text dMsg2_setCharAlpha__FP14sub_msg2_classUc */
-// NONMATCHING - some float issues
 void dMsg2_setCharAlpha(sub_msg2_class* i_Msg, u8 i_index) {
     int temp_r6 = ((J2DTextBox*)i_Msg->text_pane[0].pane)->getLineSpace();
     f32 temp_f1 = i_Msg->field_0xd00[0].mPosTopLeftOrig.y - i_Msg->field_0xda8[0].mPosTopLeftOrig.y;
 
-    int var_r31 = i_index;
-    f32 temp_f2 = temp_f1 + i_Msg->text_pane[var_r31].mPosTopLeft.y + (i_Msg->field_0xeb0 * (2 - i_Msg->field_0xecc[i_index]));
+    int var_r31;
+    f32 temp_f2 = temp_f1 + i_Msg->text_pane[var_r31 = i_index].mPosTopLeft.y + (i_Msg->field_0xeb0 * (2 - i_Msg->field_0xecc[i_index]));
 
     int var_r27 = (int)temp_f2;
-    int temp_r5 = temp_r6 * i_Msg->field_0xecc[i_index];
-    int var_r26 = var_r27 + temp_r5;
+    int var_r26 = var_r27 + temp_r6 * i_Msg->field_0xecc[i_index];
     int var_r30 = (int)(temp_f2 - g_messageHIO.field_0x38);
-    int var_r29 = var_r30 + temp_r5;
+    int var_r29 = var_r30 + temp_r6 * i_Msg->field_0xecc[i_index];
 
     if (var_r26 < 58) {
         int temp_r3 = var_r26 + i_Msg->mx->getHeight();
@@ -953,7 +978,6 @@ void dDlst_2DMSG2_c::draw() {
 }
 
 /* 801E9CDC-801E9FC4       .text outFontDraw__14dDlst_2DMSG2_cFv */
-// NONMATCHING - regswap
 void dDlst_2DMSG2_c::outFontDraw() {
     J2DPane* ppane = ((sub_msg2_class*)actorP)->field_0xd00[0].pane;
     f32 var_f31 = ppane->getGlbBounds().i.y;
@@ -969,21 +993,45 @@ void dDlst_2DMSG2_c::outFontDraw() {
             if (iconNum != fopMsgM_Icon_NONE_e) {
                 u8 r14;
                 J2DTextBox* scrn = (J2DTextBox*)actorP->text_pane[i].pane;
-                int r18 = (f32)posX + scrn->getGlbBounds().i.x;
+                const JGeometry::TBox2<f32>& b = scrn->getGlbBounds();
+                int r18 = (f32)posX + b.i.x;
 
                 int r17;
+#if VERSION == VERSION_PAL
                 if (scale > actorP->field_0xeb4) {
                     if (actorP->field_0xecc[i] > 1) {
-                        f32 temp = (actorP->field_0xeb0 * (DEMO_SELECT(2, 3) - posY));
-                        r17 = temp + scrn->getGlbBounds().i.y - (f32)(int)(scale / 2);
+                        if (posY == 0) {
+                            posY = 1;
+                        }
+                        f32 lineSpace = scrn->getLineSpace();
+                        f32 temp = actorP->field_0xeb0 * (3 - actorP->field_0xecc[i]);
+                        r17 = (f32)actorP->field_0xeb4 + (temp + b.i.y) - (f32)scale + (f32)posY * lineSpace;
                     } else {
-                        f32 temp = actorP->field_0xeb0 * DEMO_SELECT(3, 4);
-                        r17 = (temp + scrn->getGlbBounds().i.y - (f32)(int)(scale / 2));
+                        if (posY == 0) {
+                            posY = 1;
+                        }
+                        f32 lineSpace = scrn->getLineSpace();
+                        f32 temp = actorP->field_0xeb0 * (3 - actorP->field_0xecc[i]);
+                        r17 = (f32)actorP->field_0xeb4 + (temp + b.i.y) - (f32)scale + (f32)posY * lineSpace;
                     }
                 } else {
-                    f32 temp = (actorP->field_0xeb0 * (DEMO_SELECT(2, 3) - actorP->field_0xecc[i] + (posY * 2)));
-                    r17 = (temp + scrn->getGlbBounds().i.y);
+                    f32 temp = (actorP->field_0xeb0 * (3 - actorP->field_0xecc[i] + (posY * 2)));
+                    r17 = (temp + b.i.y);
                 }
+#else
+                if (scale > actorP->field_0xeb4) {
+                    if (actorP->field_0xecc[i] > 1) {
+                        f32 temp = (actorP->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - posY));
+                        r17 = temp + b.i.y - (f32)(int)(scale / 2);
+                    } else {
+                        f32 temp = actorP->field_0xeb0 * VERSION_SELECT(3, 3, 4, 4);
+                        r17 = (temp + b.i.y - (f32)(int)(scale / 2));
+                    }
+                } else {
+                    f32 temp = (actorP->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - actorP->field_0xecc[i] + (posY * 2)));
+                    r17 = (temp + b.i.y);
+                }
+#endif
 
                 r14 = actorP->field_0xeac;
                 JKRHeap* heap = mDoExt_setCurrentHeap(actorP->Heap);
@@ -1000,6 +1048,7 @@ void dDlst_2DMSG2_c::outFontDraw() {
 
 /* 801E9FC4-801EA0C8       .text draw__14dDlst_2DCopy_cFv */
 void dDlst_2DCopy_c::draw() {
+    int left, top, width, height;
     int r27 = 0;
     int r28 = 0;
     int r26 = 372;
@@ -1008,10 +1057,10 @@ void dDlst_2DCopy_c::draw() {
     J2DOrthoGraph* graf = dComIfGp_getCurrentGrafPort();
     graf->setPort();
 
-    int left = r27 * 1.0296875f + -9.0f;
-    int top = r28 * 1.0916667f + -21.0f;
-    int width = r26 * 1.0296875f;
-    int height = r25 * 1.0916667f;
+    left = r27 * 1.0296875f + -9.0f;
+    top = r28 * 1.0916667f + -21.0f;
+    width = r26 * 1.0296875f;
+    height = r25 * 1.0916667f;
 
     GXSetScissor(left, top, width, height);
     sScreen2[0]->draw(0.0f, 0.0f, graf);

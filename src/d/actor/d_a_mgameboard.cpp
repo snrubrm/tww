@@ -13,6 +13,7 @@
 #include "m_Do/m_Do_controller_pad.h"
 #include "SSystem/SComponent/c_lib.h"
 #include "JSystem/JUtility/JUTAssert.h"
+#include "JSystem/JUtility/JUTReport.h"
 #if VERSION >= VERSION_USA
 #include "res/Object/Kaisen_e.h"
 #define MGBOARD_RES(name) dRes_INDEX_KAISEN_E_##name##_e
@@ -23,7 +24,11 @@
 #include <string.h>
 
 
+#if VERSION > VERSION_JPN
 char daMgBoard_c::m_arcname[9] = "";
+#else
+char daMgBoard_c::m_arcname[] = "Kaisen";
+#endif
 u8 daMgBoard_c::m_bullet_num = 24;
 cXyz daMgBoard_c::m_cur_table[8][8] = {
     {
@@ -148,19 +153,19 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 BOOL daMgBoard_c::CreateHeap() {
     J3DModelData* modelData;
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKBOD));
-    JUT_ASSERT(0x133, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x126, 0x12D, 0x133, 0x133), modelData != 0);
     mpBoardModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpBoardModel == NULL) {
         return FALSE;
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKCSR));
-    JUT_ASSERT(0x143, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x136, 0x13D, 0x143, 0x143), modelData != 0);
     mpCursorModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpCursorModel == NULL) {
         return FALSE;
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKATR));
-    JUT_ASSERT(0x153, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x146, 0x14D, 0x153, 0x153), modelData != 0);
     for (int i = 0; i < 20; ++i) {
         mpHitModel[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpHitModel[i] == NULL) {
@@ -168,7 +173,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AKHZR));
-    JUT_ASSERT(0x165, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x158, 0x15F, 0x165, 0x165), modelData != 0);
     for (int i = 0; i < 32; ++i) {
         mpMissModel[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpMissModel[i] == NULL) {
@@ -176,7 +181,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AK2SH));
-    JUT_ASSERT(0x177, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x16A, 0x171, 0x177, 0x177), modelData != 0);
     for (int i = 0; i < 2; ++i) {
         mpShip2Model[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpShip2Model[i] == NULL) {
@@ -184,7 +189,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AK3SH));
-    JUT_ASSERT(0x189, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x17C, 0x183, 0x189, 0x189), modelData != 0);
     for (int i = 0; i < 2; ++i) {
         mpShip3Model[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpShip3Model[i] == NULL) {
@@ -192,7 +197,7 @@ BOOL daMgBoard_c::CreateHeap() {
         }
     }
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BDL_AK4SH));
-    JUT_ASSERT(0x19B, modelData != 0);
+    JUT_ASSERT(VERSION_SELECT(0x18E, 0x195, 0x19B, 0x19B), modelData != 0);
     for (int i = 0; i < 2; ++i) {
         mpShip4Model[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
         if (mpShip4Model[i] == NULL) {
@@ -214,7 +219,11 @@ BOOL daMgBoard_c::CreateHeap() {
         if (!mpSquidIcon[i]) {
             return FALSE;
         }
+#if VERSION >= VERSION_USA
         mpSquidIcon[i]->init((ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_KAISEN_IKA_01)), (ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_KAISEN_IKA_02)));
+#else
+        mpSquidIcon[i]->init((ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_GAME_SHIP_NODAMAGE)), (ResTIMG*)dComIfG_getObjectRes(m_arcname, MGBOARD_RES(BTI_GAME_HUNE_DAMAGE)));
+#endif
     }
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 8; ++j) {
@@ -237,25 +246,31 @@ BOOL daMgBoard_c::CreateHeap() {
 
 /* 00000804-00000904       .text set_2dposition__11daMgBoard_cFv */
 void daMgBoard_c::set_2dposition() {
+    f32 x = 523.0f;
     f32 y = 115.0f;
+    f32 step = 47.0f;
     for (int i = 0; i < 3; ++i) {
-        mpSquidIcon[i]->setPosition(523.0f, y);
-        y += 47.0f;
+        mpSquidIcon[i]->setPosition(x, y);
+        y += step;
     }
-    f32 x = 95.0f;
+    f32 bombX = 95.0f;
     f32 bombY = 120.0f;
+    f32 startY = bombY;
+    f32 bombStep = 35.0f;
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 8; ++j) {
-            mpBombIcons[j + i * 8]->setPosition(x, bombY);
-            bombY += 35.0f;
+            mpBombIcons[j + i * 8]->setPosition(bombX, bombY);
+            bombY += bombStep;
         }
-        x -= 35.0f;
-        bombY = 120.0f;
+        bombX -= bombStep;
+        bombY = startY;
     }
-    mpMinigameDList->setTitlePos(282.0f, 70.0f);
-    mpMinigameDList->setScorePos(440.0f, 60.0f);
-    mpMinigameDList->setTitleAlpha(255);
-    f32 scoreAlpha = 80.5f;
+    u8 titleAlpha = 255;
+    u8 scoreAlpha = 255;
+    s16 tx = 282, ty = 70, sx = 440, sy = 60;
+    mpMinigameDList->setTitlePos(tx, ty);
+    mpMinigameDList->setScorePos(sx, sy);
+    mpMinigameDList->setTitleAlpha(titleAlpha);
     mpMinigameDList->setScoreAlpha(scoreAlpha);
 }
 
@@ -328,16 +343,16 @@ void daMgBoard_c::set_mtx() {
             }
         }
     }
-    const int count = mSeaFightGame.mAliveShipNum;
-    for (int i = 0; i < count; ++i) {
-        J3DModel* ship;
+    int i;
+    const u8 count = mSeaFightGame.mAliveShipNum;
+    for (i = 0; i < count; ++i) {
         switch (mSeaFightGame.mShips[i].field_0x8) {
-        case 2: ship = mpShip2Model[0]; break;
-        case 3: ship = mpShip3Model[0]; break;
-        case 4: ship = mpShip4Model[0]; break;
-        default: ship = NULL; break;
+        case 2: piece = mpShip2Model[0]; break;
+        case 3: piece = mpShip3Model[0]; break;
+        case 4: piece = mpShip4Model[0]; break;
+        default: piece = NULL; break;
         }
-        if (ship) {
+        if (piece) {
             u8 x = mSeaFightGame.mShips[i].field_0xb;
             u8 y = mSeaFightGame.mShips[i].field_0xc;
             mDoMtx_stack_c::transS(current.pos.x + m_cur_table[y][x].x, current.pos.y + m_cur_table[y][x].y, current.pos.z + m_cur_table[y][x].z);
@@ -348,15 +363,27 @@ void daMgBoard_c::set_mtx() {
             else {
                 mDoMtx_stack_c::ZrotM(-0x8000);
             }
-            ship->setBaseTRMtx(mDoMtx_stack_c::get());
+            piece->setBaseTRMtx(mDoMtx_stack_c::get());
         }
     }
 }
 
+static cXyz dummy_func() {
+    // There was an unused function here that got stripped out, but it still affected literal and weak function ordering.
+    f32* dummy = NULL;
+    *dummy = 0.8f;
+    *dummy = 0.75f;
+    *dummy = -0.75f;
+    cXyz temp(0.0f, 0.0f, 0.0f);
+    return temp;
+}
+
 /* 00000E28-00000FD8       .text _execute__11daMgBoard_cFv */
 bool daMgBoard_c::_execute() {
-    u8 highScore = dComIfGs_getEventReg(0xBEFF);
-    int score = mSeaFightGame.mScore;
+    int score;
+    int highScore;
+    highScore = dComIfGs_getEventReg(0xBEFF);
+    score = mSeaFightGame.mScore;
     mpNumber0->setValue(highScore);
     mpNumber1->setValue(score);
     set_2dposition();
@@ -448,6 +475,11 @@ BOOL daMgBoard_c::MinigameMain() {
             mpBombIcons[score - 1]->offBeforeTex();
         }
     }
+#if VERSION == VERSION_DEMO
+    int nearEnemy = mSeaFightGame.getNearEnemy(mLastFirePosX, mLastFirePosY);
+    JUTReport(480, 380, "NEAR ENEMY");
+    JUTReport(490, 400, "%d\n", nearEnemy);
+#endif
     set_mtx();
     return TRUE;
 }
@@ -488,10 +520,19 @@ void daMgBoard_c::CursorMove() {
 
 /* 000013C4-000014C8       .text daMgBoard_Create__FPv */
 cPhs_State daMgBoard_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daMgBoard_c);
-    strcpy(m_arcname, VERSION_SELECT("Kaisen", "Kaisen", "Kaisen_e", "Kaisen_e"));
+#endif
+#if VERSION == VERSION_PAL
+    sprintf(m_arcname, "Kaisen_%d", dComIfGs_getPalLanguage());
+#elif VERSION > VERSION_JPN
+    strcpy(m_arcname, "Kaisen_e");
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, m_arcname);
     if (phase == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(this, daMgBoard_c);
+#endif
         if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x4E000)) {
             phase = cPhs_ERROR_e;
         }
@@ -508,8 +549,10 @@ static cPhs_State daMgBoard_Create(void* i_this) {
 
 /* 000014C8-00001518       .text daMgBoard_Delete__FPv */
 bool daMgBoard_c::_delete() {
-    dComIfG_resDelete(&mPhase, m_arcname);
+    dComIfG_resDeleteDemo(&mPhase, m_arcname);
+#if VERSION > VERSION_DEMO
     mDoAud_seDeleteObject(&mNPCPos);
+#endif
     return true;
 }
 
@@ -547,10 +590,10 @@ bool daMgBoard_c::_draw() {
     dComIfGd_setList();
     for (int i = 0; i < 3; ++i) {
         int type = mSeaFightGame.mShips[i].field_0x8;
-        u8 bullets = mSeaFightGame.mBulletNum;
-        u8 alive = mSeaFightGame.mAliveShipNum;
+        s32 bullets = mSeaFightGame.mBulletNum;
+        s32 alive = mSeaFightGame.mAliveShipNum;
         bool ended = false;
-        if ((bullets == 0) | (alive == 0)) {
+        if ((alive == 0) | (bullets == 0)) {
             ended = true;
         }
         if (ended) {

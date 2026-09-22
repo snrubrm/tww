@@ -57,6 +57,11 @@ public:
     void setGradColor(JUtility::TColor c) { mGradColor.set(c); }
     void setBlack(JUtility::TColor c) { mBlack = c; }
     void setWhite(JUtility::TColor c) { mWhite = c; }
+    bool setBlackWhite(JUtility::TColor black, JUtility::TColor white) {
+        mBlack = black;
+        mWhite = white;
+        return true;
+    }
     
     void setLineSpace(f32 x) { mLineSpace = x; }
     f32 getLineSpace() const { return mLineSpace; }

@@ -65,7 +65,7 @@ BOOL daObjMsdanSub2::Act_c::Delete() {
 /* 0000045C-000004A8       .text Mthd_Delete__Q214daObjMsdanSub25Act_cFv */
 BOOL daObjMsdanSub2::Act_c::Mthd_Delete() {
     BOOL result = MoveBGDelete();
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return result;
 }
 

@@ -331,16 +331,119 @@ static void himo2_draw(himo2_class* i_this, himo2_s* param_2) {
 }
 
 #if VERSION == VERSION_DEMO
-static void himo_e_control(himo2_class* i_this, himo2_s*) {
-    /* Nonmatching*/
+static void himo_e_control(himo2_class* i_this, himo2_s* param_2) {
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    int i;
+    s16 rx;
+    int ry;
+    f32 ratio = (100.0f - i_this->m2188 * (0.060000002f + REG0_F(2))) - i_this->m02CC;
+    param_2++;
+    if (ratio > 1.0f) {
+        ratio = 1.0f;
+    } else if (ratio < -1.0f) {
+        ratio = -1.0f;
+    }
+    int num = i_this->m02CC - 50;
+    if (num < 3) {
+        num = 3;
+    }
+    cXyz local_34;
+    cXyz local_28;
+    cXyz local_1c;
+    cXyz local_10;
+    local_34.x = 0.0f;
+    local_34.y = 0.0f;
+    for (i = 1; i < num; i++, param_2++) {
+        cMtx_YrotS(*calc_mtx, player->shape_angle.y);
+        cMtx_XrotM(*calc_mtx, player->shape_angle.x);
+        local_28.x = 0.0f;
+        local_28.y = REG0_F(12) - 20.0f;
+        local_28.z = REG0_F(13) - 50.0f;
+        MtxPosition(&local_28, &local_1c);
+        f32 dx = (player->current.pos.x + local_1c.x) - param_2->m10.x;
+        f32 dy = (player->current.pos.y + local_1c.y) - param_2->m10.y;
+        f32 dz = (player->current.pos.z + local_1c.z) - param_2->m10.z;
+        f32 dist = std::sqrtf(dz * dz + (dx * dx + dy * dy));
+        f32 range = 50.0f + REG0_F(10);
+        if (dist < range) {
+            local_28.x = (1.0f + REG0_F(11)) * (range - dist);
+            local_28.y = 0.0f;
+            local_28.z = 0.0f;
+            MtxPosition(&local_28, &local_10);
+        } else {
+            local_10.x = local_10.y = local_10.z = 0.0f;
+        }
+        f32 y = -25.0f + param_2->m10.y;
+        if (y < param_2->m0C) {
+            y = param_2->m0C;
+        }
+        f32 fy = y - param_2[-1].m10.y;
+        f32 fx = local_10.x + (param_2->m10.x - param_2[-1].m10.x);
+        f32 fz = local_10.z + (param_2->m10.z - param_2[-1].m10.z);
+        ry = cM_atan2s(fx, fz);
+        rx = -cM_atan2s(fy, std::sqrtf(SQUARE(fx) + SQUARE(fz)));
+        param_2[-1].m1E = ry;
+        param_2[-1].m1C = rx;
+        cMtx_YrotS(*calc_mtx, ry);
+        cMtx_XrotM(*calc_mtx, rx);
+        local_34.z = 15.625f;
+        if (i == 1) {
+            local_34.z -= -15.625f * ratio;
+        }
+        MtxPosition(&local_34, &local_1c);
+        param_2->m10.x = param_2[-1].m10.x + local_1c.x;
+        param_2->m10.y = param_2[-1].m10.y + local_1c.y;
+        param_2->m10.z = param_2[-1].m10.z + local_1c.z;
+    }
 }
 
-static void himo_e_draw(himo2_class* i_this, himo2_s*) {
-    /* Nonmatching*/
+static void himo_e_draw(himo2_class* i_this, himo2_s* param_2) {
+    cXyz* pos = i_this->m1F30.getPos(0);
+    pos += i_this->m1F6C;
+    int num = i_this->m02CC - 50;
+    if (num < 3) {
+        num = 3;
+    }
+    for (int i = 0; i < num - 1; i++, param_2++, pos++) {
+        pos->x = param_2->m10.x;
+        pos->y = param_2->m10.y;
+        pos->z = param_2->m10.z;
+        i_this->m1F6C++;
+    }
 }
 #endif
 
 /* 800EC1E4-800EC300       .text himo_hang_draw__FP11himo2_class */
+#if VERSION == VERSION_DEMO
+static void himo_hang_draw(himo2_class* i_this) {
+    int i;
+    cXyz* pos = i_this->m1F30.getPos(0);
+    pos += i_this->m1F6C;
+    cXyz end = i_this->m02EC[0];
+    f32 dx = -(i_this->m2504.x - end.x);
+    f32 dy = -(i_this->m2504.y - end.y);
+    f32 dz = -(i_this->m2504.z - end.z);
+    f32 angY = cM_atan2f(dx, dz);
+    f32 angX = -cM_atan2f(dy, std::sqrtf(SQUARE(dx) + SQUARE(dz)));
+    MtxTrans(i_this->m2504.x, i_this->m2504.y, i_this->m2504.z, false);
+    MtxRotY(angY, true);
+    MtxRotX(angX, true);
+    f32 len = std::sqrtf(SQUARE(dz) + (SQUARE(dx) + SQUARE(dy)));
+    int num = len * (0.063f + REG0_F(5));
+    if (num > 95) {
+        num = 95;
+    }
+    f32 step = 0.0f;
+    cXyz off;
+    off.x = off.y = off.z = step;
+    for (i = 0; i < num; i++) {
+        MtxPosition(&off, pos);
+        i_this->m1F6C++;
+        pos++;
+        MtxTrans(0.0f, 0.0f, step, true);
+    }
+}
+#else
 static void himo_hang_draw(himo2_class* i_this) {
     cXyz* pcVar3 = i_this->m1F30.getPos(0);
     pcVar3 += i_this->m1F6C;
@@ -354,6 +457,7 @@ static void himo_hang_draw(himo2_class* i_this) {
         pcVar3->z = i_this->m2504.z + local_38.z * uVar2;
     }
 }
+#endif
 
 /* 800EC300-800EC338       .text himo2_disp__FP11himo2_class */
 static void himo2_disp(himo2_class* i_this) {
@@ -401,8 +505,13 @@ static BOOL daHimo2_Draw(himo2_class* i_this) {
                 r19++;
             }
             for (int i = 0; i < i_this->m1F6C; i++) {
+#if VERSION == VERSION_DEMO
+                r19[-1] = local_a10[i];
+                r19--;
+#else
                 r19--;
                 *r19 = local_a10[i];
+#endif
             }
             i_this->m1F30.update((u16)i_this->m1F6C, rope_scale, (GXColor){200, 0x96, 50, 0xFF}, 0, &actor->tevStr);
             dComIfGd_set3DlineMat(&i_this->m1F30);
@@ -732,7 +841,6 @@ static void pl_pos_add(himo2_class* i_this) {
 
 /* 800ED6F4-800F0038       .text new_himo2_move__FP11himo2_class */
 static void new_himo2_move(himo2_class* i_this) {
-    /* Nonmatching - regalloc */
     fopAc_ac_c* actor = (fopAc_ac_c*)&i_this->actor;
     fopAc_ac_c* player_actor;
     daPy_py_c* player;
@@ -845,7 +953,7 @@ static void new_himo2_move(himo2_class* i_this) {
     case 0: {
         actor->speedF = 0.0f;
         if ((r30 == 0) && player->checkRopeReadyAnime()) {
-            cMtx_YrotS(*calc_mtx, player_actor->shape_angle.y);
+            cMtx_YrotS(*calc_mtx, (int)player_actor->shape_angle.y);
             cMtx_ZrotM(*calc_mtx, REG0_S(2) + -12000);
             cMtx_YrotM(*calc_mtx, i_this->m02D8 * (REG0_S(3) + 0x2000));
             sp130.x = 0.0f;
@@ -917,7 +1025,7 @@ static void new_himo2_move(himo2_class* i_this) {
         break;
     }
     case 1: {
-        cMtx_YrotS(*calc_mtx, player_actor->shape_angle.y);
+        cMtx_YrotS(*calc_mtx, (int)player_actor->shape_angle.y);
         cMtx_ZrotM(*calc_mtx, REG0_S(2) + -12000);
         cMtx_YrotM(*calc_mtx, i_this->m02D8 * (REG0_S(3) + 0x2000));
         sp130.x = 0.0f;
@@ -993,7 +1101,7 @@ static void new_himo2_move(himo2_class* i_this) {
         actor->current.pos += actor->speed;
         pl_pos_add(i_this);
         if (i_this->m217C != NULL) {
-            if ((f27_4 < (actor->speedF * 10.0f)) || (i_this->m0308 == 0)) {
+            if ((f26_2 < (actor->speedF * 10.0f)) || (i_this->m0308 == 0)) {
                 i_this->m02DC = 10;
                 i_this->m24D9 = 0xFF;
                 i_this->m24D8 = 1;

@@ -203,16 +203,16 @@ void dDlst_StarterScrnDraw_c::setScreen(const char* i_layoutName, JKRArchive* i_
 }
 
 /* 802064DC-80206908       .text anime1__23dDlst_StarterScrnDraw_cFi */
-// NONMATCHING - regalloc
 BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
     f32 angle = -8.0f;
     BOOL rt = FALSE;
 
-    s16 var_r30 = cdFrame0;
-    s16 var_r31 = var_r30 + cdFrame1;
-    s16 temp_r6 = var_r31 + tmFrame;
-    s16 var_r27 = temp_r6 + cdFrame2;
-    s16 temp_r7 = var_r27 + cdFrame3;
+    s16 fr[5];
+    fr[0] = cdFrame0;
+    fr[1] = fr[0] + cdFrame1;
+    fr[2] = fr[1] + tmFrame;
+    fr[3] = fr[2] + cdFrame2;
+    fr[4] = fr[3] + cdFrame3;
 
     field_0x1c8[i_no].mUserArea++;
 
@@ -220,37 +220,35 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
     f32 var_f2;
 
     s16 temp_r0 = field_0x1c8[i_no].mUserArea;
-    if (temp_r0 <= var_r30) {
-        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea);
-        temp /= SQUARE((f32)var_r31);
+    if (temp_r0 <= fr[0]) {
+        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea) / SQUARE((f32)fr[1]);
         fopMsgM_paneScaleXY(&field_0x270[i_no], temp * 0.3f + 0.7f);
 
-        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea) / SQUARE((f32)var_r30);
+        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea) / SQUARE((f32)fr[0]);
         fopMsgM_setNowAlpha(&field_0x270[i_no], temp);
-    } else if (temp_r0 <= var_r31) {
-        var_f2 = acc(var_r31, temp_r0, var_r30);
+    } else if (temp_r0 <= fr[1]) {
+        var_f2 = acc(fr[1], temp_r0, fr[0]);
         fopMsgM_paneScaleXY(&field_0x1c8[i_no], var_f2 * 0.3f + 0.7f);
         fopMsgM_setNowAlpha(&field_0x1c8[i_no], var_f2);
 
-        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea);
-        temp /= SQUARE((f32)var_r31);
+        temp = SQUARE((f32)field_0x1c8[i_no].mUserArea) / SQUARE((f32)fr[1]);
         fopMsgM_paneScaleXY(&field_0x270[i_no], temp * 0.3f + 0.7f);
         fopMsgM_setNowAlpha(&field_0x270[i_no], 1.0f - var_f2);
 
-        if (field_0x1c8[i_no].mUserArea == var_r31) {
+        if (field_0x1c8[i_no].mUserArea == fr[1]) {
             mDoAud_seStart(JA_SE_SGAME_COUNTDOWN, NULL);
         }
-    } else if (temp_r6 > temp_r0) {
-        if (temp_r0 <= var_r27) {
-            int r7 = ((var_r27 - temp_r0) / 4);
-            if (((temp_r6 - temp_r0) / r7) % 2)
+    } else if (temp_r0 > fr[2]) {
+        if (temp_r0 <= fr[3]) {
+            int step = (fr[3] - fr[2]) / 4;
+            if (((temp_r0 - fr[2]) / step) % 2)
                 angle *= -1.0f;
             setRotate(&field_0x1c8[i_no], angle);
-        } else if (temp_r0 < temp_r7) {
-            var_f2 = acc(temp_r7, temp_r0, var_r27);
+        } else if (temp_r0 < fr[4]) {
+            var_f2 = acc(fr[4], temp_r0, fr[3]);
             fopMsgM_paneScaleXY(&field_0x1c8[i_no], var_f2 * 2.0f + 1.0f);
 
-            temp = acc(temp_r7, field_0x1c8[i_no].mUserArea, var_r27);
+            temp = acc(fr[4], field_0x1c8[i_no].mUserArea, fr[3]);
             fopMsgM_setNowAlpha(&field_0x1c8[i_no], 1.0f - temp);
         } else {
             fopMsgM_paneScaleXY(&field_0x1c8[i_no], 3.0f);
@@ -262,48 +260,49 @@ BOOL dDlst_StarterScrnDraw_c::anime1(int i_no) {
     return rt;
 }
 
+
 /* 80206908-80206CB0       .text anime2__23dDlst_StarterScrnDraw_cFv */
-// NONMATCHING - regalloc
 BOOL dDlst_StarterScrnDraw_c::anime2() {
     BOOL rt = FALSE;
 
-    s16 var_r30 = cdFrame4;
-    s16 var_r31 = var_r30 + cdFrame5;
-    s16 temp_r6 = var_r31 + cdFrame6;
-    s16 var_r27 = temp_r6 + cdFrame7;
-    s16 temp_r7 = var_r27 + cdFrame8;
+    s16 fr[5];
+    fr[0] = cdFrame4;
+    fr[1] = fr[0] + cdFrame5;
+    fr[2] = fr[1] + cdFrame6;
+    fr[3] = fr[2] + cdFrame7;
+    fr[4] = fr[3] + cdFrame8;
 
     field_0x008[0].mUserArea++;
 
-    f32 angle;
-    f32 scaleAdj;
     f32 alpha;
+    f32 angle;
     f32 var_f31;
+    f32 scaleAdj;
 
     s16 temp_r0 = field_0x008[0].mUserArea;
-    if (temp_r0 <= var_r30) {
-        var_f31 = SQUARE((f32)temp_r0) / SQUARE((f32)var_r30);
+    if (temp_r0 <= fr[0]) {
+        var_f31 = SQUARE((f32)temp_r0) / SQUARE((f32)fr[0]);
         alpha = var_f31;
         scaleAdj = 3.0f - var_f31 * 2.2f;
         angle = 90.0f - var_f31 * 65.0f;
         scaleAnime(scaleAdj * g_menuHIO.field_0x14);
         setRotate(&field_0x190, angle);
         fopMsgM_setNowAlpha(&field_0x008[0], alpha);
-    } else if (temp_r0 <= var_r31) {
-        var_f31 = acc(var_r31, temp_r0, var_r30);
+    } else if (temp_r0 <= fr[1]) {
+        var_f31 = acc(fr[1], temp_r0, fr[0]);
         scaleAdj = 0.8f - var_f31 * -0.19999999f;
         scaleAnime(scaleAdj * g_menuHIO.field_0x14);
 
-        if (field_0x008[0].mUserArea == var_r31) {
+        if (field_0x008[0].mUserArea == fr[1]) {
             mDoAud_seStart(JA_SE_SGAME_COUNT_GO, NULL);
         }
-    } else if (temp_r0 > temp_r6) {
-        if (temp_r0 <= var_r27) {
-            var_f31 = acc(var_r27, temp_r0, temp_r6);
+    } else if (temp_r0 > fr[2]) {
+        if (temp_r0 <= fr[3]) {
+            var_f31 = acc(fr[3], temp_r0, fr[2]);
             angle = 25.0f - var_f31 * -35.0f;
             setRotate(&field_0x190, angle);
-        } else if (temp_r0 < temp_r7) {
-            var_f31 = acc(temp_r7, temp_r0, var_r27);
+        } else if (temp_r0 < fr[4]) {
+            var_f31 = acc(fr[4], temp_r0, fr[3]);
             scaleAdj = 1.0f - var_f31 * 0.5f;
             angle = 60.0f - var_f31 * -210.0f;
             scaleAnime(scaleAdj * g_menuHIO.field_0x14);
@@ -320,6 +319,7 @@ BOOL dDlst_StarterScrnDraw_c::anime2() {
 
     return rt;
 }
+
 
 /* 80206CB0-80206DA4       .text scaleAnime__23dDlst_StarterScrnDraw_cFf */
 void dDlst_StarterScrnDraw_c::scaleAnime(f32 i_scale) {

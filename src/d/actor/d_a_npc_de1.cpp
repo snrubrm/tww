@@ -452,7 +452,7 @@ fopAc_ac_c* daNpc_De1_c::searchByID(fpc_ProcID id) {
 }
 
 void daNpc_De1_c::setDemoStartCenter() {
-    cXyz offset(l_HIO.mPrm.mDemoOffset);
+    cXyz offset(l_HIO.mPrm.mDemoOffset.x, l_HIO.mPrm.mDemoOffset.y, l_HIO.mPrm.mDemoOffset.z);
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::YrotM(current.angle.y);
     mDoMtx_stack_c::multVec(&offset, &mDemoCenter);
@@ -494,15 +494,29 @@ void daNpc_De1_c::cc_set() {
 
 void daNpc_De1_c::set_pa_happa() {
     mLeaves.remove();
+#if VERSION == VERSION_DEMO
+    mpLeavesEmitter = dComIfGp_particle_set(0x81BA, &mLeavesPos, &current.angle, NULL, 0xFF, &mLeaves, fopAcM_GetRoomNo(this));
+#else
     dComIfGp_particle_set(0x81BA, &mLeavesPos, &current.angle, NULL, 0xFF, &mLeaves, fopAcM_GetRoomNo(this));
+#endif
 }
 
 void daNpc_De1_c::del_pa_happa() {
+#if VERSION == VERSION_DEMO
+    if (mpLeavesEmitter != NULL) {
+        mpLeavesEmitter->becomeInvalidEmitter();
+        mpLeavesEmitter = NULL;
+    }
+#endif
     mLeaves.remove();
 }
 
 void daNpc_De1_c::followPa_happa() {
+#if VERSION == VERSION_DEMO
+    if (mpLeavesEmitter != NULL) {
+#else
     if (mLeaves.getEmitter() != NULL) {
+#endif
         mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_branchL_jnt_num));
         mLeavesPos.x = mDoMtx_stack_c::get()[0][3];
         mLeavesPos.y = mDoMtx_stack_c::get()[1][3];
@@ -686,9 +700,12 @@ int daNpc_De1_c::wait02() {
         setStt(4);
     } else {
         daLlift_c* lift = (daLlift_c*)searchByID(mLiftID);
-        if (lift != NULL && lift->current.pos.y < lift->home.pos.y + daLlift_c::m_height) {
-            setStt(5);
-            return 1;
+        if (lift != NULL) {
+            const f32& h = daLlift_c::m_height;
+            if (lift->current.pos.y < lift->home.pos.y + h) {
+                setStt(5);
+                return 1;
+            }
         }
         if (mAttention) {
             mOrder = 2;
@@ -874,9 +891,13 @@ BOOL daNpc_De1_c::_execute() {
 }
 
 BOOL daNpc_De1_c::_delete() {
-    dComIfG_resDelete(&mPhase, "De");
+    dComIfG_resDeleteDemo(&mPhase, "De");
     dComIfG_Bgsp()->Release(mpBgW);
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+#else
     if (heap != NULL && mpMorf != NULL) {
+#endif
         mpMorf->stopZelAnime();
     }
     del_pa_happa();
@@ -889,18 +910,24 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
     return ((daNpc_De1_c*)actor)->CreateHeap();
 }
 cPhs_State daNpc_De1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_De1_c);
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, "De");
     if (phase != cPhs_COMPLEATE_e) {
         return phase;
     }
-    if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
+    int prm = fopAcM_GetParam(this) & 0xFF;
+    if (!decideType(prm)) {
         return cPhs_ERROR_e;
     }
     if (l_HIO.mCount < 0) {
         l_HIO.mChild = mDoHIO_createChild("デクの木", &l_HIO);
     }
     l_HIO.mCount++;
+#if VERSION == VERSION_DEMO
+    fopAcM_SetupActor(this, daNpc_De1_c);
+#endif
     static u32 a_heap_size_tbl[] = {0x272E0};
     if (fopAcM_entrySolidHeap(this, CheckCreateHeap, a_heap_size_tbl[mType])) {
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -919,18 +946,18 @@ int daNpc_De1_c::CreateHeap() {
     if (mpMorf != NULL) {
         if (mpMorf->getModel() != NULL) {
             m_branchL_jnt_num = data->getJointName()->getIndex("branchL");
-            JUT_ASSERT(0x6D0, m_branchL_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(0x6C1, 0x6D0), m_branchL_jnt_num >= 0);
             m_head_jnt_num = data->getJointName()->getIndex("head");
-            JUT_ASSERT(0x6D2, m_head_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(0x6C3, 0x6D2), m_head_jnt_num >= 0);
             for (int i = 0; i < 10; i++) {
                 m_c0_jnt_num[i] = data->getJointName()->getIndex(a_jnt_name_tbl[i]);
-                JUT_ASSERT(0x6D5, m_c0_jnt_num[ i] >= 0);
+                JUT_ASSERT(DEMO_SELECT(0x6C6, 0x6D5), m_c0_jnt_num[ i] >= 0);
             }
             mpMorf->getModel()->setUserArea(0);
             mpBgW = new dBgWDeform;
             if (mpBgW != NULL && !mpBgW->Set((cBgD_t*)dComIfG_getObjectIDRes("De", dRes_ID_DE_DZB_DE_e), mpMorf->getModel(), 0)) {
                 mAcchCir.SetWall(0.0f, 0.0f);
-                mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+                mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
                 mObjAcch.SetWaterNone();
                 mObjAcch.SetWallNone();
                 mObjAcch.SetRoofNone();

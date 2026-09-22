@@ -49,8 +49,8 @@ namespace {
 
     inline const Attr_c& attr() { return L_attr; }
 
-    f32 L_r_in = (125.0f / 3.0f) * (f32)sqrt(3.0);
-    f32 L_r_out = 2.0f * L_r_in;
+    const f32 L_r_in = (125.0f / 3.0f) * std::sqrtf(3.0f);
+    const f32 L_r_out = 2.0f * L_r_in;
 }
 }
 
@@ -65,6 +65,15 @@ cXyz Act_c::M_post[3] = {
 }
 
 dBgS_ObjLinChk daObjTribox::Act_c::M_lin;
+
+#if VERSION == VERSION_DEMO
+int daObjTribox::Act_c::M_correct_cnt;
+bool daObjTribox::Act_c::M_correct_flag;
+int daObjTribox::Act_c::M_b_cont_cnt;
+int daObjTribox::Act_c::M_c_cont_cnt;
+u8 daObjTribox::Act_c::M_sink_start;
+cXyz daObjTribox::Act_c::M_sound_pos = cXyz::Zero;
+#endif
 
 /* 000000EC-000001A4       .text set_state__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::set_state() {
@@ -91,14 +100,14 @@ BOOL daObjTribox::Act_c::solidHeapCB(fopAc_ac_c* i_this) {
 }
 
 /* 000001C8-000004B0       .text create_heap__Q211daObjTribox5Act_cFv */
-bool daObjTribox::Act_c::create_heap() {
-    J3DModelData* model_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BDL_MTRYB_e));
-    JUT_ASSERT(0x140, model_data != 0);
+u8 daObjTribox::Act_c::create_heap() {
+    J3DModelData* model_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BDL_MTRYB_e);
+    JUT_ASSERT(DEMO_SELECT(0x14e, 0x140), model_data != 0);
 
     mpModel = mDoExt_J3DModel__create(model_data, 0x80000, 0x11000022);
 
-    cBgD_t* bgw_data = static_cast<cBgD_t*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_DZB_MTRYB_e));
-    JUT_ASSERT(0x149, bgw_data != 0);
+    cBgD_t* bgw_data = (cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_DZB_MTRYB_e);
+    JUT_ASSERT(DEMO_SELECT(0x157, 0x149), bgw_data != 0);
 
     if (mpModel != NULL) {
         mpBgW = dBgW_NewSet(bgw_data, cBgW::MOVE_BG_e, &mpModel->getBaseTRMtx());
@@ -106,28 +115,34 @@ bool daObjTribox::Act_c::create_heap() {
         mpBgW = NULL;
     }
 
-    J3DModelData* model_ytfbl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BDL_YTFBL00_e));
-    JUT_ASSERT(0x159, model_ytfbl_data != 0);
+    J3DModelData* model_ytfbl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BDL_YTFBL00_e);
+    JUT_ASSERT(DEMO_SELECT(0x167, 0x159), model_ytfbl_data != 0);
 
     mpYtfbl = mDoExt_J3DModel__create(model_ytfbl_data, 0x80000, 0x11000022);
 
-    J3DAnmTevRegKey* brk_app_data = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BRK_YTFBL00_APP_e));
-    JUT_ASSERT(0x163, brk_app_data != 0);
+    J3DAnmTevRegKey* brk_app_data = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BRK_YTFBL00_APP_e);
+    JUT_ASSERT(DEMO_SELECT(0x171, 0x163), brk_app_data != 0);
 
     BOOL brk_app = mBrkApp.init(model_ytfbl_data, brk_app_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
 
-    J3DAnmTevRegKey* brk_cmn_data = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BRK_YTFBL00_CMN_e));
-    JUT_ASSERT(0x16d, brk_cmn_data != 0);
+    J3DAnmTevRegKey* brk_cmn_data = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_MTRYB_BRK_YTFBL00_CMN_e);
+    JUT_ASSERT(DEMO_SELECT(0x17b, 0x16d), brk_cmn_data != 0);
 
     BOOL brk_cmn = mBrkCmn.init(model_ytfbl_data, brk_cmn_data, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0);
 
+#if VERSION == VERSION_DEMO
+    u8 success = false;
+#else
     bool success = false;
+#endif
     if (mpModel != NULL && mpBgW != NULL && mpYtfbl != NULL && brk_app && brk_cmn) {
         success = true;
     }
+#if VERSION > VERSION_DEMO
     if (!success) {
         mpBgW = NULL;
     }
+#endif
     return success;
 }
 
@@ -200,7 +215,9 @@ void daObjTribox::Act_c::controll_set() {
                 mControll = 1;
                 M_sink_start = 0;
                 M_correct_flag = false;
+#if VERSION > VERSION_JPN
                 M_correct_cnt = 0;
+#endif
             } else {
                 mControll = 0;
             }
@@ -221,10 +238,10 @@ void daObjTribox::Act_c::controll_set() {
 void daObjTribox::Act_c::controll_clear() {
     if (prm_get_type() == 1) {
         --M_c_cont_cnt;
-        JUT_ASSERT(0x214, M_c_cont_cnt >= 0);
+        JUT_ASSERT(VERSION_SELECT(0x21D, 0x213, 0x214, 0x214), M_c_cont_cnt >= 0);
     } else {
         --M_b_cont_cnt;
-        JUT_ASSERT(0x217, M_b_cont_cnt >= 0);
+        JUT_ASSERT(VERSION_SELECT(0x220, 0x216, 0x217, 0x217), M_b_cont_cnt >= 0);
     }
 }
 
@@ -232,7 +249,7 @@ void daObjTribox::Act_c::controll_clear() {
 cPhs_State daObjTribox::Act_c::create_block_before() {
     cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
     if (phase == cPhs_COMPLEATE_e) {
-        if (fopAcM_entrySolidHeap(this, solidHeapCB, 0x11C0)) {
+        if (fopAcM_entrySolidHeap(this, solidHeapCB, DEMO_SELECT(0x4000, 0x11C0))) {
             block_init();
         } else {
             phase = cPhs_ERROR_e;
@@ -285,9 +302,15 @@ cPhs_State daObjTribox::Act_c::_create() {
 bool daObjTribox::Act_c::_delete() {
     sound_pos_delete();
     controll_clear();
+#if VERSION > VERSION_DEMO
     eff_smoke_remove();
     eff_sink_smoke_remove();
+#endif
     if (mState == State_BLOCK_BEFORE_e || mState == State_CORRECT_AFTER_e) {
+#if VERSION == VERSION_DEMO
+        eff_smoke_remove();
+        eff_sink_smoke_remove();
+#endif
         if (mpBgW != NULL) {
             mpBgW->SetPushPullCallback(NULL);
         }
@@ -303,9 +326,9 @@ bool daObjTribox::Act_c::_delete() {
 void daObjTribox::Act_c::set_mtx() {
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::ZXYrotM(shape_angle);
-    mpModel->setBaseTRMtx(mDoMtx_stack_c::now);
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
     mDoMtx_stack_c::now[1][3] += 251.0f;
-    mpYtfbl->setBaseTRMtx(mDoMtx_stack_c::now);
+    mpYtfbl->setBaseTRMtx(mDoMtx_stack_c::get());
 }
 
 /* 00000DFC-00000E54       .text init_mtx__Q211daObjTribox5Act_cFv */
@@ -321,7 +344,7 @@ fopAc_ac_c* daObjTribox::Act_c::push_pullCB(fopAc_ac_c* actor, fopAc_ac_c* other
     dBgW::PushPullLabel pp_label = cLib_checkBit(i_pp_label, (dBgW::PushPullLabel)(dBgW::PPLABEL_PUSH | dBgW::PPLABEL_PULL));
     if (pp_label) {
         const int pp_field = dBgW::PPLABEL_PUSH | dBgW::PPLABEL_PULL;
-        JUT_ASSERT(0x2B0, pp_label != pp_field);
+        JUT_ASSERT(VERSION_SELECT(0x2B9, 0x2AF, 0x2B0, 0x2B0), pp_label != pp_field);
 
         if (cLib_checkBit(pp_label, dBgW::PPLABEL_PUSH)) {
             i_this->mPushPull = 0;
@@ -339,7 +362,7 @@ fopAc_ac_c* daObjTribox::Act_c::push_pullCB(fopAc_ac_c* actor, fopAc_ac_c* other
         }
 
         static const s16 face_ang_offset[] = {0, 0x5555, (s16)0xAAAB};
-        s16 search = fopAcM_searchActorAngleY(i_this, other);
+        s16 search = fopAcM_searchActorAngleY(actor, other);
         s16 face_ang = i_this->shape_angle.y + face_ang_offset[i_this->mFace];
         if ((s16)(face_ang - search) >= 0) {
             i_this->mSide = 0;
@@ -361,7 +384,7 @@ bool daObjTribox::Act_c::line_cross(const cXyz* p0, const cXyz* p1) const {
 
 /* 00000FF4-000012A0       .text chk_wall__Q211daObjTribox5Act_cCFi */
 bool daObjTribox::Act_c::chk_wall(int num) const {
-    JUT_ASSERT(0x30C, (num == 1) || (num == 2));
+    JUT_ASSERT(VERSION_SELECT(0x315, 0x30B, 0x30C, 0x30C), (num == 1) || (num == 2));
 
     int idx;
     if (mSign >= 0) {
@@ -370,7 +393,7 @@ bool daObjTribox::Act_c::chk_wall(int num) const {
         idx = (mDir + 2) % 3;
     }
 
-    mDoMtx_YrotS(mDoMtx_stack_c::now, shape_angle.y);
+    mDoMtx_stack_c::YrotS(shape_angle.y);
     cXyz dir;
     mDoMtx_stack_c::multVecSR(&M_post[idx], &dir);
 
@@ -400,8 +423,7 @@ bool daObjTribox::Act_c::chk_wall(int num) const {
 
 /* 000012A0-000012E8       .text chk_space__Q211daObjTribox5Act_cCFv */
 bool daObjTribox::Act_c::chk_space() const {
-    int num = mPushPullWalk;
-    int n = num == 1;
+    int n = mPushPullWalk == 1 ? 1 : 0;
     if (chk_wall(n + 1)) {
         return false;
     } else {
@@ -445,7 +467,7 @@ void daObjTribox::Act_c::eff_smoke_pos() {
     i0 %= 3;
     i1 %= 3;
 
-    mDoMtx_YrotS(mDoMtx_stack_c::now, shape_angle.y);
+    mDoMtx_stack_c::YrotS(shape_angle.y);
     cXyz v0;
     mDoMtx_stack_c::multVecSR(&M_post[i0], &v0);
     cXyz v1;
@@ -480,12 +502,10 @@ void daObjTribox::Act_c::eff_sink_smoke_start() {
         mSinkSmokeState = 1;
         dPa_levelEcallBack* cbs[3] = { &mSinkSmoke0, &mSinkSmoke1, &mSinkSmoke2 };
         csXyz dummy = shape_angle;
-        s16 add = 0;
         for (int i = 0; i < 3; i++) {
             csXyz ang = shape_angle;
-            ang.y += add;
+            ang.y += i * 0x5555;
             dComIfGp_particle_setToon(dPa_name::ID_AK_ST_TRIFORCEBLOCKSMOKE00, &current.pos, &ang, NULL, 0xA0, cbs[i]);
-            add += 0x5555;
         }
     }
 }
@@ -527,17 +547,19 @@ void daObjTribox::Act_c::vib_sink_start() {
 void daObjTribox::Act_c::vib_sink_end() {
     if (mVibState != 0) {
         mVibState = 0;
-        dComIfGp_getVibration().StopQuake(-1);
-        dComIfGp_getVibration().StartShock(3, 0xF, cXyz(0.0f, 1.0f, 0.0f));
+        dVibration_c& vib = dComIfGp_getVibration();
+        vib.StopQuake(-1);
+        vib.StartShock(3, 0xF, cXyz(0.0f, 1.0f, 0.0f));
     }
 }
 
 /* 0000197C-00001A08       .text search_block__Q211daObjTribox5Act_cFPvPv */
 void* daObjTribox::Act_c::search_block(void* ptr, void* data) {
-    if (fopAc_IsActor(ptr) && fopAcM_GetName(ptr) == fpcNm_Obj_Tribox_e) {
-        Act_c* other = static_cast<Act_c*>(ptr);
+    Act_c* other = static_cast<Act_c*>(ptr);
+    Act_c* self = static_cast<Act_c*>(data);
+    if (fopAc_IsActor(other) && fopAcM_GetName(other) == fpcNm_Obj_Tribox_e) {
         if (other->prm_get_type() == 0) {
-            if (fopAcM_searchActorDistance2(static_cast<fopAc_ac_c*>(data), other) < 225.0f) {
+            if (fopAcM_searchActorDistance2(self, other) < 225.0f) {
                 return other;
             }
         }
@@ -566,8 +588,9 @@ u32 daObjTribox::Act_c::sound_get_mapinfo(const cXyz& pos) {
     p.y += 50.0f;
     gndChk.SetPos(&p);
     dComIfG_Bgsp()->GroundCross(&gndChk);
+    int idx = gndChk.GetBgIndex();
     u32 result = 0xD;
-    if (gndChk.GetBgIndex() >= 0 && gndChk.GetBgIndex() < 0x100) {
+    if (idx >= 0 && idx < 0x100) {
         result = dComIfG_Bgsp()->GetMtrlSndId(gndChk);
     }
     return result;
@@ -655,13 +678,19 @@ void daObjTribox::Act_c::mode_block_walk_init() {
 
 /* 0000262C-00002B34       .text mode_block_walk__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::mode_block_walk() {
-    bool done = --mTimer == 0;
+    bool done = --mTimer <= 0;
 
     f32 c = (f32)cos(0.157079637f * mTimer);
-    f32 home_rad = 9.58738019e-5f * home.angle.y;
-    f32 rot0 = 1.04719758f * mWalkRot + home_rad;
+#if VERSION == VERSION_DEMO
+    f32 s = (f32)mSign * (0.5f * (1.0f + c));
+    f32 rot0 = cM_s2rad(home.angle.y);
+    rot0 = 1.04719758f * mWalkRot + rot0;
+    f32 rot1 = 1.04719758f * s;
+#else
+    f32 rot0 = cM_s2rad(home.angle.y);
+    rot0 = 1.04719758f * mWalkRot + rot0;
     f32 rot1 = 1.04719758f * ((f32)mSign * (0.5f * (1.0f + c)));
-
+#endif
     MTXRotRad(mDoMtx_stack_c::now, 'Y', rot0);
     cXyz v0;
     mDoMtx_stack_c::multVecSR(&M_post[mDir], &v0);
@@ -690,8 +719,9 @@ void daObjTribox::Act_c::mode_block_walk() {
         cXyz p(current.pos.x, current.pos.y + 50.0f, current.pos.z);
         gndChk.SetPos(&p);
         dComIfG_Bgsp()->GroundCross(&gndChk);
+        int idx = gndChk.GetBgIndex();
         u32 mapinfo = 0;
-        if (gndChk.GetBgIndex() >= 0 && gndChk.GetBgIndex() < 0x100) {
+        if (idx >= 0 && idx < 0x100) {
             mapinfo = dComIfG_Bgsp()->GetMtrlSndId(gndChk);
         }
         mDoAud_seStart(JA_SE_LK_MOVE_ROCK, &eyePos, mapinfo, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
@@ -819,7 +849,7 @@ void daObjTribox::Act_c::mode_correct_demoreq_init() {
 /* 00002F0C-00002FB4       .text mode_correct_demoreq__Q211daObjTribox5Act_cFv */
 void daObjTribox::Act_c::mode_correct_demoreq() {
     bool next = true;
-    if (dComIfGp_getPEvtManager()->getEventData(mEventIdx) != NULL) {
+    if (dComIfGp_evmng_existence(mEventIdx)) {
         if (eventInfo.checkCommandDemoAccrpt()) {
             mDemoAccept = 1;
         } else {
@@ -955,7 +985,7 @@ bool daObjTribox::Act_c::_draw() {
             }
         }
         if (mLightState != 0) {
-            dComIfGd_setListFilter();
+            dComIfGd_setListP1();
             mDoExt_modelUpdateDL(mpYtfbl);
             dComIfGd_setList();
         }

@@ -82,7 +82,11 @@ static BOOL searchEsaInit_CB(void* pActor1, void* pActor2) {
         cXyz pos(pNz->field_0x6C4);
         pos.x += cM_ssin(pNz->current.angle.y) * 150.0f;
         pos.z += cM_scos(pNz->current.angle.y) * 150.0f;
+#if VERSION == VERSION_DEMO
+        s16 angle = cAngle::d2s(cM_rndFX2(358.0f));
+#else
         s16 angle = cAngle::d2s(cM_rndFX(358.0f));
+#endif
         f32 mag = cM_rndF(30.0f);
         pos.x += mag * cM_ssin(angle);
         pos.z += mag * cM_scos(angle);
@@ -248,12 +252,19 @@ void daNpc_Nz_c::cutKillAllStart() {
     fopAcM_Search((fopAcIt_JudgeFunc)&searchTsuboAndBarrel_CB, this);
     fopAcM_Search((fopAcIt_JudgeFunc)&searchEsaInit_CB, this);
     
+#if VERSION == VERSION_DEMO
+    daPy_py_c* player = daPy_getPlayerActorClass();
+#endif
     cXyz pos = field_0x6C4;
     s16 r5 = home.angle.y + 0x8000;
     pos.x += cM_ssin(home.angle.y) * 250.0f;
     pos.z += cM_scos(home.angle.y) * 250.0f;
 
+#if VERSION == VERSION_DEMO
+    player->setPlayerPosAndAngle(&pos, r5);
+#else
     daPy_getPlayerActorClass()->setPlayerPosAndAngle(&pos, r5);
+#endif
 }
 
 /* 0000404C-00004080       .text cutKillAllProc__10daNpc_Nz_cFv */
@@ -321,6 +332,18 @@ void daNpc_Nz_c::cutSetAnmProc() {
         else if (mpMorf->checkFrame(13.0f)) {
             J3DModel* pModel = mpMorf->getModel();
 
+#if VERSION == VERSION_DEMO
+            f32 s = 0.65f + REG10_F(25);
+            cXyz scale(s, s, s);
+            csXyz temp2(current.angle);
+            temp2.y -= 0x4000;
+            cXyz temp4(10.0f + REG10_F(0), 0.0f + REG10_F(1), 10.0f + REG10_F(2));
+            cXyz pos;
+            GXColor color;
+            color.r = 0x80 + REG10_S(4);
+            color.g = 0x80 + REG10_S(5);
+            color.b = 0x80 + REG10_S(6);
+#else
             cXyz scale(0.65f, 0.65f, 0.65f);
             csXyz temp2(current.angle);
             temp2.y -= 0x4000;
@@ -330,6 +353,7 @@ void daNpc_Nz_c::cutSetAnmProc() {
             color.r = 0x80;
             color.g = 0x80;
             color.b = 0x80;
+#endif
 
             mDoMtx_stack_c::copy(pModel->getAnmMtx(m_jnt.getHeadJntNum()));
             mDoMtx_stack_c::multVec(&temp4, &pos);

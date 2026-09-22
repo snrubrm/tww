@@ -22,6 +22,7 @@
 #include "m_Do/m_Do_mtx.h"
 #include "d/actor/d_a_sea.h"
 
+#if VERSION > VERSION_DEMO
 /* 80040900-80040938       .text set__18dStage_nextStage_cFPCcScsScSc */
 void dStage_nextStage_c::set(const char* i_stage, s8 i_roomId, s16 i_point, s8 i_layer, s8 i_wipe) {
     if (!mEnable) {
@@ -30,6 +31,7 @@ void dStage_nextStage_c::set(const char* i_stage, s8 i_roomId, s16 i_point, s8 i
         dStage_startStage_c::set(i_stage, i_roomId, i_point, i_layer);
     }
 }
+#endif
 
 /* 80040938-8004093C       .text dStage_SetErrorRoom__Fv */
 void dStage_SetErrorRoom() {}

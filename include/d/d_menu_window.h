@@ -77,7 +77,9 @@ public:
     /* 0x011C */ char* dummy[2];
     /* 0x0124 */ u8 field_0x124[0x128 - 0x124];
     /* 0x0128 */ void* buffer_p[33];
+#if VERSION > VERSION_JPN
     /* 0x01AC */ char* title_p;
+#endif
     /* 0x01B0 */ u16 field_0x1B0;
     /* 0x01B2 */ u8 field_0x1B2;
     /* 0x01B3 */ u8 field_0x1B3[0x1B5 - 0x1B3];
@@ -89,24 +91,30 @@ class dMw_HIO_c : public JORReflexible {
 public:
     dMw_HIO_c();
     virtual ~dMw_HIO_c() {}
+#if VERSION == VERSION_DEMO
+    void playerStatusHIO();
+    void itemBitCheck();
+    void itemNumHIO();
+    void itemHIO();
+#endif
 
     void genMessage(JORMContext* ctx) { UNUSED(ctx); }
 
     /* 0x04 */ s8 mNo;
-    /* 0x06 */ u16 field_0x06;
-    /* 0x08 */ u16 field_0x08;
+    /* 0x06 */ s16 field_0x06;
+    /* 0x08 */ s16 field_0x08;
     /* 0x0A */ u8 field_0x0A;
     /* 0x0B */ u8 field_0x0B;
-    /* 0x0C */ u16 field_0x0C;
-    /* 0x0E */ u16 field_0x0E;
+    /* 0x0C */ s16 field_0x0C;
+    /* 0x0E */ s16 field_0x0E;
     /* 0x10 */ u8 field_0x10;
     /* 0x11 */ u8 field_0x11;
-    /* 0x12 */ u16 field_0x12;
-    /* 0x14 */ u16 field_0x14;
+    /* 0x12 */ s16 field_0x12;
+    /* 0x14 */ s16 field_0x14;
     /* 0x16 */ u8 field_0x16;
     /* 0x17 */ u8 field_0x17;
-    /* 0x18 */ u16 field_0x18;
-    /* 0x1A */ u16 field_0x1A;
+    /* 0x18 */ s16 field_0x18;
+    /* 0x1A */ s16 field_0x1A;
     /* 0x1C */ u8 field_0x1C;
     /* 0x1D */ u8 field_0x1D;
     /* 0x1E */ u8 field_0x1E;
@@ -154,6 +162,9 @@ class dMw_DHIO_c : public JORReflexible {
 public:
     dMw_DHIO_c();
     virtual ~dMw_DHIO_c() {}
+#if VERSION == VERSION_DEMO
+    void bitCheck();
+#endif
 
     void genMessage(JORMContext* ctx) { UNUSED(ctx); }
 

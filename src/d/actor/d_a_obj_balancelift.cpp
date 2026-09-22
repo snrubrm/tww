@@ -146,11 +146,13 @@ void daBalancelift_c::calc_quat() {
     Quaternion target, result;
     daObj::quat_rotBaseY2(&target, anchor);
     PSQUATInverse(&target, &target);
-    C_QUATSlerp(&mSwingQuat, &target, &result, 0.1f + REG10_F(23));
+    f32 t1 = 0.1f + REG10_F(23);
+    C_QUATSlerp(&mSwingQuat, &target, &result, t1);
     mSwingQuat = result;
     daObj::quat_rotBaseY2(&target, top);
     PSQUATInverse(&target, &target);
-    C_QUATSlerp(&mPlatformQuat, &target, &result, 0.15f + REG10_F(24));
+    f32 t2 = 0.15f + REG10_F(24);
+    C_QUATSlerp(&mPlatformQuat, &target, &result, t2);
     mPlatformQuat = result;
 }
 
@@ -211,7 +213,7 @@ void daBalancelift_c::calc_weight() {
     mChainOffset += mChainVelocity;
     // The original applies fabsf to the comparison result.
     if (std::fabsf(mLengthVelocity > 1.0f)) {
-        mDoAud_seStart(JA_SE_OBJ_TENBIN_LIFT_MOVE, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+        mDoAud_seStart(JA_SE_OBJ_TENBIN_LIFT_MOVE, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     }
 }
 
@@ -239,7 +241,7 @@ BOOL daBalancelift_c::CreateHeap() {
 cPhs_State daBalancelift_c::CreateInit() {
     u32 path = (fopAcM_GetParam(this) >> 16) & 0xff;
     if (path != 0xff) {
-        mpPath = dPath_GetRoomPath(path, current.roomNo);
+        mpPath = dPath_GetRoomPath(path, fopAcM_GetRoomNo(this));
         if (mpPath && mpPath->m_num != 0) {
             current.pos = mpPath->m_points[0].m_position;
             home.pos = current.pos;
@@ -301,9 +303,15 @@ cPhs_State daBalancelift_c::CreateInit() {
 
 /* 00000F34-000010E0       .text daBalanceliftCreate__FPv */
 inline cPhs_State daBalancelift_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
+    if (phase == cPhs_COMPLEATE_e) {
+        fopAcM_SetupActor(this, daBalancelift_c);
+#else
     fopAcM_SetupActor(this, daBalancelift_c);
     cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
     if (phase == cPhs_COMPLEATE_e) {
+#endif
         if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0xe40)) {
             phase = CreateInit();
         } else {
@@ -326,7 +334,11 @@ static cPhs_State daBalanceliftCreate(void* actor) {
 static BOOL daBalanceliftDelete(void* actor) {
     daBalancelift_c* self = static_cast<daBalancelift_c*>(actor);
     dComIfG_Bgsp()->Release(self->pm_bgw);
+#if VERSION == VERSION_DEMO
+    dComIfG_deleteObjectRes(daBalancelift_c::M_arcname);
+#else
     dComIfG_resDelete(&self->mPhase, daBalancelift_c::M_arcname);
+#endif
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
         l_HIO.mNo = -1;
@@ -377,7 +389,7 @@ bool daBalancelift_c::_execute() {
                     mChainOffset.y = mChainTarget.y = distance;
                     dComIfGp_particle_set(dPa_name::ID_AK_JN_NG, hitPos);
                 }
-                mDoAud_seStart(JA_SE_OBJ_COL_SWS_NMTLP, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+                mDoAud_seStart(JA_SE_OBJ_COL_SWS_NMTLP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
             }
         }
     }

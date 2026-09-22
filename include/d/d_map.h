@@ -67,6 +67,12 @@ public:
     ~dMap_2DMtMapSpcl_tex_c() {}
     void init(ResTIMG*, u32, const GXColor&);
     void setScroll(f32, f32, f32, f32);
+    u8 check() { return field_0x0; }
+    int getCI() { return field_0x1; }
+    f32 getS() { return field_0x34; }
+    f32 getT() { return field_0x38; }
+    f32 getSw() { return field_0x3c; }
+    f32 getTw() { return field_0x40; }
 
     /* 0x00 */ u8 field_0x0;
     /* 0x01 */ u8 field_0x1;
@@ -108,8 +114,8 @@ public:
     void setPos(s16, s16, s16, s16);
     void setScale(f32, f32);
 
-    void getMapDt() {}
-    void getMapDtSize() {}
+    map_dt_c* getMapDt() { return field_0x4; }
+    int getMapDtSize() { return field_0x38; }
     void setAlpha(u8 alpha) { mAlpha = alpha; }
     void setCenterPos(f32 p0, f32 p1) {
         field_0x44 = p0;
@@ -158,28 +164,28 @@ public:
     void checkUseRoom() {}
     void getStageMapInfoPE() {}
     void getStageMapInfoCmPDot() {}
-    void getStageMapInfoMap0_X0() {}
-    void getStageMapInfoMap0_X1() {}
-    void getStageMapInfoMap0_Z0() {}
-    void getStageMapInfoMap0_Z1() {}
-    void getStageMapInfoMap0_XC() {}
-    void getStageMapInfoMap0_ZC() {}
-    void getStageMapInfoMap1_X0() {}
-    void getStageMapInfoMap1_X1() {}
-    void getStageMapInfoMap1_Z0() {}
-    void getStageMapInfoMap1_Z1() {}
-    void getStageMapInfoMap1_ZC() {}
-    void getStageMapInfoMap1_XC() {}
+    f32 getStageMapInfoMap0_X0() { return getStageMapInfoP()->field_0x00; }
+    f32 getStageMapInfoMap0_X1() { return getStageMapInfoP()->field_0x08; }
+    f32 getStageMapInfoMap0_Z0() { return getStageMapInfoP()->field_0x04; }
+    f32 getStageMapInfoMap0_Z1() { return getStageMapInfoP()->field_0x0C; }
+    f32 getStageMapInfoMap0_XC() { return getStageMapInfoP()->field_0x10; }
+    f32 getStageMapInfoMap0_ZC() { return getStageMapInfoP()->field_0x14; }
+    f32 getStageMapInfoMap1_X0() { return getStageMapInfoP()->field_0x18; }
+    f32 getStageMapInfoMap1_X1() { return getStageMapInfoP()->field_0x20; }
+    f32 getStageMapInfoMap1_Z0() { return getStageMapInfoP()->field_0x1C; }
+    f32 getStageMapInfoMap1_Z1() { return getStageMapInfoP()->field_0x24; }
+    f32 getStageMapInfoMap1_ZC() { return getStageMapInfoP()->field_0x2c; }
+    f32 getStageMapInfoMap1_XC() { return getStageMapInfoP()->field_0x28; }
     void getStageMapInfoAlpha() {}
     void getMapDtP() {}
-    void getNowDspFloorNo() {}
+    u8 getNowDspFloorNo() { return field_0xc; }
     void getMapDtSize() {}
-    void getMap0ScaleX() {}
-    void getMap0ScaleZ() {}
-    void getMap1ScaleX() {}
-    void getMap1ScaleZ() {}
-    void getMap1Width() {}
-    void getMap1Height() {}
+    f32 getMap0ScaleX() { return field_0x18; }
+    f32 getMap0ScaleZ() { return field_0x1c; }
+    f32 getMap1ScaleX() { return field_0x20; }
+    f32 getMap1ScaleZ() { return field_0x24; }
+    f32 getMap1Width() { return field_0x28; }
+    f32 getMap1Height() { return field_0x2c; }
 
     u8 getEnableFlg() { return field_0x1; }
     int getRoomNo() { return m_no; }
@@ -222,7 +228,11 @@ public:
     void ctrlDrawRoomEnlargementSize(int, int, int, int, int, f32, f32, f32, f32, u8);
     void ctrlDrawRoomRealSize(int, int, int, int, int, f32, f32, f32, f32, f32, f32, u8);
     void init();
+#if VERSION == VERSION_DEMO
+    void checkFloorMoveImageChangeRoom(u8, u8, int, s16, s16);
+#else
     void checkFloorMoveImageChangeRoom(u8, u8, int, s16, s16, f32);
+#endif
 
 public:
     /* 0x00 */ s32 m_num;
@@ -379,16 +389,16 @@ public:
 
     void changeTlutDblBufNo() {
         mNowTlutDblBufNo = 1 - mNowTlutDblBufNo;
-        JUT_ASSERT(357, (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+        JUT_ASSERT(DEMO_SELECT(360, 357), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
     }
 
     int getLoadTlutDblBufNo() {
-        JUT_ASSERT(360, (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+        JUT_ASSERT(DEMO_SELECT(363, 360), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
         return mNowTlutDblBufNo;
     }
 
     void setTlutDblBufNo(int) {
-        JUT_ASSERT(368, (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
+        JUT_ASSERT(DEMO_SELECT(371, 368), (mNowTlutDblBufNo == 0) || (mNowTlutDblBufNo == 1));
     }
 
     void setAlpha(u8 alpha) { field_0x2b6 = alpha; }
@@ -507,6 +517,10 @@ public:
     static void mapMoveAll(f32, f32, int, f32);
     static void mapDrawAll(f32, f32, int, f32);
     static void mapDrawIcon();
+#if VERSION == VERSION_DEMO
+    static void drawTest_dummy(f32, f32, int, f32);
+    static void drawTest(f32, f32, int, f32);
+#endif
     static void draw(f32, f32, int, f32);
     static void point2Grid(f32, f32, s8*, s8*);
     static void point2GridAndLocal(f32, f32, s8*, s8*, s16*, s16*);

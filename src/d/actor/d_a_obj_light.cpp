@@ -41,6 +41,24 @@ bool daObjLight::Act_c::create_heap() {
     J3DModelData* mdl_data_lighthouse;
     J3DModelData* mdl_data_light;
 
+#if VERSION == VERSION_DEMO
+    mdl_data_lighthouse = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_BDL_STOUDAI_e));
+    JUT_ASSERT(267, mdl_data_lighthouse != 0);
+    mpModel[0] = mDoExt_J3DModel__create(mdl_data_lighthouse, 0, 0x11020203);
+    mdl_data_light = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_BDL_SHIKARI_e));
+    JUT_ASSERT(272, mdl_data_light != 0);
+    mpModel[1] = mDoExt_J3DModel__create(mdl_data_light, 0, 0x11020203);
+    mpModel[2] = mDoExt_J3DModel__create(mdl_data_light, 0, 0x11020203);
+    set_mtx();
+    cBgD_t* bgw_data = static_cast<cBgD_t*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_DZB_STOUDAI_e));
+    JUT_ASSERT(280, bgw_data != 0);
+    M_bgw[LIGHT_LIGHT_BASE] = new dBgW;
+    JUT_ASSERT(283, M_bgw[LIGHT_LIGHT_BASE] != 0);
+    if (M_bgw[LIGHT_LIGHT_BASE] != NULL) {
+        M_bgw[LIGHT_LIGHT_BASE]->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx);
+    }
+    return mdl_data_lighthouse != NULL && mdl_data_light != NULL && M_bgw[LIGHT_LIGHT_BASE] != NULL;
+#else
     mdl_data_lighthouse = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_BDL_STOUDAI_e));
     JUT_ASSERT(267, mdl_data_lighthouse != 0);
     if (mdl_data_lighthouse != NULL) {
@@ -56,12 +74,13 @@ bool daObjLight::Act_c::create_heap() {
     cBgD_t* bgw_data = static_cast<cBgD_t*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_SKANRAN_DZB_STOUDAI_e));
     JUT_ASSERT(284, bgw_data != 0);
     if (bgw_data != NULL) {
-        mpBgW = new dBgW;
-        if (mpBgW != NULL && mpBgW->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx) == 1) {
+        M_bgw[LIGHT_LIGHT_BASE] = new dBgW;
+        if (M_bgw[LIGHT_LIGHT_BASE] != NULL && M_bgw[LIGHT_LIGHT_BASE]->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx) == 1) {
             return false;
         }
     }
-    return mdl_data_lighthouse != NULL && mpModel[0] != NULL && mdl_data_light != NULL && mpModel[1] != NULL && mpModel[2] != NULL && bgw_data != NULL && mpBgW != NULL;
+    return mdl_data_lighthouse != NULL && mpModel[0] != NULL && mdl_data_light != NULL && mpModel[1] != NULL && mpModel[2] != NULL && bgw_data != NULL && M_bgw[LIGHT_LIGHT_BASE] != NULL;
+#endif
 }
 
 /* 00000344-000003C0       .text init_collision__Q210daObjLight5Act_cFv */
@@ -75,7 +94,10 @@ void daObjLight::Act_c::init_collision() {
 
 /* 000003C0-00000468       .text set_collision__Q210daObjLight5Act_cFv */
 void daObjLight::Act_c::set_collision() {
-    if (dKy_daynight_check() == 1) {
+#if VERSION > VERSION_DEMO
+    if (dKy_daynight_check() == 1)
+#endif
+    {
         if (mCyl.ChkTgHit()) {
             if (mLit == 0) {
                 mLightTimer = 1;
@@ -106,8 +128,8 @@ cPhs_State daObjLight::Act_c::_create() {
             fopAcM_SetMtx(this, mpModel[1]->getBaseTRMtx());
             fopAcM_setCullSizeBox(this, -300.0f, -300.0f, -10000.0f, 300.0f, 300.0f, 10000.0f);
             fopAcM_setCullSizeFar(this, 10.0f);
-            dComIfG_Bgsp()->Regist(mpBgW, this);
-            mpBgW->SetCrrFunc(dBgS_MoveBGProc_Typical);
+            dComIfG_Bgsp()->Regist(M_bgw[LIGHT_LIGHT_BASE], this);
+            M_bgw[LIGHT_LIGHT_BASE]->SetCrrFunc(dBgS_MoveBGProc_Typical);
             init_collision();
             mLit = !!dComIfGs_isEventBit(dSv_event_flag_c::UNK_1C02);
             if (dKy_daynight_check() == 1 && mLit == 1) set_fire(0);
@@ -124,7 +146,11 @@ cPhs_State daObjLight::Act_c::_create() {
 /* 000008C4-00000964       .text _delete__Q210daObjLight5Act_cFv */
 bool daObjLight::Act_c::_delete() {
     M_S_lod_access = 0;
-    if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) dComIfG_Bgsp()->Release(mpBgW);
+#if VERSION == VERSION_DEMO
+    if (M_bgw[LIGHT_LIGHT_BASE]->ChkUsed()) dComIfG_Bgsp()->Release(M_bgw[LIGHT_LIGHT_BASE]);
+#else
+    if (heap != NULL && M_bgw[LIGHT_LIGHT_BASE] != NULL && M_bgw[LIGHT_LIGHT_BASE]->ChkUsed()) dComIfG_Bgsp()->Release(M_bgw[LIGHT_LIGHT_BASE]);
+#endif
     delete_fire();
     dComIfG_resDelete(&mPhase, M_arcname);
     return true;
@@ -151,11 +177,20 @@ BOOL daObjLight::Act_c::set_fire(int effect) {
 /* 00000A9C-00000B04       .text draw_fire__Q210daObjLight5Act_cFv */
 void daObjLight::Act_c::draw_fire() {
     if (mFireCallback.getEmitter() != NULL) {
+#if VERSION == VERSION_DEMO
+        GXColor color;
+        color.r = 235;
+        color.g = 125;
+        color.b = 0;
+        color.a = 0;
+        dComIfGd_setAlphaModelColor(color);
+#else
         GXColor& color = dComIfGd_getAlphaModelColor();
         color.r = 235;
         color.g = 125;
         color.b = 0;
         color.a = 0;
+#endif
         dComIfGd_setAlphaModel(1, mFireMtx, mFireAlpha);
     }
 }
@@ -180,7 +215,11 @@ void daObjLight::Act_c::exe_fire() {
 
 /* 00000C28-00000C60       .text delete_fire__Q210daObjLight5Act_cFv */
 void daObjLight::Act_c::delete_fire() {
+#if VERSION == VERSION_DEMO
+    mFireCallback.remove();
+#else
     if (mFireCallback.getEmitter() != NULL) mFireCallback.remove();
+#endif
 }
 
 /* 00000C60-00000C8C       .text now_event__Q210daObjLight5Act_cFs */
@@ -293,7 +332,7 @@ void daObjLight::Act_c::control_light() {
 void daObjLight::Act_c::control_treasure() {
     if (mTreasureTimer > 1) mTreasureTimer--;
     if (mTreasureTimer == 1) {
-        dComIfGs_onSwitch(93, home.roomNo);
+        dComIfGs_onSwitch(93, fopAcM_GetHomeRoomNo(this));
         mTreasureTimer = 0;
     }
 }
@@ -305,7 +344,7 @@ bool daObjLight::Act_c::_execute() {
     renew_angle();
     set_mtx();
     set_collision();
-    mpBgW->Move();
+    M_bgw[LIGHT_LIGHT_BASE]->Move();
     control_light();
     control_treasure();
     return true;

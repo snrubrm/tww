@@ -99,7 +99,7 @@ cM3dGPla* daPy_lk_c::getWHideModePolygon(cXyz* i_start, cXyz* i_end, cXyz* param
     local_3c.z = param_2->z + cM_ssin(sVar7) * m_HIO->mWall.m.field_0x50;
     mGndChk.SetPos(&local_3c);
     f32 f31 = dComIfG_Bgsp()->GroundCross(&mGndChk);
-    if (-G_CM3D_F_INF != f31 && !cBgW_CheckBGround(dComIfG_Bgsp()->GetTriPla(mGndChk)->GetNP()->y)) {
+    if (-G_CM3D_F_INF != f31 && !cBgW_CheckBGround(dComIfG_Bgsp()->GetTriPla(mGndChk.GetBgIndex(), mGndChk.GetPolyIndex())->GetNP()->y)) {
         return NULL;
     }
 
@@ -121,7 +121,7 @@ cM3dGPla* daPy_lk_c::getWHideModePolygon(cXyz* i_start, cXyz* i_end, cXyz* param
             return NULL;
         }
         cM3dGPla* triPla;
-        triPla = dComIfG_Bgsp()->GetTriPla(mLinkLinChk);
+        triPla = dComIfG_Bgsp()->GetTriPla(mLinkLinChk.GetBgIndex(), mLinkLinChk.GetPolyIndex());
         if (sVar7 != cM_atan2s(triPla->GetNP()->x, triPla->GetNP()->z)) {
             return NULL;
         }
@@ -139,7 +139,7 @@ cM3dGPla* daPy_lk_c::getWHideModePolygon(cXyz* i_start, cXyz* i_end, cXyz* param
             return NULL;
         }
         cM3dGPla* triPla;
-        triPla = dComIfG_Bgsp()->GetTriPla(mLinkLinChk);
+        triPla = dComIfG_Bgsp()->GetTriPla(mLinkLinChk.GetBgIndex(), mLinkLinChk.GetPolyIndex());
         int iVar4 = cM_atan2s(triPla->GetNP()->x, triPla->GetNP()->z);
         if (sVar7 != iVar4) {
             return NULL;

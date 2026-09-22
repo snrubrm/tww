@@ -243,8 +243,8 @@ void daGhostship_c::createInit() {
 /* 00000C78-00000C8C .text getArg__13daGhostship_cFv */
 void daGhostship_c::getArg() {
     u32 param = fopAcM_GetParam(this);
-    mPathNo = fopAcM_GetParamBit(param, 0x10, 8);
-    moonPhase = fopAcM_GetParamBit(param, 0, 8);
+    mPathNo = (param >> 0x10) & 0xFF;
+    moonPhase = param & 0xFF;
 }
 
 cPhs_State daGhostship_c::_create() {

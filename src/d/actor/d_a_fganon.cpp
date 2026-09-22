@@ -84,12 +84,12 @@ static BOOL daFganon_Draw(fganon_class* i_this) {
     fopAc_ac_c* a_this = &i_this->actor;
     dSnap_RegistFig(DSNAP_TYPE_FGANON, a_this, 1.0f, 1.0f, 1.0f);
     J3DModel* pModel = i_this->mpMorf->getModel();
-    g_env_light.setLightTevColorType(pModel, &a_this->tevStr);
+    g_env_light.setLightTevColorType(pModel, &i_this->actor.tevStr);
     i_this->mpBrkAnm1->entry(pModel->getModelData());
     i_this->mpMorf->entryDL();
     if (i_this->m2D0 != 2) {
         pModel = i_this->mpKenModel;
-        g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &a_this->current.pos, &i_this->mKenTevStr);
+        g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &i_this->actor.current.pos, &i_this->mKenTevStr);
         g_env_light.setLightTevColorType(pModel, &i_this->mKenTevStr);
         i_this->mpBrkAnm2->entry(pModel->getModelData());
         mDoExt_modelUpdateDL(pModel);
@@ -976,7 +976,7 @@ void fail(fganon_class* i_this) {
             linChk.Set(&offset, &transformedPos, a_this);
 
             MtxP mtx = i_this->mpMorf->getModel()->getAnmMtx(BPG_JNT_J_BPG_ITEM1_e);
-            cMtx_copy(mtx, *calc_mtx);
+            MTXCopy(mtx, *calc_mtx);
             
             offset.x = 0.0f;
             offset.y = 0.0f;
@@ -1312,7 +1312,6 @@ void last_end(fganon_class* i_this) {
 /* 000056A4-00006288       .text damage_check__FP12fganon_class */
 void damage_check(fganon_class* i_this) {
     CcAtInfo atInfo;
-    cXyz* pPos;
 
     csXyz local_a0;
     cXyz local_44;
@@ -1451,8 +1450,7 @@ void damage_check(fganon_class* i_this) {
             if (i_this->mCyl.ChkTgHit()) {
                 if(((i_this->mAction == 8) || (i_this->mAction == 7)) || (i_this->mAction == 10)) {
                     atInfo.mpObj = i_this->mCyl.GetTgHitObj();
-                    pPos = i_this->mCyl.GetTgHitPosP();
-                    atInfo.pParticlePos = pPos;
+                    atInfo.pParticlePos = i_this->mCyl.GetTgHitPosP();
                     atInfo.mpActor = at_power_check(&atInfo);
                     if((atInfo.mpObj != NULL) && (atInfo.mpObj->ChkAtType(AT_TYPE_SWORD)) && (dComIfGs_getSelectEquip(0) == dItemNo_MASTER_SWORD_1_e ||
                                                                                               dComIfGs_getSelectEquip(0) == dItemNo_MASTER_SWORD_3_e ||
@@ -1481,7 +1479,7 @@ void damage_check(fganon_class* i_this) {
                         local_a0.x = 0.0f;
                         local_a0.y = fopAcM_searchPlayerAngleY(a_this);
 
-                        dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, pPos, &local_a0, &local_44);
+                        dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, i_this->mCyl.GetTgHitPosP(), &local_a0, &local_44);
 
                         if ((i_this->mAction == 7) || (i_this->mAction == 10)) {
                             i_this->mAction = 8;

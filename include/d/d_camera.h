@@ -287,7 +287,9 @@ public:
             /* 0x3A4 */ f32 m3A4;
             /* 0x3A8 */ f32 m3A8;
             /* 0x3AC */ f32 m3AC;
+#if VERSION > VERSION_DEMO
             /* 0x3B0 */ f32 m3B0;
+#endif
             /* 0x3B4 */ int m3B4;
             /* 0x3B8 */ f32 m3B8;
             /* 0x3BC */ f32 m3BC;
@@ -303,7 +305,11 @@ public:
             /* 0x3E8 */ f32 m3E8;
             /* 0x3EC */ f32 m3EC;
             /* 0x3F0 */ f32 m3F0;
+#if VERSION == VERSION_DEMO
+            /* 0x3F0 */ u8 m3F0_demo[0x3F8 - 0x3F0];
+#else
             /* 0x3F4 */ u8 m3F4[0x3F8 - 0x3F4];
+#endif
         } follow;
         struct {
             /* 0x378 */ int m378;
@@ -373,7 +379,9 @@ public:
             /* 0x37C */ f32 m37C;
             /* 0x380 */ f32 m380;
             /* 0x384 */ cXyz m384;
+#if VERSION > VERSION_JPN
             /* 0x390 */ cXyz m390;
+#endif
             /* 0x39C */ u8 m39C;
         } fixedPos;
     } mWork;

@@ -125,8 +125,7 @@ static void dungeon_rain_proc() {
             if (env_light->mRainCountOrig != 250) {
                 dKy_change_colpat(1);
                 dKyw_rain_set(250);
-                env_light = &g_env_light;
-                env_light->mThunderEff.mMode = 1;
+                g_env_light.mThunderEff.mMode = 1;
             }
         } else if (mode == 2) { // Thunder, but no rain
             env_light = &g_env_light;

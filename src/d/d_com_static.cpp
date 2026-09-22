@@ -40,8 +40,10 @@
 #include "d/actor/d_a_npc_bs1.h"
 #include "SSystem/SComponent/c_counter.h"
 
+#if VERSION > VERSION_DEMO
 s32 daLodbg_c::sObjectCount;
 JKRExpHeap* daLodbg_c::sLocalHeap;
+#endif
 
 u8 daSteamTag_c::mEmitterNum;
 

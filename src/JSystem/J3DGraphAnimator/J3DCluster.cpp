@@ -99,9 +99,9 @@ void J3DDeformer::deform(J3DVertexBuffer* vtx, u16 idx, f32* weightList) {
         f32 sign[2] = {1.0f, -1.0f};
         for (u16 i = 0; i < posNum; i++) {
             for (u16 j = 0; j < keyNum; j++) {
-                int flag;
-                int srcIndex;
-                flag = srcIndex = key[j].mPosFlag[i];
+                J3DClusterKey& k = key[j];
+                int flag = k.mPosFlag[i];
+                int srcIndex = k.mPosFlag[i];
                 srcIndex &= ~0xE000;
                 f32 dx = vtxPosSrc[srcIndex * 3];
                 f32 dy = vtxPosSrc[srcIndex * 3 + 1];
@@ -128,9 +128,9 @@ void J3DDeformer::deform(J3DVertexBuffer* vtx, u16 idx, f32* weightList) {
                 dst[2] = 0.0f;
 
                 for (u16 j = 0; j < cluster->mKeyNum; j++) {
-                    int flag = key[j].mNrmFlag[i];
-                    int srcIndex = flag;
-                    srcIndex &= ~0xE000;
+                    J3DClusterKey& k = key[j];
+                    int flag = k.mNrmFlag[i];
+                    int srcIndex = k.mNrmFlag[i] & ~0xE000;
 
                     f32 srcX = vtxNrmSrc[srcIndex * 3];
                     f32 srcY = vtxNrmSrc[srcIndex * 3 + 1];
@@ -168,13 +168,14 @@ void J3DDeformer::deform(J3DVertexBuffer* vtx, u16 idx, f32* weightList) {
                 normalize(pos);
 
                 for (u16 j = 0; j < vertex->mNum; j++) {
+                    f32* src;
                     u16 srcIdx = vertex->mSrcIdx[j];
                     u16 dstIdx = vertex->mDstIdx[j];
 
                     if (dstIdx == 0xFFFF)
                         continue;
 
-                    f32* src = &nrmBuf[srcIdx * 3];
+                    src = &nrmBuf[srcIdx * 3];
                     f32 dot = pos[0] * src[0] + pos[1] * src[1] + pos[2] * src[2];
 
                     f32 angle;

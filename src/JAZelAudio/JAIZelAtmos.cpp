@@ -49,22 +49,23 @@ void JAIZelBasic::seaEnvSePlay(u32 type, s8 reverb) {
     }
     if ((u8)field_0x0218 == 20) {
         f32 x = mAudioCamera->field_0x0->x;
+        f32 y = 0.0f;
         f32 z = mAudioCamera->field_0x0->z;
         Vec a = {0.0f, 0.0f, 0.0f};
         a.x = x - 5.0f;
-        a.y = 0.0f;
+        a.y = y;
         a.z = z - 5.0f;
         Vec b = {0.0f, 0.0f, 0.0f};
         b.x = x - 5.0f;
-        b.y = 0.0f;
+        b.y = y;
         b.z = 5.0f + z;
         Vec c = {0.0f, 0.0f, 0.0f};
         c.x = 5.0f + x;
-        c.y = 0.0f;
+        c.y = y;
         c.z = z - 5.0f;
         Vec d = {0.0f, 0.0f, 0.0f};
         d.x = 5.0f + x;
-        d.y = 0.0f;
+        d.y = y;
         d.z = 5.0f + z;
         registSeaEnvPos(&a);
         registSeaEnvPos(&b);
@@ -362,6 +363,11 @@ void JAIZelBasic::waterfallSePlay(u8 type, Vec* pos, s8 reverb) {
     dst->x = pos->x;
     dst->y = pos->y;
     dst->z = pos->z;
+#if VERSION == VERSION_DEMO
+    if (checkPlayingStreamBgmFlag() != 0xC000003C) {
+        seStart(id, &mWaterfallPos[field_0x1e98], 0, reverb);
+    }
+#else
     if ((int)field_0x0207 != 0) {
         if (field_0x1e98 < 15) {
             field_0x1e98++;
@@ -371,6 +377,7 @@ void JAIZelBasic::waterfallSePlay(u8 type, Vec* pos, s8 reverb) {
     if (checkPlayingStreamBgmFlag() != 0xC000003C && (int)field_0x0207 == 0) {
         seStart(id, &mWaterfallPos[field_0x1e98], 0, reverb);
     }
+#endif
     if (field_0x1e98 < 15) {
         field_0x1e98++;
     }

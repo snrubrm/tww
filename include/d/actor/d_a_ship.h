@@ -140,7 +140,11 @@ public:
     daTornado_c* getTornadoActor() { return mTornadoActor; }
     fopAc_ac_c* getWhirlActor() { return mWhirlActor; }
 #else
+#if VERSION == VERSION_JPN
+    BOOL checkForceMove() { return getTornadoActor() || getWhirlActor(); }
+#else
     BOOL checkForceMove() const { return getTornadoActor() || getWhirlActor(); }
+#endif
     daTornado_c* getTornadoActor() const { return mTornadoActor; }
     fopAc_ac_c* getWhirlActor() const { return mWhirlActor; }
 #endif

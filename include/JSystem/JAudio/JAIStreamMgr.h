@@ -137,7 +137,7 @@ namespace JAInter {
         extern u32 outputmode;
         extern u32 adpcm_remain;
         extern u32 adpcm_loadpoint;
-        extern u32 loadsize;
+        extern unsigned int loadsize;
         extern s16* adpcm_buffer;
         extern s16*** loop_buffer;
         extern void** store_buffer;

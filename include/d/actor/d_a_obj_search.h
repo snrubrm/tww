@@ -185,6 +185,9 @@ namespace daObj_Search {
         /* 0x7F4 */ cXyz mSmokePos;
         /* 0x800 */ csXyz mSmokeRot;
         /* 0x808 */ dPa_smokeEcallBack mSmokeCb;
+#if VERSION == VERSION_DEMO
+        /* 0x828 */ JPABaseEmitter* mpSmokeEmitter;
+#endif
         /* 0x828 */ int mSmokeTimer;
         /* 0x82C */ u8 m82C;
         /* 0x82D */ u8 m82D;
@@ -219,7 +222,7 @@ namespace daObj_Search {
     };
 
     STATIC_ASSERT(sizeof(Bgc_c) == 0x78);
-    STATIC_ASSERT(sizeof(Act_c) == 0x908);
+    STATIC_ASSERT(sizeof(Act_c) == DEMO_SELECT(0x90C, 0x908));
 
     namespace Mthd {
         cPhs_State Create(void*);

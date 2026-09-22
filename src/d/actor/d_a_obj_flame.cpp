@@ -86,10 +86,10 @@ void daObjFlame::Act_c::set_switch() {
     if (mType == 1) {
         if (mModeProc == 3 || mModeProc == 4) {
             int sw = prm_get_swSave();
-            dComIfGs_onSwitch(sw, home.roomNo);
+            dComIfGs_onSwitch(sw, fopAcM_GetHomeRoomNo(this));
         } else {
             int sw = prm_get_swSave();
-            dComIfGs_offSwitch(sw, home.roomNo);
+            dComIfGs_offSwitch(sw, fopAcM_GetHomeRoomNo(this));
         }
     }
 }
@@ -103,12 +103,12 @@ BOOL daObjFlame::Act_c::solidHeapCB(fopAc_ac_c* actor) {
 bool daObjFlame::Act_c::create_heap() {
     bool success = false;
     J3DModelData* mdl_data = (J3DModelData*)dComIfG_getObjectRes(M_arcname, attr_scl().model);
-    JUT_ASSERT(0x1F3, mdl_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x1F2, 0x1F3), mdl_data != 0);
     mpModel = mDoExt_J3DModel__create(mdl_data, 0, 0x11020203);
     J3DAnmTextureSRTKey* btk = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(M_arcname, attr_scl().btk));
     mpBtkAnm = new mDoExt_btkAnm;
     BOOL btkOK = FALSE;
-    JUT_ASSERT(0x1FC, btk != 0);
+    JUT_ASSERT(DEMO_SELECT(0x1FB, 0x1FC), btk != 0);
     if (mpBtkAnm != NULL) {
         btkOK = mpBtkAnm->init(mdl_data, btk, TRUE, J3DFrameCtrl::EMode_LOOP, attr_scl().animationSpeed, 0, -1, false, 0);
     }
@@ -116,7 +116,7 @@ bool daObjFlame::Act_c::create_heap() {
     if (attr_scl().brk >= 0) {
         J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, attr_scl().brk));
         mpBrkAnm = new mDoExt_brkAnm;
-        JUT_ASSERT(0x212, brk != 0);
+        JUT_ASSERT(DEMO_SELECT(0x211, 0x212), brk != 0);
         if (mpBrkAnm != NULL) {
             brkOK = mpBrkAnm->init(mdl_data, brk, TRUE, J3DFrameCtrl::EMode_LOOP, attr_scl().animationSpeed, 0, -1, false, 0);
         }
@@ -141,7 +141,8 @@ void daObjFlame::Act_c::create_mode_init() {
         for (int mask = currentSch; !(bits & mask); mask <<= 1) {
             ++shift;
         }
-        f32 time = (timer + period * shift) * attr_scl().cycleSpeed;
+        int t = timer + period * shift;
+        f32 time = t * attr_scl().cycleSpeed;
         if (mType != 1) {
             time -= 127.0f;
         }
@@ -250,10 +251,7 @@ void daObjFlame::Act_c::em_position() {
 
 /* 00000B3C-00000CAC       .text em_simple_set__Q210daObjFlame5Act_cFv */
 void daObjFlame::Act_c::em_simple_set() {
-    bool visible = false;
-    if (!attr_scl().hideCovered || !m459) {
-        visible = true;
-    }
+    bool visible = !(attr_scl().hideCovered && m459);
     if (mEm0State == 1 && visible) {
         cXyz pos(eyePos.x, eyePos.y + mExtraScaleY * (-300.0f * attr_scl().height), eyePos.z);
         dComIfGp_particle_setSimple(dPa_name::ID_AK_SN_O_FIRESHAFTHEAD, &pos);
@@ -281,10 +279,7 @@ void daObjFlame::Act_c::em_simple_inv() {
 
 /* 00000CEC-00000F04       .text em_manual_set__Q210daObjFlame5Act_cFv */
 void daObjFlame::Act_c::em_manual_set() {
-    bool visible = false;
-    if (!attr_scl().hideCovered || !m459) {
-        visible = true;
-    }
+    bool visible = !(attr_scl().hideCovered && m459);
     if (mEm0State == 1 && visible && mType != 1) {
         cXyz scl(attr_scl().headXZ, mExtraScaleY * attr_scl().headY, attr_scl().headXZ);
         mpEmitter0 = dComIfGp_particle_set(dPa_name::ID_AK_SN_O_FIRESHAFTHEAD, &home.pos, &home.angle, &scl);
@@ -346,7 +341,7 @@ void daObjFlame::Act_c::ki_make() {
                     m460 = attr_base().kiInterval - 1;
                     ++m464;
                     csXyz rot(0, cM_rndFX(32768.0f), 0);
-                    fopAcM_create(fpcNm_KI_e, 0xFFFF8002, &current.pos, current.roomNo, &rot);
+                    fopAcM_create(fpcNm_KI_e, 0xFFFF8002, &current.pos, fopAcM_GetRoomNo(this), &rot);
                 }
             } else {
                 m45A = 0;
@@ -366,7 +361,7 @@ void daObjFlame::Act_c::eff_hase() {
 
 /* 000011E4-00001254       .text se_fireblast_omen__Q210daObjFlame5Act_cFv */
 void daObjFlame::Act_c::se_fireblast_omen() {
-    mDoAud_seStart(JA_SE_FIREBLAST_OMEN, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_FIREBLAST_OMEN, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 }
 
 /* 00001254-00001610       .text liftup_magmarock__Q210daObjFlame5Act_cFPvPv */
@@ -656,7 +651,7 @@ cPhs_State daObjFlame::Act_c::_create() {
 }
 
 bool daObjFlame::Act_c::_delete() {
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return true;
 }
 bool daObjFlame::Act_c::_execute() {

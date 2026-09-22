@@ -359,6 +359,7 @@ public:
     u16 getItemNowRupee() { return mItemNowRupee; }
     int getItemRupeeCount() { return mItemRupeeCount; }
     void setItemRupeeCount(s32 count) { mItemRupeeCount += count; }
+    void clearItemRupeeCount() { mItemRupeeCount = 0; }
     void setMessageCountNumber(s16 num) { mMsgCountNumber = num; }
     s16 getMessageCountNumber() { return mMsgCountNumber; }
 
@@ -430,9 +431,11 @@ public:
 
     f32 getItemLifeCount() { return mItemLifeCount; }
     void setItemLifeCount(f32 num) { mItemLifeCount += num; }
+    void clearItemLifeCount() { mItemLifeCount = 0.0f; }
 
     s16 getItemMaxLifeCount() { return mItemMaxLifeCount; }
     void setItemMaxLifeCount(s16 num) { mItemMaxLifeCount += num; }
+    void clearItemMaxLifeCount() { mItemMaxLifeCount = 0; }
 
     s16 getItemPictureNumCount() { return mItemPictureNumCount; }
     void setItemPictureNumCount(s16 num) { mItemPictureNumCount += num; }
@@ -452,10 +455,12 @@ public:
 
     s16 getItemKeyNumCount() { return mItemKeyNumCount; }
     void setItemKeyNumCount(s16 num) { mItemKeyNumCount += num; }
+    void clearItemKeyNumCount() { mItemKeyNumCount = 0; }
 
     s16 getItemBeastNumCount(int i_idx) { return mItemBeastNumCounts[i_idx]; }
     void setItemBeastNumCount(int i_idx, s16 num) { mItemBeastNumCounts[i_idx] += num; }
     void clearItemBeastNumCount(int i_idx) { mItemBeastNumCounts[i_idx] = 0; }
+    void setItemBaitNumCount(int i_idx, s16 num) { mItemBaitNumCounts[i_idx] += num; }
 
     s32 getItemTimeCount() { return mAirMeter; }
     void setItemTimeCount(s32 time) {
@@ -797,7 +802,8 @@ public:
     /* 0x48E4 */ s16 mItemBombNumCount;
     /* 0x48E6 */ s16 field_0x48e6;
     /* 0x48E8 */ s16 mItemBeastNumCounts[8];
-    /* 0x48F8 */ u8 field_0x48F8[0x4918 - 0x48F8];
+    /* 0x48F8 */ s16 mItemBaitNumCounts[8];
+    /* 0x4908 */ u8 field_0x4908[0x4918 - 0x4908];
     /* 0x4918 */ s16 mMsgCountNumber;
     /* 0x491A */ s16 mMsgSetNumber;
     /* 0x491C */ s16 mMessageRupee;
@@ -1715,6 +1721,9 @@ BOOL dComIfGs_isStageBossEnemy(int i_stageNo);
 void dComIfGs_onStageLife(int i_stageNo);
 void dComIfGs_offStageLife(int i_stageNo);
 BOOL dComIfGs_isStageLife(int i_stageNo);
+void dComIfGs_onStageBossDemo(int i_stageNo);
+void dComIfGs_offStageBossDemo(int i_stageNo);
+BOOL dComIfGs_isStageBossDemo(int i_stageNo);
 
 inline void dComIfGs_onDungeonItemMap() {
     g_dComIfG_gameInfo.save.getMemory().getBit().onDungeonItemMap();
@@ -2622,6 +2631,10 @@ inline void dComIfGp_setItemRupeeCount(s32 count) {
     g_dComIfG_gameInfo.play.setItemRupeeCount(count);
 }
 
+inline void dComIfGp_clearItemRupeeCount() {
+    g_dComIfG_gameInfo.play.clearItemRupeeCount();
+}
+
 inline s16 dComIfGp_getMessageSetNumber() {
     return g_dComIfG_gameInfo.play.getMessageSetNumber();
 }
@@ -2646,12 +2659,20 @@ inline void dComIfGp_setItemLifeCount(f32 amount) {
     g_dComIfG_gameInfo.play.setItemLifeCount(amount);
 }
 
+inline void dComIfGp_clearItemLifeCount() {
+    g_dComIfG_gameInfo.play.clearItemLifeCount();
+}
+
 inline s16 dComIfGp_getItemMaxLifeCount() {
     return g_dComIfG_gameInfo.play.getItemMaxLifeCount();
 }
 
 inline void dComIfGp_setItemMaxLifeCount(s16 num) {
     g_dComIfG_gameInfo.play.setItemMaxLifeCount(num);
+}
+
+inline void dComIfGp_clearItemMaxLifeCount() {
+    g_dComIfG_gameInfo.play.clearItemMaxLifeCount();
 }
 
 inline s16 dComIfGp_getItemNowMagic() {
@@ -2676,6 +2697,10 @@ inline s16 dComIfGp_getItemKeyNumCount() {
 
 inline void dComIfGp_setItemKeyNumCount(s16 num) {
     g_dComIfG_gameInfo.play.setItemKeyNumCount(num);
+}
+
+inline void dComIfGp_clearItemKeyNumCount() {
+    g_dComIfG_gameInfo.play.clearItemKeyNumCount();
 }
 
 inline s32 dComIfGp_getItemTimeCount() {
@@ -2776,6 +2801,10 @@ inline s16 dComIfGp_getItemBeastNumCount(int i_beastIdx) {
 
 inline void dComIfGp_setItemBeastNumCount(int i_beastIdx, s16 num) {
     g_dComIfG_gameInfo.play.setItemBeastNumCount(i_beastIdx, num);
+}
+
+inline void dComIfGp_setItemBaitNumCount(int i_idx, s16 num) {
+    g_dComIfG_gameInfo.play.setItemBaitNumCount(i_idx, num);
 }
 
 inline void dComIfGp_clearItemBeastNumCount(int i_beastIdx) {
@@ -4356,7 +4385,11 @@ inline bool dComIfGp_att_chkEnemySound() {
  */
 
  inline void dComIfGp_map_draw(f32 x, f32 z, int roomNo, f32 y) {
+#if VERSION == VERSION_DEMO
+    dMap_c::drawTest_dummy(x, z, roomNo, y);
+#else
     dMap_c::draw(x, z, roomNo, y);
+#endif
 }
 
 inline void dComIfGp_map_mapBufferSendAGB(int param_0) {

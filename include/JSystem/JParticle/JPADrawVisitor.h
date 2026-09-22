@@ -70,8 +70,8 @@ public:
 class JPADrawExecSetTexMtx : public JPADrawExecEmitterVisitor, public JPADrawExecParticleVisitor {
 public:
     virtual ~JPADrawExecSetTexMtx() {}
-    virtual void exec(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void exec(const JPADrawContext* pDC);
+    virtual void exec(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawExecSetPointSize : public JPADrawExecParticleVisitor {
@@ -149,8 +149,8 @@ public:
 class JPADrawExecLoadTexture : public JPADrawExecEmitterVisitor, public JPADrawExecParticleVisitor {
 public:
     virtual ~JPADrawExecLoadTexture() {}
-    virtual void exec(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void exec(const JPADrawContext* pDC);
+    virtual void exec(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawExecLoadExTex : public JPADrawExecEmitterVisitor {
@@ -252,8 +252,8 @@ public:
 class JPADrawExecCallBack : public JPADrawExecEmitterVisitor, public JPADrawExecParticleVisitor {
 public:
     virtual ~JPADrawExecCallBack() {}
-    virtual void exec(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void exec(const JPADrawContext* pDC);
+    virtual void exec(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcEmitterVisitor {
@@ -331,15 +331,15 @@ public:
 class JPADrawCalcColorPrm : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcColorPrm() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcColorEnv : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcColorEnv() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcColorCopyFromEmitter : public JPADrawCalcParticleVisitor {
@@ -351,36 +351,36 @@ public:
 class JPADrawCalcColorAnmFrameNormal : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcColorAnmFrameNormal() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcColorAnmFrameRepeat : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcColorAnmFrameRepeat() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcColorAnmFrameReverse : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcColorAnmFrameReverse() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcColorAnmFrameMerge : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcColorAnmFrameMerge() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcColorAnmFrameRandom : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcColorAnmFrameRandom() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcAlpha : public JPADrawCalcParticleVisitor {
@@ -410,36 +410,36 @@ public:
 class JPADrawCalcTextureAnmIndexNormal : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcTextureAnmIndexNormal() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcTextureAnmIndexRepeat : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcTextureAnmIndexRepeat() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcTextureAnmIndexReverse : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcTextureAnmIndexReverse() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcTextureAnmIndexMerge : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcTextureAnmIndexMerge() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcTextureAnmIndexRandom : public JPADrawCalcEmitterVisitor, public JPADrawCalcParticleVisitor {
 public:
     virtual ~JPADrawCalcTextureAnmIndexRandom() {}
-    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
     virtual void calc(const JPADrawContext* pDC);
+    virtual void calc(const JPADrawContext* pDC, JPABaseParticle* param_2);
 };
 
 class JPADrawCalcChildAlphaOut : public JPADrawCalcParticleVisitor {

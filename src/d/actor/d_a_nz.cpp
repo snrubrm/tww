@@ -76,6 +76,21 @@ enum Mode {
     MODE_NZ6_MOVE_78 = 78,
 };
 
+class daNZ_HIO_c : public mDoHIO_entry_c {
+public:
+    daNZ_HIO_c();
+    virtual ~daNZ_HIO_c() {}
+
+public:
+    /* 0x04 */ f32 m04;
+    /* 0x08 */ f32 m08;
+    /* 0x0C */ f32 m0C;
+    /* 0x10 */ f32 m10;
+    /* 0x14 */ f32 m14;
+};
+
+STATIC_ASSERT(sizeof(daNZ_HIO_c) == DEMO_SELECT(0x1C, 0x18));
+
 static daNZ_HIO_c l_HIO;
 static fopAc_ac_c* check_info[100];
 static s32 get_check_count;
@@ -117,11 +132,11 @@ static BOOL nodeCallBack_tail(J3DNode* node, int calcTiming) {
 /* 00000264-00000874       .text tail_control__FP8nz_class */
 void tail_control(nz_class* i_this) {
     f32 fVar1;
-    s16 temp_r14;
-    s16 temp_r15;
     s32 i;
     s16 temp_r16;
     s16 temp_r15_2;
+    s16 temp_r14;
+    s16 temp_r15;
     f32 fVar22;
     f32 dVar15;
     cXyz local_178;
@@ -143,8 +158,12 @@ void tail_control(nz_class* i_this) {
     cXyz* pcVar6 = &i_this->mTailPos[1];
     cXyz* pcVar9 = &i_this->mTailDir[1];
     cXyz* pcVar8 = i_this->mLineMat.getPos(0);
+#if VERSION == VERSION_DEMO
+    f32 damp = 0.8f;
+    f32 sway = 0.0f;
+#endif
     dBgS_GndChk gndChk;
-    for (i = 1; i < 10; i++, pcVar6++, pcVar9++) {
+    for (i = 1; i < 10; i++) {
         Vec pos;
         pos = *pcVar6;
         pos.y += 30.0f;
@@ -154,6 +173,19 @@ void tail_control(nz_class* i_this) {
         sp10.x = pcVar9->x + i_this->m574.x * fVar1;
         sp10.y = pcVar9->y + i_this->m574.y * fVar1;
         sp10.z = pcVar9->z + i_this->m574.z * fVar1;
+#if VERSION == VERSION_DEMO
+        if (sway > 1.0f) {
+            local_178.x = sway * cM_ssin(i_this->m2E2 * 1200 + i * 6000);
+            local_178.y = sway * cM_ssin(i_this->m2E2 * 1000 + i * 5000);
+            local_178.z = 0.0f;
+            cMtx_YrotS(*calc_mtx, temp_r14);
+            cMtx_XrotM(*calc_mtx, temp_r15);
+            MtxPosition(&local_178, &local_184);
+            sp10.x += local_184.x;
+            sp10.y += local_184.y;
+            sp10.z += local_184.z;
+        }
+#endif
         dVar15 = ((pcVar6->y + sp10.y) - 2.0f);
         if (dVar15 < fVar22) {
             dVar15 = fVar22;
@@ -173,9 +205,17 @@ void tail_control(nz_class* i_this) {
         pcVar6->x = pcVar6[-1].x + local_184.x;
         pcVar6->y = pcVar6[-1].y + local_184.y;
         pcVar6->z = pcVar6[-1].z + local_184.z;
+#if VERSION == VERSION_DEMO
+        pcVar9->x = (damp * (pcVar6->x - pcVar9->x));
+        pcVar9->y = (damp * (pcVar6->y - pcVar9->y));
+        pcVar9->z = (damp * (pcVar6->z - pcVar9->z));
+#else
         pcVar9->x = (0.8f * (pcVar6->x - pcVar9->x));
         pcVar9->y = (0.8f * (pcVar6->y - pcVar9->y));
         pcVar9->z = (0.8f * (pcVar6->z - pcVar9->z));
+#endif
+        pcVar6++;
+        pcVar9++;
     }
     pcVar6 = i_this->mTailPos;
     for (i = 0; i < 10; i++, pcVar6++, pcVar8++) {
@@ -185,8 +225,7 @@ void tail_control(nz_class* i_this) {
 
 /* 00000BF4-00000C88       .text tail_draw__FP8nz_class */
 void tail_draw(nz_class* i_this) {
-    GXColor color = {0xC8, 0xC8, 0xC8, 0xFF};
-    i_this->mLineMat.update(10, 5.0f * i_this->scale.x, color, 6, &i_this->tevStr);
+    i_this->mLineMat.update(10, 5.0f * i_this->scale.x, (GXColor){0xC8, 0xC8, 0xC8, 0xFF}, 6, &i_this->tevStr);
     dComIfGd_set3DlineMat(&i_this->mLineMat);
 }
 
@@ -544,7 +583,9 @@ static void* s_ana_sub(void* ac1, void* ac2) {
 
 /* 00002864-00002990       .text anm_init__FP8nz_classifUcfi */
 void anm_init(nz_class* i_this, int anmResIdx, float morf, unsigned char loopMode, float playSpeed, int soundResIdx) {
+#if VERSION > VERSION_DEMO
     i_this->mCurrBckIdx = anmResIdx;
+#endif
     if (soundResIdx >= 0) {
         i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("NZ", anmResIdx), loopMode, morf, playSpeed, 0.0f, -1.0f, dComIfG_getObjectRes("NZ", soundResIdx));
     } else {
@@ -556,14 +597,15 @@ void anm_init(nz_class* i_this, int anmResIdx, float morf, unsigned char loopMod
 s32 search_check(nz_class* i_this) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* pfVar2;
+    daBomb_c* bomb;
     cXyz local_bc;
     cXyz cStack_c8;
 
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     dBgS_LinChk linChk;
     if (fopAcM_searchActorDistanceXZ(actor, player) < 1200.0f) {
-        pfVar2 = (fopAc_ac_c*)search_get_obj(i_this);
-        if (pfVar2 == NULL) {
+        bomb = search_get_obj(i_this);
+        if (bomb == NULL) {
             s16 angle = fopAcM_searchPlayerAngleY(actor);
             angle += (s16)cM_rndFX(8000.0f);
             cMtx_YrotS(*calc_mtx, angle);
@@ -579,6 +621,7 @@ s32 search_check(nz_class* i_this) {
             i_this->m580 = fopAcM_searchPlayerAngleY(actor);
             return 2;
         }
+        pfVar2 = bomb;
         i_this->m580 = fopAcM_searchActorAngleY(actor, pfVar2);
         i_this->mHeldID = fopAcM_GetID(pfVar2);
         return 1;
@@ -666,7 +709,6 @@ s32 body_atari_check(nz_class* i_this) {
 
 /* 00003240-000042D8       .text nz_move__FP8nz_class */
 void nz_move(nz_class* i_this) {
-    /* Nonmatching */
     static GXColor all_line_color_dt[] = {
         {0xFF, 0x00, 0x00, 0xFF},
         {0x00, 0xFF, 0x00, 0xFF},
@@ -686,6 +728,7 @@ void nz_move(nz_class* i_this) {
     short sVar4;
     fpc_ProcID fVar6;
     fopAc_ac_c* pfVar7;
+    daBomb_c* bomb;
     s16 sVar9;
     s32 sVar8;
     int iVar13;
@@ -779,10 +822,11 @@ void nz_move(nz_class* i_this) {
             actor->speed.y = 0.0f;
             i_this->mStts.SetWeight(255);
             actor->current.angle.x = 0;
-            pfVar7 = (fopAc_ac_c*)search_get_obj(i_this);
+            bomb = search_get_obj(i_this);
             i_this->m42C = 0;
-            if (pfVar7 != NULL) {
+            if (bomb != NULL) {
                 i_this->m42C = 1;
+                pfVar7 = bomb;
                 i_this->m580 = fopAcM_searchActorAngleY(actor, pfVar7);
                 i_this->mHeldID = fopAcM_GetID(pfVar7);
                 i_this->m2BD = MODE_NZ_MOVE_2;
@@ -812,7 +856,7 @@ void nz_move(nz_class* i_this) {
             }
             if (i_this->mTimers[3] == 0) {
                 i_this->m580 = cLib_targetAngleY(&actor->current.pos, &i_this->m31C);
-                i_this->m580 += DEMO_SELECT((8000.0f - cM_rndFX(16000.0f)), (s16)(8000.0f - cM_rndFX(16000.0f)));
+                i_this->m580 += (s16)(8000.0f - cM_rndFX(16000.0f));
                 i_this->mStts.SetWeight(100);
                 i_this->m2BD = MODE_NZ_MOVE_2;
             }
@@ -864,9 +908,9 @@ void nz_move(nz_class* i_this) {
                 fVar6 = i_this->mHeldID;
                 if (fVar6 == fpcM_ERROR_PROCESS_ID_e) {
                     if (fopAcM_searchPlayerDistance(actor) < 500.0f) {
-                        pfVar7 = (fopAc_ac_c*)search_get_obj(i_this);
-                        if (pfVar7 == NULL) {
-                            if (DEMO_SELECT(cLib_distanceAngleS(player->shape_angle.y, fopAcM_searchActorAngleY(player, actor)), (s16)cLib_distanceAngleS(player->shape_angle.y, fopAcM_searchActorAngleY(player, actor))) < 0x2A71) {
+                        bomb = search_get_obj(i_this);
+                        if (bomb == NULL) {
+                            if ((s16)cLib_distanceAngleS(player->shape_angle.y, fopAcM_searchActorAngleY(player, actor)) < 0x2A71) {
                                 i_this->m2BD = MODE_NZ_MOVE_6;
                             } else {
                                 actor->current.angle.z = 0;
@@ -874,6 +918,7 @@ void nz_move(nz_class* i_this) {
                                 i_this->m2BD = MODE_NZ2_MOVE_20;
                             }
                         } else {
+                            pfVar7 = bomb;
                             i_this->m580 = fopAcM_searchActorAngleY(actor, pfVar7);
                             i_this->mHeldID = fopAcM_GetID(pfVar7);
                         }
@@ -994,7 +1039,8 @@ static void money_drop(nz_class*) {
         iVar2 = 3;
     }
 #if VERSION == VERSION_DEMO
-    iVar2 *= 8 & 0xF8;
+    iVar2 *= 8;
+    iVar2 &= 0xF8;
 #endif
     dVar6 = (s32)(cM_rnd() * 3.0f) + 5;
     iVar4 = 0;
@@ -1286,8 +1332,8 @@ void nz4_move(nz_class* i_this) {
                         sVar12 = cM_atan2s(fVar19, fVar1) + 0x6000;
                         sVar3 = cM_atan2s(fVar19, fVar1) + -0x6000;
                         i_this->m580 = sVar3;
-                        if (DEMO_SELECT(cLib_distanceAngleS(sVar12, fopAcM_searchPlayerAngleY(actor) + 0x8000), (s16)cLib_distanceAngleS(sVar12, fopAcM_searchPlayerAngleY(actor) + 0x8000)) >
-                            DEMO_SELECT(cLib_distanceAngleS(sVar3, fopAcM_searchPlayerAngleY(actor) + 0x8000), (s16)cLib_distanceAngleS(sVar3, fopAcM_searchPlayerAngleY(actor) + 0x8000)))
+                        if ((s16)cLib_distanceAngleS(sVar12, fopAcM_searchPlayerAngleY(actor) + 0x8000) >
+                            (s16)cLib_distanceAngleS(sVar3, fopAcM_searchPlayerAngleY(actor) + 0x8000))
                         {
                             i_this->m580 = sVar12;
                         }
@@ -1392,7 +1438,7 @@ void nz4_move(nz_class* i_this) {
             break;
         case MODE_NZ4_MOVE_40:
             cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m580, 1, 0x2000);
-            if (DEMO_SELECT(cLib_distanceAngleS(i_this->m580, actor->current.angle.y), (s16)cLib_distanceAngleS(i_this->m580, actor->current.angle.y)) < 0x1000) {
+            if ((s16)cLib_distanceAngleS(i_this->m580, actor->current.angle.y) < 0x1000) {
                 i_this->m2BD = MODE_NZ4_MOVE_36;
             }
             break;
@@ -1695,7 +1741,7 @@ void nz6_move(nz_class* i_this) {
                     if (std::sqrtf(SQUARE(dVar16)) < 100.0f) {
                         linChk.Set(&actor->current.pos, &player->current.pos, actor);
                         if (!dComIfG_Bgsp()->LineCross(&linChk)) {
-                            if (DEMO_SELECT(cLib_distanceAngleS(actor->shape_angle.y, fopAcM_searchPlayerAngleY(actor)), (s16)cLib_distanceAngleS(actor->shape_angle.y, fopAcM_searchPlayerAngleY(actor))) < 0x2A71) {
+                            if ((s16)cLib_distanceAngleS(actor->shape_angle.y, fopAcM_searchPlayerAngleY(actor)) < 0x2A71) {
                                 actor->speedF = 0.0f;
                                 anm_init(i_this, dRes_INDEX_NZ_BCK_NZ_TYAKKA1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
                                 i_this->m2BD++;
@@ -1710,9 +1756,10 @@ void nz6_move(nz_class* i_this) {
             if (i_this->mpMorf->isStop()) {
                 anm_init(i_this, dRes_INDEX_NZ_BCK_NZ_TYAKKA2_e, 0.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
                 dComIfGp_particle_set(dPa_name::ID_AK_SN_NZCHAKKA00, &actor->current.pos, &actor->shape_angle);
-                bomb = (daBomb_c*)fopAcM_SearchByID(i_this->mHeldID);
-                if (bomb != NULL) {
-                    if (fopAcM_GetName(bomb) == fpcNm_BOMB_e) {
+                pfVar3 = fopAcM_SearchByID(i_this->mHeldID);
+                bomb = (daBomb_c*)pfVar3;
+                if (pfVar3 != NULL) {
+                    if (fopAcM_GetName(pfVar3) == fpcNm_BOMB_e) {
                         bomb->setBombFire_ON();
                         i_this->m2B6 = 1;
                     }
@@ -1752,9 +1799,10 @@ void nz6_move(nz_class* i_this) {
                         bVar12 = true;
                     }
                 }
-                bomb = (daBomb_c*)fopAcM_SearchByID(i_this->mHeldID);
-                if (bomb != NULL) {
-                    if ((fopAcM_GetName(bomb) == fpcNm_BOMB_e) && (bomb->getBombRestTime() < REG8_S(7) + 30)) {
+                pfVar3 = fopAcM_SearchByID(i_this->mHeldID);
+                bomb = (daBomb_c*)pfVar3;
+                if (pfVar3 != NULL) {
+                    if ((fopAcM_GetName(pfVar3) == fpcNm_BOMB_e) && (bomb->getBombRestTime() < REG8_S(7) + 30)) {
                         bVar12 = true;
                     }
                 } else {
@@ -1769,7 +1817,7 @@ void nz6_move(nz_class* i_this) {
             }
         case MODE_NZ6_MOVE_76:
             cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m580, 1, 0x2000);
-            if (DEMO_SELECT(cLib_distanceAngleS(i_this->m580, actor->current.angle.y), (s16)cLib_distanceAngleS(i_this->m580, actor->current.angle.y)) < 0x1000) {
+            if ((s16)cLib_distanceAngleS(i_this->m580, actor->current.angle.y) < 0x1000) {
                 i_this->m2BC = ACTION_NZ4_MOVE;
                 i_this->m2BD = MODE_NZ4_MOVE_36;
             }
@@ -1802,9 +1850,8 @@ void nz6_move(nz_class* i_this) {
 #endif
                 if (i_this->mTimers[1] == 0) {
 #if VERSION == VERSION_DEMO
-                    if (!nezumi_move(i_this, fopAcM_searchActorAngleY(actor, pfVar3))) {
-                        i_this->mTimers[1] = 10;
-                    }
+                    nezumi_move(i_this, fopAcM_searchActorAngleY(actor, pfVar3));
+                    i_this->mTimers[1] = 10;
 #else
                     i_this->mTimers[1] = 10;
                     if (!nezumi_move(i_this, fopAcM_searchActorAngleY(actor, pfVar3))) {
@@ -2045,9 +2092,11 @@ static BOOL daNZ_IsDelete(nz_class*) {
 /* 00007B58-00007BE0       .text daNZ_Delete__FP8nz_class */
 static BOOL daNZ_Delete(nz_class* i_this) {
     dComIfG_resDelete(&i_this->mPhase, "NZ");
+#if VERSION > VERSION_DEMO
     if (i_this->heap != NULL) {
         i_this->mpMorf->stopZelAnime();
     }
+#endif
     i_this->mSmokeCb.remove();
     i_this->mRippleCb.end();
     i_this->mFollowCb.remove();
@@ -2156,7 +2205,9 @@ void daNZ_CreateInit(nz_class* i_this) {
     mDoMtx_stack_c::ZXYrotM(actor->shape_angle);
     model->setBaseTRMtx(mDoMtx_stack_c::now);
     i_this->mpMorf->calc();
+#if VERSION > VERSION_DEMO
     g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &actor->current.pos, &actor->tevStr);
+#endif
     fopAcM_SetMtx(actor, i_this->mpMorf->getModel()->getBaseTRMtx());
 
     actor->gravity = -5.0f;
@@ -2199,8 +2250,10 @@ void daNZ_CreateInit(nz_class* i_this) {
         i_this->m2BD = 0x46;
     }
 
+#if VERSION > VERSION_DEMO
     i_this->mTailPos[0] = i_this->mTailRoot[0];
     tail_control(i_this);
+#endif
     actor->speedF = 20.0f;
     i_this->m580 = actor->current.angle.y;
     i_this->mCyl.OffAtSetBit();
@@ -2209,9 +2262,14 @@ void daNZ_CreateInit(nz_class* i_this) {
 /* 000081AC-00008294       .text daNZ_Create__FP10fopAc_ac_c */
 static cPhs_State daNZ_Create(fopAc_ac_c* a_this) {
     nz_class* i_this = (nz_class*)a_this;
+#if VERSION == VERSION_DEMO
+    cPhs_State phase_state = dComIfG_resLoad(&i_this->mPhase, "NZ");
+    fopAcM_ct(a_this, nz_class);
+#else
     fopAcM_ct(a_this, nz_class);
 
     cPhs_State phase_state = dComIfG_resLoad(&i_this->mPhase, "NZ");
+#endif
     if (phase_state == cPhs_COMPLEATE_e) {
         i_this->m2B4 = fopAcM_GetParam(a_this);
         i_this->m2B5 = fopAcM_GetParam(a_this) >> 8;

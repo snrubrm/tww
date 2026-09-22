@@ -43,6 +43,9 @@ inline void JAInter::SeqUpdateData::init() {
 /* 80295684-802960A0       .text init__Q27JAInter11SequenceMgrFv */
 void JAInter::SequenceMgr::init() {
     /* Nonmatching */
+    // NONMATCHING - regalloc: `i` and `_para` are swapped (r29/r31). The target needs the `new` result for _para to survive as a
+    // separate register copy, which MWCC GC/1.3.2's copy propagation always folds for every spelling tried; the only form that
+    // keeps it (`_para = t ? t : t`) adds a cmplwi. Code is otherwise identical in all versions.
     JAIBasic* basic = JAIBasic::getInterface();
     JAISound* soundObjects = basic->makeSound(JAIGlobalParameter::getParamSeqControlBufferMax());
     JUT_ASSERT_MSG(41, soundObjects, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
@@ -52,13 +55,13 @@ void JAInter::SequenceMgr::init() {
         SeqParameter* _para = new (JAIBasic::getCurrentJAIHeap(), 0x20) SeqParameter();
         JUT_ASSERT_MSG(47, _para, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
         seqControl.Buffer[i].field_0x3c = _para;
-        _para->seqPan = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqPan = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(50, _para->seqPan, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
-        _para->seqPitch = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqPitch = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(52, _para->seqPitch, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
-        _para->seqFxmix = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqFxmix = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(54, _para->seqFxmix, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
-        _para->seqDolby = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[JAIGlobalParameter::getParamSeqParameterLines()];
+        _para->seqDolby = new (JAIBasic::getCurrentJAIHeap(), 0x20) MoveParaSet[(u8)JAIGlobalParameter::getParamSeqParameterLines()];
         JUT_ASSERT_MSG(56, _para->seqDolby, "JAISequenceMgr::initHeap Cannot Alloc Heap!!\n");
     }
     FixSeqBufPointer = new (JAIBasic::getCurrentJAIHeap(), 0x20) JAISound*[JAIGlobalParameter::getParamSeqPlayTrackMax()];
@@ -596,7 +599,7 @@ void JAInter::SequenceMgr::checkDvdLoadArc(u32, u32 data) {
 
 /* 80297FD0-80298208       .text storeSeqBuffer__Q27JAInter11SequenceMgrFPP8JAISoundPQ27JAInter5ActorUlUlUcPv */
 void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 soundID, u32 fadeTime, u8 priority, void* info) {
-    /* Nonmatching - register allocation and instruction ordering */
+    JAISound* sound;
     u32 track = ((u8*)info)[5];
     if (handle && *handle) {
         if (track != (*handle)->field_0x4) {
@@ -607,11 +610,10 @@ void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 s
     }
     JAISound*& playing = seqTrackInfo[track].field_0x48;
     u32 available;
-    JAISound* sound;
     if (!playing) {
         available = 1;
     } else if (playing->mState == 5) {
-        playing->getSeqParameter()->mTrack.stopSeq();
+        playing->getSeqParameter()->getRootTrackPointer()->stopSeq();
         playing->clearMainSoundPPointer();
         stopSeq(playing);
         available = 1;
@@ -619,7 +621,7 @@ void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 s
         *handle = NULL;
         return;
     } else if (((u8*)playing->field_0x40)[4] <= ((u8*)info)[4]) {
-        playing->getSeqParameter()->mTrack.stopSeq();
+        playing->getSeqParameter()->getRootTrackPointer()->stopSeq();
         playing->clearMainSoundPPointer();
         stopSeq(playing);
         available = 1;

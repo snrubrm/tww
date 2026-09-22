@@ -35,7 +35,7 @@ public:
     void setTitlePos(f32 x, f32 y) { mTitlePos.x = x; mTitlePos.y = y; }
     void setScorePos(f32 x, f32 y) { mScorePos.x = x; mScorePos.y = y; }
     void setTitleAlpha(u8 alpha) { mTitle->setAlpha(alpha); }
-    void setScoreAlpha(f32 alpha) { mScore->setAlpha(0xFF); mScoreShadow->setAlpha(alpha); } // ???
+    void setScoreAlpha(u8 alpha) { mScore->setAlpha(alpha); mScoreShadow->setAlpha(0.5f + 80.0f * alpha / 255.0f); }
 
 public:
     /* 0x04 */ J2DPicture* mTitle;

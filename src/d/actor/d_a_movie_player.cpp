@@ -531,38 +531,44 @@ static u8 __THPReadScaneHeader() {
 }
 
 /* 00000B48-00000EFC       .text __THPReadQuantizationTable */
+#pragma push
+#pragma optimization_level 4
+#if VERSION == VERSION_DEMO
+// optimization_level resets opt_propagation, which the demo build disables globally
+#pragma opt_propagation off
+#endif
 static u8 __THPReadQuantizationTable() {
-    /* Nonmatching - regalloc */
+    u16 length, id, i, row, col;
     f32 q_temp[64];
 
-    u16 length = (u16)((__THPInfo->c)[0] << 8 | (__THPInfo->c)[1]);
+    length = (u16)((__THPInfo->c)[0] << 8 | (__THPInfo->c)[1]);
     __THPInfo->c += 2;
     length -= 2;
 
-    do {
-        u16 i;
-        u16 id = (*(__THPInfo->c)++);
+    for (;;) {
+        id = (*(__THPInfo->c)++);
 
         for (i = 0; i < 64; i++) {
             q_temp[__THPJpegNaturalOrder[i]] = (f32)(*(__THPInfo->c)++);
         }
 
-        u16 row;
-        u16 col;
-        u16 j;
-        j = 0;
+        i = 0;
         for (row = 0; row < 8; row++) {
             for (col = 0; col < 8; col++) {
-                __THPInfo->quantTabs[id][j] = (f32)((f64)q_temp[j] * __THPAANScaleFactor[row] * __THPAANScaleFactor[col]);
-                j++;
+                __THPInfo->quantTabs[id][i] = (f32)((f64)q_temp[i] * __THPAANScaleFactor[row] * __THPAANScaleFactor[col]);
+                i++;
             }
         }
 
         length -= 65;
-    } while (length != 0);
+        if (!length) {
+            break;
+        }
+    }
 
     return 0;
 }
+#pragma pop
 
 /* 00000EFC-000010E4       .text __THPReadHuffmanTableSpecification */
 static u8 __THPReadHuffmanTableSpecification() {
@@ -3410,8 +3416,10 @@ static void daMP_THPPlayerQuit() {
 
 /* 00004BD4-00004FB4       .text daMP_THPPlayerOpen__FPCci */
 static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
-    /* Nonmatching - retail-only regalloc */
     s32 offset;
+#if VERSION > VERSION_DEMO
+    s32 compOffset;
+#endif
     s32 i;
 
     if (!daMP_Initialized) {
@@ -3464,9 +3472,15 @@ static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
         return FALSE;
     }
 
+#if VERSION == VERSION_DEMO
     offset = daMP_ActivePlayer.header.compInfoDataOffsets;
 
     if (DVDReadPrio(&daMP_ActivePlayer.fileInfo, daMP_WorkBuffer, 0x20, offset, 2) < 0) {
+#else
+    compOffset = daMP_ActivePlayer.header.compInfoDataOffsets;
+
+    if (DVDReadPrio(&daMP_ActivePlayer.fileInfo, daMP_WorkBuffer, 0x20, compOffset, 2) < 0) {
+#endif
 #if VERSION > VERSION_DEMO
         OSReport("Fail to read the frame component infomation from THP file.\n");
 #endif
@@ -3475,6 +3489,9 @@ static BOOL daMP_THPPlayerOpen(const char* filename, BOOL onMemory) {
     }
 
     memcpy(&daMP_ActivePlayer.compInfo, daMP_WorkBuffer, sizeof(THPFrameCompInfo));
+#if VERSION > VERSION_DEMO
+    offset = compOffset;
+#endif
     offset += sizeof(THPFrameCompInfo);
 
     daMP_ActivePlayer.audioExist = 0;
@@ -3550,8 +3567,9 @@ static u32 daMP_THPPlayerCalcNeedMemory() {
         if (daMP_ActivePlayer.audioExist) {
             size += ALIGN_NEXT(daMP_ActivePlayer.header.audioMaxSamples * 4, 32) * THP_AUDIO_BUFFER_COUNT;
         }
-    
-        return size + 0x1000;
+
+        size += 0x1000;
+        return size;
     }
 
     return 0;

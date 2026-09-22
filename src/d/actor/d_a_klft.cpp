@@ -27,7 +27,11 @@ static f32* wp;
 static void ride_call_back(dBgW*, fopAc_ac_c* base, fopAc_ac_c* rider) {
     klft_class* actor = (klft_class*)base;
     cXyz delta, pos, oldPos;
+#if VERSION == VERSION_DEMO
+    cMtx_YrotS(*calc_mtx, -base->current.angle.y);
+#else
     mDoMtx_YrotS(*calc_mtx, -base->current.angle.y);
+#endif
     delta = rider->current.pos - actor->mRidePos;
     MtxPosition(&delta, &pos);
     delta = rider->old.pos - actor->mRidePos;
@@ -37,8 +41,12 @@ static void ride_call_back(dBgW*, fopAc_ac_c* base, fopAc_ac_c* rider) {
     }
     actor->mSinkTarget = -50.0f;
     f32 distance = std::sqrtf(pos.x * pos.x + pos.z * pos.z);
+#if VERSION == VERSION_DEMO
+    cLib_addCalcAngleS2(&actor->mRideTilt, distance * ((30.0f + REG0_F(0)) / base->scale.z), 10, 0x800);
+#else
     s16 tilt_target = distance * ((30.0f + REG0_F(0)) / base->scale.z);
     cLib_addCalcAngleS2(&actor->mRideTilt, tilt_target, 10, 0x800);
+#endif
     s16 angle_target = cM_atan2s(pos.x, pos.z);
     cLib_addCalcAngleS2(&actor->mRideAngle, angle_target, 2, 0x2000);
     f32 stickX = CPad_GET_STICK_POS_X(0);
@@ -71,8 +79,13 @@ static BOOL nodeCallBack_main(J3DNode* node, int phase) {
         klft_class* actor = (klft_class*)model->getUserArea();
         if (actor != NULL && jointNo == 1) {
             MTXCopy(model->getAnmMtx(jointNo), *calc_mtx);
+#if VERSION == VERSION_DEMO
+            cMtx_XrotM(*calc_mtx, actor->mPlatformAngle);
+            model->setAnmMtx(jointNo, *calc_mtx);
+#else
             mDoMtx_XrotM(*calc_mtx, actor->mPlatformAngle);
             MTXCopy(*calc_mtx, model->getAnmMtx(jointNo));
+#endif
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -87,8 +100,13 @@ static BOOL nodeCallBack(J3DNode* node, int phase) {
         klft_class* actor = (klft_class*)model->getUserArea();
         if (actor != NULL) {
             MTXCopy(model->getAnmMtx(jointNo), *calc_mtx);
+#if VERSION == VERSION_DEMO
+            cMtx_YrotM(*calc_mtx, actor->mPulleyAngle);
+            model->setAnmMtx(jointNo, *calc_mtx);
+#else
             mDoMtx_YrotM(*calc_mtx, actor->mPulleyAngle);
             MTXCopy(*calc_mtx, model->getAnmMtx(jointNo));
+#endif
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -98,7 +116,12 @@ static BOOL nodeCallBack(J3DNode* node, int phase) {
 /* 00000520-000005A0       .text himo_Draw__FP10klft_class */
 void himo_Draw(klft_class* actor) {
     GXColor color = {150, 150, 150, 255};
+#if VERSION == VERSION_DEMO
+    GXColor& c = color;
+    actor->mRope.update(20, c, &actor->tevStr);
+#else
     actor->mRope.update(20, color, &actor->tevStr);
+#endif
     dComIfGd_set3DlineMat(&actor->mRope);
 }
 
@@ -135,13 +158,25 @@ void klft_move(klft_class* actor) {
     f32 accel = 0.01f;
     if (actor->mWindSph.ChkTgHit() || actor->mPulleySph[0].ChkTgHit() || actor->mPulleySph[1].ChkTgHit()) {
         if (actor->mWindSph.ChkTgHit()) {
+#if VERSION == VERSION_DEMO
+            cMtx_YrotS(*calc_mtx, angle - base->current.angle.y);
+#else
             mDoMtx_YrotS(*calc_mtx, angle - base->current.angle.y);
+#endif
             vec.z = (0.5f + REG0_F(13)) * power;
         } else {
             if (actor->mPulleySph[0].ChkTgHit()) {
+#if VERSION == VERSION_DEMO
+                cMtx_YrotS(*calc_mtx, -0x8000);
+#else
                 mDoMtx_YrotS(*calc_mtx, -0x8000);
+#endif
             } else {
+#if VERSION == VERSION_DEMO
+                cMtx_YrotS(*calc_mtx, 0);
+#else
                 mDoMtx_YrotS(*calc_mtx, 0);
+#endif
             }
             vec.z = (0.85f + REG0_F(16)) * power;
             accel = 0.1f;
@@ -153,13 +188,21 @@ void klft_move(klft_class* actor) {
         vec.z = vec.y = 0.0f;
         MtxPosition(&vec, &actor->mTiltTarget);
         actor->mWindTimer = REG0_S(5) + 60;
+#if VERSION == VERSION_DEMO
+        cMtx_YrotS(*calc_mtx, angle);
+#else
         mDoMtx_YrotS(*calc_mtx, angle);
+#endif
         vec.y = vec.x = 0.0f;
         vec.z = (20.0f + REG0_F(16)) * power;
         MtxPosition(&vec, &actor->mSwayTarget);
     }
     if (actor->mWindTimer == 40) {
+#if VERSION == VERSION_DEMO
+        mDoAud_seStart(JA_SE_OBJ_KASSHA_LIFT_SWING, &base->current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(base)));
+#else
         mDoAud_seStart(JA_SE_OBJ_KASSHA_LIFT_SWING, &base->current.pos, 0, dComIfGp_getReverb(base->current.roomNo));
+#endif
     }
     cLib_addCalc2(&actor->mMoveSpeed, actor->mMoveSpeedTarget, 1.0f, accel);
     cLib_addCalc0(&actor->mMoveSpeedTarget, 1.0f, 0.001f + REG0_F(14));
@@ -178,12 +221,20 @@ void klft_move(klft_class* actor) {
             volume = 100;
         }
         for (int i = 0; i < 2; ++i) {
+#if VERSION == VERSION_DEMO
+            mDoAud_seStart(JA_SE_OBJ_KM_WINDMILL, &actor->mPulleyPos[i], volume, dComIfGp_getReverb(fopAcM_GetRoomNo(base)));
+#else
             mDoAud_seStart(JA_SE_OBJ_KM_WINDMILL, &actor->mPulleyPos[i], volume, dComIfGp_getReverb(base->current.roomNo));
+#endif
         }
         actor->mMoveSoundTimer += std::fabsf(actor->mMoveSpeed);
         if (actor->mMoveSoundTimer > 3.0f + REG0_F(1)) {
             actor->mMoveSoundTimer -= 3.0f + REG0_F(1);
+#if VERSION == VERSION_DEMO
+            mDoAud_seStart(JA_SE_OBJ_KASSHA_LIFT_MOVE, &base->current.pos, volume, dComIfGp_getReverb(fopAcM_GetRoomNo(base)));
+#else
             mDoAud_seStart(JA_SE_OBJ_KASSHA_LIFT_MOVE, &base->current.pos, volume, dComIfGp_getReverb(base->current.roomNo));
+#endif
         }
     }
     for (int i = 0; i < 2; ++i) {
@@ -253,8 +304,10 @@ void himo_move(klft_class* actor) {
     u8* size = actor->mRope.getSize(0);
     cXyz delta0 = actor->current.pos - actor->mEnds[0];
     cXyz delta1 = actor->current.pos - actor->mEnds[1];
+#if VERSION > VERSION_DEMO
     delta0.y -= 25.0f;
     delta1.y -= 25.0f;
+#endif
     for (int i = 0; i < 20; ++i, ++pos, ++size) {
         f32 t;
         if (i < 10) {
@@ -283,12 +336,21 @@ static BOOL daKlft_Execute(klft_class* actor) {
     klft_move(actor);
     himo_move(actor);
     MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
+#if VERSION == VERSION_DEMO
+    cMtx_YrotM(*calc_mtx, actor->shape_angle.y);
+    cMtx_YrotM(*calc_mtx, actor->mRideAngle);
+    cMtx_XrotM(*calc_mtx, actor->mRideTilt);
+    cMtx_YrotM(*calc_mtx, -actor->mRideAngle);
+    cMtx_XrotM(*calc_mtx, actor->shape_angle.x);
+    cMtx_ZrotM(*calc_mtx, actor->shape_angle.z);
+#else
     mDoMtx_YrotM(*calc_mtx, actor->shape_angle.y);
     mDoMtx_YrotM(*calc_mtx, actor->mRideAngle);
     mDoMtx_XrotM(*calc_mtx, actor->mRideTilt);
     mDoMtx_YrotM(*calc_mtx, -actor->mRideAngle);
     mDoMtx_XrotM(*calc_mtx, actor->shape_angle.x);
     mDoMtx_ZrotM(*calc_mtx, actor->shape_angle.z);
+#endif
     actor->mpModel->setBaseTRMtx(*calc_mtx);
     MTXCopy(*calc_mtx, actor->mBgMtx);
     MtxTrans(0.0f, REG0_F(7) - 400.0f, 0.0f, 1);
@@ -321,6 +383,17 @@ static BOOL daKlft_IsDelete(klft_class*) {
 
 /* 0000144C-00001520       .text daKlft_Delete__FP10klft_class */
 static BOOL daKlft_Delete(klft_class* actor) {
+#if VERSION == VERSION_DEMO
+    dComIfG_deleteObjectRes("Klft");
+    dComIfG_Bgsp()->Release(actor->pm_bgw);
+    if (actor->mSwitch != 0) {
+        if (actor->mProgress >= 50.0f) {
+            dComIfGs_onSwitch(actor->mSwitch, fopAcM_GetRoomNo(actor));
+        } else {
+            dComIfGs_offSwitch(actor->mSwitch, fopAcM_GetRoomNo(actor));
+        }
+    }
+#else
     dComIfG_resDelete(&actor->mPhase, "Klft");
     if (actor->heap != NULL) {
         dComIfG_Bgsp()->Release(actor->pm_bgw);
@@ -332,6 +405,7 @@ static BOOL daKlft_Delete(klft_class* actor) {
             dComIfGs_offSwitch(actor->mSwitch, actor->current.roomNo);
         }
     }
+#endif
     mDoAud_seDeleteObject(&actor->mPulleyPos[0]);
     mDoAud_seDeleteObject(&actor->mPulleyPos[1]);
     return TRUE;
@@ -352,7 +426,7 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* base) {
         }
     }
     actor->pm_bgw = new dBgW;
-    JUT_ASSERT(0x343, actor->pm_bgw != 0);
+    JUT_ASSERT(DEMO_SELECT(0x339, 0x343), actor->pm_bgw != 0);
     actor->pm_bgw->Set((cBgD_t*)dComIfG_getObjectRes("Klft", dRes_INDEX_KLFT_DZB_LIFT_00_e), 1, &actor->mBgMtx);
     actor->pm_bgw->SetCrrFunc(dBgS_MoveBGProc_Typical);
     actor->pm_bgw->SetRideCallback(ride_call_back);
@@ -374,7 +448,6 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* base) {
 
 /* 000017C4-00001C78       .text daKlft_Create__FP10fopAc_ac_c */
 static cPhs_State daKlft_Create(fopAc_ac_c* base) {
-    // USA: the inline wind sphere constructor uses a different temporary register.
     static dCcD_SrcSph utiwa_sph_src = {
         // dCcD_SrcGObjInf
         {
@@ -432,8 +505,8 @@ static cPhs_State daKlft_Create(fopAc_ac_c* base) {
             /* Height */ 60.0f,
         }},
     };
-    fopAcM_SetupActor(base, klft_class);
     klft_class* actor = (klft_class*)base;
+    fopAcM_SetupActor(base, klft_class);
     u32 pathNo;
     cPhs_State phase;
     phase = dComIfG_resLoad(&actor->mPhase, "Klft");
@@ -446,7 +519,11 @@ static cPhs_State daKlft_Create(fopAc_ac_c* base) {
             actor->mSwitch = 0;
         }
         if (actor->mSwitch != 0) {
+#if VERSION == VERSION_DEMO
+            if (dComIfGs_isSwitch(actor->mSwitch, fopAcM_GetRoomNo(actor))) {
+#else
             if (dComIfGs_isSwitch(actor->mSwitch, actor->current.roomNo)) {
+#endif
                 actor->mProgress = 80.0f;
             } else {
                 actor->mProgress = 20.0f;
@@ -455,7 +532,7 @@ static cPhs_State daKlft_Create(fopAc_ac_c* base) {
         if (actor->mType == 0xFF) {
             actor->mType = 0;
         }
-        if (!fopAcM_entrySolidHeap(actor, CallbackCreateHeap, 0x10000)) {
+        if (!fopAcM_entrySolidHeap(base, CallbackCreateHeap, 0x10000)) {
             return cPhs_ERROR_e;
         }
         if (actor->pm_bgw != NULL && dComIfG_Bgsp()->Regist(actor->pm_bgw, actor)) {
@@ -464,7 +541,11 @@ static cPhs_State daKlft_Create(fopAc_ac_c* base) {
         if (pathNo == 0xFF) {
             return cPhs_ERROR_e;
         }
+#if VERSION == VERSION_DEMO
+        dPath* path = dPath_GetRoomPath(pathNo, fopAcM_GetRoomNo(actor));
+#else
         dPath* path = dPath_GetRoomPath(pathNo, actor->current.roomNo);
+#endif
         if (path != NULL) {
             dPnt* points = path->m_points;
             actor->mEnds[0] = points[0].m_position;

@@ -3871,8 +3871,8 @@ struct PsoData {
     /* 0x0C */ f32 field_0x0C;
     /* 0x10 */ f32 field_0x10;
     /* 0x14 */ s16 field_0x14;
-    /* 0x16 */ u8 field_0x16;
-    /* 0x17 */ u8 field_0x17;
+    /* 0x16 */ s8 field_0x16;
+    /* 0x17 */ s8 field_0x17;
     /* 0x18 */ u8 photoNo;
 }; // Size: 0x19
 
@@ -3883,8 +3883,8 @@ static PsoData l_pso_uo2 = {
     50.0f,
     120.0f,
     0x0000,
-    0xFF,
-    0x04,
+    -1,
+    4,
     DSNAP_TYPE_BIKUTSUKI,
 };
 
@@ -3895,8 +3895,8 @@ static PsoData l_pso_uo3 = {
     50.0f,
     80.0f,
     0x0000,
-    0xFF,
-    0x04,
+    -1,
+    4,
     DSNAP_TYPE_POST,
 };
 
@@ -3911,8 +3911,8 @@ static PsoData l_pso_ub4 = {
 #endif
     85.0f,
     0x0000,
-    0xFF,
-    0x04,
+    -1,
+    4,
     DSNAP_TYPE_UNK06,
 };
 
@@ -3923,8 +3923,8 @@ static PsoData l_pso_uw2 = {
     45.0f,
     100.0f,
     0x0000,
-    0xFF,
-    0x04,
+    -1,
+    4,
     DSNAP_TYPE_COUPLE_LOOK,
 };
 
@@ -3935,8 +3935,8 @@ static PsoData l_pso_uw2_2 = {
     45.0f,
     100.0f,
     0x0000,
-    0xFF,
-    0x04,
+    -1,
+    4,
     DSNAP_TYPE_UNK04,
 };
 
@@ -3947,8 +3947,8 @@ static PsoData l_pso_um2 = {
     55.0f,
     100.0f,
     0x0000,
-    0xFF,
-    0x04,
+    -1,
+    4,
     DSNAP_TYPE_COUPLE_LOOK,
 };
 
@@ -4641,8 +4641,6 @@ bool daNpcPeople_c::_delete() {
 
 /* 0000158C-000018B8       .text _draw__13daNpcPeople_cFv */
 bool daNpcPeople_c::_draw() {
-    /* Nonmatching - retail-only regalloc */
-
     J3DModel* bodyModel = mpMorf->getModel();
     J3DModel* headModel;
     if(mpHeadModel) {
@@ -4662,7 +4660,7 @@ bool daNpcPeople_c::_draw() {
     }
 
     if(l_bmt_ix_tbl[mNpcNo] >= 0) {
-        mpMorf->updateDL((J3DMaterialTable*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], l_bmt_ix_tbl[mNpcNo]));
+        mpMorf->updateDL((J3DMaterialTable*)dRes_control_c::getIDRes(l_arcname_tbl[mNpcNo], l_bmt_ix_tbl[mNpcNo], &g_dComIfG_gameInfo.mResControl.mObjectInfo[0], ARRAY_SIZE(g_dComIfG_gameInfo.mResControl.mObjectInfo)));
     }
     else {
         mpMorf->updateDL();

@@ -23,8 +23,13 @@ const char daObjHtetu1_c::M_arcname[] = "Htetu1";
 void daObjHtetu1Splash_c::create_s(unsigned short id, cXyz* pos, csXyz* angle, dKy_tevstr_c* tev) {
     mPosition = *pos;
     mAngle = *angle;
+#if VERSION == VERSION_DEMO
+    mpEmitter = dComIfGp_particle_set(id, &mPosition, &mAngle, NULL, 255, &mSplashCb);
+    mpEmitter->setGlobalPrmColor(tev->mColorC0.r, tev->mColorC0.g, tev->mColorC0.b);
+#else
     dComIfGp_particle_set(id, &mPosition, &mAngle, NULL, 255, &mSplashCb);
     if (mSplashCb.getEmitter() != NULL) mSplashCb.getEmitter()->setGlobalPrmColor(tev->mColorC0.r, tev->mColorC0.g, tev->mColorC0.b);
+#endif
     stop_particle();
     mPlaying = false;
     mTimer = -2;
@@ -39,7 +44,7 @@ BOOL daObjHtetu1_c::solidHeapCB(fopAc_ac_c* actor) {
 BOOL daObjHtetu1_c::create_heap() {
     BOOL result = TRUE;
     J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_HTETU1_BDL_HTETU1_e));
-    JUT_ASSERT(281, mdl_data != NULL);
+    JUT_ASSERT(DEMO_SELECT(279, 281), mdl_data != NULL);
     if (mdl_data == NULL) {
         result = FALSE;
     } else {
@@ -86,17 +91,23 @@ bool daObjHtetu1_c::_delete() {
         mQuakeTimer = -1;
     }
     for (int i = 0; i < 2; i++) mSplash[i].delete_s();
+#if VERSION == VERSION_DEMO
+    if (mpBgW != NULL && mpBgW->ChkUsed()) {
+        dComIfG_Bgsp()->Release(mpBgW);
+    }
+#else
     if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) {
         dComIfG_Bgsp()->Release(mpBgW);
         mpBgW = NULL;
     }
-    dComIfG_resDelete(&mPhase, M_arcname);
+#endif
+    dComIfG_resDeleteDemo(&mPhase, M_arcname);
     return true;
 }
 
 /* 00000610-00000648       .text check_sw__13daObjHtetu1_cFv */
 inline BOOL daObjHtetu1_c::check_sw() {
-    return dComIfGs_isSwitch(mSwitch, home.roomNo);
+    return fopAcM_isSwitch(this, mSwitch);
 }
 
 /* 00000648-000006E4       .text init_mtx__13daObjHtetu1_cFv */
@@ -112,9 +123,8 @@ void daObjHtetu1_c::init_mtx() {
 void daObjHtetu1_c::unlock() {
     cXyz offset = cXyz::BaseY;
     mNextPos -= mShakeOffset;
-    f32 amplitude = mShakeAmplitude;
     s16 angle = mShakeTimer * 0x859;
-    offset *= std::fabsf((s16)(amplitude * cM_ssin(angle)));
+    offset *= std::fabsf((s16)(mShakeAmplitude * cM_ssin(angle)));
     mNextPos += offset;
     mShakeOffset = offset;
     cLib_addCalc(&mShakeAmplitude, 0.0f, 0.13f, 50.0f, 1.0f);
@@ -191,7 +201,7 @@ bool daObjHtetu1_c::_execute() {
         unlock();
         if (mShakeTimer != 0) {
             mShakeTimer--;
-            mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         } else {
             dComIfGp_getVibration().StartQuake(6, 3, cXyz(0.0f, 1.0f, 0.0f));
             mMoveState = 2;
@@ -201,7 +211,7 @@ bool daObjHtetu1_c::_execute() {
         break;
     case 2:
         mNextPos.y -= 5.0f;
-        mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+        mDoAud_seStart(JA_SE_OBJ_ST_KOUSHI_MOVE, &current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         if (mNextPos.y <= mBottomY) {
             for (i = 0; i < 2; i++) mSplash[i].delete_s();
             mNextPos.y = mBottomY;
@@ -219,7 +229,11 @@ bool daObjHtetu1_c::_execute() {
     } else if (timer > 0) {
         mQuakeTimer--;
     }
+#if VERSION == VERSION_DEMO
+    if (mpBgW != NULL && mpBgW->ChkUsed()) mpBgW->Move();
+#else
     if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) mpBgW->Move();
+#endif
     return true;
 }
 

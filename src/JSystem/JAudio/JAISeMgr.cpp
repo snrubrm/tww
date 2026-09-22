@@ -122,6 +122,12 @@ void JAInter::SeMgr::processGFrameSe() {
 
 /* 80293530-80293C94       .text checkNextFrameSe__Q27JAInter5SeMgrFv */
 void JAInter::SeMgr::checkNextFrameSe() {
+    u8 slot;
+    u8 slotMax;
+    JAISound* sound;
+    u8 max;
+    u8 i;
+    u8 j;
     JAISound removed;
     struct Candidate {
         u8 state;
@@ -143,7 +149,7 @@ void JAInter::SeMgr::checkNextFrameSe() {
             candidates[i].sound = NULL;
         }
         u8 count = 0;
-        JAISound* sound = seRegist[category].field_0x4;
+        sound = seRegist[category].field_0x4;
         while (sound != NULL) {
             if (sound->mState == 1 && (sound->mSoundID & 0xC00)) {
                 sound->field_0x6--;
@@ -219,9 +225,8 @@ void JAInter::SeMgr::checkNextFrameSe() {
                         sound = &removed;
                     }
                 } else {
-                    u32 max = categoryInfoTable[seScene][sound->getSeCategoryNumber() * 2];
-                    u8 i = 0;
-                    u32 last = max - 1;
+                    max = categoryInfoTable[seScene][sound->getSeCategoryNumber() * 2];
+                    i = 0;
                     for (; i < max; i++) {
                         u32 priority = sound->field_0x10;
                         Candidate* candidate = &candidates[i];
@@ -230,14 +235,14 @@ void JAInter::SeMgr::checkNextFrameSe() {
                             if (count < max) {
                                 count++;
                             }
-                            for (u8 j = last; j > i; j--) {
+                            for (j = max - 1; j > i; j--) {
                                 candidates[j].priority = candidates[j - 1].priority;
                                 candidates[j].sound = candidates[j - 1].sound;
                                 candidate->state = candidates[j - 1].state;
                             }
-                            candidate->priority = sound->field_0x10;
-                            candidate->sound = sound;
-                            candidate->state = sound->mState;
+                            candidates[i].priority = sound->field_0x10;
+                            candidates[i].sound = sound;
+                            candidates[i].state = sound->mState;
                             i = max;
                         }
                     }
@@ -255,12 +260,11 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 selected->mState = 3;
             }
         }
-        u32 max = categoryInfoTable[seScene][category * 2];
-        u8 i = 0;
-        u32 end = max + 1;
-        for (; i < max; i++) {
+        slotMax = categoryInfoTable[seScene][category * 2];
+        slot = 0;
+        for (; slot < slotMax; slot++) {
             u8 available = 0;
-            JAISound* playing = (JAISound*)sePlaySound[category][i];
+            JAISound* playing = (JAISound*)sePlaySound[category][slot];
             if (playing == NULL) {
                 available = 1;
             } else if (playing->mState == 4) {
@@ -271,39 +275,41 @@ void JAInter::SeMgr::checkNextFrameSe() {
                     playing->field_0x6 = 0;
                 }
                 available = 1;
+#if VERSION == VERSION_DEMO
+            } else if (playing->mState == 0) {
+#else
             } else if (playing->mState == 0 || playing->mState == 5) {
-                sePlaySound[category][i] = 0;
+#endif
+                sePlaySound[category][slot] = 0;
                 available = 1;
             } else {
-                for (u8 j = 0; j < max; j++) {
-                    JAISound* playing = (JAISound*)sePlaySound[category][i];
+                for (j = 0; j < slotMax; j++) {
+                    JAISound* playing = (JAISound*)sePlaySound[category][slot];
                     if (playing == candidates[j].sound) {
                         candidates[j].sound = NULL;
-                        j = max;
+                        j = slotMax;
                     }
                 }
             }
             if (available == 1) {
-                u8 j;
-                for (j = 0; j < max; j++) {
-                    JAISound* candidate = candidates[j].sound;
-                    if (candidate != NULL && candidate->mState != 3) {
-                        for (u8 k = 0; k < max; k++) {
+                for (j = 0; j < slotMax; j++) {
+                    if (candidates[j].sound != NULL && candidates[j].sound->mState != 3) {
+                        for (u8 k = 0; k < slotMax; k++) {
                             JAISound* other = (JAISound*)sePlaySound[category][k];
                             if (other != NULL && candidates[j].sound == other) {
                                 available = 0;
-                                k = max;
+                                k = slotMax;
                             }
                         }
                         if (available == 1) {
-                            sePlaySound[category][i] = (u32)candidate;
+                            sePlaySound[category][slot] = (u32)candidates[j].sound;
                             candidates[j].sound = NULL;
-                            j = end;
+                            j = slotMax + 1;
                         }
                     }
                 }
-                if (j == max) {
-                    sePlaySound[category][i] = 0;
+                if (j == slotMax) {
+                    sePlaySound[category][slot] = 0;
                 }
             }
         }
@@ -317,9 +323,10 @@ void JAInter::SeMgr::checkPlayingSe() {
     u8 track = 0;
     u8 category;
     for (category = 0; category < JAIGlobalParameter::getParamSeCategoryMax(); category++) {
-        for (slot = 0; slot < categoryInfoTable[seScene][category * 2]; track++, slot++) {
+        for (slot = 0; slot < categoryInfoTable[seScene][(u32)category * 2]; track++, slot++) {
             sound = (JAISound*)sePlaySound[category][slot];
             if (sound != NULL) {
+                u32 value;
                 sound->field_0x18++;
                 u32 port = 0x20000000 + (track >> 4) + ((track & 0xF) << 4);
                 JASystem::TTrack* root = seHandle->getSeqParameter()->getRootTrackPointer();
@@ -328,8 +335,8 @@ void JAInter::SeMgr::checkPlayingSe() {
                 root->readPortApp(port + 0x20000, &active);
                 root->readPortApp(port, &command);
                 JAISound::PositionInfo_t* positions = sound->mPositionInfo;
-                for (u8 camera = 0; camera < JAIGlobalParameter::getParamAudioCameraMax(); camera++) {
-                    positions[camera].field_0x18 = std::sqrtf(positions[camera].field_0x18);
+                for (value = 0; (u8)value < JAIGlobalParameter::getParamAudioCameraMax(); value++) {
+                    positions[(u8)value].field_0x18 = std::sqrtf(positions[(u8)value].field_0x18);
                 }
                 if (sound->mState == 2) {
                     u32 flags = sound->getSwBit();
@@ -348,11 +355,10 @@ void JAInter::SeMgr::checkPlayingSe() {
                     }
                     SeParameter* parameter = sound->getSeParameter();
                     for (u8 i = 0; parameter->field_0x0[16] != 0; i++) {
-                        u32 bit = 1 << i;
-                        if (parameter->field_0x0[16] & bit) {
-                            u8 channel = sound->field_0x4;
-                            seHandle->setTrackPortData(channel, i, sound->getSeParameter()->field_0x0[i]);
-                            parameter->field_0x0[16] ^= bit;
+                        value = 1 << i;
+                        if (parameter->field_0x0[16] & value) {
+                            seHandle->setTrackPortData(sound->getTrack(), i, sound->getSeParameter()->field_0x0[i]);
+                            parameter->field_0x0[16] ^= value;
                         }
                     }
                     sound->setSeDistanceParameters();
@@ -369,12 +375,12 @@ void JAInter::SeMgr::checkPlayingSe() {
                     }
                     u16 wait;
                     if (JAIGlobalParameter::getParamAudioCameraMax() == 1 && sound->checkSwBit(0x1000)) {
-                        JAISound::PositionInfo_t* position = sound->mPositionInfo;
-                        if (position[0].field_0x18 < JAIGlobalParameter::getParamDistanceMax()) {
+                        positions = sound->mPositionInfo;
+                        if (positions[0].field_0x18 < JAIGlobalParameter::getParamDistanceMax()) {
                             u32 maximum = (u32)JAIGlobalParameter::getParamDistanceMax();
                             u32 distance = (u32)sound->mPositionInfo[0].field_0x18;
-                            wait = JAIGlobalParameter::getParamSeDistanceWaitMax() * distance /
-                                   maximum;
+                            u32 waitMax = JAIGlobalParameter::getParamSeDistanceWaitMax();
+                            wait = waitMax * distance / maximum;
                         } else {
                             wait = JAIGlobalParameter::getParamSeDistanceWaitMax();
                         }
@@ -471,7 +477,7 @@ void JAInter::SeMgr::sendSeAllParameter(JAISound* sound) {
     seTrackUpdate_s* update;
     update = &seTrackUpdate[sound->field_0x4];
     parameter = sound->getSeParameter();
-    sequence = SequenceMgr::getPlayTrackInfo(seHandle->field_0x4);
+    sequence = SequenceMgr::getPlayTrackInfo(seHandle->getTrack());
     checkPlayingSeUpdateMultiplication(sound, sequence, parameter->field_0x424, parameter->field_0x124,
                                       seCategoryVolume[sound->getSeCategoryNumber()], 2, &update->field_0x4);
     checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x428, parameter->field_0x1a4,
@@ -482,12 +488,9 @@ void JAInter::SeMgr::sendSeAllParameter(JAISound* sound) {
                                 5, &update->field_0xc, 0.0f);
     checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x438, parameter->field_0x3a4,
                                 6, &update->field_0x14, JAIGlobalParameter::getParamSeDolbyCenterValue() / 127.0f);
-    {
-        u32 flags = sequence->trackupdate[sound->field_0x4];
-        if (flags != 0) {
-            SystemInterface::setSeqPortargsU32(SequenceMgr::getPlayTrackInfo(seHandle->field_0x4), sound->field_0x4, 1, flags);
-            sequence->systemTrackParameter[sound->field_0x4].mCommand.addPortCmdOnce();
-        }
+    if (sequence->trackupdate[sound->field_0x4] != 0) {
+        SystemInterface::setSeqPortargsU32(SequenceMgr::getPlayTrackInfo(seHandle->getTrack()), sound->field_0x4, 1, sequence->trackupdate[sound->field_0x4]);
+        sequence->systemTrackParameter[sound->field_0x4].mCommand.addPortCmdOnce();
     }
 }
 

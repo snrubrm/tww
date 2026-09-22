@@ -545,7 +545,8 @@ bool fopAcM_checkCullingBox(Mtx m, f32 x0, f32 y0, f32 z0, f32 x1, f32 y1, f32 z
     Vec p1 = { x1, y1, z1 };
     Mtx viewMtx;
     cMtx_concat(j3dSys.getViewMtx(), m, viewMtx);
-    if (mDoLib_clipper::clip(viewMtx, &p1, &p0)) {
+    MtxP pMtx = viewMtx;
+    if (mDoLib_clipper::clip(pMtx, &p1, &p0)) {
         return true;
     } else {
         return false;

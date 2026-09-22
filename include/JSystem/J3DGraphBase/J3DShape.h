@@ -97,7 +97,11 @@ public:
 
     void onFlag(u32 flag) { mFlags |= flag; }
     void offFlag(u32 flag) { mFlags &= ~flag; }
+#if VERSION <= VERSION_JPN
+    bool checkFlag(u32 flag) const { return (mFlags & flag) ? true : false; }
+#else
     bool checkFlag(u32 flag) const { return !!(mFlags & flag); }
+#endif
     void setDrawMtxDataPointer(J3DDrawMtxData* pMtxData) { mDrawMtxData = pMtxData; }
     void setVertexDataPointer(J3DVertexData* pVtxData) { mVertexData = pVtxData; }
     void* getVcdVatCmd() const { return mVcdVatCmd; }
@@ -116,7 +120,11 @@ public:
     GXVtxDescList* getVtxDesc() const { return mVtxDesc; }
 
     J3DMaterial* getMaterial() const { return mMaterial; }
+#if VERSION <= VERSION_JPN
+    u16 getIndex() const { return mIndex; }
+#else
     u32 getIndex() const { return mIndex; }
+#endif
     u32 getPipeline() const { return (mFlags >> 2) & 0x07; }
     u32 getTexMtxLoadType() const { return mFlags & 0xF000; }
     u32 getMtxGroupNum() const { return mMtxGroupNum; }

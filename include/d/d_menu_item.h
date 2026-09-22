@@ -31,6 +31,10 @@ public:
     }
     void setItemTexBuffer(int idx, void* buffer) { mItemTexBuffer[idx] = buffer; }
     void setSubItemTexBuffer(int idx, void* buffer) { mSubItemTexBuffer[idx] = buffer; }
+#if VERSION == VERSION_PAL
+    void setWordSaveTexBuffer(void* buffer) { mWordSaveTexBuffer = buffer; }
+    void setTitleTexBuffer(void* buffer) { mTitleTexBuffer = buffer; }
+#endif
     void setTextArea(char* name0, char* name1, char* note0, char* note1, char* dummy0, char* dummy1) {
         name[0] = name0;
         name[1] = name1;
@@ -80,10 +84,10 @@ public:
     void itemCheck(int);
     void itemBitCheck(bool);
     void arrowLightAnime();
-    u8 bottleFwaterCheck();
-    u8 recollectBossCheck();
+    int bottleFwaterCheck();
+    int recollectBossCheck();
     void cornerMove();
-    u8 equipBeastItem(int);
+    int equipBeastItem(int);
     virtual void _create();
     virtual void _delete();
     virtual void _move();
@@ -149,6 +153,10 @@ private:
     /* 0x2334 */ void* mItemTexBuffer[21];
     /* 0x2388 */ u8 padding_0x2388[0x2394 - 0x2388];
     /* 0x2394 */ void* mSubItemTexBuffer[9];
+#if VERSION == VERSION_PAL
+    /* 0x23B8 */ void* mWordSaveTexBuffer;
+    /* 0x23BC */ void* mTitleTexBuffer;
+#endif
     /* 0x23B8 */ JPABaseEmitter* m23B8[2];
     /* 0x23C0 */ f32 m23C0[4];
     /* 0x23D0 */ f32 m23D0[4];
@@ -174,9 +182,13 @@ private:
     /* 0x2421 */ u8 mTriggerInfo;
     /* 0x2422 */ u8 m2422;
     /* 0x2423 */ u8 field_0x2423;
-}; // Size: 0x2424
+}; // Size: 0x2424 (PAL: 0x242C)
 
+#if VERSION == VERSION_PAL
+STATIC_ASSERT(sizeof(dMenu_Item_c) == 0x242C);
+#else
 STATIC_ASSERT(sizeof(dMenu_Item_c) == 0x2424);
+#endif
 
 class dMi_HIO_c : public JORReflexible {
 public:

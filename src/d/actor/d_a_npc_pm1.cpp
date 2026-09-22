@@ -9,9 +9,31 @@
 #include "d/d_demo.h"
 #include "f_op/f_op_actor_mng.h"
 #include "res/Object/Pm.h"
-// Nonmatching - the inherited NPC virtual functions are emitted before the final helpers.
+
+class daNpc_Pm1_HIO_c : public JORReflexible {
+public:
+    struct hio_prm_c {
+        s16 mMaxHeadX, mMaxHeadY;
+        s16 mMinHeadX, mMinHeadY;
+        s16 mMaxBackboneX, mMaxBackboneY;
+        s16 mMinBackboneX, mMinBackboneY;
+        s16 mMaxTurnStep, mTurnSpeed;
+        f32 mAttentionYOffset, mUnused;
+    };
+    daNpc_Pm1_HIO_c();
+    virtual ~daNpc_Pm1_HIO_c() {}
+    void genMessage(JORMContext*) {}
+
+public:
+    s8 mNo;
+    int mCount;
+    hio_prm_c mPrm;
+};
+
 static daNpc_Pm1_HIO_c l_HIO;
-/* 000000EC-00000144       .text __ct__15daNpc_Pm1_HIO_cFv */daNpc_Pm1_HIO_c::daNpc_Pm1_HIO_c() {
+
+/* 000000EC-00000144       .text __ct__15daNpc_Pm1_HIO_cFv */
+daNpc_Pm1_HIO_c::daNpc_Pm1_HIO_c() {
     static hio_prm_c a_prm_tbl = {
         0x1FFE, 0x38E0, (s16)0xE002, (s16)0xC720,
         0, 0, 0, 0, 0x800, 0x800, 150.0f, 0.0f,
@@ -153,7 +175,7 @@ void daNpc_Pm1_c::playTexPatternAnm() {
         advance = !cLib_calcTimer(&mBlinkTimer);
     }
     if (advance) {
-        int end = m_head_tex_pattern->getFrameMax();
+        s16 end = m_head_tex_pattern->getFrameMax();
         if (++mBtpFrame >= end) {
             if (mTexIndex != 0) {
                 mBtpFrame = m_head_tex_pattern->getFrameMax();
@@ -527,7 +549,7 @@ u8 daNpc_Pm1_c::demo() {
     } else {
         mDemo = 1;
         dComIfGp_demo_getActor(demoActorID);
-        dDemo_setDemoData(this, 0x6A, mpMorf, "Pm", 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, "Pm");
     }
     return mDemo;
 }
@@ -536,6 +558,7 @@ extern const GXColor l_pm1DebugRed = {255, 0, 0, 128};
 extern const GXColor l_pm1DebugBlue = {0, 0, 255, 128};
 /* 00001558-000016BC       .text _draw__11daNpc_Pm1_cFv */
 BOOL daNpc_Pm1_c::_draw() {
+    daNpc_Pm1_c* i_this = this;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &tevStr);
@@ -549,7 +572,7 @@ BOOL daNpc_Pm1_c::_draw() {
     if (!mShadowId) {
         dComIfGd_setSimpleShadow(&current.pos, mObjAcch.GetGroundH(), 40.0f, dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd)->GetNP(), 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
-    dSnap_RegistFig(DSNAP_TYPE_UNK5A, this, 1.0f, 1.0f, 1.0f);
+    dSnap_RegistFig(DSNAP_TYPE_UNK5A, i_this, 1.0f, 1.0f, 1.0f);
     return TRUE;
 }
 
@@ -582,7 +605,7 @@ BOOL daNpc_Pm1_c::_execute() {
 
 /* 00001818-0000189C       .text _delete__11daNpc_Pm1_cFv */
 BOOL daNpc_Pm1_c::_delete() {
-    dComIfG_resDelete(&mPhase, "Pm");
+    dComIfG_resDeleteDemo(&mPhase, "Pm");
     if (mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
@@ -599,7 +622,9 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 
 /* 000018BC-00001A2C       .text _create__11daNpc_Pm1_cFv */
 cPhs_State daNpc_Pm1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Pm1_c);
+#endif
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
     }
@@ -611,6 +636,9 @@ cPhs_State daNpc_Pm1_c::_create() {
         l_HIO.mNo = mDoHIO_createChild("貧乏マギ−", &l_HIO);
     }
     l_HIO.mCount++;
+#if VERSION == VERSION_DEMO
+    fopAcM_SetupActor(this, daNpc_Pm1_c);
+#endif
     static u32 a_heap_size_tbl[] = {0x272E0};
     if (fopAcM_entrySolidHeap(this, CheckCreateHeap, a_heap_size_tbl[mType])) {
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -627,14 +655,14 @@ cPhs_State daNpc_Pm1_c::_create() {
 /* 00001E5C-00002168       .text CreateHeap__11daNpc_Pm1_cFv */
 BOOL daNpc_Pm1_c::CreateHeap() {
     J3DModelData* a_mdl_data = (J3DModelData*)dComIfG_getObjectIDRes("Pm", dRes_ID_PM_BDL_PM_e);
-    JUT_ASSERT(1319, a_mdl_data != 0);
+    JUT_ASSERT(DEMO_SELECT(1318, 1319), a_mdl_data != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_data, NULL, NULL, (J3DAnmTransform*)dComIfG_getObjectIDRes("Pm", dRes_ID_PM_BCK_WAIT01_e), 2, 1.0f, 0, -1, TRUE, NULL, 0x80000, 0x11020002);
     if (mpMorf != NULL) {
         if (mpMorf->getModel() != NULL) {
             m_head_jnt_num = a_mdl_data->getJointName()->getIndex("head");
-            JUT_ASSERT(1338, m_head_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(1337, 1338), m_head_jnt_num >= 0);
             m_backbone_jnt_num = a_mdl_data->getJointName()->getIndex("backbone");
-            JUT_ASSERT(1340, m_backbone_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(1339, 1340), m_backbone_jnt_num >= 0);
             static s8 a_tex_pattern_num_tbl[] = {0};
             mTexIndex = a_tex_pattern_num_tbl[mType];
             if (initTexPatternAnm(false)) {
@@ -647,7 +675,7 @@ BOOL daNpc_Pm1_c::CreateHeap() {
                     }
                     mpMorf->getModel()->setUserArea((u32)this);
                     mAcchCir.SetWall(30.0f, 50.0f);
-                    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+                    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
                     return TRUE;
                 }
             }

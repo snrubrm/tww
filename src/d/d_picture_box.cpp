@@ -399,8 +399,12 @@ void dJle_Pb_c::zoomScale() {
             }
         }
         else {
+#if VERSION == VERSION_DEMO
+            mDoAud_seStart(JA_SE_TELESCOPE_ZOOM, NULL, dComIfGp_getCameraZoomForcus(0) * 0x8000 + 0.5f);
+#else
             f32 cameraZoomForcus = dComIfGp_getCameraZoomForcus(0);
             mDoAud_seStart(JA_SE_TELESCOPE_ZOOM, NULL, cameraZoomForcus * 0x8000 + 0.5f);
+#endif
         }
     }
 }
@@ -438,8 +442,10 @@ void dJle_Pb_c::changeScale(int scale) {
 /* 80226C68-80227158       .text up_downIconMove__9dJle_Pb_cFv */
 void dJle_Pb_c::up_downIconMove() {
     f32 f31;
+    s16 a = 10;
+    s16 b = 20;
     pane_crtn.mUserArea++;
-    if (pane_crtn.mUserArea < 10) {
+    if (pane_crtn.mUserArea < a) {
         f31 = fopMsgM_valueIncrease(20, pane_crtn.mUserArea, 0);
 
         ((J2DPicture *)(pane_yrtn.pane))->setBlendRatio(0.0f, 1.0f, 1.0f, 1.0f);
@@ -466,7 +472,7 @@ void dJle_Pb_c::up_downIconMove() {
                 ((J2DPicture *)(pane_crtn.pane))->setBlendRatio(1.0f - f31, f31, 1.0f, 1.0f);
                 fopMsgM_paneTrans(&pane_yrtn, 0.0f, 0.0f);
             }
-            if (pane_crtn.mUserArea == 20) {
+            if (pane_crtn.mUserArea == b) {
                 pane_yrtn.mUserArea = 1;
             }
         }
@@ -474,7 +480,7 @@ void dJle_Pb_c::up_downIconMove() {
             ((J2DPicture *)(pane_crtn.pane))->setBlendRatio(1.0f - f31, f31, 1.0f, 1.0f);
             fopMsgM_paneTrans(&pane_yrtn, 0.0f, 0.0f);
         }
-        else if (pane_crtn.mUserArea == 20) {
+        else if (pane_crtn.mUserArea == b) {
             pane_yrtn.mUserArea = 0;
         }
         if (dComIfGp_getCameraZoomScale(0) == 9.0f) {
@@ -482,7 +488,7 @@ void dJle_Pb_c::up_downIconMove() {
                 ((J2DPicture *)(pane_czom.pane))->setBlendRatio(1.0f - f31, f31, 1.0f, 1.0f);
                 fopMsgM_paneTrans(&pane_yzom, 0.0f, 0.0f);
             }
-            if (pane_crtn.mUserArea == 20) {
+            if (pane_crtn.mUserArea == b) {
                 pane_yzom.mUserArea = 1;
             }
         }
@@ -490,7 +496,7 @@ void dJle_Pb_c::up_downIconMove() {
             ((J2DPicture *)(pane_czom.pane))->setBlendRatio(1.0f - f31, f31, 1.0f, 1.0f);
             fopMsgM_paneTrans(&pane_yzom, 0.0f, 0.0f);
         }
-        else if (pane_crtn.mUserArea == 20) {
+        else if (pane_crtn.mUserArea == b) {
             pane_yzom.mUserArea = 0;
         }
     }
@@ -506,15 +512,17 @@ void dJle_Pb_c::up_downIconMove() {
         pane_yrtn.pane->show();
         pane_yzom.pane->show();
     }
-    if (pane_crtn.mUserArea >= 20) {
+    if (pane_crtn.mUserArea >= b) {
         pane_crtn.mUserArea = 0;
     }
 }
 
 /* 80227158-80227338       .text left_rightIconMove__9dJle_Pb_cFv */
 void dJle_Pb_c::left_rightIconMove() {
+    s16 a = 10;
+    s16 b = 20;
     pane_ylig.mUserArea++;
-    if (pane_ylig.mUserArea < 10) {
+    if (pane_ylig.mUserArea < a) {
         if (mSelectedPhotoSlot != 2) {
             ((J2DPicture *)(pane_ylig.pane))->setBlendRatio(0.0F, 1.0f, 1.0f, 1.0f);
             fopMsgM_paneTrans(&pane_ylig, 7.0f, 0.0f);
@@ -534,7 +542,7 @@ void dJle_Pb_c::left_rightIconMove() {
             fopMsgM_paneTrans(&pane_ylef, 0.0f, 0.0f);
         }
     }
-    if (pane_ylig.mUserArea >= 20) {
+    if (pane_ylig.mUserArea >= b) {
         pane_ylig.mUserArea = 0;
     }
 }
@@ -697,12 +705,27 @@ void dJle_Pb_c::pictureDraw(u8 mono_color_1_alpha, int img_index) {
     Mtx44 mtx;
     GXTexObj tex_obj;
 
+#if VERSION == VERSION_DEMO
+    if ((mExecState == PB_EXEC_GET_OPEN_e || mExecState == PB_EXEC_GET_MOVE_e) && mImportedPhotoLoadReq->sync() == 0) {
+        return;
+    }
+#endif
+
     card_pictdata* pict = mPhotoBuffer[img_index];
     u32 index = (img_index == 3) ? 0 : img_index;
+#if VERSION == VERSION_DEMO
+    f32 x0 = pane_no[index].mPosTopLeft.x + REG6_F(0);
+    f32 x1 = x0 + pane_no[index].mSizeOrig.x;
+    f32 y0 = pane_no[index].mPosTopLeft.y + REG6_F(1);
+    f32 y1 = y0 + pane_no[index].mSizeOrig.y;
+    r30 = (x0 + x1) / 2.0f;
+    r29 = (y0 + y1) / 2.0f;
+#else
     f32 f2 = pane_no[index].mPosTopLeft.x + REG6_F(0);
     f32 f3 = pane_no[index].mPosTopLeft.y + REG6_F(1);
     r30 = (f2 + (f2 + pane_no[index].mSizeOrig.x)) / 2.0f;
     r29 = (f3 + (f3 + pane_no[index].mSizeOrig.y)) / 2.0f;
+#endif
 
     static const GXColor mCaptureMonoColor0 = {0x00, 0x00, 0x00, 0x00};
     static GXColor mCaptureMonoColor1 = {0xFF, 0xFF, 0xFF, mono_color_1_alpha};
@@ -996,7 +1019,10 @@ void dJle_Pb_c::moveCamera() {
         dComIfGp_setAStatusForce(dActStts_BLANK_e);
         dComIfGp_setDoStatusForce(dActStts_BLANK_e);
         
-        if (dComIfGp_getPictureStatus() != 2 && dComIfGp_getPictureStatus() != 3) {
+#if VERSION > VERSION_DEMO
+        if (dComIfGp_getPictureStatus() != 2 && dComIfGp_getPictureStatus() != 3)
+#endif
+        {
             dComIfGp_setRStatusForce(dActStts_BLANK_e);
         }
 
@@ -1026,7 +1052,10 @@ void dJle_Pb_c::moveCamera() {
 
         dComIfGp_setAStatusForce(dActStts_RETURN_e);
 
-        if (dComIfGp_getPictureStatus() != 2 && dComIfGp_getPictureStatus() != 3) {
+#if VERSION > VERSION_DEMO
+        if (dComIfGp_getPictureStatus() != 2 && dComIfGp_getPictureStatus() != 3)
+#endif
+        {
             dComIfGp_setRStatusForce(dActStts_SWAP_MODES_e);
         }
     }
@@ -1186,7 +1215,10 @@ void dJle_Pb_c::selectBrowse() {
 
         dComIfGp_setAStatusForce(dActStts_RETURN_e);
 
-        if (dComIfGp_getPictureStatus() != 2 && dComIfGp_getPictureStatus() != 3) {
+#if VERSION > VERSION_DEMO
+        if (dComIfGp_getPictureStatus() != 2 && dComIfGp_getPictureStatus() != 3)
+#endif
+        {
             dComIfGp_setRStatusForce(dActStts_SWAP_MODES_e);
         }
     } else if (mModeSubState == PB_SUB_CONFIRM_e) {
@@ -1359,6 +1391,54 @@ void dJle_Pb_c::setColorInit(u8 param_1) {
 }
 
 /* 80229520-80229980       .text setColorAnime__9dJle_Pb_cFUc */
+#if VERSION == VERSION_DEMO
+void dJle_Pb_c::setColorAnime(u8 param_1) {
+    JUtility::TColor icnWhite, empWhite, empBlack;
+    u8 r = 255;
+    u8 g = 60;
+    pane_icn[param_1].mUserArea++;
+
+    if (pane_icn[param_1].mUserArea >= 0x28) {
+        pane_icn[param_1].mUserArea = 0;
+    }
+
+    int frame = pane_icn[param_1].mUserArea;
+    f32 t;
+    if (frame < 20) {
+        t = fopMsgM_valueIncrease(20, frame, 0);
+    } else {
+        t = fopMsgM_valueIncrease(20, 0x28 - frame, 0);
+    }
+
+    
+    icnWhite.r = ((f32)icn_white.r - t * ((f32)icn_white.r - (f32)r));
+    icnWhite.g = ((f32)icn_white.g - t * ((f32)icn_white.g - (f32)g));
+    icnWhite.b = ((f32)icn_white.b - t * ((f32)icn_white.b - (f32)g));
+    icnWhite.a = 0xFF;
+
+    empWhite.r = ((f32)emp_white.r - t * ((f32)emp_white.r - (f32)r));
+    empWhite.g = ((f32)emp_white.g - t * ((f32)emp_white.g - (f32)g));
+    empWhite.b = ((f32)emp_white.b - t * ((f32)emp_white.b - (f32)g));
+    empWhite.a = 0xFF;
+
+    empBlack.r = ((f32)emp_black.r - t * ((f32)emp_black.r - (f32)r));
+    empBlack.g = ((f32)emp_black.g - t * ((f32)emp_black.g - (f32)g));
+    empBlack.b = ((f32)emp_black.b - t * ((f32)emp_black.b - (f32)g));
+    empBlack.a = 0;
+
+    ((J2DPicture*)pane_icn[param_1].pane)->setWhite(icnWhite);
+    ((J2DPicture*)pane_emp[param_1].pane)->setWhite(empWhite);
+    ((J2DPicture*)pane_emp[param_1].pane)->setBlack(empBlack);
+    
+    if (mPhotoSlotOccupied[param_1] != 0) {
+        f32 alpha = (pane_icn[param_1].mInitAlpha - (pane_icn[param_1].mInitAlpha - 100.0f) * t) / pane_icn[param_1].mInitAlpha;
+        fopMsgM_setNowAlpha(&pane_icn[param_1], alpha);
+    }
+    
+    f32 alpha2 = (pane_emp[param_1].mInitAlpha - (pane_emp[param_1].mInitAlpha - 100.0f) * t) / pane_emp[param_1].mInitAlpha;
+    fopMsgM_setNowAlpha(&pane_emp[param_1], alpha2);
+}
+#else
 void dJle_Pb_c::setColorAnime(u8 param_1) {
     JUtility::TColor icnWhite, empWhite, empBlack;
     pane_icn[param_1].mUserArea++;
@@ -1401,6 +1481,7 @@ void dJle_Pb_c::setColorAnime(u8 param_1) {
     
     fopMsgM_setNowAlpha(&pane_emp[param_1], (pane_emp[param_1].mInitAlpha - (pane_emp[param_1].mInitAlpha - 100.0f) * t) / pane_emp[param_1].mInitAlpha);
 }
+#endif
 
 /* 80229980-80229A7C       .text changeData__9dJle_Pb_cFv */
 void dJle_Pb_c::changeData() {
@@ -1992,6 +2073,31 @@ void dJle_Pb_c::_bopen() {
 
 /* 8022B0F8-8022B214       .text _gopen__9dJle_Pb_cFv */
 void dJle_Pb_c::_gopen() {
+#if VERSION == VERSION_DEMO
+    if (mFadeTimer == 0) {
+        if (mImportedPhotoLoadReq->sync() == 0) {
+            return;
+        }
+        messageSet(0xee5);
+        card_pictdata* pict = mPhotoBuffer[3];
+        memcpy(pict->tex_buffer, mImportedPhotoLoadReq->getMemAddress(), sizeof(pict->tex_buffer));
+        DCFlushRangeNoSync(pict->tex_buffer, sizeof(pict->tex_buffer));
+        u8 picNo = dComIfGp_getGetPictureNum();
+        pict->snap_result = photo_idx[picNo];
+        pict->snap_result_detail = 0;
+        pict->capture_format = GX_TF_CMPR;
+    }
+
+    mFadeTimer++;
+    getAlphaInc(fopMsgM_valueIncrease(10, mFadeTimer, 0));
+    if (mFadeTimer == 10) {
+        dComIfGp_setScopeMesgStatus(fopMsgStts_SCOPE_ACTIVE_e);
+        mExecState = PB_EXEC_GET_MOVE_e;
+        mDoAud_seStart(JA_SE_ITM_SUBMENU_IN_2);
+    }
+
+    dComIfGp_setDoStatusForce(dActStts_BLANK_e);
+#else
     if (mFadeTimer == 0) {
         messageSet(0xee5);
     }
@@ -2022,6 +2128,7 @@ void dJle_Pb_c::_gopen() {
 
     dComIfGp_setDoStatusForce(dActStts_BLANK_e);
     dComIfGp_setAStatusForce(dActStts_BLANK_e);
+#endif
 }
 
 /* 8022B214-8022B298       .text _close__9dJle_Pb_cFv */
@@ -2068,7 +2175,8 @@ void dJle_Pb_c::_gmove() {
 
 /* 8022B320-8022B9E8       .text draw__9dJle_Pb_cFv */
 void dJle_Pb_c::draw() {
-    /* Nonmatching - retail-only regalloc */
+    J2DTextBox* base1;
+    J2DTextBox* base2;
     if (mExecState != PB_EXEC_CLOSE_e && mExecState != PB_EXEC_CLOSED_e) {
         for (int i = 0; i < 12; i++) {
             fopMsgM_setAlpha(&pane_sb[i]);
@@ -2170,13 +2278,13 @@ void dJle_Pb_c::draw() {
                     int posX = mMsgDataProc.getIconPosX(idx);
                     int posY = mMsgDataProc.getIconPosY(idx);
                     int scale = mMsgDataProc.getIconScale(idx);
-                    J2DTextBox* base = (J2DTextBox*)pane_tx[0].pane;
-                    f32 lineSpace = base->getLineSpace();
+                    base1 = (J2DTextBox*)pane_tx[0].pane;
+                    f32 lineSpace = base1->getLineSpace();
                     int r9 = (int)(lineSpace / 2.0f);
-                    int r5 = posX + base->getBounds().i.x;
+                    int r5 = posX + base1->getBounds().i.x;
                     f32 f1 = r9 * ((VERSION_SELECT(1, 1, 2, 2) - mMsgLineCount) + posY * 2);
-                    int r6 = f1 + base->getBounds().i.y;
-                    u8 alpha = base->getAlpha();
+                    int r6 = f1 + base1->getBounds().i.y;
+                    u8 alpha = base1->getAlpha();
                     
                     fopMsgM_outFontDraw(
                         mMsgIconFontMainPic,
@@ -2232,13 +2340,13 @@ void dJle_Pb_c::draw() {
                     int posX = mMsgDataProc.getIconPosX(idx);
                     int posY = mMsgDataProc.getIconPosY(idx);
                     int scale = mMsgDataProc.getIconScale(idx);
-                    J2DTextBox* base = (J2DTextBox*)pane_tx[0].pane;
-                    f32 lineSpace = base->getLineSpace();
+                    base2 = (J2DTextBox*)pane_tx[0].pane;
+                    f32 lineSpace = base2->getLineSpace();
                     int r9 = (int)(lineSpace / 2.0f);
-                    int r5 = posX + base->getBounds().i.x;
+                    int r5 = posX + base2->getBounds().i.x;
                     f32 f1 = r9 * ((VERSION_SELECT(1, 1, 2, 2) - mMsgLineCount) + posY * 2);
-                    int r6 = f1 + base->getBounds().i.y;
-                    u8 alpha = base->getAlpha();
+                    int r6 = f1 + base2->getBounds().i.y;
+                    u8 alpha = base2->getAlpha();
                     
                     fopMsgM_outFontDraw(
                         mMsgIconFontMainPic,

@@ -76,6 +76,103 @@ namespace {
     inline const Attr_c & attr() { return L_attr; }
 }
 
+#if VERSION == VERSION_DEMO
+/* 00000078-00000950       .text __ct__14daTitle_proc_cFP10JKRExpHeap */
+daTitle_proc_c::daTitle_proc_c(JKRExpHeap* i_heap) {
+    m_exp_heap = i_heap;
+    JKRHeap* oldHeap = mDoExt_setCurrentHeap(m_exp_heap);
+
+    m_Screen = new J2DScreen();
+    JUT_ASSERT(0xCF, m_Screen != 0);
+
+    dRes_info_c* resInfo = dComIfG_getObjectResInfo(ARCNAME);
+    JUT_ASSERT(0xD1, resInfo != 0);
+
+    m_Screen->set("title_logo.blo", resInfo->getArchive());
+
+    m0A0[2] = m_Screen->search('pres');
+    m0A0[3] = m_Screen->search('nint');
+    m0A0[0] = m_Screen->search('zeld');
+    m0A0[1] = m_Screen->search('zelj');
+    m0A0[4] = m_Screen->search('eft1');
+    m0A0[5] = m_Screen->search('eft2');
+
+    for (s32 i = 0; i < (s32)ARRAY_SIZE(pane); i++) {
+        fopMsgM_setPaneData(&pane[i], m0A0[i]);
+        fopMsgM_setNowAlpha(&pane[i], 0.0f);
+        fopMsgM_setAlpha(&pane[i]);
+    }
+
+    m01C = 120;
+    mEnterMode = 0;
+    m098 = -50;
+
+    m094 = (f32)(m098 * m098) * -attr().field_0x0C;
+    m020 = (s32)(cM_rndF(attr().field_0x28) + attr().field_0x2C);
+    m024 = (s32)(cM_rndF(attr().field_0x20) + attr().field_0x24 + 130.0f);
+
+    m02C = 0;
+    m018 = 0;
+    m090 = 0;
+    m028 = 0;
+    m_solid_heap = NULL;
+    mpEmitter2 = NULL;
+    mpEmitter = NULL;
+
+    m_solid_heap = mDoExt_createSolidHeapFromGameToCurrent(0x40000U, 0x20);
+
+    J3DModelData* modelData_ship = (J3DModelData*)dComIfG_getObjectRes(ARCNAME, dRes_INDEX_TLOGO_BDL_TITLE_SHIP_e);
+    JUT_ASSERT(0xF3, modelData_ship != 0);
+
+    mModel_ship = mDoExt_J3DModel__create(modelData_ship, 0x80000U, 0x37441423U);
+    JUT_ASSERT(0xF8, mModel_ship != 0);
+
+    J3DModelData* modelData_sub = (J3DModelData*)dComIfG_getObjectRes(ARCNAME, dRes_INDEX_TLOGO_BDL_SUBTITLE_START_ANIM_e);
+    JUT_ASSERT(0xFC, modelData_sub != 0);
+
+    mModel_subtitle = mDoExt_J3DModel__create(modelData_sub, 0x80000U, 0x37441422U);
+    JUT_ASSERT(0x101, mModel_subtitle != 0);
+
+    J3DModelData* modelData_kirari = (J3DModelData*)dComIfG_getObjectRes(ARCNAME, dRes_INDEX_TLOGO_BDL_SUBTITLE_KIRARI_e);
+    JUT_ASSERT(0x105, modelData_kirari != 0);
+
+    mModel_kirari = mDoExt_J3DModel__create(modelData_kirari, 0x80000U, 0x37441422U);
+    JUT_ASSERT(0x10A, mModel_kirari != 0);
+
+    J3DAnmTransform* bck_ship = static_cast<J3DAnmTransform*>(dComIfG_getObjectRes(ARCNAME, dRes_INDEX_TLOGO_BCK_TITLE_SHIP_e));
+    JUT_ASSERT(0x10F, bck_ship != 0);
+
+    BOOL ok_bck = mBckShip.init(modelData_ship, bck_ship, TRUE, J3DFrameCtrl::EMode_LOOP);
+    JUT_ASSERT(0x116, ok_bck != 0);
+
+    J3DAnmColor* bpk_ship = static_cast<J3DAnmColor*>(dComIfG_getObjectRes(ARCNAME, dRes_INDEX_TLOGO_BPK_TITLE_SHIP_e));
+    JUT_ASSERT(0x11B, bpk_ship != 0);
+
+    BOOL ok_bpk = mBpkShip.init(modelData_ship, bpk_ship, TRUE, J3DFrameCtrl::EMode_LOOP);
+    JUT_ASSERT(0x121, ok_bpk != 0);
+
+    mBpkShip.setFrame(0.0f);
+    mBpkShip.setPlaySpeed(1.0f);
+
+    J3DAnmTextureSRTKey* btk_sub = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(ARCNAME, dRes_INDEX_TLOGO_BTK_SUBTITLE_START_ANIM_e));
+    JUT_ASSERT(0x128, btk_sub != 0);
+
+    BOOL ok_btk_subtitle = mBtkSub.init(modelData_sub, btk_sub, TRUE, J3DFrameCtrl::EMode_NONE);
+    JUT_ASSERT(0x12F, ok_btk_subtitle != 0);
+
+    J3DAnmTextureSRTKey* btk_kirari = static_cast<J3DAnmTextureSRTKey*>(dComIfG_getObjectRes(ARCNAME, dRes_INDEX_TLOGO_BTK_SUBTITLE_KIRARI_e));
+    JUT_ASSERT(0x134, btk_kirari != 0);
+
+    BOOL ok_btk_kirari = mBtkKirari.init(modelData_kirari, btk_kirari, TRUE, J3DFrameCtrl::EMode_LOOP);
+    JUT_ASSERT(0x13B, ok_btk_kirari != 0);
+
+    mDoExt_adjustSolidHeap(m_solid_heap);
+    mDoExt_restoreCurrentHeap();
+    set_mtx();
+
+    mDoExt_setCurrentHeap(oldHeap);
+}
+#else
 /* 00000078-00000638       .text proc_init3D__14daTitle_proc_cFv */
 void daTitle_proc_c::proc_init3D() {
     m_solid_heap = mDoExt_createSolidHeapFromGameToCurrent(0x40000U, 0x20);
@@ -178,6 +275,7 @@ daTitle_proc_c::daTitle_proc_c() {
     mpEmitter2 = NULL;
     mpEmitter = NULL;
 }
+#endif
 
 /* 00000C1C-00000D7C       .text __dt__14daTitle_proc_cFv */
 daTitle_proc_c::~daTitle_proc_c() {
@@ -269,8 +367,12 @@ void daTitle_proc_c::calc_2d_alpha() {
         if (m018 <= 75) {
             fopMsgM_setNowAlpha(&pane[1], 0.0f);
         } else if (m018 <= 130) {
+#if VERSION == VERSION_DEMO
+            fopMsgM_setNowAlpha(&pane[1], (f32)(m018 - 75) / 55.0f);
+#else
             f32 f1 = m018 - 75;
             fopMsgM_setNowAlpha(&pane[1], f1 / 55);
+#endif
         } else {
             fopMsgM_setNowAlpha(&pane[1], 1.0f);
         }
@@ -396,9 +498,11 @@ void daTitle_proc_c::proc_execute() {
     if (m01C > 0) {
         m01C -= 1;
 
+#if VERSION > VERSION_DEMO
         if (m01C == 0) {
             mDoAud_seStart(JA_SE_TITLE_WIND);
         }
+#endif
     } else {
         calc_2d_alpha();
     }
@@ -470,11 +574,18 @@ void daTitle_proc_c::proc_draw() {
 }
 
 daTitle_c::~daTitle_c() {
+#if VERSION == VERSION_DEMO
+    delete mpTitleProc;
+#else
     if (mpTitleProc != NULL) {
         delete mpTitleProc;
     }
+#endif
 
     dComIfG_resDelete(&mPhs, ARCNAME);
+#if VERSION == VERSION_DEMO
+    fopMsgM_destroyExpHeap(mpExpHeap);
+#endif
 }
 
 cPhs_State daTitle_c::create() {
@@ -488,6 +599,15 @@ cPhs_State daTitle_c::create() {
     cPhs_State phase_state = dComIfG_resLoad(&mPhs, ARCNAME);
 
     if (phase_state == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        mpExpHeap = fopMsgM_createExpHeap(0x30000U);
+        if (mpExpHeap == NULL) {
+            phase_state = cPhs_ERROR_e;
+        } else {
+            mpTitleProc = new daTitle_proc_c(mpExpHeap);
+        }
+    }
+#else
         mpTitleProc = new daTitle_proc_c();
 
         if (mpTitleProc == NULL) {
@@ -498,6 +618,7 @@ cPhs_State daTitle_c::create() {
         mpTitleProc->proc_init3D();
         m29C = false;
     }
+#endif
 
     return phase_state;
 }
@@ -511,9 +632,21 @@ BOOL daTitle_c::draw() {
 
 BOOL daTitle_c::execute() {
     if (!fopOvlpM_IsPeek()) {
-#if VERSION > VERSION_DEMO
+#if VERSION == VERSION_DEMO
+        if ((CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0) || CPad_CHECK_TRIG_START(0)) && mpTitleProc->getEnterMode() == 1) {
+            mpTitleProc->setEnterMode();
+            mDoAud_seStart(JA_SE_OP_ENTER_GAME);
+        } else if (mpTitleProc->getEnterMode() == 3) {
+            scene_class* stageProc = fopScnM_SearchByID(dStage_roomControl_c::getProcID());
+            JUT_ASSERT(0x296, stageProc != 0);
+            fopScnM_ChangeReq(stageProc, fpcNm_NAME_SCENE_e, 0, 5);
+        } else if (dComIfGp_isEnableNextStage()) {
+            scene_class* stageProc = fopScnM_SearchByID(dStage_roomControl_c::getProcID());
+            JUT_ASSERT(0x29F, stageProc != 0);
+            dComIfG_changeOpeningScene(stageProc, fpcNm_OPENING_SCENE_e);
+        }
+#else
         mDoGph_gInf_c::setFadeColor((JUtility::TColor&)g_blackColor);
-#endif
 
         if ((CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0) || CPad_CHECK_TRIG_START(0)) && mpTitleProc->getEnterMode() == 1) {
             mpTitleProc->setEnterMode();
@@ -540,6 +673,7 @@ BOOL daTitle_c::execute() {
                 m29C = true;
             }
         }
+#endif
     }
 
     mpTitleProc->proc_execute();

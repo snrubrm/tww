@@ -283,7 +283,7 @@ public:
     virtual ~dPa_selectTexEcallBack() {}
 
     virtual void draw(JPABaseEmitter*);
-    virtual void setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8);
+    virtual void setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8) {}
 
     /* 0x04 */ u8 mTexNo;
 };
@@ -348,7 +348,7 @@ public:
     virtual ~dPa_stripesEcallBack() {}
 
     virtual void draw(JPABaseEmitter*);
-    virtual void setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8);
+    virtual void setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8) {}
 };
 
 class dPa_kageroEcallBack : public JPACallBackBase<JPABaseEmitter*> {
@@ -365,7 +365,7 @@ public:
     virtual ~dPa_bombSmokeEcallBack() {}
 
     virtual void execute(JPABaseEmitter*);
-    virtual void setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8);
+    virtual void setup(JPABaseEmitter*, const cXyz*, const csXyz*, s8) {}
 };
 
 class dPa_setColorEcallBack : public dPa_levelEcallBack {

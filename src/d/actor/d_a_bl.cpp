@@ -29,9 +29,9 @@ void draw_SUB(bl_class* i_this) {
 
     model->setBaseScale(actor->scale);
     MtxTrans(actor->current.pos.x, actor->current.pos.y + i_this->mYOffset, actor->current.pos.z, 0);
-    mDoMtx_YrotM(*calc_mtx, actor->shape_angle.y);
-    mDoMtx_XrotM(*calc_mtx, actor->shape_angle.x);
-    mDoMtx_ZrotM(*calc_mtx, actor->shape_angle.z);
+    cMtx_YrotM(*calc_mtx, actor->shape_angle.y);
+    cMtx_XrotM(*calc_mtx, actor->shape_angle.x);
+    cMtx_ZrotM(*calc_mtx, actor->shape_angle.z);
     MtxTrans(0.0f, -i_this->mYOffset, 0.0f, 1);
     model->setBaseTRMtx(*calc_mtx);
 
@@ -87,10 +87,9 @@ void smoke_set(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
 
     if (i_this->mSmokeCb.getEmitter() == NULL) {
-        s8 roomNo = actor->current.roomNo;
         dComIfGp_particle_setToon(
             dPa_name::ID_AK_JT_ELEMENTSMOKE01, (cXyz*)&i_this->m6BC, &actor->shape_angle, NULL, 0xB9,
-            &i_this->mSmokeCb, roomNo
+            &i_this->mSmokeCb, fopAcM_GetRoomNo(actor)
         );
     }
 
@@ -110,13 +109,17 @@ void smoke_set(bl_class* i_this) {
 
 /* 000003F8-000004AC       .text fire_move_set__FP8bl_class */
 void fire_move_set(bl_class* i_this) {
-    u16 particleID = dPa_name::ID_AK_SN_BUBBLEBLUE00 + (i_this->mType == 0);
+    u16 particleID;
+    if (i_this->mType == 0) {
+        particleID = dPa_name::ID_AK_SN_BUBBLERED00;
+    } else {
+        particleID = dPa_name::ID_AK_SN_BUBBLEBLUE00;
+    }
     fopAc_ac_c* actor = i_this;
 
     if (i_this->mFireCb.getEmitter() == NULL) {
-        s8 roomNo = actor->current.roomNo;
         dComIfGp_particle_set(
-            particleID, &actor->current.pos, NULL, NULL, 0xFF, &i_this->mFireCb, roomNo
+            particleID, &actor->current.pos, NULL, NULL, 0xFF, &i_this->mFireCb, fopAcM_GetRoomNo(actor)
         );
         if (i_this->mType == 1) {
             i_this->mSph.SetTgSe(dCcG_SE_METAL);
@@ -161,8 +164,9 @@ void fire_kaiten_keisan(bl_class* i_this) {
         } else {
             mDoAud_seStart(JA_SE_CM_BL_CURSE_BURNING, &actor->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
             camera_process_class* camera = dComIfGp_getCamera(dComIfGp_getPlayerCameraID(0));
-            mDoMtx_copy(i_this->mpMorf->getModel()->getAnmMtx(0), *calc_mtx);
-            mDoMtx_YrotM(*calc_mtx, camera->mAngle.y - actor->shape_angle.y);
+            MTXCopy(i_this->mpMorf->getModel()->getAnmMtx(0), *calc_mtx);
+            s16 cam_angle = camera->mAngle.y;
+            cMtx_YrotM(*calc_mtx, cam_angle - actor->shape_angle.y);
             i_this->mFireCb.getEmitter()->setGlobalRTMatrix(*calc_mtx);
         }
     }
@@ -178,13 +182,23 @@ BOOL shock_damage_check(bl_class* i_this) {
     }
 
     if (player->checkHammerQuake()) {
-        cXyz swordTopPos = player->getSwordTopPos();
+#if VERSION <= VERSION_JPN
+#if VERSION > VERSION_DEMO
+        i_this->mFireClrTimer = 0;
+#endif
+        fire_emitter_clr(i_this);
+#endif
+        cXyz swordTopPos;
+        const cXyz& swordTopPosRef = player->getSwordTopPos();
+        swordTopPos = swordTopPosRef;
         swordTopPos.x -= actor->current.pos.x;
         swordTopPos.z -= actor->current.pos.z;
         f32 distXZ = std::sqrtf(SQUARE(swordTopPos.x) + SQUARE(swordTopPos.z));
         if (distXZ < 1000.0f) {
+#if VERSION > VERSION_JPN
             i_this->mFireClrTimer = 0;
             fire_emitter_clr(i_this);
+#endif
             return TRUE;
         }
     }
@@ -213,6 +227,8 @@ void anm_init(bl_class* i_this, int bckFileIdx, f32 morf, u8 loopMode, f32 speed
 /* 0000094C-00000C08       .text skull_atari_check__FP8bl_class */
 BOOL skull_atari_check(bl_class* i_this) {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    fopAc_ac_c* actor = i_this;
+    CcAtInfo atInfo;
 
     i_this->mStts.Move();
 
@@ -239,10 +255,14 @@ BOOL skull_atari_check(bl_class* i_this) {
         return FALSE;
     }
 
-    i_this->current.angle.y = fopAcM_searchPlayerAngleY(i_this) + 0x8000;
+    i_this->current.angle.y = fopAcM_searchPlayerAngleY(actor) + 0x8000;
     u8 no_kill = 0;
+#if VERSION == VERSION_DEMO
+    i_this->mHitTimer = 8;
+#else
     s16 hit_timer = 8;
     i_this->mHitTimer = hit_timer;
+#endif
     i_this->m2D4 = 0;
 
     switch (hitObj->GetAtType()) {
@@ -288,7 +308,7 @@ BOOL skull_atari_check(bl_class* i_this) {
 
     cXyz hitPos = *i_this->mSph.GetTgHitPosP();
     if (no_kill == 0) {
-        fopAcM_seStart(i_this, JA_SE_OBJ_BREAK_STONE, 0);
+        fopAcM_seStart(actor, JA_SE_OBJ_BREAK_STONE, 0);
         i_this->health = 0;
         i_this->attention_info.flags = 0;
         i_this->m2D2 = 0xA;
@@ -558,8 +578,12 @@ BOOL red_body_atari_check(bl_class* i_this) {
     i_this->current.angle.y = fopAcM_searchPlayerAngleY(actor) + 0x8000;
     u8 no_kill = 0;
     cXyz hitPos = *i_this->mSph.GetTgHitPosP();
+#if VERSION == VERSION_DEMO
+    i_this->mHitTimer = 8;
+#else
     s16 hit_timer = 8;
     i_this->mHitTimer = hit_timer;
+#endif
     i_this->m2D4 = 0;
 
     switch (hitObj->GetAtType()) {
@@ -586,7 +610,7 @@ BOOL red_body_atari_check(bl_class* i_this) {
         }
         break;
     case AT_TYPE_SWORD:
-        i_this->m2D4 = hit_timer;
+        i_this->m2D4 = DEMO_SELECT(8, hit_timer);
         fopAcM_seStart(actor, JA_SE_LK_SW_HIT_S, 0x33);
         if (player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EA ||
             player->getCutType() == daPy_py_c::CUT_TYPE_CUT_EB ||
@@ -697,7 +721,9 @@ BOOL red_body_atari_check(bl_class* i_this) {
         i_this->speed.x = 0.0f;
         i_this->speed.y = 0.0f;
         i_this->speed.z = 0.0f;
+#if VERSION > VERSION_DEMO
         i_this->mFireClrTimer = 0;
+#endif
         fire_emitter_clr(i_this);
         i_this->mSph.OffAtSetBit();
         i_this->mSph.ClrAtSet();
@@ -861,12 +887,15 @@ s16 way_check(bl_class* i_this, s16 param_1) {
 /* 00003054-000039F0       .text action_dousa__FP8bl_class */
 void action_dousa(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
-    int target_angle;
+    s16 target_angle;
+    f32 limit6;
+    f32 dx, dz;
 
     switch (i_this->m306) {
     case 0:
         i_this->m304 = 0;
-        if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > 1000.0f) {
+        f32 limit0 = 1000.0f;
+        if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > limit0) {
             break;
         }
         fopAcM_OnStatus(actor, fopAcStts_SHOWMAP_e);
@@ -938,12 +967,12 @@ void action_dousa(bl_class* i_this) {
         actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
         if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
             dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
-            target_angle = cM_atan2s(pnt->m_position.x - actor->current.pos.x, pnt->m_position.z - actor->current.pos.z);
+            target_angle = (s16)cM_atan2s(pnt->m_position.x - actor->current.pos.x, pnt->m_position.z - actor->current.pos.z);
             actor->speedF = i_this->m324;
         } else {
             i_this->m2EC = (s16)(100.0f + cM_rndFX(50.0f));
             target_angle = cM_rndFX(32767.0f);
-            if (actor->speedF == 0.0f) {
+            if (!actor->speedF) {
                 actor->speedF = 4.0f + cM_rndF(2.0f);
             }
         }
@@ -953,9 +982,9 @@ void action_dousa(bl_class* i_this) {
     case 6:
         if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
             dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
-            f32 dx = pnt->m_position.x - actor->current.pos.x;
-            f32 dz = pnt->m_position.z - actor->current.pos.z;
-            target_angle = cM_atan2s(dx, dz);
+            dx = pnt->m_position.x - actor->current.pos.x;
+            dz = pnt->m_position.z - actor->current.pos.z;
+            target_angle = (s16)cM_atan2s(dx, dz);
             f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
             if (dist < 80.0f + REG8_F(3)) {
                 i_this->mPathPntIdx++;
@@ -972,10 +1001,11 @@ void action_dousa(bl_class* i_this) {
             }
             break;
         } else {
-            f32 dx = actor->current.pos.x - i_this->m2C4.x;
-            f32 dz = actor->current.pos.z - i_this->m2C4.z;
+            f32 limit = 250.0f;
+            dx = actor->current.pos.x - i_this->m2C4.x;
+            dz = actor->current.pos.z - i_this->m2C4.z;
             f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
-            if (dist < 250.0f) {
+            if (dist < limit) {
                 if (i_this->m2EC != 0) {
                     break;
                 }
@@ -1046,7 +1076,8 @@ void action_dousa(bl_class* i_this) {
                 i_this->m306 = 0xA;
             }
         } else if (i_this->mBtkMode != 0) {
-            if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < 600.0f) {
+            limit6 = 600.0f;
+            if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < limit6) {
                 if (Line_check(i_this, dComIfGp_getPlayer(0)->current.pos)) {
                     if (i_this->m2E9 == 0xFF || i_this->mpPath == NULL || i_this->m306 != 7) {
                         i_this->m2D2 = 1;
@@ -1066,7 +1097,7 @@ void action_kougeki(bl_class* i_this) {
     switch (i_this->m306) {
     case 0xA: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         i_this->mSph.OnAtSetBit();
@@ -1094,19 +1125,23 @@ void action_kougeki(bl_class* i_this) {
         if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
             f32 dx = actor->current.pos.x - i_this->m2C4.x;
             f32 dz = actor->current.pos.z - i_this->m2C4.z;
+            f32 limit = 700.0f;
             f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
-            if (dist > 700.0f) {
+            if (dist > limit) {
                 anm_init(i_this, dRes_INDEX_BL_BCK_FLY_e, 1.0f, 2, 1.0f, -1);
                 actor->speedF = 4.0f + cM_rndF(2.0f);
                 i_this->m2D2 = 0;
                 i_this->m306 = 7;
                 return;
             }
-        } else if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > 700.0f) {
-            actor->speedF = 4.0f + cM_rndF(2.0f);
-            i_this->m2D2 = 0;
-            i_this->m306 = 5;
-            return;
+        } else {
+            f32 limit = 700.0f;
+            if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > limit) {
+                actor->speedF = 4.0f + cM_rndF(2.0f);
+                i_this->m2D2 = 0;
+                i_this->m306 = 5;
+                return;
+            }
         }
         break;
     case 0xE:
@@ -1219,7 +1254,7 @@ void action_kaze_move(bl_class* i_this) {
     switch (i_this->m306) {
     case 0x1E: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         actor->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
@@ -1237,7 +1272,9 @@ void action_kaze_move(bl_class* i_this) {
         if (i_this->mCurrBckIdx != dRes_INDEX_BL_BCK_UCHIWA_e) {
             anm_init(i_this, dRes_INDEX_BL_BCK_UCHIWA_e, 1.0f, 0, 1.0f, -1);
         }
+#if VERSION > VERSION_DEMO
         i_this->mFireClrTimer = 0;
+#endif
         fire_emitter_clr(i_this);
         fopAcM_seStart(actor, JA_SE_CM_BL_WIND_HIT, 0);
         fopAcM_monsSeStart(actor, JA_SE_CV_BL_DAMAGE, 0);
@@ -1288,7 +1325,7 @@ void action_kaze_move(bl_class* i_this) {
         break;
     case 0x24: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         actor->speed.y = 15.0f;
@@ -1304,8 +1341,12 @@ void action_kaze_move(bl_class* i_this) {
         offset.x = 0.0f;
         offset.y = 0.0f;
         offset.z = 5000.0f;
+#if VERSION == VERSION_DEMO
+        cMtx_YrotS(*calc_mtx, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000);
+#else
         s16 yrot = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         cMtx_YrotS(*calc_mtx, yrot + 0x8000);
+#endif
         cXyz dest;
         MtxPosition(&offset, &dest);
         i_this->m2F8[0] = (s16)-dest.x;
@@ -1371,7 +1412,7 @@ void action_itaiyo_ne_san(bl_class* i_this) {
     case 0x28: {
         i_this->m31C = 1.0f;
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
         actor->gravity = -3.0f;
@@ -1381,7 +1422,9 @@ void action_itaiyo_ne_san(bl_class* i_this) {
         if (i_this->mCurrBckIdx != dRes_INDEX_BL_BCK_UCHIWA_e) {
             anm_init(i_this, dRes_INDEX_BL_BCK_UCHIWA_e, 1.0f, 0, 1.0f, -1);
         }
+#if VERSION > VERSION_DEMO
         i_this->mFireClrTimer = 0;
+#endif
         fire_emitter_clr(i_this);
         cXyz offset;
         offset.x = 0.0f;
@@ -1409,8 +1452,12 @@ void action_itaiyo_ne_san(bl_class* i_this) {
             offset.z = 5000.0f;
             bound_sound_set(i_this);
         }
+#if VERSION == VERSION_DEMO
+        cMtx_YrotS(*calc_mtx, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)) + 0x8000);
+#else
         s16 yrot = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         cMtx_YrotS(*calc_mtx, yrot + 0x8000);
+#endif
         cXyz dest;
         MtxPosition(&offset, &dest);
         i_this->m2F8[0] = (s16)-dest.x;
@@ -1446,10 +1493,9 @@ void action_itaiyo_ne_san(bl_class* i_this) {
                 if (i_this->m2D4 == 4) {
                     cXyz skullPos = actor->current.pos;
                     skullPos.y += 25.0f + REG8_F(2);
-                    s8 roomNo = actor->current.roomNo;
                     JPABaseEmitter* emitter = dComIfGp_particle_set(
                         dPa_name::ID_IT_JN_DOKURO00, &skullPos, &actor->current.angle, &actor->scale,
-                        0xFF, NULL, roomNo, &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
+                        0xFF, NULL, fopAcM_GetRoomNo(actor), &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
                     );
                     if (emitter != NULL) {
                         emitter->setAwayFromAxisSpeed(30.0f);
@@ -1499,12 +1545,14 @@ void action_hook_atari(bl_class* i_this) {
     switch (i_this->m306) {
     case 0x3C: {
         int i;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < (int)ARRAY_SIZE(i_this->m2F8); i++) {
             i_this->m2F8[i] = 0;
         }
 
         if (i_this->mFireCb.getEmitter() != NULL) {
+#if VERSION > VERSION_DEMO
             i_this->mFireClrTimer = 0;
+#endif
             fire_emitter_clr(i_this);
             anm_init(i_this, dRes_INDEX_BL_BCK_UCHIWA_e, 1.0f, 0, 1.0f, -1);
             i_this->mSph.OffAtSetBit();
@@ -1570,7 +1618,8 @@ void action_normal_skull(bl_class* i_this) {
         }
         i_this->mSph.OnCoSetBit();
         actor->gravity = -3.0f;
-        if (actor->speedF > 0.0f) {
+        f32 speedF = actor->speedF;
+        if (speedF > 0.0f) {
             actor->speed.y = 25.0f;
             actor->speedF = 35.0f;
             i_this->m306 = 0x66;
@@ -1585,9 +1634,11 @@ void action_normal_skull(bl_class* i_this) {
         if (i_this->mAcch.ChkGroundHit() || i_this->mAcch.ChkWallHit()) {
             actor->speed.setall(0.0f);
             if (i_this->mEnemyFire.mFireDuration == 0) {
+#if VERSION > VERSION_JPN
                 actor->speedF = 0.0f;
                 actor->health = 0;
                 actor->attention_info.flags = 0;
+#endif
                 i_this->m306 = 0x68;
             }
         }
@@ -1598,10 +1649,9 @@ void action_normal_skull(bl_class* i_this) {
         break;
     case 0x68: {
         pos.y += 25.0f + REG8_F(2);
-        s8 roomNo = actor->current.roomNo;
         JPABaseEmitter* emitter = dComIfGp_particle_set(
             dPa_name::ID_IT_JN_DOKURO00, &pos, &actor->current.angle, &actor->scale,
-            0xFF, NULL, roomNo, &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
+            0xFF, NULL, fopAcM_GetRoomNo(actor), &actor->tevStr.mColorK0, &actor->tevStr.mColorK0
         );
         if (emitter != NULL) {
             emitter->setAwayFromAxisSpeed(30.0f);
@@ -1615,9 +1665,14 @@ void action_normal_skull(bl_class* i_this) {
         i_this->mSph.OffTgSetBit();
         i_this->mSph.OffCoSetBit();
         i_this->mSph.ClrTgHit();
+#if VERSION <= VERSION_JPN
+        actor->scale.setall(0.0f);
+        i_this->m31C = 0.0f;
+#else
         i_this->m31C = 0.0f;
         actor->scale.setall(0.0f);
-        i_this->m2F8[3] = 0xB4;
+#endif
+        i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1] = 0xB4;
         i_this->m2EE = 0xA;
         i_this->m306++;
         break;
@@ -1625,9 +1680,9 @@ void action_normal_skull(bl_class* i_this) {
     case 0x69:
         if (i_this->mSmokeCb.getEmitter() != NULL) {
             if (i_this->m2EE == 0) {
-                i_this->mSmokeCb.getEmitter()->setGlobalAlpha(i_this->m2F8[3]);
-                i_this->m2F8[3] -= 4;
-                if (i_this->m2F8[3] < 0) {
+                i_this->mSmokeCb.getEmitter()->setGlobalAlpha(i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1]);
+                i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1] -= 4;
+                if (i_this->m2F8[ARRAY_SIZE(i_this->m2F8) - 1] < 0) {
                     i_this->mSmokeCb.remove();
                 }
             }
@@ -1637,7 +1692,11 @@ void action_normal_skull(bl_class* i_this) {
         break;
     }
 
+#if VERSION <= VERSION_JPN
+    i_this->mYOffset = 24.0f + REG8_F(0);
+#else
     i_this->mYOffset = 24.0f;
+#endif
     skull_atari_check(i_this);
 }
 
@@ -1648,9 +1707,11 @@ static BOOL daBL_Execute(bl_class* i_this) {
     if (i_this->mFireClrTimer == 1) {
         i_this->mFireCb.remove();
     }
+#if VERSION > VERSION_DEMO
     if (i_this->m2F6 == 1) {
         fopAcM_OffStatus(actor, fopAcStts_UNK4000_e);
     }
+#endif
 
     actor->eyePos = actor->current.pos;
     actor->attention_info.position = actor->current.pos;
@@ -1666,7 +1727,7 @@ static BOOL daBL_Execute(bl_class* i_this) {
     }
 
     if (enemy_ice(&i_this->mEnemyIce)) {
-        i_this->mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+        i_this->mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::now);
         i_this->mpMorf->calc();
         if (i_this->mFireClrTimer != 0) {
             i_this->mFireClrTimer--;
@@ -1674,7 +1735,7 @@ static BOOL daBL_Execute(bl_class* i_this) {
         return TRUE;
     }
 
-    for (int i = 0; i < 6; i++) {
+    for (int i = 0; i < DEMO_SELECT(5, 6); i++) {
         if ((&i_this->m2EC)[i] != 0) {
             (&i_this->m2EC)[i]--;
         }
@@ -1708,13 +1769,8 @@ static BOOL daBL_Execute(bl_class* i_this) {
     }
 
     if (i_this->m306 != 0) {
-        s8 roomNo = actor->current.roomNo;
-        u32 mtrlSndId;
-        if (i_this->mAcch.ChkGroundHit()) {
-            mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd);
-        } else {
-            mtrlSndId = 0;
-        }
+        s8 roomNo = fopAcM_GetRoomNo(actor);
+        u32 mtrlSndId = i_this->mAcch.ChkGroundHit() ? dComIfG_Bgsp()->GetMtrlSndId(i_this->mAcch.m_gnd) : 0;
         i_this->mpMorf->play(&actor->eyePos, mtrlSndId, dComIfGp_getReverb(roomNo));
     }
 
@@ -1749,7 +1805,7 @@ static BOOL daBL_Execute(bl_class* i_this) {
 
     BG_check(i_this);
 
-    if (i_this->m2D1 == 0 || actor->gravity != 0.0f) {
+    if (i_this->m2D1 == 0 || actor->gravity) {
         if (i_this->mAcch.GetGroundH() != -G_CM3D_F_INF &&
             dComIfG_Bgsp()->ChkPolySafe(i_this->mAcch.m_gnd) &&
             dComIfG_Bgsp()->GetGroundCode(i_this->mAcch.m_gnd) == 4 &&
@@ -1778,7 +1834,7 @@ static BOOL daBL_Delete(bl_class* i_this) {
     i_this->mFireCb.remove();
     i_this->mSmokeCb.remove();
     enemy_fire_remove(&i_this->mEnemyFire);
-    dComIfG_resDelete(&i_this->mPhase, "BL");
+    dComIfG_resDeleteDemo(&i_this->mPhase, "BL");
     return TRUE;
 }
 
@@ -1837,7 +1893,9 @@ static BOOL useHeapInit(fopAc_ac_c* i_this) {
 
 /* 00005884-00005D88       .text daBL_Create__FP10fopAc_ac_c */
 static cPhs_State daBL_Create(fopAc_ac_c* i_this) {
+#if VERSION > VERSION_DEMO
     fopAcM_ct(i_this, bl_class);
+#endif
     bl_class* a_this = (bl_class*)i_this;
 
     static dCcD_SrcSph body_co_sph_src = {
@@ -1871,6 +1929,9 @@ static cPhs_State daBL_Create(fopAc_ac_c* i_this) {
 
     cPhs_State phase_state = dComIfG_resLoad(&a_this->mPhase, "BL");
     if (phase_state == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_ct(i_this, bl_class);
+#endif
         a_this->mType = fopAcM_GetParam(i_this);
         a_this->m2D1 = fopAcM_GetParam(i_this) >> 24;
         a_this->m2E9 = fopAcM_GetParam(i_this) >> 16;
@@ -1941,6 +2002,9 @@ static cPhs_State daBL_Create(fopAc_ac_c* i_this) {
         }
 
         a_this->m328 = 50.0f;
+#if VERSION == VERSION_DEMO
+        draw_SUB(a_this);
+#endif
         a_this->m300 = i_this->shape_angle.y;
         a_this->mSph.Set(body_co_sph_src);
         a_this->mSph.SetStts(&a_this->mStts);
@@ -1974,7 +2038,9 @@ static cPhs_State daBL_Create(fopAc_ac_c* i_this) {
 
         a_this->m2D2 = 0;
         if (!a_this->mAcch.ChkGroundHit()) {
+#if VERSION > VERSION_DEMO
             i_this->scale.setall(0.0f);
+#endif
             i_this->gravity = 0.0f;
             i_this->speed.y = 0.0f;
             i_this->current.pos.y = 100.0f + a_this->m320;
@@ -1996,8 +2062,10 @@ static cPhs_State daBL_Create(fopAc_ac_c* i_this) {
             a_this->mSph.OnCoSetBit();
             i_this->current.angle.y = cM_rndFX(32767.0f);
             i_this->shape_angle.y = i_this->current.angle.y;
+#if VERSION > VERSION_DEMO
             fopAcM_OnStatus(i_this, fopAcStts_UNK4000_e);
             a_this->m2F6 = 4;
+#endif
             fopAcM_OffStatus(i_this, fopAcStts_SHOWMAP_e);
             i_this->attention_info.flags |= fopAc_Attn_ACTION_CARRY_e;
             a_this->m2D2 = 0xA;
@@ -2007,7 +2075,9 @@ static cPhs_State daBL_Create(fopAc_ac_c* i_this) {
             a_this->m2EA = i_this->stealItemLeft;
         }
 
+#if VERSION > VERSION_DEMO
         draw_SUB(a_this);
+#endif
     }
 
     return phase_state;

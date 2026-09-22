@@ -212,8 +212,10 @@ bool Act_c::M_restart;
 /* 00000078-00000090       .text prm_set_swSave__Q28daObjTry5Act_cFi */
 void Act_c::prm_set_swSave(int value) {
     u32 params = fopAcM_GetParam(this);
-    params &= ~0xFF00;
-    params |= (value & 0xFF) << 8;
+    u32 mask = 0xFF;
+    u32 v = value & mask;
+    params &= ~(mask << 8);
+    params |= v << 8;
     fopAcM_SetParam(this, params);
 }
 
@@ -274,7 +276,7 @@ bool Act_c::chk_appear() const {
     if (attr().mCheckSwitch) {
         u32 dummy = bool(prm_get_dummy());
         int swSave = prm_get_swSave();
-        bool sw = dComIfGs_isSwitch(swSave, home.roomNo) != 0;
+        bool sw = dComIfGs_isSwitch(swSave, fopAcM_GetHomeRoomNo(const_cast<Act_c*>(this))) != 0;
         if ((!sw && dummy) || (sw && !dummy)) {
             appear = false;
         }
@@ -296,7 +298,7 @@ cPhs_State Act_c::_create() {
         if (phase == cPhs_COMPLEATE_e) {
             if (fopAcM_entrySolidHeap(this, solidHeapCB, attr().mHeapSize)) {
                 mAcchCir.SetWall(30.0f, attr().mRadius);
-                mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, &current.angle, &shape_angle);
+                mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), fopAcM_GetAngle_p(this), fopAcM_GetShapeAngle_p(this));
                 mAcch.ClrWaterNone();
                 mAcch.ClrRoofNone();
                 mAcch.SetRoofCrrHeight(attr().mRoofHeight);
@@ -392,7 +394,11 @@ void Act_c::mode_restart() {
         current.pos.y = home.pos.y;
         mode_wait_init();
     } else if (mTimer < 50) {
+#if VERSION == VERSION_DEMO
+        f32 factor = 0.5f * (1.0f - cM_scos(655.36f * mTimer));
+#else
         f32 factor = 0.5f * (1.0f - jmaCosTable[u16(s16(655.36f * mTimer)) >> jmaSinShift]);
+#endif
         current.pos.y = home.pos.y + factor * (-10.0f - attr().mRoofHeight);
         shape_angle.y = s16(-32768.0f * factor) + home.angle.y;
         current.angle.y = shape_angle.y;
@@ -479,7 +485,7 @@ void Act_c::mode_carry() {
     }
     speed.y = 0.0f;
     if (!fopAcM_checkCarryNow(this)) {
-        if (speedF > 0.0f) {
+        if (fopAcM_GetSpeedF(this) > 0.0f) {
             mode_drop_init();
             mode_drop();
         } else {
@@ -492,7 +498,12 @@ void Act_c::mode_carry() {
 
 /* 000013D4-000014A8       .text mode_drop_init__Q28daObjTry5Act_cFv */
 void Act_c::mode_drop_init() {
+#if VERSION == VERSION_DEMO
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    f32 forward = attr().mThrowSpeedF + fopAcM_GetSpeedF(player) * attr().mPlayerSpeedRate;
+#else
     f32 forward = attr().mThrowSpeedF + dComIfGp_getPlayer(0)->speedF * attr().mPlayerSpeedRate;
+#endif
     mCyl.OnAtSetBit();
     mCyl.OnTgSetBit();
     mCyl.OnCoSetBit();
@@ -632,9 +643,12 @@ bool Act_c::damage_cc_proc() {
         speedF *= 0.3f;
     } else if (mCyl.ChkTgHit()) {
         mCyl.GetTgHitObj();
-        daObj::HitSeStart(&eyePos, current.roomNo, &mCyl, attr().mHitSound);
-        set_senv(attr().mHitSoundRadius, attr().mHitSoundTime);
-        daObj::HitEff_hibana(this, &mCyl);
+        bool shield = false;
+        if (!shield) {
+            daObj::HitSeStart(&eyePos, current.roomNo, &mCyl, attr().mHitSound);
+            set_senv(attr().mHitSoundRadius, attr().mHitSoundTime);
+            daObj::HitEff_hibana(this, &mCyl);
+        }
         mCyl.ClrTgHit();
     }
     return false;
@@ -642,7 +656,7 @@ bool Act_c::damage_cc_proc() {
 
 /* 00001CD8-00001E98       .text damage_bg_proc__Q28daObjTry5Act_cFv */
 bool Act_c::damage_bg_proc() {
-    int homeRoom = home.roomNo;
+    int homeRoom = fopAcM_GetHomeRoomNo(this);
     int stayRoom = dComIfGp_roomControl_getStayNo();
     bool ground = mAcch.ChkGroundHit();
     bool water = chk_sink_water();
@@ -837,7 +851,9 @@ void Act_c::eff_clr_bingo() {
         mFollow.remove();
         if (mpEmitter) {
             mpEmitter->becomeInvalidEmitter();
+#if VERSION > VERSION_DEMO
             mpEmitter = NULL;
+#endif
         }
         mBingoEffect = 0;
     }
@@ -883,7 +899,7 @@ f32 Act_c::get_water_h() {
 /* 00002BB4-00002DA8       .text _execute__Q28daObjTry5Act_cFv */
 bool Act_c::_execute() {
     cull_set_move();
-    if (mMoveBG || mMode != 1 || !mAcch.ChkGroundHit() || mAcch.ChkGroundLanding() || attr().mAlwaysMove || !fopAcM_cullingCheck(this)) {
+    if (mMoveBG || mMode != 1 || mAcch.ChkGroundHit() == false || mAcch.ChkGroundLanding() || attr().mAlwaysMove || !fopAcM_cullingCheck(this)) {
         mMoveBG = 0;
         BOOL remove = TRUE;
         if (!damage_cc_proc() && !damage_bg_proc()) {

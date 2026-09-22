@@ -6,6 +6,7 @@
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_gy.h"
 #include "d/actor/d_a_gy_ctrl.h"
+#include "d/actor/d_a_player.h"
 #include "d/actor/d_a_sea.h"
 #include "d/actor/d_a_ship.h"
 #include "d/d_a_obj.h"
@@ -30,6 +31,11 @@ const char daGy_c::m_arc_name[] = "Gy";
 
 static daGy_HIO_c l_HIO;
 
+#if VERSION == VERSION_DEMO
+#define mHeadSph mSph[5]
+#endif
+
+#if VERSION > VERSION_DEMO
 static dCcD_SrcSph l_sph_head_src = {
     // dCcD_SrcGObjInf
     {
@@ -58,7 +64,7 @@ static dCcD_SrcSph l_sph_head_src = {
         /* Radius */ 180.0f,
     }},
 };
-
+#endif
 
 static dCcD_SrcSph l_sph_src = {
     // dCcD_SrcGObjInf
@@ -152,11 +158,11 @@ daGy_HIO_c::daGy_HIO_c() {
     m198 = 1;
     m40 = 60.0f;
     m44 = 2500.0f;
-    m74 = 70.0f;
-    m78 = 70.0f;
-    m7C = 80.0f;
-    m80 = 70.0f;
-    m84 = 70.0f;
+    m74[0] = 70.0f;
+    m74[1] = 70.0f;
+    m74[2] = 80.0f;
+    m74[3] = 70.0f;
+    m74[4] = 70.0f;
     m88 = 110.0f;
     m8C = 100.0f;
     m90 = 1.0f;
@@ -173,9 +179,9 @@ daGy_HIO_c::daGy_HIO_c() {
     mAC = -80.0f;
     mB4 = -25.0f;
     mB0 = 20.0f;
-    mB8 = 0.0f;
-    mBC = 0.0f;
-    mC0 = 0.0f;
+    mB8.x = 0.0f;
+    mB8.y = 0.0f;
+    mB8.z = 0.0f;
     mC4 = 8.0f;
     m178 = 0.5f;
     mC8 = 30.0f;
@@ -249,6 +255,7 @@ static BOOL nodeControl_CB(J3DNode* i_node, int i_calcTiming) {
 /* 0000049C-00000888       .text _nodeControl__6daGy_cFP7J3DNodeP8J3DModel */
 void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
     int jntNo = ((J3DJoint*)i_node)->getJntNo();
+    fopAc_ac_c* actor = this;
 
     if (jntNo == GY_JNT_J_GY_ATAMA1_e) {
         mDoMtx_stack_c::copy(i_model->getAnmMtx(jntNo));
@@ -257,6 +264,9 @@ void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
         offset.y = l_HIO.mD8;
         offset.z = l_HIO.mDC;
         mDoMtx_stack_c::multVec(&offset, &mD08);
+#if VERSION == VERSION_DEMO
+        mDoMtx_stack_c::multVecZero(&m11C4[jntNo]);
+#endif
     }
 
     Mtx mtx;
@@ -269,8 +279,8 @@ void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
 
     if (jntNo == GY_JNT_J_GY_ATAMA1_e) {
         fopAc_ac_c* player = dComIfGp_getPlayer(0);
-        f32 dist = (current.pos - player->current.pos).absXZ();
-        int angDiff = cLib_distanceAngleS(shape_angle.y, fopAcM_searchActorAngleY(this, player));
+        f32 dist = (actor->current.pos - player->current.pos).absXZ();
+        int angDiff = cLib_distanceAngleS(actor->shape_angle.y, fopAcM_searchActorAngleY(actor, player));
         if (angDiff < l_HIO.m180 && dist < l_HIO.m184 && mPrmIdx != 8 && mPrmIdx != 9 && mPrmIdx != 6 && mPrmIdx != 0xB && mPrmIdx != 3) {
             mCEC = player->current.pos;
             if (m2B0 == 2) {
@@ -280,18 +290,27 @@ void daGy_c::_nodeControl(J3DNode* i_node, J3DModel* i_model) {
             if (m2B0 == 3 && m928 == 1) {
                 mCEC.y += l_HIO.mA4;
             }
+#if VERSION == VERSION_DEMO
+            cXyz pos = m11C4[jntNo];
+            cXyz to = mCEC - pos;
+            cXyz from = mD08 - pos;
+#else
             cXyz to = mCEC - mD08;
             cXyz from = mD08 - mD08;
+#endif
             Quaternion quat;
             daObj::quat_rotVec(&quat, from, to);
-            C_QUATSlerp(&mCF8, &quat, &mCF8, l_HIO.m188);
+            mDoMtx_quatSlerp(&mCF8, &quat, &mCF8, l_HIO.m188);
         } else {
-            C_QUATSlerp(&mCF8, &ZeroQuat, &mCF8, l_HIO.m188);
+            mDoMtx_quatSlerp(&mCF8, &ZeroQuat, &mCF8, l_HIO.m188);
         }
         mDoMtx_stack_c::quatM(&mCF8);
     }
 
     mDoMtx_stack_c::concat(mtx);
+#if VERSION == VERSION_DEMO
+    mDoMtx_stack_c::multVecZero(&m11C4[jntNo]);
+#endif
 
     if (jntNo == GY_JNT_J_GY_ATAMA1_e) {
         cXyz offset(0.0f, 0.0f, 0.0f);
@@ -317,13 +336,18 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 /* 000008A8-00000AAC       .text _createHeap__6daGy_cFv */
 BOOL daGy_c::_createHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_GY_BMD_GY_e);
-    JUT_ASSERT(0x377, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x347, 0x377), modelData != 0);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
         NULL, NULL,
+#if VERSION == VERSION_DEMO
+        NULL,
+        -1,
+#else
         (J3DAnmTransformKey*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_GY_BCK_SWIM1_e),
         J3DFrameCtrl::EMode_LOOP,
+#endif
         1.0f,
         0,
         -1,
@@ -451,7 +475,7 @@ void daGy_c::setMtx() {
     mDoMtx_stack_c::multVec(&sp14, &mE84);
 
     if (l_HIO.m94 != 0) {
-        mDoMtx_stack_c::transM(l_HIO.mB8, l_HIO.mBC, l_HIO.mC0);
+        mDoMtx_stack_c::transM(l_HIO.mB8.x, l_HIO.mB8.y, l_HIO.mB8.z);
     }
     mDoMtx_stack_c::transM(0.0f, m4E4, 0.0f);
     model->setBaseTRMtx(mDoMtx_stack_c::now);
@@ -501,6 +525,77 @@ void daGy_c::setAnm() {
     dLib_setAnm(m_arc_name, mpMorf, &mAnmIdx, &mPrmIdx, &mOldPrmIdx, a_anm_idx_tbl, a_anm_prm_tbl, false);
 }
 
+#if VERSION == VERSION_DEMO
+/* 00000C7C-00000F3C       .text setCollision__6daGy_cFv */
+void daGy_c::setCollision() {
+    for (int i = 0; i < 5; i++) {
+        int jnt;
+        switch (i) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            jnt = 10;
+            break;
+        }
+        mSph[i].SetR(l_HIO.m74[i] * l_HIO.m90);
+        mSph[i].SetC(m11C4[jnt]);
+        dComIfG_Ccsp()->Set(&mSph[i]);
+    }
+    mHeadSph.SetR(l_HIO.m88 * l_HIO.m90);
+    mHeadSph.SetC(mD08);
+    mCps.SetStartEnd(m89C, m11C4[5]);
+    mCps.SetR(l_HIO.m8C * l_HIO.m90);
+    dComIfG_Ccsp()->Set(&mCps);
+
+    if (m2B0 == 3) {
+        if (mPrmIdx == 0xB) {
+            mHeadSph.OnAtSetBit();
+            mHeadSph.OnAtHitBit();
+            mHeadSph.SetAtAtp(2);
+            mHeadSph.SetAtSpl(dCcG_At_Spl_UNK1);
+            mHeadSph.SetAtSe(6);
+            mHeadSph.OffCoSetBit();
+        } else {
+            mHeadSph.OffAtSetBit();
+            mHeadSph.OffAtHitBit();
+            mHeadSph.SetAtAtp(0);
+            mHeadSph.OnCoSetBit();
+        }
+    } else if (m2B0 == 2 || m2B0 == 5) {
+        if (mpCtrl->m320 == 1) {
+            if (mHeadSph.ChkCoHit()) {
+                fopAc_ac_c* ac = mHeadSph.GetCoHitAc();
+                if (fopAcM_GetName(ac) == fpcNm_SHIP_e) {
+                    mHeadSph.OnAtSetBit();
+                    mHeadSph.OnAtHitBit();
+                    mHeadSph.SetAtAtp(0);
+                    mHeadSph.SetAtSpl(dCcG_At_Spl_UNK1);
+                    mHeadSph.SetAtSe(6);
+                }
+            } else {
+                mHeadSph.OffAtSetBit();
+                mHeadSph.OffAtHitBit();
+                mHeadSph.SetAtAtp(0);
+            }
+            mHeadSph.OnCoSetBit();
+        }
+    } else {
+        mHeadSph.OffAtSetBit();
+        mHeadSph.OffAtHitBit();
+        mHeadSph.SetAtAtp(0);
+        mHeadSph.OnCoSetBit();
+        if (mHeadSph.ChkCoHit()) {
+            if (m2B0 != 9 && m2B0 != 8) {
+                modeDiveInit();
+            }
+        }
+    }
+
+    dComIfG_Ccsp()->Set(&mHeadSph);
+}
+#else
 /* 00000C7C-00000E74       .text setAtCollision__6daGy_cFv */
 void daGy_c::setAtCollision() {
     mHeadSph.SetR(l_HIO.m88 * l_HIO.m90);
@@ -563,6 +658,7 @@ void daGy_c::setCollision() {
     mCps.SetR(l_HIO.m8C * l_HIO.m90);
     dComIfG_Ccsp()->Set(&mCps);
 }
+#endif
 
 /* 00000F3C-00000FC4       .text setAimSpeedF__6daGy_cFv */
 void daGy_c::setAimSpeedF() {
@@ -895,7 +991,8 @@ void daGy_c::modeAttackPlayer() {
         m4EC = l_HIO.mC4;
         mAimSpeedF = l_HIO.m58;
         cLib_addCalcAngleS2(&current.angle.y, cLib_targetAngleY(&current.pos, &player->current.pos), 8, 0x400);
-        if ((mD08 - player->current.pos).absXZ() < l_HIO.m148) {
+        f32 dist = (mD08 - player->current.pos).absXZ();
+        if (dist < l_HIO.m148) {
             mPrmIdx = 0xA;
             m928 += 1;
         }
@@ -963,7 +1060,8 @@ void daGy_c::modeAttackBack() {
     m4E8 = l_HIO.mA0;
     mAimSpeedF = 0.0f;
     cLib_addCalcAngleS2(&m8F4, 0, 4, 0x800);
-    if ((current.pos - m904).absXZ() > l_HIO.m144) {
+    f32 dist = (current.pos - m904).absXZ();
+    if (dist > l_HIO.m144) {
         setAimSpeedF();
         if (mPrmIdx == 1) {
             modeWithCircleInit();
@@ -1022,12 +1120,9 @@ void daGy_c::modeDeleteInit() {
     fopAcM_OffStatus(this, fopAcStts_SHOWMAP_e);
     attention_info.flags &= ~fopAc_Attn_LOCKON_BATTLE_e;
 
-    dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
-    int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
-    n = cLib_maxLimit<int>(n, 0xFF);
-    u8 val = n;
-    u16 flag = dSv_event_flag_c::UNK_7EFF;
-    pEvent->setEventReg(flag, val);
+    int n = dComIfGs_getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
+    n = cLib_maxLimit<int>(n, 0xFF) & 0xFF;
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_7EFF, n);
 
     m2B0 = 8;
     mPrmIdx = 8;
@@ -1095,24 +1190,18 @@ void daGy_c::modeDeleteBomb() {
     }
 
     if (mPrmIdx == 9) {
-        f32 f2 = m4E4;
-        if (f2 >= l_HIO.m16C - 10.0f) {
-            daGy_HIO_c* hio = &l_HIO;
+        if (m4E4 >= l_HIO.m16C - 10.0f) {
             if ((f32)m8EC == -1.0f) {
-                m8EC = hio->m164;
+                m8EC = l_HIO.m164;
             }
             m4EC = l_HIO.m178;
             m918 = l_HIO.m17C;
         }
 
-        {
-            f32 f4 = m4E4, f1 = 10.0f, f3 = l_HIO.m16C, f2 = l_HIO.m170;
-            f32 f5 = f3 - f2;
-            if (f4 <= f1 + f5) {
-                m4E8 = f3 + f2;
-            } else if (f4 >= (f3 + f2) - f1) {
-                m4E8 = f5;
-            }
+        if (m4E4 <= 10.0f + (l_HIO.m16C - l_HIO.m170)) {
+            m4E8 = l_HIO.m16C + l_HIO.m170;
+        } else if (m4E4 >= (l_HIO.m16C + l_HIO.m170) - 10.0f) {
+            m4E8 = l_HIO.m16C - l_HIO.m170;
         }
 
         if ((f32)m8EC != -1.0f) {
@@ -1147,6 +1236,7 @@ void daGy_c::modeProcCall() {
     (this->*mode_proc[m2B0])();
 }
 
+#if VERSION > VERSION_DEMO
 /* 00002E24-00003004       .text createWave__6daGy_cFv */
 void daGy_c::createWave() {
     static JGeometry::TVec3<f32> wave_l_direction(0.5f, 1.0f, -0.3f);
@@ -1170,12 +1260,14 @@ void daGy_c::createWave() {
         dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPSPLASH00, &mDFC, &mE08, NULL, 0xFF, &mDE0);
     }
 }
+#endif
 
 /* 00003004-00003268       .text setWave__6daGy_cFv */
 void daGy_c::setWave() {
     f32 splash_target;
     f32 wave_speed;
     f32 max_speed = l_HIO.m24;
+    f32 one = 1.0f;
     s8 prm = mPrmIdx;
 
     /* Keep orig cmpwi 5/8/9/6 chain; last compare is bne to the non-zero path. */
@@ -1196,11 +1288,8 @@ wave_zero:
     splash_target = 0.0f;
     goto wave_ready;
 wave_nz:
-    {
-        f32 one = 1.0f;
-        wave_speed = l_HIO.m18 * one;
-        splash_target = l_HIO.m10;
-    }
+    wave_speed = l_HIO.m18 * one;
+    splash_target = l_HIO.m10;
 wave_ready:
 
     switch (m2B0) {
@@ -1237,8 +1326,8 @@ wave_ready:
     mD7C.setPitch(1.0f + l_HIO.m20);
     mD18.setPitch(1.0f - l_HIO.m20);
 
-    cXyz collapse0(l_HIO.m28, l_HIO.m2C, l_HIO.m30);
-    cXyz collapse1(l_HIO.m34, l_HIO.m38, l_HIO.m3C);
+    cXyz collapse0 = *(cXyz*)&l_HIO.m28;
+    cXyz collapse1 = *(cXyz*)&l_HIO.m34;
     cXyz collapse0_l = collapse0;
     cXyz collapse1_l = collapse1;
     mD7C.setAnchor(&collapse0, &collapse1);
@@ -1268,6 +1357,17 @@ void daGy_c::checkTgHit() {
 
     cCcD_Obj* hit_obj = mCps.GetTgHitObj();
     cXyz hit_pos = *mCps.GetTgHitPosP();
+#if VERSION == VERSION_DEMO
+    if (hit_obj == NULL) {
+        for (int i = 0; i < 6; i++) {
+            hit_obj = mSph[i].GetTgHitObj();
+            hit_pos = *mSph[i].GetTgHitPosP();
+            if (hit_obj != NULL) {
+                break;
+            }
+        }
+    }
+#else
     if (hit_obj == NULL) {
         hit_obj = mHeadSph.GetTgHitObj();
         hit_pos = *mHeadSph.GetTgHitPosP();
@@ -1276,6 +1376,7 @@ void daGy_c::checkTgHit() {
         hit_obj = mSph.GetTgHitObj();
         hit_pos = *mSph.GetTgHitPosP();
     }
+#endif
     if (hit_obj == NULL) {
         return;
     }
@@ -1295,9 +1396,11 @@ void daGy_c::checkTgHit() {
         mCE8 = 9;
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
         m4FC = 10;
+#if VERSION > VERSION_DEMO
         mDE0.remove();
         mD18.remove();
         mD7C.remove();
+#endif
         damaged = 0;
     } else if (atType & AT_TYPE_FIRE_ARROW) {
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
@@ -1308,9 +1411,11 @@ void daGy_c::checkTgHit() {
         mCE8 = 0xB;
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
         m500 = 10;
+#if VERSION > VERSION_DEMO
         mDE0.remove();
         mD18.remove();
         mD7C.remove();
+#endif
         damaged = 0;
     } else if (atType & AT_TYPE_HOOKSHOT) {
         fopAcM_seStart(this, JA_SE_LK_MS_WEP_HIT, 0x20);
@@ -1326,7 +1431,7 @@ void daGy_c::checkTgHit() {
 
     if (damaged == 1) {
         mDoAud_onEnemyDamage();
-        fopAc_ac_c* player = dComIfGp_getPlayer(0);
+        daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
         dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &hit_pos);
         if (mCE8 == 0xB) {
             cXyz scale(2.0f, 2.0f, 2.0f);
@@ -1384,6 +1489,40 @@ f32 daGy_c::getWaterY() {
 
 /* 000039AC-00004264       .text _execute__6daGy_cFv */
 bool daGy_c::_execute() {
+#if VERSION == VERSION_DEMO
+    shape_angle = current.angle;
+    if (enemy_ice(&mEnemyIce)) {
+        J3DModel* model = mpMorf->getModel();
+        model->setBaseTRMtx(mDoMtx_stack_c::get());
+        mpMorf->calc();
+        return true;
+    }
+
+    lineCheck(&current.pos, &mE84);
+    daGy_Ctrl_c* ctrl = mpCtrl;
+    if (ctrl == NULL) {
+        fopAcM_delete(this);
+        return true;
+    }
+    if (mE80 != 0) {
+        modeDiveInit();
+    }
+    if (m2B0 != 0 && ctrl->m324 == 3) {
+        modeDiveInit();
+    }
+    m2BC = ctrl->m290[m2AC];
+
+    mpMorf->play(NULL, 0, 0);
+    mpMorf->calc();
+    checkTgHit();
+
+    if (gravity == 0.0f) {
+        cLib_addCalc2(&m4E4, m4E8, m918, m4EC);
+    }
+    cLib_addCalc2(&speedF, mAimSpeedF, 0.3f, 4.0f);
+    setCollision();
+    setAnm();
+#else
     mpCtrl = NULL;
     fpc_ProcID parent_id = fopAcM_GetLinkId(this);
     if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
@@ -1446,8 +1585,9 @@ bool daGy_c::_execute() {
     if (gravity == 0.0f) {
         cLib_addCalc2(&m4E4, m4E8, m918, m4EC);
     }
-    cLib_addCalc2(&speedF, mAimSpeedF, 0.1f, 1.0f);
+    cLib_addCalc2(&speedF, mAimSpeedF, 0.3f, 4.0f);
     setAnm();
+#endif
 
     if (l_HIO.m97 != 0) {
         cXyz pos = current.pos;
@@ -1464,11 +1604,11 @@ bool daGy_c::_execute() {
 
     s8 prm = mPrmIdx;
     if (prm == 5) {
-        if (speed.y < -10.0f) {
+        if (speed.y < -5.0f) {
             s16* pAngleX = &current.angle.x;
             s16 target = REG12_S(1) + 0x2000;
             cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
-        } else if (speed.y > 10.0f) {
+        } else if (speed.y > 5.0f) {
             s16* pAngleX = &current.angle.x;
             s16 target = REG12_S(2) - 0x1000;
             cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
@@ -1515,29 +1655,30 @@ bool daGy_c::_execute() {
     setMtx();
     setWave();
     attention_info.position = current.pos;
-    attention_info.position.y += 150.0f;
+    attention_info.position.y += 160.0f;
     eyePos = current.pos;
-    eyePos.y += 80.0f;
+    eyePos.y += 60.0f;
     m91C = gravity;
 
     if (mPrmIdx != 5 && m2B0 != 0) {
         f32 dist = (current.pos - old.pos).abs();
-        f32 f31 = dist / 40.0f;
+        f32 f31 = dist / 30.0f;
         if (f31 <= 0.0f) {
             f31 = 0.0f;
         } else if (f31 >= 1.0f) {
             f31 = 1.0f;
         }
-        fopAcM_seStart(this, JA_SE_CM_GY_CRUISING, (s8)(s32)(127.0f * f31));
+        s8 vol = 100.0f * f31;
+        fopAcM_seStart(this, JA_SE_CM_GY_CRUISING, vol);
         if (mPrmIdx == 1) {
             f32 play = f31 * l_HIO.m04;
-            f32 out = l_HIO.m08;
-            if (play < out) {
-                goto set_play;
+            f32 res;
+            if (play < l_HIO.m08) {
+                res = l_HIO.m08;
+            } else {
+                res = play;
             }
-            out = play;
-        set_play:
-            mpMorf->setPlaySpeed(out);
+            mpMorf->setPlaySpeed(res);
         }
     }
 
@@ -1548,34 +1689,32 @@ bool daGy_c::_execute() {
 /* 00004264-00004560       .text drawDebug__6daGy_cFv */
 void daGy_c::drawDebug() {
     {
-        s16 spread = l_HIO.m180;
-        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        if ((u32)l_HIO.m180 - 0x70000 != 0xFFFF || l_HIO.m180 != 0) {
             cXyz pos = current.pos;
             pos.y += 10.0f;
-            int angle1 = shape_angle.y + spread;
+            int angle1 = shape_angle.y + l_HIO.m180;
             cXyz corner1(pos);
             corner1.z += l_HIO.m184 * cM_scos(angle1);
             corner1.x += l_HIO.m184 * cM_ssin(angle1);
             cXyz corner2(pos);
-            int angle2 = shape_angle.y - spread;
+            int angle2 = shape_angle.y - l_HIO.m180;
             corner2.z += l_HIO.m184 * cM_scos(angle2);
             corner2.x += l_HIO.m184 * cM_ssin(angle2);
         }
     }
 
     {
-        s16 spread = l_HIO.m140;
-        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        if ((u32)l_HIO.m140 - 0x70000 != 0xFFFF || l_HIO.m140 != 0) {
             daShip_c* ship = dComIfGp_getShipActor();
             if (ship != NULL) {
                 cXyz pos = ship->current.pos;
                 pos.y += 100.0f;
-                int angle1 = ship->shape_angle.y + spread;
+                int angle1 = ship->shape_angle.y + l_HIO.m140;
                 cXyz corner1(pos);
                 corner1.z += 3000.0f * cM_scos(angle1);
                 corner1.x += 3000.0f * cM_ssin(angle1);
                 cXyz corner2(pos);
-                int angle2 = ship->shape_angle.y - spread;
+                int angle2 = ship->shape_angle.y - l_HIO.m140;
                 corner2.z += 3000.0f * cM_scos(angle2);
                 corner2.x += 3000.0f * cM_ssin(angle2);
             }
@@ -1583,23 +1722,40 @@ void daGy_c::drawDebug() {
     }
 
     {
-        s16 spread = l_HIO.m142;
-        if ((u32)spread - 0x70000 != 0xFFFF || spread != 0) {
+        if ((u32)l_HIO.m142 - 0x70000 != 0xFFFF || l_HIO.m142 != 0) {
             daShip_c* ship = dComIfGp_getShipActor();
             if (ship != NULL) {
                 cXyz pos = ship->current.pos;
                 pos.y += 100.0f;
-                int angle1 = ship->shape_angle.y + spread;
+                int angle1 = ship->shape_angle.y + l_HIO.m142;
                 cXyz corner1(pos);
                 corner1.z += 3000.0f * cM_scos(angle1);
                 corner1.x += 3000.0f * cM_ssin(angle1);
                 cXyz corner2(pos);
-                int angle2 = ship->shape_angle.y - spread;
+                int angle2 = ship->shape_angle.y - l_HIO.m142;
                 corner2.z += 3000.0f * cM_scos(angle2);
                 corner2.x += 3000.0f * cM_ssin(angle2);
             }
         }
     }
+
+    // Leftover debug draw colors (the draw calls are stripped in retail)
+    GXColor c1 = {0xFF, 0xFF, 0x00, 0x80};
+    GXColor c2 = {0xFF, 0xFF, 0x00, 0x80};
+    GXColor c3 = {0xFF, 0xFF, 0x00, 0x80};
+    static const GXColor color_ok = {0x00, 0xFF, 0x00, 0x80};
+    static const GXColor color_ng = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c4 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c5 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c6 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c7 = {0x00, 0xFF, 0x00, 0x80};
+    GXColor c8 = {0xFF, 0xFF, 0x00, 0x80};
+    GXColor c9 = {0xFF, 0xFF, 0x00, 0x80};
+    GXColor c10 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c11 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c12 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c13 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor c14 = {0xFF, 0xFF, 0x00, 0x80};
 }
 
 /* 00004560-000046C8       .text _draw__6daGy_cFv */
@@ -1608,7 +1764,11 @@ bool daGy_c::_draw() {
         drawDebug();
     }
 
+#if VERSION > VERSION_JPN
     if (m4E4 <= l_HIO.mA0 && mPrmIdx != 5) {
+#else
+    if (m4E4 <= l_HIO.mA0) {
+#endif
         return true;
     }
 
@@ -1638,6 +1798,78 @@ bool daGy_c::_draw() {
 }
 
 /* 000046C8-00004920       .text createInit__6daGy_cFv */
+#if VERSION == VERSION_DEMO
+void daGy_c::createInit() {
+    mCF8 = ZeroQuat;
+    gbaName = 0x1D;
+    scale.setall(l_HIO.m90);
+    m4FC = -1;
+    m500 = -1;
+    mEnemyIce.mpActor = this;
+    mEnemyIce.m00C = 1;
+    mEnemyIce.mWallRadius = 0.0f;
+    mEnemyIce.mCylHeight = 0.0f;
+    itemTableIdx = dComIfGp_CharTbl()->GetNameIndex("GyCtrl", 0);
+    attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
+    attention_info.distances[fopAc_Attn_TYPE_BATTLE_e] = 0x22;
+    mPrmIdx = 1;
+    m918 = l_HIO.m174;
+    m8EC = -1;
+
+    static JGeometry::TVec3<f32> wave_l_direction(0.5f, 1.0f, -0.3f);
+    static JGeometry::TVec3<f32> wave_r_direction(-0.5f, 1.0f, -0.3f);
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPWAVE00, &mDFC, &mE08, NULL, 0xFF, &mD18);
+    if (mD18.getEmitter() != NULL) {
+        mD18.getEmitter()->setDirection(wave_l_direction);
+    }
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPWAVE00, &mDFC, &mE08, NULL, 0xFF, &mD7C);
+    if (mD7C.getEmitter() != NULL) {
+        mD7C.getEmitter()->setDirection(wave_r_direction);
+    }
+    dComIfGp_particle_set(dPa_name::ID_AK_JN_SHIPSPLASH00, &mDFC, &mE08, NULL, 0xFF, &mDE0);
+
+    m4E4 = l_HIO.mA0;
+    modeDiveInit();
+    m2BC = current.pos;
+
+    for (int i = 0; i < mpMorf->getModel()->getModelData()->getJointNum(); i++) {
+    }
+
+    setMtx();
+    mpMorf->calc();
+    mAcchCir.SetWall(30.0f, 30.0f);
+    mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
+    mAcch.SetWallNone();
+    mAcch.SetRoofNone();
+    gravity = -2.5f;
+    fopAcM_posMoveF(this, NULL);
+    fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
+
+    fpc_ProcID parent_id = fopAcM_GetLinkId(this);
+    if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
+        fopAc_ac_c* actor = fopAcM_SearchByID(parent_id);
+        if ((actor != NULL && fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_GY_CTRL_e) ||
+            fopAcM_GetName(actor) == fpcNm_GY_CTRLB_e)
+        {
+            mpCtrl = (daGy_Ctrl_c*)actor;
+            daGy_Ctrl_c* ctrl = mpCtrl;
+            m2AC = ctrl->m31C;
+            ctrl->m31C += 1;
+        }
+    }
+
+    mStts.Init(0x64, 0x64, this);
+    for (int i = 0; i < 6; i++) {
+        mSph[i].Set(l_sph_src);
+        mSph[i].SetStts(&mStts);
+    }
+    mCps.Set(l_cps_src);
+    mCps.SetStts(&mStts);
+    fopAcM_setStageLayer(this);
+    max_health = 4;
+    health = max_health;
+}
+#else
 void daGy_c::createInit() {
     mCF8 = ZeroQuat;
     gbaName = 0x1D;
@@ -1683,6 +1915,7 @@ void daGy_c::createInit() {
     health = max_health;
     createWave();
 }
+#endif
 
 /* 00004920-00004A80       .text _create__6daGy_cFv */
 cPhs_State daGy_c::_create() {
@@ -1694,6 +1927,7 @@ cPhs_State daGy_c::_create() {
             return cPhs_ERROR_e;
         }
 
+#if VERSION > VERSION_DEMO
         fpc_ProcID parent_id = fopAcM_GetLinkId(this);
         if (parent_id != fpcM_ERROR_PROCESS_ID_e) {
             fopAc_ac_c* actor;
@@ -1725,6 +1959,7 @@ cPhs_State daGy_c::_create() {
         } else {
             return cPhs_ERROR_e;
         }
+#endif
 
         if (!fopAcM_entrySolidHeap(this, createHeap_CB, 0x3FA0)) {
             return cPhs_ERROR_e;

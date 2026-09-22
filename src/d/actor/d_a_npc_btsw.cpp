@@ -13,6 +13,7 @@
 #include "m_Do/m_Do_controller_pad.h"
 #include "m_Do/m_Do_ext.h"
 #include "d/d_cc_d.h"
+#include "d/d_s_play.h"
 
 class daNpc_Btsw_HIO_c : public JORReflexible {
 public:
@@ -183,7 +184,7 @@ u32 daNpc_Btsw_getGameEndMsg(s16 rupees) {
 BOOL daNpc_Btsw_c::initTexPatternAnm(bool i_modify) {
     J3DModelData* modelData = mpMorf->getModel()->getModelData();
 
-    m_head_tex_pattern = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Btsw", (u16)l_btp_ix_tbl[field_0x9C4]);
+    m_head_tex_pattern = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Btsw", (int)l_btp_ix_tbl[field_0x9C4]);
     JUT_ASSERT(332, m_head_tex_pattern != NULL);
 
     if (!field_0x7E8.init(modelData, m_head_tex_pattern, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, i_modify, FALSE)) {
@@ -484,7 +485,9 @@ BOOL daNpc_Btsw_c::CreateInit() {
 
     field_0x978.setWaitParm(5, 2, 3, 2, 1.0f, 0.9f, 0, 0x2000);
     set_mtx();
+#if VERSION > VERSION_DEMO
     mpMorf->calc();
+#endif
     dKy_tevstr_init(&field_0x6D4, home.roomNo, 0xFF);
 
     return TRUE;
@@ -502,23 +505,40 @@ void daNpc_Btsw_c::set_mtx() {
     if (field_0x9C5 == 10 || field_0x9C5 == 9) {
         cXyz vec;
         csXyz angle;
+        s16 ax, ay, az;
 
+#if VERSION == VERSION_DEMO
+        if (mpMorf->getFrame() < 19.0f + REG10_F(5)) {
+#else
         if (mpMorf->getFrame() < 19.0f) {
+#endif
             if (field_0x9C5 == 9) {
                 vec.set(28.68f, 4.68f, -8.45f);
-                angle.set(-0x43A2, 0x9CA, -0x233);
+                ax = -0x43A2;
+                ay = 0x9CA;
+                az = -0x233;
+                angle.set(ax, ay, az);
             } else {
                 vec.set(28.68f, -0.43f, -8.19f);
-                angle.set(-0x43A2, 0x9CA, -0x2CB);
+                ax = -0x43A2;
+                ay = 0x9CA;
+                az = -0x2CB;
+                angle.set(ax, ay, az);
             }
             mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_handR));
         } else {
             if (field_0x9C5 == 9) {
                 vec.set(23.61f, -5.08f, -7.22f);
-                angle.set(-0x49FC, -0x458, -0x568F);
+                ax = -0x49FC;
+                ay = -0x458;
+                az = -0x568F;
+                angle.set(ax, ay, az);
             } else {
                 vec.set(24.9f, 0.62f, -7.51f);
-                angle.set(-0x4C7F, -0x7A, -0x491D);
+                ax = -0x4C7F;
+                ay = -0x7A;
+                az = -0x491D;
+                angle.set(ax, ay, az);
             }
             mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_handL));
         }
@@ -951,8 +971,13 @@ BOOL daNpc_Btsw_c::_execute() {
 
 /* 00002AF4-00002B90       .text _delete__12daNpc_Btsw_cFv */
 BOOL daNpc_Btsw_c::_delete() {
-    dComIfG_resDelete(&mPhs, "Btsw");
+    dComIfG_resDeleteDemo(&mPhs, "Btsw");
 
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+#else
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
@@ -960,6 +985,7 @@ BOOL daNpc_Btsw_c::_delete() {
     mSwMail0.SeDelete();
     mSwMail1.SeDelete();
     mSwMail2.SeDelete();
+#endif
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
         l_HIO.mNo = -1;
@@ -997,7 +1023,7 @@ cPhs_State daNpc_Btsw_c::_create() {
 /* 00003304-0000372C       .text CreateHeap__12daNpc_Btsw_cFv */
 BOOL daNpc_Btsw_c::CreateHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectIDRes("Btsw", dRes_ID_BTSW_BDL_BN_e));
-    JUT_ASSERT(1424, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(1420, 1424), modelData != NULL);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
@@ -1018,9 +1044,9 @@ BOOL daNpc_Btsw_c::CreateHeap() {
     }
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(1440, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(1436, 1440), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(1442, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(1438, 1442), m_jnt.getBackboneJntNum() >= 0);
 
     m_handL = modelData->getJointName()->getIndex("handL");
     m_handR = modelData->getJointName()->getIndex("handR");
@@ -1263,12 +1289,21 @@ void SwMail2_c::Appear() {
     }
 
     cXyz vec = *field_0x5C;
+#if VERSION == VERSION_DEMO
+    diff = diff * (120.0f + REG10_F(0));
+    vec += diff;
+
+    vec.y -= 40.0f + REG10_F(1);
+    field_0x48.x = field_0x4E.x;
+    field_0x48.y = field_0x4E.y + new_y + REG10_S(1);
+#else
     diff = diff * 120.0f;
     vec += diff;
 
     vec.y -= 40.0f;
     field_0x48.x = field_0x4E.x;
     field_0x48.y = field_0x4E.y + new_y;
+#endif
     cLib_addCalcAngleS2(&field_0x48.z, field_0x4E.z, 4, 0x1000);
 
     if (std::abs(cLib_addCalcPos(&field_0x24, vec, 0.25f, 30.0f, 2.5f)) < 2.5f) {
@@ -1292,11 +1327,20 @@ void SwMail2_c::Wait() {
     }
 
     field_0x24 = *field_0x5C;
+#if VERSION == VERSION_DEMO
+    diff = diff * (120.0f + REG10_F(0));
+    field_0x24 += diff;
+
+    field_0x24.y -= 40.0f + REG10_F(1);
+    // The redundant (s16) adds a coalesced conversion temp that swaps r0/r3 below; no other form found.
+    field_0x48.set((s16)field_0x4E.x, field_0x4E.y + new_y + REG10_S(1), field_0x4E.z + REG10_S(2));
+#else
     diff = diff * 120.0f;
     field_0x24 += diff;
 
     field_0x24.y -= 40.0f;
     field_0x48.set(field_0x4E.x, field_0x4E.y + new_y, field_0x4E.z);
+#endif
     set_mtx();
 }
 
@@ -1316,7 +1360,11 @@ void SwMail2_c::Throw() {
         s16 y_angle = cLib_targetAngleY(field_0x58, field_0x5C);
 
         cXyz multVec;
+#if VERSION == VERSION_DEMO
+        cXyz vec(REG10_F(2) - 40.0f, REG10_F(3) - 50.0f, REG10_F(4) * 100.0f);
+#else
         cXyz vec(-40.0f, -50.0f, 0.0f);
+#endif
         mDoMtx_stack_c::ZXYrotS(x_angle, y_angle, 0);
         mDoMtx_stack_c::multVec(&vec, &multVec);
         multVec += *field_0x5C;
@@ -1332,14 +1380,23 @@ void SwMail2_c::Throw() {
     } else {
         s16 x_angle = cLib_targetAngleX(&field_0x30, field_0x5C);
         field_0x48.x = -x_angle;
+#if VERSION == VERSION_DEMO
+        field_0x48.y += (s16)((field_0x54 * 0x80) + 0x1000);
+#else
         s16 new_y = (field_0x54 * 0x80) + 0x1000;
         field_0x48.y += new_y;
+#endif
         field_0x48.z = 0;
 
         f32 pos_step = cLib_addCalcPos(&field_0x24, field_0x30, 0.5f, l_HIO.field_0x44, 1.0f);
 
+#if VERSION == VERSION_DEMO
+        field_0x4E.x += REG10_S(0) + 4000;
+        field_0x3C.y = (1.0f - cM_scos(field_0x4E.x)) * (20.0f + REG10_F(10));
+#else
         field_0x4E.x += 4000;
         field_0x3C.y = (1.0f - cM_scos(field_0x4E.x)) * 20.0f;
+#endif
 
         if (pos_step < 1.0f) {
             mDoAud_seStart(JA_SE_LETTER_IN_BOX, &field_0x24);
@@ -1380,7 +1437,7 @@ void SwMail2_c::End() {
             s16 target;
             if (field_0x24.y > 720.0f) {
                 target = -0x4000;
-                field_0x30.y -= 3.0f;
+                field_0x30.y -= 3.0f + DEMO_SELECT(REG10_F(11), 0.0f);
             } else {
                 target = 0;
                 field_0x30.y *= 0.6f;
@@ -1393,7 +1450,7 @@ void SwMail2_c::End() {
                 field_0x24.y = 700.0f;
             }
 
-            cLib_addCalcAngleS2(&field_0x48.x, target, 2, 0x800);
+            cLib_addCalcAngleS2(&field_0x48.x, target, 2, DEMO_SELECT(REG10_S(3), 0) + 0x800);
         }
         field_0x30 *= 0.9f;
         field_0x24 += field_0x30;

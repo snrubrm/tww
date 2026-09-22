@@ -262,7 +262,14 @@ BOOL daShip_c::draw() {
         
         cXyz local_5c(current.pos.x, current.pos.y + m03D8 + 5.0f, current.pos.z);
         
-        // Fakematch, causes regalloc for demo
+#if VERSION == VERSION_DEMO
+        cXyz local_68(
+            local_5c.x + cM_scos(m037C) * 10000.0f * cM_ssin(shape_angle.y),
+            local_5c.y - cM_ssin(m037C) * 10000.0f,
+            local_5c.z + cM_scos(m037C) * 10000.0f * cM_scos(shape_angle.y)
+        );
+#else
+        // Fakematch, causes regalloc for retail
         f32 x = local_5c.x;
         f32 y = local_5c.y;
         f32 z = local_5c.z;
@@ -270,6 +277,7 @@ BOOL daShip_c::draw() {
         y -= cM_ssin(m037C) * 10000.0f;
         x += cM_scos(m037C) * 10000.0f * cM_ssin(shape_angle.y);
         cXyz local_68(x, y, z);
+#endif
         Mtx MStack_50;
         cMtx_lookAt(MStack_50, &local_5c, &local_68, m037E);
         mDoMtx_stack_c::YrotS(0xC000);
@@ -385,7 +393,7 @@ void daShip_c::setInitMessage() {
     else if (checkForceMessage()) {
         return;
     }
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
     else if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_2110) && !dComIfGs_checkGetItem(dItemNo_BOMB_BAG_e)) {
         mNextMessageNo = 0x623;
     }
@@ -892,7 +900,7 @@ f32 daShip_c::getWaterY() {
         waterY = m03F8;
     }
     else {
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
         waterY = m03F4;
 #else
         daPy_lk_c* link = daPy_getPlayerLinkActorClass();
@@ -1200,7 +1208,7 @@ void daShip_c::setCrashData(short param1) {
     s16 iVar5;
     if (!dComIfGp_event_runCheck()) {
         if (!daPy_getPlayerLinkActorClass()->checkNoDamageMode()
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
             && !daPy_getPlayerLinkActorClass()->checkNoControll()
 #endif
         ) {
@@ -1999,7 +2007,7 @@ BOOL daShip_c::procCraneUp_init() {
     dComIfGp_getVibration().StartShock(7, -0x31, cXyz(0.0f, 1.0f, 0.0f));
     dComIfGp_getVibration().StartQuake(4, 1, cXyz(0.0f, 1.0f, 0.0f));
 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
     speedF = 0.0f;
 #endif
 
@@ -2221,7 +2229,7 @@ BOOL daShip_c::procZevDemo() {
                 f32 fVar17 = local_70.absXZ();
 
                 if (!dComIfGp_evmng_getMyFloatP(mEvtStaffId, "rad")) {
-                    JUT_ASSERT(DEMO_SELECT(3722, 3741), 0);
+                    JUT_ASSERT(VERSION_SELECT(3722, 3724, 3741, 3741), 0);
                 }
 
                 f32 fVar3 = *dComIfGp_evmng_getMyFloatP(mEvtStaffId, "rad");
@@ -2663,10 +2671,17 @@ BOOL daShip_c::procTornadoUp() {
     
     if (m03A6 == 0 && current.pos.y > tornado->current.pos.y + 5000.0f) {
         m03A6 = 1;
+#if VERSION == VERSION_DEMO
+        int exitId = (s32)cM_rndF(6.0f) + 0xC6;
+        if (exitId >= 0xCC) {
+            exitId = 0xCB;
+        }
+#else
         int exitId = (s32)cM_rndF(8.0f) + 0xC6;
         if (exitId >= 0xCE) {
             exitId = 0xCD;
         }
+#endif
         dStage_changeScene(exitId, 0.0f, 0, 0xFF);
     }
     
@@ -2875,7 +2890,7 @@ BOOL daShip_c::procWhirlDown_init() {
 BOOL daShip_c::procWhirlDown() {  
     shape_angle.y += (m0408 / (2*M_PI)) * 0x10000;
     if (mWhirlActor) {
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
         if (cLib_addCalcPosXZ(&current.pos, mWhirlActor->current.pos, 1.0f, speedF, 10.0f) < 10.0f)
 #else
         speedF = 40.0f;
@@ -3481,7 +3496,7 @@ void daShip_c::setHeadAnm() {
             newFileIndex = dRes_INDEX_SHIP_BCK_KYAKKAN1_e;
         } 
         else if (
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
                 (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3910) || dComIfGs_isEventBit(dSv_event_flag_c::UNK_2D02)) &&
 #endif
                  (mSph.ChkTgHit() || mCyl[0].ChkTgHit() ||
@@ -3495,7 +3510,7 @@ void daShip_c::setHeadAnm() {
     } 
     else {
         if (
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
             (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3910) || dComIfGs_isEventBit(dSv_event_flag_c::UNK_2D02)) &&
 #endif
             (mSph.ChkTgHit() || mCyl[0].ChkTgHit() ||
@@ -3511,7 +3526,7 @@ void daShip_c::setHeadAnm() {
         else if ((m03B4 == dRes_INDEX_SHIP_BCK_FN_LOOK_L_e || m03B4 == dRes_INDEX_SHIP_BCK_FN_LOOK_R_e) && 
                  std::fabsf(mpHeadAnm->getPlaySpeed()) < 0.01f && 
                  cM_rnd() < 0.4f && (g_Counter.mTimer & 0x1FF) == 0x1FF && 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
                  (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3910) || dComIfGs_isEventBit(dSv_event_flag_c::UNK_2D02)) &&
 #endif
                  !checkStateFlg(daSFLG_UNK40000000_e)) {
@@ -3542,7 +3557,6 @@ void daShip_c::setHeadAnm() {
 
 /* 00009B4C-0000B978       .text execute__8daShip_cFv */
 BOOL daShip_c::execute() {
-    /* Nonmatching */
     static cXyz sail_offset(0.5f, 155.0f, 50.0f);
     static cXyz sph_offset(-5.0f, 0.0f, 0.0f);
     static f32 cyl_offset[] = {100.0f, -20.0f, -100.0f};
@@ -3752,6 +3766,7 @@ BOOL daShip_c::execute() {
     }
 
     f32 fVar4;
+    daGrid_c* grid;
     if (mCurMode != 12 && mCurMode != 15) {
         if (mCurMode != 7 && mCurMode != MODE_CRANE_UP_e) {
             if (
@@ -4047,7 +4062,6 @@ BOOL daShip_c::execute() {
 
     cMtx_multVec(model1->getAnmMtx(FN_BODY_JNT_J_FN_STEER1_e), &l_tiller_top_offset, &mTillerTopPos);
 
-    daGrid_c* grid;
     MtxP mtx = model1->getAnmMtx(FN_BODY_JNT_J_FN_SAIL1_e);
 
     m0444.x = mtx[0][3];
@@ -4066,7 +4080,8 @@ BOOL daShip_c::execute() {
         cMtx_multVecSR(mtx, &top_offset, &spD8);
         mpGrid->scale.y = spD8.abs() / 365.0f;
 
-        cMtx_multVecSR(model1->getAnmMtx(FN_BODY_JNT_J_FN_SAIL2_e), &XZ_top_offset, &spD8);
+        mtx = model1->getAnmMtx(FN_BODY_JNT_J_FN_SAIL2_e);
+        cMtx_multVecSR(mtx, &XZ_top_offset, &spD8);
         grid->field_0x2200 = 1.0f - (spD8.abs() / 265.0f); // No idea why this is generating an extra lwz instruction for loading mpGrid when the instructions above don't
 
         if (mTornadoActor) {
@@ -4402,7 +4417,7 @@ BOOL daShip_c::createHeap() {
         m0392 = dRes_INDEX_SHIP_BCK_FN_MAST_OFF2_e;
     }
     modelData = (J3DModelData *)dComIfG_getObjectRes(l_arcName, dRes_INDEX_SHIP_BDL_FN_BODY_e);
-    JUT_ASSERT(DEMO_SELECT(6969, 7004), modelData != NULL);
+    JUT_ASSERT(VERSION_SELECT(6969, 6979, 7004, 7004), modelData != NULL);
 
     mpBodyAnm = new mDoExt_McaMorf(
         modelData, NULL, NULL,
@@ -4427,7 +4442,7 @@ BOOL daShip_c::createHeap() {
     }
 
     modelData = (J3DModelData *)dComIfG_getObjectRes(l_arcName, dRes_INDEX_SHIP_BDL_VFNCN_e);
-    JUT_ASSERT(DEMO_SELECT(7006, 7041), modelData != NULL);
+    JUT_ASSERT(VERSION_SELECT(7006, 7016, 7041, 7041), modelData != NULL);
     mpCannonModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000002);
     
     if (mpCannonModel == NULL) {
@@ -4435,7 +4450,7 @@ BOOL daShip_c::createHeap() {
     }
 
     modelData = (J3DModelData *)dComIfG_getObjectRes(l_arcName, dRes_INDEX_SHIP_BDL_VFNCR_e);
-    JUT_ASSERT(DEMO_SELECT(7019, 7054), modelData != NULL);
+    JUT_ASSERT(VERSION_SELECT(7019, 7029, 7054, 7054), modelData != NULL);
     mpSalvageArmModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000002);
 
     if (mpSalvageArmModel == NULL) {
@@ -4443,7 +4458,7 @@ BOOL daShip_c::createHeap() {
     }
 
     modelData = (J3DModelData *)dComIfG_getObjectRes("Link", dRes_INDEX_LINK_BDL_ROPEEND_e);
-    JUT_ASSERT(DEMO_SELECT(7032, 7067), modelData != NULL);
+    JUT_ASSERT(VERSION_SELECT(7032, 7042, 7067, 7067), modelData != NULL);
     mpLinkModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000002);
 
     if (mpLinkModel == NULL) {
@@ -4451,7 +4466,7 @@ BOOL daShip_c::createHeap() {
     }
 
     modelData = (J3DModelData *)dComIfG_getObjectRes(l_arcName, dRes_INDEX_SHIP_BDL_FN_HEAD_H_e);
-    JUT_ASSERT(DEMO_SELECT(7045, 7080), modelData != NULL);
+    JUT_ASSERT(VERSION_SELECT(7045, 7055, 7080, 7080), modelData != NULL);
 
     m03B4 = dRes_INDEX_SHIP_BCK_FN_LOOK_L_e;
 
@@ -4666,7 +4681,7 @@ cPhs_State daShip_c::create() {
         if (
             (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_SEA_e)
             || !strcmp(dComIfGp_getStartStageName(), "Hyrule")
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
             || !strcmp(dComIfGp_getStartStageName(), "Ocean")
 #endif
         ) {

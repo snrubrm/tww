@@ -10,6 +10,31 @@
 #include "f_op/f_op_actor_mng.h"
 #include "JSystem/JUtility/JUTAssert.h"
 
+#if VERSION == VERSION_DEMO
+#include "m_Do/m_Do_hostIO.h"
+
+class daObjTnTrap_HIO_c : public JORReflexible {
+public:
+    daObjTnTrap_HIO_c();
+    virtual ~daObjTnTrap_HIO_c() {}
+
+    void genMessage(JORMContext*) {}
+
+public:
+    /* 0x04 */ s8 mNo;
+    /* 0x08 */ f32 mTrapOnDist;
+    /* 0x0C */ f32 mTriOffsetY;
+    /* 0x10 */ f32 mTriOffsetZ;
+    /* 0x14 */ f32 mBgOffsetZ;
+    /* 0x18 */ f32 mLayerChangeDist;
+    /* 0x1C */ f32 mLayerDeleteDist;
+    /* 0x20 */ u8 m20;
+    /* 0x21 */ u8 m21;
+    /* 0x22 */ u8 m22;
+    /* 0x23 */ u8 m23;
+};
+#endif
+
 namespace {
     const char l_arcname[] = "TnTrap";
     const dCcD_SrcTri l_tri_src = {
@@ -44,6 +69,25 @@ namespace {
     const Vec l_offset_thunder[] = {{0.0f, 25.0f, 0.0f}, {0.0f, 85.0f, 0.0f}, {0.0f, 145.0f, 0.0f}};
 }
 
+#if VERSION == VERSION_DEMO
+static daObjTnTrap_HIO_c l_HIO;
+
+/* 000000EC-00000150       .text __ct__17daObjTnTrap_HIO_cFv */
+daObjTnTrap_HIO_c::daObjTnTrap_HIO_c() {
+    mNo = -1;
+    mTrapOnDist = 500.0f;
+    mTriOffsetY = 0.0f;
+    mTriOffsetZ = 0.0f;
+    mBgOffsetZ = -94.0f;
+    mLayerChangeDist = 80.0f;
+    mLayerDeleteDist = 150.0f;
+    m20 = 0;
+    m21 = 0;
+    m22 = 1;
+    m23 = 1;
+}
+#endif
+
 /* 00000078-000002AC       .text chk_appear__13daObjTnTrap_cFv */
 bool daObjTnTrap_c::chk_appear() {
     bool result = false;
@@ -54,10 +98,10 @@ bool daObjTnTrap_c::chk_appear() {
     switch (mMapType) {
     case 0:
         if (dComIfGs_isEventBit(0x3a04) == 1) {
-            if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, home.roomNo) == 1) {
+            if (mSwitch != 0xff && fopAcM_isSwitch(this, mSwitch) == 1) {
                 if (dComIfGs_getTriforceNum() == 8 && mArg == 0) {
                     if (dComIfGs_isEventBit(0x2c01) == 1) {
-                        if (mSwitch2 != 0xff && !dComIfGs_isSwitch(mSwitch2, home.roomNo)) {
+                        if (mSwitch2 != 0xff && fopAcM_isSwitch(this, mSwitch2) == FALSE) {
                             mType = 2;
                             result = true;
                         }
@@ -73,14 +117,14 @@ bool daObjTnTrap_c::chk_appear() {
         }
         break;
     case 1:
-        if (mSwitch != 0xff && !dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+        if (mSwitch != 0xff && !fopAcM_isSwitch(this, mSwitch)) {
             mType = 3;
             result = true;
         }
         break;
     case 2:
         if (mSwitch != 0xff) {
-            if (!dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+            if (!fopAcM_isSwitch(this, mSwitch)) {
                 mType = 5;
                 result = true;
             }
@@ -90,7 +134,7 @@ bool daObjTnTrap_c::chk_appear() {
         }
         break;
     default:
-        JUT_ASSERT(380, 0);
+        JUT_ASSERT(DEMO_SELECT(376, 380), 0);
         break;
     }
     return result;
@@ -100,7 +144,7 @@ bool daObjTnTrap_c::chk_appear() {
 void daObjTnTrap_c::set_mtx() {
     mDoMtx_stack_c::transS(home.pos);
     mDoMtx_stack_c::XYZrotM(shape_angle.x, shape_angle.y, shape_angle.z);
-    mDoMtx_stack_c::transM(0.0f, -9000.0f, -94.0f);
+    mDoMtx_stack_c::transM(0.0f, -9000.0f, DEMO_SELECT(l_HIO.mBgOffsetZ, -94.0f));
     mDoMtx_stack_c::scaleM(scale.x, 100.0f, scale.z);
     MTXCopy(mDoMtx_stack_c::get(), mBgMtx);
 }
@@ -122,6 +166,10 @@ bool daObjTnTrap_c::create_heap() {
 
 /* 000003E4-000005F8       .text particle_set__13daObjTnTrap_cFif */
 void daObjTnTrap_c::particle_set(int layer, float offset) {
+#if VERSION == VERSION_DEMO
+    f32 sin = cM_ssin(shape_angle.y);
+    f32 cos = cM_scos(shape_angle.y);
+#endif
     if (mParticleSet[layer] == 1) {
         if (mOffsetY[layer] != offset) {
             particle_delete(layer);
@@ -132,18 +180,26 @@ void daObjTnTrap_c::particle_set(int layer, float offset) {
     cXyz pos;
     for (int i = 0; i < 2; ++i) {
         if (!mpBall[layer][i]) {
+#if VERSION == VERSION_DEMO
+            pos.set(cos * l_offset_ball[i].x + sin * l_offset_ball[i].z, offset + l_offset_ball[i].y, sin * -l_offset_ball[i].x + cos * l_offset_ball[i].z);
+#else
             pos.x = l_offset_ball[i].x;
             pos.y = offset + l_offset_ball[i].y;
             pos.z = l_offset_ball[i].z;
+#endif
             mpBall[layer][i] = dComIfGp_particle_set(0x82ea, &home.pos, &shape_angle);
             mpBall[layer][i]->setEmitterTranslation(pos);
         }
     }
     for (int i = 0; i < 3; ++i) {
         if (!mpThunder[layer][i]) {
+#if VERSION == VERSION_DEMO
+            pos.set(cos * l_offset_thunder[i].x + sin * l_offset_thunder[i].z, offset + l_offset_thunder[i].y, sin * -l_offset_thunder[i].x + cos * l_offset_thunder[i].z);
+#else
             pos.x = l_offset_thunder[i].x;
             pos.y = offset + l_offset_thunder[i].y;
             pos.z = l_offset_thunder[i].z;
+#endif
             mpThunder[layer][i] = dComIfGp_particle_set(0x82eb, &home.pos, &shape_angle);
             mpThunder[layer][i]->setEmitterTranslation(pos);
         }
@@ -187,12 +243,17 @@ void daObjTnTrap_c::set_se() {
 /* 0000072C-000008A0       .text set_tri__13daObjTnTrap_cFi */
 void daObjTnTrap_c::set_tri(int layer) {
     static int table_idx[4][3] = {{0, 1, 2}, {0, 2, 3}, {3, 2, 5}, {3, 5, 4}};
-    mDoMtx_stack_c::transS(home.pos.x, home.pos.y + mOffsetY[layer], home.pos.z);
+    f32 offsetY = mOffsetY[layer];
+    mDoMtx_stack_c::transS(home.pos.x, home.pos.y + offsetY, home.pos.z);
     mDoMtx_stack_c::XYZrotM(shape_angle.x, shape_angle.y, shape_angle.z);
     Vec vertices[3];
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 3; ++j) {
             vertices[j] = l_tri_vtx[table_idx[i][j]];
+#if VERSION == VERSION_DEMO
+            vertices[j].y += l_HIO.mTriOffsetY;
+            vertices[j].z += l_HIO.mTriOffsetZ;
+#endif
             mDoMtx_stack_c::multVec(&vertices[j], &vertices[j]);
         }
         mTri[layer][i].setPos(&vertices[0], &vertices[1], &vertices[2]);
@@ -205,7 +266,7 @@ bool daObjTnTrap_c::chk_event_flg() {
     int action;
     switch (mType) {
     case 0:
-        if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, home.roomNo) == 1) {
+        if (mSwitch != 0xff && fopAcM_isSwitch(this, mSwitch) == 1) {
             action = 4;
             if (mArg == 0) {
                 action = 2;
@@ -222,7 +283,7 @@ bool daObjTnTrap_c::chk_event_flg() {
         }
         break;
     case 3:
-        if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, home.roomNo) == 1) {
+        if (mSwitch != 0xff && fopAcM_isSwitch(this, mSwitch) == 1) {
             daShip_c* const ship = dComIfGp_getShipActor();
             if (ship) {
                 ship->offStateFlg(daShip_c::daSFLG_UNK800000_e);
@@ -232,12 +293,25 @@ bool daObjTnTrap_c::chk_event_flg() {
         }
         break;
     case 5:
-        if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, home.roomNo) == 1) {
+        if (mSwitch != 0xff && fopAcM_isSwitch(this, mSwitch) == 1) {
             fopAcM_delete(this);
             result = false;
         }
         break;
     }
+#if VERSION == VERSION_DEMO
+    if (l_HIO.m20 == 1) {
+        switch (mType) {
+        case 0:
+            action = 4;
+            if (mArg == 0) {
+                action = 2;
+            }
+            setup_action(action);
+            break;
+        }
+    }
+#endif
     return result;
 }
 
@@ -246,7 +320,8 @@ void daObjTnTrap_c::set_em_set_offsetY() {
     if (mType == 5) {
         fopAc_ac_c* player = dComIfGp_getPlayer(0);
         if (player) {
-            mOffsetY[0] = 180.0f * (int)((player->eyePos.y - home.pos.y) / 180.0f);
+            int layer = (player->eyePos.y - home.pos.y) / 180.0f;
+            mOffsetY[0] = 180.0f * layer;
         }
     } else {
         mOffsetY[0] = 0.0f;
@@ -288,6 +363,11 @@ cPhs_State daObjTnTrap_c::_create() {
             phase = cPhs_ERROR_e;
         }
     }
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mNo < 0) {
+        l_HIO.mNo = mDoHIO_createChild("タートナックトラップ", &l_HIO); // Darknut trap
+    }
+#endif
     return phase;
 }
 
@@ -295,25 +375,46 @@ cPhs_State daObjTnTrap_c::_create() {
 bool daObjTnTrap_c::_delete() {
     if (mAppear == 1) {
         dComIfG_resDelete(&mPhase, l_arcname);
+#if VERSION == VERSION_DEMO
+        if (mpBgW && mpBgW->ChkUsed()) {
+            dComIfG_Bgsp()->Release(mpBgW);
+        }
+#else
         if (heap && mpBgW) {
             if (mpBgW->ChkUsed()) {
                 dComIfG_Bgsp()->Release(mpBgW);
             }
             mpBgW = NULL;
         }
+#endif
         for (int i = 0; i < 2; ++i) {
             particle_delete(i);
         }
     }
+#if VERSION == VERSION_DEMO
+    if (l_HIO.mNo >= 0) {
+        mDoHIO_deleteChild(l_HIO.mNo);
+        l_HIO.mNo = -1;
+    }
+#endif
     return true;
 }
 
 /* 00001050-00001150       .text trap_off_wait_act_proc__13daObjTnTrap_cFv */
 bool daObjTnTrap_c::trap_off_wait_act_proc() {
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
+#if VERSION == VERSION_DEMO
+    if (player) {
+        f32 dist = (player->current.pos - home.pos).absXZ();
+        if (dist < l_HIO.mTrapOnDist) {
+            setup_action(1);
+        }
+    }
+#else
     if (player && (player->current.pos - home.pos).absXZ() < 500.0f) {
         setup_action(1);
     }
+#endif
     return chk_event_flg();
 }
 
@@ -321,26 +422,31 @@ bool daObjTnTrap_c::trap_off_wait_act_proc() {
 bool daObjTnTrap_c::trap_on_wait_act_proc() {
     fopAc_ac_c* const player = dComIfGp_getPlayer(0);
     if (player) {
+#if VERSION == VERSION_DEMO
+        f32 dist = (player->current.pos - home.pos).absXZ();
+        if (dist > l_HIO.mTrapOnDist) {
+#else
         if ((player->current.pos - home.pos).absXZ() > 500.0f) {
+#endif
             setup_action(0);
         } else if (mType == 5) {
             f32 distance[2];
             int i;
             for (i = 0; i < 2; ++i) {
                 distance[i] = player->current.pos.y - (90.0f + (home.pos.y + mOffsetY[i]));
-                if (std::fabsf(distance[i]) > 150.0f) {
+                if (std::fabsf(distance[i]) > DEMO_SELECT(l_HIO.mLayerDeleteDist, 150.0f)) {
                     particle_delete(i);
                 }
             }
             for (i = 0; i < 2; ++i) {
-                if (std::fabsf(distance[i]) > 80.0f) {
+                if (std::fabsf(distance[i]) > DEMO_SELECT(l_HIO.mLayerChangeDist, 80.0f)) {
                     f32 offset;
                     if (distance[i] > 0.0f) {
                         offset = 180.0f + mOffsetY[i];
                     } else {
                         offset = mOffsetY[i] - 180.0f;
                     }
-                    if (std::fabsf(player->current.pos.y - (90.0f + (home.pos.y + offset))) <= 150.0f) {
+                    if (std::fabsf(player->current.pos.y - (90.0f + (home.pos.y + offset))) <= DEMO_SELECT(l_HIO.mLayerDeleteDist, 150.0f)) {
                         particle_set(i ^ 1, offset);
                     }
                 }
@@ -354,6 +460,9 @@ bool daObjTnTrap_c::trap_on_wait_act_proc() {
 bool daObjTnTrap_c::demo_regist_wait_act_proc() {
     if (mEventIdx != -1) {
         if (eventInfo.checkCommandDemoAccrpt()) {
+#if VERSION == VERSION_DEMO
+            l_HIO.m20 = 0;
+#endif
             setup_action(3);
         } else {
             fopAcM_orderOtherEventId(this, mEventIdx);
@@ -370,7 +479,8 @@ bool daObjTnTrap_c::demo_regist_wait_act_proc() {
 
 /* 00001448-000014F0       .text demo_wait_act_proc__13daObjTnTrap_cFv */
 bool daObjTnTrap_c::demo_wait_act_proc() {
-    if (dComIfGp_getPEvtManager()->getEventData(mEventIdx)) {
+    s16 event = mEventIdx;
+    if (dComIfGp_getPEvtManager()->getEventData(event)) {
         int staff = dComIfGp_evmng_getMyStaffId("TnTrap");
         if (staff != -1 && !strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff), "Delete")) {
             setup_action(5);
@@ -405,7 +515,7 @@ bool daObjTnTrap_c::demo_end_wait_act_proc() {
         case 1:
             break;
         case 2:
-            if (mSwitch2 != 0xff) dComIfGs_onSwitch(mSwitch2, home.roomNo);
+            if (mSwitch2 != 0xff) fopAcM_onSwitch(this, mSwitch2);
             break;
         }
         fopAcM_delete(this);
@@ -416,7 +526,7 @@ bool daObjTnTrap_c::demo_end_wait_act_proc() {
 
 /* 000016A8-00001740       .text hide_wait_act_proc__13daObjTnTrap_cFv */
 bool daObjTnTrap_c::hide_wait_act_proc() {
-    if (mSwitch2 != 0xff && dComIfGs_isSwitch(mSwitch2, home.roomNo) == 1) {
+    if (mSwitch2 != 0xff && fopAcM_isSwitch(this, mSwitch2) == 1) {
         daShip_c* ship = dComIfGp_getShipActor();
         if (ship) {
             ship->onStateFlg(daShip_c::daSFLG_UNK800000_e);
@@ -425,6 +535,17 @@ bool daObjTnTrap_c::hide_wait_act_proc() {
             }
         }
     }
+#if VERSION == VERSION_DEMO
+    if (l_HIO.m21 == 1) {
+        daShip_c* ship = dComIfGp_getShipActor();
+        if (ship) {
+            ship->onStateFlg(daShip_c::daSFLG_UNK800000_e);
+            if (!dComIfG_Bgsp()->Regist(mpBgW, this)) {
+                setup_action(0);
+            }
+        }
+    }
+#endif
     return false;
 }
 

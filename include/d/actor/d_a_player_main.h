@@ -1849,11 +1849,11 @@ public:
     }
     BOOL checkNoControll() const { return dComIfGp_getPlayer(0) != this; }
     void exchangeGrabActor(fopAc_ac_c* actor) { mActorKeepGrab.setData(actor); }
-    void getDekuLeafWindPos() const {}
+    const cXyz& getDekuLeafWindPos() const { return mFanWindCps.GetStart(); }
     cXyz getBoomerangCatchPos() const { return mBoomerangCatchPos; }
     cXyz getLineTopPos() { return mSightPacket.getPos(); }
     cXyz getHookshotRootPos() const { return mHookshotRootPos; }
-    void getShadowID() const {}
+    u32 getShadowID() const { return mShadowId; }
     void npcStartRestartRoom() { startRestartRoom(5, 0xC9, -1.0f, 0); }
     void setDaiokutaEnd() { startRestartRoom(6, 0xC9, -1.0f, 1); }
     void setWhirlId(fpc_ProcID id) { mWhirlId = id; }

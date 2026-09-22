@@ -23,9 +23,9 @@ const Attr_c L_attr = {{222.5f, 598.73f, 178.9f}, {1024, 1024, 1024, 0}, 2200.0f
 }
 }
 
-inline BOOL daObjVds::Act_c::is_switch() const {
+inline BOOL daObjVds::Act_c::is_switch() {
     int sw = daObj::PrmAbstract(this, 8, 0);
-    return dComIfGs_isSwitch(sw, home.roomNo);
+    return fopAcM_isSwitch(this, sw);
 }
 
 /* 00000078-00000134       .text SetLoopJointAnimation__Q28daObjVds5Act_cFP18J3DAnmTransformKeyP18J3DAnmTransformKeyff */
@@ -45,7 +45,9 @@ BOOL daObjVds::Act_c::PlayLoopJointAnimation() {
 
 /* 00000188-000001E8       .text set_first_process__Q28daObjVds5Act_cFv */
 void daObjVds::Act_c::set_first_process() {
-    process_init(is_switch() ? 1 : 0);
+    bool sw = is_switch();
+    int mode = sw ? 1 : 0;
+    process_init(mode);
 }
 
 /* 000001E8-00000214       .text ds_search_switchCB__8daObjVdsFPvPv */
@@ -226,32 +228,56 @@ bool daObjVds::Act_c::create_heap() {
     JUT_ASSERT(848, mdl_data0 != 0);
     M_bck_data0 = (J3DAnmTransformKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VDS_BCK_VDSWT0_e);
     JUT_ASSERT(852, M_bck_data0 != 0);
+#if VERSION == VERSION_DEMO
+    M_anm0 = new mDoExt_McaMorf(mdl_data0, NULL, NULL, M_bck_data0, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11020203);
+    JUT_ASSERT(863, M_anm0 != 0);
+#else
     if (mdl_data0 != NULL && M_bck_data0 != NULL) {
         M_anm0 = new mDoExt_McaMorf(mdl_data0, NULL, NULL, M_bck_data0, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11020203);
     }
     JUT_ASSERT(865, M_anm0 != 0);
+#endif
     J3DModelData* mdl_data1 = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VDS_BDL_VDSWT1_e);
-    JUT_ASSERT(869, mdl_data1 != 0);
+    JUT_ASSERT(DEMO_SELECT(867, 869), mdl_data1 != 0);
     M_bck_data1 = (J3DAnmTransformKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VDS_BCK_VDSWT1_e);
-    JUT_ASSERT(873, M_bck_data1 != 0);
+    JUT_ASSERT(DEMO_SELECT(871, 873), M_bck_data1 != 0);
+#if VERSION == VERSION_DEMO
+    M_anm1 = new mDoExt_McaMorf(mdl_data1, NULL, NULL, M_bck_data1, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11020203);
+    JUT_ASSERT(882, M_anm1 != 0);
+#else
     if (mdl_data1 != NULL && M_bck_data1 != NULL) {
         M_anm1 = new mDoExt_McaMorf(mdl_data1, NULL, NULL, M_bck_data1, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11020203);
     }
     JUT_ASSERT(886, M_anm1 != 0);
+#endif
     M_brk_data0 = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VDS_BRK_VDSWT0_e);
-    JUT_ASSERT(891, M_brk_data0 != 0);
+    JUT_ASSERT(DEMO_SELECT(887, 891), M_brk_data0 != 0);
+#if VERSION == VERSION_DEMO
+    mBrk0.init(mdl_data0, M_brk_data0, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+#else
     BOOL brk0 = mBrk0.init(mdl_data0, M_brk_data0, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+#endif
     M_brk_data1 = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VDS_BRK_VDSWT1_e);
-    JUT_ASSERT(904, M_brk_data1 != 0);
+    JUT_ASSERT(DEMO_SELECT(900, 904), M_brk_data1 != 0);
+#if VERSION == VERSION_DEMO
+    mBrk1.init(mdl_data1, M_brk_data1, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+#else
     BOOL brk1 = mBrk1.init(mdl_data1, M_brk_data1, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+#endif
     set_mtx();
     cBgD_t* bgw_data = (cBgD_t*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VDS_DZB_VDSWT_e);
-    JUT_ASSERT(926, bgw_data != 0);
+    JUT_ASSERT(DEMO_SELECT(922, 926), bgw_data != 0);
+#if VERSION == VERSION_DEMO
+    mpBgW = new dBgW;
+    if (mpBgW != NULL) mpBgW->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx);
+    return (((((((M_bck_data0 != NULL && M_anm0 != NULL) && M_anm0->getModel() != NULL) && M_bck_data1 != NULL) && M_anm1 != NULL) && M_anm1->getModel() != NULL) && mpBgW != NULL) && M_brk_data0 != NULL) && M_brk_data1 != NULL;
+#else
     if (bgw_data != NULL) {
         mpBgW = new dBgW;
         if (mpBgW != NULL) mpBgW->Set(bgw_data, cBgW::MOVE_BG_e, &mBgMtx);
     }
     return (((((((((M_bck_data0 != NULL && M_anm0 != NULL) && M_anm0->getModel() != NULL) && M_bck_data1 != NULL) && M_anm1 != NULL) && M_anm1->getModel() != NULL) && mpBgW != NULL) && M_brk_data0 != NULL) && M_brk_data1 != NULL) && brk0) && brk1;
+#endif
 }
 
 /* 00001020-000011EC       .text _create__Q28daObjVds5Act_cFv */
@@ -275,7 +301,11 @@ cPhs_State daObjVds::Act_c::_create() {
 
 /* 000012D4-00001368       .text _delete__Q28daObjVds5Act_cFv */
 bool daObjVds::Act_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mpBgW != NULL && mpBgW->ChkUsed()) dComIfG_Bgsp()->Release(mpBgW);
+#else
     if (heap != NULL && mpBgW != NULL && mpBgW->ChkUsed()) dComIfG_Bgsp()->Release(mpBgW);
+#endif
     delete_point_light();
     dComIfG_resDelete(&mPhase, M_arcname);
     return true;

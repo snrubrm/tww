@@ -72,7 +72,7 @@ static const dCcD_SrcCyl M_cyl_src = {
         /* SrcObjAt  Type    */ 0,
         /* SrcObjAt  Atp     */ 0,
         /* SrcObjAt  SPrm    */ 0,
-        /* SrcObjTg  Type    */ ~(AT_TYPE_WATER | AT_TYPE_UNK20000 | AT_TYPE_UNK400000 | AT_TYPE_LIGHT),
+        /* SrcObjTg  Type    */ ~(AT_TYPE_WATER | AT_TYPE_UNK20000 | AT_TYPE_WIND | AT_TYPE_UNK400000 | AT_TYPE_LIGHT),
         /* SrcObjTg  SPrm    */ cCcD_TgSPrm_Set_e | cCcD_TgSPrm_GrpAll_e,
         /* SrcObjCo  SPrm    */ cCcD_CoSPrm_Set_e | cCcD_CoSPrm_IsOther_e | cCcD_CoSPrm_VsGrpAll_e,
         /* SrcGObjAt Se      */ 0,
@@ -114,13 +114,7 @@ static const dCcD_SrcCyl M_cyl_srcW = {
     {{{0.0f, 0.0f, 0.0f}, 100.0f, 200.0f}},
 };
 
-const u8 ret_tree_no[10] = {0xF, 0, 1, 2, 3, 4, 5, 0xF, 6, 7};
-u32 message_table[] = {
-    0, 0x149F, 0x14A0, 0x14A1, 0, 0, 0, 0, 0, 0, 0x149F, 0x14A0, 0x14A1,
-};
 } // namespace daObjFtree
-
-const char daObjFtree::Act_c::M_arcname[] = "Vmr";
 
 /* 00000078-000000DC       .text search_heart_part__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::search_heart_part() {
@@ -141,7 +135,7 @@ BOOL daObjFtree::Act_c::launch_heart_part() {
     angle.y += 0x2328;
     pos.y += 860.0f;
     fopAc_ac_c* item = (fopAc_ac_c*)fopAcM_fastCreateItem(
-        &pos, dItemNo_HEART_PIECE_e, current.roomNo, &angle, &scale, 1.75f, 30.0f, -2.1f, -1, NULL);
+        &pos, dItemNo_HEART_PIECE_e, fopAcM_GetRoomNo(this), &angle, &scale, 1.75f, 30.0f, -2.1f, -1, NULL);
     if (item != NULL) {
         mSpawnedHeartPieceProcessId = fopAcM_GetID(item);
         dComIfGs_setEventReg(dSv_event_flag_c::UNK_9B07, param_get_tree_idx());
@@ -163,11 +157,13 @@ BOOL daObjFtree::Act_c::place_heart_part() {
         mDoMtx_stack_c::transS(current.pos);
         mDoMtx_stack_c::YrotM(ang);
         cXyz dest;
-        mDoMtx_stack_c::multVec(&offset, &dest);
+        Mtx mtx;
+        mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+        mDoMtx_multVec(mtx, &offset, &dest);
         cXyz scale(1.0f, 1.0f, 1.0f);
         csXyz angle(0, 0, 0);
         fopAc_ac_c* item = (fopAc_ac_c*)fopAcM_fastCreateItem(
-            &dest, dItemNo_HEART_PIECE_e, current.roomNo, &angle, &scale, 0.0f, 0.0f, -2.1f, -1, NULL);
+            &dest, dItemNo_HEART_PIECE_e, fopAcM_GetRoomNo(this), &angle, &scale, 0.0f, 0.0f, -2.1f, -1, NULL);
         if (item != NULL) {
             mSpawnedHeartPieceProcessId = fopAcM_GetID(item);
             dComIfGs_setEventReg(dSv_event_flag_c::UNK_9B07, param_get_tree_idx());
@@ -184,7 +180,9 @@ void daObjFtree::Ftree_get_water_pos(cXyz* out, cXyz* src) {
     s16 angle = cM_atan2s(src->x - player->current.pos.x, src->z - player->current.pos.z);
     mDoMtx_stack_c::transS(player->current.pos);
     mDoMtx_stack_c::YrotM(angle);
-    mDoMtx_stack_c::multVec(&offset, out);
+    Mtx mtx;
+    mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+    mDoMtx_multVec(mtx, &offset, out);
 }
 
 /* 00000454-000004B8       .text estimate_water__Q210daObjFtree5Act_cFv */
@@ -193,12 +191,16 @@ BOOL daObjFtree::Act_c::estimate_water() {
     Ftree_get_water_pos(&pos, &current.pos);
     f32 dist2 = PSVECSquareDistance(&pos, &current.pos);
     f32 r = 20.0f + mCrashRadius;
+#if VERSION == VERSION_DEMO
+    return dist2 <= r * r ? TRUE : FALSE;
+#else
     return dist2 <= r * r;
+#endif
 }
 
 /* 000004B8-000004DC       .text Ftree_checkXyEventCallBack__10daObjFtreeFPvi */
 s16 daObjFtree::Ftree_checkXyEventCallBack(void*, int i_itemBtn) {
-    return dComIfGp_getSelectItem(i_itemBtn) == dItemNo_FOREST_WATER_e;
+    return dComIfGp_getSelectItem(i_itemBtn) == dItemNo_FOREST_WATER_e ? TRUE : FALSE;
 }
 
 /* 000004DC-000004FC       .text Ftree_XyEventCallBack__10daObjFtreeFPvi */
@@ -256,7 +258,9 @@ void daObjFtree::Act_c::XyEvent_exe() {
             mDoMtx_stack_c::transS(current.pos);
             mDoMtx_stack_c::YrotM(ang);
             cXyz dest;
-            mDoMtx_stack_c::multVec(&offset, &dest);
+            Mtx mtx;
+            mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+            mDoMtx_multVec(mtx, &offset, &dest);
             player->setPlayerPosAndAngle(&dest, (s16)(ang + 0x8000));
         }
         break;
@@ -270,10 +274,17 @@ void daObjFtree::Act_c::XyEvent_exe() {
 }
 
 /* 00000764-000007A8       .text param_get_tree_idx__Q210daObjFtree5Act_cCFv */
+namespace daObjFtree {
+const u8 ret_tree_no[10] = {0xF, 0, 1, 2, 3, 4, 5, 0xF, 6, 7};
+u32 message_table[] = {
+    0, 0x149F, 0x14A0, 0x14A1, 0, 0, 0, 0, 0, 0, 0x149F, 0x14A0, 0x14A1,
+};
+} // namespace daObjFtree
+
 int daObjFtree::Act_c::param_get_tree_idx() const {
     static const u8 ret_num = 10;
     int idx = daObj::PrmAbstract(this, 4, 0);
-    if (idx < 10) {
+    if (idx < ret_num) {
         return ret_tree_no[idx];
     }
     return 0xF;
@@ -282,12 +293,12 @@ int daObjFtree::Act_c::param_get_tree_idx() const {
 /* 000007A8-000008D8       .text SetJointAnimation__Q210daObjFtree5Act_cFiffi */
 BOOL daObjFtree::Act_c::SetJointAnimation(int resIdx, float speed, float morf, int param) {
     J3DAnmTransform* anm = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, resIdx);
-    int frameParam = param < 0 ? 0 : param;
+    param = param > 0 ? 0 : param;
     if (anm != NULL) {
-        if (frameParam == 0) {
+        if (param == 0) {
             mpMorf->setAnm(anm, 0, morf, speed, 0.0f, -1.0f, NULL);
         } else {
-            mpMorf->setAnm(anm, 0, morf, speed, 0.0f, frameParam + anm->getFrameMax(), NULL);
+            mpMorf->setAnm(anm, 0, morf, speed, 0.0f, param + (f32)anm->getFrameMax(), NULL);
         }
         return TRUE;
     }
@@ -333,23 +344,23 @@ void daObjFtree::Act_c::set_collision() {
                 daObj::HitEff_kikuzu(this, &mCyl);
             }
             dKy_Sound_set(current.pos, 4, fopAcM_GetID(this), 100);
-            mCyl.GetTgHitObj();
+            mCyl.ClrTgHit();
         } else if (mModelS == 1) {
             cXyz pos = current.pos;
             pos.y -= 50.0f;
-            mCylW.SetR(L_attr.m00);
-            mCylW.SetH(L_attr.m04);
+            mCylW.SetR(61.0f);
+            mCylW.SetH(96.0f);
             mCylW.SetC(pos);
             dComIfG_Ccsp()->Set(&mCylW);
-            mCrashRadius = L_attr.m00;
-            mCyl.SetR(L_attr.m00);
-            mCyl.SetH(L_attr.m04);
+            mCrashRadius = 61.0f;
+            mCyl.SetR(61.0f);
+            mCyl.SetH(96.0f);
             mCyl.SetC(current.pos);
             dComIfG_Ccsp()->Set(&mCyl);
         } else if (mModelL == 1) {
-            mCrashRadius = L_attr.m10 * mScaleMul;
+            mCrashRadius = 132.0f * mScaleMul;
             mCyl.SetR(mCrashRadius);
-            mCyl.SetH(L_attr.m14 * mScaleMul);
+            mCyl.SetH(950.0f * mScaleMul);
             mCyl.SetC(current.pos);
             dComIfG_Ccsp()->Set(&mCyl);
         }
@@ -416,10 +427,8 @@ void daObjFtree::Act_c::talk_main() {
                 cXyz diff = current.pos - player->current.pos;
                 s16 ang = cM_atan2s(diff.x, diff.z);
                 s16 d = ang - player->shape_angle.y;
-                if (d <= 0) {
-                    d = -d;
-                }
-                if (d <= 0x4000) {
+                int abs_d = d <= 0 ? -d : d;
+                if (abs_d <= 0x4000) {
                     eventInfo.onCondition(dEvtCnd_CANTALK_e);
                 }
             }
@@ -451,26 +460,35 @@ void daObjFtree::Act_c::set_tev_color(J3DModelData* mdl, unsigned long idx, s16 
 
 /* 00001070-000010F0       .text is_broughtID__10daObjFtreeFi */
 BOOL daObjFtree::is_broughtID(int id) {
-    BOOL ret = TRUE;
-    if (((dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) >> (id & 7)) & 1) == 0 &&
-        !dComIfGs_isEventBit(dSv_event_flag_c::UNK_0102))
-    {
-        ret = FALSE;
-    }
+    int bit = id & 7;
+    bool ret = ((dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) >> bit) & 1) ||
+               dComIfGs_isEventBit(dSv_event_flag_c::UNK_0102);
     return ret;
 }
 
 /* 000010F0-00001138       .text is_brought__Q210daObjFtree5Act_cFv */
 BOOL daObjFtree::Act_c::is_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    return is_broughtID(idx >= 10 ? 0xF : ret_tree_no[idx]);
+    return is_broughtID(idx < 10 ? ret_tree_no[idx] : 0xF);
 }
 
 /* 00001138-000011FC       .text set_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::set_broughtID(int id) {
-    u8 bit = 1 << (id & 7);
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) | bit);
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9AFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF) | bit);
+#if VERSION == VERSION_DEMO
+    int bit = id & 7;
+    u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
+    val |= (1 << bit);
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
+    val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF);
+    val |= (1 << bit);
+#else
+    u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
+    val |= (1 << (id & 7));
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
+    val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9AFF);
+    val |= (1 << (id & 7));
+#endif
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9AFF, val);
     _ftree_seach_info_ info;
     get_ftree_info(&info);
     if (info.mBrought == info.mTotal) {
@@ -481,20 +499,24 @@ void daObjFtree::Act_c::set_broughtID(int id) {
 /* 000011FC-00001260       .text set_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::set_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    set_broughtID(idx >= 10 ? 0xF : ret_tree_no[idx]);
+    int no = idx < 10 ? ret_tree_no[idx] : 0xF;
+    set_broughtID(no);
     mBroughtSession = 1;
 }
 
 /* 00001260-000012D0       .text unset_broughtID__Q210daObjFtree5Act_cFi */
 void daObjFtree::Act_c::unset_broughtID(int id) {
-    u8 bit = 1 << (id & 7);
-    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF) & ~bit);
+    int bit = id & 7;
+    u8 val = dComIfGs_getEventReg(dSv_event_flag_c::UNK_9EFF);
+    val &= ~(1 << bit);
+    dComIfGs_setEventReg(dSv_event_flag_c::UNK_9EFF, val);
 }
 
 /* 000012D0-00001334       .text unset_brought__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::unset_brought() {
     int idx = daObj::PrmAbstract(this, 4, 0);
-    unset_broughtID(idx >= 10 ? 0xF : ret_tree_no[idx]);
+    int no = idx < 10 ? ret_tree_no[idx] : 0xF;
+    unset_broughtID(no);
     mBroughtSession = 0;
 }
 
@@ -502,7 +524,7 @@ void daObjFtree::Act_c::unset_brought() {
 void daObjFtree::Act_c::get_ftree_info(_ftree_seach_info_* info) {
     info->mTotal = 8;
     info->mBrought = 0;
-    for (int i = 0; i < 8; i++) {
+    for (unsigned i = 0; i < 8; i++) {
         if (is_broughtID(i)) {
             info->mBrought++;
         }
@@ -558,10 +580,8 @@ void daObjFtree::Act_c::action_waitS_main() {
         }
     }
     BOOL coHit = mCyl.ChkCoHit();
-    if (mPrevCoHit == 0 && coHit == TRUE) {
-        if (process_init(10, 1)) {
-            coHit = FALSE;
-        }
+    if (mPrevCoHit == 0 && coHit == TRUE && process_init(10, 1)) {
+        coHit = FALSE;
     } else if ((int)cM_rndF(100.0f) == 0 && mMode == 1) {
         process_init(10, (s16)(1.0f + cM_rndF(1.0f) * 4.0f));
     }
@@ -599,10 +619,8 @@ void daObjFtree::Act_c::action_waitM_main() {
         BOOL coHit = mCyl.ChkCoHit();
         if (dKy_rain_check()) {
             process_init(11, -1);
-        } else if (mPrevCoHit == 0 && coHit == TRUE) {
-            if (process_init(11, 0x78)) {
-                coHit = FALSE;
-            }
+        } else if (mPrevCoHit == 0 && coHit == TRUE && process_init(11, 0x78)) {
+            coHit = FALSE;
         } else if ((int)cM_rndF(90.0f) == 0) {
             process_init(11, (s16)(30.0f + cM_rndF(1.0f) * 90.0f));
         }
@@ -637,15 +655,12 @@ void daObjFtree::Act_c::action_waitL_main() {
 
 /* 000019BC-00001A4C       .text action_pikupikuS_init__Q210daObjFtree5Act_cFs */
 BOOL daObjFtree::Act_c::action_pikupikuS_init(s16 param) {
-    int duration = 1;
-    if (param > 0) {
-        duration = param;
-    }
+    param = param > 0 ? param : 1;
     mModelS = 1;
     mModelL = 0;
-    mPikuSMax = duration;
+    mPikuSMax = param;
     mPikuSCount = 0;
-    f32 speed = 0.7f + cM_rndF(1.0f) * 0.5f;
+    f32 speed = 0.7f + cM_rndF(1.0f) * 0.50000005f;
     return SetJointAnimation(dRes_INDEX_VMR_BCK_VMRTY_e, speed, 10.0f, 0);
 }
 
@@ -715,7 +730,7 @@ void daObjFtree::Act_c::action_pikupikuL_main() {
 BOOL daObjFtree::Act_c::action_changeSL_init(s16) {
     mModelS = 1;
     mModelL = 0;
-    J3DAnmTevRegKey* brk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BRK_VMRMZ_e);
+    J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BRK_VMRMZ_e));
     if (brk != NULL) {
         if (mBrkAnm.init(mpMorf->getModel()->getModelData(), brk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, 0)) {
             if (SetJointAnimation(dRes_INDEX_VMR_BCK_VMRMZ_e, 1.0f, 10.0f, 0)) {
@@ -769,14 +784,7 @@ void daObjFtree::Act_c::action_changeSL2_main() {
         }
     }
     if (mModelL != 0) {
-        f32 ratio;
-        if (mScaleMul <= 0.2f) {
-            ratio = 0.0f;
-        } else if (mScaleMul >= 1.0f) {
-            ratio = 1.0f;
-        } else {
-            ratio = (mScaleMul - 0.2f) / 0.8f;
-        }
+        f32 ratio = mScaleMul <= 0.2f ? 0.0f : (mScaleMul >= 1.0f ? 1.0f : (mScaleMul - 0.2f) / 0.8f);
         cLib_addCalc(&mScaleMul, 1.0f, 0.02f, 1.0f, 0.005f);
         mColorLBase.r = (s16)(255.0f + ((f32)mColorL.r - 255.0f) * ratio);
         mColorLBase.g = (s16)(255.0f + ((f32)mColorL.g - 255.0f) * ratio);
@@ -805,14 +813,7 @@ BOOL daObjFtree::Act_c::action_changeLS_init(s16) {
 /* 00002344-000025DC       .text action_changeLS_main__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::action_changeLS_main() {
     if (mModelL != 0) {
-        f32 ratio;
-        if (mScaleMul <= 0.2f) {
-            ratio = 0.0f;
-        } else if (mScaleMul >= 1.0f) {
-            ratio = 1.0f;
-        } else {
-            ratio = (mScaleMul - 0.2f) / 0.8f;
-        }
+        f32 ratio = mScaleMul <= 0.2f ? 0.0f : (mScaleMul >= 1.0f ? 1.0f : (mScaleMul - 0.2f) / 0.8f);
         cLib_addCalc(&mScaleMul, 0.2f, 0.02f, 1.0f, 0.005f);
         mColorLBase.r = (s16)(255.0f + ((f32)mColorL.r - 255.0f) * ratio);
         mColorLBase.g = (s16)(255.0f + ((f32)mColorL.g - 255.0f) * ratio);
@@ -950,18 +951,29 @@ BOOL daObjFtree::Act_c::NodeCallBack_Effect(J3DNode* node, int timing) {
     if (mEffectFlag == 1 && timing == 0) {
         J3DJoint* joint = (J3DJoint*)node;
         cXyz offset(0.0f, 0.0f, 0.0f);
-        J3DModel* model = j3dSys.getModel();
-        mDoMtx_stack_c::copy(model->getAnmMtx(joint->getJntNo()));
+        mDoMtx_stack_c::copy(j3dSys.getModel()->getAnmMtx(joint->getJntNo()));
         Mtx mtx;
         mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
         cXyz pos;
         mDoMtx_multVec(mtx, &offset, &pos);
         mDoAud_seStart(JA_SE_OBJ_DK_TREE_GROW_UP, &current.pos);
+#if VERSION == VERSION_DEMO
+        if (mpEmitter1 == NULL) {
+            mpEmitter1 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH00, &pos);
+        }
+        if (mpEmitter2 == NULL) {
+            mpEmitter2 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH01, &pos);
+        }
+        if (mpEmitter1 != NULL && mpEmitter2 != NULL) {
+            mEffectFlag = 0;
+        }
+#else
         JPABaseEmitter* e1 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH00, &pos);
         JPABaseEmitter* e2 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH01, &pos);
         if (e1 != NULL && e2 != NULL) {
             mEffectFlag = 0;
         }
+#endif
     }
     return TRUE;
 }
@@ -1013,6 +1025,36 @@ BOOL daObjFtree::Ftree_NodeCallBack_L(J3DNode* node, int timing) {
 }
 
 /* 00002F5C-00003354       .text create_heap__Q210daObjFtree5Act_cFv */
+#if VERSION == VERSION_DEMO
+bool daObjFtree::Act_c::create_heap() {
+    J3DAnmTransform* tmp_bck_data = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BCK_VMRTY_e);
+    JUT_ASSERT(2100, tmp_bck_data != 0);
+    J3DModelData* mdl_dataS = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BDL_VMRTY_e);
+    JUT_ASSERT(2106, mdl_dataS != 0);
+    mpMorf = new mDoExt_McaMorf(mdl_dataS, NULL, NULL, tmp_bck_data, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11020203);
+    J3DModel* modelS = mpMorf->getModel();
+    modelS->setUserArea((u32)this);
+    mdl_dataS->getJointNodePointer(2)->setCallBack(Ftree_NodeCallBack_Effect);
+    mdl_dataS->getJointNodePointer(3)->setCallBack(Ftree_NodeCallBack_M);
+    mdl_dataS->getJointNodePointer(4)->setCallBack(Ftree_NodeCallBack_M);
+    mdl_dataS->getJointNodePointer(5)->setCallBack(Ftree_NodeCallBack_M);
+
+    J3DModelData* mdl_dataL = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BDL_VMRTO_e);
+    JUT_ASSERT(2130, mdl_dataL != 0);
+    mpModel = mDoExt_J3DModel__create(mdl_dataL, 0, 0x11020203);
+    mpModel->setUserArea((u32)this);
+    mdl_dataL->getJointNodePointer(1)->setCallBack(Ftree_NodeCallBack_L);
+
+    J3DAnmTevRegKey* brk_data = (J3DAnmTevRegKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BRK_VMRMZ_e);
+    JUT_ASSERT(2140, brk_data != 0);
+    mBrkAnm.init(mdl_dataS, brk_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
+    get_tev_material0_color(mpMorf->getModel()->getModelData(), 2, &mColorS.r, &mColorS.g, &mColorS.b);
+    mColorSBase = mColorS;
+    get_tev_material0_color(mpModel->getModelData(), 2, &mColorL.r, &mColorL.g, &mColorL.b);
+    mColorLBase = mColorL;
+    return bool(mpMorf && mpMorf->getModel()) && mdl_dataL && brk_data;
+}
+#else
 bool daObjFtree::Act_c::create_heap() {
     J3DAnmTransform* tmp_bck_data = (J3DAnmTransform*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VMR_BCK_VMRTY_e);
     JUT_ASSERT(2102, tmp_bck_data != 0);
@@ -1049,13 +1091,14 @@ bool daObjFtree::Act_c::create_heap() {
     if (brk_data == NULL) {
         return false;
     }
-    BOOL brk = mBrkAnm.init(mdl_dataS, brk_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, true, 0);
+    BOOL brk = mBrkAnm.init(mdl_dataS, brk_data, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0);
     get_tev_material0_color(mpMorf->getModel()->getModelData(), 2, &mColorS.r, &mColorS.g, &mColorS.b);
     mColorSBase = mColorS;
     get_tev_material0_color(mpModel->getModelData(), 2, &mColorL.r, &mColorL.g, &mColorL.b);
     mColorLBase = mColorL;
-    return bool(tmp_bck_data && mpMorf) && mpMorf->getModel() && mdl_dataL && brk_data && brk;
+    return bool(mdl_dataS && mpMorf) && mpMorf->getModel() && mdl_dataL && brk_data && brk;
 }
+#endif
 
 /* 00003354-000035F4       .text _create__Q210daObjFtree5Act_cFv */
 cPhs_State daObjFtree::Act_c::_create() {
@@ -1064,13 +1107,12 @@ cPhs_State daObjFtree::Act_c::_create() {
     if (phase == cPhs_COMPLEATE_e) {
         if (fopAcM_entrySolidHeap(this, solidHeapCB, 0)) {
             int idx = daObj::PrmAbstract(this, 4, 0);
-            mTreeIdx = idx >= 10 ? 0xF : ret_tree_no[idx];
+            mTreeIdx = idx < 10 ? ret_tree_no[idx] : 0xF;
             mHeartPlaced = 0;
             mSpawnedHeartPieceProcessId = fpcM_ERROR_PROCESS_ID_e;
             set_first_stat();
             talk_ct();
-            cXyz pos = current.pos;
-            pos.y += 100.0f;
+            cXyz pos(current.pos.x, current.pos.y + 100.0f, current.pos.z);
             mGndChk.SetPos(&pos);
             mGndChk.SetActorPid(fopAcM_GetID(this));
             mGroundY = dComIfG_Bgsp()->GroundCross(&mGndChk);
@@ -1105,17 +1147,24 @@ bool daObjFtree::Act_c::_delete() {
     if (mBroughtSession) {
         set_brought();
     }
+#if VERSION == VERSION_DEMO
+    if (mpEmitter1 != NULL) {
+        mpEmitter1->becomeInvalidEmitter();
+    }
+    if (mpEmitter2 != NULL) {
+        mpEmitter2->becomeInvalidEmitter();
+    }
+#endif
     dComIfG_resDelete(&mPhs, M_arcname);
     return true;
 }
 
 /* 00004004-00004144       .text set_mtx__Q210daObjFtree5Act_cFv */
 void daObjFtree::Act_c::set_mtx() {
-    J3DModel* modelS = mpMorf->getModel();
-    modelS->setBaseScale(scale);
+    mpMorf->getModel()->setBaseScale(scale);
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::ZXYrotM(shape_angle);
-    modelS->setBaseTRMtx(mDoMtx_stack_c::get());
+    mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
     cMtx_copy(mDoMtx_stack_c::get(), mMtx);
 
     cXyz lscale(scale.x * mScaleMul, scale.y * mScaleMul, scale.z * mScaleMul);
@@ -1179,7 +1228,7 @@ bool daObjFtree::Act_c::_draw() {
         }
         mpMorf->updateDL();
         dComIfGd_setList();
-        cXyz pos = current.pos;
+        cXyz pos(current.pos.x, current.pos.y, current.pos.z);
         dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f, mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
     if (mModelL == 1) {
@@ -1189,19 +1238,15 @@ bool daObjFtree::Act_c::_draw() {
         set_tev_color(mpModel->getModelData(), 2, mColorLBase.r, mColorLBase.g, mColorLBase.b);
         mDoExt_modelUpdateDL(mpModel);
         dComIfGd_setList();
-        f32 ratio;
-        if (mScaleMul <= 0.2f) {
-            ratio = 0.0f;
-        } else if (mScaleMul >= 1.0f) {
-            ratio = 1.0f;
-        } else {
-            ratio = (mScaleMul - 0.2f) / 0.8f;
-        }
-        cXyz pos = current.pos;
-        dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f * (1.0f + 2.5f * ratio), mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
+        f32 ratio = mScaleMul <= 0.2f ? 0.0f : (mScaleMul >= 1.0f ? 1.0f : (mScaleMul - 0.2f) / 0.8f);
+        f32 size = 1.0f + 2.5f * ratio;
+        cXyz pos(current.pos.x, current.pos.y, current.pos.z);
+        dComIfGd_setSimpleShadow2(&pos, mGroundY, 75.0f * size, mGndChk, shape_angle.y, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
     return true;
 }
+
+const char daObjFtree::Act_c::M_arcname[] = "Vmr";
 
 namespace daObjFtree {
 namespace {

@@ -109,7 +109,9 @@ bool daNpc_Gk1_c::init_GK1_0() {
 
 /* 0000058C-00000720       .text createInit__11daNpc_Gk1_cFv */
 bool daNpc_Gk1_c::createInit() {
-    mEventIds[0] = dComIfGp_evmng_getEventIdx(l_evn_tbl[0]);
+    for (int i = 0; i < 1; i++) {
+        mEventIds[i] = dComIfGp_evmng_getEventIdx(l_evn_tbl[i]);
+    }
     mEventCut.setActorInfo2("Gk1", this);
     attention_info.flags = 0xA;
     fopAcM_setCullSizeFar(this, 12000.0f / mDoLib_clipper::getFar());
@@ -155,7 +157,7 @@ void daNpc_Gk1_c::play_animation() {
     if (mObjAcch.ChkGroundHit()) {
         sound = dComIfG_Bgsp()->GetMtrlSndId(mObjAcch.m_gnd);
     }
-    mAnmEnded = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(current.roomNo));
+    mAnmEnded = mpMorf->play(&eyePos, sound, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     if (mpMorf->getFrame() < mLastFrame) {
         mAnmEnded = 1;
     }
@@ -419,11 +421,7 @@ bool daNpc_Gk1_c::chk_talk() {
 
 /* 00001164-000011A4       .text chk_parts_notMov__11daNpc_Gk1_cFv */
 bool daNpc_Gk1_c::chk_parts_notMov() {
-    bool result = false;
-    if (mOldHeadY != m_jnt.getHead_y() || mOldBackY != m_jnt.getBackbone_y() || mOldActorY != current.angle.y) {
-        result = true;
-    }
-    return result;
+    return mOldHeadY != m_jnt.getHead_y() || mOldBackY != m_jnt.getBackbone_y() || mOldActorY != current.angle.y;
 }
 
 /* 000011A4-000011F8       .text searchByID__11daNpc_Gk1_cFUiPi */
@@ -477,10 +475,11 @@ void daNpc_Gk1_c::lookBack() {
 
 /* 000013BC-0000143C       .text chkAttention__11daNpc_Gk1_cFv */
 bool daNpc_Gk1_c::chkAttention() {
-    if (dComIfGp_getAttention().LockonTruth()) {
-        return this == dComIfGp_getAttention().LockonTarget(0);
+    dAttention_c& attention = dComIfGp_getAttention();
+    if (attention.LockonTruth()) {
+        return this == attention.LockonTarget(0);
     }
-    return this == dComIfGp_getAttention().ActionTarget(0);
+    return this == attention.ActionTarget(0);
 }
 
 /* 0000143C-00001494       .text setAttention__11daNpc_Gk1_cFb */
@@ -510,8 +509,22 @@ void daNpc_Gk1_c::privateCut(int staff) {
         if (mCutIndex == -1) {
             dComIfGp_evmng_cutEnd(staff);
         } else {
-            dComIfGp_evmng_getIsAddvance(staff);
-            dComIfGp_evmng_cutEnd(staff);
+            if (dComIfGp_evmng_getIsAddvance(staff)) {
+                switch (mCutIndex) {
+                case 0:
+                    break;
+                }
+            }
+            bool result;
+            switch (mCutIndex) {
+            case 0:
+            default:
+                result = true;
+                break;
+            }
+            if (result) {
+                dComIfGp_evmng_cutEnd(staff);
+            }
         }
     }
 }
@@ -697,7 +710,7 @@ u8 daNpc_Gk1_c::demo() {
             mTexIndex = 1;
             mBtpFrame = 0;
         }
-        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName, 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, mArcName);
     }
     return mDemo;
 }
@@ -758,7 +771,7 @@ BOOL daNpc_Gk1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) {
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == FALSE) {
             staff = isEventEntry();
         }
         if (staff >= 0) {
@@ -787,16 +800,28 @@ BOOL daNpc_Gk1_c::_execute() {
 
 /* 00002280-000022D4       .text _delete__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::_delete() {
+#if VERSION == VERSION_DEMO
+    if (mLoaded) {
+        l_HIO.removeHIO();
+        dComIfG_resDelete(&mPhase, mArcName);
+        if (mpMorf != NULL) {
+            mpMorf->stopZelAnime();
+        }
+    }
+#else
     dComIfG_resDelete(&mPhase, mArcName);
     if (heap != NULL && mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return TRUE;
 }
 
 /* 000022D4-00002520       .text _create__11daNpc_Gk1_cFv */
 cPhs_State daNpc_Gk1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Gk1_c);
+#endif
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
     }
@@ -805,8 +830,15 @@ cPhs_State daNpc_Gk1_c::_create() {
     if (!mLoaded) {
         return phase;
     }
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("貧乏ム−ルの父");
+    fopAcM_SetupActor(this, daNpc_Gk1_c);
+#endif
     static u32 a_siz_tbl[] = {0, 0};
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_siz_tbl[mType])) {
+#if VERSION == VERSION_DEMO
+        mLoaded = false;
+#endif
         return cPhs_ERROR_e;
     }
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -820,7 +852,7 @@ cPhs_State daNpc_Gk1_c::_create() {
 /* 000027EC-00002AE8       .text bodyCreateHeap__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_GK_BDL_GK_e);
-    JUT_ASSERT(1553, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(1548, 1553), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, TRUE, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) {
         return FALSE;
@@ -834,11 +866,11 @@ BOOL daNpc_Gk1_c::bodyCreateHeap() {
         return FALSE;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(1573, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(1568, 1573), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(1575, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(1570, 1575), m_bbone_jnt_num >= 0);
     m_nck_jnt_num = a_mdl_dat->getJointName()->getIndex("neck");
-    JUT_ASSERT(1577, m_nck_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(1572, 1577), m_nck_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_nck_jnt_num)->setCallBack(nodeCB_Neck);
@@ -849,7 +881,7 @@ BOOL daNpc_Gk1_c::bodyCreateHeap() {
 /* 00002AE8-00002BA8       .text itemCreateHeap__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::itemCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_GK_BDL_GK_HAIR_e);
-    JUT_ASSERT(1598, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(1593, 1598), a_mdl_dat != 0);
     mpItemModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     if (mpItemModel == NULL) {
         return FALSE;
@@ -860,7 +892,7 @@ BOOL daNpc_Gk1_c::itemCreateHeap() {
 /* 00002BA8-00002C68       .text hat_CreateHeap__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::hat_CreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_GK_BDL_GK_HAT_e);
-    JUT_ASSERT(1614, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(1609, 1614), a_mdl_dat != 0);
     mpHatModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000022);
     if (mpHatModel == NULL) {
         return FALSE;
@@ -882,7 +914,7 @@ BOOL daNpc_Gk1_c::CreateHeap() {
         return FALSE;
     }
     mAcchCir.SetWall(30.0f, 90.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
     return TRUE;
 }
 

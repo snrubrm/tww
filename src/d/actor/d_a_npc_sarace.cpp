@@ -13,6 +13,17 @@
 #include "f_op/f_op_actor_mng.h"
 #include "res/Object/Sarace.h"
 
+class daNpc_Sarace_HIO_c : public JORReflexible {
+public:
+    daNpc_Sarace_HIO_c();
+    virtual ~daNpc_Sarace_HIO_c() {}
+    void genMessage(JORMContext*) {}
+    s8 mNo;
+    dNpc_HIO_c mPrm;
+    f32 mTalkMorf;
+    f32 mOtherMorf;
+};
+
 static daNpc_Sarace_HIO_c l_HIO;
 
 static dCcD_SrcCyl l_cyl_src = {
@@ -117,8 +128,13 @@ BOOL daNpc_Sarace_c::initTexPatternAnm(bool modify) {
 /* 00000478-00000504       .text playTexPatternAnm__14daNpc_Sarace_cFv */
 void daNpc_Sarace_c::playTexPatternAnm() {
     if (cLib_calcTimer(&mBlinkTimer) == 0) {
+#if VERSION == VERSION_DEMO
+        s16 end = m_btp->getFrameMax();
+        if (mBtpFrame >= end) {
+#else
         int end = m_btp->getFrameMax();
         if (mBtpFrame >= (s16)end) {
+#endif
             mBtpFrame -= end;
             mBlinkTimer = 30.0f + cM_rndF(100.0f);
         } else {
@@ -309,7 +325,11 @@ BOOL daNpc_Sarace_c::CreateInit() {
     mHBarrelId = fpcM_ERROR_PROCESS_ID_e;
     mVBarrelId = fpcM_ERROR_PROCESS_ID_e;
     setAnm(0, -1.0f);
-    if (dComIfGp_getStartStagePoint() == 1 && dComIfGp_getStartStageRoomNo() == 0x30 && ship_race_result != 0) {
+    if (dComIfGp_getStartStagePoint() == 1 && dComIfGp_getStartStageRoomNo() == 0x30
+#if VERSION > VERSION_DEMO
+        && ship_race_result != 0
+#endif
+    ) {
         mEventOrder = 1;
         mNextMsg = 0xFB4;
         fopAcM_orderSpeakEvent(this);
@@ -369,6 +389,15 @@ void daNpc_Sarace_c::wait01() {
     }
 }
 
+#if VERSION == VERSION_DEMO
+static inline u32 make_barrel2_prm(daObjBarrel2::Type_e type, int item, bool buoy, bool coming) {
+    int itemNo = (item & 0x3F);
+    int b = buoy ? 1 : 0;
+    int c = coming ? 1 : 0;
+    return (itemNo << 0) | (0x7F << 16) | (type << 24) | (b << 8) | (c << 28);
+}
+#endif
+
 /* 00001024-000014B8       .text talk01__14daNpc_Sarace_cFv */
 void daNpc_Sarace_c::talk01() {
     if (talk(1) == 0x12) {
@@ -377,8 +406,13 @@ void daNpc_Sarace_c::talk01() {
             static cXyz barrelPos[] = {cXyz(175875.0f, 50.0f, 276520.0f), cXyz(176030.0f, 50.0f, 278884.0f)};
             dComIfGp_event_reset();
             mEventOrder = 3;
+#if VERSION == VERSION_DEMO
+            mHBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, make_barrel2_prm(daObjBarrel2::Type_01_e, 1, true, false), &barrelPos[0], -1, NULL, NULL, -1, NULL);
+            mVBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, make_barrel2_prm(daObjBarrel2::Type_e(0), 1, true, false), &barrelPos[1], -1, NULL, NULL, -1, NULL);
+#else
             mHBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, 0x017F0101, &barrelPos[0], -1, NULL, NULL, -1, NULL);
             mVBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, 0x007F0101, &barrelPos[1], -1, NULL, NULL, -1, NULL);
+#endif
         } else if (mCurrMsgNo == 0xFB0) {
             dComIfGs_onEventBit(0x2840);
             dComIfGp_setNextStage("Ocean", 1, 0, 0, 0.0f, 0, 1, 0);
@@ -464,9 +498,13 @@ void daNpc_Sarace_c::set_mtx() {
     mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(current.angle.y);
     model->setBaseTRMtx(mDoMtx_stack_c::get());
+#if VERSION > VERSION_DEMO
     mpMorf->calc();
+#endif
     headModel->setBaseTRMtx(model->getAnmMtx(m_jnt.getHeadJntNum()));
+#if VERSION > VERSION_DEMO
     mpHeadMorf->calc();
+#endif
 }
 
 /* 000017E0-00001938       .text _draw__14daNpc_Sarace_cFv */
@@ -498,8 +536,15 @@ BOOL daNpc_Sarace_c::_execute() {
         l_HIO.mPrm.mMaxHeadX, l_HIO.mPrm.mMaxHeadY, l_HIO.mPrm.mMinHeadX,
         l_HIO.mPrm.mMinHeadY, l_HIO.mPrm.mMaxTurnStep);
     playTexPatternAnm();
+#if VERSION == VERSION_DEMO
+    mpMorf->play(&eyePos, 0, 0);
+    mpMorf->calc();
+    mpHeadMorf->play(NULL, 0, 0);
+    mpHeadMorf->calc();
+#else
     mpMorf->play(NULL, 0, 0);
     mpHeadMorf->play(NULL, 0, 0);
+#endif
     checkOrder();
     (this->*mAction)(NULL);
     mEventCut.cutProc();
@@ -515,7 +560,7 @@ BOOL daNpc_Sarace_c::_execute() {
 
 /* 00001A68-00001AE0       .text _delete__14daNpc_Sarace_cFv */
 BOOL daNpc_Sarace_c::_delete() {
-    dComIfG_resDelete(&mPhase, "Sarace");
+    dComIfG_resDeleteDemo(&mPhase, "Sarace");
     if (mpMorf != NULL) {
         mpMorf->stopZelAnime();
     }
@@ -533,9 +578,14 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* actor) {
 
 /* 00001B00-00001D1C       .text _create__14daNpc_Sarace_cFv */
 cPhs_State daNpc_Sarace_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Sarace_c);
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, "Sarace");
     if (phase == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(this, daNpc_Sarace_c);
+#endif
         if (!fopAcM_entrySolidHeap(this, CallbackCreateHeap, 0x2760)) {
             return cPhs_ERROR_e;
         }
@@ -555,20 +605,22 @@ BOOL daNpc_Sarace_c::CreateHeap() {
     J3DModelData* headModelData;
     J3DModelData* modelData;
     modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BDL_SA_e));
-    JUT_ASSERT(1008, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(999, 1008), modelData != 0);
     mpMorf = new mDoExt_McaMorf(modelData, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BCK_SA_WAIT01_e),
         2, 1.0f, 0, -1, 1, NULL, 0, 0x11020203);
     if (mpMorf == NULL || mpMorf->getModel() == NULL) {
+#if VERSION > VERSION_DEMO
         mpMorf = NULL;
+#endif
         return FALSE;
     }
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(1024, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(1012, 1024), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(1026, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(1014, 1026), m_jnt.getBackboneJntNum() >= 0);
     headModelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BDL_SA01_HEAD_e));
-    JUT_ASSERT(1034, headModelData != 0);
+    JUT_ASSERT(DEMO_SELECT(1022, 1034), headModelData != 0);
     mpHeadMorf = new mDoExt_McaMorf(headModelData, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectRes("Sarace", dRes_INDEX_SARACE_BCK_SA01HEAD_WAIT01_e),
         2, 1.0f, 0, -1, 1, NULL, 0, 0x11020203);
@@ -586,7 +638,11 @@ BOOL daNpc_Sarace_c::CreateHeap() {
     }
     mpMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 0.0f);
+#if VERSION == VERSION_DEMO
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
+#else
     mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+#endif
     return TRUE;
 }
 

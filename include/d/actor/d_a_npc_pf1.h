@@ -132,6 +132,9 @@ public:
     /* 0x7AF */ bool mNoTurn;
     /* 0x7B0 */ bool mReturnAngle;
     /* 0x7B1 */ bool mDemo;
+#if VERSION == VERSION_DEMO
+    /* 0x7B4 */ JPABaseEmitter* mpBikonEmitter;
+#endif
     /* 0x7B2 */ s8 mCut;
     /* 0x7B3 */ u8 mAnmAttr;
     /* 0x7B4 */ u8 mAnmTag;

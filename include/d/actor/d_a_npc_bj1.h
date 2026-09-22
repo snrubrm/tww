@@ -199,7 +199,7 @@ public:
     /* 0x846 */ bool mKeepShapeAngle;
     /* 0x847 */ u8 mStopMove;
     /* 0x848 */ u8 m848;
-    /* 0x849 */ u8 m849;
+    /* 0x849 */ bool m849;
     /* 0x84A */ u8 m84A;
     /* 0x84B */ u8 m84B;
     /* 0x84C */ u8 m84C;
@@ -291,7 +291,7 @@ public:
     /* 0x68 */ int mIndex;
 };
 
-STATIC_ASSERT(sizeof(daNpc_Bj1_childHIO_c) == 0x6C);
+STATIC_ASSERT(sizeof(daNpc_Bj1_childHIO_c) == DEMO_SELECT(0x70, 0x6C));
 
 class daNpc_Bj1_HIO_c : public mDoHIO_entry_c {
 public:
@@ -303,6 +303,6 @@ public:
     /* 0x0C */ daNpc_Bj1_childHIO_c mChild[9];
 };
 
-STATIC_ASSERT(sizeof(daNpc_Bj1_HIO_c) == 0x3D8);
+STATIC_ASSERT(sizeof(daNpc_Bj1_HIO_c) == DEMO_SELECT(0x400, 0x3D8));
 
 #endif /* D_A_NPC_BJ1_H */

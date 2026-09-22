@@ -48,6 +48,27 @@ public:
 
 public:
     /* 0x004 */ J2DScreen* mpScrn;
+#if VERSION <= VERSION_JPN
+    /* 0x008 */ fopMsgM_pane_class mPerfect[8];
+    /* 0x1C8 */ fopMsgM_pane_class mPerfectNt[10];
+    /* 0x3F8 */ fopMsgM_pane_class mPerfectNk[10];
+    /* 0x628 */ fopMsgM_pane_class mDmpe;
+    /* 0x660 */ fopMsgM_pane_class mFailed[9];
+    /* 0x858 */ fopMsgM_pane_class mYouGot[6];
+    /* 0x9A8 */ fopMsgM_pane_class mRemain[13];
+    /* 0xC80 */ fopMsgM_pane_class mRemainK[13];
+    /* 0xF58 */ fopMsgM_pane_class mNum[8];
+    /* 0x1118 */ fopMsgM_pane_class mNumK[8];
+    /* 0x12D8 */ fopMsgM_pane_class mRpx;
+    /* 0x1310 */ fopMsgM_pane_class mRpxk;
+    /* 0x1348 */ fopMsgM_pane_class mNt00;
+    /* 0x1380 */ fopMsgM_pane_class mNk00;
+    /* 0x13B8 */ fopMsgM_pane_class mDummy;
+    /* 0x13F0 */ J2DPane* mRupeePane[6];
+    /* 0x1408 */ s16 mAnimTimer1;
+    /* 0x140A */ s16 mAnimTimer2;
+    /* 0x140C */ s16 mAnimTimer3;
+#else
     /* 0x008 */ fopMsgM_pane_class mPerfect[10];
     /* 0x238 */ fopMsgM_pane_class mPerfectNt[10];
     /* 0x468 */ fopMsgM_pane_class mPerfectNk[10];
@@ -67,9 +88,10 @@ public:
     /* 0x1980 */ s16 mAnimTimer1;
     /* 0x1982 */ s16 mAnimTimer2;
     /* 0x1984 */ s16 mAnimTimer3;
-};  // Size: 0x1988
+#endif
+};  // Size: JPN 0x1410, others 0x1988
 
-STATIC_ASSERT(sizeof(dDlst_TerminaterScrnDraw_c) == 0x1988);
+STATIC_ASSERT(sizeof(dDlst_TerminaterScrnDraw_c) == VERSION_SELECT(0x1410, 0x1410, 0x1988, 0x1988));
 
 class dMinigame_Terminater_c : public msg_class {
 public:

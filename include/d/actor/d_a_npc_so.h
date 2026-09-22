@@ -173,9 +173,11 @@ public:
     /* 0x84C */ mDoExt_McaMorf* mpMorf2;
     /* 0x850 */ J3DModel* mpHudeModel;
     /* 0x854 */ mDoExt_btpAnm mBtpAnm;
+#if VERSION > VERSION_DEMO
     /* 0x868 */ int mBtpTimer;
     /* 0x86C */ s16 mBtpFrame;
     /* 0x86E */ u8 m86E[0x870 - 0x86E];
+#endif
     /* 0x870 */ dBgS_ObjAcch mAcch2;
     /* 0xA34 */ dBgS_AcchCir mAcchCir2;
     /* 0xA74 */ u32 mShadowId;
@@ -236,57 +238,11 @@ public:
     /* 0xBDC */ s16 mEventIdx;
     /* 0xBDE */ u8 mBDE;
     /* 0xBDF */ u8 mBDF;
+#if VERSION > VERSION_DEMO
     /* 0xBE0 */ int mBE0;
+#endif
 };  // Size: 0xBE4
 
-STATIC_ASSERT(sizeof(daNpc_So_c) == 0xBE4);
-
-class daNpc_So_HIO_c : public mDoHIO_entry_c {
-public:
-    daNpc_So_HIO_c();
-    virtual ~daNpc_So_HIO_c() {}
-
-public:
-    /* 0x04 */ dNpc_HIO_c mNpc;
-    /* 0x2C */ u8 m2C;
-    /* 0x2D */ u8 m2D;
-    /* 0x2E */ u8 m2E;
-    /* 0x2F */ u8 m2F;
-    /* 0x30 */ u8 m30;
-    /* 0x31 */ u8 m31;
-    /* 0x32 */ u8 m32[0x34 - 0x32];
-    /* 0x34 */ f32 m34;
-    /* 0x38 */ f32 m38;
-    /* 0x3C */ f32 m3C;
-    /* 0x40 */ f32 m40;
-    /* 0x44 */ f32 m44;
-    /* 0x48 */ f32 m48;
-    /* 0x4C */ f32 m4C;
-    /* 0x50 */ f32 m50;
-    /* 0x54 */ f32 m54;
-    /* 0x58 */ f32 m58;
-    /* 0x5C */ f32 m5C;
-    /* 0x60 */ f32 m60;
-    /* 0x64 */ s16 m64;
-    /* 0x66 */ s16 m66;
-    /* 0x68 */ s16 m68;
-    /* 0x6A */ s16 m6A;
-    /* 0x6C */ f32 m6C;
-    /* 0x70 */ f32 m70;
-    /* 0x74 */ f32 m74;
-    /* 0x78 */ f32 m78;
-    /* 0x7C */ s16 m7C;
-    /* 0x7E */ u8 m7E[0x80 - 0x7E];
-    /* 0x80 */ f32 m80;
-    /* 0x84 */ f32 m84;
-    /* 0x88 */ f32 m88;
-    /* 0x8C */ f32 m8C;
-    /* 0x90 */ f32 m90;
-    /* 0x94 */ u8 m94;
-    /* 0x95 */ u8 m95[0x98 - 0x95];
-    /* 0x98 */ JntHit_HIO_c mJntHit;
-};  // Size: 0xC4
-
-STATIC_ASSERT(sizeof(daNpc_So_HIO_c) == 0xC4);
+STATIC_ASSERT(sizeof(daNpc_So_c) == DEMO_SELECT(0xBD8, 0xBE4));
 
 #endif /* D_A_NPC_SO_H */

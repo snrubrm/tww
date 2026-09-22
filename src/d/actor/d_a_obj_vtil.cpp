@@ -61,7 +61,7 @@ BOOL daObjVtil_c::solidHeapCB(fopAc_ac_c* actor) {
 BOOL daObjVtil_c::create_heap() {
     BOOL result = FALSE;
     J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, l_daObjVtil_bdl_idx_table[mType]));
-    JUT_ASSERT(0x145, mdl_data != 0);
+    JUT_ASSERT(DEMO_SELECT(0x143, 0x145), mdl_data != 0);
     if (mdl_data != 0) {
         mpModel = mDoExt_J3DModel__create(mdl_data, 0, 0x11020203);
         if (mpModel != 0) {
@@ -152,7 +152,11 @@ void daObjVtil_c::init_co() {
 /* 000008CC-000009A4       .text init_bgc__11daObjVtil_cFv */
 void daObjVtil_c::init_bgc() {
     mAcchCir.SetWall(30.0f, 56.0f);
+#if VERSION == VERSION_DEMO
+    mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), fopAcM_GetAngle_p(this), fopAcM_GetShapeAngle_p(this));
+#else
     mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, &current.angle, &shape_angle);
+#endif
     mAcch.ClrWaterNone();
     mAcch.ClrRoofNone();
     mAcch.SetRoofCrrHeight(160.0f);
@@ -178,7 +182,7 @@ void daObjVtil_c::make_smoke() {
 /* 000009F8-00000A88       .text se_smoke__11daObjVtil_cFv */
 void daObjVtil_c::se_smoke() {
     u32 sound = dComIfG_Bgsp()->GetMtrlSndId(mAcch.m_gnd);
-    mDoAud_seStart(JA_SE_OBJ_PUT_STONE, &eyePos, sound, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_OBJ_PUT_STONE, &eyePos, sound, dComIfGp_getReverb(DEMO_SELECT(fopAcM_GetRoomNo(this), current.roomNo)));
 }
 
 /* 00000A88-00000AD8       .text make_splash__11daObjVtil_cFv */
@@ -200,7 +204,7 @@ void daObjVtil_c::se_splash() {
             break;
         }
     }
-    mDoAud_seStart(JA_SE_OBJ_FALL_WATER_S, &eyePos, sound, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_OBJ_FALL_WATER_S, &eyePos, sound, dComIfGp_getReverb(DEMO_SELECT(fopAcM_GetRoomNo(this), current.roomNo)));
     set_sound(125, 5);
 }
 
@@ -400,7 +404,11 @@ void daObjVtil_c::hit_bg() {
         }
     } else if (mMode == 2) {
         if (ground || mAcch.ChkWallHit() || mAcch.ChkRoofHit()) {
+#if VERSION == VERSION_DEMO
+            if (mPrevSpeedY < fopAcM_GetGravity(this) - 1.0f) {
+#else
             if (mPrevSpeedY < gravity - 1.0f) {
+#endif
                 speedF *= 0.6f;
             } else {
                 if (ground) {

@@ -97,7 +97,7 @@ public:
     void setPrtcl_HanaPachi();
     bool charDecide(int);
     void event_actionInit(int);
-    BOOL event_action();
+    bool event_action();
     void privateCut(int);
     void endEvent();
     int isEventEntry();
@@ -299,7 +299,7 @@ public:
     /* 0x5C */ int mIndex;
 };  // Size: 0x60
 
-STATIC_ASSERT(sizeof(daNpc_Ko1_childHIO_c) == 0x60);
+STATIC_ASSERT(sizeof(daNpc_Ko1_childHIO_c) == DEMO_SELECT(0x64, 0x60));
 
 class daNpc_Ko1_HIO_c : public mDoHIO_entry_c {
 public:
@@ -312,6 +312,6 @@ public:
     /* 0x0C */ daNpc_Ko1_childHIO_c mChild[2];
 };  // Size: 0xCC
 
-STATIC_ASSERT(sizeof(daNpc_Ko1_HIO_c) == 0xCC);
+STATIC_ASSERT(sizeof(daNpc_Ko1_HIO_c) == DEMO_SELECT(0xD8, 0xCC));
 
 #endif /* D_A_NPC_KO1_H */

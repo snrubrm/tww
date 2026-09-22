@@ -70,7 +70,9 @@ void daObjMagmarock::Act_c::ControlEffect() {
                 mpBeforeLiftEffect = NULL;
             }
             if (mpLiftEffect == NULL) {
+#if VERSION > VERSION_DEMO
                 dComIfGp_getVibration().StartShock(4, 1, cXyz(0.0f, 1.0f, 0.0f));
+#endif
                 mpLiftEffect = dComIfGp_particle_setToon(dPa_name::ID_AK_SN_MAGMAISLAND01, &current.pos);
             } else {
                 mpLiftEffect->setGlobalTranslation(current.pos.x, current.pos.y, current.pos.z);
@@ -148,7 +150,7 @@ void daObjMagmarock::Act_c::stay_proc() {
 
 /* 00000720-000007B8       .text quake_proc_init__Q214daObjMagmarock5Act_cFv */
 void daObjMagmarock::Act_c::quake_proc_init() {
-    mDoAud_seStart(JA_SE_ISLE_TO_MAGMA, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_ISLE_TO_MAGMA, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     mTimer = 45;
     setProcess(&Act_c::quake_proc);
 }
@@ -189,7 +191,14 @@ void daObjMagmarock::ride_call_back(dBgW*, fopAc_ac_c* slab, fopAc_ac_c* rider) 
     dir = dir.outprod(up);
     f32 distance = dir.abs();
     if (dir.normalizeRS()) {
+#if VERSION == VERSION_DEMO
+        f32 dy = self->current.pos.y - self->home.pos.y;
+        f32 h = 0.001f * dy;
+        s16 target = -distance * (2.0f + 4.0f * h);
+        cLib_addCalcAngleS2(&self->mRideAngle, target, 8, 0x200);
+#else
         cLib_addCalcAngleS2(&self->mRideAngle, -distance * (2.0f + 4.0f * (0.001f * (self->current.pos.y - self->home.pos.y))), 8, 0x200);
+#endif
         self->mRidden = 1;
         self->mHasRider = 1;
         f32 sine = cM_ssin(self->mRideAngle);
@@ -208,12 +217,12 @@ BOOL daObjMagmarock::CheckCreateHeap(fopAc_ac_c* actor) {
 /* 00000B0C-00000DA0       .text CreateHeap__Q214daObjMagmarock5Act_cFv */
 BOOL daObjMagmarock::Act_c::CreateHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_KYJIM_BDL_KYJIM_00_e));
-    JUT_ASSERT(0x14d, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x148, 0x14d), modelData != 0);
     mpModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     M_brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_KYJIM_BRK_KYJIM_00_e));
     M_bck = static_cast<J3DAnmTransform*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_KYJIM_BCK_KYJIM_00_e));
-    JUT_ASSERT(0x155, M_brk != 0);
-    JUT_ASSERT(0x156, M_bck != 0);
+    JUT_ASSERT(DEMO_SELECT(0x150, 0x155), M_brk != 0);
+    JUT_ASSERT(DEMO_SELECT(0x151, 0x156), M_bck != 0);
     BOOL brkOK = mBrk.init(modelData, M_brk, FALSE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0);
     BOOL bckOK = mBck.init(modelData, M_bck, FALSE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false);
     mDoMtx_stack_c::transS(current.pos);
@@ -258,8 +267,10 @@ BOOL daObjMagmarock::Act_c::CreateInit() {
     } else {
         appear_proc_init();
         if (mpSmoke0 == NULL) {
-            mDoAud_seStart(JA_SE_MAGMA_TO_ISLE, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+            mDoAud_seStart(JA_SE_MAGMA_TO_ISLE, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+#if VERSION > VERSION_DEMO
             dComIfGp_getVibration().StartShock(4, 1, cXyz(0.0f, 1.0f, 0.0f));
+#endif
             mEffectTev = tevStr;
             g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &mEffectTev);
             mEffectTev.mColorC0.r = (u8)(mEffectTev.mColorC0.r + (int)(0.12f * (255 - mEffectTev.mColorC0.r)));
@@ -349,9 +360,16 @@ void daObjMagmarock::Act_c::calc_ground_quat() {
 
 /* 000017DC-0000198C       .text Create__Q214daObjMagmarock6MethodFPv */
 cPhs_State daObjMagmarock::Method::Create(void* actor) {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase;
+    Act_c* self = static_cast<Act_c*>(actor);
+    phase = dComIfG_resLoad(&self->mPhase, Act_c::M_arcname);
+    fopAcM_SetupActor(self, Act_c);
+#else
     Act_c* self = static_cast<Act_c*>(actor);
     fopAcM_SetupActor(self, Act_c);
     cPhs_State phase = dComIfG_resLoad(&self->mPhase, Act_c::M_arcname);
+#endif
     if (phase == cPhs_COMPLEATE_e) {
         if (dComIfGp_getMagma() == NULL) {
             phase = cPhs_INIT_e;
@@ -367,8 +385,12 @@ cPhs_State daObjMagmarock::Method::Create(void* actor) {
 /* 00001A90-00001B14       .text Delete__Q214daObjMagmarock6MethodFPv */
 BOOL daObjMagmarock::Method::Delete(void* actor) {
     Act_c* self = static_cast<Act_c*>(actor);
-    dComIfG_resDelete(&self->mPhase, Act_c::M_arcname);
+    dComIfG_resDeleteDemo(&self->mPhase, Act_c::M_arcname);
+#if VERSION == VERSION_DEMO
+    if (self->mpBgW->ChkUsed()) {
+#else
     if (self->heap && self->mpBgW->ChkUsed()) {
+#endif
         dComIfG_Bgsp()->Release(self->mpBgW);
     }
     return TRUE;
@@ -393,9 +415,11 @@ bool daObjMagmarock::Act_c::_execute() {
         speed.y = 0.0f;
     }
     if (current.pos.y < 100.0f + home.pos.y) {
+#if VERSION > VERSION_DEMO
         if (old.pos.y >= 100.0f + home.pos.y) {
             dComIfGp_getVibration().StartShock(4, 1, cXyz(0.0f, 1.0f, 0.0f));
         }
+#endif
         if (current.pos.y < home.pos.y) {
             if (current.pos.y < home.pos.y - 30.0f) {
                 current.pos.y = home.pos.y - 30.0f;

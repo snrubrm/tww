@@ -12,10 +12,10 @@ class daNpc_P2_c : public fopAc_ac_c {
 public:
     typedef int (daNpc_P2_c::*ActionFunc)(void*);
 
-    cXyz getAttentionBasePos() { return mAttnPos; }
+    cXyz& getAttentionBasePos() { return mAttnPos; }
     s16 getBackbone_x() { return mJnt.getBackbone_x(); }
     s16 getBackbone_y() { return mJnt.getBackbone_y(); }
-    cXyz getEyePos() { return mEyePos; }
+    cXyz& getEyePos() { return mEyePos; }
     s16 getHead_x() { return mJnt.getHead_x(); }
     s16 getHead_y() { return mJnt.getHead_y(); }
     void incAttnSetCount() {
@@ -31,7 +31,7 @@ public:
     void setAnm();
     void setTexAnm();
     void setAttention();
-    BOOL chkAttention();
+    bool chkAttention();
     void lookBack();
     void setMtx();
     void setCollision();
@@ -183,7 +183,7 @@ public:
     /* 0x7A4 */ f32 m7A4;
     /* 0x7A8 */ s16 m7A8;
     /* 0x7AA */ s16 m7AA;
-    /* 0x7AC */ f32 m7AC;
+    /* 0x7AC */ s32 m7AC;
     /* 0x7B0 */ cXyz mSoundPos;
     /* 0x7BC */ himo3_class* mpHimo3;
     /* 0x7C0 */ u8 m7C0;
@@ -207,72 +207,12 @@ public:
     /* 0x7FC */ f32 m7FC;
     /* 0x800 */ f32 m800;
     /* 0x804 */ int m804;
-    /* 0x808 */ u8 m808;
+    /* 0x808 */ s8 m808;
     /* 0x809 */ s8 mTalkState;
     /* 0x80A */ s8 m80A;
     /* 0x80B */ u8 m80B;
 };  // Size: 0x80C
 
 STATIC_ASSERT(sizeof(daNpc_P2_c) == 0x80C);
-
-class daNpc_P2_childHIO_c {
-public:
-    daNpc_P2_childHIO_c();
-    virtual ~daNpc_P2_childHIO_c() {}
-
-public:
-    /* 0x04 */ dNpc_HIO_c mNpc;
-    /* 0x2C */ u8 m2C;
-    /* 0x30 */ cXyz m30;
-    /* 0x3C */ cXyz m3C;
-    /* 0x48 */ cXyz m48;
-    /* 0x54 */ f32 m54;
-    /* 0x58 */ f32 m58;
-    /* 0x5C */ f32 m5C;
-    /* 0x60 */ f32 m60;
-    /* 0x64 */ f32 m64;
-    /* 0x68 */ f32 m68;
-    /* 0x6C */ u8 m6C;
-    /* 0x70 */ f32 m70;
-    /* 0x74 */ f32 m74;
-    /* 0x78 */ f32 m78;
-    /* 0x7C */ f32 m7C;
-    /* 0x80 */ f32 m80;
-    /* 0x84 */ f32 m84;
-    /* 0x88 */ f32 m88;
-    /* 0x8C */ f32 m8C;
-    /* 0x90 */ f32 m90;
-    /* 0x94 */ f32 m94;
-    /* 0x98 */ f32 m98;
-    /* 0x9C */ f32 m9C;
-    /* 0xA0 */ f32 mA0;
-    /* 0xA4 */ f32 mA4;
-    /* 0xA8 */ f32 mA8;
-    /* 0xAC */ f32 mAC;
-    /* 0xB0 */ f32 mB0;
-    /* 0xB4 */ f32 mB4;
-    /* 0xB8 */ f32 mB8;
-    /* 0xBC */ f32 mBC;
-    /* 0xC0 */ f32 mC0;
-    /* 0xC4 */ f32 mC4;
-    /* 0xC8 */ f32 mC8;
-    /* 0xCC */ f32 mCC;
-    /* 0xD0 */ f32 mD0;
-};  // Size: 0xD4
-
-STATIC_ASSERT(sizeof(daNpc_P2_childHIO_c) == 0xD4);
-
-class daNpc_P2_HIO_c : public mDoHIO_entry_c {
-public:
-    daNpc_P2_HIO_c();
-    virtual ~daNpc_P2_HIO_c() {}
-
-public:
-    /* 0x04 */ daNpc_P2_childHIO_c mChild[3];
-    /* 0x280 */ f32 m280;
-    /* 0x284 */ f32 m284;
-};  // Size: 0x288
-
-STATIC_ASSERT(sizeof(daNpc_P2_HIO_c) == 0x288);
 
 #endif /* D_A_NPC_P2_H */

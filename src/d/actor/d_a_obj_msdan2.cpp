@@ -20,11 +20,11 @@ cPhs_State daObjMsdan2::Act_c::Mthd_Create() {
         pos.z += 50.0f * cM_scos(current.angle.y);
         int sw = prm_get_swSave();
         fopAcM_create(fpcNm_Obj_MsdanSub2_e, (i << 8) + sw, &pos,
-                     fopAcM_GetRoomNo(this), &angle);
+                     current.roomNo, &angle);
     }
     mEventIdx = dComIfGp_evmng_getEventIdx("Msdan2");
     int sw = prm_get_swSave();
-    if (dComIfGs_isSwitch(sw, home.roomNo)) {
+    if (fopAcM_isSwitch(this, sw)) {
         mState = 3;
     } else {
         mState = 0;
@@ -39,7 +39,7 @@ BOOL daObjMsdan2::Act_c::Mthd_Execute() {
         break;
     case 0: {
         int sw = prm_get_swSave();
-        if (dComIfGs_isSwitch(sw, home.roomNo)) {
+        if (fopAcM_isSwitch(this, sw)) {
             fopAcM_orderOtherEventId(this, mEventIdx);
             mState = 1;
         }

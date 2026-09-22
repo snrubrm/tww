@@ -912,7 +912,6 @@ void mDoGph_CaptureCansel() {
 
 /* 80009C38-8000A180       .text blockenc__FPUc */
 void blockenc(u8* block) {
-    /* Nonmatching - regalloc */
     u8 colors[16*3]; // sp18
     u32 color_mags[4]; // sp08
 
@@ -931,9 +930,6 @@ void blockenc(u8* block) {
 
     u32 r11;
     u32 r4_;
-
-    u32 r6;
-    u32 r8;
 
     u32 offs1;
     u32 offs2;
@@ -1042,13 +1038,13 @@ void blockenc(u8* block) {
         c3[0] = (c1[0] * 5 + c0[0] * 3) / 8;
         c3[1] = (c1[1] * 5 + c0[1] * 3) / 8;
         c3[2] = (c1[2] * 5 + c0[2] * 3) / 8;
-        r6 = 30; // r6 (bit offset within r8)
-        offs1 = r8 = 0; // r8 (bitfield of color indexes)
-        for (; offs1 < 0x40; offs1 += 4, r6 -= 2) {
-            color_mags[0] = COLOR_SQUARE_MAG(c0[0], c0[1], c0[2], block[offs1+0] * 30, block[offs1+1] * 59, block[offs1+2] * 11);
-            color_mags[1] = COLOR_SQUARE_MAG(c1[0], c1[1], c1[2], block[offs1+0] * 30, block[offs1+1] * 59, block[offs1+2] * 11);
-            color_mags[2] = COLOR_SQUARE_MAG(c2[0], c2[1], c2[2], block[offs1+0] * 30, block[offs1+1] * 59, block[offs1+2] * 11);
-            color_mags[3] = COLOR_SQUARE_MAG(c3[0], c3[1], c3[2], block[offs1+0] * 30, block[offs1+1] * 59, block[offs1+2] * 11);
+        r21 = 30; // r6 (bit offset within r8)
+        offs2 = r22 = 0; // r8 (bitfield of color indexes)
+        for (; offs2 < 0x40; offs2 += 4, r21 -= 2) {
+            color_mags[0] = COLOR_SQUARE_MAG(c0[0], c0[1], c0[2], block[offs2+0] * 30, block[offs2+1] * 59, block[offs2+2] * 11);
+            color_mags[1] = COLOR_SQUARE_MAG(c1[0], c1[1], c1[2], block[offs2+0] * 30, block[offs2+1] * 59, block[offs2+2] * 11);
+            color_mags[2] = COLOR_SQUARE_MAG(c2[0], c2[1], c2[2], block[offs2+0] * 30, block[offs2+1] * 59, block[offs2+2] * 11);
+            color_mags[3] = COLOR_SQUARE_MAG(c3[0], c3[1], c3[2], block[offs2+0] * 30, block[offs2+1] * 59, block[offs2+2] * 11);
 
             r5 = r24 = 0;
             u32 r6_r25 = INT32_MAX;
@@ -1059,10 +1055,10 @@ void blockenc(u8* block) {
                 }
             }
 
-            r8 |= (r24 & 0x03) << r6;
+            r22 |= (r24 & 0x03) << r21;
         }
     } else { // VERSION_DEMO only block (optimized out in retail)
-        i = color_num = offs1 = 0;
+        color_num = i = offs1 = 0;
         for (; i < 0x30; i += 3, offs1 += 4) {
             if (block[offs1+3] == 0xFF) {
                 j = 0; // r9
@@ -1163,7 +1159,7 @@ void blockenc(u8* block) {
         c2[1] = (c0[1] + c1[1]) / 2;
         c2[2] = (c0[2] + c1[2]) / 2;
         // r6 = 30; // r6 (bit offset within r8)
-        i = offs2 = r8 = 0; // r8 (bitfield of color indexes)
+        i = offs2 = r22 = 0; // r8 (bitfield of color indexes)
         for (; i < 0x10; i++, offs2 += 4) {
             if (block[offs2+3] == 0xFF) {
                 color_mags[0] = COLOR_SQUARE_MAG(c0[0], c0[1], c0[2], block[offs2+0] * 30, block[offs2+1] * 59, block[offs2+2] * 11);
@@ -1182,14 +1178,14 @@ void blockenc(u8* block) {
                 r5 = 3;
             }
 
-            r8 |= (r5 & 0x03) << ((15 - i) * 2);
+            r22 |= (r5 & 0x03) << ((15 - i) * 2);
         }
     }
 
-    block[0x44] = r8 >> 24;
-    block[0x45] = r8 >> 16;
-    block[0x46] = r8 >> 8;
-    block[0x47] = r8 & 0xFF;
+    block[0x44] = r22 >> 24;
+    block[0x45] = r22 >> 16;
+    block[0x46] = r22 >> 8;
+    block[0x47] = r22 & 0xFF;
 }
 
 /* 8000A180-8000A530       .text encode_s3tc__FPUcPUcii9_GXTexFmt */

@@ -74,7 +74,9 @@ public:
     /* 0x1C4 */ request_of_phase_process_class mPhs;
     /* 0x1CC */ JKRSolidHeap* solid_heap;
     /* 0x1D0 */ dScnOpen_proc_c* mpProc;
+#if VERSION > VERSION_DEMO
     /* 0x1D4 */ u8 field_0x1d4;
+#endif
 };
 
 #endif /* D_S_OPEN */

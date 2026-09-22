@@ -15,6 +15,7 @@
 #include "d/actor/d_a_player.h"
 #include "d/d_com_inf_game.h"
 #include "m_Do/m_Do_mtx.h"
+#include "d/d_s_play.h"
 #include "JSystem/J3DGraphBase/J3DSys.h"
 #include "JSystem/J3DGraphBase/J3DDrawBuffer.h"
 
@@ -225,13 +226,15 @@ void daMant_packet_c::draw() {
     u8* texture = tex_d[mTexNo];
     u8* palette = pal_d[mTexNo];
     j3dSys.reinitGX();
+#if VERSION > VERSION_JPN
     GXSetNumIndStages(0);
+#endif
     dKy_GxFog_tevstr_set(mpTevStr);
     dKy_setLight_mine(mpTevStr);
     GFSetVtxDescv(l_vtxDescList);
     GFSetVtxAttrFmtv(GX_VTXFMT0, l_vtxAttrFmtList);
-    GFSetArray(GX_VA_POS, getPos(), sizeof(cXyz));
-    GFSetArray(GX_VA_NRM, getNrm(), sizeof(cXyz));
+    GFSetArray(GX_VA_POS, mPosition[mBuffer], sizeof(cXyz));
+    GFSetArray(GX_VA_NRM, mNormal[mBuffer], sizeof(cXyz));
     GFSetArray(GX_VA_TEX0, l_texCoord, sizeof(l_texCoord[0]));
     GXTlutObj tlut;
     GXTexObj tex;
@@ -276,7 +279,9 @@ void daMant_packet_c::draw() {
         GXCallDisplayList(l_DL, 0x1E0);
     }
     mBuffer ^= 1;
+#if VERSION > VERSION_JPN
     J3DShape::resetVcdVatCache();
+#endif
 }
 
 /* 000003EC-000004E8       .text daMant_Draw__FP10mant_class */
@@ -288,7 +293,7 @@ static BOOL daMant_Draw(mant_class* i_this) {
     MtxTrans(0.0f, 0.0f, 0.0f, 0);
     mDoMtx_concat(j3dSys.getViewMtx(), *calc_mtx, i_this->mPacket.getMtx());
     if (i_this->mType != mant_class::Type_PHANTOM_GANON_e) {
-        MtxTrans(0.0f, -3.0f, 0.0f, 0);
+        MtxTrans(0.0f, DEMO_SELECT(-3.0f + REG6_F(4), -3.0f), 0.0f, 0);
         mDoMtx_concat(j3dSys.getViewMtx(), *calc_mtx, i_this->mPacket.getMtx2());
     }
     i_this->mPacket.setTevStr(&i_this->tevStr);
@@ -307,6 +312,17 @@ void joint_control(mant_class* i_this, mant_j_s* joint, int column) {
     cXyz* velocity = joint->velocity;
     cXyz local, offset, back, force, influence, waveLocal, wave, wind, windForce;
     dBgS_GndChk gnd;
+#if VERSION == VERSION_DEMO
+    f32 groundX = joint->pos[0].x;
+    f32 groundY = joint->pos[0].y;
+    f32 groundZ = joint->pos[0].z;
+    groundY += 50.0f;
+    gnd.m_pos.set(groundX, groundY, groundZ);
+    f32 ground = 1.5f + dComIfG_Bgsp()->GroundCross(&gnd);
+    if (ground - pos->y > 50.0f) {
+        ground = pos->y;
+    }
+#else
     f32 groundY = joint->pos[0].y;
     f32 groundZ = joint->pos[0].z;
     groundY += 50.0f;
@@ -315,14 +331,21 @@ void joint_control(mant_class* i_this, mant_j_s* joint, int column) {
     if (ground - joint->pos[0].y > 50.0f) {
         ground = joint->pos[0].y;
     }
+#endif
     influence.set(0.0f, 0.0f, 0.0f);
     waveLocal.set(0.0f, 0.0f, 0.0f);
     wave.set(0.0f, 0.0f, 0.0f);
-    mDoMtx_YrotS(*calc_mtx, joint->angle.y);
+    cMtx_YrotS(*calc_mtx, joint->angle.y);
+#if VERSION == VERSION_DEMO
+    local.x = 0.0f;
+    local.y = 0.0f;
+    local.z = -5.0f + REG0_F(1);
+#else
     local.set(0.0f, 0.0f, -5.0f);
+#endif
     MtxPosition(&local, &back);
     windForce.set(0.0f, 0.0f, 0.0f);
-    s16 windAngle = i_this->mWindAngle + (s16)((column - 4) * 3000);
+    s16 windAngle = i_this->mWindAngle + (s16)((column - 4) * DEMO_SELECT(3000 + REG0_S(3), 3000));
     mDoMtx_YrotS(*calc_mtx, windAngle);
     local.x = 0.0f;
     local.y = 0.0f;
@@ -333,7 +356,7 @@ void joint_control(mant_class* i_this, mant_j_s* joint, int column) {
     }
     f32 facing;
     if ((u16)diff < 0x4000) {
-        local.z *= 0.05f;
+        local.z *= DEMO_SELECT(0.05f + REG14_F(11), 0.05f);
         facing = 0.0f;
     } else {
         facing = 1.0f;
@@ -348,14 +371,14 @@ void joint_control(mant_class* i_this, mant_j_s* joint, int column) {
             force = back * d_p[i - 1];
             if (std::fabsf(i_this->mWindStrength) > 0.1f) {
                 windForce = wind;
-                windForce.y = 0.5f * i_this->mWindStrength * cM_ssin(i_this->mFrame * 4096 + i * 10000 + column * 10000);
+                windForce.y = DEMO_SELECT(i_this->mWindStrength * (0.5f + REG14_F(4)), 0.5f * i_this->mWindStrength) * cM_ssin(i_this->mFrame * 4096 + i * DEMO_SELECT(10000 + REG14_S(0), 10000) + column * 10000);
             }
             if (i_this->mWindInfluence > 0.01f) {
                 influence = back * d_p2[i - 1] * i_this->mWindInfluence * facing;
             }
             if (i_this->mType == mant_class::Type_PHANTOM_GANON_e) {
-                waveLocal.z = 2.0f * cM_ssin(i_this->mFrame * 2048 + i * 10000 + column * 10000);
-                mDoMtx_YrotS(*calc_mtx, joint->angle.y);
+                waveLocal.z = DEMO_SELECT((2.0f + REG14_F(4)), 2.0f) * cM_ssin(i_this->mFrame * DEMO_SELECT(2048 + REG14_S(1), 2048) + i * DEMO_SELECT(10000 + REG14_S(0), 10000) + column * 10000);
+                cMtx_YrotS(*calc_mtx, joint->angle.y);
                 MtxPosition(&waveLocal, &wave);
             }
             x = wave.x + (influence.x + (windForce.x + (force.x + (velocity->x + (pos->x - pos[-1].x)))));
@@ -383,14 +406,18 @@ void joint_control(mant_class* i_this, mant_j_s* joint, int column) {
         ++v_count;
         if (i_this->mType == mant_class::Type_DARKNUT_e && !(i & 1) && !(column & 1) && i != 0 && i != 8 && column != 0 && column != 8) {
             if (i_this->m2834 != 0) {
-                i_this->mMeshSph[mesh_cc_ct].SetR(30.0f);
+                i_this->mMeshSph[mesh_cc_ct].SetR(DEMO_SELECT(30.0f + REG14_F(5), 30.0f));
                 i_this->mMeshSph[mesh_cc_ct].SetC(*pos);
             } else {
                 i_this->mMeshSph[mesh_cc_ct].SetR(-200.0f);
                 i_this->mMeshSph[mesh_cc_ct].SetC(non_pos);
             }
             dComIfG_Ccsp()->Set(&i_this->mMeshSph[mesh_cc_ct]);
+            #if VERSION == VERSION_DEMO
+            if (i_this->m2836 == 0 && i_this->mMeshSph[mesh_cc_ct].ChkTgHit()) {
+#else
             if (i_this->m2836 == 0 && i_this->mDeleteTimer == 0 && i_this->mMeshSph[mesh_cc_ct].ChkTgHit()) {
+#endif
                 i_this->m2836 = 10;
                 CcAtInfo info;
                 info.mpObj = i_this->mMeshSph[mesh_cc_ct].GetTgHitObj();
@@ -418,18 +445,18 @@ void joint_control(mant_class* i_this, mant_j_s* joint, int column) {
                     dComIfGp_particle_set(dPa_name::ID_IT_SN_TN_MANTOKIRE00, pos, &angle, NULL, 255, NULL, fopAcM_GetRoomNo(i_this), &i_this->tevStr.mColorK0, &i_this->tevStr.mColorK0);
                     mDoAud_seStart(JA_SE_CM_TN_BREAK_MANTLE, &i_this->current.pos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(i_this)));
                 }
-                i_this->m1C0E = 2;
+                i_this->m1C0E = DEMO_SELECT(2 + REG14_S(3), 2);
                 i_this->mWindAngle = player->shape_angle.y;
-                i_this->mWindStrength = 10.0f;
+                i_this->mWindStrength = DEMO_SELECT(10.0f + REG14_F(3), 10.0f);
                 if (info.mResultingAttackType == 5) {
-                    i_this->mDeleteTimer = 26;
-                    i_this->m1C0E = 6;
+                    i_this->mDeleteTimer = DEMO_SELECT(24 + REG0_S(0), 26);
+                    i_this->m1C0E = DEMO_SELECT(6 + REG14_S(6), 6);
                     return;
                 }
             }
             ++mesh_cc_ct;
             if (i == 4 && column == 4) {
-                i_this->mWindSph.SetR(200.0f);
+                i_this->mWindSph.SetR(DEMO_SELECT(200.0f + REG14_F(6), 200.0f));
                 i_this->mWindSph.SetC(*pos);
                 dComIfG_Ccsp()->Set(&i_this->mWindSph);
             }
@@ -442,21 +469,21 @@ void mant_v_calc(mant_class* i_this) {
     cXyz local, offset, delta;
     csXyz angle(0, 0, 0);
     delta = i_this->mAnchor[0] - i_this->mAnchor[1];
-    angle.y = cM_atan2s(delta.x, delta.z) + 0x4000;
+    angle.y = cM_atan2s(delta.x, delta.z) + DEMO_SELECT(REG13_S(3) + 0x4000, 0x4000);
     mant_j_s* joint = i_this->mJoint;
     local.x = 0.0f;
     for (int i = 0; i < 9; ++i, ++joint) {
         i_this->mJoint[i].pos[0].x = i_this->mAnchor[1].x + delta.x / 8.0f * i;
         i_this->mJoint[i].pos[0].y = i_this->mAnchor[1].y + delta.y / 8.0f * i;
         i_this->mJoint[i].pos[0].z = i_this->mAnchor[1].z + delta.z / 8.0f * i;
-        mDoMtx_YrotS(*calc_mtx, angle.y);
+        cMtx_YrotS(*calc_mtx, angle.y);
         f32 sin = cM_ssin(cM_rad2s(0.3926991f * i));
-        local.y = -10.0f * sin;
-        local.z = -20.0f * sin;
+        local.y = DEMO_SELECT(sin * (-10.0f + REG0_F(11)), -10.0f * sin);
+        local.z = DEMO_SELECT(sin * (-20.0f + REG0_F(12)), -20.0f * sin);
         MtxPosition(&local, &offset);
         i_this->mJoint[i].pos[0] += offset;
         i_this->mJoint[i].angle = angle;
-        i_this->mJoint[i].angle.y += (s16)((i - 4) * 3000);
+        i_this->mJoint[i].angle.y += (s16)((i - 4) * DEMO_SELECT(3000 + REG0_S(3), 3000));
         joint_control(i_this, joint, i);
     }
 }
@@ -492,7 +519,11 @@ void mant_move(mant_class* i_this) {
     mesh_cc_ct = 0;
     mant_v_calc(i_this);
     mant_n_calc(i_this);
+#if VERSION > VERSION_JPN
     DCStoreRangeNoSync(i_this->mPacket.getPos(), 81 * sizeof(cXyz));
+#else
+    DCFlushRange(i_this->mPacket.getPos(), 81 * sizeof(cXyz));
+#endif
     if (i_this->mDeleteTimer != 0) {
         --i_this->mDeleteTimer;
         cXyz* pos = i_this->mPacket.getPos();
@@ -501,27 +532,31 @@ void mant_move(mant_class* i_this) {
                 dComIfGp_particle_setSimple(dPa_name::ID_IT_SN_O_TN_MANTOFIRE00, pos);
             }
         }
+        #if VERSION == VERSION_DEMO
+        if (i_this->mDeleteTimer == 0) {
+#else
         if (i_this->mDeleteTimer <= 2) {
+#endif
             fopAcM_delete(i_this);
             return;
         }
     }
-    cLib_addCalc2(&i_this->m1BF8, 30.0f, 0.1f, 1.0f);
-    cLib_addCalc2(&i_this->m1BFC, 0.7f, 0.1f, 0.05f);
+    cLib_addCalc2(&i_this->m1BF8, DEMO_SELECT(30.0f + REG0_F(4), 30.0f), 0.1f, 1.0f);
+    cLib_addCalc2(&i_this->m1BFC, DEMO_SELECT(0.7f + REG0_F(5), 0.7f), 0.1f, 0.05f);
     if (i_this->mWindSph.ChkTgHit()) {
-        i_this->m1C0E = 10;
+        i_this->m1C0E = DEMO_SELECT(10 + REG14_S(4), 10);
         i_this->mWindAngle = dComIfGp_getPlayer(0)->shape_angle.y;
     }
     if (i_this->m1C0E != 0) {
         --i_this->m1C0E;
-        cLib_addCalc2(&i_this->mWindStrength, 50.0f, 0.2f, 1.5f);
+        cLib_addCalc2(&i_this->mWindStrength, DEMO_SELECT(50.0f + REG14_F(1), 50.0f), 0.2f, DEMO_SELECT(1.5f + REG14_F(2), 1.5f));
     } else {
-        cLib_addCalc0(&i_this->mWindStrength, 0.1f, 1.0f);
+        cLib_addCalc0(&i_this->mWindStrength, 0.1f, DEMO_SELECT(1.0f + REG14_F(3), 1.0f));
     }
-    if (i_this->m1C0E > 4) {
-        cLib_addCalc2(&i_this->mWindInfluence, 1.0f, 1.0f, 1.0f);
+    if (i_this->m1C0E > DEMO_SELECT((s16)(4 + REG14_S(8)), 4)) {
+        cLib_addCalc2(&i_this->mWindInfluence, 1.0f, 1.0f, DEMO_SELECT(1.0f + REG14_F(8), 1.0f));
     } else {
-        cLib_addCalc0(&i_this->mWindInfluence, 0.1f, 0.1f);
+        cLib_addCalc0(&i_this->mWindInfluence, 0.1f, DEMO_SELECT(0.1f + REG14_F(9), 0.1f));
     }
 }
 
@@ -534,6 +569,13 @@ static BOOL daMant_Execute(mant_class* i_this) {
     mant_move(i_this);
     MtxTrans(i_this->current.pos.x, i_this->current.pos.y, i_this->current.pos.z, 0);
     PSMTXCopy(*calc_mtx, i_this->mMtx);
+#if VERSION == VERSION_DEMO
+    if (i_this->mType == mant_class::Type_PHANTOM_GANON_e) {
+        i_this->m1BF8 = 40.0f + REG0_F(4);
+        i_this->m1BFC = 0.8f + REG0_F(5);
+        i_this->mGravity = -5.0f + REG0_F(6);
+    }
+#endif
     return TRUE;
 }
 
@@ -613,14 +655,14 @@ static cPhs_State daMant_Create(fopAc_ac_c* actor) {
     fopAcM_SetMtx(i_this, i_this->mMtx);
     i_this->mPacket.setarg0(i_this->mType);
     if (i_this->mType == mant_class::Type_PHANTOM_GANON_e) {
-        i_this->m1BF8 = 40.0f;
-        i_this->m1BFC = 0.8f;
-        i_this->mGravity = -5.0f;
+        i_this->m1BF8 = DEMO_SELECT(40.0f + REG0_F(4), 40.0f);
+        i_this->m1BFC = DEMO_SELECT(0.8f + REG0_F(5), 0.8f);
+        i_this->mGravity = DEMO_SELECT(-5.0f + REG0_F(6), -5.0f);
         i_this->mPacket.setTexNo(6);
     } else {
-        i_this->m1BF8 = 30.0f;
-        i_this->m1BFC = 0.7f;
-        i_this->mGravity = -10.0f;
+        i_this->m1BF8 = DEMO_SELECT(30.0f + REG0_F(4), 30.0f);
+        i_this->m1BFC = DEMO_SELECT(0.7f + REG0_F(5), 0.7f);
+        i_this->mGravity = DEMO_SELECT(-10.0f + REG0_F(6), -10.0f);
         i_this->mStts.Init(200, 255, i_this);
         i_this->mWindSph.Set(wind_cc_sph_src);
         i_this->mWindSph.SetStts(&i_this->mStts);

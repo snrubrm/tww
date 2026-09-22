@@ -44,11 +44,11 @@ void daNpc_Ac1_c::nodeWngControl(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::copy(model->getAnmMtx(joint));
     if (joint == m_wngL1_jnt_num) {
         MTXCopy(mLeftShoulder, j3dSys.mCurrentMtx);
-        MTXCopy(mLeftShoulder, model->getAnmMtx(joint));
+        model->setAnmMtx(joint, mLeftShoulder);
     }
     if (joint == m_wngR1_jnt_num) {
         MTXCopy(mRightShoulder, j3dSys.mCurrentMtx);
-        MTXCopy(mRightShoulder, model->getAnmMtx(joint));
+        model->setAnmMtx(joint, mRightShoulder);
     }
 }
 static BOOL nodeCallBack_Arm(J3DNode* node, int timing) {
@@ -61,11 +61,11 @@ void daNpc_Ac1_c::nodeArmControl(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::copy(model->getAnmMtx(joint));
     if (joint == m_armL1_jnt_num) {
         MTXCopy(mLeftShoulder, j3dSys.mCurrentMtx);
-        MTXCopy(mLeftShoulder, model->getAnmMtx(joint));
+        model->setAnmMtx(joint, mLeftShoulder);
     }
     if (joint == m_armR1_jnt_num) {
         MTXCopy(mRightShoulder, j3dSys.mCurrentMtx);
-        MTXCopy(mRightShoulder, model->getAnmMtx(joint));
+        model->setAnmMtx(joint, mRightShoulder);
     }
 }
 static BOOL nodeCallBack_Ac1(J3DNode* node, int timing) {
@@ -91,7 +91,7 @@ void daNpc_Ac1_c::nodeAc1Control(J3DNode* node, J3DModel* model) {
     if (joint == m_arm_L_jnt_num) MTXCopy(mDoMtx_stack_c::get(), mLeftShoulder);
     if (joint == m_arm_R_jnt_num) MTXCopy(mDoMtx_stack_c::get(), mRightShoulder);
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 bool daNpc_Ac1_c::init_AC1_0() {
@@ -196,9 +196,14 @@ bool daNpc_Ac1_c::iniTexPttrnAnm(bool modify) {
 void daNpc_Ac1_c::plyTexPttrnAnm() {
     if (mBtpNo != 0 || cLib_calcTimer(&mBtpTimer) == 0) {
         mBtpFrame++;
+#if VERSION == VERSION_DEMO
+        if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) {
+            if (mBtpNo != 0) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
+#else
         int end = m_hed_tex_pttrn->getFrameMax();
         if (mBtpFrame >= (s16)end) {
             if (mBtpNo != 0) mBtpFrame = end;
+#endif
             else {
                 mBtpTimer = 30.0f + cM_rndF(60.0f);
                 mBtpFrame = 0;
@@ -402,7 +407,12 @@ bool daNpc_Ac1_c::chkAttention() {
 }
 
 void daNpc_Ac1_c::setAttention(bool force) {
+#if VERSION == VERSION_DEMO
+    f32 offset = l_HIO.mPrm.mAttentionOffsetY;
+    attention_info.position.set(current.pos.x, current.pos.y + offset, current.pos.z);
+#else
     attention_info.position.set(current.pos.x, current.pos.y + l_HIO.mPrm.mAttentionOffsetY, current.pos.z);
+#endif
     if (mUpdateEye || force) eyePos.set(mEyePos.x, mEyePos.y, mEyePos.z);
 }
 
@@ -526,8 +536,12 @@ u8 daNpc_Ac1_c::demo() {
         dDemo_actor_c* actor = dComIfGp_demo_getActor(demoActorID);
         if (m_hed_tex_pttrn != NULL) {
             mBtpFrame++;
+#if VERSION == VERSION_DEMO
+            if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
+#else
             int end = m_hed_tex_pttrn->getFrameMax();
             if (mBtpFrame >= (s16)end) mBtpFrame = end;
+#endif
         }
         J3DAnmTexPattern* btp = actor->getP_BtpData("Ac");
         if (btp != NULL) {
@@ -587,7 +601,7 @@ BOOL daNpc_Ac1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) staff = isEventEntry();
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) staff = isEventEntry();
         if (staff >= 0) event_proc(staff);
         else (this->*mAction)(NULL);
         if (!mNoMove) fopAcM_posMoveF(this, mStts.GetCCMoveP());
@@ -601,11 +615,18 @@ BOOL daNpc_Ac1_c::_execute() {
 
 BOOL daNpc_Ac1_c::_delete() {
     dComIfG_resDelete(&mPhs, "Ac");
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) mpMorf->stopZelAnime();
+    if (mpWingMorf != NULL) mpWingMorf->stopZelAnime();
+    if (mpArmMorf != NULL) mpArmMorf->stopZelAnime();
+    l_HIO.removeHIO();
+#else
     if (heap != NULL) {
         if (mpMorf != NULL) mpMorf->stopZelAnime();
         if (mpWingMorf != NULL) mpWingMorf->stopZelAnime();
         if (mpArmMorf != NULL) mpArmMorf->stopZelAnime();
     }
+#endif
     return TRUE;
 }
 
@@ -614,10 +635,15 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 }
 
 cPhs_State daNpc_Ac1_c::_create() {
-    fopAcM_SetupActor(this, daNpc_Ac1_c);
+    fopAcM_ct_Retail(this, daNpc_Ac1_c);
     cPhs_State phase = dComIfG_resLoad(&mPhs, "Ac");
     if (phase != cPhs_COMPLEATE_e) return phase;
-    if (!charDecide(fopAcM_GetParam(this) & 0xFF)) return cPhs_ERROR_e;
+    u32 prm = fopAcM_GetParam(this) & 0xFF;
+    if (!charDecide(prm)) return cPhs_ERROR_e;
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("コモリ成長");
+    fopAcM_ct(this, daNpc_Ac1_c);
+#endif
     static u32 a_size_tbl[] = {0x272E0};
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_size_tbl[mType])) return cPhs_ERROR_e;
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -712,7 +738,7 @@ BOOL daNpc_Ac1_c::CreateHeap() {
         }
         mpMorf->getModel()->setUserArea((u32)this);
         mAcchCir.SetWall(30.0f, 50.0f);
-        mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+        mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
         return TRUE;
     }
     mpMorf = NULL; mpWingMorf = NULL; return FALSE;

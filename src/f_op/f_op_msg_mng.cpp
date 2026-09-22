@@ -3548,10 +3548,6 @@ void fopMsgM_msgDataProc_c::colorAnime(J2DPicture* i_pic) {
 
 /* 800322B4-80034F3C       .text stringSet__21fopMsgM_msgDataProc_cFv */
 void fopMsgM_msgDataProc_c::stringSet() {
-    /* Nonmatching - regalloc */
-    // demo: regswap on int r28
-    // jpn: matches 100%
-    // usa and pal: regswap on s8 r30
     s8 r30 = g_msgHIO.field_0x6c;
 
     field_0x60 = field_0x40;
@@ -3763,7 +3759,8 @@ void fopMsgM_msgDataProc_c::stringSet() {
                 const char* player_name = dComIfGs_getPlayerName();
 #else
                 char player_name[20];
-                strcpy(player_name, dComIfGs_getPlayerName());
+                const char* pn = dComIfGs_getPlayerName();
+                strcpy(player_name, pn);
 #endif
 
 #if VERSION > VERSION_JPN
@@ -3800,8 +3797,12 @@ void fopMsgM_msgDataProc_c::stringSet() {
                     if (mesgEntry->mTextboxType == 0xC)
 #endif
                     {
+#if VERSION == VERSION_DEMO
+                        if (((u8)player_name[r28] >> 4) == 8 || ((u8)player_name[r28] >> 4) == 9) {
+#else
                         int hi_nibble = ((u8)player_name[r28] >> 4);
                         if (hi_nibble == 8 || hi_nibble == 9) {
+#endif
                             int hi = (u8)player_name[r28];
                             field_0xD4[0] = (u8)player_name[r28++];
                             int lo = (u8)player_name[r28++];
@@ -5807,15 +5808,13 @@ void fopMsgM_msgDataProc_c::getString(char* i_dest, u32 i_msgNo) {
 
 /* 80035408-80035A24       .text getString__21fopMsgM_msgDataProc_cFPcPcPcPcUlPfPfPi */
 void fopMsgM_msgDataProc_c::getString(char* i_dest, char* param_2, char* param_3, char* param_4, u32 i_msgNo, f32* param_6, f32* param_7, int* param_8) {
-    /* Nonmatching - regalloc */
     fopMsgM_msgGet_c msgGet;
 
     f32 f31;
     f32 f30 = 0.0f;
 
 #if VERSION <= VERSION_JPN
-    mesg_header* header = msgGet.getMesgHeader(i_msgNo);
-    const char* src = msgGet.getMessage(header);
+    const char* src = msgGet.getMessage(msgGet.getMesgHeader(i_msgNo));
     int offset = 0;
 #else
     const char* src;
@@ -5824,8 +5823,7 @@ void fopMsgM_msgDataProc_c::getString(char* i_dest, char* param_2, char* param_3
     if (i_msgNo == 0) {
         src = name;
     } else {
-        mesg_header* header = msgGet.getMesgHeader(i_msgNo);
-        src = msgGet.getMessage(header);
+        src = msgGet.getMessage(msgGet.getMesgHeader(i_msgNo));
     }
 #endif
 

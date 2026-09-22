@@ -95,9 +95,15 @@ public:
     void JSGGetTranslation(Vec* dst) const { *dst = mTrans; }
     void JSGGetScaling(Vec* dst) const { *dst = mScale; }
     void JSGGetRotation(Vec* dst) const {
+#if VERSION == VERSION_DEMO
+        dst->x = S2DEG_CONSTANT * mRotate.x;
+        dst->y = S2DEG_CONSTANT * mRotate.y;
+        dst->z = S2DEG_CONSTANT * mRotate.z;
+#else
         dst->x = cM_sht2d(mRotate.x);
         dst->y = cM_sht2d(mRotate.y);
         dst->z = cM_sht2d(mRotate.z);
+#endif
     }
 
     u32 checkEnable(u16 mask) { return mFlags & mask; }

@@ -957,7 +957,15 @@ public:
     dStage_nextStage_c() {
         mEnable = 0;  // TODO: maybe wrong
     }
+#if VERSION == VERSION_DEMO
+    void set(const char* i_stage, s8 i_roomId, s16 i_point, s8 i_layer, s8 i_wipe) {
+        mEnable = true;
+        mWipe = i_wipe;
+        dStage_startStage_c::set(i_stage, i_roomId, i_point, i_layer);
+    }
+#else
     void set(const char*, s8, s16, s8, s8);
+#endif
     void offEnable() { mEnable = 0; }
     s8 isEnable() const { return mEnable; }
     s8 getWipe() const { return mWipe; }

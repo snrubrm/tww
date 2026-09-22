@@ -49,6 +49,7 @@ void dPb_erasePicture();
 
 class dJle_Pb_c : public dDlst_base_c {
 public:
+    virtual ~dJle_Pb_c() {}
     u8 getStatus() { return mExecState; }
     // was this supposed to be called setMemory? typo?
     void getMemory(void* buffer, int idx) {

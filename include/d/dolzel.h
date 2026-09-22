@@ -7,4 +7,7 @@
 #include "d/dolzel.pch"
 #endif
 
+// Parts of headers that were not in the original PCH.
+#include "f_op/f_op_actor_mng.h" // IWYU pragma: export
+
 #endif /* DOLZEL_H */

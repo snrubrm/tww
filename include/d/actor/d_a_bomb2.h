@@ -73,9 +73,8 @@ namespace daBomb2 {
         void prm_get_start() const {}
         void prm_get_stick() const {}
         static u32 prm_make(Start_e p0, bool p1) { // Might be wrong
-            u32 prm = 0;
-            prm |= (p1 ? 1 : 0) << 8;
-            return prm | p0;
+            u32 prm = p1 ? 1 : 0;
+            return (prm << 8) | p0;
         }
 
         Act_c();
@@ -186,10 +185,15 @@ namespace daBomb2 {
         /* 0x488 */ dBgS_AcchCir mCir;
         /* 0x4C8 */ dBgS_ObjGndChk_Yogan mGndChk;
         /* 0x51C */ f32 field_0x51C;
+#if VERSION == VERSION_DEMO
+        /* 0x520 */ bool mbSeaArea;
+        /* 0x524 */ f32 mSeaWaveH;
+#else
         /* 0x520 */ f32 field_0x520;
         /* 0x524 */ bool field_0x524;
         /* 0x525 */ bool mbWaterIn;
         /* 0x526 */ u8 field_0x526;
+#endif
         /* 0x528 */ f32 field_0x528;
         /* 0x52C */ dCcD_Stts mStts;
         /* 0x568 */ dCcD_Sph mSph;

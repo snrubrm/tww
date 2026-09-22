@@ -79,7 +79,6 @@ JMessage::TParse::~TParse() {
 
 /* 8029FEF0-802A0024       .text parseHeader_next__Q28JMessage6TParseFPPCvPUlUl */
 bool JMessage::TParse::parseHeader_next(const void** ppData, u32* pOutSize, u32 flag) {
-    /* Nonmatching */
     const void* pData = *ppData;
     data::TParse_THeader header(pData);
     *ppData = header.getContent();
@@ -91,7 +90,7 @@ bool JMessage::TParse::parseHeader_next(const void** ppData, u32* pOutSize, u32 
     if (header.get_type() != 'bmg1')
         return false;
 
-    u8 encoding = header.get_encoding();
+    const u8 encoding = header.get_encoding();
     if (encoding != 0) {
         if (!mResourceContainer->IsEncodingSettable(encoding))
             return false;

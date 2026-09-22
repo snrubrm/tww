@@ -121,11 +121,13 @@ static char* l_daiza_name[] = {
     "Hdai3"
 };
 
+#if VERSION > VERSION_DEMO
 static Vec l_finish_home_pos[] = {
     {683.0f, 340.0f, -8947.0f},
     {-683.0f, 340.0f, -8947.0f},
     {0.0f, 340.0f, -9630.0}
 };
+#endif
 
 /* 000000EC-00000154       .text __ct__15daNpc_Os_HIO2_cFv */
 daNpc_Os_HIO2_c::daNpc_Os_HIO2_c() {
@@ -202,26 +204,35 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 
 /* 00000374-00000538       .text create__10daNpc_Os_cFv */
 cPhs_State daNpc_Os_c::create() {
+#if VERSION > VERSION_DEMO
     fopAcM_ct(this, daNpc_Os_c)
+#endif
 
     static u32 l_heap_size = 0xFA0;
 
     cPhs_State result = dComIfG_resLoad(&mPhs, "Os");
     if(result == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_ct(this, daNpc_Os_c)
+#endif
         if(!fopAcM_entrySolidHeap(this, CheckCreateHeap, l_heap_size)) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
 
         if(!finishCheck()) {
             checkRestart(getRestartNumber());
         }
+#if VERSION > VERSION_DEMO
         else {
             if(argument < 3) {
                 home.pos = l_finish_home_pos[argument];
                 current.pos = home.pos;
             }
         }
+#endif
 
         setBaseMtx();
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -292,7 +303,7 @@ static BOOL tunoNodeCallBack(J3DNode* node, int calcTiming) {
 /* 00000988-00000C94       .text createHeap__10daNpc_Os_cFv */
 BOOL daNpc_Os_c::createHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes("Os", dRes_INDEX_OS_BDL_OS_e));
-    JUT_ASSERT(0x2F9, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x315, 0x2F9), modelData != NULL);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
@@ -629,9 +640,11 @@ void daNpc_Os_c::npcAction(void* param_1) {
     if(!mNpcAction) {
         speedF = 0.0f;
         
+#if VERSION > VERSION_DEMO
         if(field_0x7A2 == 8) {
             initBrkAnm(6, true);
         }
+#endif
 
         setNpcAction(&daNpc_Os_c::waitNpcAction, 0);
     }
@@ -678,15 +691,7 @@ int daNpc_Os_c::calcStickPos(s16 param_1, cXyz* param_2) {
     dAttention_c& attention = dComIfGp_getAttention();
     dAttList_c* attList = attention.GetLockonList(0);
     bool lockon = attention.Lockon();
-    if(!lockon) {
-        ret = 0;
-    } else {
-        BOOL lockon = attention.LockonTruth();
-        ret = -1;
-        if (lockon) {
-            ret = 1;
-        }
-    }
+    ret = !lockon ? 0 : (attention.LockonTruth() ? 1 : -1);
 
     if(attList == NULL) {
         attList = attention.GetActionList(0);
@@ -1021,7 +1026,7 @@ void daNpc_Os_c::routeWallCheck(cXyz& param_1, cXyz& param_2, s16* param_3) {
     if(dComIfG_Bgsp()->LineCross(&linChk)) {
         cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(linChk);
         if(plane) {
-            routeAngCheck(*plane->GetNP(), param_3);
+            routeAngCheck(plane->mNormal, param_3);
         }
     }
 }
@@ -1181,7 +1186,7 @@ BOOL daNpc_Os_c::waitPlayerAction(void*) {
         dAttention_c& attention = dComIfGp_getAttention();
         if(CPad_GET_STICK_VALUE(0) >= l_HIO.field_0x9C || attention.Lockon()) {
             s16 target = getStickAngY();
-            cLib_addCalcAngleS(&current.angle.y, target, 0x19, 0x7FFF, 1);
+            cLib_addCalcAngleS(&current.angle.y, target, DEMO_SELECT(8, 0x19), DEMO_SELECT(0x2000, 0x7FFF), DEMO_SELECT(0x400, 1));
             cXyz temp;
             s32 stickPos = calcStickPos(target, &temp);
             if(stickPos == 0) {
@@ -1198,7 +1203,9 @@ BOOL daNpc_Os_c::waitPlayerAction(void*) {
                 shape_angle.y = temp2;
             }
 
+#if VERSION > VERSION_DEMO
             current.angle.y = shape_angle.y;
+#endif
             if(CPad_GET_STICK_VALUE(0) >= l_HIO.field_0xA0 && stickPos == 0) {
                 current.angle.y = target;
                 setPlayerAction(&daNpc_Os_c::walkPlayerAction, 0);
@@ -1477,6 +1484,20 @@ BOOL daNpc_Os_c::actionMoveEvent(int staffIdx) {
     }
 
     if(mpPedestal) {
+#if VERSION == VERSION_DEMO
+        walkProc(value, fopAcM_searchActorAngleY(this, mpPedestal));
+        mpMorf->setPlaySpeed(value * 2.0f);
+        cLib_addCalcAngleS(&shape_angle.y, current.angle.y, l_HIO.mOs2.field_0x28, l_HIO.mOs2.field_0x24 * 2, l_HIO.mOs2.field_0x26 * 2);
+        mJntCtrl.lookAtTarget(&shape_angle.y, 0, cXyz::Zero, shape_angle.y, 0, false);
+
+        if(fopAcM_searchActorDistanceXZ(this, mpPedestal) < 10.0f) {
+            speedF = 0.0f;
+            current.pos.x = mpPedestal->current.pos.x;
+            current.pos.z = mpPedestal->current.pos.z;
+            setAnm(0);
+            return true;
+        }
+#else
         if(fopAcM_searchActorDistanceXZ(this, mpPedestal) < 10.0f) {
             speedF = 0.0f;
             current.pos.x = mpPedestal->current.pos.x;
@@ -1491,6 +1512,7 @@ BOOL daNpc_Os_c::actionMoveEvent(int staffIdx) {
         }
 
         setAttention(true);
+#endif
     }
 
     return true;
@@ -1527,7 +1549,8 @@ void daNpc_Os_c::initialTurnEvent(int) {
 BOOL daNpc_Os_c::actionTurnEvent(int staffIdx) {
     int* data = dComIfGp_evmng_getMyIntegerP(staffIdx, "Angle");
     if(data) {
-        s16 temp = cLib_addCalcAngleS(&shape_angle.y, *data, 0x1E, 0x2000, 0x800);
+        s16 target = *data;
+        s16 temp = cLib_addCalcAngleS(&shape_angle.y, target, 0x1E, 0x2000, 0x800);
         current.angle.y = shape_angle.y;
         
         if(temp == 0) {
@@ -1757,7 +1780,7 @@ BOOL daNpc_Os_c::initBrkAnm(u8 param_1, bool param_2) {
     bool ret = false;
     if(field_0x7A2 != param_1) {
         J3DAnmTevRegKey* a_brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes("Os", brkAnmTbl[param_1].brkFileIndex));
-        JUT_ASSERT(0xBB9, a_brk != NULL);
+        JUT_ASSERT(DEMO_SELECT(0xBD3, 0xBB9), a_brk != NULL);
 
         if(mBrkAnm.init(modelData, a_brk, TRUE, brkAnmTbl[param_1].loopMode, brkAnmTbl[param_1].speed, 0, -1, param_2, 0)) {
             field_0x7A2 = param_1;
@@ -1894,7 +1917,14 @@ void daNpc_Os_c::checkOrder() {
 
 /* 00005454-00005468       .text checkCommandTalk__10daNpc_Os_cFv */
 BOOL daNpc_Os_c::checkCommandTalk() {
+#if VERSION == VERSION_DEMO
+    if (eventInfo.checkCommandTalk()) {
+        return TRUE;
+    }
+    return FALSE;
+#else
     return eventInfo.checkCommandTalk() ? TRUE : FALSE;
+#endif
 }
 
 /* 00005468-000054BC       .text next_msgStatus__10daNpc_Os_cFPUl */
@@ -1921,8 +1951,9 @@ u32 daNpc_Os_c::getMsg() {
 void daNpc_Os_c::setCollision() {
     cXyz dummy(0.0f, 0.0f, 0.0f);
     cXyz temp = current.pos;
+    f32 r = 30.0f;
     mCyl.SetC(temp);
-    mCyl.SetR(30.0f);
+    mCyl.SetR(r);
     mCyl.SetH(field_0x788);
 
     if(dComIfGp_getPlayer(0) == this) {
@@ -1953,7 +1984,8 @@ void daNpc_Os_c::lookBack(int param_1, int param_2, int param_3) {
     s16 targetY = shape_angle.y;
     
     if(mJntCtrl.trnChk()) {
-        cLib_addCalcAngleS2(&field_0x798, l_HIO.mNpc.mMaxHeadTurnVel, 4, 0x800);
+        s16 maxVel = l_HIO.mNpc.mMaxHeadTurnVel;
+        cLib_addCalcAngleS2(&field_0x798, maxVel, 4, 0x800);
     }
     else {
         field_0x798 = 0;
@@ -2019,7 +2051,7 @@ BOOL daNpc_Os_c::init() {
     attention_info.distances[fopAc_Attn_TYPE_CARRY_e] = 0x27;
     m_smoke_tevstr = tevStr;
     m_smoke.setTevStr(&m_smoke_tevstr);
-    m_playerRoom[argument] = false;
+    offPlayerRoom(argument);
     clearStatus();
     gravity = l_HIO.field_0x8C;
     field_0x7A0 = 3;
@@ -2078,7 +2110,11 @@ BOOL daNpc_Os_c::draw() {
     mpMorf->entryDL();
     mBrkAnm.remove(pModelData);
 
+#if VERSION == VERSION_DEMO
+    if(!fopAcM_checkCarryNow(this)) {
+#else
     if(!fopAcM_checkCarryNow(this) && field_0x784 & 0x10) {
+#endif
         cXyz shadowPos(current.pos.x, current.pos.y + 150.0f, current.pos.z);
 
         mShadowId = dComIfGd_setShadow(
@@ -2096,7 +2132,11 @@ BOOL daNpc_Os_c::draw() {
 /* 00005CC8-00005DF4       .text animationPlay__10daNpc_Os_cFv */
 void daNpc_Os_c::animationPlay() {
     u32 mtrlSndId = 0;
+#if VERSION == VERSION_DEMO
+    if (mAcch.ChkGroundHit() && dComIfG_Bgsp()->ChkPolySafe(mAcch.m_gnd)) {
+#else
     if (field_0x784 & 0x10 && mAcch.ChkGroundHit() && dComIfG_Bgsp()->ChkPolySafe(mAcch.m_gnd)) {
+#endif
         mtrlSndId = dComIfG_Bgsp()->GetMtrlSndId(mAcch.m_gnd);
     }
     
@@ -2414,7 +2454,11 @@ BOOL daNpc_Os_c::execute() {
 daNpc_Os_c::~daNpc_Os_c() {
     dComIfG_resDelete(&mPhs, "Os");
 
+#if VERSION == VERSION_DEMO
+    if (mpMorf) {
+#else
     if (heap) {
+#endif
         mpMorf->stopZelAnime();
     }
 
@@ -2429,7 +2473,7 @@ daNpc_Os_c::~daNpc_Os_c() {
         l_HIO.mNo = -1;
     }
 
-    m_playerRoom[argument] = false;
+    offPlayerRoom(argument);
     m_cattleRoomNo = -1;
 }
 

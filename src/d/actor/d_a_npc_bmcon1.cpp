@@ -84,14 +84,14 @@ static BOOL daNpc_Bmcon_nodeCallBack(J3DNode* node, int phase) {
         J3DModel* model = j3dSys.getModel();
         daNpcBmcon_c* npc = (daNpcBmcon_c*)model->getUserArea();
         int joint = ((J3DJoint*)node)->getJntNo();
-        cMtx_copy(model->getAnmMtx(joint), *calc_mtx);
+        MTXCopy(model->getAnmMtx(joint), *calc_mtx);
         if (joint == npc->get_nec_jnt_num()) {
             mDoMtx_XrotM(*calc_mtx, npc->m_jnt.getHead_y());
-            mDoMtx_ZrotM(*calc_mtx, -npc->m_jnt.getHead_x());
+            cMtx_ZrotM(*calc_mtx, -npc->m_jnt.getHead_x());
         }
         if (joint == npc->m_jnt.getBackboneJntNum()) {
             mDoMtx_XrotM(*calc_mtx, npc->m_jnt.getBackbone_y());
-            mDoMtx_ZrotM(*calc_mtx, -npc->m_jnt.getBackbone_x());
+            cMtx_ZrotM(*calc_mtx, -npc->m_jnt.getBackbone_x());
         }
         if (joint == npc->get_arm_L_jnt_num()) {
             cMtx_copy(*calc_mtx, npc->mArmLMtx);
@@ -146,7 +146,9 @@ static cPhs_State phase_2(daNpcBmcon_c* npc) {
         if (fopAcM_entrySolidHeap(npc, CheckCreateHeap, 0)) {
             phase = npc->createInit();
         } else {
+#if VERSION > VERSION_DEMO
             npc->mpMorf = NULL;
+#endif
             phase = cPhs_ERROR_e;
         }
     }
@@ -175,19 +177,19 @@ int daNpcBmcon_c::createHeap() {
         return FALSE;
     }
     m_jnt.setHeadJntNum(body->getJointName()->getIndex("head"));
-    JUT_ASSERT(0x3EF, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3EE, 0x3EF), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(body->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(0x3F3, m_jnt.getBackboneJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3F2, 0x3F3), m_jnt.getBackboneJntNum() >= 0);
     m_nec_jnt_num = body->getJointName()->getIndex("neck");
-    JUT_ASSERT(0x3FA, m_nec_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3F9, 0x3FA), m_nec_jnt_num >= 0);
     m_arm_L_jnt_num = body->getJointName()->getIndex("armL");
-    JUT_ASSERT(0x3FE, m_arm_L_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3FD, 0x3FE), m_arm_L_jnt_num >= 0);
     m_arm_R_jnt_num = body->getJointName()->getIndex("armR");
-    JUT_ASSERT(0x400, m_arm_R_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x3FF, 0x400), m_arm_R_jnt_num >= 0);
     m_armL1_jnt_num = arm->getJointName()->getIndex("armLloc");
-    JUT_ASSERT(0x404, m_armL1_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x403, 0x404), m_armL1_jnt_num >= 0);
     m_armR1_jnt_num = arm->getJointName()->getIndex("armRloc");
-    JUT_ASSERT(0x406, m_armR1_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x405, 0x406), m_armR1_jnt_num >= 0);
     for (u16 i = 0; i < body->getJointNum(); i++) {
         if (i == m_jnt.getHeadJntNum() || i == m_jnt.getBackboneJntNum() || i == m_nec_jnt_num || i == m_arm_L_jnt_num || i == m_arm_R_jnt_num)
         body->getJointNodePointer(i)->setCallBack(daNpc_Bmcon_nodeCallBack);
@@ -200,7 +202,7 @@ int daNpcBmcon_c::createHeap() {
     }
     mpArmMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 30.0f);
-    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, &current.angle, &shape_angle);
+    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), fopAcM_GetAngle_p(this), fopAcM_GetShapeAngle_p(this));
     return TRUE;
 }
 
@@ -212,7 +214,7 @@ cPhs_State daNpcBmcon_c::createInit() {
     int weight = 0xFF;
     u8 rail = getPrmRailID();
     if (rail != 0xFF) {
-        mPath.setInf(rail, current.roomNo, 1);
+        mPath.setInf(rail, fopAcM_GetRoomNo(this), 1);
         if (mPath.getPath() == NULL) {
             return cPhs_ERROR_e;
         }
@@ -225,6 +227,12 @@ cPhs_State daNpcBmcon_c::createInit() {
         mWalkTimer = 1;
         weight = 0xFE;
     }
+#if VERSION == VERSION_DEMO
+    mStts.Init(weight, 0xFF, this);
+    mCyl.Set(dNpc_cyl_src);
+    mCyl.SetStts(&mStts);
+    setCollision(&mCyl, current.pos, l_npc_dat[mNpcNo].radius, 150.0f);
+#endif
     gravity = -9.0f;
     setAnmTbl(l_npc_anm_tbl[mAnmNo]);
     switch (mNpcNo) {
@@ -261,6 +269,10 @@ cPhs_State daNpcBmcon_c::createInit() {
     mAttentionDist = l_npc_dat[mNpcNo].attentionDist;
     mAttentionAngle = l_npc_dat[mNpcNo].attentionAngle;
     mObjAcch.CrrPos(*dComIfG_Bgsp());
+#if VERSION == VERSION_DEMO
+    current.pos.y = home.pos.y = mObjAcch.GetGroundH();
+    setMtx();
+#else
     if (mObjAcch.GetGroundH() != -1000000000.0f) {
         current.pos.y = home.pos.y = mObjAcch.GetGroundH();
     }
@@ -270,14 +282,24 @@ cPhs_State daNpcBmcon_c::createInit() {
     mCyl.Set(dNpc_cyl_src);
     mCyl.SetStts(&mStts);
     setCollision(&mCyl, current.pos, l_npc_dat[mNpcNo].radius, 150.0f);
+#endif
     return cPhs_COMPLEATE_e;
 }
 
 bool daNpcBmcon_c::_delete() {
     if (mResFlag) {
+#if VERSION == VERSION_DEMO
+        dComIfG_deleteObjectRes(l_arcname_tbl[mNpcNo]);
+#else
         dComIfG_resDelete(&mResPhase, l_arcname_tbl[mNpcNo]);
+#endif
     }
-    if (heap != NULL && mpMorf != NULL) {
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL)
+#else
+    if (heap != NULL && mpMorf != NULL)
+#endif
+    {
         mpMorf->stopZelAnime();
     }
     return true;
@@ -303,10 +325,10 @@ bool daNpcBmcon_c::_draw() {
     }
     switch (mNpcNo) {
     case 0:
-        dSnap_RegistFig(0x95, this, 1.0f, 1.0f, 1.0f);
+        dSnap_RegistFig(DEMO_SELECT(0x94, 0x95), this, 1.0f, 1.0f, 1.0f);
         break;
     case 1:
-        dSnap_RegistFig(0x94, this, 1.0f, 1.0f, 1.0f);
+        dSnap_RegistFig(DEMO_SELECT(0x95, 0x94), this, 1.0f, 1.0f, 1.0f);
         break;
     }
     return true;
@@ -471,7 +493,7 @@ void daNpcBmcon_c::executeWalk() {
             s16 angle;
             dNpc_calc_DisXZ_AngY(current.pos, point, NULL, &angle);
             mDefaultAngle = angle;
-            mPath.setInf(0xFF, current.roomNo, 1);
+            mPath.setInf(0xFF, fopAcM_GetRoomNo(this), 1);
             executeSetMode(0);
         }
     }
@@ -690,7 +712,7 @@ bool daNpcBmcon_c::eventMesSet() {
 }
 
 void daNpcBmcon_c::eventGetItemInit() {
-    fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, mItemNo, 0, -1, current.roomNo, NULL, NULL);
+    fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, mItemNo, 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
     if (id != fpcM_ERROR_PROCESS_ID_e) {
         dComIfGp_event_setItemPartnerId(id);
     }
@@ -1074,8 +1096,15 @@ s16 daNpcBmcon_c::getFlyDistMax() {
 }
 
 void daNpcBmcon_c::setFlyDistMax(s16 dist) {
+#if VERSION == VERSION_DEMO
+    u8 low = dist % 256;
+    u8 high = dist / 256;
+    dComIfGs_setEventReg(0xA7FF, low);
+    dComIfGs_setEventReg(0xA8FF, high);
+#else
     dComIfGs_setEventReg(0xA7FF, dist % 256);
     dComIfGs_setEventReg(0xA8FF, dist / 256);
+#endif
 }
 
 s16 daNpcBmcon_c::getFlyDistNow() {
@@ -1085,8 +1114,15 @@ s16 daNpcBmcon_c::getFlyDistNow() {
 }
 
 void daNpcBmcon_c::setFlyDistNow(s16 dist) {
+#if VERSION == VERSION_DEMO
+    u8 low = dist % 256;
+    u8 high = dist / 256;
+    dComIfGs_setTmpReg(0xFBFF, low);
+    dComIfGs_setTmpReg(0xFAFF, high);
+#else
     dComIfGs_setTmpReg(0xFBFF, dist % 256);
     dComIfGs_setTmpReg(0xFAFF, dist / 256);
+#endif
 }
 
 int daNpcBmcon_c::chkEndEvent() {

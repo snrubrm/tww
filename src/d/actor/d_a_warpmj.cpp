@@ -66,7 +66,9 @@ void daWarpmj_c::CreateInit() {
     setEndAnm();
     mEventIdx = dComIfGp_evmng_getEventIdx("TO_GANON_WARP");
     mExit = fopAcM_GetParam(this) & 0xFF;
+#if VERSION > VERSION_DEMO
     dKy_tevstr_init(&mBgTevStr, current.roomNo, 0xFF);
+#endif
 }
 
 /* 00000630-00000778       .text _create__10daWarpmj_cFv */
@@ -86,7 +88,9 @@ inline void daWarpmj_c::set_mtx() {
     cXyz pos = current.pos;
     pos.y += 2000.0f;
     current.pos.y = getSeaY(pos);
+#if VERSION > VERSION_DEMO
     if (current.pos.y == -1000000000.0f) current.pos.y = 0.0f;
+#endif
     mpModel->setBaseScale(scale);
     mDoMtx_stack_c::transS(current.pos);
     mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
@@ -101,7 +105,7 @@ bool daWarpmj_c::_execute() {
     } else {
         demo_execute();
     }
-    mDoAud_seStart(JA_SE_OBJ_GN_WAPR_EFF, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_OBJ_GN_WAPR_EFF, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
     set_mtx();
     return true;
 }
@@ -176,7 +180,7 @@ BOOL daWarpmj_c::actWarp(int) {
 /* 00000C38-00000C94       .text initWarpArrive__10daWarpmj_cFi */
 void daWarpmj_c::initWarpArrive(int) {
     setEndAnm();
-    mDoAud_seStart(JA_SE_LK_GN_WAPR_U_OUT);
+    mDoAud_seStart(VERSION_SELECT(JA_SE_LK_GN_WAPR_D_OUT, JA_SE_LK_GN_WAPR_D_OUT, JA_SE_LK_GN_WAPR_U_OUT, JA_SE_LK_GN_WAPR_U_OUT));
 }
 
 /* 00000C94-00000CB8       .text actWarpArrive__10daWarpmj_cFi */
@@ -197,7 +201,7 @@ void daWarpmj_c::eventOrder() {
 void daWarpmj_c::checkOrder() {
     if (eventInfo.checkCommandDemoAccrpt()) {
         if (dComIfGp_evmng_startCheck(mEventIdx) && mOrder != 0) mOrder = 0;
-        if (dComIfGp_evmng_endCheck(mEventIdx)) dLib_setNextStageBySclsNum(mExit, current.roomNo);
+        if (dComIfGp_evmng_endCheck(mEventIdx)) dLib_setNextStageBySclsNum(mExit, fopAcM_GetRoomNo(this));
     } else if (mOrder == 0 && !dComIfGp_event_runCheck()) {
         normal_execute();
     }
@@ -226,8 +230,10 @@ f32 daWarpmj_c::getSeaY(cXyz pos) {
 /* 00000EE0-00000FDC       .text check_warp__10daWarpmj_cFv */
 BOOL daWarpmj_c::check_warp() {
     daShip_c* ship = dComIfGp_getShipActor();
+    f32 dist = m_warp_distance;
     if (dComIfGp_checkPlayerStatus0(0, daPyStts0_SHIP_RIDE_e) && ship != NULL) {
-        if ((ship->current.pos - current.pos).absXZ() < m_warp_distance) return TRUE;
+        f32 d = (ship->current.pos - current.pos).absXZ();
+        if (d < dist) return TRUE;
     }
     return FALSE;
 }

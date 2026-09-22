@@ -511,7 +511,11 @@ public:
     /* 0x00 */ u8 field_0x0;
     /* 0x01 */ u8 field_0x1;
     /* 0x02 */ u8 field_0x2;
-    /* 0x04 */ s16 field_0x4;
+#if VERSION == VERSION_DEMO
+    /* 0x03 */ u8 field_0x3;
+    /* 0x04 */ u8 field_0x4_demo;
+#endif
+    /* 0x04 */ s16 field_0x4; // 0x06 in demo
 };
 
 class dMeter_info_c {

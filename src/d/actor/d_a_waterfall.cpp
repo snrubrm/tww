@@ -14,6 +14,14 @@
 #include "m_Do/m_Do_audio.h"
 #include "res/Object/Wfall.h"
 
+#if VERSION == VERSION_DEMO
+#define EMITTER00 mpEmitter00
+#define EMITTER01 mpEmitter01
+#else
+#define EMITTER00 mEmitter00.getEmitter()
+#define EMITTER01 mEmitter01.getEmitter()
+#endif
+
 const char daWfall_c::m_arcname[] = "Wfall";
 const u8 daWfall_c::m_wait_timer = 50;
 const s16 daWfall_c::m_heapsize[2] = {0x35A0, 0x4870};
@@ -21,9 +29,17 @@ const s16 daWfall_c::m_heapsize[2] = {0x35A0, 0x4870};
 /* 00000078-000000F0       .text _delete__9daWfall_cFv */
 bool daWfall_c::_delete() {
     mEmitter00.remove();
+#if VERSION == VERSION_DEMO
+    mpEmitter00 = NULL;
+#endif
     mEmitter01.remove();
+#if VERSION == VERSION_DEMO
+    mpEmitter01 = NULL;
+    dComIfG_deleteObjectRes(m_arcname);
+#else
     dComIfG_resDelete(&mPhase, m_arcname);
     mDoAud_seDeleteObject(&mGatePos);
+#endif
     return true;
 }
 
@@ -35,37 +51,37 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 /* 00000110-0000048C       .text CreateHeap__9daWfall_cFv */
 BOOL daWfall_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_WFALL_BDL_YSWTR00_e);
-    JUT_ASSERT(0xfd, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0xf8, 0xfd), modelData != 0);
     mpWaterModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000222);
     if (!mpWaterModel) {
         return FALSE;
     }
     J3DAnmTextureSRTKey* pbtk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_WFALL_BTK_YSWTR00_e);
-    JUT_ASSERT(0x10d, pbtk != 0);
+    JUT_ASSERT(DEMO_SELECT(0x108, 0x10d), pbtk != 0);
     if (!mWaterBtk.init(modelData, pbtk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0)) {
         return FALSE;
     }
     mWaterBtk.setPlaySpeed(1.0f);
     modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_WFALL_BDL_HSUI1_e);
-    JUT_ASSERT(0x119, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x114, 0x119), modelData != 0);
     mpGateModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (!mpGateModel) {
         return FALSE;
     }
     if (mType == 1) {
         modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_WFALL_BDL_YSMNM00_e);
-        JUT_ASSERT(0x129, modelData != 0);
+        JUT_ASSERT(DEMO_SELECT(0x124, 0x129), modelData != 0);
         mpMinamoModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000222);
         if (!mpMinamoModel) {
             return FALSE;
         }
         pbtk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_WFALL_BTK_YSMNM00_e);
-        JUT_ASSERT(0x138, pbtk != 0);
+        JUT_ASSERT(DEMO_SELECT(0x133, 0x138), pbtk != 0);
         if (!mMinamoBtk.init(modelData, pbtk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0)) {
             return FALSE;
         }
         J3DAnmTevRegKey* pbrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_WFALL_BRK_YSMNM00_e);
-        JUT_ASSERT(0x143, pbrk != 0);
+        JUT_ASSERT(DEMO_SELECT(0x13e, 0x143), pbrk != 0);
         if (!mMinamoBrk.init(modelData, pbrk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) {
             return FALSE;
         }
@@ -88,10 +104,15 @@ void daWfall_c::CreateInit() {
     mEmitter01Pos = current.pos;
     mEmitter00Angle = current.angle;
     mEmitter01Angle = current.angle;
+#if VERSION == VERSION_DEMO
+    mpEmitter00 = dComIfGp_particle_set(0x810D, &mEmitter00Pos, &mEmitter00Angle, NULL, 255, &mEmitter00);
+    mpEmitter01 = dComIfGp_particle_set(0x810E, &mEmitter01Pos, &mEmitter01Angle, NULL, 255, &mEmitter01);
+#else
     dComIfGp_particle_set(0x810D, &mEmitter00Pos, &mEmitter00Angle, NULL, 255, &mEmitter00);
     dComIfGp_particle_set(0x810E, &mEmitter01Pos, &mEmitter01Angle, NULL, 255, &mEmitter01);
+#endif
     mSwitch = fopAcM_GetParam(this) & 0xFF;
-    if (dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+    if (fopAcM_isSwitch(this, mSwitch)) {
         mode_wtr_off_init();
         mGatePos = current.pos;
         mEventState = 10;
@@ -155,7 +176,7 @@ bool daWfall_c::_execute() {
     case 0:
         if (eventInfo.checkCommandDemoAccrpt() || dComIfGp_evmng_startCheck(mEvent)) {
             ++mEventState;
-        } else if (dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+        } else if (fopAcM_isSwitch(this, mSwitch)) {
             fopAcM_orderOtherEventId(this, mEvent);
             eventInfo.onCondition(dEvtCnd_UNK2_e);
         }
@@ -176,7 +197,7 @@ bool daWfall_c::_execute() {
         mTimer = 0;
         break;
     }
-    if (!dComIfGs_isSwitch(mSwitch, home.roomNo)) {
+    if (!fopAcM_isSwitch(this, mSwitch)) {
         mode_wtr_on_init();
         mEventState = 0;
     }
@@ -208,7 +229,12 @@ void daWfall_c::mode_wtr_on_init() {
 /* 00000D48-00000DEC       .text mode_wtr_on__9daWfall_cFv */
 void daWfall_c::mode_wtr_on() {
     BOOL emit = FALSE;
+#if VERSION == VERSION_DEMO
+    f32 step = 10.0f;
+    cLib_addCalc(&mGatePos.y, 100.0f + (760.0f + current.pos.y), 0.1f, step, step / 2);
+#else
     cLib_addCalc(&mGatePos.y, 100.0f + (760.0f + current.pos.y), 0.1f, 10.0f, 5.0f);
+#endif
     scale.y = getWaterScaleFromGatePos();
     mWaterBtk.setPlaySpeed(1.0f);
     mWaterBtk.play();
@@ -230,7 +256,12 @@ void daWfall_c::mode_wtr_off_init() {
 /* 00000E14-00000EE8       .text mode_wtr_off__9daWfall_cFv */
 void daWfall_c::mode_wtr_off() {
     BOOL emit = FALSE;
+#if VERSION == VERSION_DEMO
+    f32 step = 10.0f;
+    cLib_addCalc(&mGatePos.y, current.pos.y, 0.1f, step, step / 2);
+#else
     cLib_addCalc(&mGatePos.y, current.pos.y, 0.1f, 10.0f, 5.0f);
+#endif
     f32 waterScale = getWaterScaleFromGatePos();
     scale.y = waterScale;
     if (waterScale > 0.0f) {
@@ -242,11 +273,11 @@ void daWfall_c::mode_wtr_off() {
             set_se();
         }
     } else {
-        if (mEmitter00.getEmitter()) {
-            mEmitter00.getEmitter()->stopCreateParticle();
+        if (EMITTER00) {
+            EMITTER00->stopCreateParticle();
         }
-        if (mEmitter01.getEmitter()) {
-            mEmitter01.getEmitter()->stopCreateParticle();
+        if (EMITTER01) {
+            EMITTER01->stopCreateParticle();
         }
     }
 }
@@ -257,12 +288,12 @@ BOOL daWfall_c::setEmitter00Pos() {
     mEmitter00Pos = current.pos;
     f32 height = getWaterHeight();
     if (height > mGatePos.y) {
-        if (mEmitter00.getEmitter()) {
-            mEmitter00.getEmitter()->stopCreateParticle();
+        if (EMITTER00) {
+            EMITTER00->stopCreateParticle();
         }
     } else {
-        if (mEmitter00.getEmitter()) {
-            mEmitter00.getEmitter()->playCreateParticle();
+        if (EMITTER00) {
+            EMITTER00->playCreateParticle();
         }
         emit = TRUE;
     }
@@ -284,12 +315,12 @@ BOOL daWfall_c::setEmitter01Pos() {
     BOOL emit = FALSE;
     f32 height = getWaterHeight();
     if (height > mGatePos.y) {
-        if (mEmitter01.getEmitter()) {
-            mEmitter01.getEmitter()->stopCreateParticle();
+        if (EMITTER01) {
+            EMITTER01->stopCreateParticle();
         }
     } else {
-        if (mEmitter01.getEmitter()) {
-            mEmitter01.getEmitter()->playCreateParticle();
+        if (EMITTER01) {
+            EMITTER01->playCreateParticle();
         }
         emit = TRUE;
     }
@@ -325,7 +356,7 @@ f32 daWfall_c::getWaterHeight() {
 
 /* 00001370-000013E0       .text set_se__9daWfall_cFv */
 void daWfall_c::set_se() {
-    mDoAud_seStart(JA_SE_ATM_WATER_GATE, &mGatePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_ATM_WATER_GATE, &mGatePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 }
 
 /* 000013E0-00001400       .text daWfall_Create__FPv */

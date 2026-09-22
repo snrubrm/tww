@@ -12,7 +12,9 @@
 #include "d/d_menu_base.h"
 #include "f_op/f_op_msg_mng.h"
 #include "d/d_lib.h"
-#include "d/d_file_error.h"
+#include "JSystem/J2DGraph/J2DOrthoGraph.h"
+
+class MyScreen;
 
 struct fopMsgM_pane_class;
 class JKRArchive;
@@ -42,6 +44,11 @@ public:
     void setTriforceTexBuffer(int idx, void* ptr) { mTriforceTexBuffer[idx] = (ResTIMG*)ptr; }
     void setSymbolTexBuffer(int idx, void* ptr) { mSymbolTexBuffer[idx] = (ResTIMG*)ptr; }
     void setItemTexBuffer(int idx, void* ptr) { mItemTexBuffer[idx] = (ResTIMG*)ptr; }
+#if VERSION == VERSION_PAL
+    void setWordSaveTexBuffer(void* ptr) { mWordSaveTexBuffer = (ResTIMG*)ptr; }
+    void setWordOptionTexBuffer(void* ptr) { mWordOptionTexBuffer = (ResTIMG*)ptr; }
+    void setTitleCollectTexBuffer(void* ptr) { mTitleCollectTexBuffer = (ResTIMG*)ptr; }
+#endif
 
     void setTextArea(char* name0, char* name1, char* note0, char* note1, char* dummy0, char* dummy1) {
         name[0] = name0;

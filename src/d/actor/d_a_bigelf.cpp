@@ -61,8 +61,9 @@ void daBigelf_c::oct_delete() {
                     cXyz pos;
                     fpoAcM_absolutePos(octa, &offset, &pos);
                     pos.y = ship->current.pos.y;
-                    int angle = cLib_targetAngleY(&current.pos, &pos);
-                    ship->initStartPos(&pos, angle + 0x4000);
+                    s16 angle = cLib_targetAngleY(&current.pos, &pos);
+                    angle += 0x4000;
+                    ship->initStartPos(&pos, angle);
                 }
                 fopAcM_delete(octa);
             }
@@ -98,13 +99,13 @@ BOOL daBigelf_c::nodeCallBack(J3DNode* node) {
         setEyePos(pos);
         incAttnSetCount();
     } else if (jntNo != getBackboneJntNum()) {
-        if (jntNo == m_handRB) {
+        if (jntNo == m_fl_jnt) {
             offset.set(0.0f, 0.0f, 0.0f);
             MtxPosition(&offset, &mHandPos);
         }
     }
     MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
-    MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+    model->setAnmMtx(jntNo, *calc_mtx);
     return TRUE;
 }
 
@@ -151,8 +152,7 @@ void daBigelf_c::lightEnd() {
 
 /* 00000470-0000047C       .text lightProc__10daBigelf_cFv */
 void daBigelf_c::lightProc() {
-    if (*(volatile bool*)&mIsLightShining) {
-    }
+    if (*(volatile bool*)&mIsLightShining) { return; }
 }
 
 /* 0000047C-00000488       .text darkInit__10daBigelf_cFv */
@@ -280,7 +280,7 @@ BOOL daBigelf_c::demoProcFlDmMd() {
         dComIfGp_evmng_cutEnd(mStaffId);
         return TRUE;
     }
-    if (frame >= 16.0f) {
+    if (!(frame < 16.0f)) {
         if (frame < 116.0f) {
             mDarkTarget = 0.01f * (116.0f - frame);
         } else {
@@ -395,8 +395,9 @@ void daBigelf_c::demoInitExit() {
     mHeightOffset = 250.0f;
     m3EC = 1.0f;
     m3F0 = 1.0f;
+    cXyz pos;
     cXyz scale(1.0f, 1.0f, 1.0f);
-    cXyz pos = current.pos;
+    pos = current.pos;
     pos.y += mHeightOffset;
     dComIfGp_particle_set(dPa_name::ID_AK_JN_ENEMYFLASH00, &pos, NULL, &scale);
     tevStr.mFogColor.b = 0xFF;
@@ -406,6 +407,7 @@ void daBigelf_c::demoInitExit() {
     tevStr.mFogEndZ = 2000.0f;
     fopAcM_seStart(this, JA_SE_CM_DY_GO_AWAY, 0);
     fopAcM_seStart(this, JA_SE_CV_DY_GO_AWAY, 0);
+    darkEnd();
 }
 
 /* 0000115C-000012D4       .text demoProcExit__10daBigelf_cFv */
@@ -474,13 +476,12 @@ void daBigelf_c::demoInitAppear() {
 
     fopAc_ac_c* fa1 = fopAcM_SearchByID(mFa1Id);
     if (fa1 != NULL) {
-        dComIfGp_event_setItemPartner(this);
+        dComIfGp_event_setTalkPartner(this);
         fopAcM_delete(fa1);
     }
     cXyz pos = current.pos;
     pos.y += 70.0f;
-    cXyz shock(0.0f, 1.0f, 0.0f);
-    dComIfGp_getVibration().StartShock(5, -0x21, shock);
+    dComIfGp_getVibration().StartShock(5, -0x21, cXyz(0.0f, 1.0f, 0.0f));
     dComIfGp_particle_set(p_name0[mPaNo], &pos, NULL, &scale);
     dComIfGp_particle_set(p_name1[mPaNo], &pos, NULL, &scale);
     if (getType() == 6) {
@@ -516,8 +517,7 @@ BOOL daBigelf_c::demoProcAppear() {
         setAnm(0);
         dComIfGp_evmng_cutEnd(mStaffId);
     }
-    scale.y = scale.x;
-    scale.z = scale.x;
+    scale.z = scale.y = scale.x;
     return TRUE;
 }
 
@@ -534,7 +534,8 @@ void daBigelf_c::demoInitFa1() {
 BOOL daBigelf_c::demoProcFa1() {
     fopAc_ac_c* fa1 = fopAcM_SearchByID(mFa1Id);
     if (fa1 != NULL) {
-        cLib_addCalc2(&fa1->current.pos.y, current.pos.y + 70.0f, 0.2f, 100.0f);
+        f32 target = current.pos.y + 70.0f;
+        cLib_addCalc2(&fa1->current.pos.y, target, 0.2f, 100.0f);
     }
     dComIfGp_evmng_cutEnd(mStaffId);
     return TRUE;
@@ -564,15 +565,16 @@ BOOL daBigelf_c::demoProcWait() {
 /* 00001998-00001A74       .text demoInitCom__10daBigelf_cFv */
 void daBigelf_c::demoInitCom() {
     setFlag(0x1);
-    int* a_intP = dComIfGp_evmng_getMyIntegerP(mStaffId, "Ship");
-    if (a_intP != NULL) {
+    if (dComIfGp_evmng_getMyIntegerP(mStaffId, "Ship") != NULL) {
         daShip_c* ship = dComIfGp_getShipActor();
+        cXyz pos, offset;
         if (ship != NULL) {
-            cXyz offset(0.0f, 0.0f, 800.0f);
-            cXyz pos;
+            offset.set(0, 0, 800);
             fpoAcM_absolutePos(this, &offset, &pos);
             pos.y = ship->current.pos.y;
-            ship->initStartPos(&pos, cLib_targetAngleY(&current.pos, &pos) + 0x4000);
+            s16 angle = cLib_targetAngleY(&current.pos, &pos);
+            angle += 0x4000;
+            ship->initStartPos(&pos, angle);
         }
         setFlag(0x20);
     }
@@ -679,7 +681,7 @@ void daBigelf_c::makeFa1S() {
     angle.z = current.angle.z;
     pos.y += mHeightOffset;
     for (int i = 0; i < 10; i++) {
-        fopAcM_create(fpcNm_NPC_FA1_e, 4, &pos, current.roomNo, &angle, NULL, -1, NULL);
+        fopAcM_create(fpcNm_NPC_FA1_e, 4, &pos, fopAcM_GetRoomNo(this), &angle, NULL, -1, NULL);
         angle.y += 0x2710;
     }
 }
@@ -692,35 +694,36 @@ void daBigelf_c::makeFa1() {
     angle.y = current.angle.y;
     angle.z = current.angle.z;
     pos.y += 100.0f;
-    mFa1Id = fopAcM_create(fpcNm_NPC_FA1_e, 6, &pos, current.roomNo, &angle, NULL, -1, NULL);
+    mFa1Id = fopAcM_create(fpcNm_NPC_FA1_e, 6, &pos, fopAcM_GetRoomNo(this), &angle, NULL, -1, NULL);
 }
 
 /* 00001EB4-0000200C       .text setAnm__10daBigelf_cFSc */
 void daBigelf_c::setAnm(signed char idx) {
     f32 morf = 8.0f;
-    s32 loopMode = -1;
-    f32 speed = 1.0f;
-    f32 start = 0.0f;
+    int loopMode = -1;
+    f32 speed = 1.0f, start = 0.0f;
     f32 end = -1.0f;
     switch (idx) {
     case 1:
     case 2:
-        morf = start;
+        morf = 0.0f;
         break;
     case 3:
         loopMode = 3;
+        start = 0.0f;
         speed = end;
         end = 100.0f;
         break;
     }
-    if (mAnm == 1) {
+    switch (mAnm) {
+    case 1:
         morf = 0.0f;
     }
     if (idx != mAnm && idx != -1) {
         mAnm = idx;
-        mOldAnmFrame = start;
+        mOldAnmFrame = 0;
         mAnmEnd = 0;
-        J3DAnmTransform* bck = (J3DAnmTransform*)dComIfG_getObjectRes("bigelf", l_bck_ix_tbl[mAnm]);
+        J3DAnmTransform* bck = static_cast<J3DAnmTransform*>(dComIfG_getObjectRes("bigelf", l_bck_ix_tbl[mAnm]));
         mpMorf->setAnm(bck, loopMode, morf, speed, start, end, NULL);
     }
 }
@@ -747,18 +750,18 @@ u16 daBigelf_c::next_msgStatus(unsigned long* pMsgNo) {
             break;
         case 2:
         case 3:
-            if (dComIfGs_getBombMax() > 30) {
-                mGivenItem = dItemNo_MAX_BOMB_UP2_e;
-            } else {
+            if (dComIfGs_getBombMax() <= 30) {
                 mGivenItem = dItemNo_MAX_BOMB_UP1_e;
+            } else {
+                mGivenItem = dItemNo_MAX_BOMB_UP2_e;
             }
             break;
         case 4:
         case 5:
-            if (dComIfGs_getArrowMax() > 30) {
-                mGivenItem = dItemNo_MAX_ARROW_UP2_e;
-            } else {
+            if (dComIfGs_getArrowMax() <= 30) {
                 mGivenItem = dItemNo_MAX_ARROW_UP1_e;
+            } else {
+                mGivenItem = dItemNo_MAX_ARROW_UP2_e;
             }
             break;
         default:
@@ -851,8 +854,10 @@ u16 daBigelf_c::talk() {
 
 /* 0000236C-00002534       .text init__10daBigelf_cFv */
 BOOL daBigelf_c::init() {
-    if (mNpcType == 0) {
+    switch (mNpcType) {
+    case 0:
         setAction(&daBigelf_c::wait_action, NULL);
+        break;
     }
     current.pos.y = home.pos.y + 30.0f;
     mAttnBasePos = current.pos;
@@ -972,11 +977,13 @@ bool daBigelf_c::event0() {
         dComIfGs_onEventBit(getEventFlag());
         mMode = 3;
         dComIfGp_event_reset();
+#if VERSION > VERSION_DEMO
         if (getType() == 6) {
             if (getSwbit2() != 0xFF) {
                 dComIfGs_onSwitch(getSwbit2(), fopAcM_GetRoomNo(this));
             }
         }
+#endif
     } else {
         demoProc();
     }
@@ -995,9 +1002,11 @@ BOOL daBigelf_c::wait_action(void*) {
             mMode = 3;
         } else if (getType() == 6) {
             if (dComIfGs_isSwitch(getSwbit(), fopAcM_GetRoomNo(this))) {
+#if VERSION > VERSION_DEMO
                 if (getSwbit2() != 0xFF) {
                     dComIfGs_onSwitch(getSwbit2(), fopAcM_GetRoomNo(this));
                 }
+#endif
                 mMode = 3;
             } else {
                 mMode = 4;
@@ -1047,7 +1056,7 @@ BOOL daBigelf_c::_draw() {
     mpMorf->entry();
     if (chkFlag(0x8)) {
         mFlowerBrk.entry(flowerModelData);
-        MtxP mtx = model->getAnmMtx(m_handRB);
+        MtxP mtx = model->getAnmMtx(m_fl_jnt);
         MTXCopy(mtx, mpFlowerModel->getBaseTRMtx());
         mDoExt_modelUpdateDL(mpFlowerModel);
     }
@@ -1099,21 +1108,32 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 
 /* 00002FCC-00003124       .text _create__10daBigelf_cFv */
 cPhs_State daBigelf_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daBigelf_c);
+#endif
     cPhs_State phase_state = dComIfG_resLoad(&mPhase, "bigelf");
     if (phase_state == cPhs_COMPLEATE_e) {
-        if (fopAcM_GetName(this) == fpcNm_BIGELF_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(this, daBigelf_c);
+#endif
+        switch (fopAcM_GetName(this)) {
+        case fpcNm_BIGELF_e:
             mNpcType = 0;
-        } else {
+            break;
+        default:
             return cPhs_ERROR_e;
         }
         if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0xB7B0)) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
         if (!init()) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
     }
@@ -1123,7 +1143,7 @@ cPhs_State daBigelf_c::_create() {
 /* 00003224-00003808       .text CreateHeap__10daBigelf_cFv */
 BOOL daBigelf_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes("bigelf", dRes_INDEX_BIGELF_BDL_DY_e);
-    JUT_ASSERT(0x7d4, modelData);
+    JUT_ASSERT(DEMO_SELECT(0x7c3, 0x7d4), modelData);
 
     mpMorf = new mDoExt_McaMorf(
         modelData,
@@ -1158,10 +1178,14 @@ BOOL daBigelf_c::CreateHeap() {
         return FALSE;
     }
     s32 err = mpMorf->getModel()->setSkinDeform(deform, 1);
-    if (err == J3DErrType_OutOfMemory) {
+    switch (err) {
+    case J3DErrType_Success:
+        break;
+    case J3DErrType_OutOfMemory:
         return FALSE;
-    } else if (err != J3DErrType_Success) {
-        JUT_ASSERT(0x811, 0);
+    default:
+        JUT_ASSERT(DEMO_SELECT(0x800, 0x811), 0);
+        break;
     }
 
     J3DModel* pModel = mpMorf->getModel();
@@ -1171,22 +1195,21 @@ BOOL daBigelf_c::CreateHeap() {
     mpMorf->calc();
 
     m_jnt.setHeadJntNum(modelData->getJointName()->getIndex("head"));
-    JUT_ASSERT(0x824, m_jnt.getHeadJntNum() >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x813, 0x824), m_jnt.getHeadJntNum() >= 0);
     m_jnt.setBackboneJntNum(modelData->getJointName()->getIndex("backbone"));
-    JUT_ASSERT(0x829, m_jnt.getBackboneJntNum() >= 0);
-    s8 m_fl_jnt = modelData->getJointName()->getIndex("handRB");
-    m_handRB = m_fl_jnt;
-    JUT_ASSERT(0x82d, m_fl_jnt >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x818, 0x829), m_jnt.getBackboneJntNum() >= 0);
+    m_fl_jnt = modelData->getJointName()->getIndex("handRB");
+    JUT_ASSERT(DEMO_SELECT(0x81c, 0x82d), m_fl_jnt >= 0);
 
     for (u16 i = 0; i < modelData->getJointNum(); i++) {
-        if (i == getHeadJntNum() || i == getBackboneJntNum() || i == m_handRB) {
+        if (i == getHeadJntNum() || i == getBackboneJntNum() || i == m_fl_jnt) {
             mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_Bigelf);
         }
     }
     mpMorf->getModel()->setUserArea((u32)this);
 
     J3DModelData* flModelData = (J3DModelData*)dComIfG_getObjectRes("bigelf", dRes_INDEX_BIGELF_BDL_DY_FL_e);
-    JUT_ASSERT(0x842, flModelData);
+    JUT_ASSERT(DEMO_SELECT(0x831, 0x842), flModelData);
     mpFlowerModel = mDoExt_J3DModel__create(flModelData, 0x80000, 0x1000000);
     if (mpFlowerModel == NULL) {
         return FALSE;
@@ -1201,19 +1224,19 @@ BOOL daBigelf_c::CreateHeap() {
     switch (getType()) {
     case 2:
     case 3:
-        mBrk.setPlaySpeed(1.0f);
-        mFlowerBrk.setPlaySpeed(1.0f);
+        mBrk.setFrame(1.0f);
+        mFlowerBrk.setFrame(1.0f);
         mPaNo = 1;
         break;
     case 4:
     case 5:
-        mBrk.setPlaySpeed(2.0f);
-        mFlowerBrk.setPlaySpeed(2.0f);
+        mBrk.setFrame(2.0f);
+        mFlowerBrk.setFrame(2.0f);
         mPaNo = 2;
         break;
     case 6:
-        mBrk.setPlaySpeed(3.0f);
-        mFlowerBrk.setPlaySpeed(3.0f);
+        mBrk.setFrame(3.0f);
+        mFlowerBrk.setFrame(3.0f);
         mPaNo = 3;
         break;
     }

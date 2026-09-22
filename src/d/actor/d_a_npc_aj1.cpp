@@ -4,7 +4,7 @@
  */
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_npc_aj1.h"
-#include "d/actor/d_a_player_main.h"
+#include "d/actor/d_a_player.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_snap.h"
 #include "m_Do/m_Do_mtx.h"
@@ -45,7 +45,7 @@ void daNpc_Aj1_c::_nodeCB_Head(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
     mDoMtx_stack_c::multVec(&a_eye_pos_off, &mEyePos);
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 static BOOL nodeCB_BackBone(J3DNode* node, int timing) {
     if (timing == J3DNodeCBCalcTiming_In && j3dSys.getModel()->getUserArea() != 0)
@@ -58,7 +58,7 @@ void daNpc_Aj1_c::_nodeCB_BackBone(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::XrotM(m_jnt.getBackbone_y());
     mDoMtx_stack_c::ZrotM(m_jnt.getBackbone_x());
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 static BOOL CheckCreateHeap(fopAc_ac_c* actor) { return ((daNpc_Aj1_c*)actor)->CreateHeap(); }
 static s16 daNpc_Aj1_XyCheck_CB(void* actor, int button) { return ((daNpc_Aj1_c*)actor)->_XyCheckCB(button); }
@@ -78,7 +78,9 @@ bool daNpc_Aj1_c::init_AJ1_1() {
         dComIfGs_onEventBit(0x502);
         set_action(&daNpc_Aj1_c::wait_action2, NULL);
         fopAcM_OffStatus(this, 0x80);
+#if VERSION > VERSION_DEMO
         fopAcM_OnStatus(this, 0x4000);
+#endif
         return true;
     }
     return false;
@@ -93,7 +95,7 @@ bool daNpc_Aj1_c::init_AJ1_2() {
 }
 bool daNpc_Aj1_c::createInit() {
     mSwitch = (fopAcM_GetParam(this) >> 8) & 0xFF;
-    mEventIdx[0] = dComIfGp_evmng_getEventIdx(l_evn_tbl[0]);
+    for (int i = 0; i < 1; i++) mEventIdx[i] = dComIfGp_evmng_getEventIdx(l_evn_tbl[i]);
     mEventCut.setActorInfo2("Aj1", this);
     attention_info.flags = 10;
     attention_info.distances[fopAc_Attn_TYPE_TALK_e] = 173;
@@ -157,8 +159,9 @@ int daNpc_Aj1_c::btpResID(int n) { static const int a_res_id_tbl[] = {dRes_ID_AJ
 bool daNpc_Aj1_c::init_texPttrnAnm(s8 number, bool modify) {
     J3DModel* model = mpMorf->getModel();
     if (number < 0) return false;
-    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*)dComIfG_getObjectIDRes("Aj", btpResID(number));
-    JUT_ASSERT(0x213, a_btp != 0);
+    int res = btpResID(number);
+    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*)dComIfG_getObjectIDRes("Aj", res);
+    JUT_ASSERT(DEMO_SELECT(0x212, 0x213), a_btp != 0);
     mBtpNo = number; mBtpFrame = 0; mBtpTimer = 0;
     return mBtpAnm.init(model->getModelData(), a_btp, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, modify, 0) != FALSE;
 }
@@ -285,7 +288,9 @@ void daNpc_Aj1_c::eventOrder() {
 void daNpc_Aj1_c::checkOrder() {
     if (eventInfo.getCommand() == dEvtCmd_INDEMO_e) {
         if (dComIfGp_evmng_startCheck(mEventIdx[mEventNo])) {
+#if VERSION > VERSION_DEMO
             switch (mEventNo) { case 0: fopAcM_OffStatus(this, 0x4000); break; }
+#endif
             mOrder = 0;
         }
     } else if (eventInfo.getCommand() == dEvtCmd_INTALK_e && (mOrder == 1 || mOrder == 2)) { mOrder = 0; mTalking = true; }
@@ -428,7 +433,7 @@ void daNpc_Aj1_c::set_pa_smk() {
     mpSmoke=dComIfGp_particle_setToon(0x2027, &mSmokePos, &current.angle, NULL, 200, &mSmokeCallback, fopAcM_GetRoomNo(this));
     if (mpSmoke) {
         mpSmoke->setGlobalParticleScale(0.3f,0.3f);
-        mpSmoke->setGlobalDynamicsScale(0.1f,0.1f,0.1f);
+        mpSmoke->setGlobalDynamicsScale(JGeometry::TVec3<f32>(0.1f,0.1f,0.1f));
         mpSmoke->setLifeTime(40);
         mpSmoke->setRate(3.0f);
         mpSmoke->setMaxFrame(1);
@@ -529,6 +534,9 @@ BOOL daNpc_Aj1_c::wait_1() {
     cLib_addCalcAngleS(&current.angle.y,mInitialAngle.y,4,0x400,0);
     ctrl_WAITanm();
     if (mOrder==1 || mOrder>=3) return TRUE;
+#if VERSION == VERSION_DEMO
+    if (!strcmp(dComIfGp_getStartStageName(),"Ojhous2") && mSubType==1 && !dComIfGs_isEventBit(0x508)) { mOrder=3; return TRUE; }
+#endif
     ctrl_TIREanm();
     if (mTalking) {
         if (chk_talk()) { setStt(3); mLookMode=1; mNoTurn=false; m_jnt.setTrn(); }
@@ -572,7 +580,9 @@ int daNpc_Aj1_c::wait_action2(void*) {
     switch(mActionState) {
     case 0:
         setStt(4);
+#if VERSION > VERSION_DEMO
         if (!strcmp(dComIfGp_getStartStageName(),"Ojhous2") && mSubType==1 && !dComIfGs_isEventBit(0x508)) mOrder=3;
+#endif
         mActionState++; break;
     case 1: case 2: case 3:
         mHasAttention=chkAttention();
@@ -636,7 +646,7 @@ BOOL daNpc_Aj1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff=-1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) staff=isEventEntry();
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) staff=isEventEntry();
         if (staff>=0) event_proc(staff); else (this->*mAction)(NULL);
         fopAcM_posMoveF(this,mStts.GetCCMoveP()); play_animation(); mObjAcch.CrrPos(*dComIfG_Bgsp());
     }
@@ -649,16 +659,33 @@ BOOL daNpc_Aj1_c::_execute() {
     return TRUE;
 }
 BOOL daNpc_Aj1_c::_delete() {
+#if VERSION == VERSION_DEMO
+    dComIfG_resDelete(&mPhs,"Aj");
+    del_pa(&mpSteam); del_pa(&mpRed); del_pa(&mpImpact); mSmokeCallback.end();
+    if (mpMorf) mpMorf->stopZelAnime();
+    l_HIO.removeHIO();
+    return TRUE;
+#else
     dComIfG_resDelete(&mPhs,"Aj");
     if (heap && mpMorf) mpMorf->stopZelAnime();
     del_pa(&mpSteam); del_pa(&mpRed); del_pa(&mpImpact); mSmokeCallback.end();
     return TRUE;
+#endif
 }
 cPhs_State daNpc_Aj1_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase=dComIfG_resLoad(&mPhs,"Aj");
+    if (phase!=cPhs_COMPLEATE_e) return phase;
+    int type=fopAcM_GetParam(this)&0xFF;
+    if (!decideType(type)) return cPhs_ERROR_e;
+    l_HIO.entryHIO("青爺");
+    fopAcM_SetupActor(this,daNpc_Aj1_c);
+#else
     fopAcM_SetupActor(this,daNpc_Aj1_c);
     cPhs_State phase=dComIfG_resLoad(&mPhs,"Aj");
     if (phase!=cPhs_COMPLEATE_e) return phase;
     if (!decideType(fopAcM_GetParam(this)&0xFF)) return cPhs_ERROR_e;
+#endif
     static u32 a_siz_tbl[]={0};
     if (!fopAcM_entrySolidHeap(this,CheckCreateHeap,a_siz_tbl[mType])) return cPhs_ERROR_e;
     fopAcM_SetMtx(this,mpMorf->getModel()->getBaseTRMtx());
@@ -667,19 +694,19 @@ cPhs_State daNpc_Aj1_c::_create() {
 }
 BOOL daNpc_Aj1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat=(J3DModelData*)dComIfG_getObjectIDRes("Aj",dRes_ID_AJ_BDL_AJ_e);
-    JUT_ASSERT(0x8BE,a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x8A9, 0x8BE),a_mdl_dat != 0);
     mpMorf=new mDoExt_McaMorf(a_mdl_dat,NULL,NULL,NULL,-1,1.0f,0,-1,1,NULL,0x80000,0x11020022);
     if (!mpMorf) return FALSE;
     if (!mpMorf->getModel()) { mpMorf=NULL; return FALSE; }
     if (!init_texPttrnAnm(0,false)) { mpMorf=NULL; return FALSE; }
     m_hed_jnt_num=a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0x8D3,m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x8BE, 0x8D3),m_hed_jnt_num >= 0);
     m_bbone_jnt_num=a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0x8D5,m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x8C0, 0x8D5),m_bbone_jnt_num >= 0);
     m_hnd_L_jnt_num=a_mdl_dat->getJointName()->getIndex("handL");
-    JUT_ASSERT(0x8D7,m_hnd_L_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x8C2, 0x8D7),m_hnd_L_jnt_num >= 0);
     m_fot_L_jnt_num=a_mdl_dat->getJointName()->getIndex("footL");
-    JUT_ASSERT(0x8D9,m_fot_L_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x8C4, 0x8D9),m_fot_L_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->setUserArea((u32)this);
@@ -687,7 +714,7 @@ BOOL daNpc_Aj1_c::bodyCreateHeap() {
 }
 BOOL daNpc_Aj1_c::itemCreateHeap() {
     J3DModelData* a_mdl_dat=(J3DModelData*)dComIfG_getObjectIDRes("Aj",dRes_ID_AJ_BDL_AJ_STICK_e);
-    JUT_ASSERT(0x8F3,a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x8DE, 0x8F3),a_mdl_dat != 0);
     mpItemModel=mDoExt_J3DModel__create(a_mdl_dat,0x80000,0x11000022);
     if (!mpItemModel) return FALSE;
     return TRUE;
@@ -696,7 +723,7 @@ BOOL daNpc_Aj1_c::CreateHeap() {
     if (!bodyCreateHeap()) return FALSE;
     if (!itemCreateHeap()) { mpMorf=NULL; return FALSE; }
     mAcchCir.SetWall(30.0f,60.0f);
-    mObjAcch.Set(&current.pos,&old.pos,this,1,&mAcchCir,&speed,NULL,NULL);
+    mObjAcch.Set(fopAcM_GetPosition_p(this),fopAcM_GetOldPosition_p(this),this,1,&mAcchCir,fopAcM_GetSpeed_p(this),NULL,NULL);
     return TRUE;
 }
 /* 00003FFC-0000401C       .text daNpc_Aj1_Create__FP10fopAc_ac_c */

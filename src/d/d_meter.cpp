@@ -69,8 +69,10 @@ u8 dMeter_itemMode;
 u8 dMeter_collectMode;
 fpc_ProcID dMeter_windID = fpcM_ERROR_PROCESS_ID_e;
 u8 dMeter_windStatus;
+#if VERSION > VERSION_DEMO
 u8 rupy_soundSetFlag;
 u8 rupy_soundOnFlag;
+#endif
 mapCtrlDisp_c dMeter_mMapCtrlDisp;
 dDlst_2DMETER1_c meter1;
 dDlst_2DMETER2_c meter2;
@@ -425,7 +427,7 @@ dMeter_msg_HIO_c::dMeter_msg_HIO_c() {
     field_0x64 = 0;
     field_0x82 = 2;
     field_0x58 = 0x1d;
-    field_0x70 = DEMO_SELECT(0x19, 0x17);
+    field_0x70 = VERSION_SELECT(0x19, 0x19, 0x17, 0x17);
     field_0x62 = 0;
     field_0x60 = 0xd;
     field_0x6e = 0xf0;
@@ -742,8 +744,14 @@ void dMeter_alphaControl(sub_meter_class* i_Meter) {
 
 /* 801EFC40-801F01C0       .text dMeter_statusCheck__FP15sub_meter_class */
 void dMeter_statusCheck(sub_meter_class* i_Meter) {
+#if VERSION == VERSION_DEMO
+    dComIfG_inf_c* info = &g_dComIfG_gameInfo;
+    i_Meter->mStatusFlags = 0;
+    if (!info->play.show2dCheck() || (dCam_getBody()->chkFlag(0x2000000))) {
+#else
     i_Meter->mStatusFlags = 0;
     if (!dComIfGp_2dShowCheck() || (dCam_getBody()->chkFlag(0x2000000))) {
+#endif
         i_Meter->mStatusFlags |= dMtrStts_UNK4000_e;
     } else if ((dMeter_isAuctionFlag() && dComIfGp_getMesgStatus() == 0) ||
                (dComIfGs_isTmpBit(dSv_event_tmp_flag_c::UNK_0408) && dComIfGp_getMesgStatus() == 0) ||
@@ -796,12 +804,16 @@ void dMeter_statusCheck(sub_meter_class* i_Meter) {
             i_Meter->mStatusFlags |= dMtrStts_UNK20_e;
         }
     } else {
+#if VERSION == VERSION_DEMO
+        if (
+#else
         if (dComIfGp_getCb1Player() == daPy_getPlayerActorClass() || daNpc_kam_c::m_hyoi_kamome != 0) {
             i_Meter->mStatusFlags |= dMtrStts_UNK40000_e;
             if (dComIfGp_getAStatus() == dActStts_sword_01) {
                 dComIfGp_setAStatus(dActStts_BLANK_e);
             }
         } else if (
+#endif
             dComIfGp_checkPlayerStatus0(0, daPyStts0_SUBJECT_e) ||
             // @bug Out of bounds array read.
             // It seems like the developers probably intended to have a check like this:
@@ -835,7 +847,12 @@ void dMeter_statusCheck(sub_meter_class* i_Meter) {
         } else if (dComIfGp_checkPlayerStatus0(0, daPyStts0_CRAWL_e)) {
             i_Meter->mStatusFlags |= dMtrStts_UNK200_e;
         } else if (dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK800000_e)) {
+#if VERSION == VERSION_DEMO
+            if (((daPy_py_c*)info->play.getPlayer(0))->checkRopeTag()) {
+#else
             if (daPy_getPlayerActorClass()->checkRopeTag()) {
+#endif
+
                 i_Meter->mStatusFlags |= dMtrStts_UNK800_e;
             } else {
                 i_Meter->mStatusFlags |= dMtrStts_UNK1000_e;
@@ -846,6 +863,10 @@ void dMeter_statusCheck(sub_meter_class* i_Meter) {
             i_Meter->mStatusFlags |= dMtrStts_UNK8000_e;
         } else if (dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK4000000_e)) {
             i_Meter->mStatusFlags |= dMtrStts_UNK10000_e;
+#if VERSION == VERSION_DEMO
+        } else if (dComIfGp_getCb1Player() == (daPy_py_c*)info->play.getPlayer(0) || daNpc_kam_c::m_hyoi_kamome != 0) {
+            i_Meter->mStatusFlags |= dMtrStts_UNK40000_e;
+#endif
         }
     }
     if (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_DUNGEON_e) {
@@ -884,13 +905,14 @@ f32 dMeter_alphaClose(s16* timer, s16* value) {
 /* 801F0258-801F02E8       .text dMeter_alphaOpen__FPsPs */
 f32 dMeter_alphaOpen(s16* timer, s16* value) {
     f32 ret;
+    int max = 6;
     if (*timer == 0) {
         *timer = 7;
         ret = 0.0f;
         *value = 0;
     } else if (*timer == 7) {
-        if (*value < 6) {
-            ret = fopMsgM_valueIncrease(6, *value, 1);
+        if (*value < max) {
+            ret = fopMsgM_valueIncrease(max, *value, 1);
             (*value)++;
         } else {
             ret = 1.0f;
@@ -1024,6 +1046,15 @@ const char* dMeter_weponTex() {
         "sword_03.bti",
     };
     int var1;
+#if VERSION == VERSION_DEMO
+    if (dComIfGs_isCollect(0, 1)) {
+        var1 = 1;
+    } else if (dComIfGs_isCollect(0, 2)) {
+        var1 = 2;
+    } else if (dComIfGs_isCollect(0, 3)) {
+        var1 = 3;
+    } else {
+#else
     if (dComIfGs_isCollect(0, 3)) {
         var1 = 3;
     } else if (dComIfGs_isCollect(0, 2)) {
@@ -1031,6 +1062,7 @@ const char* dMeter_weponTex() {
     } else if (dComIfGs_isCollect(0, 1)) {
         var1 = 1;
     } else {
+#endif
         var1 = 0;
     }
     return wepon[var1];
@@ -1375,9 +1407,13 @@ void dMeter_heartAlpha(sub_meter_class* i_Meter) {
         } else {
             i_Meter->field_0x3014 = 5;
         }
+#if VERSION == VERSION_DEMO
+        mDoAud_heartGaugeOn();
+#else
         if (dComIfGp_getMiniGameType() != 6) {
             mDoAud_heartGaugeOn();
         }
+#endif
     }
     dVar5 = fopMsgM_valueIncrease(5, i_Meter->field_0x3014, 0);
     i_Meter->field_0x2fbc = dVar5;
@@ -1574,18 +1610,28 @@ void dMeter_weponInit(sub_meter_class* i_Meter) {
     i_Meter->field_0x301a = 0;
     dComIfGp_setAStatus(dActStts_BLANK_e);
     JKRArchive* archive;
+#if VERSION == VERSION_PAL
+    archive = dComIfGp_getActionIconArchive();
+#else
     if (dComIfGp_getAStatus() == dActStts_RETURN_e || dComIfGp_getAStatus() == dActStts_RETURN_e) {
         archive = dComIfGp_getMenuArchive();
     } else {
         archive = dComIfGp_getActionIconArchive();
     }
+#endif
     const char* filename = dMeter_actionTex(dActStts_BLANK_e);
     JKRReadTypeResource(i_Meter->actionTex[0], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Meter->actionTex[0], 0xc00);
+#else
     DCStoreRangeNoSync(i_Meter->actionTex[0], 0xc00);
+#endif
     ((J2DPicture*)i_Meter->field_0x2828.pane)->changeTexture(i_Meter->actionTex[0], 0);
     ((J2DPicture*)i_Meter->field_0x2860.pane)->changeTexture(i_Meter->actionTex[0], 0);
     ((J2DPicture*)i_Meter->field_0x1d00.pane)->changeTexture(i_Meter->actionTex[0], 0);
+#if VERSION > VERSION_DEMO
     i_Meter->field_0x2828.mUserArea = 0;
+#endif
 }
 
 /* 801F1F8C-801F23B8       .text dMeter_weponMove__FP15sub_meter_class */
@@ -1736,11 +1782,15 @@ void dMeter_weponChange(sub_meter_class* i_Meter) {
 #endif
             } else {
                 JKRArchive* archive;
+#if VERSION == VERSION_PAL
+                archive = dComIfGp_getActionIconArchive();
+#else
                 if (dComIfGp_getAStatus() == dActStts_RETURN_e || dComIfGp_getAStatus() == dActStts_RETURN_e) {
                     archive = dComIfGp_getMenuArchive();
                 } else {
                     archive = dComIfGp_getActionIconArchive();
                 }
+#endif
                 JKRReadTypeResource(i_Meter->actionTex[0], 0xc00, 'TIMG', dMeter_actionTex(dComIfGp_getAStatus()), archive);
 #if VERSION <= VERSION_JPN
                 DCFlushRangeNoSync(i_Meter->actionTex[0], 0xc00);
@@ -1865,6 +1915,13 @@ void dMeter_weponTrans(sub_meter_class* i_Meter) {
         }
         moveStatus = 3;
     } else if (dMenu_flag() && (dMenu_getPushMenuButton() == 1 || (dMenu_getMenuStatus() == 1 && dMenu_getPushMenuButton() == 0))) {
+#if VERSION == VERSION_DEMO
+        if (moveStatus != 4) {
+            moveFlag = 1;
+            dMeter_offBit8(&i_Meter->field_0x3026, 2);
+        }
+        moveStatus = 4;
+#else
         if (dMenu_getItemMode() == 0) {
             if (moveStatus != 4) {
                 moveFlag = 1;
@@ -1878,6 +1935,7 @@ void dMeter_weponTrans(sub_meter_class* i_Meter) {
             }
             moveStatus = 5;
         }
+#endif
     } else if (dMenu_flag() && (dMenu_getPushMenuButton() == 2 || (dMenu_getMenuStatus() == 2 && dMenu_getPushMenuButton() == 0))) {
         if (moveStatus != 5) {
             moveFlag = 1;
@@ -2225,11 +2283,15 @@ void dMeter_actionChange(sub_meter_class* i_Meter) {
                 ((J2DPicture*)i_Meter->field_0x27f0.pane)->changeTexture(i_Meter->actionTex[1], 0);
             } else {
                 JKRArchive* archive;
+#if VERSION == VERSION_PAL
+                archive = dComIfGp_getActionIconArchive();
+#else
                 if (dComIfGp_getDoStatus() == dActStts_RETURN_e || dComIfGp_getDoStatus() == dActStts_RETURN_e) {
                     archive = dComIfGp_getMenuArchive();
                 } else {
                     archive = dComIfGp_getActionIconArchive();
                 }
+#endif
                 JKRReadTypeResource(i_Meter->actionTex[1], 0xc00, 'TIMG', dMeter_actionTex(dComIfGp_getDoStatus()), archive);
 #if VERSION <= VERSION_JPN
                 DCFlushRangeNoSync(i_Meter->actionTex[1], 0xc00);
@@ -2573,7 +2635,11 @@ void dMeter_actionAlpha(sub_meter_class* i_Meter) {
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x27f0);
     }
     fopMsgM_setNowAlpha(&i_Meter->field_0x2908, dVar2);
+#if VERSION == VERSION_DEMO
+    if (dMeter_isBit8(&i_Meter->field_0x3026, 1) != 0) {
+#else
     if (dMeter_isBit8(&i_Meter->field_0x3026, 1) != 0 && i_Meter->field_0x27b8.mUserArea == 0) {
+#endif
         i_Meter->field_0x1d38.pane->show();
         i_Meter->field_0x27b8.pane->show();
         i_Meter->field_0x27f0.pane->show();
@@ -2648,7 +2714,7 @@ void dMeter_xyMove(sub_meter_class* i_Meter) {
         if (i_Meter->field_0x3021[itemBtn] != dComIfGp_getSelectItem(itemBtn)) {
             dMeter_xyItemChange(i_Meter, itemBtn);
             bVar2 = false;
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
             if (i_Meter->field_0x3021[itemBtn] == dItemNo_MAGIC_ARROW_e || i_Meter->field_0x3021[itemBtn] == dItemNo_LIGHT_ARROW_e)
 #else
             if (dComIfGp_getSelectItem(itemBtn) != dItemNo_MAGIC_ARROW_e && dComIfGp_getSelectItem(itemBtn) != dItemNo_LIGHT_ARROW_e)
@@ -2941,7 +3007,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(dComIfGp_getSelectItem(i_itemBtn));
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         } else if (dComIfGs_getSelectItem(i_itemBtn) >= dInvSlot_BaitFirst_e) {
@@ -2950,7 +3020,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(dComIfGp_getSelectItem(i_itemBtn));
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         } else if (dComIfGs_getSelectItem(i_itemBtn) >= dInvSlot_BeastFirst_e) {
@@ -2959,7 +3033,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(dComIfGp_getSelectItem(i_itemBtn));
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         } else {
@@ -2983,7 +3061,11 @@ void dMeter_xyItemChange(sub_meter_class* i_Meter, int i_itemBtn) {
             JKRArchive* archive = dComIfGp_getItemIconArchive();
             const char* filename = dItem_data::getTexture(itemNo);
             JKRReadTypeResource(i_Meter->xyIconTex[i_itemBtn], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->xyIconTex[i_itemBtn], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2080[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
             ((J2DPicture*)i_Meter->field_0x2128[i_itemBtn].pane)->changeTexture(i_Meter->xyIconTex[i_itemBtn], 0);
         }
@@ -3264,6 +3346,13 @@ void dMeter_xyTrans(sub_meter_class* i_Meter) {
         }
         moveStatus = 1;
     } else if (dMenu_flag() && (dMenu_getPushMenuButton() == 1 || (dMenu_getMenuStatus() == 1 && dMenu_getPushMenuButton() == 0))) {
+#if VERSION == VERSION_DEMO
+        if (moveStatus != 2) {
+            moveFlag = 1;
+            dMeter_offBit8(&i_Meter->field_0x3026, 4);
+        }
+        moveStatus = 2;
+#else
         if (dMenu_getItemMode() == 0) {
             if (moveStatus != 2) {
                 moveFlag = 1;
@@ -3277,6 +3366,7 @@ void dMeter_xyTrans(sub_meter_class* i_Meter) {
             }
             moveStatus = 1;
         }
+#endif
     } else {
         if (i_Meter->mStatusFlags & dMtrStts_UNK20_e) {
             if (dMeter_Info.mButtonIconMode == 0 || dMeter_Info.mButtonIconMode == 1 || dMeter_Info.mButtonIconMode == 2 || dMeter_Info.mButtonIconMode == 3) {
@@ -3368,18 +3458,28 @@ void dMeter_xyTrans(sub_meter_class* i_Meter) {
 /* 801F7034-801F70E0       .text dMeter_rInit__FP15sub_meter_class */
 void dMeter_rInit(sub_meter_class* i_Meter) {
     i_Meter->field_0x26d8.mUserArea = 0;
+#if VERSION > VERSION_DEMO
     i_Meter->field_0x1cc8.mUserArea = 0;
+#endif
     i_Meter->field_0x301c = 0;
     dComIfGp_setRStatus(dActStts_BLANK_e);
     JKRArchive* archive;
+#if VERSION == VERSION_PAL
+    archive = dComIfGp_getActionIconArchive();
+#else
     if (dComIfGp_getRStatus() == dActStts_RETURN_e || dComIfGp_getRStatus() == dActStts_RETURN_e) {
         archive = dComIfGp_getMenuArchive();
     } else {
         archive = dComIfGp_getActionIconArchive();
     }
+#endif
     const char* filename = dMeter_actionTex(dActStts_BLANK_e);
     JKRReadTypeResource(i_Meter->actionTex[2], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#else
     DCStoreRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#endif
     ((J2DPicture*)i_Meter->field_0x1cc8.pane)->changeTexture(i_Meter->actionTex[2], 0);
 }
 
@@ -3388,28 +3488,51 @@ void dMeter_rMove(sub_meter_class* i_Meter) {
     if (dComIfGp_getRStatusForce() != dActStts_BLANK_e) {
         dComIfGp_setRStatus(dComIfGp_getRStatusForce());
     }
+#if VERSION == VERSION_DEMO
+    if (i_Meter->field_0x301c != dComIfGp_getRStatus()) {
+#else
     if (i_Meter->field_0x1cc8.mUserArea != 0) {
+#endif
         if (dComIfGp_getRStatus() != dActStts_BLANK_e) {
             JKRArchive* archive;
+#if VERSION == VERSION_PAL
+            archive = dComIfGp_getActionIconArchive();
+#else
             if (dComIfGp_getRStatus() == dActStts_RETURN_e || dComIfGp_getRStatus() == dActStts_RETURN_e) {
                 archive = dComIfGp_getMenuArchive();
             } else {
                 archive = dComIfGp_getActionIconArchive();
             }
+#endif
             const char* filename = dMeter_actionTex(dComIfGp_getRStatus());
             JKRReadTypeResource(i_Meter->actionTex[2], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->actionTex[2], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x1cc8.pane)->changeTexture(i_Meter->actionTex[2], 0);
         }
         i_Meter->field_0x301c = dComIfGp_getRStatus();
         i_Meter->field_0x26d8.mUserArea = 1;
+#if VERSION > VERSION_DEMO
         i_Meter->field_0x1cc8.mUserArea = 0;
+#endif
     }
+#if VERSION > VERSION_DEMO
     if (i_Meter->field_0x301c != dComIfGp_getRStatus()) {
         i_Meter->field_0x1cc8.mUserArea = 1;
     }
+#endif
     dMeter_rTrans(i_Meter);
     dMeter_rAlpha(i_Meter);
+#if VERSION == VERSION_DEMO
+    if (dMeter_isBit8(&i_Meter->field_0x3026, 8)) {
+        i_Meter->field_0x26d8.pane->show();
+    } else {
+        i_Meter->field_0x26d8.pane->hide();
+    }
+#endif
     dComIfGp_setRStatusForce(dActStts_BLANK_e);
 }
 
@@ -3634,9 +3757,9 @@ void dMeter_enemyInit(sub_meter_class* i_Meter) {
 
 /* 801F7B90-801F80C4       .text dMeter_enemyMove__FP15sub_meter_class */
 void dMeter_enemyMove(sub_meter_class* i_Meter) {
-    dAttention_c* attention = &dComIfGp_getAttention();
+    dAttention_c* attention = &g_dComIfG_gameInfo.play.getAttention();
     stage_stag_info_class* stage_info = dComIfGp_getStageStagInfo();
-    JUT_ASSERT(7176, stage_info != NULL);
+    JUT_ASSERT(VERSION_SELECT(6950, 7055, 7176, 7175), stage_info != NULL);
     if (attention != NULL) {
         if (!dMenu_flag() && !dComIfGp_event_runCheck() && attention->LockonTarget(0) != NULL && attention->LockonTarget(0)->max_health > 0.0f &&
             dComIfGs_isCollect(4, 1) != 0 && (attention->LockonTruth() & 0xFF) != 0 && attention->LockonTarget(0)->group == fopAc_ENEMY_e &&
@@ -3652,6 +3775,14 @@ void dMeter_enemyMove(sub_meter_class* i_Meter) {
             dMeter_zakoEnemyHide(i_Meter);
         }
     }
+#if VERSION == VERSION_DEMO
+    if (!dMenu_flag() && !dComIfGp_event_runCheck() && dComIfGs_isStageBossDemo() != 0 && dComIfGs_isStageBossEnemy() == 0 &&
+        !(i_Meter->mStatusFlags & dMtrStts_UNK80_e) && !(i_Meter->mStatusFlags & dMtrStts_UNK20000_e) &&
+        (dStage_stagInfo_GetSTType(stage_info) == dStageType_BOSS_e || fopAcM_SearchByName(fpcNm_BDK_e) != NULL) &&
+        dComIfGs_isCollect(4, 1) != 0)
+    {
+        {
+#else
     if (!dMenu_flag() && dComIfGs_isCollect(4, 1) != 0 && !dComIfGp_event_runCheck() &&
         !(i_Meter->mStatusFlags & dMtrStts_UNK80_e) && !(i_Meter->mStatusFlags & dMtrStts_UNK20000_e) &&
         (dStage_stagInfo_GetSTType(stage_info) == dStageType_BOSS_e || fopAcM_SearchByName(fpcNm_BDK_e) != NULL))
@@ -3662,6 +3793,7 @@ void dMeter_enemyMove(sub_meter_class* i_Meter) {
             strcmp(dComIfGp_getStartStageName(), "Xboss2") == 0 ||
             strcmp(dComIfGp_getStartStageName(), "Xboss3") == 0)
         {
+#endif
             fopAc_ac_c* pfVar3;
             if (fopAcM_SearchByName(fpcNm_BTD_e) != NULL) {
                 pfVar3 = fopAcM_SearchByName(fpcNm_BTD_e);
@@ -4039,6 +4171,24 @@ void dMeter_magicGaugeMove(sub_meter_class* i_Meter) {
         dMeter_magicChange(i_Meter, i_Meter->field_0x3016 / 100.0f);
 #endif
     }
+#if VERSION == VERSION_DEMO
+    if (dComIfGp_getItemMaxMagicCount() != 0 || i_Meter->field_0x0f38[2].mUserArea == 0) {
+        sVar4 = dComIfGs_getMaxMagic() + dComIfGp_getItemMaxMagicCount();
+        if (sVar4 > 0x20) {
+            sVar4 = 0x20;
+        }
+        dComIfGs_setMaxMagic(sVar4);
+        g_dComIfG_gameInfo.play.mItemMaxMagicCount = 0;
+        if (dComIfGs_getMaxMagic() <= 0x10) {
+            dMeter_magicLength(i_Meter, 0.5f);
+        } else if (dComIfGs_getMaxMagic() <= 0x18) {
+            dMeter_magicLength(i_Meter, 0.75f);
+        } else {
+            dMeter_magicLength(i_Meter, 1.0f);
+        }
+        i_Meter->field_0x0f38[2].mUserArea = 1;
+    }
+#else
     if (dComIfGp_getItemMaxMagicCount() != 0) {
         sVar4 = dComIfGs_getMaxMagic() + dComIfGp_getItemMaxMagicCount();
         if (sVar4 > 0x20) {
@@ -4047,6 +4197,7 @@ void dMeter_magicGaugeMove(sub_meter_class* i_Meter) {
         dComIfGs_setMaxMagic(sVar4);
         g_dComIfG_gameInfo.play.mItemMaxMagicCount = 0;
     }
+#endif
 #if VERSION > VERSION_DEMO
     if (i_Meter->field_0x3018 != dComIfGs_getMaxMagic() || i_Meter->field_0x0f38[2].mUserArea == 0) {
         if (i_Meter->field_0x3018 < dComIfGs_getMaxMagic()) {
@@ -4078,7 +4229,7 @@ void dMeter_magicGaugeMove(sub_meter_class* i_Meter) {
     if (dComIfGs_getMagic() > dComIfGs_getMaxMagic()) {
         dComIfGs_setMagic(dComIfGs_getMaxMagic());
     }
-    if (!fopOvlpM_IsDoingReq() &&
+    if (!DEMO_SELECT(fopOvlpM_IsPeek(), fopOvlpM_IsDoingReq()) &&
         (!(i_Meter->mStatusFlags & dMtrStts_UNK40_e) ||
          !dComIfGp_event_checkHind(0x20) || !dComIfGp_evmng_checkStartDemo() || dComIfGp_checkPlayerStatus1(0, daPyStts1_UNK2000_e)))
     {
@@ -4267,18 +4418,18 @@ void dMeter_magicTransNowInit(sub_meter_class* i_Meter) {
 
 #if VERSION == VERSION_DEMO
 void dMeter_magicInitTrans(sub_meter_class* i_Meter, f32 param_1, f32 param_2) {
-    /* Nonmatching - regalloc */
+    f32 x = param_1;
     f32 y;
     if (dComIfGs_getMaxLife() <= 0x2B) {
         y = -22.0f + param_2;
     } else {
         y = param_2;
     }
-    fopMsgM_paneTrans(&i_Meter->field_0x10f8, param_1, y);
-    fopMsgM_paneTrans(&i_Meter->field_0x11a0, param_1, y);
-    fopMsgM_paneTrans(&i_Meter->field_0x11d8, param_1, y);
+    fopMsgM_paneTrans(&i_Meter->field_0x10f8, x, y);
+    fopMsgM_paneTrans(&i_Meter->field_0x11a0, x, y);
+    fopMsgM_paneTrans(&i_Meter->field_0x11d8, x, y);
     for (s32 i = 0; i < 8; i++) {
-        fopMsgM_paneTrans(&i_Meter->field_0x0f38[i], param_1, y);
+        fopMsgM_paneTrans(&i_Meter->field_0x0f38[i], x, y);
     }
 }
 #else
@@ -4332,6 +4483,9 @@ void dMeter_magicTransScale(sub_meter_class* i_Meter, f32 param_2, f32 param_3, 
         i_Meter->field_0x0f38[i].mPosCenter.y =
             (param_3 +
              (i_Meter->field_0x11a0.mPosCenterOrig.y + (param_4 * (i_Meter->field_0x0f38[i].mPosCenterOrig.y - i_Meter->field_0x11a0.mPosCenterOrig.y))));
+#if VERSION == VERSION_DEMO
+        fopMsgM_paneScaleXY(&i_Meter->field_0x0f38[i], param_4);
+#else
         i_Meter->field_0x0f38[i].mPosCenter.x -= ((i_Meter->field_0x0f38[i].mSizeOrig.x * param_4) / 2.0f);
         i_Meter->field_0x0f38[i].mSize.x = param_4 * i_Meter->field_0x0f38[i].pane->getWidth();
         i_Meter->field_0x0f38[i].mSize.y = param_4 * i_Meter->field_0x0f38[i].pane->getHeight();
@@ -4339,6 +4493,7 @@ void dMeter_magicTransScale(sub_meter_class* i_Meter, f32 param_2, f32 param_3, 
         fopMsgM_cposMove(&i_Meter->field_0x0f38[i]);
         i_Meter->field_0x0f38[i].mSize.x = i_Meter->field_0x0f38[i].mSizeOrig.x;
         i_Meter->field_0x0f38[i].mSize.y = i_Meter->field_0x0f38[i].mSizeOrig.y;
+#endif
     }
 }
 
@@ -4539,7 +4694,7 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
     }
     if (
         (i_Meter->mStatusFlags & dMtrStts_UNK4000_e) ||
-        fopOvlpM_IsDoingReq() ||
+        DEMO_SELECT(fopOvlpM_IsPeek(), fopOvlpM_IsDoingReq()) ||
         ((i_Meter->mStatusFlags & dMtrStts_UNK40_e) && dComIfGp_event_checkHind(0x100)) ||
         (i_Meter->mStatusFlags & dMtrStts_UNK200000_e) ||
         (i_Meter->mStatusFlags & dMtrStts_UNK100_e) ||
@@ -4780,8 +4935,9 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
     dVar12 = dMap_getMapDispPosLeftUpY() - 0x152;
     cXyz* pcVar4 = dKyw_get_wind_vec();
     iVar3 = cM_atan2s(pcVar4->x, pcVar4->z);
+    f32 angle = (iVar3 * 180.0f) / 0x8000;
     i_Meter->field_0x02f8.pane->rotate(
-        i_Meter->field_0x02f8.mSizeOrig.x, i_Meter->field_0x02f8.mSizeOrig.y / 2.0f, ROTATE_Z, (iVar3 * 180.0f) / 0x8000 - 180.0f
+        i_Meter->field_0x02f8.mSizeOrig.x, i_Meter->field_0x02f8.mSizeOrig.y / 2.0f, ROTATE_Z, angle - 180.0f
     );
     fopMsgM_paneTrans(&i_Meter->field_0x02c0, x, y);
     fopMsgM_paneTrans(&i_Meter->field_0x02f8, (dVar13 - 7.0f) + g_meterHIO.field_0x64, (dVar12 + 9.0f) + g_meterHIO.field_0x66);
@@ -4791,6 +4947,17 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
     dVar13 = fopMsgM_valueIncrease(5, 5 - i_Meter->field_0x02c0.mUserArea, 0);
     fopMsgM_setNowAlpha(&i_Meter->field_0x02c0, dVar13);
     dMap_c::setMapAlpha(dVar13 * 255.0f);
+#if VERSION == VERSION_DEMO
+    if (!dKyw_gbwind_use_check()) {
+        fopMsgM_setNowAlphaZero(&i_Meter->field_0x02f8);
+    } else {
+        fopMsgM_setNowAlpha(&i_Meter->field_0x02f8, dVar13);
+    }
+
+    for (s32 i = 0; i < 3; i++) {
+        fopMsgM_setNowAlpha(&i_Meter->field_0x0100[i], dVar13);
+    }
+#else
     if (!dKyw_gbwind_use_check() || dMenu_flag()) {
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x02f8);
     } else {
@@ -4804,27 +4971,32 @@ void dMeter_menuPlusMove(sub_meter_class* i_Meter) {
             fopMsgM_setNowAlphaZero(&i_Meter->field_0x0100[i]);
         }
     }
+#endif
 }
 
 /* 801FBB28-801FBC70       .text dMeter_magicLength__FP15sub_meter_classf */
 void dMeter_magicLength(sub_meter_class* i_Meter, f32 param_2) {
+#if VERSION == VERSION_DEMO
+    i_Meter->field_0x10f8.mSize.x = i_Meter->field_0x10f8.mSizeOrig.x * param_2;
+#else
     f32 dVar1 = (i_Meter->field_0x0f38[0].mSizeOrig.x * 8.0f);
     i_Meter->field_0x10f8.mSize.x = (dVar1 * param_2) + (i_Meter->field_0x10f8.mSizeOrig.x - dVar1);
+#endif
     i_Meter->field_0x10f8.mPosCenter.x = i_Meter->field_0x10f8.mPosTopLeftOrig.x + i_Meter->field_0x10f8.mSize.x / 2.0f;
     fopMsgM_cposMove(&i_Meter->field_0x10f8);
     ((MyPicture*)i_Meter->field_0x11a0.pane)->m134 = 1;
     ((MyPicture*)i_Meter->field_0x11a0.pane)->m124 = 0.0f;
     ((MyPicture*)i_Meter->field_0x11a0.pane)->m128 = 0.0f;
-    ((MyPicture*)i_Meter->field_0x11a0.pane)->m12C = 1.6875f;
-    ((MyPicture*)i_Meter->field_0x11a0.pane)->m130 = 0.8125f;
+    ((MyPicture*)i_Meter->field_0x11a0.pane)->m12C = DEMO_SELECT(1.688f, 1.6875f);
+    ((MyPicture*)i_Meter->field_0x11a0.pane)->m130 = DEMO_SELECT(0.8f, 0.8125f);
     i_Meter->field_0x11a0.mSize.x = i_Meter->field_0x10f8.mSize.x + (i_Meter->field_0x11a0.mSizeOrig.x - i_Meter->field_0x10f8.mSizeOrig.x);
     i_Meter->field_0x11a0.mPosCenter.x = i_Meter->field_0x11a0.mPosTopLeftOrig.x + i_Meter->field_0x11a0.mSize.x / 2.0f;
     fopMsgM_cposMove(&i_Meter->field_0x11a0);
     ((MyPicture*)i_Meter->field_0x1130.pane)->m134 = 1;
     ((MyPicture*)i_Meter->field_0x1130.pane)->m124 = 0.0f;
-    ((MyPicture*)i_Meter->field_0x1130.pane)->m128 = 0.0f;
-    ((MyPicture*)i_Meter->field_0x1130.pane)->m12C = 1.6875f;
-    ((MyPicture*)i_Meter->field_0x1130.pane)->m130 = 0.8125f;
+    ((MyPicture*)i_Meter->field_0x1130.pane)->m128 = DEMO_SELECT(0.2f, 0.0f);
+    ((MyPicture*)i_Meter->field_0x1130.pane)->m12C = DEMO_SELECT(1.688f, 1.6875f);
+    ((MyPicture*)i_Meter->field_0x1130.pane)->m130 = DEMO_SELECT(1.0f, 0.8125f);
     i_Meter->field_0x1130.mSize.x = i_Meter->field_0x10f8.mSize.x + (i_Meter->field_0x1130.mSizeOrig.x - i_Meter->field_0x10f8.mSizeOrig.x);
     i_Meter->field_0x1130.mPosCenter.x = i_Meter->field_0x1130.mPosTopLeftOrig.x + i_Meter->field_0x1130.mSize.x / 2.0f;
     fopMsgM_cposMove(&i_Meter->field_0x1130);
@@ -4834,7 +5006,9 @@ void dMeter_magicLength(sub_meter_class* i_Meter, f32 param_2) {
 void dMeter_windInit(sub_meter_class* i_Meter) {
     dMeter_windID = fpcM_ERROR_PROCESS_ID_e;
     dMeter_windStatus = 0;
+#if VERSION > VERSION_DEMO
     dComIfGp_setOperateWindCancelOff();
+#endif
 }
 
 /* 801FBC90-801FBCEC       .text dMeter_metronomeInit__FP15sub_meter_class */
@@ -4994,6 +5168,12 @@ void dMeter_rupyInit(sub_meter_class* i_Meter) {
 void dMeter_rupyMove(sub_meter_class* i_Meter) {
     int local_28[4];
     char acStack_38[16];
+#if VERSION == VERSION_DEMO
+    static u8 soundSetFlag = 0;
+    static u8 soundOnFlag = 0;
+#define rupy_soundSetFlag soundSetFlag
+#define rupy_soundOnFlag soundOnFlag
+#endif
 
     if (i_Meter->field_0x19f0[1].mUserArea != dComIfGs_getWalletSize()) {
         dMeter_walletChange(i_Meter);
@@ -5071,6 +5251,10 @@ void dMeter_rupyMove(sub_meter_class* i_Meter) {
     }
     dMeter_rupyAlpha(i_Meter);
 }
+#if VERSION == VERSION_DEMO
+#undef rupy_soundSetFlag
+#undef rupy_soundOnFlag
+#endif
 
 /* 801FC624-801FC85C       .text dMeter_walletChange__FP15sub_meter_class */
 void dMeter_walletChange(sub_meter_class* i_Meter) {
@@ -5209,9 +5393,18 @@ void dMeter_keyMove(sub_meter_class* i_Meter) {
     int local_38[2];
     char acStack_30[24];
 
+#if VERSION == VERSION_DEMO
+    dComIfG_inf_c* info = &g_dComIfG_gameInfo;
+    if (dStage_stagInfo_ChkKeyDisp(info->play.getStage().getStagInfo())) {
+#else
     if (dStage_stagInfo_ChkKeyDisp(dComIfGp_getStageStagInfo())) {
+#endif
         if (dComIfGp_getItemKeyNumCount() != 0) {
+#if VERSION == VERSION_DEMO
+            sVar1 = info->save.getMemory().getBit().getKeyNum() + dComIfGp_getItemKeyNumCount();
+#else
             sVar1 = dComIfGs_getKeyNum() + dComIfGp_getItemKeyNumCount();
+#endif
             if (sVar1 > 99) {
                 sVar1 = 99;
             } else if (sVar1 < 0) {
@@ -5315,8 +5508,10 @@ void dMeter_compassGetOnProc(sub_meter_class* i_Meter) {
         dMeter_compassAnimeMove(i_Meter);
         break;
     }
-    f32 dVar3 = (-(s16)(fopAcM_SearchByName(fpcNm_SHIP_e)->shape_angle.y + 0x8000) * 180.0f) / 0x8000;
-    dMeter_compassRotate(&i_Meter->field_0x1670, &i_Meter->field_0x16a8, (-dComIfGs_getTime() - 90.0f));
+    s16 angle = fopAcM_SearchByName(fpcNm_SHIP_e)->shape_angle.y + 0x8000;
+    f32 dVar3 = (-angle * 180.0f) / 0x8000;
+    f32 time = -dComIfGs_getTime() - 90.0f;
+    dMeter_compassRotate(&i_Meter->field_0x1670, &i_Meter->field_0x16a8, time);
     dMeter_compassRotate(&i_Meter->field_0x1248, &i_Meter->field_0x12f0, dVar3);
     dMeter_compassRotate(&i_Meter->field_0x1280, &i_Meter->field_0x12f0, dVar3);
     dMeter_clockMove(i_Meter);
@@ -5829,7 +6024,7 @@ void dMeter_clockMultiInit(sub_meter_class* i_Meter) {
     ResTIMG* texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getMenuArchive();
     ResTIMG* texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "screw_01.bti", pArchive2);
-    JUT_ASSERT(10626, texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(10368, 10505, 10626, 10625), texture1 != NULL && texture2 != NULL);
     for (s32 i = 0; i < 3; i++) {
         clock[i].init(texture1, texture2, 1.0f / scaleX[i], 1.0f / scaleY[i]);
     }
@@ -5843,9 +6038,11 @@ void dMeter_clockMultiMove(sub_meter_class* i_Meter) {
     for (s32 i = 0; i < 3; i++) {
         s16 sVar4 = i_Meter->field_0x1948.mPosTopLeftOrig.x + i_Meter->field_0x1830.mPosTopLeftOrig.x;
         s16 sVar5 = i_Meter->field_0x1948.mPosTopLeftOrig.y + i_Meter->field_0x1830.mPosTopLeftOrig.y;
+        s16 x2 = sVar4 + i_Meter->field_0x1830.mSizeOrig.x;
+        s16 y2 = sVar5 + i_Meter->field_0x1830.mSizeOrig.y;
         s16 fVar1 = i_Meter->field_0x1868[i].mPosCenter.x;
         s16 fVar2 = i_Meter->field_0x1868[i].mPosCenter.y;
-        clock[i].setPos(sVar4, sVar5, sVar4 + i_Meter->field_0x1830.mSizeOrig.x, sVar5 + i_Meter->field_0x1830.mSizeOrig.y);
+        clock[i].setPos(sVar4, sVar5, x2, y2);
         GXColor color1 = {0xFF, 0xFF, 0xFF, 0xFF};
         clock[i].mBlack.r = color1.r;
         clock[i].mBlack.g = color1.g;
@@ -5876,7 +6073,7 @@ void dMeter_mapMove(sub_meter_class* i_Meter) {
     static s16 mapTimer = 0;
     static u8 stageFlag = false;
     static s32 stayNo = dComIfGp_roomControl_getStayNo();
-    if (fopOvlpM_IsDoingReq() == 0) {
+    if (DEMO_SELECT(fopOvlpM_IsPeek(), fopOvlpM_IsDoingReq()) == 0) {
         if (i_Meter->field_0x3027 == 0xFF) {
             stageFlag = 1;
         } else if (stayNo != dComIfGp_roomControl_getStayNo()) {
@@ -5970,7 +6167,11 @@ void dMeter_arwInit(sub_meter_class* i_Meter) {
     for (s32 i = 0; i < 2; i++) {
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(i_Meter->arrowTex[i], 0xc00, 'TIMG', arrowTexImage[uVar1], archive);
+#if VERSION <= VERSION_JPN
+        DCFlushRangeNoSync(i_Meter->arrowTex[i], 0xc00);
+#else
         DCStoreRangeNoSync(i_Meter->arrowTex[i], 0xc00);
+#endif
         ((J2DPicture*)i_Meter->field_0x2940[i].pane)->changeTexture(i_Meter->arrowTex[i], 0);
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x2940[i]);
         fopMsgM_setNowAlphaZero(&i_Meter->field_0x29b0[i]);
@@ -6015,13 +6216,21 @@ void dMeter_arwMove(sub_meter_class* i_Meter) {
         if (arrowType != daArrow_c::getKeepType()) {
             archive = dComIfGp_getItemIconArchive();
             JKRReadTypeResource(i_Meter->arrowTex[0], 0xc00, 'TIMG', arrowTexImage[arrowType], archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->arrowTex[0], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->arrowTex[0], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2940[0].pane)->changeTexture(i_Meter->arrowTex[0], 0);
             oldType = arrowType;
             arrowType = daArrow_c::getKeepType();
             archive = dComIfGp_getItemIconArchive();
             JKRReadTypeResource(i_Meter->arrowTex[1], 0xc00, 'TIMG', arrowTexImage[arrowType], archive);
+#if VERSION <= VERSION_JPN
+            DCFlushRangeNoSync(i_Meter->arrowTex[1], 0xc00);
+#else
             DCStoreRangeNoSync(i_Meter->arrowTex[1], 0xc00);
+#endif
             ((J2DPicture*)i_Meter->field_0x2940[1].pane)->changeTexture(i_Meter->arrowTex[1], 0);
             i_Meter->field_0x29b0[0].mUserArea = 0;
             if (i_Meter->field_0x29b0[1].mUserArea < 2) {
@@ -6130,9 +6339,7 @@ void dMeter_arwMove(sub_meter_class* i_Meter) {
     for (s32 i = 0; i < 2; i++) {
         if (i_Meter->field_0x2f24[i] != NULL) {
             i_Meter->field_0x2f24[i]->playDrawParticle();
-            f32 x = i_Meter->field_0x29b0[1].mPosCenter.x - 320.0f;
-            f32 y = i_Meter->field_0x29b0[1].mPosCenter.y - 240.0f;
-            i_Meter->field_0x2f24[i]->setGlobalTranslation(x, y, 0.0f);
+            i_Meter->field_0x2f24[i]->setGlobalTranslation(i_Meter->field_0x29b0[1].mPosCenter.x - 320.0f, i_Meter->field_0x29b0[1].mPosCenter.y - 240.0f, 0.0f);
             i_Meter->field_0x2f24[i]->setGlobalAlpha(i_Meter->field_0x2940[i].mNowAlpha);
         }
     }
@@ -6143,7 +6350,11 @@ void dMeter_moveItemInit(sub_meter_class* i_Meter) {
     JKRArchive* archive = dComIfGp_getItemIconArchive();
     const char* filename = dItem_data::getTexture(dItemNo_BOW_e);
     JKRReadTypeResource(i_Meter->moveIconTex[0], 0xc00, 'TIMG', filename, archive);
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Meter->moveIconTex[0], 0xc00);
+#else
     DCStoreRangeNoSync(i_Meter->moveIconTex[0], 0xc00);
+#endif
     moveItemPane = new J2DPicture(i_Meter->moveIconTex[0]);
 }
 
@@ -6244,7 +6455,11 @@ void dMeter_moveItemMove(sub_meter_class* i_Meter) {
 /* 80200398-8020042C       .text dMeter_moveItemDraw__FP15sub_meter_class */
 void dMeter_moveItemDraw(sub_meter_class* i_Meter) {
     s16 uVar1 = g_menuHIO.field_0xc8;
+#if VERSION == VERSION_DEMO
+    if (dMeter_itemMoveFlagCheck() && dMeter_itemTimer != 0) {
+#else
     if (dMeter_itemMoveFlagCheck() && dMeter_itemTimer != 0 && moveItemPane != NULL) {
+#endif
         moveItemPane->draw(item_parts.mPosTopLeft.x, item_parts.mPosTopLeft.y, item_parts.mSize.x, item_parts.mSize.y, false, false, false);
         if (dMeter_itemTimer >= uVar1) {
             dMeter_itemMoveFlag = 0;
@@ -6329,7 +6544,7 @@ void dMeter_swimInit(sub_meter_class* i_Meter) {
     texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getSwimResArchive();
     texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "tekari.bti", pArchive2);
-    JUT_ASSERT(11498, texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(11240, 11377, 11498, 11497), texture1 != NULL && texture2 != NULL);
     tekari.init(texture1, texture2, 1.0f, 1.0f);
 }
 
@@ -6629,8 +6844,10 @@ void dMeter_swimMainBlink(sub_meter_class* i_Meter) {
 void dMeter_swimMainDown(sub_meter_class* i_Meter) {
     s16 sVar1;
 
+    s16 max = i_Meter->field_0x2d30.mUserArea;
     sVar1 = (s16)dComIfGp_getItemTimeCount();
-    dMeter_paneBottomScaleY(&i_Meter->field_0x2d30, ((f32)sVar1 / (f32)i_Meter->field_0x2d30.mUserArea));
+    f32 ratio = (f32)sVar1 / (f32)max;
+    dMeter_paneBottomScaleY(&i_Meter->field_0x2d30, ratio);
     i_Meter->field_0x2da0.mPosTopLeft.y =
         (i_Meter->field_0x2d30.mPosCenterOrig.y - i_Meter->field_0x2d30.mSizeOrig.y / 2.0f) - i_Meter->field_0x2d30.mPosTopLeft.y;
     i_Meter->field_0x2da0.mPosCenter.y = i_Meter->field_0x2da0.mPosTopLeft.y + i_Meter->field_0x2da0.mSize.y / 2.0f;
@@ -6878,23 +7095,28 @@ void dMeter_arrowTransScale(sub_meter_class* i_Meter, f32 param_2, f32 param_3, 
 
 /* 80202770-80203298       .text dMeter_arrowAnime__FP15sub_meter_class */
 void dMeter_arrowAnime(sub_meter_class* i_Meter) {
+    s16 iVar6;
+    f32 dVar7;
+    f32 transVal;
+    f32 scaleVal;
+    GXColor color2;
+    GXColor color1;
     static const f32 scale[] = {1.0f, 1.9f, 1.0f, 1.9f};
     static const s32 trans[] = {0, 30, 0, 30};
     static const u8 white[] = {0xFF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0xFF, 0xFF};
     static const u8 black[] = {0xFF, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
-    s16 iVar6;
-    f32 dVar7;
-    GXColor color1;
-    GXColor color2;
 
     for (s32 i = 0; i < 4; i++) {
         if (i_Meter->field_0x2e10[i].mUserArea == 1) {
-            iVar6 = i_Meter->field_0x3025;
-            if (iVar6 > 0x14) {
-                iVar6 = iVar6 - 0x14;
+            if (i_Meter->field_0x3025 > 0x14) {
+                iVar6 = i_Meter->field_0x3025 - 0x14;
+            } else {
+                iVar6 = i_Meter->field_0x3025;
             }
             dVar7 = fopMsgM_valueIncrease(10, iVar6, 0);
-            dMeter_arrowTransScale(i_Meter, (dVar7 * (trans[1] - trans[0])) + trans[0], (dVar7 * (scale[1] - scale[0])) + scale[0], i);
+            transVal = (dVar7 * (trans[1] - trans[0])) + trans[0];
+            scaleVal = (dVar7 * (scale[1] - scale[0])) + scale[0];
+            dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
             fopMsgM_setNowAlpha(&i_Meter->field_0x2e10[i], dVar7 * 0.8627451f);
             color1.r = (dVar7 * (black[4] - black[0])) + black[0];
             color1.g = (dVar7 * (black[5] - black[1])) + black[1];
@@ -6906,13 +7128,17 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
             color2.a = (dVar7 * (white[7] - white[3])) + white[3];
             ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setBlack(color1);
             ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setWhite(color2);
-            if (iVar6 == 10) {
+            s16 max = 10;
+            if (max == iVar6) {
                 i_Meter->field_0x2e10[i].mUserArea = 2;
             }
         } else if (i_Meter->field_0x2e10[i].mUserArea == 2) {
             if (i_Meter->field_0x3025 <= 0x14) {
-                dVar7 = fopMsgM_valueIncrease(10, (i_Meter->field_0x3025 - 10), 0);
-                dMeter_arrowTransScale(i_Meter, (dVar7 * (trans[2] - trans[1])) + trans[1], (dVar7 * (scale[2] - scale[1])) + scale[1], i);
+                iVar6 = i_Meter->field_0x3025 - 10;
+                dVar7 = fopMsgM_valueIncrease(10, iVar6, 0);
+                transVal = (dVar7 * (trans[2] - trans[1])) + trans[1];
+                scaleVal = (dVar7 * (scale[2] - scale[1])) + scale[1];
+                dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
                 color1.r = (dVar7 * (black[8] - black[4])) + black[4];
                 color1.g = (dVar7 * (black[9] - black[5])) + black[5];
                 color1.b = (dVar7 * (black[10] - black[6])) + black[6];
@@ -6924,8 +7150,11 @@ void dMeter_arrowAnime(sub_meter_class* i_Meter) {
                 ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setBlack(color1);
                 ((J2DPicture*)i_Meter->field_0x2e10[i].pane)->setWhite(color2);
             } else {
-                dVar7 = fopMsgM_valueIncrease(10, (i_Meter->field_0x3025 - 0x14), 0);
-                dMeter_arrowTransScale(i_Meter, (dVar7 * (trans[3] - trans[2])) + trans[2], (dVar7 * (scale[3] - scale[2])) + scale[2], i);
+                iVar6 = i_Meter->field_0x3025 - 0x14;
+                dVar7 = fopMsgM_valueIncrease(10, iVar6, 0);
+                transVal = (dVar7 * (trans[3] - trans[2])) + trans[2];
+                scaleVal = (dVar7 * (scale[3] - scale[2])) + scale[2];
+                dMeter_arrowTransScale(i_Meter, transVal, scaleVal, i);
                 color1.r = (dVar7 * (black[12] - black[8])) + black[8];
                 color1.g = (dVar7 * (black[13] - black[9])) + black[9];
                 color1.b = (dVar7 * (black[14] - black[10])) + black[10];
@@ -7144,9 +7373,9 @@ void dMeter_screenDataSet(sub_meter_class* i_Meter) {
 /* 8020408C-8020438C       .text dMeter_screenDataTimeSet__FP15sub_meter_class */
 void dMeter_screenDataTimeSet(sub_meter_class* i_Meter) {
     sScrTimer1 = new J2DScreen();
-    JUT_ASSERT(12863, sScrTimer1 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12605, 12742, 12863, 12862), sScrTimer1 != NULL);
     sScrTimer2 = new J2DScreen();
-    JUT_ASSERT(12865, sScrTimer2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12607, 12744, 12865, 12864), sScrTimer2 != NULL);
     sScrTimer1->set("time_swim_1.blo", dComIfGp_getSwimResArchive());
     sScrTimer2->set("time_swim_2.blo", dComIfGp_getSwimResArchive());
     fopMsgM_setPaneData(&i_Meter->field_0x2a90[8], sScrTimer2, 'hk33');
@@ -7253,7 +7482,16 @@ static BOOL dMeter_Draw(sub_meter_class* i_Meter) {
     fopMsgM_setAlpha(&i_Meter->field_0x2a58);
     dMeter_swimDraw(i_Meter);
     dMeter_arrowDraw(i_Meter);
+#if VERSION == VERSION_DEMO
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    f32 y = player->current.pos.y;
+    int stayNo = dComIfGp_roomControl_getStayNo();
+    f32 z = player->current.pos.z;
+    dMap_c::drawTest(player->current.pos.x, z, stayNo, y);
+    {
+#else
     if (!fopOvlpM_IsDoingReq()) {
+#endif
         dComIfGd_set2DOpa(&meter1);
         for (s32 i = 0; i < 3; i++) {
             dComIfGd_set2DOpa(&clock[i]);
@@ -7374,11 +7612,21 @@ static BOOL dMeter_Delete(sub_meter_class* i_Meter) {
     } else {
         g_dComIfG_gameInfo.play.field_0x497a = 1;
     }
+#if VERSION > VERSION_DEMO
     if (rupy_soundOnFlag != 0) {
         mDoAud_seStart(JA_SE_LUPY_INC_CNT_2);
         rupy_soundSetFlag = 0;
         rupy_soundOnFlag = 0;
     }
+#endif
+#if VERSION == VERSION_DEMO
+    if (fopMsgM_IsExecuting(dMeter_windID)) {
+        msg_class* pmVar2 = fopMsgM_SearchByID(dMeter_windID);
+        fopMsgM_Delete(pmVar2);
+        dMeter_windID = fpcM_ERROR_PROCESS_ID_e;
+        dMeter_windStatus = 0;
+    }
+#else
     if (dMeter_windID != fpcM_ERROR_PROCESS_ID_e) {
         if (fopMsgM_SearchByID(dMeter_windID) != NULL) {
             msg_class* pmVar2 = fopMsgM_SearchByID(dMeter_windID);
@@ -7390,6 +7638,7 @@ static BOOL dMeter_Delete(sub_meter_class* i_Meter) {
             dMeter_windStatus = 0;
         }
     }
+#endif
     if (i_Meter->mpRupyParticle != NULL) {
         i_Meter->mpRupyParticle->becomeInvalidEmitter();
         i_Meter->mpRupyParticle->quitImmortalEmitter();
@@ -7432,9 +7681,13 @@ static BOOL dMeter_Delete(sub_meter_class* i_Meter) {
         sScrTimer2 = NULL;
     }
     delete sChoiceRoad;
+#if VERSION > VERSION_DEMO
     sChoiceRoad = NULL;
+#endif
     delete moveItemPane;
+#if VERSION > VERSION_DEMO
     moveItemPane = NULL;
+#endif
     mDoExt_setCurrentHeap(pJVar1);
     fopMsgM_destroyExpHeap(i_Meter->heap);
     mDoHIO_deleteChild(g_meterHIO.mNo);
@@ -7587,6 +7840,9 @@ dMeter_HIO_c::~dMeter_HIO_c() {
 
 /* 80205990-802059E0       .text __ct__16dMeter_map_HIO_cFv */
 dMeter_map_HIO_c::dMeter_map_HIO_c() {
+#if VERSION == VERSION_DEMO
+    field_0x5 = 1;
+#endif
     field_0x8 = 0x23;
     field_0xa = 0x152;
     field_0xc = -0xb4;
@@ -7613,6 +7869,10 @@ void mapCtrlDisp_c::initMapCtrlDisp() {
     field_0x0 = 0;
     field_0x1 = 0;
     field_0x2 = 0;
+#if VERSION == VERSION_DEMO
+    field_0x3 = 0;
+    field_0x4_demo = 0;
+#endif
     field_0x4 = 0;
 }
 
@@ -7668,7 +7928,8 @@ void mapCtrlDisp_c::moveMapCtrlDisp() {
             mDoAud_seStart(JA_SE_MAP_SHOW_END);
         }
     } else {
-        cLib_addCalcAngleS(&field_0x4, g_meter_mapHIO.field_0xc - g_meter_mapHIO.field_0x8, 2, 0x3c, 10);
+        s16 target = g_meter_mapHIO.field_0xc - g_meter_mapHIO.field_0x8;
+        cLib_addCalcAngleS(&field_0x4, target, 2, 0x3c, 10);
     }
     int uVar6_2 = ((dComIfGp_getWindow(0)->getScissor()->mYOrig + dComIfGp_getWindow(0)->getScissor()->mHeight) - 452.0f);
     dMap_c::setMapDispPosLeftUpX(g_meter_mapHIO.field_0x8 + field_0x4);
@@ -7676,6 +7937,12 @@ void mapCtrlDisp_c::moveMapCtrlDisp() {
     if ((f32)(uVar6_2) < 0.0f) {
         dMap_c::setMapDispPosLeftUpY(uVar6_2 + g_meter_mapHIO.field_0xa);
     }
+#if VERSION == VERSION_DEMO
+    if (g_meter_mapHIO.field_0x5 == 0) {
+        dMap_c::setIconFreeAlpha(0);
+        dMap_c::setIconFreeScale(0.0f);
+    }
+#endif
 }
 
 /* 80205D24-80205D6C       .text __dt__16dMeter_map_HIO_cFv */

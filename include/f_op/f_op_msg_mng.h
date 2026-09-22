@@ -448,10 +448,17 @@ public:
     void setBmgData(char* i_data) { bmgData = i_data; }
     void setCenterLineWidth(int i_width) { centerLineWidth = i_width; }
 
+#if VERSION > VERSION_DEMO
+    u8 getCharAlpha() const { return field_0x290; }
+    u8 getGradAlpha() const { return field_0x291; }
+    u8 getRCharAlpha() const { return field_0x292; }
+    u8 getRGradAlpha() const { return field_0x293; }
+#else
     u8 getCharAlpha() { return field_0x290; }
     u8 getGradAlpha() { return field_0x291; }
     u8 getRCharAlpha() { return field_0x292; }
     u8 getRGradAlpha() { return field_0x293; }
+#endif
     void setCharAlpha(u8 param_0, u8 param_1, u8 param_2, u8 param_3) {
         field_0x290 = param_0;
         field_0x291 = param_1;
@@ -594,6 +601,7 @@ fpc_ProcID fopMsgM_messageSet(u32 i_msgNo);
 fpc_ProcID fopMsgM_scopeMessageSet(u32 i_msgNo);
 int fopMsgM_messageSetDemo(u32 i_msgNo);
 msg_class* fopMsgM_SearchByID(fpc_ProcID i_pid);
+BOOL fopMsgM_IsExecuting(fpc_ProcID i_pid);
 char* fopMsgM_messageGet(char* i_dest, u32 i_msgNo);
 char* fopMsgM_passwordGet(char* i_dest, u32 i_msgNo);
 fpc_ProcID fop_Timer_create(s16 i_procName, u8 i_mode, u16 i_limitTimeMs, u8 i_showType, u8 i_iconType, f32 i_posX, f32 i_posY, f32 i_rupeePosX, f32 i_rupeePosY, fopMsgCreateFunc i_createFunc);

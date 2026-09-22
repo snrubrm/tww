@@ -122,7 +122,10 @@ BOOL daObjVyasi::Act_c::PlayStopJointAnimation() {
 
 /* 00000194-0000021C       .text set_first_process__Q210daObjVyasi5Act_cFv */
 void daObjVyasi::Act_c::set_first_process() {
-    process_init(is_switch() ? 4 : 1);
+    int sw = daObj::PrmAbstract<int>(this, 8, 0);
+    bool is_sw = dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(this));
+    int state = is_sw ? 4 : 1;
+    process_init(state);
     mNormalCounter = 0;
     m19D4 = 1.0f;
     shape_angle.y += 0x8000;
@@ -277,7 +280,8 @@ BOOL daObjVyasi::Act_c::process_sagWind_init() {
 
 /* 00000CC0-00000D20       .text process_sagWind_main__Q210daObjVyasi5Act_cFv */
 void daObjVyasi::Act_c::process_sagWind_main() {
-    if (is_switch()) {
+    int sw = daObj::PrmAbstract<int>(this, 8, 0);
+    if (dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(this))) {
         process_init(3);
     }
 }
@@ -355,9 +359,13 @@ bool daObjVyasi::Act_c::create_heap() {
     mpBckData = (J3DAnmTransformKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VYASI_BCK_VYASI_e);
     J3DAnmTransformKey*& M_bck_data = mpBckData;
     JUT_ASSERT(1151, M_bck_data != 0);
+#if VERSION == VERSION_DEMO
+    mpMorf = new mDoExt_McaMorf(mdl_data, NULL, NULL, mpBckData, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11000002);
+#else
     if (mpBckData && mdl_data) {
         mpMorf = new mDoExt_McaMorf(mdl_data, NULL, NULL, mpBckData, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11000002);
     }
+#endif
     return bool(mpBckData && mpMorf) && mpMorf->getModel();
 }
 
@@ -470,7 +478,7 @@ void daObjVyasi::Act_c::calc_dif_angle() {
                 rate = 1;
             }
         } else if (mState == 3 && m19C4 == 0) {
-            if ((u32)i <= 1 || i == 6) {
+            if (i == 0 || i == 1 || i == 6) {
                 angle.z = m19CC * cM_ssin(m19D0);
             }
         }
@@ -492,7 +500,7 @@ void daObjVyasi::Act_c::quaternion_main() {
         target = ZeroQuat;
         if (mState == 4 && joint_kind_table[i] == 0) {
             cXyz up(0.0f, 1.0f, 0.0f), wind;
-            mDoMtx_YrotS(*calc_mtx, -current.angle.y);
+            cMtx_YrotS(*calc_mtx, -current.angle.y);
             MtxPosition(dKyw_get_wind_vec(), &wind);
             f32 power = dKyw_get_wind_pow();
             cXyz axis = up.outprod(wind);

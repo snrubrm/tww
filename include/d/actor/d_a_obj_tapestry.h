@@ -44,22 +44,6 @@ struct daObjTapestry_Attr_c {
 
 STATIC_ASSERT(sizeof(daObjTapestry_Attr_c) == 0x5C);
 
-class daObjTapestry_HIO_c : public JORReflexible {
-public:
-    daObjTapestry_HIO_c();
-    virtual ~daObjTapestry_HIO_c() {}
-
-public:
-    /* 0x04 */ s8 mNo;
-    /* 0x05 */ u8 m05;
-    /* 0x06 */ u8 m06;
-    /* 0x08 */ s32 m08;
-    /* 0x0C */ daObjTapestry_Attr_c mAttr;
-    /* 0x68 */ u8 m68;
-};  // Size: 0x6C
-
-STATIC_ASSERT(sizeof(daObjTapestry_HIO_c) == 0x6C);
-
 class daObjTapestryPLight_c {
 public:
     void plight_delete();
@@ -82,6 +66,7 @@ public:
         mPos = cXyz::Zero;
         mSpd = cXyz::Zero;
     }
+    virtual ~daObjTapestryFireEff_c() {}
 
     cXyz* get_pos() { return &mPos; }
     void set_pos(const cXyz& pos) { mPos = pos; }
@@ -112,6 +97,16 @@ public:
 
 STATIC_ASSERT(sizeof(daObjTapestryDrawVtx_c) == 0x6C0);
 
+class daObjTapestryWork_c {
+public:
+    /* 0x000 */ cXyz spd[8][6];
+    /* 0x240 */ u8 flag0[8][6];
+    /* 0x270 */ u8 flag1[8][6];
+    /* 0x2A0 */ u8 alpha[8][6];
+};  // Size: 0x2D0
+
+STATIC_ASSERT(sizeof(daObjTapestryWork_c) == 0x2D0);
+
 class daObjTapestryDrawData_c {
 public:
     daObjTapestryDrawData_c();
@@ -126,7 +121,7 @@ public:
 
 public:
     /* 0x000 */ f32 mTex[8][6][2];
-    /* 0x180 */ u8 mDl[0x1A0];
+    /* 0x180 */ u8 mDl[0x1A0] __attribute__((aligned(32)));
 };  // Size: 0x320
 
 STATIC_ASSERT(sizeof(daObjTapestryDrawData_c) == 0x320);
@@ -135,6 +130,7 @@ class daObjTapestryPacket_c : public J3DPacket {
 public:
     daObjTapestryPacket_c();
     virtual void draw();
+    virtual ~daObjTapestryPacket_c() {}
 
     void set_wind_fun(const cXyz& v) { m13C8 = v; }
 
@@ -174,10 +170,7 @@ public:
 
 public:
     /* 0x0010 */ daObjTapestryDrawVtx_c mDraw[2];
-    /* 0x0D90 */ cXyz mSpd[8][6];
-    /* 0x0FD0 */ u8 mFlag0[8][6];
-    /* 0x1000 */ u8 mFlag1[8][6];
-    /* 0x1030 */ u8 mAlpha[8][6];
+    /* 0x0D90 */ daObjTapestryWork_c mWork;
     /* 0x1060 */ int mBuffer;
     /* 0x1064 */ daObjTapestryFireEff_c mFire[0x10];
     /* 0x1324 */ int mFireCount;
@@ -200,7 +193,7 @@ public:
     /* 0x1440 */ cXyz m1440;
     /* 0x144C */ f32 m144C;
     /* 0x1450 */ f32 m1450;
-    /* 0x1454 */ u8 m1454;
+    /* 0x1454 */ bool m1454;
     /* 0x1458 */ f32 m1458;
     /* 0x145C */ f32 m145C;
     /* 0x1460 */ f32 m1460;
@@ -253,6 +246,9 @@ public:
 
 public:
     /* 0x0290 */ request_of_phase_process_class mPhase;
+#if VERSION == VERSION_DEMO
+    /* 0x0298 */ request_of_phase_process_class mClothPhase;
+#endif
     /* 0x0298 */ daObjTapestryPacket_c mPacket;
     /* 0x1758 */ J3DModel* mpModel;
     /* 0x175C */ dBgW* mpBgW;
@@ -267,6 +263,6 @@ public:
     /* 0x1AC0 */ int mAction;
 };  // Size: 0x1AC4
 
-STATIC_ASSERT(sizeof(daObjTapestry_c) == 0x1AC4);
+STATIC_ASSERT(sizeof(daObjTapestry_c) == DEMO_SELECT(0x1ACC, 0x1AC4));
 
 #endif /* D_A_OBJ_TAPESTRY_H */

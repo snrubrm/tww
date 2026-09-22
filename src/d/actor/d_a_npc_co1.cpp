@@ -58,15 +58,17 @@ void daNpc_Co1_c::nodeCo1Control(J3DNode* node, J3DModel* model) {
         mDoMtx_stack_c::ZrotM(-m_jnt.getBackbone_x());
     }
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
-    MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
+    model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
 /* 00000370-00000410       .text init_CO1_0__11daNpc_Co1_cFv */
 bool daNpc_Co1_c::init_CO1_0() {
     bool result = dComIfGs_isSymbol(1) == FALSE;
     if (result) {
+#if VERSION > VERSION_DEMO
         fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
         fopAcM_OnStatus(this, fopAcStts_UNK4000_e);
+#endif
         set_action(&daNpc_Co1_c::wait_action1, NULL);
     }
     return result;
@@ -170,7 +172,7 @@ int daNpc_Co1_c::btpNum_toResID(int index) {
 bool daNpc_Co1_c::setBtp(bool modify, int number) {
     J3DModelData* data = mpMorf->getModel()->getModelData();
     m_hed_tex_pttrn = (J3DAnmTexPattern*)dComIfG_getObjectIDRes("Co", btpNum_toResID(number));
-    JUT_ASSERT(0x1CE, m_hed_tex_pttrn != 0);
+    JUT_ASSERT(DEMO_SELECT(0x1CC, 0x1CE), m_hed_tex_pttrn != 0);
     bool result = mBtpAnm.init(data, m_hed_tex_pttrn, true, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, modify, 0) == TRUE;
     if (result) {
         mBtpFrame = 0;
@@ -183,7 +185,7 @@ bool daNpc_Co1_c::setBtp(bool modify, int number) {
 bool daNpc_Co1_c::setBtk(bool modify) {
     J3DModelData* data = mpPearlMorf->getModel()->getModelData();
     m_prl_btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectIDRes("Co", dRes_ID_CO_BTK_CO_PEAL_e);
-    JUT_ASSERT(0x1EA, m_prl_btk != 0);
+    JUT_ASSERT(DEMO_SELECT(0x1E8, 0x1EA), m_prl_btk != 0);
     bool result = mBtkAnm.init(data, m_prl_btk, true, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, modify, 0) == TRUE;
     if (result) mBtkFrame = 0;
     return result;
@@ -200,9 +202,14 @@ void daNpc_Co1_c::plyTexPttrnAnm() {
     if (mBtkFrame >= m_prl_btk->getFrameMax()) mBtkFrame = 0;
     if (mBtpNo == 6 || mBtpNo == 5 || cLib_calcTimer(&mBtpTimer) == 0) {
         mBtpFrame++;
+#if VERSION == VERSION_DEMO
+        if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) {
+            if (mBtpNo == 6 || mBtpNo == 5) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
+#else
         int end = m_hed_tex_pttrn->getFrameMax();
         if (mBtpFrame >= (s16)end) {
             if (mBtpNo == 6 || mBtpNo == 5) mBtpFrame = end;
+#endif
             else {
                 mBtpTimer = 30.0f + cM_rndF(60.0f);
                 mBtpFrame = 0;
@@ -379,7 +386,11 @@ void daNpc_Co1_c::checkOrder() {
         if (dComIfGp_evmng_startCheck(mEventIdx[mEventNo])) {
             switch (mEventNo) {
             case 0: break;
-            case 1: fopAcM_OffStatus(this, fopAcStts_UNK4000_e); break;
+            case 1:
+#if VERSION > VERSION_DEMO
+                fopAcM_OffStatus(this, fopAcStts_UNK4000_e);
+#endif
+                break;
             case 2: mLookMode = 0; break;
             }
             mOrder = 0;
@@ -423,8 +434,8 @@ void daNpc_Co1_c::set_target(int mode) {
         cXyz offset = dNpc_playerEyePos(-20.0f);
         f32 distance = fopAcM_searchActorDistance(this, dComIfGp_getPlayer(0));
         s16 angle = fopAcM_searchActorAngleY(this, dComIfGp_getPlayer(0));
-        mDoMtx_stack_c::transS(current.pos.x, offset.y, current.pos.z);
         angle -= 0x2000;
+        mDoMtx_stack_c::transS(current.pos.x, offset.y, current.pos.z);
         mDoMtx_stack_c::YrotM(angle);
         offset.set(0.0f, 0.0f, distance);
         mDoMtx_stack_c::multVec(&offset, &mLookPos);
@@ -536,7 +547,8 @@ void daNpc_Co1_c::setAttention(bool force) {
         cXyz offset(0.0f, 60.0f, -50.0f);
         mDoMtx_stack_c::multVec(&offset, &attention_info.position);
     } else {
-        attention_info.position.set(current.pos.x, current.pos.y + l_HIO.mPrm.mAttentionOffsetY, current.pos.z);
+        f32 ofs = l_HIO.mPrm.mAttentionOffsetY;
+        attention_info.position.set(current.pos.x, current.pos.y + ofs, current.pos.z);
     }
     if (mUpdateEye || force) eyePos.set(mEyePos.x, mEyePos.y, mEyePos.z);
 }
@@ -820,8 +832,13 @@ u8 daNpc_Co1_c::demo() {
         dDemo_actor_c* actor = dComIfGp_demo_getActor(demoActorID);
         if (m_hed_tex_pttrn != NULL) {
             mBtpFrame++;
+#if VERSION == VERSION_DEMO
+            s16 end = m_hed_tex_pttrn->getFrameMax();
+            if (mBtpFrame >= end) mBtpFrame = end;
+#else
             int end = m_hed_tex_pttrn->getFrameMax();
             if (mBtpFrame >= (s16)end) mBtpFrame = end;
+#endif
         }
         J3DAnmTexPattern* btp = actor->getP_BtpData("Co");
         if (btp != NULL) {
@@ -894,7 +911,7 @@ BOOL daNpc_Co1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) staff = isEventEntry();
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == false) staff = isEventEntry();
         if (staff >= 0) event_proc(staff);
         else (this->*mAction)(NULL);
         if (!mNoMove) fopAcM_posMoveF(this, mStts.GetCCMoveP());
@@ -910,7 +927,12 @@ BOOL daNpc_Co1_c::_execute() {
 BOOL daNpc_Co1_c::_delete() {
     dComIfG_resDelete(&mPhs, "Co");
     dKy_plight_cut(&mLight);
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) mpMorf->stopZelAnime();
+    l_HIO.removeHIO();
+#else
     if (heap != NULL && mpMorf != NULL) mpMorf->stopZelAnime();
+#endif
     return TRUE;
 }
 
@@ -921,10 +943,19 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 
 /* 00002B8C-00002CAC       .text _create__11daNpc_Co1_cFv */
 cPhs_State daNpc_Co1_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State phase = dComIfG_resLoad(&mPhs, "Co");
+    if (phase != cPhs_COMPLEATE_e) return phase;
+    int type = fopAcM_GetParam(this) & 0xFF;
+    if (!charDecide(type)) return cPhs_ERROR_e;
+    l_HIO.entryHIO("コモリ");
+    fopAcM_SetupActor(this, daNpc_Co1_c);
+#else
     fopAcM_SetupActor(this, daNpc_Co1_c);
     cPhs_State phase = dComIfG_resLoad(&mPhs, "Co");
     if (phase != cPhs_COMPLEATE_e) return phase;
     if (!charDecide(fopAcM_GetParam(this) & 0xFF)) return cPhs_ERROR_e;
+#endif
     static u32 a_size_tbl[] = {0x272E0};
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_size_tbl[mType])) return cPhs_ERROR_e;
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -936,32 +967,32 @@ cPhs_State daNpc_Co1_c::_create() {
 /* 00003150-000033C0       .text create_Anm__11daNpc_Co1_cFv */
 J3DModelData* daNpc_Co1_c::create_Anm() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Co", dRes_ID_CO_BDL_CO_e);
-    JUT_ASSERT(0x81F, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x81C, 0x81F), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectIDRes("Co", dRes_ID_CO_BCK_CO_WAIT01_e),
         J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, 1, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) return NULL;
     if (mpMorf->getModel() == NULL) { mpMorf = NULL; return NULL; }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0x833, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x830, 0x833), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0x836, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x833, 0x836), m_bbone_jnt_num >= 0);
     m_hnd_R_jnt_num = a_mdl_dat->getJointName()->getIndex("handR");
-    JUT_ASSERT(0x839, m_hnd_R_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x836, 0x839), m_hnd_R_jnt_num >= 0);
     return a_mdl_dat;
 }
 
 /* 000033C0-00003578       .text create_prl_Anm__11daNpc_Co1_cFv */
 J3DModelData* daNpc_Co1_c::create_prl_Anm() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Co", dRes_ID_CO_BDL_CO_PEAL_e);
-    JUT_ASSERT(0x848, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x845, 0x848), a_mdl_dat != 0);
     mpPearlMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL,
         (J3DAnmTransform*)dComIfG_getObjectIDRes("Co", dRes_ID_CO_BCK_COPEAL_WAIT01_e),
         J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, 1, NULL, 0x80000, 0x15021222);
     if (mpPearlMorf == NULL) return NULL;
     if (mpPearlMorf->getModel() == NULL) { mpPearlMorf = NULL; return NULL; }
     m_prl_jnt_num = a_mdl_dat->getJointName()->getIndex("co_pearl");
-    JUT_ASSERT(0x85C, m_prl_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x859, 0x85C), m_prl_jnt_num >= 0);
     return a_mdl_dat;
 }
 
@@ -969,7 +1000,7 @@ J3DModelData* daNpc_Co1_c::create_prl_Anm() {
 bool daNpc_Co1_c::create_itm_Mdl() {
     mpLetterModel = NULL;
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes("Co", dRes_ID_CO_BDL_CO_LETTER_e);
-    JUT_ASSERT(0x86E, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(0x86B, 0x86E), a_mdl_dat != 0);
     mpLetterModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x11000002);
     return true;
 }
@@ -990,7 +1021,7 @@ BOOL daNpc_Co1_c::CreateHeap() {
         }
         mpMorf->getModel()->setUserArea((u32)this);
         mAcchCir.SetWall(30.0f, 40.0f);
-        mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+        mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
         return TRUE;
     }
     mpMorf = NULL;

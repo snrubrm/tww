@@ -173,9 +173,14 @@ s32 fpcNdRq_IsPossibleTarget(process_node_class* i_procNode) {
 
 /* 8003F728-8003F774       .text fpcNdRq_IsIng__FP18process_node_class */
 s32 fpcNdRq_IsIng(process_node_class* i_procNode) {
+#if VERSION == VERSION_DEMO
+    fpc_ProcID bsPcId = i_procNode->base.mBsPcId;
+#endif
     request_node_class* currentNode;
     node_create_request* currentNodeReq;
+#if VERSION > VERSION_DEMO
     fpc_ProcID bsPcId = i_procNode->base.mBsPcId;
+#endif
     currentNode = (request_node_class*)l_fpcNdRq_Queue.mpHead;
     while (currentNode != NULL) {
         currentNodeReq = currentNode->mNodeCrReq;
@@ -322,6 +327,7 @@ node_create_request* fpcNdRq_Request(u32 i_requestSize, int i_reqType,
     return req;
 }
 
+#if VERSION > VERSION_DEMO
 /* 8003FB70-8003FBE8       .text fpcNdRq_ReChangeNode__FUisPv */
 s32 fpcNdRq_ReChangeNode(uint i_requestID, s16 i_procName, void* i_data) {
     request_node_class* currentNode;
@@ -346,3 +352,4 @@ s32 fpcNdRq_ReChangeNode(uint i_requestID, s16 i_procName, void* i_data) {
 s32 fpcNdRq_ReRequest(uint i_requestID, s16 i_procName, void* i_data) {
     return fpcNdRq_ReChangeNode(i_requestID, i_procName, i_data);
 }
+#endif

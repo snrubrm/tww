@@ -330,42 +330,24 @@ void JPADrawExecRotBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* p
     f32 x1 = +params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX - JPADrawContext::pcb->mPivotX);
     f32 y1 = -params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY - JPADrawContext::pcb->mPivotY);
 
-    JGeometry::TVec3<f32> pt;
-    ptcl->getGlobalPosition(pt);
-    MTXMultVec(JPADrawContext::pcb->mDrawMtxPtr, &pt, &pt);
+    JGeometry::TVec3<f32> pt[4];
+    pt[0].set(x0 * cos - y0 * sin, y0 * cos + x0 * sin, 0.0f);
+    pt[1].set(x1 * cos - y0 * sin, y0 * cos + x1 * sin, 0.0f);
+    pt[2].set(x1 * cos - y1 * sin, y1 * cos + x1 * sin, 0.0f);
+    pt[3].set(x0 * cos - y1 * sin, y1 * cos + x0 * sin, 0.0f);
+
+    JGeometry::TVec3<f32> pos;
+    ptcl->getGlobalPosition(pos);
+    MTXMultVec(JPADrawContext::pcb->mDrawMtxPtr, &pos, &pos);
 
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-    f32 x = x0 * cos - y0 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    f32 y = y0 * cos + x0 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[0].x + pos.x, pt[0].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[0].x, JPADrawContext::pcb->mTexCoordPt[0].y);
-    x = x1 * cos - y0 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    y = y0 * cos + x1 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[1].x + pos.x, pt[1].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[1].x, JPADrawContext::pcb->mTexCoordPt[1].y);
-    x = x1 * cos - y1 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    y = y1 * cos + x1 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[2].x + pos.x, pt[2].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[2].x, JPADrawContext::pcb->mTexCoordPt[2].y);
-    x = x0 * cos - y1 * sin;
-    x += pt.x;
-    GXFIFO.f32 = x;
-    y = y1 * cos + x0 * sin;
-    y += pt.y;
-    GXFIFO.f32 = y;
-    GXFIFO.f32 = pt.z;
+    GXPosition3f32(pt[3].x + pos.x, pt[3].y + pos.y, pos.z);
     GXTexCoord2f32(JPADrawContext::pcb->mTexCoordPt[3].x, JPADrawContext::pcb->mTexCoordPt[3].y);
     GXEnd();
 }
@@ -738,13 +720,10 @@ void JPADrawExecDirectionalCross::exec(const JPADrawContext* pDC, JPABaseParticl
     pt[1].set(x1, y0, 0.0f);
     pt[2].set(x1, y1, 0.0f);
     pt[3].set(x0, y1, 0.0f);
-    f32 z0 = 0.5f * (x1 - x0);
-    f32 x2 = 0.5f * (x1 + x0);
-    pt[4].set(x2, y0, z0);
-    f32 z1 = 0.5f * (x0 - x1);
-    pt[5].set(x2, y0, z1);
-    pt[6].set(x2, y1, z1);
-    pt[7].set(x2, y1, z0);
+    pt[4].set((pt[1].x + pt[0].x) * 0.5f, y0, (pt[1].x - pt[0].x) * 0.5f);
+    pt[5].set((pt[1].x + pt[0].x) * 0.5f, y0, (pt[0].x - pt[1].x) * 0.5f);
+    pt[6].set((pt[1].x + pt[0].x) * 0.5f, y1, (pt[0].x - pt[1].x) * 0.5f);
+    pt[7].set((pt[1].x + pt[0].x) * 0.5f, y1, (pt[1].x - pt[0].x) * 0.5f);
 
     JGeometry::TVec3<f32> dir;
     JPADrawContext::pcb->mDirTypeFunc(ptcl, pDC->pbe, dir);
@@ -819,13 +798,10 @@ void JPADrawExecRotDirectionalCross::exec(const JPADrawContext* pDC, JPABasePart
     pt[1].set(x1, y0, 0.0f);
     pt[2].set(x1, y1, 0.0f);
     pt[3].set(x0, y1, 0.0f);
-    f32 z0 = 0.5f * (x1 - x0);
-    f32 x2 = 0.5f * (x1 + x0);
-    pt[4].set(x2, y0, z0);
-    f32 z1 = 0.5f * (x0 - x1);
-    pt[5].set(x2, y0, z1);
-    pt[6].set(x2, y1, z1);
-    pt[7].set(x2, y1, z0);
+    pt[4].set((pt[1].x + pt[0].x) * 0.5f, y0, (pt[1].x - pt[0].x) * 0.5f);
+    pt[5].set((pt[1].x + pt[0].x) * 0.5f, y0, (pt[0].x - pt[1].x) * 0.5f);
+    pt[6].set((pt[1].x + pt[0].x) * 0.5f, y1, (pt[0].x - pt[1].x) * 0.5f);
+    pt[7].set((pt[1].x + pt[0].x) * 0.5f, y1, (pt[1].x - pt[0].x) * 0.5f);
 
     JPADrawContext::pcb->mRotTypeFunc(sin, cos, rotMtx);
 
@@ -910,7 +886,6 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* p
     scaleY *= (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY);
 
     f32 x0 = -scaleX;
-    y1 = -y1;
     f32 dirX = dir.x;
 
     JGeometry::TVec2<f32> p0;
@@ -919,8 +894,8 @@ void JPADrawExecDirBillBoard::exec(const JPADrawContext* pDC, JPABaseParticle* p
     JGeometry::TVec2<f32> p3;
     p0.set(x0, scaleY);
     p1.set(x1, scaleY);
-    p2.set(x1, y1);
-    p3.set(x0, y1);
+    p2.set(x1, -y1);
+    p3.set(x0, -y1);
     p0.set(dirX * p0.x - dirY * p0.y, dirX * p0.y + dirY * p0.x);
     p1.set(dirX * p1.x - dirY * p1.y, dirX * p1.y + dirY * p1.x);
     p2.set(dirX * p2.x - dirY * p2.y, dirX * p2.y + dirY * p2.x);
@@ -1090,6 +1065,11 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
 
     typedef JSULink<JPABaseParticle>* (*NextFunc)(JSULink<JPABaseParticle>*);
 
+    f32 sx0;
+    f32 sx1;
+    f32 px, py, pz;
+    f32 cx0;
+    f32 cx1;
     JSULink<JPABaseParticle>* start;
     NextFunc getNext;
     f32 texT = 0.0f;
@@ -1107,17 +1087,14 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
     GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, numLinks * 2);
     for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT += texStep) {
         JPABaseParticle* ptcl = link->getObject();
-        JGeometry::TVec3<f32> pos;
-        ptcl->getGlobalPosition(pos);
+        px = ptcl->mGlobalPosition.x;
+        py = ptcl->mGlobalPosition.y;
+        pz = ptcl->mGlobalPosition.z;
 
         JPADrawParams* params = ptcl->getDrawParamPPtr();
         f32 sin = JMASSin(params->mRotateAngle);
         f32 cos = JMASCos(params->mRotateAngle);
 
-        f32 sx0;
-        f32 sx1;
-        f32 cx0;
-        f32 cx1;
         f32 x0 = -params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX + JPADrawContext::pcb->mPivotX);
         sx0 = x0 * sin;
         cx0 = x0 * cos;
@@ -1152,9 +1129,9 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
         mtx.mult(v1);
         mtx.mult(v2);
 
-        GXPosition3f32(v1.x + pos.x, v1.y + pos.y, v1.z + pos.z);
+        GXPosition3f32(v1.x + px, v1.y + py, v1.z + pz);
         GXTexCoord2f32(0.0f, texT);
-        GXPosition3f32(v2.x + pos.x, v2.y + pos.y, v2.z + pos.z);
+        GXPosition3f32(v2.x + px, v2.y + py, v2.z + pz);
         GXTexCoord2f32(1.0f, texT);
     }
     GXEnd();
@@ -1168,6 +1145,13 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
     typedef JSULink<JPABaseParticle>* (*NextFunc)(JSULink<JPABaseParticle>*);
 
+    JPABaseParticle* ptcl;
+    f32 sx0;
+    f32 sx1;
+    f32 px, py, pz;
+    f32 texT2;
+    f32 cx0;
+    f32 cx1;
     JSULink<JPABaseParticle>* start;
     NextFunc getNext;
     f32 texT0;
@@ -1189,20 +1173,26 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
     // function, so loop 2's accesses go through memory as well.
     JGeometry::TVec3<f32> dir;
     JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33R<f32> > > mtx;
+    JGeometry::TVec3<f32> side;
+    JGeometry::TVec3<f32> v1;
+    JGeometry::TVec3<f32> v2;
     GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, numLinks * 2);
     for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT += texStep) {
-        JPABaseParticle* ptcl = link->getObject();
-        JGeometry::TVec3<f32> pos;
-        ptcl->getGlobalPosition(pos);
+        ptcl = (JPABaseParticle*)link->getObject();
+        px = ptcl->mGlobalPosition.x;
+        py = ptcl->mGlobalPosition.y;
+        pz = ptcl->mGlobalPosition.z;
 
         JPADrawParams* params = ptcl->getDrawParamPPtr();
         f32 sin = JMASSin(params->mRotateAngle);
         f32 cos = JMASCos(params->mRotateAngle);
 
-        f32 x0 = -params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX + JPADrawContext::pcb->mPivotX);
-        JGeometry::TVec3<f32> v1(x0 * cos, 0.0f, x0 * sin);
-        f32 x1 = +params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX - JPADrawContext::pcb->mPivotX);
-        JGeometry::TVec3<f32> v2(x1 * cos, 0.0f, x1 * sin);
+        v1.set(-params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX + JPADrawContext::pcb->mPivotX), 0.0f, 0.0f);
+        sx0 = v1.x * sin;
+        cx0 = v1.x * cos;
+        v2.set(+params->mScaleX * (JPADrawContext::pcb->mGlobalScaleX - JPADrawContext::pcb->mPivotX), 0.0f, 0.0f);
+        sx1 = v2.x * sin;
+        cx1 = v2.x * cos;
 
         JPADrawContext::pcb->mDirTypeFunc(ptcl, pDC->pbe, dir);
         if (dir.isZero())
@@ -1210,7 +1200,6 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
         else
             dir.normalize();
 
-        JGeometry::TVec3<f32> side;
         side.cross(params->mAxis, dir);
         if (side.isZero())
             side.set(1.0f, 0.0f, 0.0f);
@@ -1224,35 +1213,37 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
         f32* hack = &mtx.mMtx[0][0];
 
+        v1.set(cx0, 0.0f, sx0);
+        v2.set(cx1, 0.0f, sx1);
         mtx.mult(v1);
         mtx.mult(v2);
 
-        GXPosition3f32(v1.x + pos.x, v1.y + pos.y, v1.z + pos.z);
+        GXPosition3f32(v1.x + px, v1.y + py, v1.z + pz);
         GXTexCoord2f32(0.0f, texT);
-        GXPosition3f32(v2.x + pos.x, v2.y + pos.y, v2.z + pos.z);
+        GXPosition3f32(v2.x + px, v2.y + py, v2.z + pz);
         GXTexCoord2f32(1.0f, texT);
     }
     GXEnd();
 
-    texT = texT0;
+    texT2 = texT0;
     GXBegin(GX_TRIANGLESTRIP, GX_VTXFMT0, numLinks * 2);
-    for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT += texStep) {
-        JPABaseParticle* ptcl = link->getObject();
-        JGeometry::TVec3<f32> pos;
-        ptcl->getGlobalPosition(pos);
+    for (JSULink<JPABaseParticle>* link = start; link != NULL; link = getNext(link), texT2 += texStep) {
+        ptcl = (JPABaseParticle*)link->getObject();
+        px = ptcl->mGlobalPosition.x;
+        py = ptcl->mGlobalPosition.y;
+        pz = ptcl->mGlobalPosition.z;
 
         JPADrawParams* params = ptcl->getDrawParamPPtr();
         f32 cos = JMASCos(params->mRotateAngle);
         f32 sin = -JMASSin(params->mRotateAngle);
 
-        f32 scaleY = params->mScaleY;
-        f32 x0 = scaleY * (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY);
         // This stripe is the perpendicular one, so the width direction is
-        // (-sin, 0, cos) instead of the first loop's (cos, 0, sin).
-        JGeometry::TVec3<f32> v1(x0 * sin, 0.0f, x0 * cos);
-        scaleY = -scaleY;
-        f32 x1 = scaleY * (JPADrawContext::pcb->mGlobalScaleY - JPADrawContext::pcb->mPivotY);
-        JGeometry::TVec3<f32> v2(x1 * sin, 0.0f, x1 * cos);
+        // (-sin, 0, cos) instead of the first loop's (cos, 0, sin). The width
+        // is built in place (scale into x, then rotate) as in JPA2.
+        v1.set(+params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY + JPADrawContext::pcb->mPivotY), 0.0f, 0.0f);
+        v1.set(v1.x * sin, 0.0f, v1.x * cos);
+        v2.set(-params->mScaleY * (JPADrawContext::pcb->mGlobalScaleY - JPADrawContext::pcb->mPivotY), 0.0f, 0.0f);
+        v2.set(v2.x * sin, 0.0f, v2.x * cos);
 
         ptcl->getVelVec(dir);
 
@@ -1261,7 +1252,6 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
         else
             dir.normalize();
 
-        JGeometry::TVec3<f32> side;
         side.cross(params->mAxis, dir);
         if (side.isZero())
             side.set(1.0f, 0.0f, 0.0f);
@@ -1273,15 +1263,13 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
 
         mtx.setXYZDir(side, dir, params->mAxis);
 
-        f32* hack2 = &mtx.mMtx[0][0];
-
         mtx.mult(v1);
         mtx.mult(v2);
 
-        GXPosition3f32(v1.x + pos.x, v1.y + pos.y, v1.z + pos.z);
-        GXTexCoord2f32(0.0f, texT);
-        GXPosition3f32(v2.x + pos.x, v2.y + pos.y, v2.z + pos.z);
-        GXTexCoord2f32(1.0f, texT);
+        GXPosition3f32(v1.x + px, v1.y + py, v1.z + pz);
+        GXTexCoord2f32(0.0f, texT2);
+        GXPosition3f32(v2.x + px, v2.y + py, v2.z + pz);
+        GXTexCoord2f32(1.0f, texT2);
     }
     GXEnd();
 }

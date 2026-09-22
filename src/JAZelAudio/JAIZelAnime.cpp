@@ -17,7 +17,6 @@ void JAIZelAnime::setAnimSound(Vec* pos, f32 frame, f32 rate, u32 mtrlSndId, s8 
 }
 
 /* 802AC888-802ACD34       .text startAnimSound__11JAIZelAnimeFPvUlPP8JAISoundPQ27JAInter5ActorUc */
-// NONMATCHING - 1 missing reg move
 void JAIZelAnime::startAnimSound(void* i_basic, u32 i_soundID, JAISound** i_sound, JAInter::Actor* i_actor, u8 param_4) {
     JAIZelBasic* basic = (JAIZelBasic*)i_basic;
 
@@ -36,11 +35,19 @@ void JAIZelAnime::startAnimSound(void* i_basic, u32 i_soundID, JAISound** i_soun
     case JA_SE_CV_DRG_MTOP_BIKU:
     case JA_SE_CV_DRG_MTOP_ABARE:
     case JA_SE_CV_DRG_MTOP_AKUBI:
+#if VERSION == VERSION_DEMO
+        JAIZelBasic::getInterface()->seStart(i_soundID, i_actor->field_0x4, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+        return;
+    case JA_SE_FT_PW_RUN_AWAY:
+        JAIZelBasic::getInterface()->seStart(i_soundID, i_actor->field_0x4, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+        return;
+#else
         mDoAud_seStart(i_soundID, i_actor->field_0x4);
         return;
     case JA_SE_FT_PW_RUN_AWAY:
         mDoAud_seStart(i_soundID, i_actor->field_0x4);
         return;
+#endif
     }
 
     if (basic->field_0x0201 == 1) {
@@ -88,7 +95,7 @@ void JAIZelAnime::startAnimSound(void* i_basic, u32 i_soundID, JAISound** i_soun
     }
 
     u32 actor_c = i_actor->field_0xc;
-    int var_r27 = actor_c >> 24;
+    u16 var_r27 = actor_c >> 24;
     i_actor->field_0xc = actor_c & 0xFFFFFF;
 
     if (i_actor->field_0x4 != NULL) {
