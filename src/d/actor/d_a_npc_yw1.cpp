@@ -943,6 +943,7 @@ int daNpc_Yw1_c::wait_3() {
     return 1;
 }
 
+// NONMATCHING - the target shares one targetSpeed = 0.0f block between both failed conditions
 int daNpc_Yw1_c::walk_1() {
     if (chk_brkTsubo()) return 1;
     if (!mPathEnd && mPath.chkPointPass(current.pos, (bool) mPath.getDir())) mPathEnd = !mPath.nextIdx();
@@ -954,11 +955,12 @@ int daNpc_Yw1_c::walk_1() {
             int angle = cLib_targetAngleY(&current.pos, &pos);
             cLib_addCalcAngleS(&current.angle.y, angle, l_HIO.mChild[mType].mPrm.walkTurnRate, l_HIO.mChild[mType].mPrm.walkTurnSpeed, 0);
             targetSpeed = l_HIO.mChild[mType].mPrm.walkSpeed;
-            goto walk_speed_set;
+        } else {
+            targetSpeed = 0.0f;
         }
+    } else {
+        targetSpeed = 0.0f;
     }
-    targetSpeed = 0.0f;
-walk_speed_set:
     cLib_chaseF(&speedF, targetSpeed, l_HIO.mChild[mType].mPrm.acceleration);
     f32 rate = speedF * l_HIO.mChild[mType].mPrm.animationSpeed;
     f32 playSpeed = rate < 0.5f ? 0.5f : rate;
