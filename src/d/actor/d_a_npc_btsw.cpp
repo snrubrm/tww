@@ -505,6 +505,7 @@ void daNpc_Btsw_c::set_mtx() {
     if (field_0x9C5 == 10 || field_0x9C5 == 9) {
         cXyz vec;
         csXyz angle;
+        s16 ax, ay, az;
 
 #if VERSION == VERSION_DEMO
         if (mpMorf->getFrame() < 19.0f + REG10_F(5)) {
@@ -513,19 +514,31 @@ void daNpc_Btsw_c::set_mtx() {
 #endif
             if (field_0x9C5 == 9) {
                 vec.set(28.68f, 4.68f, -8.45f);
-                angle.set(-0x43A2, 0x9CA, -0x233);
+                ax = -0x43A2;
+                ay = 0x9CA;
+                az = -0x233;
+                angle.set(ax, ay, az);
             } else {
                 vec.set(28.68f, -0.43f, -8.19f);
-                angle.set(-0x43A2, 0x9CA, -0x2CB);
+                ax = -0x43A2;
+                ay = 0x9CA;
+                az = -0x2CB;
+                angle.set(ax, ay, az);
             }
             mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_handR));
         } else {
             if (field_0x9C5 == 9) {
                 vec.set(23.61f, -5.08f, -7.22f);
-                angle.set(-0x49FC, -0x458, -0x568F);
+                ax = -0x49FC;
+                ay = -0x458;
+                az = -0x568F;
+                angle.set(ax, ay, az);
             } else {
                 vec.set(24.9f, 0.62f, -7.51f);
-                angle.set(-0x4C7F, -0x7A, -0x491D);
+                ax = -0x4C7F;
+                ay = -0x7A;
+                az = -0x491D;
+                angle.set(ax, ay, az);
             }
             mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_handL));
         }
