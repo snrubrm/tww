@@ -40,6 +40,7 @@ daNpc_Yw1_HIO_c::daNpc_Yw1_HIO_c() {
 inline daNpc_Yw1_childHIO_c::~daNpc_Yw1_childHIO_c() {
 }
 
+#if VERSION > VERSION_JPN
 static BOOL nodeCB_Hair(J3DNode* node, int timing) {
     if (timing == 0) {
         J3DModel* model = j3dSys.getModel();
@@ -66,6 +67,7 @@ void daNpc_Yw1_c::_nodeCB_Hair(J3DNode* node, J3DModel* model) {
     MTXCopy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
     MTXCopy(mDoMtx_stack_c::get(), model->getAnmMtx(joint));
 }
+#endif
 
 static BOOL nodeCB_Head(J3DNode* node, int timing) {
     if (timing == 0) {
@@ -246,7 +248,9 @@ void daNpc_Yw1_c::setMtx(bool force) {
     mDoMtx_stack_c::ZXYrotM(mModelAngle);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
     mpMorf->calc();
+#if VERSION > VERSION_JPN
     setHairAngle();
+#endif
     mpHeadModel->setBaseTRMtx(mpMorf->getModel()->getAnmMtx(m_hed_jnt_num));
     mpHeadModel->calc();
     upLift();
@@ -277,7 +281,7 @@ bool daNpc_Yw1_c::init_texPttrnAnm(s8 index, bool modify) {
     J3DModel* model = mpHeadModel;
     if (index < 0) return false;
     J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Yw", btpResID(index));
-    JUT_ASSERT(0x28A, a_btp != 0);
+    JUT_ASSERT(VERSION_SELECT(0x25F, 0x25F, 0x28A, 0x28A), a_btp != 0);
     mBtpNo = index;
     mTexFrame = 0;
     mBlinkTimer = 0;
@@ -728,6 +732,7 @@ void daNpc_Yw1_c::set_pthPoint(u8 index) {
     }
 }
 
+#if VERSION > VERSION_JPN
 static const Vec l_eye_offset = {
     15.0f, 10.0f, 0.0f
 };
@@ -832,6 +837,7 @@ void daNpc_Yw1_c::setHairAngle() {
     mHairWave3 = 7568.0f * wave * cM_scos(mHairPhase - 6.0f * phaseStep);
     mOldHeadPos = pos;
 }
+#endif
 
 bool daNpc_Yw1_c::chk_brkTsubo() {
     if (mPotMissing) {
@@ -1232,7 +1238,7 @@ cPhs_State daNpc_Yw1_c::_create() {
 
 int daNpc_Yw1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*) dComIfG_getObjectIDRes("Yw", dRes_ID_YW_BDL_YW_e);
-    JUT_ASSERT(0x96F, a_mdl_dat != 0);
+    JUT_ASSERT(VERSION_SELECT(0x87A, 0x87A, 0x96F, 0x96F), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, 1, NULL, 0x80000, 0x11020022);
     if (!mpMorf) return 0;
     if (!mpMorf->getModel()) {
@@ -1240,9 +1246,9 @@ int daNpc_Yw1_c::bodyCreateHeap() {
         return 0;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0x97D, m_hed_jnt_num >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x888, 0x888, 0x97D, 0x97D), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0x97F, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(VERSION_SELECT(0x88A, 0x88A, 0x97F, 0x97F), m_bbone_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->setUserArea((u32) this);
@@ -1257,10 +1263,11 @@ int daNpc_Yw1_c::headCreateHeap() {
         0
     };
     J3DModelData* a_mdl_dat = (J3DModelData*) dComIfG_getObjectIDRes("Yw", a_hed_bdl_resID_tbl[mType]);
-    JUT_ASSERT(0x99C, a_mdl_dat != 0);
+    JUT_ASSERT(VERSION_SELECT(0x8A7, 0x8A7, 0x99C, 0x99C), a_mdl_dat != 0);
     mpHeadModel = mDoExt_J3DModel__create(a_mdl_dat, 0x80000, 0x15020022);
     if (!mpHeadModel) return 0;
     if (!init_texPttrnAnm(a_tex_pttrn_num_tbl[mType], false)) return 0;
+#if VERSION > VERSION_JPN
     m_hair1 = a_mdl_dat->getJointName()->getIndex("hair1");
     JUT_ASSERT(0x9AD, m_hair1 >= 0);
     m_hair2 = a_mdl_dat->getJointName()->getIndex("hair2");
@@ -1271,6 +1278,7 @@ int daNpc_Yw1_c::headCreateHeap() {
     mpHeadModel->getModelData()->getJointNodePointer(m_hair2)->setCallBack(nodeCB_Hair);
     mpHeadModel->getModelData()->getJointNodePointer(m_hair3)->setCallBack(nodeCB_Hair);
     mpHeadModel->setUserArea((u32) this);
+#endif
     return 1;
 }
 
