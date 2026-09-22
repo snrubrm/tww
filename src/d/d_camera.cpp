@@ -7906,12 +7906,9 @@ static void store(camera_process_class* i_this) {
         }
     }
     
-#if VERSION == VERSION_DEMO
-    // Always false here; presumably set by debug-only code stripped from this build.
-    bool skipSet = false;
-    if (!skipSet)
-#endif
-    {
+    // TP sets this after its bad direction/fovy/eye checks, which are not present here.
+    bool error = false;
+    if (!error) {
         fopCamM_SetCenter(camera, oldCenter.x, oldCenter.y, oldCenter.z);
         fopCamM_SetEye(camera, oldEye.x, oldEye.y, oldEye.z);
         fopCamM_SetUp(camera, oldUp.x, oldUp.y, oldUp.z);
