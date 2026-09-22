@@ -553,30 +553,27 @@ void daNpc_Bj1_c::chg_anmAtr(unsigned char attr) {
 
 /* 000013C0-0000143C       .text control_anmAtr__11daNpc_Bj1_cFv */
 void daNpc_Bj1_c::control_anmAtr() {
-    int attr = mAnmAttr;
-    if (attr >= 8) {
-        goto ge8;
-    } else if (attr >= 6) {
-        goto case67;
-    } else {
-        return;
-    }
-ge8:
-    if (attr == 10) {
-        goto case10;
-    } else {
-        return;
-    }
-case67:
-    if (mAnmEnd != 0) {
-        mAnmAttr = 0;
-        setAnm_NUM(0);
-    }
-    return;
-case10:
-    if (mAnmEnd != 0) {
-        mAnmAttr = 2;
-        setAnm_NUM(3);
+    switch (mAnmAttr) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+        break;
+    case 6:
+    case 7:
+        if (mAnmEnd != 0) {
+            mAnmAttr = 0;
+            setAnm_NUM(0);
+        }
+        break;
+    case 10:
+        if (mAnmEnd != 0) {
+            mAnmAttr = 2;
+            setAnm_NUM(3);
+        }
+        break;
     }
 }
 
