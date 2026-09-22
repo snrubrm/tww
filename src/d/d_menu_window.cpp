@@ -83,7 +83,9 @@ static dMenu_Fmap_c* dMf_c;
 static dName_c* dNm_c;
 static dMenu_save_c* dMs_c;
 
+#if VERSION > VERSION_JPN
 static s8 event_wait_frame;
+#endif
 
 static void dMs_onButtonBit(sub_ms_screen_class* i_Ms, u8 i_Bit);
 static void dMs_offButtonBit(sub_ms_screen_class* i_Ms, u8 i_Bit);
@@ -913,6 +915,7 @@ static BOOL dMs_Execute(sub_ms_screen_class* i_Ms) {
 
     JKRHeap* heap = mDoExt_setCurrentHeap(i_Ms->parentHeap_0xfc);
 
+#if VERSION > VERSION_JPN
     if (dComIfGp_event_runCheck()) {
         event_wait_frame = 5;
     } else if (event_wait_frame > 0) {
@@ -920,6 +923,7 @@ static BOOL dMs_Execute(sub_ms_screen_class* i_Ms) {
     } else {
         event_wait_frame = 0;
     }
+#endif
 
 #define CAN_PROCEED() (dMenu_flag() == 0 && dComIfGp_isEnableNextStage() == 0 && !fopOvlpM_IsDoingReq())
 
@@ -969,7 +973,7 @@ static BOOL dMs_Execute(sub_ms_screen_class* i_Ms) {
 
             } else if (dMenu_flag() == 0 && !fopOvlpM_IsDoingReq() && !(CPad_CHECK_TRIG_A(0) || CPad_CHECK_TRIG_B(0) || CPad_CHECK_TRIG_Z(0))) {
 
-                if (event_wait_frame == 0 || (daPy_getPlayerLinkActorClass()->getTactNormalWait() && CPad_CHECK_TRIG_START(0)) ||
+                if (VERSION_SELECT(!dComIfGp_event_runCheck(), !dComIfGp_event_runCheck(), event_wait_frame == 0, event_wait_frame == 0) || (daPy_getPlayerLinkActorClass()->getTactNormalWait() && CPad_CHECK_TRIG_START(0)) ||
                     (dComIfGp_getOperateWind() == 2 && CPad_CHECK_TRIG_UP(0) && dStage_stagInfo_GetUpButton(dComIfGp_getStageStagInfo()) == 0 &&
                         dComIfGs_isEventBit(dSv_event_flag_c::UNK_0908)))
                 {
