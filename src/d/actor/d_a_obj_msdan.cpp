@@ -24,18 +24,16 @@ cPhs_State daObjMsdan::Act_c::Mthd_Create() {
             for (int i = 0; i < 31; i++) {
                 pos.x += 50.0f * cM_ssin(current.angle.y);
                 pos.z += 50.0f * cM_scos(current.angle.y);
-                u32 parameters = (i << 8) + prm_get_swSave() + (prm_get_size() << 16);
-                fopAcM_create(fpcNm_Obj_MsdanSub_e, parameters,
-                             &pos, fopAcM_GetRoomNo(this), &angle);
+                fopAcM_create(fpcNm_Obj_MsdanSub_e, (i << 8) + prm_get_swSave() + (prm_get_size() << 16),
+                             &pos, current.roomNo, &angle);
             }
         } else {
             pos.y += 400.0f;
             for (int i = 16; i < 31; i++) {
                 pos.x += 50.0f * cM_ssin(current.angle.y);
                 pos.z += 50.0f * cM_scos(current.angle.y);
-                u32 parameters = (i << 8) + prm_get_swSave() + (prm_get_size() << 16);
-                fopAcM_create(fpcNm_Obj_MsdanSub_e, parameters,
-                             &pos, fopAcM_GetRoomNo(this), &angle);
+                fopAcM_create(fpcNm_Obj_MsdanSub_e, (i << 8) + prm_get_swSave() + (prm_get_size() << 16),
+                             &pos, current.roomNo, &angle);
             }
         }
         if (prm_get_evId() == 0xFF) {
@@ -44,7 +42,7 @@ cPhs_State daObjMsdan::Act_c::Mthd_Create() {
             mEventIdx = dComIfGp_evmng_getEventIdx(NULL, prm_get_evId());
         }
         int sw = prm_get_swSave();
-        if (dComIfGs_isSwitch(sw, home.roomNo)) {
+        if (dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(this))) {
             mState = 3;
         } else {
             mState = 0;
