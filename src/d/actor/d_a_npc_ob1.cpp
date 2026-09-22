@@ -721,11 +721,10 @@ void daNpc_Ob1_c::partner_srch() {
 s8 daNpc_Ob1_c::bitCount(u8 bits) {
     s8 count = 0;
     for (int i = 0; i < 8; i++) {
-        int shifted = bits;
         if (bits & 1) {
             count++;
         }
-        bits = shifted >> 1;
+        bits = bits >> 1;
     }
     return count;
 }
