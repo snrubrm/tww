@@ -4981,9 +4981,8 @@ void dKyr_drawSnow(Mtx drawMtx, u8** pImg) {
         pos[3].y = sp7C.y + sp88.y;
         pos[3].z = sp7C.z + sp88.z;
 
-        int k;
-        u8 num;
-        for (k = 0, num = 4; k < num; k++) {
+        u8 num = 4;
+        for (int k = 0; k < num; k++) {
             static const cXyz add_table[] = {
                 cXyz(0.0f, 0.0f, 0.0f),
                 cXyz(150.0f, 75.0f, 0.0f),
