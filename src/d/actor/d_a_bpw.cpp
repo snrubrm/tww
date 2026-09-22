@@ -1985,7 +1985,7 @@ void action_damage(bpw_class* i_this) {
     case 0x5c:
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 10, 0x2000);
         if (i_this->mpMorf->isStop()) {
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
             i_this->mSomeCountdownTimers[0] = 0;
             i_this->mSomeCountdownTimers[1] = 0;
 #endif
