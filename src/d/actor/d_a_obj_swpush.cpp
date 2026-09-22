@@ -188,6 +188,17 @@ bool daObjSwpush::Act_c::create_heap() {
 
 /* 00000478-0000051C       .text create_res_load__Q211daObjSwpush5Act_cFv */
 cPhs_State daObjSwpush::Act_c::create_res_load() {
+#if VERSION == VERSION_DEMO
+    cPhs_State rt_kbota = attr().mKbotaResName != NULL ? dComIfG_resLoad(&mKbotaPhs, attr().mKbotaResName) : cPhs_COMPLEATE_e;
+    cPhs_State rt_hhbot = attr().mHhbotResName != NULL ? dComIfG_resLoad(&mHhbotPhs, attr().mHhbotResName) : cPhs_COMPLEATE_e;
+    if (rt_kbota == cPhs_COMPLEATE_e && rt_hhbot == cPhs_COMPLEATE_e) {
+        return cPhs_COMPLEATE_e;
+    }
+    if (rt_kbota == cPhs_ERROR_e || rt_hhbot == cPhs_ERROR_e) {
+        return cPhs_ERROR_e;
+    }
+    return cPhs_INIT_e;
+#else
     cPhs_State rt = attr().mKbotaResName != NULL ? dComIfG_resLoad(&mKbotaPhs, attr().mKbotaResName) : cPhs_COMPLEATE_e;
     if (rt != cPhs_COMPLEATE_e) {
         return rt;
@@ -197,6 +208,7 @@ cPhs_State daObjSwpush::Act_c::create_res_load() {
         return rt;
     }
     return cPhs_COMPLEATE_e;
+#endif
 }
 
 /* 0000051C-000008C4       .text Mthd_Create__Q211daObjSwpush5Act_cFv */
