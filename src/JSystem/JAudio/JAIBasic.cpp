@@ -484,6 +484,7 @@ void JAIBasic::setSeCategoryVolume(u8 param_1, u8 param_2) {
 }
 
 /* 80290E50-80291034       .text setParameterSeqSync__8JAIBasicFPQ28JASystem6TTrackUs */
+// NONMATCHING - the target computes mFlag >> 8 into a temporary and copies it into result (regalloc)
 u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
     JASystem::TTrack::TOuterParam* outerParam;
     u32 trackNo;
@@ -499,7 +500,7 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
             JASystem::TTrack* track = &seqParam->mTrack;
             if (track == (JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID & 0x800 ? param_1->getParent()->getParent() : param_1->getParent())) {
                 trackNo = JAInter::routeToTrack(param_1->field_0x36c);
-                result = JAInter::SoundTable::getInfoPointer(JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID)->mFlag >> 8 & 0xffff;
+                result = JAInter::SoundTable::getInfoPointer(JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID)->mFlag >> 8;
                 JAInter::SystemInterface::outerInit(JAInter::SequenceMgr::getPlayTrackInfo(i), param_1, trackNo, result, param_2 & 1);
                 JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x4 |= 1 << trackNo;
                 result = 0;
