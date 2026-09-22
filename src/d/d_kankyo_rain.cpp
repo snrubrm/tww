@@ -4720,8 +4720,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                             ratio = 0.4f;
 #endif
                             if (temp_r4 < (int)(snow_packet->mEffCount * ratio)) {
-                                f32 tmpk = temp_r4 * 4000;
-                                f32 temp_f2 = std::fabsf(cM_scos(tmpk + (f32)(g_Counter.mCounter0 * spd)));
+                                f32 temp_f2 = std::fabsf(cM_scos(temp_r4 * 4000 + (f32)(g_Counter.mCounter0 * spd)));
                                 u32 _69 = 0x45;
                                 color0.r = (f32)_69 + (temp_f2 * ((f32)_255 - (f32)_69));
                                 u32 _60 = 0x3C;
@@ -4732,7 +4731,6 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
 
                                 u32 _124 = 0x7C;
                                 color1.r = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
-                                _124 = 0x7C;
                                 color1.g = (f32)_124 + (temp_f2 * ((f32)_255 - (f32)_124));
                                 u32 _104 = 0x68;
                                 color1.b = (f32)_104 + (temp_f2 * ((f32)_0 - (f32)_104));
@@ -4743,9 +4741,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                                 _0 = 0;
                                 color0.b = temp_f2 * (f32)_0;
 
-                                _255 = 0xFF;
                                 color1.r = temp_f2 * (f32)_255;
-                                _255 = 0xFF;
                                 color1.g = temp_f2 * (f32)_255;
                                 _0 = 0;
                                 color1.b = temp_f2 * _0;
