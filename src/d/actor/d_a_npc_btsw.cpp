@@ -184,7 +184,7 @@ u32 daNpc_Btsw_getGameEndMsg(s16 rupees) {
 BOOL daNpc_Btsw_c::initTexPatternAnm(bool i_modify) {
     J3DModelData* modelData = mpMorf->getModel()->getModelData();
 
-    m_head_tex_pattern = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Btsw", (u16)l_btp_ix_tbl[field_0x9C4]);
+    m_head_tex_pattern = (J3DAnmTexPattern*) dComIfG_getObjectIDRes("Btsw", (int)l_btp_ix_tbl[field_0x9C4]);
     JUT_ASSERT(332, m_head_tex_pattern != NULL);
 
     if (!field_0x7E8.init(modelData, m_head_tex_pattern, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, i_modify, FALSE)) {
