@@ -21,7 +21,7 @@ You should also read the [coding guidelines page](/docs/coding_guidelines.md) pa
 
 Once you have everything set up, you should pick which object (also called a translation unit, TU) you want to work on.
 
-Almost every function is already matched, so the remaining work is the leftover non-matching functions in each version (see the progress table in the [README](/README.md)). In objdiff, look for objects that aren't at 100%, or list the functions below 100% `fuzzy_match_percent` in `build/<version>/report.json`. Many leftovers have a `// NONMATCHING` comment explaining what is known about them.
+Almost every function is already matched, so the remaining work is the leftover non-matching functions in each version (see the progress table in the [README](/README.md)). In objdiff, look for objects that aren't at 100%, or list the functions below 100% `fuzzy_match_percent` in `build/<version>/report.json`. Many leftovers have a `// NONMATCHING` comment explaining what is known about them. Each leftover also has an issue on [GitHub](https://github.com/snrubrm/tww/issues?q=is%3Aissue%20state%3Aopen%20label%3Anonmatching) with what's known so far (demo-only leftovers are in one checklist issue); leave a comment there if you start on one so others don't pick the same function.
 
 Now that you've decided on an object, open up objdiff and type the object's name (e.g. `d_a_wall`) into the filter bar on the left, then click on it to open it. You should see a list of data and functions in this TU.
 
