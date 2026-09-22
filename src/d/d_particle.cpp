@@ -1092,6 +1092,7 @@ void dPa_ripplePcallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* ptcl
 
 /* 8007DE94-8007E254       .text draw__19dPa_ripplePcallBackFP14JPABaseEmitterP15JPABaseParticle */
 #if VERSION == VERSION_DEMO
+// NONMATCHING - the vertex z sums are computed before the x sums in the target
 void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
     f32 x0, z0, x1, z1, x2, z2, x3, z3;
     f32 posX, posY, posZ;
@@ -1190,13 +1191,13 @@ void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
 
     GXSetCullMode(GX_CULL_NONE);
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-    { f32 pz = z0 + posZ; f32 px = x0 + posX; GXPosition3f32(px, y0, pz); }
+    GXPosition3f32(x0 + posX, y0, z0 + posZ);
     GXTexCoord2f32(0.0f, 0.0f);
-    { f32 pz = z1 + posZ; f32 px = x1 + posX; GXPosition3f32(px, y1, pz); }
+    GXPosition3f32(x1 + posX, y1, z1 + posZ);
     GXTexCoord2f32(1.0f, 0.0f);
-    { f32 pz = z2 + posZ; f32 px = x2 + posX; GXPosition3f32(px, y2, pz); }
+    GXPosition3f32(x2 + posX, y2, z2 + posZ);
     GXTexCoord2f32(1.0f, 1.0f);
-    { f32 pz = z3 + posZ; f32 px = x3 + posX; GXPosition3f32(px, y3, pz); }
+    GXPosition3f32(x3 + posX, y3, z3 + posZ);
     GXTexCoord2f32(0.0f, 1.0f);
     particle->setInvisibleParticleFlag();
 }
