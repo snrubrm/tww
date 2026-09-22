@@ -59,8 +59,6 @@ void* daObjVds::ds_search_switchCB(void* actor, void* self) {
 void* daObjVds::Act_c::search_switchCB(fopAc_ac_c* actor) {
     cXyz left, right;
     static s16 angle_data[2] = {0, 0};
-    // Eye-position constants retained by the original build.
-    static const f32 eyeOffsets[] = {-222.5f, 598.73f, 178.9f, 222.5f};
     if (fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_Obj_Swlight_e) {
         for (int i = 0; i < 2; i++) {
             if (mSwitchId[i] == fpcM_ERROR_PROCESS_ID_e) {
@@ -281,6 +279,7 @@ bool daObjVds::Act_c::create_heap() {
 }
 
 /* 00001020-000011EC       .text _create__Q28daObjVds5Act_cFv */
+// NONMATCHING - rodata offsets: four unreferenced floats (-222.5, 598.73, 178.9, 222.5) of unknown origin at .rodata 0x30 are missing
 cPhs_State daObjVds::Act_c::_create() {
     fopAcM_SetupActor(this, Act_c);
     cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
