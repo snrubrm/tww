@@ -5860,6 +5860,7 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
 }
 
 /* 80174E98-8017623C       .text rideCamera__9dCamera_cFl */
+// NONMATCHING - missing a discarded uDelta.Sin() call when flag 0x100000 is clear (the original probably computed an unused value from it).
 bool dCamera_c::rideCamera(s32 param_1) {
     f32 val5 = mCamParam.Val(param_1, 5);
     f32 val0 = mCamParam.Val(param_1, 0);
@@ -6109,9 +6110,6 @@ bool dCamera_c::rideCamera(s32 param_1) {
 
     f32 r = mViewCache.mDirection.R() + val21 * (targetDir.R() - mViewCache.mDirection.R());
     cSAngle uDelta = directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U();
-    if (!chkFlag(0x100000)) {
-        uDelta.Sin();
-    }
     cSAngle blendedU = mViewCache.mDirection.U() + (targetDir.U() - mViewCache.mDirection.U()) * val20;
 
     cSGlobe curGlobe(mViewCache.mEye - mViewCache.mCenter);
