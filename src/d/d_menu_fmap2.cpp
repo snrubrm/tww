@@ -2669,7 +2669,8 @@ BOOL dMenu_Fmap2_c::paneAlphaTingleMap(s16 param_1, u8 param_2, u8 param_3, int 
         fopMsgM_setNowAlpha(&mTnGdgtPane, f31);
         fopMsgM_setAlpha(&mTnGdgtPane);
 #endif
-        for (int i = 0; i < ARRAY_SSIZE(field_0x1bcc); i++) {
+        // BUG: Demo and Japan only have 17 entries in the array, but iterate over 21
+        for (int i = 0; i < VERSION_SELECT(21, 21, ARRAY_SSIZE(field_0x1bcc), ARRAY_SSIZE(field_0x1bcc)); i++) {
             fopMsgM_setNowAlpha(&field_0x1bcc[i], f31);
             fopMsgM_setAlpha(&field_0x1bcc[i]);
         }
