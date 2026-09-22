@@ -84,9 +84,6 @@ void smoke_set(bo_class* i_this) {
 #endif
 }
 
-// Likely fakematch: keeps the int->float conversion in its own temp.
-inline f32 scaleMul(f32 a, f32 b) { return a * b; }
-
 /* 000001E8-00000638       .text nodeCallBack_UP__FP7J3DNodei */
 static BOOL nodeCallBack_UP(J3DNode* node, int calcTiming) {
     if (calcTiming == J3DNodeCBCalcTiming_In) {
@@ -141,13 +138,9 @@ static BOOL nodeCallBack_UP(J3DNode* node, int calcTiming) {
             }
 
             if (jntNo >= 5 && jntNo <= 7) {
-#if VERSION == VERSION_DEMO
                 s16 n = 8 - jntNo;
-                f32 scale = 1.75f;
-                scale = n * scale;
-#else
-                f32 scale = scaleMul((s16)(8 - jntNo), 1.75f);
-#endif
+                f32 rate = 1.75f;
+                f32 scale = n * rate;
                 cMtx_YrotM(*calc_mtx, i_this->m352.y * scale);
                 cMtx_ZrotM(*calc_mtx, i_this->m352.z * scale);
                 changed = 1;
