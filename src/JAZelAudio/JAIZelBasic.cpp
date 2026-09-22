@@ -19,7 +19,7 @@
 #include "d/d_com_inf_game.h"
 
 JAIZelBasic* JAIZelBasic::zel_basic;
-u32 jai_rng_seed = 0x12345678;
+u32 jai_rnd_seed = 0x12345678;
 
 /* 802A1C78-802A1EB4       .text __ct__11JAIZelBasicFv */
 JAIZelBasic::JAIZelBasic() {
@@ -737,9 +737,11 @@ void JAIZelBasic::bgmStart(u32 i_bgmNum, u32 i_fadeTime, s32 param_3) {
     if (field_0x0063 != 0) {
         return;
     }
+#if VERSION > VERSION_DEMO
     if (field_0x0066 != 0 && (i_bgmNum + 0x80000000) != 0x1E) {
         return;
     }
+#endif
     if ((i_bgmNum + 0x80000000) == 0x800 || i_bgmNum == 0) {
         return;
     }
@@ -991,8 +993,12 @@ void JAIZelBasic::bgmStart(u32 i_bgmNum, u32 i_fadeTime, s32 param_3) {
     }
 
     bgmStop(0, param_3);
+#if VERSION == VERSION_DEMO
+    OSReport("start bgm : %08x (%08x)\n", i_bgmNum, orig);
+#endif
     startSoundVec(i_bgmNum, &mpMainBgmSound, NULL, i_fadeTime, 0, 4);
 
+#if VERSION > VERSION_DEMO
     if (field_0x0224 == 0x12 && mIslandRoomNo == 0x29 && mAudioCamera->field_0x0) {
         f32 dx = mAudioCamera->field_0x0->x - 195000.0f;
         f32 dz = mAudioCamera->field_0x0->z - 198000.0f;
@@ -1010,9 +1016,14 @@ void JAIZelBasic::bgmStart(u32 i_bgmNum, u32 i_fadeTime, s32 param_3) {
         }
         field_0x0090 = vol90;
     }
+#endif
 
     if ((i_bgmNum + 0x80000000) != 0xA) {
+#if VERSION == VERSION_DEMO
+        if (1.0f != calcMainBgmVol()) {
+#else
         if (1.0f != calcMainBgmVol() && (i_bgmNum + 0x80000000) != 0x51 && (i_bgmNum + 0x80000000) != 0x52) {
+#endif
             if (mpMainBgmSound) {
                 mpMainBgmSound->setVolume(calcMainBgmVol(), 0, SOUNDPARAM_Unk0);
             }
@@ -1272,7 +1283,7 @@ void JAIZelBasic::subBgmStart(u32 i_bgmNum) {
         case JA_BGM_MBOSS_S:
             bgmMute(&mpSubBgmSound, i_bgmNum, 0, 0);
             if (field_0x00c9 != 0) {
-                mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_SWORD_USING_TRACK, 1.0f, 0);
+                setSubBgmTrackVolume(JAIZelParam::MBOSS_SWORD_USING_TRACK, 1.0f, 0);
             }
             break;
         case JA_BGM_SEA_ENEMY:
@@ -1315,7 +1326,10 @@ void JAIZelBasic::subBgmStop() {
     switch (mSubBgmNum) {
     case JA_BGM_ITEM_GET: case JA_BGM_OPEN_BOX: case JA_BGM_GET_HEART: case JA_BGM_ITEM_GET_S:
     case JA_BGM_GET_SONG: case JA_BGM_TAKT_CHUYA: case JA_BGM_TAKT_KAZE: case JA_BGM_TAKT_SHIPPU:
-    case JA_BGM_GET_PEARL: case JA_BGM_BGN_GET_BOX:
+    case JA_BGM_GET_PEARL:
+#if VERSION > VERSION_DEMO
+    case JA_BGM_BGN_GET_BOX:
+#endif
         return;
     }
     field_0x00b0 = 15;
@@ -1332,7 +1346,9 @@ void JAIZelBasic::subBgmStopInner() {
             field_0x00ce = 20;
         }
         mLastMinibossSubBGMType = 0;
+#if VERSION > VERSION_DEMO
         field_0x0064 = 0;
+#endif
         if (mpSubBgmSound) {
             mpSubBgmSound->stop(45);
         } else if (mSubBgmNum == 0xFFFFFFFF) {
@@ -1347,6 +1363,9 @@ void JAIZelBasic::subBgmStopInner() {
                 (field_0x0090 * (field_0x008c * (field_0x0088 * (field_0x0080 * field_0x0084))))))), 45, 0);
         }
         field_0x00b0 = -1;
+#if VERSION == VERSION_DEMO
+        field_0x0064 = 0;
+#endif
         field_0x00c1 = 0;
         field_0x00c4 = 0;
     }
@@ -1470,8 +1489,8 @@ nearby:
     if (i_dist <= JAIZelParam::ENEMY_NEARBY_DIST) {
         field_0x00c4 = 0;
         if (field_0x00c1 == 0) {
-            mpSubBgmSound->setTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK, 1.0f, JAIZelParam::ENEMY_NEARBY_FADEIN_TIME);
-            mpSubBgmSound->setTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK_2, 1.0f, JAIZelParam::ENEMY_NEARBY_FADEIN_TIME);
+            setSubBgmTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK, 1.0f, JAIZelParam::ENEMY_NEARBY_FADEIN_TIME);
+            setSubBgmTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK_2, 1.0f, JAIZelParam::ENEMY_NEARBY_FADEIN_TIME);
             field_0x00c1 = 1;
         }
     } else {
@@ -1481,11 +1500,11 @@ nearby:
         }
     }
     if (field_0x00c9 == 0) {
-        mpSubBgmSound->setTrackVolume(JAIZelParam::SWORD_NOT_USING_TRACK, 1.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
-        mpSubBgmSound->setTrackVolume(JAIZelParam::SWORD_USING_TRACK, 0.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
+        setSubBgmTrackVolume(JAIZelParam::SWORD_NOT_USING_TRACK, 1.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
+        setSubBgmTrackVolume(JAIZelParam::SWORD_USING_TRACK, 0.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
     } else {
-        mpSubBgmSound->setTrackVolume(JAIZelParam::SWORD_USING_TRACK, 1.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
-        mpSubBgmSound->setTrackVolume(JAIZelParam::SWORD_NOT_USING_TRACK, 0.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
+        setSubBgmTrackVolume(JAIZelParam::SWORD_USING_TRACK, 1.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
+        setSubBgmTrackVolume(JAIZelParam::SWORD_NOT_USING_TRACK, 0.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
     }
 }
 
@@ -1507,8 +1526,8 @@ void JAIZelBasic::bgmBattleGFrame() {
                 } else if (field_0x00c4 == 1U) {
                     if (mpSubBgmSound) {
                         if (mSubBgmNum == JA_BGM_BATTLE_NORM) {
-                            mpSubBgmSound->setTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
-                            mpSubBgmSound->setTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK_2, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
+                            setSubBgmTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
+                            setSubBgmTrackVolume(JAIZelParam::ENEMY_NEARBY_TRACK_2, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
                         }
                     }
                     field_0x00c4 = 0;
@@ -1517,7 +1536,7 @@ void JAIZelBasic::bgmBattleGFrame() {
                     field_0x00c8--;
                 } else if (mpSubBgmSound) {
                     if (mSubBgmNum == JA_BGM_BATTLE_NORM) {
-                        mpSubBgmSound->setTrackVolume(JAIZelParam::BTL_KAITENGIRI_TRACK, 0.0f, JAIZelParam::BTL_KAITENGIRI_FADEOUT_TIME);
+                        setSubBgmTrackVolume(JAIZelParam::BTL_KAITENGIRI_TRACK, 0.0f, JAIZelParam::BTL_KAITENGIRI_FADEOUT_TIME);
                     }
                 }
             }
@@ -1532,9 +1551,15 @@ void JAIZelBasic::bgmBattleGFrame() {
 void JAIZelBasic::stopBattleBgm() {
     if (mpSubBgmSound && (mSubBgmNum == JA_BGM_BATTLE_NORM || mSubBgmNum == JA_BGM_SEA_ENEMY)) {
         mpSubBgmSound->stop(45);
+#if VERSION > VERSION_DEMO
         mpSubBgmSound = NULL;
         mSubBgmNum = -1;
+#endif
     }
+#if VERSION == VERSION_DEMO
+    mpSubBgmSound = NULL;
+    mSubBgmNum = -1;
+#endif
 }
 
 /* 802A55AC-802A564C       .text bgmNowKaitengiri__11JAIZelBasicFv */
@@ -1542,11 +1567,11 @@ void JAIZelBasic::bgmNowKaitengiri() {
     if (field_0x00c8 == 0 && mpSubBgmSound) {
         switch (mSubBgmNum) {
         case JA_BGM_BATTLE_NORM:
-            mpSubBgmSound->setTrackVolume(JAIZelParam::BTL_KAITENGIRI_TRACK, 1.0, JAIZelParam::BTL_KAITENGIRI_FADEIN_TIME);
+            setSubBgmTrackVolume(JAIZelParam::BTL_KAITENGIRI_TRACK, 1.0, JAIZelParam::BTL_KAITENGIRI_FADEIN_TIME);
             break;
         case JA_BGM_MBOSS:
         case JA_BGM_MBOSS_S:
-            mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_BTL_KAITENGIRI_TRACK, 1.0, JAIZelParam::BTL_KAITENGIRI_FADEIN_TIME);
+            setSubBgmTrackVolume(JAIZelParam::MBOSS_BTL_KAITENGIRI_TRACK, 1.0, JAIZelParam::BTL_KAITENGIRI_FADEIN_TIME);
             break;
         default:
             break;
@@ -1588,11 +1613,16 @@ void JAIZelBasic::bgmHitSound(s32 param_1) {
             port = getRandomU32(4);
             break;
         }
+#if VERSION == VERSION_DEMO
+        port += 1;
+#endif
         if (mpSubBgmSound) {
             JASystem::TTrack* track = mpSubBgmSound->getSeqParameter()->getRootTrackPointer();
             u16 tmp = 0;
             track->readPortApp(0x100A0001, &tmp);
+#if VERSION > VERSION_DEMO
             port += 1;
+#endif
             track->writePortApp(0x00090000, port);
             track->writePortApp(0x000A0000, tmp);
         }
@@ -1612,10 +1642,14 @@ void JAIZelBasic::onEnemyDamage() {
         }
     } else if (mSubBgmNum == JA_BGM_BATTLE_NORM) {
         if (mpSubBgmSound) {
+#if VERSION == VERSION_DEMO
+            mpSubBgmSound->getSeqParameter()->getRootTrackPointer()->writePortApp(0x000b0000, 1);
+#else
             JASystem::TTrack* track = mpSubBgmSound->getSeqParameter()->getRootTrackPointer();
             if (track) {
                 track->writePortApp(0x000b0000, 1);
             }
+#endif
         }
     }
 }
@@ -1628,22 +1662,22 @@ void JAIZelBasic::mbossBgmMuteProcess() {
         } else if (field_0x00c4 == 1U) {
             if (mpSubBgmSound) {
                 if (mSubBgmNum == JA_BGM_MBOSS || mSubBgmNum == JA_BGM_MBOSS_S) {
-                    mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_ENEMY_NEARBY_TRACK, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
+                    setSubBgmTrackVolume(JAIZelParam::MBOSS_ENEMY_NEARBY_TRACK, 0.0f, JAIZelParam::ENEMY_NEARBY_FADEOUT_TIME);
                 }
             }
             field_0x00c4 = 0;
         }
         if (mpSubBgmSound) {
             if (field_0x00c9 == 0) {
-                mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_SWORD_USING_TRACK, 0.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
+                setSubBgmTrackVolume(JAIZelParam::MBOSS_SWORD_USING_TRACK, 0.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
             } else {
-                mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_SWORD_USING_TRACK, 1.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
+                setSubBgmTrackVolume(JAIZelParam::MBOSS_SWORD_USING_TRACK, 1.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
             }
         }
         if (field_0x00c8 != 0) {
             field_0x00c8--;
         } else if (mpSubBgmSound) {
-            mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_BTL_KAITENGIRI_TRACK, 0.0f, JAIZelParam::BTL_KAITENGIRI_FADEOUT_TIME);
+            setSubBgmTrackVolume(JAIZelParam::MBOSS_BTL_KAITENGIRI_TRACK, 0.0f, JAIZelParam::BTL_KAITENGIRI_FADEOUT_TIME);
         }
     }
 }
@@ -1656,7 +1690,7 @@ void JAIZelBasic::mbossBgmNearByProcess(f32 param_1) {
     if (param_1 <= JAIZelParam::ENEMY_NEARBY_DIST) {
         field_0x00c4 = 0;
         if (field_0x00c1 == 0) {
-            mpSubBgmSound->setTrackVolume(JAIZelParam::MBOSS_ENEMY_NEARBY_TRACK, 1.0, JAIZelParam::ENEMY_NEARBY_FADEIN_TIME);
+            setSubBgmTrackVolume(JAIZelParam::MBOSS_ENEMY_NEARBY_TRACK, 1.0, JAIZelParam::ENEMY_NEARBY_FADEIN_TIME);
             field_0x00c1 = 1;
         }
     } else {
@@ -1885,7 +1919,7 @@ void JAIZelBasic::cbPracticeProcess() {
         }
         field_0x009c = 1.0f;
         if (mpMainBgmSound) {
-            mpMainBgmSound->setVolume(calcMainBgmVol(), 0, SOUNDPARAM_Unk0);
+            mpMainBgmSound->setVolume(calcMainBgmVol(), DEMO_SELECT(90, 0), SOUNDPARAM_Unk0);
         }
         return;
     }
@@ -1940,11 +1974,19 @@ void JAIZelBasic::cbPracticeProcess() {
 
 /* 802A6434-802A6508       .text cbPracticeStop__11JAIZelBasicFv */
 void JAIZelBasic::cbPracticeStop() {
+#if VERSION == VERSION_DEMO
+    if (mpSubBgmSound) {
+        mpSubBgmSound->stop(15);
+    }
+    mpSubBgmSound = NULL;
+    mSubBgmNum = -1;
+#else
     if (mpSubBgmSound && (mSubBgmNum == JA_BGM_CB_NEXTYEAR || mSubBgmNum == JA_BGM_CB_NEXTYEAR_W)) {
         mpSubBgmSound->stop(15);
         mpSubBgmSound = NULL;
         mSubBgmNum = -1;
     }
+#endif
 #if VERSION > VERSION_DEMO
     field_0x00a8 = 1.0;
 #endif
@@ -2954,7 +2996,8 @@ void JAIZelBasic::linkVoiceStart(u32 id, Vec* pos, u8 vowel, s8 reverb) {
         if (tries == 400) voice = table[0][0];
     }
     if (voice != 0xFF) {
-        seStart(voice + JA_SE_LK_V_01_01, pos, 0, reverb, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+        voice += JA_SE_LK_V_01_01;
+        seStart(voice, pos, 0, reverb, 1.0f, 1.0f, -1.0f, -1.0f, 0);
     }
 }
 
@@ -4253,14 +4296,14 @@ int JAIZelBasic::checkStreamPlaying(u32 param_1) {
 /* 802ABC3C-802ABC88       .text stWaterLevelUp__11JAIZelBasicFv */
 void JAIZelBasic::stWaterLevelUp() {
     if (field_0x00b7 == 0 && mMainBgmNum == JA_BGM_KAMI_TOWER) {
-        bgmStart(JA_BGM_UNK_125, 1, 0);
+        bgmStart(JA_BGM_UNK_125, DEMO_SELECT(0, 1), 0);
     }
 }
 
 /* 802ABC88-802ABCD4       .text stWaterLevelDown__11JAIZelBasicFv */
 void JAIZelBasic::stWaterLevelDown() {
     if (field_0x00b7 == 0 && mMainBgmNum == JA_BGM_KAMI_TOWER) {
-        bgmStart(JA_BGM_KAMI_TOWER, 1, 0);
+        bgmStart(JA_BGM_KAMI_TOWER, DEMO_SELECT(0, 1), 0);
     }
 }
 
@@ -4268,7 +4311,7 @@ void JAIZelBasic::stWaterLevelDown() {
 void JAIZelBasic::stSkyCloisters() {
     if (mMainBgmNum == JA_BGM_KAMI_TOWER) {
         if (field_0x00b7 == 0) {
-            bgmStart(JA_BGM_UNK_126, 1, 0);
+            bgmStart(JA_BGM_UNK_126, DEMO_SELECT(0, 1), 0);
         }
         field_0x00b7 = 4;
     }
@@ -4282,7 +4325,7 @@ void JAIZelBasic::stSkyCloistersProcess() {
         }
         if (field_0x00b7 == 1) {
             if (mMainBgmNum == JA_BGM_KAMI_TOWER) {
-                bgmStart(JA_BGM_KAMI_TOWER, 1, 0);
+                bgmStart(JA_BGM_KAMI_TOWER, DEMO_SELECT(0, 1), 0);
             }
             field_0x00b7 = 0;
         }
@@ -4294,11 +4337,19 @@ void JAIZelBasic::stSkyCloistersProcess() {
 
 /* 802ABDE0-802ABE10       .text getRandomU32__11JAIZelBasicFUl */
 u32 JAIZelBasic::getRandomU32(u32 param_1) {
-    u32 tmp = jai_rng_seed;
-    jai_rng_seed = tmp * 2;
-    jai_rng_seed += (tmp >> 0x1f ^ (tmp >> 6 & 0x10));
-    tmp = (jai_rng_seed / param_1);
-    return jai_rng_seed - tmp * param_1;
+    u32 tmp = jai_rnd_seed;
+#if VERSION == VERSION_DEMO
+    u32 a = tmp >> 0x1f;
+    u32 b = tmp >> 6 & 0x10;
+    jai_rnd_seed = tmp * 2;
+    jai_rnd_seed += a ^ b;
+    return jai_rnd_seed % param_1;
+#else
+    jai_rnd_seed = tmp * 2;
+    jai_rnd_seed += (tmp >> 0x1f ^ (tmp >> 6 & 0x10));
+    tmp = (jai_rnd_seed / param_1);
+    return jai_rnd_seed - tmp * param_1;
+#endif
 }
 
 /* 802ABE10-802ABE18       .text setEventBit__11JAIZelBasicFPv */
@@ -4336,7 +4387,7 @@ BOOL JAIZelBasic::checkDayTime() {
 void JAIZelBasic::processTime() {
     u16 time = (mHour << 8 & 0xFF00) + mMinute;
     if (field_0x0224 == 0x12 && field_0x022d == 1) {
-        if (field_0x0030 < 0x1400 && time >= 0x1400) {
+        if (field_0x0030 < DEMO_SELECT(0x1200, 0x1400) && time >= DEMO_SELECT(0x1200, 0x1400)) {
             mainBgmStopOnly(JAIZelParam::JAI_ZEL_NIGHT_FADEOUT_TIME);
         } else if (field_0x0030 < 0x53b && time >= 0x53b) {
             bgmStart(JA_BGM_MORNING, 0, 0);

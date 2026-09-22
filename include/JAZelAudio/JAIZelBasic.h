@@ -165,6 +165,7 @@ public:
 #endif
     }
 
+    void setSubBgmTrackVolume(u8 track, f32 volume, u32 fadeTime) { mpSubBgmSound->setTrackVolume(track, volume, fadeTime); }
     void bstHoriOn() { field_0x1dd4 = 1; }
     void bstHoriOff() { field_0x1dd4 = 0; }
 
@@ -205,7 +206,7 @@ public:
     static const char* spot_dir_name[];
     static isle_area_s mIsleArea[];
 
-    static const int MAX_CONCURRENT_SE_NUM = 24;
+    static const int MAX_CONCURRENT_SE_NUM = VERSION_SELECT(32, 24, 24, 24);
 
     /* 0x0020 */ u8 field_0x0020;
     /* 0x0021 */ u8 field_0x0021;
@@ -294,9 +295,6 @@ public:
     /* 0x0134 */ u32 mSeNum[MAX_CONCURRENT_SE_NUM];
     /* 0x0194 */ u32 field_0x0194[MAX_CONCURRENT_SE_NUM];
     /* 0x01F4 */ int field_0x01f4;
-#if VERSION == VERSION_DEMO
-    u8 temppadding[0x60];
-#endif
     /* 0x01F8 */ u8 field_0x01f8;
     /* 0x01F9 */ u8 field_0x01f9;
     /* 0x01FA */ u8 field_0x01fa;
