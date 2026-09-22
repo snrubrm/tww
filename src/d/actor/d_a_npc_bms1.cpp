@@ -875,15 +875,9 @@ BOOL daNpc_Bms1_c::evn_head_swing_init(int) {
 
 BOOL daNpc_Bms1_c::privateCut() {
     const char* name = mEventCut.getActorName();
-#if VERSION == VERSION_DEMO
-    dEvent_manager_c& evm = g_dComIfG_gameInfo.play.getEvtManager();
-    int staff = evm.getMyStaffId(name, NULL, 0);
-#else
-    int staff;
-    dEvent_manager_c& evm = g_dComIfG_gameInfo.play.getEvtManager();
-    staff = evm.getMyStaffId(name, NULL, 0);
-#endif
+    int staff = dComIfGp_evmng_getMyStaffId(name, NULL, 0);
     if (staff == -1) return FALSE;
+    dEvent_manager_c& evm = g_dComIfG_gameInfo.play.getEvtManager();
     static const char* cut_name_tbl[] = {
         "TALKMSG", "CONTINUE_TALK", "VIBLATE", "HEADSWING"
     };
