@@ -1239,16 +1239,15 @@ void dPa_waveEcallBack::executeAfter(JPABaseEmitter* emitter) {
 
     JGeometry::TVec3<f32> oldPos;
     emitter->getGlobalTranslation(oldPos);
-    JGeometry::TVec3<f32> pos(*mpPos);
+    JGeometry::TVec3<f32> pos(mpPos->x, mpPos->y, mpPos->z);
     emitter->setGlobalTranslation(pos);
     pos.sub(oldPos);
     f32 vel = pos.length();
     if (vel >= mMaxParticleVelocity) {
         vel = mMaxParticleVelocity;
     }
-    f32 speed = mVelFade1 * vel * mVelFade2;
-    
     JGeometry::TVec3<s16> rot((s16)0, mpRot->y, (s16)0);
+    f32 speed = mVelFade1 * vel * mVelFade2;
     emitter->setGlobalRotation(rot);
     
     if (std::fabsf(speed - mVel) > mVelSpeed) {
@@ -1355,7 +1354,7 @@ void dPa_splashEcallBack::execute(JPABaseEmitter* emitter) {
     } else {
         emitter->setGlobalTranslation(mpPos->x, mpPos->y, mpPos->z);
         f32 scaleF = mScaleTimer / mMaxScaleTimer;
-        s16 yaw = mpRot->y;
+        JGeometry::TVec3<s16> rot(s16(0), mpRot->y, s16(0));
         if (scaleF > 1.0f) {
             scaleF = 1.0f;
         }
@@ -1363,7 +1362,6 @@ void dPa_splashEcallBack::execute(JPABaseEmitter* emitter) {
         emitter->setGlobalDynamicsScale(scale);
         emitter->setGlobalParticleScale(scale);
         emitter->setDirectionalSpeed(scaleF * 15.0f);
-        JGeometry::TVec3<s16> rot(s16(0), yaw, s16(0));
         emitter->setGlobalRotation(rot);
     }
 }
