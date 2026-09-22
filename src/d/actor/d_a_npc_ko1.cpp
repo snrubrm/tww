@@ -821,7 +821,7 @@ bool daNpc_Ko1_c::chk_manzai_1() {
             ready++;
         } else {
             fopAcM_OnStatus(npc, fopAcStts_UNK4000_e);
-            *(fpc_ProcID*)npc->field_0x6b4 = fopAcM_GetID(this);
+            npc->mManzaiPartnerId = fopAcM_GetID(this);
             npc->field_0x6bc[0] = 1;
         }
     }
@@ -2195,9 +2195,9 @@ BOOL daNpc_Ko1_c::down_1(s8 stt) {
 BOOL daNpc_Ko1_c::talk_1() {
     BOOL result = chk_partsNotMove();
     if (mpCurrMsg != NULL) {
-        *(u16*)&field_0x6b4[4] = mpCurrMsg->mStatus;
+        mManzaiMsgStatus = mpCurrMsg->mStatus;
     } else {
-        *(u16*)&field_0x6b4[4] = 0;
+        mManzaiMsgStatus = 0;
     }
     if (field_0x6bc[0] == 2 && mCurrMsgBsPcId == fpcM_ERROR_PROCESS_ID_e) {
         mCurrMsgNo = getMsg();
@@ -2286,7 +2286,7 @@ BOOL daNpc_Ko1_c::manzai() {
     dComIfG_MesgCamInfo_c* info = dComIfGp_getMesgCameraInfo();
     switch (field_0x6bc[0]) {
     case 2: {
-        fopNpc_npc_c* partner = (fopNpc_npc_c*)searchByID(*(fpc_ProcID*)field_0x6b4);
+        fopNpc_npc_c* partner = (fopNpc_npc_c*)searchByID(mManzaiPartnerId);
         if (this != info->mActor[info->mBasicID - 1]) {
             if (mAnmAttr != 0xFF) {
                 if (mStaff == 1 || mStaff == 6) {
@@ -2304,7 +2304,7 @@ BOOL daNpc_Ko1_c::manzai() {
             }
         } else {
             mPairedMsgNo = partner->mCurrMsgNo;
-            anmAtr(*(u16*)&partner->field_0x6b4[4]);
+            anmAtr(partner->mManzaiMsgStatus);
         }
         break;
     }

@@ -1192,7 +1192,7 @@ BOOL daNpc_Ob1_c::manzai() {
     switch (field_0x6bc[0]) {
     case 2:
         {
-            fopNpc_npc_c* partner = (fopNpc_npc_c*)searchByID(*(fpc_ProcID*)field_0x6b4);
+            fopNpc_npc_c* partner = (fopNpc_npc_c*)searchByID(mManzaiPartnerId);
             if (this != info->mActor[info->mBasicID - 1]) {
                 if (mAnmAttr != 0xFF) {
                     mLookMode = 3;
@@ -1205,7 +1205,7 @@ BOOL daNpc_Ob1_c::manzai() {
                 }
             } else {
                 mPairedMsgNo = partner->mCurrMsgNo;
-                anmAtr(*(u16*)&partner->field_0x6b4[4]);
+                anmAtr(partner->mManzaiMsgStatus);
             }
             break;
         }
