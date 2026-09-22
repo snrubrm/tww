@@ -308,22 +308,12 @@ static void hand_move(sitem_class* i_this) {
         i_this->mAcch.CrrPos(*dComIfG_Bgsp());
         i_this->mHitTimer = 5;
         if (actor->speed.y < 0.0f) {
-#if VERSION == VERSION_DEMO
-            {
-                f32 x = i_this->mPos.x;
-                f32 y = i_this->mPos.y;
-                f32 z = i_this->mPos.z;
-                y += 100.0f;
-                ground.m_pos.set(x, y, z);
-            }
-#else
-            {
-                f32 y = i_this->mPos.y;
-                f32 z = i_this->mPos.z;
-                y += 100.0f;
-                ground.m_pos.set(i_this->mPos.x, y, z);
-            }
-#endif
+            Vec pos;
+            pos.x = i_this->mPos.x;
+            pos.y = i_this->mPos.y;
+            pos.z = i_this->mPos.z;
+            pos.y += 100.0f;
+            ground.SetPos(&pos);
             i_this->mGroundY = dComIfG_Bgsp()->GroundCross(&ground);
             if (i_this->mGroundY == -G_CM3D_F_INF || i_this->mPos.y <= 30.0f + i_this->mGroundY) {
                 i_this->mPos.y = 30.0f + i_this->mGroundY;
