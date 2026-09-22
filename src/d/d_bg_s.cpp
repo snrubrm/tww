@@ -560,7 +560,8 @@ void dBgS_CrrPos::CrrPos(dBgS& i_bgs) {
     if (!(mFlag & 4)) {
         f32 dist_sq = GetOldPos()->abs2(*pm_pos);
 #if VERSION == VERSION_DEMO
-        f32 thresh = SQUARE(0.65f) * GetWallR()*GetWallR();
+        f32 ratio = SQUARE(0.65f);
+        f32 thresh = ratio * GetWallR() * GetWallR();
         bool inWall = false;
         if (dist_sq > thresh) {
 #else
@@ -580,7 +581,7 @@ void dBgS_CrrPos::CrrPos(dBgS& i_bgs) {
             
             if (i_bgs.LineCross(&linChk)) {
                 *pm_pos = linChk.GetCross();
-                cM3dGPla* plane = i_bgs.GetTriPla(linChk);
+                cM3dGPla* plane = i_bgs.GetTriPla(linChk.GetBgIndex(), linChk.GetPolyIndex());
                 pm_pos->x += plane->GetNP()->x;
                 pm_pos->y += plane->GetNP()->y - GetWallH();
                 pm_pos->z += plane->GetNP()->z;
@@ -599,7 +600,7 @@ void dBgS_CrrPos::CrrPos(dBgS& i_bgs) {
             
             if (i_bgs.LineCross(&linChk)) {
                 *pm_pos = linChk.GetCross();
-                cM3dGPla* plane = i_bgs.GetTriPla(linChk);
+                cM3dGPla* plane = i_bgs.GetTriPla(linChk.GetBgIndex(), linChk.GetPolyIndex());
                 pm_pos->x += plane->GetNP()->x;
                 pm_pos->y += plane->GetNP()->y - GetWallH();
                 pm_pos->z += plane->GetNP()->z;
