@@ -1001,9 +1001,11 @@ BOOL daBigelf_c::wait_action(void*) {
             mMode = 3;
         } else if (getType() == 6) {
             if (dComIfGs_isSwitch(getSwbit(), fopAcM_GetRoomNo(this))) {
+#if VERSION > VERSION_DEMO
                 if (getSwbit2() != 0xFF) {
                     dComIfGs_onSwitch(getSwbit2(), fopAcM_GetRoomNo(this));
                 }
+#endif
                 mMode = 3;
             } else {
                 mMode = 4;
