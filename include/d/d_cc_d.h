@@ -418,6 +418,7 @@ public:
     void OffAtNoConHit() { mGObjAt.OffSPrm(dCcG_AtSPrm_NoConHit_e); }
     bool ChkTgNoConHit() { return mGObjTg.ChkSPrm(dCcG_TgSPrm_NoConHit_e); }
     void OnTgNoConHit() { mGObjTg.OnSPrm(dCcG_TgSPrm_NoConHit_e); }
+    void OffTgNoConHit() { mGObjTg.OffSPrm(dCcG_TgSPrm_NoConHit_e); }
     int GetAtHitMark() { return mGObjAt.GetHitMark(); }
     int GetTgHitMark() { return mGObjTg.GetHitMark(); }
     void SetAtHitMark(u8 mark) { mGObjAt.SetHitMark(mark); }

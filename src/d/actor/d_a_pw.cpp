@@ -34,10 +34,6 @@ enum daPW__BehaviorType {
     UseDefault = 0xFF
 };
 
-struct pw_cyl_access_c : dCcD_Cyl {
-    void OffTgNoConHit() { mGObjTg.OffSPrm(dCcG_TgSPrm_NoConHit_e); }
-};
-
 static bool TORITUKI_ON = false;
 
 /* 00000078-00000158       .text nodeCallBack__FP7J3DNodei */
@@ -943,7 +939,7 @@ void next_dousa_check(pw_class* i_this) {
     f32 range = 500.0f;
 #endif
     i_this->mCyl.SetTgType(AT_TYPE_LIGHT | AT_TYPE_LIGHT_ARROW);
-    ((pw_cyl_access_c*)&i_this->mCyl)->OffTgNoConHit();
+    i_this->mCyl.OffTgNoConHit();
     if (!Line_check(i_this, player->current.pos, 1) && !hani_check(i_this) &&
         fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) < DEMO_SELECT(range, 500.0f) &&
         std::fabsf(actor->current.pos.y - player->current.pos.y) < 100.0f)
@@ -1270,7 +1266,7 @@ void action_dousa(pw_class* i_this) {
         if (i_this->m378[0] == 0 && i_this->mJalhallaID == fpcM_ERROR_PROCESS_ID_e &&
             !dComIfGp_getDetect().chk_light(&i_this->current.pos))
         {
-            ((pw_cyl_access_c*)&i_this->mCyl)->OffTgNoConHit();
+            i_this->mCyl.OffTgNoConHit();
             anm_init(i_this, dRes_INDEX_PW_BCK_ANSIN1_e, 3.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
             i_this->m33E = 0;
             i_this->mMode += 1;
@@ -2764,7 +2760,7 @@ static cPhs_State daPW_Create(fopAc_ac_c* i_actor) {
 #if VERSION > VERSION_DEMO
         i_this->mKanteraID = fpcM_ERROR_PROCESS_ID_e;
 #endif
-        ((pw_cyl_access_c*)&i_this->mCyl)->OffTgNoConHit();
+        i_this->mCyl.OffTgNoConHit();
 #if VERSION > VERSION_DEMO
         i_this->m2D8 = i_this->current.pos;
         i_this->m346 = -1;
