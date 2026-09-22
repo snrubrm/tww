@@ -24,9 +24,7 @@ daShand_HIO_c::daShand_HIO_c() {
 
 /* 00000114-00000194       .text hand_draw__FP11shand_class */
 void hand_draw(shand_class* i_this) {
-    GXColor color = {0x50, 0x96, 0x96, 0xff};
-    GXColor& c = color;
-    i_this->mLineMat.update(0x14, c, &i_this->tevStr);
+    i_this->mLineMat.update(0x14, (GXColor){0x50, 0x96, 0x96, 0xff}, &i_this->tevStr);
     dComIfGd_set3DlineMat(&i_this->mLineMat);
 }
 
