@@ -531,9 +531,11 @@ static u8 __THPReadScaneHeader() {
 }
 
 /* 00000B48-00000EFC       .text __THPReadQuantizationTable */
-#if VERSION > VERSION_DEMO
 #pragma push
 #pragma optimization_level 4
+#if VERSION == VERSION_DEMO
+// optimization_level resets opt_propagation, which the demo build disables globally
+#pragma opt_propagation off
 #endif
 static u8 __THPReadQuantizationTable() {
     u16 length, id, i, row, col;
@@ -566,9 +568,7 @@ static u8 __THPReadQuantizationTable() {
 
     return 0;
 }
-#if VERSION > VERSION_DEMO
 #pragma pop
-#endif
 
 /* 00000EFC-000010E4       .text __THPReadHuffmanTableSpecification */
 static u8 __THPReadHuffmanTableSpecification() {
