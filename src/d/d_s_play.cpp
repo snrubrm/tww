@@ -1363,6 +1363,7 @@ cPhs_State phase_1(dScnPly_ply_c* i_this) {
 /* 802359DC-80235ABC       .text phase_2__FP13dScnPly_ply_c */
 cPhs_State phase_2(dScnPly_ply_c* i_this) {
 #if VERSION == VERSION_DEMO
+    // Needed so i_this gets one more interference neighbour than rt (and thus r31); no other form found.
     const char* stage = "Stage";
     int rt = dComIfG_syncStageRes(stage);
 #else
