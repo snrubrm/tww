@@ -558,6 +558,7 @@ extern const GXColor l_pm1DebugRed = {255, 0, 0, 128};
 extern const GXColor l_pm1DebugBlue = {0, 0, 255, 128};
 /* 00001558-000016BC       .text _draw__11daNpc_Pm1_cFv */
 BOOL daNpc_Pm1_c::_draw() {
+    daNpc_Pm1_c* i_this = this;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &tevStr);
@@ -571,7 +572,7 @@ BOOL daNpc_Pm1_c::_draw() {
     if (!mShadowId) {
         dComIfGd_setSimpleShadow(&current.pos, mObjAcch.GetGroundH(), 40.0f, dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd)->GetNP(), 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
-    dSnap_RegistFig(DSNAP_TYPE_UNK5A, this, 1.0f, 1.0f, 1.0f);
+    dSnap_RegistFig(DSNAP_TYPE_UNK5A, i_this, 1.0f, 1.0f, 1.0f);
     return TRUE;
 }
 
