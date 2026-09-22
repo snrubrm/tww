@@ -453,16 +453,10 @@ void body_control2(mt_class* i_this) {
             }
             for (int j = 0; j < 6; j++) {
                 int slot = (idx + j) & 0x3F;
-#if VERSION == VERSION_DEMO
                 f32 dx_i = (f32)j * ((p4A0[-1].x - p4A0->x) / 5.0f);
                 f32 dy_i = (f32)j * ((p4A0[-1].y - p4A0->y) / 5.0f);
                 f32 dz_i = (f32)j * ((p4A0[-1].z - p4A0->z) / 5.0f);
                 i_this->m6F4[slot].x = p4A0->x + dx_i;
-#else
-                f32 dy_i = (f32)j * ((p4A0[-1].y - p4A0->y) / 5.0f);
-                f32 dz_i = (f32)j * ((p4A0[-1].z - p4A0->z) / 5.0f);
-                i_this->m6F4[slot].x = p4A0->x + ((f32)j * ((p4A0[-1].x - p4A0->x) / 5.0f));
-#endif
                 i_this->m6F4[slot].y = p4A0->y + dy_i;
                 i_this->m6F4[slot].z = p4A0->z + dz_i;
                 i_this->m9F4[slot] = *p560;
@@ -1148,12 +1142,7 @@ void mt_move(mt_class* i_this) {
                     }
                 } else {
                     target_y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
-#if VERSION == VERSION_DEMO
                     cLib_addCalcAngleS2(&i_this->m488, REG0_S(4) + 0x400, 1, 0x10);
-#else
-                    s16 tmp = REG0_S(4) + 0x400;
-                    cLib_addCalcAngleS2(&i_this->m488, tmp, 1, 0x10);
-#endif
                 }
 
                 if (i_this->m2B5 == 1) {
@@ -1185,15 +1174,8 @@ void mt_move(mt_class* i_this) {
     }
 
     if (i_this->m48E == 0) {
-#if VERSION == VERSION_DEMO
         f32 amp = 3500.0f + 1000.0f * cM_ssin(i_this->m46A * 100);
         cLib_addCalcAngleS2(&i_this->m468, amp * cM_ssin(i_this->m46A * (REG0_S(0) + 2000)), 4, 0x400);
-#else
-        f32 sin1 = cM_ssin(i_this->m46A * 100);
-        f32 sin2 = cM_ssin(i_this->m46A * (REG0_S(0) + 2000));
-        s16 wave = (s16)((3500.0f + 1000.0f * sin1) * sin2);
-        cLib_addCalcAngleS2(&i_this->m468, wave, 4, 0x400);
-#endif
         f32 spd;
         if (i_this->mC00 != 0) {
             spd = 10.0f;
@@ -1483,23 +1465,12 @@ void mt_fight(mt_class* i_this) {
 
     if (i_this->m454 < 2) {
         if (i_this->m455 < 10) {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m496, 2, 0x400);
             pos.y = actor->current.pos.y - i_this->mAcch.GetGroundH();
             if (pos.y > 250.0f) {
                 i_this->m455 = 10;
             }
             cLib_addCalcAngleS2(&actor->current.angle.x, i_this->m494 + wave_ang, 4, 0x800);
-#else
-            s16 target_y = i_this->m496;
-            cLib_addCalcAngleS2(&actor->current.angle.y, target_y, 2, 0x400);
-            pos.y = actor->current.pos.y - i_this->mAcch.GetGroundH();
-            if (pos.y > 250.0f) {
-                i_this->m455 = 10;
-            }
-            s16 target_x = i_this->m494 + wave_ang;
-            cLib_addCalcAngleS2(&actor->current.angle.x, target_x, 4, 0x800);
-#endif
         }
         cLib_addCalcAngleS2(&i_this->m468, 0, 1, 0x100);
     }
@@ -1649,20 +1620,10 @@ void mt_move_maru(mt_class* i_this) {
             }
         }
         cLib_addCalc0(&i_this->m330, 1.0f, 125.0f);
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&i_this->m468, 5.0f * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))), 2, 0x1000);
-#else
-        s16 wave = (s16)(5.0f * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))));
-        cLib_addCalcAngleS2(&i_this->m468, wave, 2, 0x1000);
-#endif
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 4, 0x1000);
         cLib_addCalc2(&i_this->m474, -0.4f, 1.0f, 0.2f);
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&i_this->m48A, (4.0f + REG0_F(14)) * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))), 1, 0x1000);
-#else
-        s16 spin = (s16)((4.0f + REG0_F(14)) * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))));
-        cLib_addCalcAngleS2(&i_this->m48A, spin, 1, 0x1000);
-#endif
         actor->current.angle.x = actor->shape_angle.x;
         actor->shape_angle.y = actor->current.angle.y + i_this->m468;
         cLib_addCalc0(&actor->speedF, 1.0f, 0.5f);
