@@ -305,9 +305,9 @@ bool daObjTribox::Act_c::_delete() {
 void daObjTribox::Act_c::set_mtx() {
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::ZXYrotM(shape_angle);
-    mpModel->setBaseTRMtx(mDoMtx_stack_c::now);
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
     mDoMtx_stack_c::now[1][3] += 251.0f;
-    mpYtfbl->setBaseTRMtx(mDoMtx_stack_c::now);
+    mpYtfbl->setBaseTRMtx(mDoMtx_stack_c::get());
 }
 
 /* 00000DFC-00000E54       .text init_mtx__Q211daObjTribox5Act_cFv */
