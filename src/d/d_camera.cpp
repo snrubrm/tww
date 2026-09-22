@@ -6390,7 +6390,7 @@ bool dCamera_c::vomitCamera(s32 param_1) {
         f32 height = get_actor_height(mpPlayerActor);
         f20 /= height < 10.0f ? 10.0f : height;
 
-        f32 angFac = std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
+        f32 angFac = (f32)fabs(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
         f32 t = timerMul * std::sqrtf(f20);
         work->m37C = (int)(t * (1.0f + angFac)) + 1;
         work->m380 = work->m37C * (work->m37C + 1) >> 1;
@@ -6430,7 +6430,8 @@ bool dCamera_c::vomitCamera(s32 param_1) {
     f32 cushY = val4;
     if (positionOf(mpPlayerActor).y < work->m394 - 1.0f) {
         work->m384 += 1.0f;
-        work->m3A4 += (0.01f * work->m384) * ((1.0f - val4) - work->m3A4);
+        f32 rate = 0.01f * work->m384;
+        work->m3A4 += rate * ((1.0f - val4) - work->m3A4);
         cushY = val4 + work->m3A4;
     } else {
         cXyz pos = positionOf(mpPlayerActor);
