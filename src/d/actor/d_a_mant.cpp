@@ -225,7 +225,9 @@ void daMant_packet_c::draw() {
     u8* texture = tex_d[mTexNo];
     u8* palette = pal_d[mTexNo];
     j3dSys.reinitGX();
+#if VERSION > VERSION_JPN
     GXSetNumIndStages(0);
+#endif
     dKy_GxFog_tevstr_set(mpTevStr);
     dKy_setLight_mine(mpTevStr);
     GFSetVtxDescv(l_vtxDescList);
@@ -276,7 +278,9 @@ void daMant_packet_c::draw() {
         GXCallDisplayList(l_DL, 0x1E0);
     }
     mBuffer ^= 1;
+#if VERSION > VERSION_JPN
     J3DShape::resetVcdVatCache();
+#endif
 }
 
 /* 000003EC-000004E8       .text daMant_Draw__FP10mant_class */
@@ -492,7 +496,11 @@ void mant_move(mant_class* i_this) {
     mesh_cc_ct = 0;
     mant_v_calc(i_this);
     mant_n_calc(i_this);
+#if VERSION > VERSION_JPN
     DCStoreRangeNoSync(i_this->mPacket.getPos(), 81 * sizeof(cXyz));
+#else
+    DCFlushRange(i_this->mPacket.getPos(), 81 * sizeof(cXyz));
+#endif
     if (i_this->mDeleteTimer != 0) {
         --i_this->mDeleteTimer;
         cXyz* pos = i_this->mPacket.getPos();
