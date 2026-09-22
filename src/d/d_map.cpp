@@ -4063,11 +4063,11 @@ void dMap_2DAGBScrDsp_c::draw() {
     invW = 8.0f / (int)mImg->width;
     invH = 8.0f / (int)mImg->height;
     margin = 0.00625f;
-    u8 mapW = ((u8*)field_0x4)[0x30];
-    u8 mapH = ((u8*)field_0x4)[0x31];
+    u8 mapW = field_0x4->field_0x30;
+    u8 mapH = field_0x4->field_0x31;
     centerX = 0.5f * (field_0x40 + field_0x3c);
     centerY = 0.5f * (field_0x42 + field_0x3e);
-    u32 mapOff = mDoLib_cnvind32(*(u32*)((u8*)field_0x4 + 0x34));
+    u32 mapOff = mDoLib_cnvind32(field_0x4->field_0x34);
     u16* mapBase = (u16*)((u8*)field_0x4 + mapOff);
 
     int tileNumX;
@@ -4253,11 +4253,11 @@ void dMap_2DAGBScrDsp_c::draw() {
 
     invW = 8.0f / (int)mImg->width;
     invH = 8.0f / (int)mImg->height;
-    u8 mapW = ((u8*)field_0x4)[0x30];
-    u8 mapH = ((u8*)field_0x4)[0x31];
+    u8 mapW = field_0x4->field_0x30;
+    u8 mapH = field_0x4->field_0x31;
     centerX = 0.5f * (field_0x40 + field_0x3c);
     centerY = 0.5f * (field_0x42 + field_0x3e);
-    u32 mapOff = mDoLib_cnvind32(*(u32*)((u8*)field_0x4 + 0x34));
+    u32 mapOff = mDoLib_cnvind32(field_0x4->field_0x34);
     u16* mapBase = (u16*)((u8*)field_0x4 + mapOff);
 
     int tileNumX;
