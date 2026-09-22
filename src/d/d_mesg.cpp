@@ -464,6 +464,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
         switch (param_1) {
         case 0: {
             r29 = true;
+            int char_code;
             int r30 = 0;
             char sp54[17];
             JMSMesgEntry_c sp38 = *(JMSMesgEntry_c*)dMesg_gpControl->getMessageEntry(nowMesgCode);
@@ -498,7 +499,6 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
 
             char sp14[3];
             while (sp54[r30]) {
-                int char_code;
 #if VERSION == VERSION_PAL
                 int byte = (u8)sp54[r30];
                 if (headerFlag) {
@@ -621,12 +621,12 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
         }
         case 41: {
             r29 = true;
+            int char_code;
             int r30 = 0;
             char sp28[17];
             fopMsgM_passwordGet(sp28, dComIfGs_getEventReg(dSv_event_flag_c::UNK_BA0F) + 0x1B37);
             char sp10[3];
             while (sp28[r30]) {
-                int char_code;
 #if VERSION == VERSION_PAL
                 int byte = (u8)sp28[r30];
                 if (headerFlag) {
