@@ -106,9 +106,9 @@ BOOL daNpc_Uk_c::chkPositioning(f32 distance, f32 minY, f32 maxY, s16 minAngle, 
 }
 
 /* 0000045C-000008B0       .text nextVisitMode__10daNpc_Uk_cFv */
+// NONMATCHING - retail: the first leader null check and load use the call result register instead of leader's
 u8 daNpc_Uk_c::nextVisitMode() {
     cXyz delta;
-#if VERSION == VERSION_DEMO
     daNpc_Mk_c* leader = (daNpc_Mk_c*)fopAcM_SearchByID(mLeaderID);
     daPy_lk_c* player = daPy_getPlayerLinkActorClass();
     u8 mode;
@@ -118,18 +118,6 @@ u8 daNpc_Uk_c::nextVisitMode() {
     } else {
         mode = leader->mVisitMode;
     }
-#else
-    fopAc_ac_c* actor = fopAcM_SearchByID(mLeaderID);
-    daNpc_Mk_c* leader = (daNpc_Mk_c*)actor;
-    daPy_lk_c* player = daPy_getPlayerLinkActorClass();
-    u8 mode;
-
-    if (actor == NULL) {
-        mVisitMode = 0;
-    } else {
-        mode = ((daNpc_Mk_c*)actor)->mVisitMode;
-    }
-#endif
 
     if (mVisitMode == 10 && mWaitTimer != 0) {
         mWaitTimer--;
