@@ -500,7 +500,7 @@ void daObjVyasi::Act_c::quaternion_main() {
         target = ZeroQuat;
         if (mState == 4 && joint_kind_table[i] == 0) {
             cXyz up(0.0f, 1.0f, 0.0f), wind;
-            mDoMtx_YrotS(*calc_mtx, -current.angle.y);
+            cMtx_YrotS(*calc_mtx, -current.angle.y);
             MtxPosition(dKyw_get_wind_vec(), &wind);
             f32 power = dKyw_get_wind_pow();
             cXyz axis = up.outprod(wind);
