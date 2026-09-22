@@ -230,8 +230,8 @@ BOOL daMbdoor_c::CreateInit() {
         setAction(1);
         field_0x2b0 = 0;
         field_0x2b2 = 0;
-    } else if ((type == 0 && (swbit != 0xFF && !dComIfGs_isSwitch(swbit, fopAcM_GetRoomNo(this)))) ||
-               (type == 1 && (swbit == 0xFF || dComIfGs_isSwitch(swbit, fopAcM_GetRoomNo(this))))) {
+    } else if ((type == 0 && (swbit != 0xFF && !dComIfGs_isSwitch(swbit, current.roomNo))) ||
+               (type == 1 && (swbit == 0xFF || dComIfGs_isSwitch(swbit, current.roomNo)))) {
         setAction(1);
         field_0x2b0 = 0;
         field_0x2b2 = 0;
