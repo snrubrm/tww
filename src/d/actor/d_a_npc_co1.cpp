@@ -202,14 +202,8 @@ void daNpc_Co1_c::plyTexPttrnAnm() {
     if (mBtkFrame >= m_prl_btk->getFrameMax()) mBtkFrame = 0;
     if (mBtpNo == 6 || mBtpNo == 5 || cLib_calcTimer(&mBtpTimer) == 0) {
         mBtpFrame++;
-#if VERSION == VERSION_DEMO
         if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) {
             if (mBtpNo == 6 || mBtpNo == 5) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
-#else
-        int end = m_hed_tex_pttrn->getFrameMax();
-        if (mBtpFrame >= (s16)end) {
-            if (mBtpNo == 6 || mBtpNo == 5) mBtpFrame = end;
-#endif
             else {
                 mBtpTimer = 30.0f + cM_rndF(60.0f);
                 mBtpFrame = 0;
@@ -832,13 +826,7 @@ u8 daNpc_Co1_c::demo() {
         dDemo_actor_c* actor = dComIfGp_demo_getActor(demoActorID);
         if (m_hed_tex_pttrn != NULL) {
             mBtpFrame++;
-#if VERSION == VERSION_DEMO
-            s16 end = m_hed_tex_pttrn->getFrameMax();
-            if (mBtpFrame >= end) mBtpFrame = end;
-#else
-            int end = m_hed_tex_pttrn->getFrameMax();
-            if (mBtpFrame >= (s16)end) mBtpFrame = end;
-#endif
+            if (mBtpFrame >= m_hed_tex_pttrn->getFrameMax()) mBtpFrame = m_hed_tex_pttrn->getFrameMax();
         }
         J3DAnmTexPattern* btp = actor->getP_BtpData("Co");
         if (btp != NULL) {
