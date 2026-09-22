@@ -11,6 +11,7 @@
 class J3DNode;
 class J3DModelData;
 class msg_class;
+class JPABaseEmitter;
 
 namespace daObjFtree {
     struct _ftree_seach_info_ {
@@ -102,6 +103,10 @@ namespace daObjFtree {
         /* 0x298 */ s16 mJointRotLY;
         /* 0x29A */ s16 mJointRotLZ;
         /* 0x29C */ request_of_phase_process_class mPhs;
+#if VERSION == VERSION_DEMO
+        /* 0x2A4 */ JPABaseEmitter* mpEmitter1;
+        /* 0x2A8 */ JPABaseEmitter* mpEmitter2;
+#endif
         /* 0x2A4 */ s16 mEffectFlag;
         /* 0x2A6 */ u8 mModelS;
         /* 0x2A7 */ u8 mModelL;
@@ -158,6 +163,6 @@ namespace daObjFtree {
     };
 };
 
-STATIC_ASSERT(sizeof(daObjFtree::Act_c) == 0x6B0);
+STATIC_ASSERT(sizeof(daObjFtree::Act_c) == DEMO_SELECT(0x6B8, 0x6B0));
 
 #endif /* D_A_OBJ_FTREE_H */

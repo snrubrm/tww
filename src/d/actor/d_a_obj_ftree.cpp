@@ -941,11 +941,23 @@ BOOL daObjFtree::Act_c::NodeCallBack_Effect(J3DNode* node, int timing) {
         cXyz pos;
         mDoMtx_multVec(mtx, &offset, &pos);
         mDoAud_seStart(JA_SE_OBJ_DK_TREE_GROW_UP, &current.pos);
+#if VERSION == VERSION_DEMO
+        if (mpEmitter1 == NULL) {
+            mpEmitter1 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH00, &pos);
+        }
+        if (mpEmitter2 == NULL) {
+            mpEmitter2 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH01, &pos);
+        }
+        if (mpEmitter1 != NULL && mpEmitter2 != NULL) {
+            mEffectFlag = 0;
+        }
+#else
         JPABaseEmitter* e1 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH00, &pos);
         JPABaseEmitter* e2 = dComIfGp_particle_set(dPa_name::ID_AK_SN_HANASAKAFLASH01, &pos);
         if (e1 != NULL && e2 != NULL) {
             mEffectFlag = 0;
         }
+#endif
     }
     return TRUE;
 }
@@ -1088,6 +1100,14 @@ bool daObjFtree::Act_c::_delete() {
     if (mBroughtSession) {
         set_brought();
     }
+#if VERSION == VERSION_DEMO
+    if (mpEmitter1 != NULL) {
+        mpEmitter1->becomeInvalidEmitter();
+    }
+    if (mpEmitter2 != NULL) {
+        mpEmitter2->becomeInvalidEmitter();
+    }
+#endif
     dComIfG_resDelete(&mPhs, M_arcname);
     return true;
 }
