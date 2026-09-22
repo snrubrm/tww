@@ -275,6 +275,13 @@ static BOOL daWZ_Draw(wz_class* i_this) {
 /* 000008C0-000009EC       .text anm_init__FP8wz_classifUcfi */
 void anm_init(wz_class* i_this, int bckFileIdx, float morf, unsigned char loopMode, float speed, int soundFileIdx) {
     i_this->mBckIdx = bckFileIdx;
+#if VERSION == VERSION_DEMO
+    if (soundFileIdx >= 0) {
+        i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("WZ", bckFileIdx), loopMode, morf, speed, 0.0f, -1.0f, dComIfG_getObjectRes("WZ", soundFileIdx));
+    } else {
+        i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("WZ", bckFileIdx), loopMode, morf, speed, 0.0f, -1.0f, NULL);
+    }
+#else
     if (soundFileIdx >= 0) {
         void* soundAnm = dComIfG_getObjectRes("WZ", soundFileIdx);
         J3DAnmTransform* bckAnm = (J3DAnmTransform*)dComIfG_getObjectRes("WZ", bckFileIdx);
@@ -283,6 +290,7 @@ void anm_init(wz_class* i_this, int bckFileIdx, float morf, unsigned char loopMo
         J3DAnmTransform* bckAnm = (J3DAnmTransform*)dComIfG_getObjectRes("WZ", bckFileIdx);
         i_this->mpMorf->setAnm(bckAnm, loopMode, morf, speed, 0.0f, -1.0f, NULL);
     }
+#endif
 }
 
 /* 000009EC-00000A58       .text rod_size_set__FP8wz_classUc */
