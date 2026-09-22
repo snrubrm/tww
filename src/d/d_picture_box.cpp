@@ -1391,6 +1391,54 @@ void dJle_Pb_c::setColorInit(u8 param_1) {
 }
 
 /* 80229520-80229980       .text setColorAnime__9dJle_Pb_cFUc */
+#if VERSION == VERSION_DEMO
+void dJle_Pb_c::setColorAnime(u8 param_1) {
+    JUtility::TColor icnWhite, empWhite, empBlack;
+    u8 r = 255;
+    u8 g = 60;
+    pane_icn[param_1].mUserArea++;
+
+    if (pane_icn[param_1].mUserArea >= 0x28) {
+        pane_icn[param_1].mUserArea = 0;
+    }
+
+    int frame = pane_icn[param_1].mUserArea;
+    f32 t;
+    if (frame < 20) {
+        t = fopMsgM_valueIncrease(20, frame, 0);
+    } else {
+        t = fopMsgM_valueIncrease(20, 0x28 - frame, 0);
+    }
+
+    
+    icnWhite.r = ((f32)icn_white.r - t * ((f32)icn_white.r - (f32)r));
+    icnWhite.g = ((f32)icn_white.g - t * ((f32)icn_white.g - (f32)g));
+    icnWhite.b = ((f32)icn_white.b - t * ((f32)icn_white.b - (f32)g));
+    icnWhite.a = 0xFF;
+
+    empWhite.r = ((f32)emp_white.r - t * ((f32)emp_white.r - (f32)r));
+    empWhite.g = ((f32)emp_white.g - t * ((f32)emp_white.g - (f32)g));
+    empWhite.b = ((f32)emp_white.b - t * ((f32)emp_white.b - (f32)g));
+    empWhite.a = 0xFF;
+
+    empBlack.r = ((f32)emp_black.r - t * ((f32)emp_black.r - (f32)r));
+    empBlack.g = ((f32)emp_black.g - t * ((f32)emp_black.g - (f32)g));
+    empBlack.b = ((f32)emp_black.b - t * ((f32)emp_black.b - (f32)g));
+    empBlack.a = 0;
+
+    ((J2DPicture*)pane_icn[param_1].pane)->setWhite(icnWhite);
+    ((J2DPicture*)pane_emp[param_1].pane)->setWhite(empWhite);
+    ((J2DPicture*)pane_emp[param_1].pane)->setBlack(empBlack);
+    
+    if (mPhotoSlotOccupied[param_1] != 0) {
+        f32 alpha = (pane_icn[param_1].mInitAlpha - (pane_icn[param_1].mInitAlpha - 100.0f) * t) / pane_icn[param_1].mInitAlpha;
+        fopMsgM_setNowAlpha(&pane_icn[param_1], alpha);
+    }
+    
+    f32 alpha2 = (pane_emp[param_1].mInitAlpha - (pane_emp[param_1].mInitAlpha - 100.0f) * t) / pane_emp[param_1].mInitAlpha;
+    fopMsgM_setNowAlpha(&pane_emp[param_1], alpha2);
+}
+#else
 void dJle_Pb_c::setColorAnime(u8 param_1) {
     JUtility::TColor icnWhite, empWhite, empBlack;
     pane_icn[param_1].mUserArea++;
@@ -1433,6 +1481,7 @@ void dJle_Pb_c::setColorAnime(u8 param_1) {
     
     fopMsgM_setNowAlpha(&pane_emp[param_1], (pane_emp[param_1].mInitAlpha - (pane_emp[param_1].mInitAlpha - 100.0f) * t) / pane_emp[param_1].mInitAlpha);
 }
+#endif
 
 /* 80229980-80229A7C       .text changeData__9dJle_Pb_cFv */
 void dJle_Pb_c::changeData() {
