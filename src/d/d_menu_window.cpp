@@ -302,7 +302,7 @@ void dMs_collect_create(sub_ms_screen_class* i_Ms) {
 
     i_Ms->field_0x1B2 = 0;
 
-    for (int i = 0; i < 21; i++) {
+    for (int i = 0; i < VERSION_SELECT(18, 18, 21, 21); i++) {
         i_Ms->buffer_p[i] = i_Ms->childHeap->alloc(0xC00, 0x20);
         JUT_ASSERT(VERSION_SELECT(2130, 2016, 2101, 2101), i_Ms->buffer_p[i] != NULL);
         i_Ms->field_0x1B2++;
@@ -375,7 +375,7 @@ void dMs_collect_create2(sub_ms_screen_class* i_Ms) {
 
     i_Ms->field_0x1B2 = 0;
 
-    for (int i = 0; i < 21; i++) {
+    for (int i = 0; i < VERSION_SELECT(18, 18, 21, 21); i++) {
         i_Ms->buffer_p[i] = i_Ms->childHeap->alloc(0xC00, 0x20);
         JUT_ASSERT(VERSION_SELECT(2212, 2098, 2195, 2195), i_Ms->buffer_p[i] != NULL);
         i_Ms->field_0x1B2++;
@@ -1562,7 +1562,9 @@ static cPhs_State dMs_Create(msg_class* i_this) {
     rfonttype = mDoExt_getRubyFont();
     JUT_ASSERT(VERSION_SELECT(4056, 3968, 4100, 4101), rfonttype != NULL);
 
+#if VERSION > VERSION_JPN
     event_wait_frame = 0;
+#endif
 
     dComIfGp_InputPasswordOpenCancelOff();
 
