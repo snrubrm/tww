@@ -754,13 +754,7 @@ void daNpc_So_c::setAnmSwimSpeed() {
             playSpeed = 1.0f;
         }
         playSpeed *= l_HIO.m34;
-        f32 rate = l_HIO.m38;
-        if (playSpeed < l_HIO.m38) {
-            rate = l_HIO.m38;
-        } else {
-            rate = playSpeed;
-        }
-        mpMorf2->setPlaySpeed(rate);
+        mpMorf2->setPlaySpeed(playSpeed < l_HIO.m38 ? l_HIO.m38 : playSpeed);
     }
 }
 
