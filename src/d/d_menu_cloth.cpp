@@ -309,7 +309,7 @@ dMCloth_c::~dMCloth_c() {
 /* 8019A058-8019A0AC       .text setBackNrm__9dMCloth_cFv */
 void dMCloth_c::setBackNrm() {
     cXyz* pNrm = getNrm();
-    cXyz* pBackNrm = getBackNrm();
+    cXyz* pBackNrm = mBackNrmArr;
 
     for (int i = 0; i < ARR_SIZE; i++) {
         pBackNrm->set(-pNrm->x, -pNrm->y, -pNrm->z);
