@@ -320,20 +320,21 @@ void daNpc_Kk1_c::play_btp_anm() {
 }
 
 /* 00000C80-00000CFC       .text play_eff_anm__11daNpc_Kk1_cFv */
+// NONMATCHING - the original sign-extends the loaded frame max again before each compare
 void daNpc_Kk1_c::play_eff_anm() {
     int frameMax = 0x1E;
     mBpkFrame++;
-    if (mBpkFrame >= (s16)frameMax) {
+    if (mBpkFrame >= frameMax) {
         mBpkFrame = frameMax - 1;
     }
     frameMax = mBtkAnm.getBtkAnm()->getFrameMax();
     mBtkFrame++;
-    if (mBtkFrame >= (s16)frameMax) {
+    if (mBtkFrame >= frameMax) {
         mBtkFrame = frameMax - 1;
     }
     frameMax = mBckAnm.getBckAnm()->getFrameMax();
     mBckFrame++;
-    if (mBckFrame >= (s16)frameMax) {
+    if (mBckFrame >= frameMax) {
         mBckFrame = 0x3B;
     }
 }
