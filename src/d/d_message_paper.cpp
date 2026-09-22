@@ -565,16 +565,11 @@ int dMsg3_kankyoBrightness() {
 
 /* 801ECEA0-801ECEEC       .text dMsg3_aimBrightness__Fv */
 u8 dMsg3_aimBrightness() {
-    int brightness;
-    u8 b = (brightness = dMsg3_kankyoBrightness());
-    u8 field = g_messageHIO.field_0x29;
-    u8 result;
-    if (b <= field) {
-        result = 0xFF;
-    } else {
-        result = 0xFF - (brightness - field);
+    int brightness = dMsg3_kankyoBrightness();
+    if ((u8)brightness <= g_messageHIO.field_0x29) {
+        return 0xFF;
     }
-    return result;
+    return 0xFF - (brightness - g_messageHIO.field_0x29);
 }
 
 /* 801ECEEC-801ED2C8       .text dMsg3_setCharAlpha__FP14sub_msg3_classUc */
