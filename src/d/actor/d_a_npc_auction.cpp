@@ -952,12 +952,11 @@ void daNpcAuction_c::lookBack() {
 
     if (m749 != 0) {
         fopAc_ac_c* auction = fopAcM_SearchByName(fpcNm_AUCTION_e);
-        if (auction == NULL) {
-            goto look;
-        }
-        if (eyePos.x != auction->eyePos.x || eyePos.y != auction->eyePos.y || eyePos.z != auction->eyePos.z) {
-            dstPos = auction->eyePos;
-            dstPosP = &dstPos;
+        if (auction != NULL) {
+            if (eyePos.x != auction->eyePos.x || eyePos.y != auction->eyePos.y || eyePos.z != auction->eyePos.z) {
+                dstPos = auction->eyePos;
+                dstPosP = &dstPos;
+            }
         }
     } else if (mEventCut.getAttnFlag()) {
         m_jnt.setTrn();
@@ -1008,7 +1007,6 @@ void daNpcAuction_c::lookBack() {
         }
     }
 
-look:
     if (mTalking != 0) {
         noTurn = false;
         m_jnt.setTrn();
