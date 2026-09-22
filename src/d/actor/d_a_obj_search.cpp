@@ -108,35 +108,35 @@ static BOOL createHeap_CB(fopAc_ac_c* i_this) {
 
 /* 800FDB1C-800FDB8C       .text _createHeap__Q212daObj_Search5Act_cFv */
 BOOL daObj_Search::Act_c::_createHeap() {
-    if ((u8)searchCreateHeap() == 0) {
+    if (!searchCreateHeap()) {
         return FALSE;
     }
-    if ((u8)beamCreateHeap(0) == 0) {
+    if (!beamCreateHeap(0)) {
         return FALSE;
     }
-    return (u8)beamCreateHeap(1) ? TRUE : FALSE;
+    return beamCreateHeap(1) ? TRUE : FALSE;
 }
 
 /* 800FDB8C-800FDCAC       .text searchCreateHeap__Q212daObj_Search5Act_cFv */
-BOOL daObj_Search::Act_c::searchCreateHeap() {
+bool daObj_Search::Act_c::searchCreateHeap() {
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SEARCH_BDL_S_SEARCH_e));
     JUT_ASSERT(0x39, modelData != 0);
     mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpModel == NULL) {
-        return FALSE;
+        return false;
     }
     mpBgW = new dBgW();
     if (mpBgW == NULL) {
-        return FALSE;
+        return false;
     }
     if (mpBgW->Set((cBgD_t*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SEARCH_DZB_S_BASE_e), cBgW::MOVE_BG_e, &mBgMtx) == TRUE) {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /* 800FDCAC-800FDDBC       .text beamCreateHeap__Q212daObj_Search5Act_cFi */
-BOOL daObj_Search::Act_c::beamCreateHeap(int i) {
+bool daObj_Search::Act_c::beamCreateHeap(int i) {
     static int dzb[] = {
         dRes_INDEX_SEARCH_DZB_S_SEARCH_LIGHTA_e,
         dRes_INDEX_SEARCH_DZB_S_SEARCH_LIGHTB_e,
@@ -144,20 +144,20 @@ BOOL daObj_Search::Act_c::beamCreateHeap(int i) {
 
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arc_name, dRes_INDEX_SEARCH_BDL_S_BEAM_e);
     if (modelData == NULL) {
-        return FALSE;
+        return false;
     }
     mpBeamModel[i] = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpBeamModel[i] == NULL) {
-        return FALSE;
+        return false;
     }
     mpBeamBgW[i] = new dBgW();
     if (mpBeamBgW[i] == NULL) {
-        return FALSE;
+        return false;
     }
     if (mpBeamBgW[i]->Set((cBgD_t*)dComIfG_getObjectRes(m_arc_name, dzb[i]), cBgW::MOVE_BG_e, &mBeamMtx[i]) == TRUE) {
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 /* 800FDDBC-800FDE08       .text nodeControl_CB__FP7J3DNodei */
@@ -201,18 +201,17 @@ void daObj_Search::Act_c::_nodeControl(J3DNode* node, J3DModel* model) {
     }
 
     if (mMode != MODE_STOP_e) {
-        s16 tmp = scaled;
         switch (jntNo) {
         case S_SEARCH_JNT_GEAR_S_e:
-            m7AC = (s16)(m7AC + tmp * (2.0f + attr()->m1C));
+            m7AC = (s16)(m7AC + scaled * (2.0f + attr()->m1C));
             mDoMtx_stack_c::XrotM(m7AC);
             break;
         case S_SEARCH_JNT_GEAR_M_e:
-            m7AA = (s16)(m7AA - tmp * (1.5f + attr()->m18));
+            m7AA = (s16)(m7AA - scaled * (1.5f + attr()->m18));
             mDoMtx_stack_c::XrotM(m7AA);
             break;
         case S_SEARCH_JNT_GEAR_L_e:
-            m7A8 = (s16)(m7A8 + tmp * (1.0f + attr()->m14));
+            m7A8 = (s16)(m7A8 + scaled * (1.0f + attr()->m14));
             mDoMtx_stack_c::XrotM(m7A8);
             break;
         }
@@ -1143,8 +1142,7 @@ void daObj_Search::Act_c::set_mtx_light_B() {
     cXyz n;
     cXyz unused0(0.0f, 0.0f, 0.0f);
     srcStart.set(0.0f, 0.0f, 0.0f);
-    cXyz tmpEnd(0.0f, 0.0f, m_attr.m04);
-    srcEnd = tmpEnd;
+    srcEnd = cXyz(0.0f, 0.0f, m_attr.m04);
     mDoMtx_stack_c::copy(mpModel->getAnmMtx(S_SEARCH_JNT_LIGHTB_e));
     mDoMtx_stack_c::transM(742.0f, -402.0f, -1010.0f);
     mDoMtx_XYZrotM(mDoMtx_stack_c::now, -0x8000, 0xC8, 0);
