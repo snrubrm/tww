@@ -101,11 +101,8 @@ BOOL daNpc_Nz_c::TailNodeCallBack(J3DNode* node, int calcTiming) {
 }
 
 /* 000003A4-00000978       .text TailControl__10daNpc_Nz_cFv */
+// NONMATCHING - demo: regalloc differs slightly
 void daNpc_Nz_c::TailControl() {
-#if VERSION == VERSION_DEMO
-    s16 temp9;
-    int temp7;
-#endif
     cXyz sp64;
     cXyz sp58;
     cXyz sp4C;
@@ -121,10 +118,8 @@ void daNpc_Nz_c::TailControl() {
     mDoMtx_stack_c::multVec(&sp58, &sp40);
 
     int i;
-#if VERSION > VERSION_DEMO
     s16 temp9;
     int temp7;
-#endif
     cXyz* r19 = &field_0x974[1];
     cXyz* r18 = &field_0x9EC[1];
     cXyz* r17 = field_0x934.getPos(0);
