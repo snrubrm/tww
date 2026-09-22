@@ -86,7 +86,7 @@ BOOL daObjAshut::Act_c::Delete() {
 /* 00000390-000003DC       .text Mthd_Delete__Q210daObjAshut5Act_cFv */
 BOOL daObjAshut::Act_c::Mthd_Delete() {
     BOOL ret = MoveBGDelete();
-    dComIfG_resDelete(&mPhs, M_arcname);
+    dComIfG_resDeleteDemo(&mPhs, M_arcname);
     return ret;
 }
 
