@@ -214,7 +214,7 @@ BOOL dDemo_setDemoData(fopAc_ac_c* i_actor, u8 i_flags, mDoExt_McaMorf* i_morf, 
             const char* a_name;
             if (anmID & 0x10000) {
                 a_name = dStage_roomControl_c::getDemoArcName();
-                JUT_ASSERT(397, a_name != NULL);
+                JUT_ASSERT(DEMO_SELECT(396, 397), a_name != NULL);
             } else {
                 a_name = i_arcName;
             }
@@ -222,7 +222,7 @@ BOOL dDemo_setDemoData(fopAc_ac_c* i_actor, u8 i_flags, mDoExt_McaMorf* i_morf, 
             demo_actor->setOldAnmId(anmID);
 
             J3DAnmTransform* i_key = (J3DAnmTransform*)dComIfG_getObjectIDRes(a_name, anmID & 0xFFFF);
-            JUT_ASSERT(408, i_key != NULL);
+            JUT_ASSERT(DEMO_SELECT(407, 408), i_key != NULL);
 
             void* i_sound = dDemo_getJaiPointer(a_name, anmID & 0xFFFF, p5, p6);
             f32 f1 = demo_actor->getPrm_Morf();
@@ -277,9 +277,15 @@ void dDemo_actor_c::JSGSetScaling(const Vec& v) {
 
 /* 80069C2C-80069C90       .text JSGSetRotation__13dDemo_actor_cFRC3Vec */
 void dDemo_actor_c::JSGSetRotation(const Vec& v) {
+#if VERSION == VERSION_DEMO
+    mRotate.x = DEG2S_CONSTANT * v.x;
+    mRotate.y = DEG2S_CONSTANT * v.y;
+    mRotate.z = DEG2S_CONSTANT * v.z;
+#else
     mRotate.x = cM_deg2s(v.x);
     mRotate.y = cM_deg2s(v.y);
     mRotate.z = cM_deg2s(v.z);
+#endif
     onEnable(ENABLE_ROTATE_e);
 }
 
@@ -440,7 +446,11 @@ f32 dDemo_camera_c::JSGGetViewRoll() const {
     view_class* view = getView();
     if (view == NULL)
         return 0.0f;
+#if VERSION == VERSION_DEMO
+    return S2DEG_CONSTANT * view->mBank;
+#else
     return cM_sht2d(view->mBank);
+#endif
 }
 
 /* 8006A050-8006A064       .text JSGSetViewRoll__14dDemo_camera_cFf */
@@ -666,24 +676,24 @@ dDemo_manager_c::dDemo_manager_c() {
     mFrame = 0;
     
     mMesgControl = new dMesg_tControl();
-    JUT_ASSERT(0x5b7, mMesgControl != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5a5, 0x5b7), mMesgControl != NULL);
     mSystem = new dDemo_system_c();
-    JUT_ASSERT(0x5ba, mSystem != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5a8, 0x5ba), mSystem != NULL);
     mControl = new JStudio::TControl();
-    JUT_ASSERT(0x5bc, mControl != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5aa, 0x5bc), mControl != NULL);
     mStage = new JStudio_JStage::TCreateObject(mSystem);
-    JUT_ASSERT(0x5be, mStage != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5ac, 0x5be), mStage != NULL);
     mAudio = new JStudio_JAudio::TCreateObject(mDoAud_zelAudio_c::getInterface());
-    JUT_ASSERT(0x5c0, mAudio != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5ae, 0x5c0), mAudio != NULL);
     mParticle = new JStudio_JParticle::TCreateObject(dPa_control_c::getEmitterManager(), mSystem);
-    JUT_ASSERT(0x5c3, mParticle != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5b1, 0x5c3), mParticle != NULL);
     mMessage = new JStudio_JMessage::TCreateObject(mMesgControl);
-    JUT_ASSERT(0x5c6, mMessage != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5b4, 0x5c6), mMessage != NULL);
     mFactory = new JStudio::TFactory();
-    JUT_ASSERT(0x5c9, mFactory != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x5b7, 0x5c9), mFactory != NULL);
     
     // This gets compiled to a double literal, but the lack of precision indicates it was written as a float literal.
-    mControl->mSecondPerFrame = 1/30.0f;
+    mControl->setSecondPerFrame(1/30.0f);
     mControl->setFactory(mFactory);
     mFactory->appendCreateObject(mStage);
     mFactory->appendCreateObject(mAudio);
