@@ -4336,7 +4336,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
         }
 
         GXSetCullMode(GX_CULL_NONE);
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
         GXSetClipMode(GX_CLIP_DISABLE);
 #endif
         GXSetNumIndStages(0);
