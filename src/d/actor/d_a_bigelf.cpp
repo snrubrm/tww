@@ -105,7 +105,7 @@ BOOL daBigelf_c::nodeCallBack(J3DNode* node) {
         }
     }
     MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
-    MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+    model->setAnmMtx(jntNo, *calc_mtx);
     return TRUE;
 }
 
