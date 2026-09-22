@@ -890,7 +890,6 @@ bool dCamera_c::checkForceLockTarget() {
 
 /* 80163514-80163EF4       .text Run__9dCamera_cFv */
 bool dCamera_c::Run() {
-    /* Nonmatching */
     f32 fVar1;
     f32 fVar2;
     f32 fVar3;
@@ -2192,7 +2191,6 @@ void dCamera_c::setView(f32 i_xOrig, f32 i_yOrig, f32 i_width, f32 i_height) {
 
 /* 801676C0-80167F08       .text forwardCheckAngle__9dCamera_cFv */
 cSAngle dCamera_c::forwardCheckAngle() {
-    /* Nonmatching - regswap */
     dBgS_CamLinChk_NorWtr lin_chk;
     cSAngle ret = cSAngle::_0;
     cSAngle local_1b8;
