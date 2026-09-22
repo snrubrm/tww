@@ -2151,12 +2151,12 @@ int dCamera_c::defaultTriming() {
                     mTrimSize = 0;
                 }
                 break;
+            case 3:
+                mTrimSize = 2;
+                break;
             case 1:
             case 2:
             case 8:
-                mTrimSize = 2;
-                break;
-            case 3:
                 mTrimSize = 1;
                 break;
             case 4:
@@ -5698,11 +5698,11 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         {
             work->m3A4 = mViewCache.mCenter;
             work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
-            static cXyz tornadoOff0[2] = {
+            static cXyz p[2] = {
                 cXyz(-120.0f, 50.0f, 280.0f),
                 cXyz(240.0f, 160.0f, -80.0f),
             };
-            cSGlobe globe(tornadoOff0[m07C & 1]);
+            cSGlobe globe(p[m07C & 1]);
             cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
             if ((target - yaw) >= cSAngle::_0) {
                 globe.U(yaw + globe.U());
@@ -5716,11 +5716,11 @@ bool dCamera_c::tornadoCamera(s32 param_1) {
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
             work->m3A4 = mViewCache.mCenter;
             work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
-            static cXyz tornadoOff1[2] = {
+            static cXyz p[2] = {
                 cXyz(-120.0f, 20.0f, 280.0f),
                 cXyz(-120.0f, 20.0f, 280.0f),
             };
-            cSGlobe globe(tornadoOff1[m07C & 1]);
+            cSGlobe globe(p[m07C & 1]);
             cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
             if ((target - yaw) >= cSAngle::_0) {
                 globe.U(yaw + globe.U());
@@ -5943,13 +5943,13 @@ bool dCamera_c::rideCamera(s32 param_1) {
         if (check_owner_action(mPadId, daPyStts0_UNK1000000_e)) {
             work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
             work->m3A4 = mViewCache.mCenter;
-            static cXyz cannonOff[4] = {
+            static cXyz p[4] = {
                 cXyz(-120.0f, 50.0f, 280.0f),
                 cXyz(240.0f, 160.0f, -80.0f),
                 cXyz(240.0f, 120.0f, -60.0f),
                 cXyz(200.0f, 160.0f, -80.0f),
             };
-            cSGlobe globe(cannonOff[m07C & 3]);
+            cSGlobe globe(p[m07C & 3]);
             cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
             if ((target - work->m3B0) >= cSAngle::_0) {
                 globe.U(work->m3B0 + globe.U());
@@ -5964,13 +5964,13 @@ bool dCamera_c::rideCamera(s32 param_1) {
         } else if (check_owner_action1(mPadId, daPyStts1_UNK80_e)) {
             work->m37C = fopAcM_SearchByName(fpcNm_SHIP_e);
             work->m3A4 = mViewCache.mCenter;
-            static cXyz craneOff[4] = {
+            static cXyz p[4] = {
                 cXyz(320.0f, 200.0f, -150.0f),
                 cXyz(320.0f, 200.0f, -120.0f),
                 cXyz(320.0f, 80.0f, -150.0f),
                 cXyz(115.0f, 215.0f, 315.0f),
             };
-            cSGlobe globe(craneOff[m07C & 3]);
+            cSGlobe globe(p[m07C & 3]);
             cSAngle target(cLib_targetAngleY(fopAcM_GetPosition_p(mpPlayerActor), fopAcM_GetPosition_p(work->m37C)));
             if ((target - work->m3B0) >= cSAngle::_0) {
                 globe.U(work->m3B0 + globe.U());
