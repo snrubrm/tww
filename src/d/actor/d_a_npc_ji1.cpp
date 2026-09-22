@@ -928,14 +928,23 @@ u32 daNpc_Ji1_c::getMsg2ndType() {
         else if(dComIfGs_getBeastNum(dBeastIdx_KNIGHTS_CREST_e) < 3) {
             msgNo = 0x9BB;
         }
+#elif VERSION == VERSION_PAL
+        else if(dComIfGs_isEventBit(dSv_event_flag_c::UNK_0B20)) {
+            msgNo = 0x9BC;
+        }
+        else if(dComIfGs_getBeastNum(dBeastIdx_KNIGHTS_CREST_e) < 10) {
+            msgNo = 0x9BB;
+        }
 #else
         else if(dComIfGs_getBeastNum(dBeastIdx_KNIGHTS_CREST_e) < 10) {
             msgNo = 0x9BB;
         }
 #endif
+#if VERSION != VERSION_PAL
         else if(dComIfGs_isEventBit(dSv_event_flag_c::UNK_0B20)) {
             msgNo = 0x9BC;
         }
+#endif
         else {
             msgNo = 0x9B0;
         }
