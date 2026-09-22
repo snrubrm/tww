@@ -51,7 +51,7 @@ namespace {
 
     const Attr_c L_attr = {
         /* resName      */ "VbakH",
-        /* heapSize     */ 0x920,
+        /* heapSize     */ DEMO_SELECT(0x4000, 0x920),
         /* field_0x8    */ 0x96,
         /* field_0xA    */ 0x1E,
         /* gravity      */ -2.9f,
