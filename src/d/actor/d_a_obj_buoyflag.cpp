@@ -468,15 +468,14 @@ void daObjBuoyflag::Packet_c::calc_pos(Act_c* actor) {
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
     calc_wind_base(actor);
     for (int y = 0; y < 5; y++) {
-        for (int x = 0; x < 7; x++) {
+        for (s32 x = 0; x < 7; x++) {
             if ((y == 0 && x == 0) || (y == 4 && x == 0)) continue;
             mForce = cXyz::Zero;
             calc_pos_spring(y, x);
             calc_pos_gravity(y, x);
             calc_pos_wave(y, x);
             calc_pos_spd(y, x);
-            // Fakematch: the unsigned index keeps the speed address from being reused from calc_pos_spd.
-            draw->pos[y][x] = prev->pos[y][x] + mMove.speed[y][(u32)x];
+            draw->pos[y][x] = prev->pos[y][x] + mMove.speed[y][x];
         }
     }
 }
