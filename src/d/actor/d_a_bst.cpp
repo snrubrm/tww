@@ -2121,26 +2121,26 @@ void demo_camera(bst_class* i_this) {
         spA4.y = 0.0f;
         spA4.z = 0.0f;
         player->setPlayerPosAndAngle(&spA4, 0x4000);
-        cLib_addCalc2(&i_this->m2EA0.z, boss->actor.current.pos.z + REG0_F(3) + 300.0f, 0.02f, DEMO_SELECT(1.5f, 1.4f));
+        cLib_addCalc2(&i_this->m2EA0.z, boss->actor.current.pos.z + REG0_F(3) + 300.0f, 0.02f, VERSION_SELECT(1.5f, 1.4f, 1.4f, 1.5f));
         if (i_this->msFrameCount == 60) {
             message_set(i_this, 0x170d);
         }
-        if (i_this->msFrameCount == DEMO_SELECT(150, 180)) {
+        if (i_this->msFrameCount == VERSION_SELECT(150, 180, 180, 150)) {
             msg_end = 1;
         }
-        if (i_this->msFrameCount == (REG0_S(4) + DEMO_SELECT(170, 200))) {
+        if (i_this->msFrameCount == (REG0_S(4) + VERSION_SELECT(170, 200, 200, 170))) {
             message_set(i_this, 0x170e);
         }
-        if (i_this->msFrameCount == (REG0_S(4) + DEMO_SELECT(260, 290))) {
+        if (i_this->msFrameCount == (REG0_S(4) + VERSION_SELECT(260, 290, 290, 260))) {
             msg_end = 1;
         }
-        if (i_this->msFrameCount == (REG0_S(4) + DEMO_SELECT(260, 290)) + (REG0_S(4) + 20)) {
+        if (i_this->msFrameCount == (REG0_S(4) + VERSION_SELECT(260, 290, 290, 260)) + (REG0_S(4) + 20)) {
             message_set(i_this, 0x170f);
         }
-        if (i_this->msFrameCount == (REG0_S(4) + DEMO_SELECT(360, 390)) + (REG0_S(4) + 20)) {
+        if (i_this->msFrameCount == (REG0_S(4) + VERSION_SELECT(360, 390, 390, 360)) + (REG0_S(4) + 20)) {
             msg_end = 1;
         }
-        if (i_this->msFrameCount != (REG0_S(4) + DEMO_SELECT(380, 410)) + (REG0_S(4) + 20)) {
+        if (i_this->msFrameCount != (REG0_S(4) + VERSION_SELECT(380, 410, 410, 380)) + (REG0_S(4) + 20)) {
             break;
         }
         i_this->m2E9A = 0xc;
@@ -2362,28 +2362,32 @@ void demo_camera(bst_class* i_this) {
         if (i_this->msFrameCount == 120) {
             message_set(i_this, 0x1710);
         }
-        if (i_this->msFrameCount == DEMO_SELECT(210, 240)) {
+        if (i_this->msFrameCount == VERSION_SELECT(210, 240, 240, 210)) {
             msg_end = 1;
         }
-        if (i_this->msFrameCount == REG0_S(4) + DEMO_SELECT(230, 260)) {
+        if (i_this->msFrameCount == REG0_S(4) + VERSION_SELECT(230, 260, 260, 230)) {
             message_set(i_this, 0x1711);
         }
-        if (i_this->msFrameCount == REG0_S(4) + DEMO_SELECT(320, 350)) {
+        if (i_this->msFrameCount == REG0_S(4) + VERSION_SELECT(320, 350, 350, 320)) {
             msg_end = 1;
         }
-        if (i_this->msFrameCount == REG0_S(4) + DEMO_SELECT(320, 350) + (REG0_S(4) + 20)) {
+        if (i_this->msFrameCount == REG0_S(4) + VERSION_SELECT(320, 350, 350, 320) + (REG0_S(4) + 20)) {
             message_set(i_this, 0x1712);
         }
-        if (i_this->msFrameCount == REG0_S(4) + DEMO_SELECT(410, 500) + (REG0_S(4) + 20)) {
+        if (i_this->msFrameCount == REG0_S(4) + VERSION_SELECT(410, 500, 500, 410) + (REG0_S(4) + 20)) {
             msg_end = 1;
         }
-        if (i_this->msFrameCount == REG0_S(4) + DEMO_SELECT(410, 500) + (REG0_S(4) + 20) + REG0_S(4) + 20) {
+#if VERSION == VERSION_DEMO || VERSION == VERSION_PAL
+        if (i_this->msFrameCount == REG0_S(4) + 410 + (REG0_S(4) + 20) + (REG0_S(4) + 20)) {
+#else
+        if (i_this->msFrameCount == REG0_S(4) + 500 + (REG0_S(4) + 20) + REG0_S(4) + 20) {
+#endif
             message_set(i_this, 0x1713);
         }
-        if (i_this->msFrameCount == REG0_S(4) + DEMO_SELECT(110, 170) + (REG0_S(4) + DEMO_SELECT(430, 460) + REG0_S(4))) {
+        if (i_this->msFrameCount == REG0_S(4) + VERSION_SELECT(110, 170, 170, 110) + (REG0_S(4) + VERSION_SELECT(430, 460, 460, 430) + REG0_S(4))) {
             msg_end = 1;
         }
-        if (i_this->msFrameCount != REG0_S(4) + DEMO_SELECT(140, 200) + (REG0_S(4) + DEMO_SELECT(430, 460) + REG0_S(4))) {
+        if (i_this->msFrameCount != REG0_S(4) + VERSION_SELECT(140, 200, 200, 140) + (REG0_S(4) + VERSION_SELECT(430, 460, 460, 430) + REG0_S(4))) {
             break;
         }
         i_this->m2E9A++;
