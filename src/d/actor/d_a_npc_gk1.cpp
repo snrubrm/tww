@@ -769,7 +769,7 @@ BOOL daNpc_Gk1_c::_execute() {
     checkOrder();
     if (!demo()) {
         int staff = -1;
-        if (dComIfGp_event_runCheck() && !eventInfo.checkCommandTalk()) {
+        if (dComIfGp_event_runCheck() && eventInfo.checkCommandTalk() == FALSE) {
             staff = isEventEntry();
         }
         if (staff >= 0) {
