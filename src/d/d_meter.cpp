@@ -7175,9 +7175,9 @@ void dMeter_screenDataSet(sub_meter_class* i_Meter) {
 /* 8020408C-8020438C       .text dMeter_screenDataTimeSet__FP15sub_meter_class */
 void dMeter_screenDataTimeSet(sub_meter_class* i_Meter) {
     sScrTimer1 = new J2DScreen();
-    JUT_ASSERT(12863, sScrTimer1 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12863, 12863, 12863, 12862), sScrTimer1 != NULL);
     sScrTimer2 = new J2DScreen();
-    JUT_ASSERT(12865, sScrTimer2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(12865, 12865, 12865, 12864), sScrTimer2 != NULL);
     sScrTimer1->set("time_swim_1.blo", dComIfGp_getSwimResArchive());
     sScrTimer2->set("time_swim_2.blo", dComIfGp_getSwimResArchive());
     fopMsgM_setPaneData(&i_Meter->field_0x2a90[8], sScrTimer2, 'hk33');
