@@ -24,8 +24,8 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
         daObjHami2::Act_c* actor = (daObjHami2::Act_c*)model->getUserArea();
         if (actor != NULL) {
             MTXCopy(model->getAnmMtx(jointNo), *calc_mtx);
-            mDoMtx_YrotM(*calc_mtx, actor->mGateAngle);
-            MTXCopy(*calc_mtx, model->getAnmMtx(jointNo));
+            cMtx_YrotM(*calc_mtx, actor->mGateAngle);
+            model->setAnmMtx(jointNo, *calc_mtx);
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
