@@ -22,22 +22,25 @@ static BOOL nodeCallBack(J3DNode* node, int calcTiming) {
         J3DModel* model = j3dSys.getModel();
         syan_class* i_this = (syan_class*)model->getUserArea();
         if (i_this != NULL) {
-            mDoMtx_copy(model->getAnmMtx(jntNo), *calc_mtx);
+            PSMTXCopy(model->getAnmMtx(jntNo), *calc_mtx);
             if (jntNo == SYAN_JNT_JOINT5_e) {
                 cMtx_YrotM(*calc_mtx, i_this->field_0x2a4[0].y);
                 cMtx_XrotM(*calc_mtx, -i_this->field_0x2a4[0].x);
                 cMtx_ZrotM(*calc_mtx, i_this->field_0x2a4[0].z);
                 model->setAnmMtx(jntNo, *calc_mtx);
-                cMtx_copy(*calc_mtx, J3DSys::mCurrentMtx);
+                PSMTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
             } else if (jntNo == SYAN_JNT_JOINT8_e) {
                 cMtx_YrotM(*calc_mtx, i_this->field_0x2b0.y);
                 cMtx_XrotM(*calc_mtx, -(i_this->field_0x2a4[1].x + i_this->field_0x2b0.x));
                 cMtx_ZrotM(*calc_mtx, i_this->field_0x2b0.z);
                 model->setAnmMtx(jntNo, *calc_mtx);
-                cMtx_copy(*calc_mtx, J3DSys::mCurrentMtx);
+                PSMTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
 
                 for (s32 i = 0; i < (s32)ARRAY_SIZE(b_pos_x); i++) {
-                    cXyz b_pos(b_pos_x[i], b_pos_y[i], b_pos_z[i]);
+                    cXyz b_pos;
+                    b_pos.x = b_pos_x[i];
+                    b_pos.y = b_pos_y[i];
+                    b_pos.z = b_pos_z[i];
                     i_this->partPosOld[i] = i_this->partPos[i];
                     MtxPosition(&b_pos, &i_this->partPos[i]);
                 }
