@@ -5085,9 +5085,7 @@ void drawCloudShadow(Mtx drawMtx, u8** pImg) {
         return;
     }
 
-#if VERSION > VERSION_JPN
     GXSetClipMode(GX_CLIP_DISABLE);
-#endif
 
     GXColor reg0, reg1;
     if (dKy_getEnvlight().mMoyaMode != 3 && dKy_getEnvlight().mMoyaMode != 4) {
@@ -5198,8 +5196,8 @@ void drawCloudShadow(Mtx drawMtx, u8** pImg) {
         GXEnd();
     }
 
-#if VERSION > VERSION_JPN
     GXSetClipMode(GX_CLIP_ENABLE);
+#if VERSION > VERSION_JPN
     J3DShape::resetVcdVatCache();
 #endif
 }
