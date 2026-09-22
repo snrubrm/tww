@@ -130,10 +130,16 @@ public:
     J3DShapePacket* getShapePacket(u16 idx) { return &mpShapePacket[idx]; }
     J3DShapePacket* getShapePacketArray() { return mpShapePacket; }
     Mtx* getDrawMtxPtr() { return mpDrawMtxBuf[1][mCurrentViewNo]; }
-    Mtx& getDrawMtx(int idx) { return getDrawMtxPtr()[idx]; }
     Mtx33* getNrmMtxPtr() { return mpNrmMtxBuf[1][mCurrentViewNo]; }
+#if VERSION == VERSION_JPN
+    Mtx& getDrawMtx(int idx) { return mpDrawMtxBuf[1][mCurrentViewNo][idx]; }
+    Mtx33& getNrmMtx(int idx) { return mpNrmMtxBuf[1][mCurrentViewNo][idx]; }
+    void setNrmMtx(int idx, Mtx m) { J3DPSMtx33CopyFrom34(m, mpNrmMtxBuf[1][mCurrentViewNo][idx]); }
+#else
+    Mtx& getDrawMtx(int idx) { return getDrawMtxPtr()[idx]; }
     Mtx33& getNrmMtx(int idx) { return getNrmMtxPtr()[idx]; }
     void setNrmMtx(int idx, Mtx m) { J3DPSMtx33CopyFrom34(m, getNrmMtxPtr()[idx]); }
+#endif
     Mtx33* getBumpMtxPtr(int idx) { return mpBumpMtxArr[1][idx][mCurrentViewNo]; }
     Vec* getBaseScale() { return &mBaseScale; } // Unused in TWW
     void setBaseScale(const Vec& scale) { mBaseScale = scale; }

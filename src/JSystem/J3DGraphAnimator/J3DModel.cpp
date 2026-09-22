@@ -852,15 +852,15 @@ void J3DModel::viewCalc() {
 
 /* 802EF050-802EF1B8       .text calcNrmMtx__8J3DModelFv */
 void J3DModel::calcNrmMtx() {
-    if (getModelData()->checkFlag(J3DMdlDataFlag_ConcatView) == 0) {
-        for (u16 i = 0; i < getModelData()->getDrawMtxNum(); i++) {
-            if (getModelData()->getDrawMtxFlag(i) == 0) {
-                if (getScaleFlag(getModelData()->getDrawMtxIndex(i)) == 1) {
+    if (mModelData->checkFlag(J3DMdlDataFlag_ConcatView) == 0) {
+        for (u16 i = 0; i < mModelData->getDrawMtxNum(); i++) {
+            if (mModelData->getDrawMtxFlag(i) == 0) {
+                if (mpScaleFlagArr[mModelData->getDrawMtxIndex(i)] == 1) {
                     setNrmMtx(i, getDrawMtx(i));
                 } else
                     J3DPSCalcInverseTranspose(getDrawMtx(i), getNrmMtx(i));
             } else {
-                if (getEnvScaleFlag(getModelData()->getDrawMtxIndex(i)) == 1) {
+                if (mpEvlpScaleFlagArr[mModelData->getDrawMtxIndex(i)] == 1) {
                     setNrmMtx(i, getDrawMtx(i));
                 } else
                     J3DPSCalcInverseTranspose(getDrawMtx(i), getNrmMtx(i));
