@@ -1611,8 +1611,7 @@ void daNpc_So_c::createInit() {
 /* 00003DF8-00003E24       .text getArg__10daNpc_So_cFv */
 void daNpc_So_c::getArg() {
     mPrmAngleX = home.angle.x;
-    s16 tmp = mPrmAngleX;
-    if (tmp == 0xFFFF || tmp == 0) {
+    if (mPrmAngleX == 0xFFFF || mPrmAngleX == 0) {
         mPrmAngleX = 1;
     }
 }
