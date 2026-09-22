@@ -195,7 +195,7 @@ int dRes_info_c::loadResource() {
 
         for (; JKRIsFileFinderAvailable(pArcFinder); pArcFinder->findNextFile()) {
             u32 resType;
-            void * pRes = JKRArchive::getGlbResource(*pResType, pArcFinder->mEntryName, mpArchive);
+            void * pRes = JKRGetTypeResource(*pResType, pArcFinder->mEntryName, mpArchive);
             if (pRes == NULL) {
                 OSReport_Error("<%s> res == NULL !!\n", pArcFinder->mEntryName);
                 goto next;
