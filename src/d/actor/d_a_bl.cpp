@@ -889,6 +889,7 @@ void action_dousa(bl_class* i_this) {
     fopAc_ac_c* actor = i_this;
     s16 target_angle;
     f32 limit6;
+    f32 dx, dz;
 
     switch (i_this->m306) {
     case 0:
@@ -981,8 +982,8 @@ void action_dousa(bl_class* i_this) {
     case 6:
         if (i_this->m2E9 != 0xFF && i_this->mpPath != NULL) {
             dPnt* pnt = &i_this->mpPath->m_points[i_this->mPathPntIdx];
-            f32 dx = pnt->m_position.x - actor->current.pos.x;
-            f32 dz = pnt->m_position.z - actor->current.pos.z;
+            dx = pnt->m_position.x - actor->current.pos.x;
+            dz = pnt->m_position.z - actor->current.pos.z;
             target_angle = (s16)cM_atan2s(dx, dz);
             f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
             if (dist < 80.0f + REG8_F(3)) {
@@ -1001,8 +1002,8 @@ void action_dousa(bl_class* i_this) {
             break;
         } else {
             f32 limit = 250.0f;
-            f32 dx = actor->current.pos.x - i_this->m2C4.x;
-            f32 dz = actor->current.pos.z - i_this->m2C4.z;
+            dx = actor->current.pos.x - i_this->m2C4.x;
+            dz = actor->current.pos.z - i_this->m2C4.z;
             f32 dist = std::sqrtf(SQUARE(dx) + SQUARE(dz));
             if (dist < limit) {
                 if (i_this->m2EC != 0) {
