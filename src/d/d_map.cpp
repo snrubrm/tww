@@ -1726,7 +1726,11 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
         if (mNowRoomInfoP && tmp != mNowFloorNo) {
             u8 r30 = mNowRoomInfoP->field_0xc;
             mNowFloorNo = tmp;
+#if VERSION == VERSION_DEMO
+            mRoomInfoCtrl.checkFloorMoveImageChangeRoom(tmp, tmp, param_3, 120, 120);
+#else
             mRoomInfoCtrl.checkFloorMoveImageChangeRoom(tmp, tmp, param_3, 120, 120, param_4);
+#endif
             if (r30 != mNowRoomInfoP->field_0xc) {
                 mAGBMapSendStatus = 0;
                 mAGBMapSendStopFlg = false;
@@ -2817,12 +2821,20 @@ void dMap_c::mapBufferSendAGB(int) {
 }
 
 /* 8004D9BC-8004DA54       .text checkFloorMoveImageChangeRoom__19dMap_RoomInfoCtrl_cFUcUcissf */
+#if VERSION == VERSION_DEMO
+void dMap_RoomInfoCtrl_c::checkFloorMoveImageChangeRoom(u8 param_1, u8 param_2, int param_3, s16 param_4, s16 param_5) {
+#else
 void dMap_RoomInfoCtrl_c::checkFloorMoveImageChangeRoom(u8 param_1, u8 param_2, int param_3, s16 param_4, s16 param_5, f32 param_6) {
+#endif
     /* Nonmatching */
     dMap_RoomInfo_c* room = NULL;
     while ((room = getNextRoomP(room)) != NULL) {
         if (room->m_exist) {
+#if VERSION == VERSION_DEMO
+            room->Changeimage(param_1, param_2, param_3, param_4, param_5);
+#else
             room->Changeimage(param_1, param_2, param_3, param_4, param_5, param_6);
+#endif
         }
     }
 }

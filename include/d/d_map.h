@@ -228,7 +228,11 @@ public:
     void ctrlDrawRoomEnlargementSize(int, int, int, int, int, f32, f32, f32, f32, u8);
     void ctrlDrawRoomRealSize(int, int, int, int, int, f32, f32, f32, f32, f32, f32, u8);
     void init();
+#if VERSION == VERSION_DEMO
+    void checkFloorMoveImageChangeRoom(u8, u8, int, s16, s16);
+#else
     void checkFloorMoveImageChangeRoom(u8, u8, int, s16, s16, f32);
+#endif
 
 public:
     /* 0x00 */ s32 m_num;
