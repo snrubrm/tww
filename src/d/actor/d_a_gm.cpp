@@ -250,6 +250,13 @@ static BOOL daGM_Draw(gm_class* i_this) {
 /* 00000908-00000A34       .text anm_init__FP8gm_classifUcfi */
 void anm_init(gm_class* i_this, int bckFileIdx, float morf, unsigned char loopMode, float speed, int soundFileIdx) {
     i_this->mBckIdx = bckFileIdx;
+#if VERSION == VERSION_DEMO
+    if (soundFileIdx >= 0) {
+        i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx), loopMode, morf, speed, 0.0f, -1.0f, dComIfG_getObjectRes("GM", soundFileIdx));
+    } else {
+        i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx), loopMode, morf, speed, 0.0f, -1.0f, NULL);
+    }
+#else
     if (soundFileIdx >= 0) {
         void* soundAnm = dComIfG_getObjectRes("GM", soundFileIdx);
         J3DAnmTransform* bckAnm = (J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx);
@@ -258,6 +265,7 @@ void anm_init(gm_class* i_this, int bckFileIdx, float morf, unsigned char loopMo
         J3DAnmTransform* bckAnm = (J3DAnmTransform*)dComIfG_getObjectRes("GM", bckFileIdx);
         i_this->mpMorf->setAnm(bckAnm, loopMode, morf, speed, 0.0f, -1.0f, NULL);
     }
+#endif
 }
 
 /* 00000A34-00000D00       .text wing_cut_stat__FP8gm_class */
