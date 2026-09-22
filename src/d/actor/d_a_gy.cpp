@@ -1582,13 +1582,9 @@ bool daGy_c::_execute() {
     s8 prm = mPrmIdx;
     if (prm == 5) {
         if (speed.y < -5.0f) {
-            s16* pAngleX = &current.angle.x;
-            s16 target = REG12_S(1) + 0x2000;
-            cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
+            cLib_addCalcAngleS2(&current.angle.x, REG12_S(1) + 0x2000, 8, 0x400);
         } else if (speed.y > 5.0f) {
-            s16* pAngleX = &current.angle.x;
-            s16 target = REG12_S(2) - 0x1000;
-            cLib_addCalcAngleS2(pAngleX, target, 8, 0x400);
+            cLib_addCalcAngleS2(&current.angle.x, REG12_S(2) - 0x1000, 8, 0x400);
         } else {
             cLib_addCalcAngleS2(&current.angle.x, 0, 8, 0x800);
         }
