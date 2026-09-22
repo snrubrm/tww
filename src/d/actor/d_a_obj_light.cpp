@@ -180,7 +180,11 @@ void daObjLight::Act_c::exe_fire() {
 
 /* 00000C28-00000C60       .text delete_fire__Q210daObjLight5Act_cFv */
 void daObjLight::Act_c::delete_fire() {
+#if VERSION == VERSION_DEMO
+    mFireCallback.remove();
+#else
     if (mFireCallback.getEmitter() != NULL) mFireCallback.remove();
+#endif
 }
 
 /* 00000C60-00000C8C       .text now_event__Q210daObjLight5Act_cFs */
