@@ -35,12 +35,14 @@ static BOOL nodeCallBack(J3DNode* node, int timing) {
 /* 0000012C-0000032C       .text CreateHeap__Q210daObjHami25Act_cFv */
 BOOL daObjHami2::Act_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_HAMI2_BDL_HAMI2_e);
-    JUT_ASSERT(104, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(103, 104), modelData != NULL);
     mModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     if (mModel != NULL) {
+        const char* jointName;
         JUTNameTab* names = mModel->getModelData()->getJointName();
         for (u16 i = 0; i < mModel->getModelData()->getJointNum(); i++) {
-            if (!strcmp("mono1", names->getName(i))) {
+            jointName = names->getName(i);
+            if (strcmp("mono1", jointName) == 0) {
                 mModel->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
                 break;
             }
