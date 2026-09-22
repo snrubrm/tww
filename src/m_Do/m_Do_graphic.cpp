@@ -1058,7 +1058,7 @@ void blockenc(u8* block) {
             r22 |= (r24 & 0x03) << r21;
         }
     } else { // VERSION_DEMO only block (optimized out in retail)
-        i = color_num = offs1 = 0;
+        color_num = i = offs1 = 0;
         for (; i < 0x30; i += 3, offs1 += 4) {
             if (block[offs1+3] == 0xFF) {
                 j = 0; // r9
