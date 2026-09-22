@@ -864,17 +864,18 @@ void dNpc_JntCtrl_c::lookAtTarget_2(s16* r26, cXyz* r29, cXyz r24, s16 r7, s16 r
     }
     
     deltaY = targetY - *r26;
+    s16 turnY = deltaY;
     if (0 <= field_0x32) {
         if (deltaY >= field_0x32 || field_0x32 == 0) {
-            turn_fromHead2Backbone(deltaY, &r1_08[1], &r1_08[0]);
+            turn_fromHead2Backbone(turnY, &r1_08[1], &r1_08[0]);
         } else {
-            turn_fromBackbone2Head(deltaY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
+            turn_fromBackbone2Head(turnY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
         }
     } else {
         if (deltaY <= field_0x32 || field_0x32 == 0) {
-            turn_fromHead2Backbone(deltaY, &r1_08[1], &r1_08[0]);
+            turn_fromHead2Backbone(turnY, &r1_08[1], &r1_08[0]);
         } else {
-            turn_fromBackbone2Head(deltaY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
+            turn_fromBackbone2Head(turnY, &r1_08[1], &r1_08[0], 0 <= field_0x32);
         }
     }
     
