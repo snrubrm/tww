@@ -397,7 +397,6 @@ void daNpc_P2_c::cutLiftToRopeProc(int staffIdx) {
 
 /* 000065B8-00006B08       .text cutRopeTalkStart__10daNpc_P2_cFi */
 void daNpc_P2_c::cutRopeTalkStart(int staffIdx) {
-    himo3_class* pfVar7 = (himo3_class*)mActor;
     cXyz local_70;
     cXyz local_64;
     cXyz local_58;
@@ -449,11 +448,11 @@ void daNpc_P2_c::cutRopeTalkStart(int staffIdx) {
         m7A4 = -fVar12;
     }
 
-    cXyz* temp = (cXyz*)&mpHimo3->m15F4;
-    local_64 = mpHimo3->actor.current.pos - current.pos;
+    himo3_class* himo3 = mpHimo3;
+    local_64 = himo3->actor.current.pos - current.pos;
     dVar8 = (local_64.abs() - 80.0f);
-    if (dVar8 > temp->z) {
-        dVar8 = temp->z;
+    if (dVar8 > himo3->m15FC) {
+        dVar8 = himo3->m15FC;
     }
     local_64.normalize();
     current.pos = (mpHimo3->actor.current.pos - (local_64 * dVar8));
