@@ -166,14 +166,8 @@ void daNpc_Kg2_c::playTexPatternAnm() {
             if (mBtpFrame == 0) { mBtpFrame = 1; mBtpTimer = 150.0f + cM_rndF(150.0f); }
             else { mBtpFrame = 0; mBtpTimer = (s16)(150.0f + cM_rndF(150.0f)) * 2; }
         } else {
-#if VERSION == VERSION_DEMO
-            s16 end = m_btp->getFrameMax();
-            if (mBtpFrame >= end) {
-#else
-            int end = m_btp->getFrameMax();
-            if (mBtpFrame >= (s16)end) {
-#endif
-                mBtpFrame -= end;
+            if (mBtpFrame >= m_btp->getFrameMax()) {
+                mBtpFrame -= m_btp->getFrameMax();
                 mBtpTimer = 30.0f + cM_rndF(100.0f);
             } else mBtpFrame++;
         }
