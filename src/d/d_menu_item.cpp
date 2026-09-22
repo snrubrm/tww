@@ -288,7 +288,11 @@ void dMenu_Item_c::screenSet() {
 
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(mItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(itemNo), archive);
+#if VERSION <= VERSION_JPN
+        DCFlushRangeNoSync(mItemTexBuffer[i], 0xc00);
+#else
         DCStoreRangeNoSync(mItemTexBuffer[i], 0xc00);
+#endif
         ((J2DPicture*)m1658[i].pane)->changeTexture((ResTIMG*)mItemTexBuffer[i], 0);
         ((J2DPicture*)m1AF0[i].pane)->changeTexture((ResTIMG*)mItemTexBuffer[i], 0);
     }
@@ -300,7 +304,11 @@ void dMenu_Item_c::screenSet() {
 
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(dComIfGs_getItemBeast(i)), archive);
+#if VERSION <= VERSION_JPN
+        DCFlushRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#else
         DCStoreRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#endif
         ((J2DPicture*)mE78[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
         ((J2DPicture*)m1070[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
     }
@@ -320,7 +328,11 @@ void dMenu_Item_c::screenSet() {
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(mSubItemTexBuffer[8], 0xc00, 'TIMG', "cover_return.bti", archive);
 #endif
+#if VERSION <= VERSION_JPN
+        DCFlushRangeNoSync(mSubItemTexBuffer[8], 0xc00);
+#else
         DCStoreRangeNoSync(mSubItemTexBuffer[8], 0xc00);
+#endif
         ((J2DPicture*)m1038.pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[8], 0);
         ((J2DPicture*)m1230.pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[8], 0);
     }
@@ -801,7 +813,11 @@ void dMenu_Item_c::subWindowInit() {
                 mE78[i].mUserArea = 1;
                 JKRArchive* archive = dComIfGp_getItemIconArchive();
                 JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(dComIfGs_getItemBeast((u8)i)), archive);
+#if VERSION <= VERSION_JPN
+                DCFlushRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#else
                 DCStoreRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#endif
                 ((J2DPicture*)mE78[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 ((J2DPicture*)m1070[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 mE78[i].pane->show();
@@ -846,7 +862,11 @@ void dMenu_Item_c::subWindowInit() {
                 mE78[i].mUserArea = 1;
                 JKRArchive* archive = dComIfGp_getItemIconArchive();
                 JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(dComIfGs_getItemBait((u8)i)), archive);
+#if VERSION <= VERSION_JPN
+                DCFlushRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#else
                 DCStoreRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#endif
                 ((J2DPicture*)mE78[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 ((J2DPicture*)m1070[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 mE78[i].pane->show();
@@ -888,7 +908,11 @@ void dMenu_Item_c::subWindowInit() {
                 mE78[i].mUserArea = 1;
                 JKRArchive* archive = dComIfGp_getItemIconArchive();
                 JKRReadTypeResource(mSubItemTexBuffer[i], 0xc00, 'TIMG', dItem_data::getTexture(dComIfGs_getItemReserve((u8)i)), archive);
+#if VERSION <= VERSION_JPN
+                DCFlushRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#else
                 DCStoreRangeNoSync(mSubItemTexBuffer[i], 0xc00);
+#endif
                 ((J2DPicture*)mE78[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 ((J2DPicture*)m1070[i].pane)->changeTexture((ResTIMG*)mSubItemTexBuffer[i], 0);
                 mE78[i].pane->show();
@@ -1100,7 +1124,7 @@ void dMenu_Item_c::itemnameSet() {
     }
 
     mesg_header* head_p = msgGet.getMesgHeader(msgNo);
-    JUT_ASSERT(0x565, head_p);
+    JUT_ASSERT(VERSION_SELECT(0x538, 0x538, 0x565, 0x565), head_p);
 
     ((J2DTextBox*)m890[0].pane)->getFontSize(fontSize);
     fontSize.mSizeX = fontSize.mSizeY;
@@ -1206,7 +1230,7 @@ void dMenu_Item_c::itemnoteSet() {
     }
 
     mesg_header* head_p = msgGet.getMesgHeader(msgNo);
-    JUT_ASSERT(0x5F1, head_p);
+    JUT_ASSERT(VERSION_SELECT(0x5bc, 0x5bc, 0x5F1, 0x5F1), head_p);
 
     const char* mesg = msgGet.getMessage(head_p);
     JMSMesgEntry_c msg_entry;
@@ -1735,7 +1759,11 @@ void dMenu_Item_c::itemCheck(int i_slot) {
 
         JKRArchive* archive = dComIfGp_getItemIconArchive();
         JKRReadTypeResource(mItemTexBuffer[i_slot], 0xc00, 'TIMG', dItem_data::getTexture(itemNo), archive);
+#if VERSION <= VERSION_JPN
+        DCFlushRangeNoSync(mItemTexBuffer[i_slot], 0xc00);
+#else
         DCStoreRangeNoSync(mItemTexBuffer[i_slot], 0xc00);
+#endif
         ((J2DPicture*)m1658[i_slot].pane)->changeTexture((ResTIMG*)mItemTexBuffer[i_slot], 0);
         ((J2DPicture*)m1AF0[i_slot].pane)->changeTexture((ResTIMG*)mItemTexBuffer[i_slot], 0);
 
@@ -1977,23 +2005,23 @@ int dMenu_Item_c::equipBeastItem(int i_idx) {
 /* 801CF12C-801CF510       .text _create__12dMenu_Item_cFv */
 void dMenu_Item_c::_create() {
     scrn = new J2DScreen();
-    JUT_ASSERT(0xa57, scrn != 0);
+    JUT_ASSERT(VERSION_SELECT(0xa09, 0xa0e, 0xa57, 0xa57), scrn != 0);
     scrn->set("menu_item_02.blo", mpArc);
 
     stick = new STControl(5, 2, 3, 2);
-    JUT_ASSERT(0xa5b, stick != 0);
+    JUT_ASSERT(VERSION_SELECT(0xa0d, 0xa12, 0xa5b, 0xa5b), stick != 0);
 
     stick->setWaitParm(5, 2, 3, 2, 0.9f, 0.5f, 0, 0x800);
 
     outFont = new dDlst_2DOutFont_c();
-    JUT_ASSERT(0xa5f, outFont != 0);
+    JUT_ASSERT(VERSION_SELECT(0xa11, 0xa16, 0xa5f, 0xa5f), outFont != 0);
 
 #if VERSION > VERSION_JPN
     outFont->m74 = 1;
 #endif
 
     dMs_c = new dMenu_save_c();
-    JUT_ASSERT(0xa63, dMs_c != 0);
+    JUT_ASSERT(VERSION_SELECT(0xa14, 0xa19, 0xa63, 0xa63), dMs_c != 0);
 
     dMs_c->setUseType(0);
     dMs_c->_create();
