@@ -372,7 +372,7 @@ bool daObjTribox::Act_c::chk_wall(int num) const {
         idx = (mDir + 2) % 3;
     }
 
-    mDoMtx_YrotS(mDoMtx_stack_c::now, shape_angle.y);
+    mDoMtx_stack_c::YrotS(shape_angle.y);
     cXyz dir;
     mDoMtx_stack_c::multVecSR(&M_post[idx], &dir);
 
