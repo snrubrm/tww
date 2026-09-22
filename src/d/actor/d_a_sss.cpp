@@ -249,16 +249,11 @@ static void cut_control2(sss_class* i_this) {
 }
 
 /* 000014F4-00002614       .text hand_move__FP9sss_class */
+// NONMATCHING - retail regalloc: link and emerged swap r18/r19 (demo matches)
 static void hand_move(sss_class* i_this) {
     fopAc_ac_c* actor = i_this;
-#if VERSION == VERSION_DEMO
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     fopAc_ac_c* link = dComIfGp_getLinkPlayer();
-#else
-    fopAc_ac_c* player_ac = dComIfGp_getPlayer(0);
-    fopAc_ac_c* link = dComIfGp_getLinkPlayer();
-    daPy_py_c* player = (daPy_py_c*)player_ac;
-#endif
     s8 emerged;
     cXyz offset, rotated, target, center;
     dBgS_GndChk ground;
@@ -326,11 +321,7 @@ static void hand_move(sss_class* i_this) {
             actor->speedF = 0.0f;
         }
         offset = target - i_this->mEndPos;
-#if VERSION == VERSION_DEMO
         if (offset.abs() < 20.0f && player == link) {
-#else
-        if (offset.abs() < 20.0f && player_ac == link) {
-#endif
             i_this->mAction = 3;
             hand_close(i_this);
             fopAcM_seStart(actor, JA_SE_OBJ_SVINE_GRASP, 0);

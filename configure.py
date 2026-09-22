@@ -1603,7 +1603,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"),    "d_a_sie_flag"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_sitem"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_ss"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_sss"),
+    ActorRel(NonMatching, "d_a_sss"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"),    "d_a_syan"),
     ActorRel(Matching,    "d_a_tag_md_cb"),
     ActorRel(Matching,    "d_a_tag_mk"),
