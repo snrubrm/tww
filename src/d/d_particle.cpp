@@ -1537,8 +1537,7 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
 
     f32 userScale = 0.01f * (f32)emitter->getUserWork();
     u32 childN = emitter->getChildParticleList()->getNumLinks();
-    u32 groups = childN / 5;
-    f32 step = 1.0f / (f32)(groups - 1);
+    f32 step = 1.0f / (f32)(childN / 5 - 1);
     u32 activeN = emitter->getParticleList()->getNumLinks();
     if (activeN % 5 != 0 || childN < 10 || childN % 5 != 0) {
         return;
@@ -1565,8 +1564,9 @@ void dPa_stripesEcallBack::draw(JPABaseEmitter* emitter) {
 
                     JGeometry::TVec3<f32> gscale;
                     emitter->getGlobalParticleScale(gscale);
+                    f32 x0;
                     f32 x1 = 25.0f * params->mScaleX * gscale.x * userScale;
-                    f32 x0 = -x1;
+                    x0 = -x1;
                     // The width is built in place (scale into x, then rotate) as in JPA2.
                     JGeometry::TVec3<f32> v1;
                     JGeometry::TVec3<f32> v2;
