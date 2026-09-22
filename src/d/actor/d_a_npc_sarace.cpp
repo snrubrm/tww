@@ -128,14 +128,8 @@ BOOL daNpc_Sarace_c::initTexPatternAnm(bool modify) {
 /* 00000478-00000504       .text playTexPatternAnm__14daNpc_Sarace_cFv */
 void daNpc_Sarace_c::playTexPatternAnm() {
     if (cLib_calcTimer(&mBlinkTimer) == 0) {
-#if VERSION == VERSION_DEMO
-        s16 end = m_btp->getFrameMax();
-        if (mBtpFrame >= end) {
-#else
-        int end = m_btp->getFrameMax();
-        if (mBtpFrame >= (s16)end) {
-#endif
-            mBtpFrame -= end;
+        if (mBtpFrame >= m_btp->getFrameMax()) {
+            mBtpFrame -= m_btp->getFrameMax();
             mBlinkTimer = 30.0f + cM_rndF(100.0f);
         } else {
             mBtpFrame++;
