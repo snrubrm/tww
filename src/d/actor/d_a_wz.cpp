@@ -2418,6 +2418,9 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         phase_state = dComIfG_resLoad(&i_this->mPhase, "WZB");
     }
 
+#if VERSION == VERSION_PAL
+    if (phase_state == cPhs_COMPLEATE_e) {
+#endif
     if (i_this->mBehaviorType > WZ_TYPE_DAMAGE_BALL_FIRE) {
         i_this->mBallSph.SetAtType(AT_TYPE_MACHETE);
         i_this->mRelatedId = i_this->parentActorID;
@@ -2441,6 +2444,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         i_this->mSummonTableType = parent->mSummonTableType;
     }
 
+#if VERSION != VERSION_PAL
     if (phase_state != cPhs_COMPLEATE_e) {
         if (phase_state == cPhs_ERROR_e) {
             if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR) {
@@ -2450,6 +2454,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         }
         return phase_state;
     }
+#endif
 
     if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
             if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
@@ -2609,6 +2614,18 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         if (i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_FIRE || i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_ICE) {
             dKy_plight_set(&i_this->mPLight);
         }
+#if VERSION == VERSION_PAL
+    }
+
+    if (phase_state == cPhs_ERROR_e) {
+        if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR) {
+            wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
+            if (parent != NULL) {
+                parent->mHasChildActor = 0;
+            }
+        }
+    }
+#endif
 
     return phase_state;
 }
