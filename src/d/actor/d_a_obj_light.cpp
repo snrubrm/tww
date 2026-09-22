@@ -293,7 +293,7 @@ void daObjLight::Act_c::control_light() {
 void daObjLight::Act_c::control_treasure() {
     if (mTreasureTimer > 1) mTreasureTimer--;
     if (mTreasureTimer == 1) {
-        dComIfGs_onSwitch(93, home.roomNo);
+        dComIfGs_onSwitch(93, fopAcM_GetHomeRoomNo(this));
         mTreasureTimer = 0;
     }
 }
