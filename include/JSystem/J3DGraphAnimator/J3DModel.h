@@ -94,7 +94,11 @@ public:
 
     void onFlag(u32 flag) { mFlags |= flag; }
     void offFlag(u32 flag) { mFlags &= ~flag; }
+#if VERSION == VERSION_JPN
+    BOOL checkFlag(u32 flag) const { return (mFlags & flag) ? TRUE : FALSE; }
+#else
     bool checkFlag(u32 flag) const { return (mFlags & flag) ? true : false; }
+#endif
 
     bool isCpuSkinningOn() const { return (mFlags & J3DMdlFlag_SkinPosCpu) && (mFlags & J3DMdlFlag_SkinNrmCpu); }
 

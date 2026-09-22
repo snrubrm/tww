@@ -677,6 +677,11 @@ void J3DModel::calcWeightEnvelopeMtx() {
     }
 }
 
+#if VERSION == VERSION_JPN
+#pragma push
+#pragma optimization_level 0
+#endif
+
 /* 802EE874-802EE8C0       .text update__8J3DModelFv */
 void J3DModel::update() {
     calc();
@@ -702,7 +707,7 @@ void J3DModel::calc() {
     mVertexBuffer.frameInit();
 
     if (mpVisibilityManager != NULL)
-        mpVisibilityManager->setVisibility(getModelData());
+        mpVisibilityManager->setVisibility(mModelData);
 
     if (mpDeformData != NULL)
         mpDeformData->deform(this);
@@ -739,10 +744,10 @@ void J3DModel::entry() {
         j3dSys.offFlag(J3DSysFlag_SkinNrmCpu);
     }
 
-    j3dSys.setTexture(getModelData()->getTexture());
+    j3dSys.setTexture(mModelData->getTexture());
 
-    for (u16 i = 0; i < getModelData()->getJointNum(); i++) {
-        J3DJoint* joint = getModelData()->getJointNodePointer(i);
+    for (u16 i = 0; i < mModelData->getJointNum(); i++) {
+        J3DJoint* joint = mModelData->getJointNodePointer(i);
         if (joint->getMesh() != NULL) {
             joint->entryIn();
         }
@@ -957,3 +962,7 @@ void J3DModel::prepareShapePackets() {
         }
     }
 }
+
+#if VERSION == VERSION_JPN
+#pragma pop
+#endif
