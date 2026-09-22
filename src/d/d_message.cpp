@@ -38,8 +38,6 @@ static u8 dMsg2_tex_i4_color[] = {
     0x7c, 0x72, 0x68, 0x5e, 0x54, 0x4a, 0x41, 0x3a, 0x32, 0x2a, 0x22, 0x1d, 0x15, 0x12, 0x0f, 0x0d, 0x0b, 0x09, 0x07, 0x05, 0x04, 0x04, 0x03, 0x02,
 };
 
-static inline u32 dMsg2_mkColor(u32 color, u8 alpha) { return color | alpha; }
-
 /* 801E73B4-801E74F4       .text dMsg2_value_init__FP14sub_msg2_classUc */
 // NONMATCHING - weird stuff with color OR'ing
 void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
@@ -67,14 +65,18 @@ void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     u8 cb = i_Msg->msgDataProc[i].getGradAlpha();
     u8 cc = i_Msg->msgDataProc[i].getRCharAlpha();
     u8 cd = i_Msg->msgDataProc[i].getRGradAlpha();
-    u32 x0 = dMsg2_mkColor(color, ca);
-    u32 x1 = dMsg2_mkColor(color, cb);
-    u32 x2 = dMsg2_mkColor(color, cc);
-    u32 x3 = dMsg2_mkColor(color, cd);
-    u32 a = i_Msg->msgDataProc[i_index].getCharAlpha();
-    u32 b = i_Msg->msgDataProc[i_index].getGradAlpha();
-    u32 c = i_Msg->msgDataProc[i_index].getRCharAlpha();
-    u32 d = i_Msg->msgDataProc[i_index].getRGradAlpha();
+    u32 x0 = color;
+    x0 |= ca;
+    u32 x1 = color;
+    x1 |= cb;
+    u32 x2 = color;
+    x2 |= cc;
+    u32 x3 = color;
+    x3 |= cd;
+    u32 a = i_Msg->msgDataProc[i].getCharAlpha() & 0xFF;
+    u32 b = i_Msg->msgDataProc[i].getGradAlpha() & 0xFF;
+    u32 c = i_Msg->msgDataProc[i].getRCharAlpha() & 0xFF;
+    u32 d = i_Msg->msgDataProc[i].getRGradAlpha() & 0xFF;
 
     sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", x0, x1);
     sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", x2, x3);
