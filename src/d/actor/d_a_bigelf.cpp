@@ -976,11 +976,13 @@ bool daBigelf_c::event0() {
         dComIfGs_onEventBit(getEventFlag());
         mMode = 3;
         dComIfGp_event_reset();
+#if VERSION > VERSION_DEMO
         if (getType() == 6) {
             if (getSwbit2() != 0xFF) {
                 dComIfGs_onSwitch(getSwbit2(), fopAcM_GetRoomNo(this));
             }
         }
+#endif
     } else {
         demoProc();
     }
