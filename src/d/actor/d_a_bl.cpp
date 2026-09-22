@@ -181,6 +181,10 @@ BOOL shock_damage_check(bl_class* i_this) {
     }
 
     if (player->checkHammerQuake()) {
+#if VERSION <= VERSION_JPN
+        i_this->mFireClrTimer = 0;
+        fire_emitter_clr(i_this);
+#endif
         cXyz swordTopPos;
         const cXyz& swordTopPosRef = player->getSwordTopPos();
         swordTopPos = swordTopPosRef;
@@ -188,8 +192,10 @@ BOOL shock_damage_check(bl_class* i_this) {
         swordTopPos.z -= actor->current.pos.z;
         f32 distXZ = std::sqrtf(SQUARE(swordTopPos.x) + SQUARE(swordTopPos.z));
         if (distXZ < 1000.0f) {
+#if VERSION > VERSION_JPN
             i_this->mFireClrTimer = 0;
             fire_emitter_clr(i_this);
+#endif
             return TRUE;
         }
     }
