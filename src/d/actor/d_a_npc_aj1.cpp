@@ -159,7 +159,8 @@ int daNpc_Aj1_c::btpResID(int n) { static const int a_res_id_tbl[] = {dRes_ID_AJ
 bool daNpc_Aj1_c::init_texPttrnAnm(s8 number, bool modify) {
     J3DModel* model = mpMorf->getModel();
     if (number < 0) return false;
-    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*)dComIfG_getObjectIDRes("Aj", btpResID(number));
+    int res = btpResID(number);
+    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*)dComIfG_getObjectIDRes("Aj", res);
     JUT_ASSERT(DEMO_SELECT(0x212, 0x213), a_btp != 0);
     mBtpNo = number; mBtpFrame = 0; mBtpTimer = 0;
     return mBtpAnm.init(model->getModelData(), a_btp, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, modify, 0) != FALSE;
