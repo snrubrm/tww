@@ -526,8 +526,9 @@ void daObjTribox::Act_c::vib_sink_start() {
 void daObjTribox::Act_c::vib_sink_end() {
     if (mVibState != 0) {
         mVibState = 0;
-        dComIfGp_getVibration().StopQuake(-1);
-        dComIfGp_getVibration().StartShock(3, 0xF, cXyz(0.0f, 1.0f, 0.0f));
+        dVibration_c& vib = dComIfGp_getVibration();
+        vib.StopQuake(-1);
+        vib.StartShock(3, 0xF, cXyz(0.0f, 1.0f, 0.0f));
     }
 }
 
