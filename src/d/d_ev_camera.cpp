@@ -1209,7 +1209,8 @@ bool dCamera_c::uniformTransEvCamera() {
         eye = startPos.mEye + (endPos.mEye - startPos.mEye) * ratio;
         mViewCache.mEye += (eye - mViewCache.mEye) * work->mCushion;
     }
-    mViewCache.mFovy += (work->mStartFovy + (work->mFovy - work->mStartFovy) * ratio - mViewCache.mFovy) * work->mCushion;
+    f32 fovy = work->mStartFovy + (work->mFovy - work->mStartFovy) * ratio;
+    mViewCache.mFovy += (fovy - mViewCache.mFovy) * work->mCushion;
     if (work->mHasBank != 0) {
         f32 mid = work->mStartBank + ratio * (work->mBank - work->mStartBank);
         mViewCache.mBank += (cSAngle(mid) - mViewCache.mBank) * work->mCushion;
@@ -1458,7 +1459,8 @@ bool dCamera_c::uniformBrakeEvCamera() {
         eye = startPos.mEye + (endPos.mEye - startPos.mEye) * ratio;
         mViewCache.mEye += (eye - mViewCache.mEye) * work->mCushion;
     }
-    mViewCache.mFovy += (work->mStartFovy + (work->mFovy - work->mStartFovy) * ratio - mViewCache.mFovy) * work->mCushion;
+    f32 fovy = work->mStartFovy + (work->mFovy - work->mStartFovy) * ratio;
+    mViewCache.mFovy += (fovy - mViewCache.mFovy) * work->mCushion;
     if (work->mHasBank != 0) {
         f32 mid = work->mStartBank;
         mid += ratio * (work->mBank - work->mStartBank);
@@ -1708,7 +1710,8 @@ bool dCamera_c::uniformAcceleEvCamera() {
         eye = startPos.mEye + (endPos.mEye - startPos.mEye) * ratio;
         mViewCache.mEye += (eye - mViewCache.mEye) * work->mCushion;
     }
-    mViewCache.mFovy += (work->mStartFovy + (work->mFovy - work->mStartFovy) * ratio - mViewCache.mFovy) * work->mCushion;
+    f32 fovy = work->mStartFovy + (work->mFovy - work->mStartFovy) * ratio;
+    mViewCache.mFovy += (fovy - mViewCache.mFovy) * work->mCushion;
     if (work->mHasBank != 0) {
         f32 mid = work->mStartBank;
         mid += ratio * (work->mBank - work->mStartBank);
@@ -1772,8 +1775,9 @@ bool dCamera_c::watchActorEvCamera() {
 
     bool special = false;
     bool allow = true;
-    s16 name = fopAcM_GetProfName(work->mTarget);
-    if (name == fpcNm_DOOR10_e || name == fpcNm_DOOR12_e || name == fpcNm_KNOB00_e || name == fpcNm_KDDOOR_e) {
+    if (fopAcM_GetProfName(work->mTarget) == fpcNm_DOOR10_e || fopAcM_GetProfName(work->mTarget) == fpcNm_DOOR12_e ||
+        fopAcM_GetProfName(work->mTarget) == fpcNm_KNOB00_e || fopAcM_GetProfName(work->mTarget) == fpcNm_KDDOOR_e)
+    {
         special = true;
     }
 
@@ -2157,7 +2161,7 @@ bool dCamera_c::maptoolIdEvCamera() {
     }
 
     if (mEventData.field_0xec == NULL) {
-        return true;
+        return DEMO_SELECT(false, true);
     }
 
     int mapToolId;
@@ -2235,6 +2239,7 @@ bool dCamera_c::gameOverEvCamera() {
         cXyz(85.0f, 165.0f, 40.0f),
         cXyz(10.0f, -70.0f, 110.0f),
     };
+    int eyeNum = 5;
     cXyz center3(0.0f, -40.0f, -35.0f);
     cXyz eye3(0.0f, 170.0f, 115.0f);
     cXyz center;
@@ -2272,7 +2277,7 @@ bool dCamera_c::gameOverEvCamera() {
         work->mState = 1;
     case 1: {
         center = relationalPos(mpPlayerActor, &center1);
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < eyeNum; i++) {
             if (work->mSide != 0) {
                 eyes[i].x = -eyes[i].x;
             }
@@ -2385,6 +2390,7 @@ bool dCamera_c::tactEvCamera() {
 
     cXyz center(0.426f, -13.479f, 6.372f);
     cXyz eye(31.809f, -51.14f, 195.776f);
+    f32 fovy = 55.0f;
     if (work->mStarted != 1) {
         work->mStarted = 1;
     }
@@ -2399,7 +2405,7 @@ bool dCamera_c::tactEvCamera() {
         mViewCache.mEye = relationalPos(mpPlayerActor, &eye);
     }
 
-    mViewCache.mFovy = 55.0f;
+    mViewCache.mFovy = fovy;
     work->mCounter += 1;
     return true;
 }
@@ -2421,7 +2427,8 @@ bool dCamera_c::windDirectionEvCamera() {
     if (m11C == 0) {
         work->mState = 0;
         work->mCounter = 0;
-        work->mWindGlobe.Val(1.0f, g_env_light.mWind.mTactWindAngleX, g_env_light.mWind.mTactWindAngleY);
+        dScnKy_env_light_c& env = g_env_light;
+        work->mWindGlobe.Val(1.0f, env.mWind.mTactWindAngleX, env.mWind.mTactWindAngleY);
         work->mActor = dComIfGp_event_getItemPartner();
         getEvFloatData(&work->mBirdFlyDist, "BirdFlyDist", 1620.0f);
         getEvXyzData(&work->mOffset, "Torishita", cXyz(40.0f, -95.0f, 10.0f));
@@ -2575,7 +2582,8 @@ bool dCamera_c::windDirectionEvCamera() {
         } else {
             t = (dist - work->mStopDist) / (work->mActorDist - work->mStopDist);
         }
-        mViewCache.mFovy += work->mFovyCushion * ((work->mNearFovy + t * (work->mFarFovy - work->mNearFovy)) - mViewCache.mFovy);
+        f32 fovy = work->mNearFovy + t * (work->mFarFovy - work->mNearFovy);
+        mViewCache.mFovy += work->mFovyCushion * (fovy - mViewCache.mFovy);
     } else {
         mEventData.field_0x20 = 1;
         mViewCache.mFovy = 82.0f;
@@ -2651,6 +2659,10 @@ bool dCamera_c::turnToActorEvCamera() {
 /* 800B9FB0-800BA688       .text tornadoWarpEvCamera__9dCamera_cFv */
 bool dCamera_c::tornadoWarpEvCamera() {
     TornadoWarpWork* work = (TornadoWarpWork*)&mWork;
+    int timer1 = 100;
+    int timer2 = 200;
+    f32 fovy1 = 70.0f;
+    f32 fovy2 = 90.0f;
 
     if (m11C == 0) {
         work->mState = 0;
@@ -2681,7 +2693,7 @@ bool dCamera_c::tornadoWarpEvCamera() {
     default: {
         work->mShip = fopAcM_SearchByName(fpcNm_SHIP_e);
         work->mState = 1;
-        work->mCounter = 100;
+        work->mCounter = timer1;
         cXyz ref(-180000.0f, 750.0f, -200000.0f);
         center = relationalPos(mpPlayerActor, &centerOff0);
         int i;
@@ -2716,7 +2728,7 @@ bool dCamera_c::tornadoWarpEvCamera() {
         f32 t = 1.0f / (f32)work->mCounter;
         eye = mViewCache.mEye + (work->mEyeTarget - mViewCache.mEye) * t;
         mViewCache.mEye += (eye - mViewCache.mEye) * 0.15f;
-        f32 newFovy = mViewCache.mFovy + t * (70.0f - mViewCache.mFovy);
+        f32 newFovy = mViewCache.mFovy + t * (fovy1 - mViewCache.mFovy);
         mViewCache.mFovy += 0.15f * (newFovy - mViewCache.mFovy);
         mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
         f32 rnd = cM_rndFX(6.0f * t);
@@ -2726,7 +2738,7 @@ bool dCamera_c::tornadoWarpEvCamera() {
             break;
         }
         work->mState = 2;
-        work->mCounter = 200;
+        work->mCounter = timer2;
     }
     case_2: {
         mViewCache.mCenter +=
@@ -2734,7 +2746,7 @@ bool dCamera_c::tornadoWarpEvCamera() {
         eye = work->mEyeTarget;
         eye.y = attentionPos(mpPlayerActor).y;
         mViewCache.mEye += (eye - mViewCache.mEye) * 0.05f;
-        mViewCache.mFovy += 0.05f * (90.0f - mViewCache.mFovy);
+        mViewCache.mFovy += 0.05f * (fovy2 - mViewCache.mFovy);
         mViewCache.mDirection.Val(mViewCache.mEye - mViewCache.mCenter);
         mViewCache.mBank -= mViewCache.mBank * 0.02f;
         setFlag(0x400);
@@ -3091,6 +3103,15 @@ bool dCamera_c::useItem1EvCamera() {
 /* 800BBD88-800BC364       .text getItemEvCamera__9dCamera_cFv */
 bool dCamera_c::getItemEvCamera() {
     GetItemWork* work = (GetItemWork*)&mWork;
+#if VERSION == VERSION_DEMO
+    cXyz center(-0.1f, -14.25f, 0.5f);
+    cXyz eyes[2] = {
+        cXyz(0.17f, 97.0f, -57.78f),
+        cXyz(-10.0f, 75.0f, -5.0f),
+    };
+    int eyeNum = 2;
+    f32 fovy = 79.0f;
+#else
     cXyz center(-0.095f, 0.428f, -7.177f);
     cXyz eyes[4] = {
         cXyz(0.17f, 97.0f, -57.78f),
@@ -3098,6 +3119,7 @@ bool dCamera_c::getItemEvCamera() {
         cXyz(-28.844f, 99.996f, -41.073f),
         cXyz(0.17f, 97.0f, -57.78f),
     };
+#endif
     int i;
     bool ret = false;
 
@@ -3126,7 +3148,7 @@ bool dCamera_c::getItemEvCamera() {
         work->mCenter = relationalPos(mpPlayerActor, &center);
         fopAc_ac_c* ship = NULL;
         cXyz eye;
-        for (i = 0; i < 4; i++) {
+        for (i = 0; i < DEMO_SELECT(eyeNum, 4); i++) {
             eye = relationalPos(mpPlayerActor, &eyes[i]);
             if (eye.y < m368 + positionOf(mpPlayerActor).y) {
                 eye.y = m368 + positionOf(mpPlayerActor).y;
@@ -3142,7 +3164,7 @@ bool dCamera_c::getItemEvCamera() {
             }
         }
         work->mGlobe.Val(eye - work->mCenter);
-        work->mFovy = 79.0f;
+        work->mFovy = DEMO_SELECT(fovy, 79.0f);
         work->mTimer = work->mTimer2;
         work->mState = 11;
     }
@@ -3294,13 +3316,11 @@ bool dCamera_c::fixedFramesEvCamera() {
 
     if (m11C == 0) {
         work->mKeyNum = 9999;
-        dEvent_manager_c* evmng;
         int num;
         {
             char* key = "Centers";
-            evmng = &g_dComIfG_gameInfo.play.getEvtManager();
-            if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
-                work->mCenters = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
+            if ((num = dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+                work->mCenters = dComIfGp_evmng_getMyXyzP(mEventData.mStaffIdx, key);
                 if (work->mKeyNum > num) {
                     work->mKeyNum = num;
                 }
@@ -3310,8 +3330,8 @@ bool dCamera_c::fixedFramesEvCamera() {
         }
         {
             char* key = "Eyes";
-            if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
-                work->mEyes = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
+            if ((num = dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+                work->mEyes = dComIfGp_evmng_getMyXyzP(mEventData.mStaffIdx, key);
                 if (work->mKeyNum > num) {
                     work->mKeyNum = num;
                 }
@@ -3321,8 +3341,8 @@ bool dCamera_c::fixedFramesEvCamera() {
         }
         {
             char* key = "Fovys";
-            if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
-                work->mFovys = (f32*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_FLOAT);
+            if ((num = dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+                work->mFovys = dComIfGp_evmng_getMyFloatP(mEventData.mStaffIdx, key);
                 if (work->mKeyNum > num) {
                     work->mKeyNum = num;
                 }
@@ -3376,13 +3396,11 @@ bool dCamera_c::bSplineEvCamera() {
 
     if (m11C == 0) {
         work->mKeyNum = 9999;
-        dEvent_manager_c* evmng;
         int num;
         {
             char* key = "Centers";
-            evmng = &g_dComIfG_gameInfo.play.getEvtManager();
-            if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
-                work->mCenters = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
+            if ((num = dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+                work->mCenters = dComIfGp_evmng_getMyXyzP(mEventData.mStaffIdx, key);
                 if (work->mKeyNum > num) {
                     work->mKeyNum = num;
                 }
@@ -3392,8 +3410,8 @@ bool dCamera_c::bSplineEvCamera() {
         }
         {
             char* key = "Eyes";
-            if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
-                work->mEyes = (cXyz*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_VEC);
+            if ((num = dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+                work->mEyes = dComIfGp_evmng_getMyXyzP(mEventData.mStaffIdx, key);
                 if (work->mKeyNum > num) {
                     work->mKeyNum = num;
                 }
@@ -3403,8 +3421,8 @@ bool dCamera_c::bSplineEvCamera() {
         }
         {
             char* key = "Fovys";
-            if ((num = evmng->getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
-                work->mFovys = (f32*)evmng->getMySubstanceP(mEventData.mStaffIdx, key, dEvDtData_c::TYPE_FLOAT);
+            if ((num = dComIfGp_evmng_getMySubstanceNum(mEventData.mStaffIdx, key)) != 0) {
+                work->mFovys = dComIfGp_evmng_getMyFloatP(mEventData.mStaffIdx, key);
                 if (work->mKeyNum > num) {
                     work->mKeyNum = num;
                 }
