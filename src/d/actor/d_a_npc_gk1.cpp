@@ -839,7 +839,7 @@ cPhs_State daNpc_Gk1_c::_create() {
 /* 000027EC-00002AE8       .text bodyCreateHeap__11daNpc_Gk1_cFv */
 BOOL daNpc_Gk1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_GK_BDL_GK_e);
-    JUT_ASSERT(1553, a_mdl_dat != 0);
+    JUT_ASSERT(DEMO_SELECT(1548, 1553), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, TRUE, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) {
         return FALSE;
@@ -853,11 +853,11 @@ BOOL daNpc_Gk1_c::bodyCreateHeap() {
         return FALSE;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(1573, m_hed_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(1568, 1573), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(1575, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(1570, 1575), m_bbone_jnt_num >= 0);
     m_nck_jnt_num = a_mdl_dat->getJointName()->getIndex("neck");
-    JUT_ASSERT(1577, m_nck_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(1572, 1577), m_nck_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_nck_jnt_num)->setCallBack(nodeCB_Neck);
