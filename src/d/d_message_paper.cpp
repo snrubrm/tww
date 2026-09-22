@@ -89,11 +89,19 @@ dmsg3_3d_c::dmsg3_3d_c() {
 
     mpModelBin = (u8*)mpHeap->alloc(0x1F40, 0x20);
     JKRReadTypeResource(mpModelBin, 0x1F40, 'BDLM', "hukidashi_07.bdl", dComIfGp_getMsgArchive());
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(mpModelBin, 0x1F40);
+#else
     DCStoreRangeNoSync(mpModelBin, 0x1F40);
+#endif
 
     mpAnmBin = (u8*)mpHeap->alloc(0x1388, 0x20);
     JKRReadTypeResource(mpAnmBin, 0x1388, 'BCK ', "hukidashi_07.bck", dComIfGp_getMsgArchive());
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(mpAnmBin, 0x1388);
+#else
     DCStoreRangeNoSync(mpAnmBin, 0x1388);
+#endif
 
     J3DModelData* modelData = loadModelData(mpModelBin);
     JUT_ASSERT(213, modelData != NULL);
@@ -266,10 +274,18 @@ void dMsg3_dotHide(sub_msg3_class* i_Msg) {
 /* 801EBD20-801EBDE4       .text dMsg3_multiTexInit__FP14sub_msg3_class */
 void dMsg3_multiTexInit(sub_msg3_class* i_Msg) {
     JKRReadTypeResource(i_Msg->Tex[0], 0x11800, 'TIMG', "hukidashi_0212.bti", dComIfGp_getMsgArchive());
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Msg->Tex[0], 0x11800);
+#else
     DCStoreRangeNoSync(i_Msg->Tex[0], 0x11800);
+#endif
 
     JKRReadTypeResource(i_Msg->Tex[1], 0x11800, 'TIMG', "hukidashi_07.bti", dComIfGp_getMsgArchive());
+#if VERSION <= VERSION_JPN
+    DCFlushRangeNoSync(i_Msg->Tex[1], 0x11800);
+#else
     DCStoreRangeNoSync(i_Msg->Tex[1], 0x11800);
+#endif
     board.init(i_Msg->Tex[0], i_Msg->Tex[1], 1.0f, 1.0f);
 }
 
@@ -279,7 +295,7 @@ void dMsg3_fontdataInit(sub_msg3_class* i_Msg) {
     JUT_ASSERT(628, i_Msg->mx != NULL);
 
     i_Msg->rx = mDoExt_getRubyFont();
-    JUT_ASSERT(631, i_Msg->rx != NULL);
+    JUT_ASSERT(VERSION_SELECT(631, 630, 631, 631), i_Msg->rx != NULL);
 }
 
 /* 801EBE94-801EBED8       .text dMsg3_screenDataSet__FP14sub_msg3_classUc */
@@ -337,6 +353,38 @@ void dMsg3_screenDataInit(sub_msg3_class* i_Msg, u8 i_index) {
     f32 var_f31;
     J2DTextBox::TFontSize fontSize;
     J2DTextBox::TFontSize rubySize;
+#if VERSION <= VERSION_JPN
+    if (g_msgDHIO.field_0x08 == 0) {
+        fontSize.mSizeX = (int)g_messageHIO.field_0x32;
+        fontSize.mSizeY = (int)g_messageHIO.field_0x32;
+        rubySize.mSizeX = g_msgHIO.field_0x68;
+        rubySize.mSizeY = g_msgHIO.field_0x68;
+        ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setFontSize(fontSize);
+        ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->setFontSize(rubySize);
+        ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setFontSize(fontSize);
+        ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->setFontSize(rubySize);
+    } else {
+        fontSize.mSizeX = g_msgHIO.field_0x70;
+        fontSize.mSizeY = g_msgHIO.field_0x70;
+        ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setFontSize(fontSize);
+        ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setFontSize(fontSize);
+    }
+
+    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setCharSpace(-2.0f);
+    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->setCharSpace(-1.0f);
+    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setCharSpace(-2.0f);
+    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->setCharSpace(-1.0f);
+
+    if (g_msgDHIO.field_0x08 == 0) {
+        ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setLineSpace(42.0f);
+        ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->setLineSpace(42.0f);
+        ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setLineSpace(42.0f);
+        ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->setLineSpace(42.0f);
+    } else {
+        ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setLineSpace(g_msgHIO.field_0x5e);
+        ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setLineSpace(g_msgHIO.field_0x5e);
+    }
+#else
     fontSize.mSizeX = g_msgHIO.field_0x70;
     fontSize.mSizeY = g_msgHIO.field_0x70;
 
@@ -350,6 +398,7 @@ void dMsg3_screenDataInit(sub_msg3_class* i_Msg, u8 i_index) {
 
     ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->setLineSpace(g_msgHIO.field_0x5e);
     ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->setLineSpace(g_msgHIO.field_0x5e);
+#endif
 
     i_Msg->field_0xeb0 = fontSize.mSizeX;
     i_Msg->field_0xeb4 = rubySize.mSizeX;
@@ -1101,10 +1150,10 @@ static cPhs_State dMsg3_Create(msg_class* i_this) {
     }
 
     i_Msg->Tex[0] = (ResTIMG*)i_Msg->Heap->alloc(0x11800, 0x20);
-    JUT_ASSERT(2188, i_Msg->Tex[0] != NULL);
+    JUT_ASSERT(VERSION_SELECT(2188, 2185, 2188, 2188), i_Msg->Tex[0] != NULL);
 
     i_Msg->Tex[1] = (ResTIMG*)i_Msg->Heap->alloc(0x11800, 0x20);
-    JUT_ASSERT(2190, i_Msg->Tex[1] != NULL);
+    JUT_ASSERT(VERSION_SELECT(2190, 2187, 2190, 2190), i_Msg->Tex[1] != NULL);
 
     dMsg3_fontdataInit(i_Msg);
 
@@ -1126,20 +1175,20 @@ static cPhs_State dMsg3_Create(msg_class* i_this) {
 
     for (u8 i = 0; i < 3; i++) {
         i_Msg->output_text[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(2213, i_Msg->output_text[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2213, 2210, 2213, 2213), i_Msg->output_text[i] != NULL);
 
         i_Msg->output_ruby[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(2216, i_Msg->output_ruby[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2216, 2213, 2216, 2216), i_Msg->output_ruby[i] != NULL);
 
         i_Msg->output_textSdw[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(2219, i_Msg->output_textSdw[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2219, 2216, 2219, 2219), i_Msg->output_textSdw[i] != NULL);
 
         i_Msg->output_rubySdw[i] = (char*)i_Msg->Heap->alloc(1001, 4);
-        JUT_ASSERT(2222, i_Msg->output_rubySdw[i] != NULL);
+        JUT_ASSERT(VERSION_SELECT(2222, 2219, 2222, 2222), i_Msg->output_rubySdw[i] != NULL);
     }
 
     i_Msg->head_p = i_Msg->msgGet.getMesgHeader(i_this->mMsgNo);
-    JUT_ASSERT(2227, i_Msg->head_p);
+    JUT_ASSERT(VERSION_SELECT(2227, 2224, 2227, 2227), i_Msg->head_p);
 
     i_Msg->message = (char*)i_Msg->msgGet.getMessage(i_Msg->head_p);
     i_Msg->mesgEntry = i_Msg->msgGet.getMesgEntry(i_Msg->head_p);
