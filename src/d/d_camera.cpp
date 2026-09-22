@@ -828,7 +828,7 @@ cSAngle dCamera_c::calcPeepAngle() {
 
         if (lineBGCheck(&local_94, &local_a0, &lin_chk, 0x7f)) {
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
-            res = cSAngle::_90 + (cSGlobe(plane->mNormal).U() - directionOf(mpPlayerActor)); // GetNP() doesn't work?
+            res = cSAngle::_90 + (cSGlobe(*plane->GetNP()).U() - directionOf(mpPlayerActor));
         }
     }
     else if (check_owner_action(mPadId, daPyStts0_UNK40_e)) {
@@ -843,7 +843,7 @@ cSAngle dCamera_c::calcPeepAngle() {
         
         if (lineBGCheck(&local_64, &local_70, &lin_chk, 0x7f)) {
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
-            res = cSAngle::_270 + (cSGlobe(plane->mNormal).U() - directionOf(mpPlayerActor));
+            res = cSAngle::_270 + (cSGlobe(*plane->GetNP()).U() - directionOf(mpPlayerActor));
         }
     }
     return cSAngle(res);
