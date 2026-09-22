@@ -951,7 +951,11 @@ u8 daNpcSv_c::getTalkNo() {
         } else {
             mTalkNo = 7;
         }
+#if VERSION > VERSION_JPN
     } else if (!dComIfGs_isCollect(0, 1)) {
+#else
+    } else if (!dComIfGs_checkGetItem(dItemNo_MASTER_SWORD_1_e)) {
+#endif
         if (!(mTalkFlags & 8)) {
             mTalkNo = 8;
         } else {
