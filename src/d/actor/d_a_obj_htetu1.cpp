@@ -107,7 +107,7 @@ bool daObjHtetu1_c::_delete() {
 
 /* 00000610-00000648       .text check_sw__13daObjHtetu1_cFv */
 inline BOOL daObjHtetu1_c::check_sw() {
-    return dComIfGs_isSwitch(mSwitch, home.roomNo);
+    return fopAcM_isSwitch(this, mSwitch);
 }
 
 /* 00000648-000006E4       .text init_mtx__13daObjHtetu1_cFv */
