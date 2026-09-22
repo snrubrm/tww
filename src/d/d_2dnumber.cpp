@@ -425,7 +425,7 @@ f32 dDlst_2DOutFont_c::iconset(int i_iconNo, char** param_1) {
 void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
     fopMsgM_itemMsgGet_c msgGet;
     mesg_header* head_p = msgGet.getMesgHeader(i_msgNo);
-    JUT_ASSERT(DEMO_SELECT(615, 619), head_p);
+    JUT_ASSERT(VERSION_SELECT(615, 615, 619, 619), head_p);
     const char* message = msgGet.getMessage(head_p);
 
     char sp104[100];
