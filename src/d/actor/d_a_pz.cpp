@@ -108,6 +108,7 @@ public:
     /* 0x0EC */ f32 mEC;
     /* 0x0F0 */ f32 mF0;
     /* 0x0F4 */ f32 mF4;
+#if VERSION > VERSION_DEMO
     /* 0x0F8 */ s16 mF8;
     /* 0x0FA */ u8 mFA[0x0FC - 0x0FA];
     /* 0x0FC */ s16 mFC;
@@ -115,9 +116,10 @@ public:
     /* 0x100 */ f32 m100;
     /* 0x104 */ u8 m104[0x108 - 0x104];
     /* 0x108 */ f32 m108;
+#endif
 };
 
-STATIC_ASSERT(sizeof(daPz_HIO_c) == 0x10C);
+STATIC_ASSERT(sizeof(daPz_HIO_c) == DEMO_SELECT(0xFC, 0x10C));
 
 static daPz_HIO_c l_HIO;
 
@@ -199,8 +201,10 @@ daPz_HIO_c::daPz_HIO_c() {
     m92 = 0x1E;
     m98 = 0;
     mA0 = 1000.0f;
+#if VERSION > VERSION_DEMO
     mF8 = 0x3C;
     m100 = 3000.0f;
+#endif
     m64 = 100.0f;
     m70 = 100.0f;
     m7C = 80.0f;
@@ -210,8 +214,10 @@ daPz_HIO_c::daPz_HIO_c() {
     m96 = 0x1E;
     m9C = 0x3C;
     mA8 = 1000.0f;
+#if VERSION > VERSION_DEMO
     mFC = 0x258;
     m108 = 800.0f;
+#endif
     mAC = 100.0f;
     mE2 = 4;
     mE4 = 6;
@@ -705,7 +711,7 @@ bool daPz_c::demo() {
             mBrkAnm.init(mpMorf->getModel()->getModelData(), brk, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, true, 0);
         }
 
-        dDemo_setDemoData(this, 0x6A, mpMorf, m_arc_name, 0, NULL, 0, 0);
+        dDemo_setDemoData(this, 0x6A, mpMorf, m_arc_name);
     }
 
     return m0F66;
@@ -1718,8 +1724,10 @@ void daPz_c::modeDown() {
         }
     } else if (m0740 != 0) {
         m0740 = 0;
+#if VERSION > VERSION_DEMO
         m0F7C = l_HIO.mFC;
         m0F80 = 0;
+#endif
         m075C = 0;
         m0768 = 0;
         modeProc(PROC_INIT_e, MODE_MOVE);
@@ -1873,11 +1881,13 @@ void daPz_c::modeTalkInit() {
     m08EA = 0;
     m_jnt.offHeadLock();
     m_jnt.offBackBoneLock();
+#if VERSION > VERSION_DEMO
     if (mTalkState == 0) {
         m0F80 = 1;
     } else {
         m0F7C = (&l_HIO.mF8)[mTalkState];
     }
+#endif
 }
 
 /* 00005304-0000539C       .text modeTalk__6daPz_cFv */
@@ -2059,6 +2069,7 @@ bool daPz_c::_execute() {
         setHeadSplash();
     }
 
+#if VERSION > VERSION_DEMO
     if ((mArg != 0 || (mTalkState != 0 && mTalkState != 2)) ||
         m0F80 != 0 || mMode == MODE_ATTACKWAIT || mMode == MODE_ATTACK ||
         mMode == MODE_DOWN || mMode == MODE_TALK) {
@@ -2075,6 +2086,7 @@ bool daPz_c::_execute() {
             }
         }
     }
+#endif
 
     checkOrder();
     modeProc(PROC_EXEC_e, 0xB);
@@ -2326,8 +2338,10 @@ void daPz_c::createInit() {
     mEventIce.mCylHeight = 250.0f;
 
     mTalkState = 0;
+#if VERSION > VERSION_DEMO
     m0F7C = l_HIO.mF8;
     m0F80 = 0;
+#endif
     bodyCreateInit();
 
     if (mArg == 0) {
