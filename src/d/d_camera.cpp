@@ -5472,6 +5472,7 @@ bool dCamera_c::hookshotCamera(s32 param_1) {
         cXyz(100.0f, -120.0f, -140.0f),
     };
     cXyz eyeRef;
+    int startTimer = 8;
     cXyz posOffset(val1, val5, val0);
     f32 fovy;
 
@@ -5517,7 +5518,7 @@ bool dCamera_c::hookshotCamera(s32 param_1) {
         m100 = 1;
         return true;
     } else {
-        if (hook->m398 && m11C > 8) {
+        if (hook->m398 && m11C > startTimer) {
             eyeRef = hook->m38C;
             fovy = val25;
             val23 = 1.0f;
