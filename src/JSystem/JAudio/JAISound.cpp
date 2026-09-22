@@ -946,10 +946,10 @@ void JAISound::initParameter(JAISound** handle, JAInter::Actor* actor, u32 id, u
 
 /* 8029AFCC-8029B07C       .text set__Q27JAInter11MoveParaSetFfUl */
 int JAInter::MoveParaSet::set(f32 value, u32 time) {
-    if ((u32)mMoveCounter == 0 && mCurrentValue == value) {
+    if (mMoveCounter == 0 && mCurrentValue == value) {
         return 2;
     }
-    if ((u32)mMoveCounter != 0 && mTargetValue == value) {
+    if (mMoveCounter != 0 && mTargetValue == value) {
         return 2;
     }
     mTargetValue = value;
@@ -968,7 +968,7 @@ int JAInter::MoveParaSet::set(f32 value, u32 time) {
 
 /* 8029B07C-8029B0C4       .text move__Q27JAInter11MoveParaSetFv */
 BOOL JAInter::MoveParaSet::move() {
-    if ((u32)mMoveCounter == 0) {
+    if (mMoveCounter == 0) {
         return FALSE;
     }
     if (--mMoveCounter != 0) {
@@ -1019,8 +1019,9 @@ void JAInter::LinkSound::init(JAISound* param_1, u32 param_2) {
 
 /* 8029B4AC-8029B500       .text getSound__Q27JAInter9LinkSoundFv */
 JAISound* JAInter::LinkSound::getSound() {
-    JAISound* sound = field_0x0;
-    if (sound != NULL) {
+    JAISound* sound;
+    if (field_0x0 != NULL) {
+        sound = field_0x0;
         field_0x0 = sound->field_0x34;
         if (field_0x4 != NULL) {
             sound->field_0x34 = field_0x4;

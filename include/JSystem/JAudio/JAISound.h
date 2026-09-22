@@ -212,7 +212,7 @@ namespace JAInter {
         /* 0x00 */ f32 mTargetValue;
         /* 0x04 */ f32 mCurrentValue;
         /* 0x08 */ f32 mMoveAmount;
-        /* 0x0C */ int mMoveCounter;
+        /* 0x0C */ u32 mMoveCounter;
     };
 
     class MoveParaSetInitHalf : public MoveParaSet {
