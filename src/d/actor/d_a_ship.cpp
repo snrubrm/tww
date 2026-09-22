@@ -4666,7 +4666,7 @@ cPhs_State daShip_c::create() {
         if (
             (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_SEA_e)
             || !strcmp(dComIfGp_getStartStageName(), "Hyrule")
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
             || !strcmp(dComIfGp_getStartStageName(), "Ocean")
 #endif
         ) {
