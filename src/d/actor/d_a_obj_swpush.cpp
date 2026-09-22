@@ -169,10 +169,27 @@ bool daObjSwpush::Act_c::create_heap() {
 
     cBgD_t* bg_data = (cBgD_t*) dComIfG_getObjectRes(attr().mBgArcName, attr().mBgResIndex);
     bool bg_success = false;
-    JUT_ASSERT(0x22B, bg_data != NULL);
+    JUT_ASSERT(DEMO_SELECT(0x22A, 0x22B), bg_data != NULL);
     mpBgW = new dBgWSv();
     if (mpBgW != NULL && !mpBgW->Set(bg_data, 0)) {
+#if VERSION == VERSION_DEMO
+        mDoMtx_stack_c::transS(current.pos);
+        mDoMtx_stack_c::ZXYrotM(shape_angle);
+        mDoMtx_stack_c::scaleM(scale);
+        mDoMtx_copy(mDoMtx_stack_c::get(), mMtx);
+        mpBgW->ClrNoCalcVtx();
+        mpBgW->SetBaseMtxP(&mMtx);
+        mpBgW->GlobalVtx();
+        mpBgW->SetBaseMtxP(NULL);
+        mpBgW->SetNoCalcVtx();
+
+        m2D4 = mpBgW->GetVtxTbl()[M_op_vtx[0]].y;
+        if (!dComIfG_Bgsp()->Regist(mpBgW, this)) {
+            bg_success = true;
+        }
+#else
         bg_success = true;
+#endif
     }
 
     if (mpModel != NULL && btp_success) {
@@ -180,9 +197,11 @@ bool daObjSwpush::Act_c::create_heap() {
             rt = true;
         }
     }
+#if VERSION > VERSION_DEMO
     if (!rt) {
         mpBgW = NULL;
     }
+#endif
     return rt;
 }
 
