@@ -56,7 +56,11 @@ static BOOL nodeCallBack(J3DNode* node, int calcTiming) {
                 offset.y = 0.0f;
                 offset.z = 0.0f;
                 MtxPosition(&offset, &i_this->mStaffPos);
+#if VERSION == VERSION_DEMO
+                model->setAnmMtx(jntNo, *calc_mtx);
+#else
                 MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+#endif
                 MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
             }
         }
@@ -79,7 +83,11 @@ static BOOL rod_nodeCallBack(J3DNode* node, int calcTiming) {
                 offset.y = 0.0f;
                 offset.z = 0.0f;
                 MtxPosition(&offset, &i_this->mRodTipPos);
+#if VERSION == VERSION_DEMO
+                model->setAnmMtx(jntNo, *calc_mtx);
+#else
                 MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+#endif
                 MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
             }
         }
@@ -434,7 +442,9 @@ BOOL body_atari_check(wz_class* i_this) {
             i_this->mParticleCb2.remove();
             i_this->mParticleCb3.remove();
             i_this->mParticleCb4.remove();
+#if VERSION > VERSION_DEMO
             i_this->mRodScale.setall(0.0f);
+#endif
             i_this->mEnemyIce.m00C = 2;
             i_this->mEnemyIce.mFreezeDuration = 200;
             i_this->attention_info.flags = 0;
@@ -526,6 +536,9 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
     f32 dx, dy, dz;
+#if VERSION == VERSION_DEMO
+    u32 params = 0xFFFFFF00;
+#endif
     csXyz angle = i_this->shape_angle;
     angle.x = i_this->shape_angle.x;
     angle.y = i_this->shape_angle.y;
@@ -535,6 +548,9 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
 
     switch (type) {
     case 0: {
+#if VERSION == VERSION_DEMO
+        params |= 0xA;
+#endif
         dx = player->current.pos.x - i_this->mRodTipPos.x;
         dy = 50.0f + player->current.pos.y - i_this->mRodTipPos.y;
         dz = player->current.pos.z - i_this->mRodTipPos.z;
@@ -545,7 +561,7 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
             angle.y = yawOff + cM_atan2s(dx, dz);
             fopAcM_create(
                 fpcNm_WZ_e,
-                0xFFFFFF0A,
+                DEMO_SELECT(params, 0xFFFFFF0A),
                 &i_this->mRodTipPos,
                 fopAcM_GetRoomNo(actor),
                 &angle,
@@ -562,6 +578,9 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
         if (i_this->m439 != 0xFF) {
             if (i_this->mpPath != NULL) {
                 cXyz scale = i_this->scale;
+#if VERSION == VERSION_DEMO
+                params |= 0xB;
+#endif
                 dx = i_this->mPathTarget.x - i_this->mRodTipPos.x;
                 dy = 300.0f + i_this->mPathTarget.y - i_this->mRodTipPos.y;
                 dz = i_this->mPathTarget.z - i_this->mRodTipPos.z;
@@ -572,7 +591,7 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
                 fpc_ProcID id = fopAcM_createChild(
                     fpcNm_WZ_e,
                     fopAcM_GetID(actor),
-                    0xFFFFFF0B,
+                    DEMO_SELECT(params, 0xFFFFFF0B),
                     &i_this->mRodTipPos,
                     fopAcM_GetRoomNo(actor),
                     &angle,
@@ -602,10 +621,19 @@ void action_dousa(wz_class* i_this) {
     };
 
     fopAc_ac_c* actor = i_this;
+#if VERSION == VERSION_DEMO
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    f32 frame;
+#endif
 
     switch (i_this->mMode) {
     case 0:
+#if VERSION == VERSION_DEMO
+        f32 dist = 7500.0f;
+        if (fopAcM_searchActorDistance(actor, player) > dist) {
+#else
         if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > 7500.0f) {
+#endif
             break;
         }
         for (int i = 0; i < 4; i++) {
@@ -740,6 +768,9 @@ void action_dousa(wz_class* i_this) {
         i_this->mMode++;
         break;
     case 5:
+#if VERSION == VERSION_DEMO
+        frame = 38.0f;
+#endif
         if (i_this->mParticleCb3.getEmitter() != NULL) {
             i_this->mParticleCb3.getEmitter()->setGlobalSRTMatrix(
                 i_this->mpRodMorf->getModel()->getAnmMtx(WZ_ROD_JNT_TIP)
@@ -751,7 +782,11 @@ void action_dousa(wz_class* i_this) {
             );
         }
         if (i_this->m3F8 != 1) {
+#if VERSION == VERSION_DEMO
+            if (i_this->mpMorf->getFrame() < frame) {
+#else
             if (i_this->mpMorf->getFrame() < 38.0f) {
+#endif
                 i_this->mTargetAngleY = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
             }
         }
@@ -778,6 +813,7 @@ void action_dousa(wz_class* i_this) {
         i_this->mParticleCb4.remove();
         break;
     case 6:
+#if VERSION > VERSION_DEMO
         actor->speed.setall(0.0f);
         actor->speedF = 0.0f;
         fopAcM_cancelCarryNow(actor);
@@ -786,6 +822,7 @@ void action_dousa(wz_class* i_this) {
         actor->current.angle.x = 0;
         actor->shape_angle.z = 0;
         actor->current.angle.z = 0;
+#endif
         anm_init(i_this, dRes_INDEX_WZ_BCK_SYUTUGEN1_e, 5.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
         fopAcM_OffStatus(actor, fopAcStts_SHOWMAP_e);
         actor->attention_info.flags = 0;
@@ -845,6 +882,9 @@ void action_itai(wz_class* i_this) {
     fopAc_ac_c* actor = i_this;
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
     cXyz pos = actor->current.pos;
+#if VERSION == VERSION_DEMO
+    pos.y += 160.0f + REG12_F(17);
+#endif
 
     switch (i_this->mMode) {
     case 0xA:
@@ -974,7 +1014,15 @@ void action_itai(wz_class* i_this) {
         actor->current.angle.y = i_this->mTargetAngleY;
         actor->shape_angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
         actor->speedF = 40.0f;
+#if VERSION == VERSION_DEMO
+        if (REG12_F(13) + (100.0f + i_this->mAcch.GetGroundH()) > actor->current.pos.y) {
+            anm_init(i_this, dRes_INDEX_WZ_BCK_DOWN1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+        } else {
+            anm_init(i_this, dRes_INDEX_WZ_BCK_AIRDOWN1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+        }
+#else
         anm_init(i_this, dRes_INDEX_WZ_BCK_AIRDOWN1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+#endif
         i_this->mMode++;
         // Fall-through
     case 0x29:
@@ -988,6 +1036,19 @@ void action_itai(wz_class* i_this) {
         // Fall-through
     case 0x2A:
         if (i_this->mHasChildActor == 0) {
+#if VERSION == VERSION_DEMO
+            fopAcM_createDisappear(actor, &pos, 5, 0, actor->stealItemBitNo);
+            fopAcM_delete(actor);
+            if (REG12_S(2) == 0) {
+                if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
+                    dComIfGs_onSwitch(i_this->mDisableSpawnOnDeathSwitch, fopAcM_GetRoomNo(actor));
+                }
+                if (strcmp(dComIfGp_getStartStageName(), "kazeMB") == 0 && ++come_flag >= 2) {
+                    mDoAud_subBgmStop();
+                }
+                fopAcM_onActor(actor);
+            }
+#else
             if (i_this->mBckIdx == dRes_INDEX_WZ_BCK_AIRDOWN1_e) {
                 pos.y += 160.0f;
                 fopAcM_createDisappear(actor, &pos, 5, 0, actor->stealItemBitNo);
@@ -1002,9 +1063,13 @@ void action_itai(wz_class* i_this) {
                 }
                 fopAcM_onActor(actor);
             }
+#endif
         } else {
             actor->speedF = 0.0f;
             i_this->mAlpha = 0;
+#if VERSION == VERSION_DEMO
+            fopAcM_createDisappear(actor, &pos, 5, 0, actor->stealItemBitNo);
+#else
             if (i_this->mBckIdx == dRes_INDEX_WZ_BCK_AIRDOWN1_e) {
                 pos.y += 160.0f;
                 fopAcM_createDisappear(actor, &pos, 5, 0, actor->stealItemBitNo);
@@ -1012,6 +1077,7 @@ void action_itai(wz_class* i_this) {
                 pos.y += 20.0f;
                 fopAcM_createDisappear(actor, &pos, 5, 0, actor->stealItemBitNo);
             }
+#endif
             actor->attention_info.flags = 0;
             fopAcM_OffStatus(actor, fopAcStts_SHOWMAP_e);
             actor->scale.setall(0.0f);
@@ -1024,12 +1090,24 @@ void action_itai(wz_class* i_this) {
     case 0x2B:
         if (i_this->mHasChildActor == 0) {
             fopAcM_delete(actor);
+#if VERSION == VERSION_DEMO
+            if (REG12_S(2) == 0) {
+                if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
+                    dComIfGs_onSwitch(i_this->mDisableSpawnOnDeathSwitch, fopAcM_GetRoomNo(actor));
+                }
+                if (strcmp(dComIfGp_getStartStageName(), "kazeMB") == 0 && ++come_flag >= 2) {
+                    mDoAud_subBgmStop();
+                }
+                fopAcM_onActor(actor);
+            }
+#else
             if (strcmp(dComIfGp_getStartStageName(), "kazeMB") != 0) {
                 if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
                     dComIfGs_onSwitch(i_this->mDisableSpawnOnDeathSwitch, fopAcM_GetRoomNo(actor));
                 }
                 fopAcM_onActor(actor);
             }
+#endif
         }
         break;
     }
@@ -1133,7 +1211,7 @@ void action_demo(wz_class* i_this) {
                 DEMO_SELECT(ang + 0x8000, (s16)(ang + 0x8000))
             );
             if (i_this->mBckIdx != dRes_INDEX_WZ_BCK_PRESS1_e) {
-                anm_init(i_this, dRes_INDEX_WZ_BCK_AIRDOWN1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
+                anm_init(i_this, DEMO_SELECT(dRes_INDEX_WZ_BCK_DOWN1_e, dRes_INDEX_WZ_BCK_AIRDOWN1_e), 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
                 actor->speedF = 40.0f;
                 i_this->mMode = 0x5A;
             } else {
@@ -1187,8 +1265,15 @@ void action_demo(wz_class* i_this) {
             case 0:
                 player->changeDemoMode(daPy_demo_c::DEMO_L_AROUND2_e);
                 i_this->mTimer = (s16)(60.0f + REG11_F(11));
+#if VERSION == VERSION_DEMO
+                cMtx_YrotS(*calc_mtx, player_ac->shape_angle.y);
+                mtx_off.x = 0.0f;
+                mtx_off.y = 0.0f;
+                mtx_off.z = 40000.0f + REG11_F(12);
+#else
                 mDoMtx_YrotS(*calc_mtx, player_ac->shape_angle.y);
                 mtx_off.set(0.0f, 0.0f, 40000.0f + REG11_F(12));
+#endif
                 MtxPosition(&mtx_off, &dst);
                 actor->eyePos = dst + player_ac->current.pos;
                 fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
@@ -1197,14 +1282,15 @@ void action_demo(wz_class* i_this) {
             case 1:
                 player->changeDemoMode(daPy_demo_c::DEMO_TBACK_e);
                 i_this->mTimer = (s16)(45.0f + REG11_F(13));
-                mDoMtx_YrotS(
-                    *calc_mtx,
-                    DEMO_SELECT(
-                        player_ac->shape_angle.y + 0x8000,
-                        (s16)(player_ac->shape_angle.y + 0x8000)
-                    )
-                );
+#if VERSION == VERSION_DEMO
+                cMtx_YrotS(*calc_mtx, player_ac->shape_angle.y + 0x8000);
+                mtx_off.x = 0.0f;
+                mtx_off.y = 0.0f;
+                mtx_off.z = 40000.0f + REG11_F(14);
+#else
+                mDoMtx_YrotS(*calc_mtx, (s16)(player_ac->shape_angle.y + 0x8000));
                 mtx_off.set(0.0f, 0.0f, 40000.0f + REG11_F(14));
+#endif
                 MtxPosition(&mtx_off, &dst);
                 actor->eyePos = dst + player_ac->current.pos;
                 fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
@@ -1232,12 +1318,12 @@ void action_demo(wz_class* i_this) {
         mag = mag * (0.01f + REG11_F(19));
         cLib_addCalc2(&i_this->mCamCenter.z, (f32)(REG11_S(2) - 0x336), 1.0f, mag);
         if (i_this->m3DE[0] >= 2) {
-            if (i_this->mTimer <= DEMO_SELECT(REG11_S(3) + 0x14, (s16)(REG11_S(3) + 0x14))) {
+            if (i_this->mTimer <= (s16)(REG11_S(3) + 0x14)) {
                 if (i_this->m3DE[0] == 2) {
                     fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
                     i_this->m3DE[0] = 3;
                 }
-                i_this->mAlpha += DEMO_SELECT(REG11_S(4) + 0xA, (s16)(REG11_S(4) + 0xA));
+                i_this->mAlpha += (s16)(REG11_S(4) + 0xA);
                 if (i_this->mAlpha > 0xFF) {
                     i_this->mAlpha = 0xFF;
                 }
@@ -1250,7 +1336,7 @@ void action_demo(wz_class* i_this) {
         }
         break;
     case 0x52:
-        i_this->mAlpha += DEMO_SELECT(REG11_S(6) + 5, (s16)(REG11_S(6) + 5));
+        i_this->mAlpha += (s16)(REG11_S(6) + 5);
         if (i_this->mAlpha > 0xFF) {
             i_this->mAlpha = 0xFF;
         }
@@ -1342,6 +1428,10 @@ void action_demo(wz_class* i_this) {
         }
         if (i_this->m3DE[0] == 0 && i_this->mTimer == 0) {
             scale = actor->scale;
+#if VERSION == VERSION_DEMO
+            u32 params = 0xFFFFFF00;
+            params |= 0xD;
+#endif
             scale.setall(4.0f);
             offset.x = 215.0f;
             offset.y = 180.0f;
@@ -1349,7 +1439,7 @@ void action_demo(wz_class* i_this) {
             fpc_ProcID id = fopAcM_createChild(
                 fpcNm_WZ_e,
                 fopAcM_GetID(actor),
-                0xFFFFFF0D,
+                DEMO_SELECT(params, 0xFFFFFF0D),
                 &offset,
                 fopAcM_GetRoomNo(actor),
                 &actor->current.angle,
@@ -1365,7 +1455,7 @@ void action_demo(wz_class* i_this) {
             id = fopAcM_createChild(
                 fpcNm_WZ_e,
                 fopAcM_GetID(actor),
-                0xFFFFFF0D,
+                DEMO_SELECT(params, 0xFFFFFF0D),
                 &offset,
                 fopAcM_GetRoomNo(actor),
                 &actor->current.angle,
@@ -1510,6 +1600,20 @@ void action_demo(wz_class* i_this) {
         camera->mCamera.SetTrimSize(0);
         player->cancelOriginalDemo();
         dComIfGp_event_reset();
+#if VERSION == VERSION_DEMO
+        if (i_this->mHasChildActor == 0) {
+            fopAcM_delete(actor);
+            if (REG12_S(2) == 0) {
+                if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
+                    dComIfGs_onSwitch(i_this->mDisableSpawnOnDeathSwitch, fopAcM_GetRoomNo(actor));
+                }
+                if (strcmp(dComIfGp_getStartStageName(), "kazeMB") == 0 && ++come_flag >= 2) {
+                    mDoAud_subBgmStop();
+                }
+                fopAcM_onActor(actor);
+            }
+        } else {
+#else
         if (strcmp(dComIfGp_getStartStageName(), "kazeMB") == 0) {
             if (i_this->mIsMiniBoss != 0) {
                 mDoAud_subBgmStop();
@@ -1524,6 +1628,7 @@ void action_demo(wz_class* i_this) {
                 fopAcM_onActor(actor);
             }
         } else {
+#endif
             i_this->mAction = 1;
             i_this->mMode = 0x2B;
         }
@@ -1622,10 +1727,18 @@ void summon_call_sub(wz_class* i_this) {
     int spawned;
     int birthNum;
     cXyz pos = actor->current.pos;
+#if VERSION == VERSION_DEMO
+    fopAc_ac_c* parent_ac = fopAcM_SearchByID(i_this->mRelatedId);
+    wz_class* parent = (wz_class*)parent_ac;
+    if (parent_ac == NULL) {
+        return;
+    }
+#else
     wz_class* parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
     if (parent == NULL) {
         return;
     }
+#endif
     if (i_this->mTimer != 1) {
         return;
     }
@@ -1682,6 +1795,37 @@ void summon_call_sub(wz_class* i_this) {
         }
     }
 
+#if VERSION == VERSION_DEMO
+    tableIndex++;
+    if (enemy_name_dt[tableIndex] == 0x7FFF) {
+        return;
+    }
+    spawned = birth_dt[tableIndex];
+    angle.x = 0;
+    angle.y = 0;
+    angle.z = 0;
+    angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+    pos = actor->current.pos;
+
+    for (i = 0, arg = 0; i < 20 && arg < spawned; i++) {
+        if (i_this->mChildIds[i] == fpcM_ERROR_PROCESS_ID_e) {
+            birthNum = enemy_arg_dt[tableIndex];
+            if (tableIndex == fpcNm_CC_e) {
+                birthNum |= 0xA00;
+                int rnd = (int)cM_rndF(3.19f);
+                birthNum |= cc_birth_dt[rnd] << 8;
+            }
+            i_this->mChildIds[i] = fopAcM_create(
+                enemy_name_dt[tableIndex],
+                birthNum,
+                &pos,
+                fopAcM_GetRoomNo(actor),
+                &angle,
+                NULL,
+                -1,
+                NULL
+            );
+#else
     int nextIndex = tableIndex + 1;
     if (enemy_name_dt[nextIndex] == 0x7FFF) {
         return;
@@ -1711,6 +1855,7 @@ void summon_call_sub(wz_class* i_this) {
                 -1,
                 NULL
             );
+#endif
             if (i_this->mChildIds[i] != fpcM_ERROR_PROCESS_ID_e) {
                 i_this->mChildAlive[i] = 1;
                 pos = actor->current.pos;
@@ -1754,6 +1899,9 @@ void action_tama_dousa(wz_class* i_this) {
     csXyz angle = actor->current.angle;
     cXyz scale = actor->scale;
     cXyz pos;
+#if VERSION == VERSION_DEMO
+    u32 params = 0xFFFFFF00;
+#endif
 
     switch (i_this->mMode) {
     case 0x64:
@@ -1871,7 +2019,10 @@ void action_tama_dousa(wz_class* i_this) {
                 i_this->mTimers[0] = (int)cM_rndF(5.0f);
                 i_this->mBallAlpha = (int)(8.0f + cM_rndF(5.0f));
             }
-            if (strcmp(dComIfGp_getStartStageName(), "sea") != 0) {
+#if VERSION > VERSION_DEMO
+            if (strcmp(dComIfGp_getStartStageName(), "sea") != 0)
+#endif
+            {
                 dKy_arrowcol_chg_on(NULL, 0);
             }
             fopAcM_OnStatus(actor, fopAcStts_UNK4000_e);
@@ -1879,6 +2030,9 @@ void action_tama_dousa(wz_class* i_this) {
             fopAcM_seStart(actor, JA_SE_OBJ_WZ_FIRE_B_IMP, 0);
             break;
         case WZ_TYPE_DAMAGE_BALL_ICE:
+#if VERSION == VERSION_DEMO
+            params |= 0xC;
+#endif
             scale.setall(5.0f);
             pos = actor->current.pos;
             {
@@ -1888,7 +2042,7 @@ void action_tama_dousa(wz_class* i_this) {
                     id = fopAcM_createChild(
                         fpcNm_WZ_e,
                         fopAcM_GetID(actor),
-                        0xFFFFFF0C,
+                        DEMO_SELECT(params, 0xFFFFFF0C),
                         &pos,
                         fopAcM_GetRoomNo(actor),
                         &actor->current.angle,
@@ -1981,9 +2135,16 @@ void action_summon_dousa(wz_class* i_this) {
         }
         for (int i = 0; i < 5; i++) {
             JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZSUMMONWIND00, &actor->current.pos);
+#if VERSION == VERSION_DEMO
+            f32 sx, sy, sz;
+            sz = actor->scale.z;
+            sy = actor->scale.y;
+            sx = actor->scale.x;
+#else
             f32 sx = actor->scale.x;
             f32 sy = actor->scale.y;
             f32 sz = actor->scale.z;
+#endif
             if (emitter != NULL) {
                 emitter->setGlobalDynamicsScale(sx, sy, sz);
                 emitter->setGlobalParticleScale(JGeometry::TVec3<f32>(sx, sy, sz));
@@ -1992,9 +2153,16 @@ void action_summon_dousa(wz_class* i_this) {
         fopAcM_seStart(actor, JA_SE_OBJ_WZ_SUMMON_B_SMN, 0);
         {
             JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZSUMMONSMOKE00, &actor->current.pos);
+#if VERSION == VERSION_DEMO
+            f32 sx, sy, sz;
+            sz = actor->scale.z;
+            sy = actor->scale.y;
+            sx = actor->scale.x;
+#else
             f32 sx = actor->scale.x;
             f32 sy = actor->scale.y;
             f32 sz = actor->scale.z;
+#endif
             if (emitter != NULL) {
                 emitter->setGlobalDynamicsScale(sx, sy, sz);
                 emitter->setGlobalParticleScale(JGeometry::TVec3<f32>(sx, sy, sz));
@@ -2113,7 +2281,7 @@ static BOOL daWZ_Execute(wz_class* i_this) {
     if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
         fopAcM_setGbaName(i_this, 0x3C, 0x11, 0x2F);
         if (enemy_ice(&i_this->mEnemyIce)) {
-            i_this->mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
+            i_this->mpMorf->getModel()->setBaseTRMtx(DEMO_SELECT(mDoMtx_stack_c::now, mDoMtx_stack_c::get()));
             i_this->mpMorf->calc();
             if (i_this->mIsMiniBoss) {
                 MtxP miniSrc = i_this->mpMorf->getModel()->getAnmMtx(WZ_JNT_MINI);
@@ -2122,7 +2290,9 @@ static BOOL daWZ_Execute(wz_class* i_this) {
             }
             enemy_fire_remove(&i_this->mEnemyFire);
             rod_size_set(i_this, 1);
+#if VERSION > VERSION_DEMO
             BG_check(i_this);
+#endif
             return TRUE;
         }
     }
@@ -2182,7 +2352,11 @@ static BOOL daWZ_Execute(wz_class* i_this) {
 
     if (i_this->mBehaviorType < WZ_TYPE_DAMAGE_BALL_FIRE) {
         BG_check(i_this);
-        if (i_this->mAction != 1 && i_this->mAction != 3 && i_this->mMode != 7) {
+        if (i_this->mAction != 1 && i_this->mAction != 3
+#if VERSION > VERSION_DEMO
+            && i_this->mMode != 7
+#endif
+        ) {
             fuwafuwa_calc(i_this);
         }
         i_this->attention_info.position = i_this->current.pos;
@@ -2217,17 +2391,24 @@ static BOOL daWZ_Delete(wz_class* i_this) {
         if (i_this->mIsMiniBoss) {
             mDoAud_subBgmStop();
         }
+#if VERSION == VERSION_DEMO
+        if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
+            dComIfGs_onSwitch(i_this->mDisableSpawnOnDeathSwitch, fopAcM_GetRoomNo(i_this));
+        }
+        fopAcM_onActor(i_this);
+#else
         if (strcmp(dComIfGp_getStartStageName(), "kazeMB") != 0) {
             if (i_this->mDisableSpawnOnDeathSwitch != 0xFF) {
                 dComIfGs_onSwitch(i_this->mDisableSpawnOnDeathSwitch, fopAcM_GetRoomNo(i_this));
             }
         }
+#endif
     }
 
     if (i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR && i_this->mBehaviorType != WZ_TYPE_SUMMON_DOOR_2) {
-        dComIfG_resDelete(&i_this->mPhase, "WZ");
+        dComIfG_resDeleteDemo(&i_this->mPhase, "WZ");
     } else {
-        dComIfG_resDelete(&i_this->mPhase, "WZB");
+        dComIfG_resDeleteDemo(&i_this->mPhase, "WZB");
     }
 
     if (i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_FIRE || i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_ICE) {
@@ -2424,7 +2605,9 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
         }},
     };
     wz_class* i_this = (wz_class*)i_actor;
+#if VERSION > VERSION_DEMO
     fopAcM_ct(i_this, wz_class);
+#endif
 
     i_this->mBehaviorType = fopAcM_GetParam(i_this);
     i_this->mDisableSpawnOnDeathSwitch = fopAcM_GetParam(i_this) >> 8;
@@ -2457,6 +2640,17 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
 
 #if VERSION <= VERSION_JPN
     if (phase_state == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_ct(i_this, wz_class);
+        if (REG8_S(9) != 0) {
+            if (i_this->mBehaviorType == 1) {
+                i_this->mBehaviorType = 2;
+            }
+            if (i_this->mBehaviorType == 0) {
+                i_this->mBehaviorType = 3;
+            }
+        }
+#endif
         if (i_this->mBehaviorType == 2) {
             i_this->mBehaviorType = 1;
             i_this->mIsMiniBoss = true;
