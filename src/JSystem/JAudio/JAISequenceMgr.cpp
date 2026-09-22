@@ -442,16 +442,7 @@ void JAInter::SequenceMgr::checkPlayingSeqTrack(u32 track) {
             JAInter::Camera* cameras = JAIBasic::msBasic->getAudioCamera();
             Vec* source = update->field_0x48->getTrans();
             PSMTXMultVec(cameras[i].field_0x8, source, current);
-            f32 squared = current->z * current->z + (current->x * current->x + current->y * current->y);
-            if (squared > 0.0f) {
-                f64 guess = __frsqrte(squared);
-                guess = 0.5 * guess * (3.0 - guess * guess * squared);
-                guess = 0.5 * guess * (3.0 - guess * guess * squared);
-                guess = 0.5 * guess * (3.0 - guess * guess * squared);
-                volatile f32 result = squared * guess;
-                squared = result;
-            }
-            position->mDistance = squared;
+            position->mDistance = std::sqrtf(current->z * current->z + (current->x * current->x + current->y * current->y));
             f32 volume = update->field_0x48->setDistanceVolumeCommon(JAIGlobalParameter::getParamDistanceMax(), 0);
             update->field_0x48->setSeqInterVolume(4, (u8)(127.0f * volume), JAIGlobalParameter::getParamDistanceParameterMoveTime());
             f32 pan = update->field_0x48->setDistancePanCommon();
