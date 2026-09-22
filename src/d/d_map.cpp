@@ -1141,12 +1141,12 @@ void dMap_RoomInfo_c::roomDrawRoomRealSize(int param_1, int param_2, int param_3
 }
 
 /* 80047834-8004793C       .text roomExistenceCheck__19dMap_RoomInfoCtrl_cFiPP15dMap_RoomInfo_c */
+// NONMATCHING - the original loads m_info into a temp and copies it into roomInfoP (extra mr).
 bool dMap_RoomInfoCtrl_c::roomExistenceCheck(int i_no, dMap_RoomInfo_c** roomInfoPP) {
     JUT_ASSERT(VERSION_SELECT(3075, 2943, 2947, 2947), roomInfoPP != NULL);
     bool ret = false;
     *roomInfoPP = NULL;
-    dMap_RoomInfo_c* info = m_info;
-    dMap_RoomInfo_c* roomInfoP = info;
+    dMap_RoomInfo_c* roomInfoP = m_info;
     JUT_ASSERT(VERSION_SELECT(3083, 2951, 2955, 2955), roomInfoP != NULL);
     for (; !ret && roomInfoP != NULL; roomInfoP = roomInfoP->m_next) {
         if (roomInfoP->m_exist) {
