@@ -1218,11 +1218,15 @@ void dMenu_Item_c::itemnoteSet() {
     }
 
     f32 rubySize = ((J2DTextBox*)m740.pane)->mFontSizeX;
+#if VERSION <= VERSION_JPN
+    f32 msgFontSize = ((J2DTextBox*)m778.pane)->mFontSizeX;
+#else
     J2DTextBox::TFontSize fontSize;
     fontSize.mSizeX = g_msgHIO.field_0x70;
     fontSize.mSizeY = g_msgHIO.field_0x70;
     ((J2DTextBox*)m778.pane)->setFontSize(fontSize);
     ((J2DTextBox*)m778.pane)->setLineSpace(g_msgHIO.field_0x5e);
+#endif
 
     if (dComIfGs_getItem(mNowItem) != dItemNo_NONE_e) {
         msgNo = dItem_data::getItemMesgNum(dComIfGs_getItem(mNowItem));
@@ -1247,7 +1251,11 @@ void dMenu_Item_c::itemnoteSet() {
     msgProc.setRubyCharSpace(((J2DTextBox*)m740.pane)->getCharSpace());
     msgProc.setLineSpace(((J2DTextBox*)m778.pane)->getLineSpace());
     msgProc.setMesgEntry(&msg_entry);
+#if VERSION <= VERSION_JPN
+    msgProc.setFontSize(msgFontSize);
+#else
     msgProc.setFontSize(fontSize.mSizeX);
+#endif
     msgProc.setRubyFontSize(rubySize);
     msgProc.setLineWidth(0x1FE);
     msgProc.setCenterLineWidth(0x1E6);
@@ -1263,7 +1271,7 @@ void dMenu_Item_c::itemnoteSet() {
     s16 lineCount = msgProc.getLineCount();
     msgProc.setLineCount(0);
     f32 lineSpace = ((J2DTextBox*)m778.pane)->getLineSpace();
-    int unusedLines = 3 - lineCount;
+    int unusedLines = VERSION_SELECT(2, 2, 3, 3) - lineCount;
     f32 shiftY = unusedLines * (lineSpace / 2.0f);
     ((J2DTextBox*)m740.pane)->shiftSet(0.0f, shiftY);
     ((J2DTextBox*)m778.pane)->shiftSet(0.0f, shiftY);
