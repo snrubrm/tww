@@ -614,10 +614,15 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 }
 
 cPhs_State daNpc_Ac1_c::_create() {
-    fopAcM_SetupActor(this, daNpc_Ac1_c);
+    fopAcM_ct_Retail(this, daNpc_Ac1_c);
     cPhs_State phase = dComIfG_resLoad(&mPhs, "Ac");
     if (phase != cPhs_COMPLEATE_e) return phase;
-    if (!charDecide(fopAcM_GetParam(this) & 0xFF)) return cPhs_ERROR_e;
+    u32 prm = fopAcM_GetParam(this) & 0xFF;
+    if (!charDecide(prm)) return cPhs_ERROR_e;
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("コモリ成長");
+    fopAcM_ct(this, daNpc_Ac1_c);
+#endif
     static u32 a_size_tbl[] = {0x272E0};
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_size_tbl[mType])) return cPhs_ERROR_e;
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
