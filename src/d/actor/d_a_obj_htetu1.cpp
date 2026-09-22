@@ -44,7 +44,7 @@ BOOL daObjHtetu1_c::solidHeapCB(fopAc_ac_c* actor) {
 BOOL daObjHtetu1_c::create_heap() {
     BOOL result = TRUE;
     J3DModelData* mdl_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_HTETU1_BDL_HTETU1_e));
-    JUT_ASSERT(281, mdl_data != NULL);
+    JUT_ASSERT(DEMO_SELECT(279, 281), mdl_data != NULL);
     if (mdl_data == NULL) {
         result = FALSE;
     } else {
