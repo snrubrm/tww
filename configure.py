@@ -436,7 +436,7 @@ config.libs = [
         "progress_category": "game",
         "host": True,
         "objects": [
-            Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"), "c/c_damagereaction.cpp"),
+            Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"), "c/c_damagereaction.cpp"),
             Object(Matching,    "c/c_dylink.cpp"),
         ],
     },

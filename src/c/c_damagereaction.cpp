@@ -1448,6 +1448,7 @@ int dr_damage_set(damagereaction* dr) {
 }
 
 /* 80020FD8-80022460       .text dr_damage_anime__FP14damagereaction */
+// NONMATCHING - demo only: float register allocation of the angle/zero values
 void dr_damage_anime(damagereaction* dr) {
     csXyz csxyz_temp;
 
@@ -1461,14 +1462,8 @@ void dr_damage_anime(damagereaction* dr) {
     if(dr->m47C != 0 || test_sw != 0) {
         maxSpeed = 0x3000;
 
-#if VERSION == VERSION_DEMO
-        f32 zero, temp;
-        temp = (s16)(dr->m482 + 0x8000 - dr->mpEnemy->current.angle.y);
-        zero = 0.0f;
-#else
         f32 temp = (s16)(dr->m482 + 0x8000 - dr->mpEnemy->current.angle.y);
         f32 zero = 0.0f;
-#endif
         f32 temp2 = temp;
         if(temp2 > 5000.0f) {
             temp2 = 5000.0f;
@@ -1482,7 +1477,6 @@ void dr_damage_anime(damagereaction* dr) {
         dr->m010[4].y = 0.4f * zero + 0x2000;
 
         f32 temp3 = temp;
-        f32 zero3 = zero;
         if(temp3 > 22000.0f) {
             temp3 = 22000.0f;
         }
@@ -1491,11 +1485,10 @@ void dr_damage_anime(damagereaction* dr) {
         }
         dr->m010[9].y = 0.4f * temp3 - 0x2000;
         dr->m010[5].z = 0.4f * temp3 - 0x2000;
-        dr->m010[9].z = 0.4f * zero3 + 0x2000;
-        dr->m010[5].y = 0.4f * -zero3 - 0x2000;
+        dr->m010[9].z = 0.4f * zero + 0x2000;
+        dr->m010[5].y = 0.4f * -zero - 0x2000;
 
         f32 temp4 = temp;
-        f32 zero4 = zero;
         if(temp4 > 20000.0f) {
             temp4 = 20000.0f;
         }
@@ -1504,8 +1497,8 @@ void dr_damage_anime(damagereaction* dr) {
         }
         dr->m010[0x0C].x = 0.2f * temp4;
         dr->m010[0x13].x = 0.2f * temp4;
-        dr->m010[0x0C].z = 0.2f * -zero4;
-        dr->m010[0x13].z = 0.2f * -zero4;
+        dr->m010[0x0C].z = 0.2f * -zero;
+        dr->m010[0x13].z = 0.2f * -zero;
 
         f32 temp5 = temp;
         if(temp5 > 7000.0f) {
