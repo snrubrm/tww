@@ -35,11 +35,19 @@ void JAIZelAnime::startAnimSound(void* i_basic, u32 i_soundID, JAISound** i_soun
     case JA_SE_CV_DRG_MTOP_BIKU:
     case JA_SE_CV_DRG_MTOP_ABARE:
     case JA_SE_CV_DRG_MTOP_AKUBI:
+#if VERSION == VERSION_DEMO
+        JAIZelBasic::getInterface()->seStart(i_soundID, i_actor->field_0x4, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+        return;
+    case JA_SE_FT_PW_RUN_AWAY:
+        JAIZelBasic::getInterface()->seStart(i_soundID, i_actor->field_0x4, 0, 0, 1.0f, 1.0f, -1.0f, -1.0f, 0);
+        return;
+#else
         mDoAud_seStart(i_soundID, i_actor->field_0x4);
         return;
     case JA_SE_FT_PW_RUN_AWAY:
         mDoAud_seStart(i_soundID, i_actor->field_0x4);
         return;
+#endif
     }
 
     if (basic->field_0x0201 == 1) {
