@@ -161,14 +161,7 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     s16 angle1 = 32768.0f * distance + mPhase[9];
     s16 angle2 = 32768.0f * distance + mPhase[10];
     s16 angle3 = 32768.0f * distance + mPhase[11];
-#if VERSION == VERSION_DEMO
     f32 wave = 1.0f + (1.0f / 3.0f) * (cM_ssin(angle1) + cM_ssin(angle2) + cM_ssin(angle3));
-#else
-    f32 wave = 1.0f + (1.0f / 3.0f) * (
-        jmaSinTable[(u16)angle1 >> jmaSinShift] +
-        jmaSinTable[(u16)angle2 >> jmaSinShift] +
-        jmaSinTable[(u16)angle3 >> jmaSinShift]);
-#endif
     f32 dot = normal->inprod(mWind);
     f32 w = wave * L_attr.wave;
     mForce += *normal * (dot * (w * (1.0f / L_attr.windScale)));
@@ -463,6 +456,7 @@ void daObjBuoyflag::Packet_c::calc_pos_spring_near(const cXyz* pos, const cXyz* 
 }
 
 /* 000015FC-00001BC0       .text calc_pos__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
+// NONMATCHING - retail only: the inlined cM_ssin lookups in calc_pos_wave are scheduled differently (demo matches)
 void daObjBuoyflag::Packet_c::calc_pos(Act_c* actor) {
     DrawVtx_c* draw = &mDraw[mBuffer];
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
