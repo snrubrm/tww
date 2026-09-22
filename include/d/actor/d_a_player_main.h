@@ -1849,7 +1849,7 @@ public:
     }
     BOOL checkNoControll() const { return dComIfGp_getPlayer(0) != this; }
     void exchangeGrabActor(fopAc_ac_c* actor) { mActorKeepGrab.setData(actor); }
-    void getDekuLeafWindPos() const {}
+    const cXyz& getDekuLeafWindPos() const { return mFanWindCps.GetStart(); }
     cXyz getBoomerangCatchPos() const { return mBoomerangCatchPos; }
     cXyz getLineTopPos() { return mSightPacket.getPos(); }
     cXyz getHookshotRootPos() const { return mHookshotRootPos; }
