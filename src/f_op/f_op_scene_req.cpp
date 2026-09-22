@@ -108,27 +108,33 @@ uint fopScnRq_Request(int reqType, scene_class* i_scene, s16 procName, void* use
         &submethod);
 
     if (!pScnReq) {
-        ret = -1;
+        ret = DEMO_SELECT(FALSE, -1);
     } else {
         if (fadeProcName != 0x7fff) {
             phase_handler_table = fadeFase;
             fade = fopScnRq_FadeRequest(fadeProcName, fadePeekTime);
             if (!fade) {
                 fpcNdRq_Delete(&pScnReq->mCrtReq);
-                return -1;
+                return DEMO_SELECT(FALSE, -1);
             }
         }
         pScnReq->mFadeRequest = fade;
         cPhs_Set(&pScnReq->mReqPhsProcCls, phase_handler_table);
+#if VERSION == VERSION_DEMO
+        ret = TRUE;
+#else
         ret = pScnReq->mCrtReq.mRequestId;
+#endif
     }
 
     return ret;
 }
 
+#if VERSION > VERSION_DEMO
 s32 fopScnRq_ReRequest(uint i_requestID, s16 i_procName, void* i_data) {
     return fpcNdRq_ReRequest(i_requestID, i_procName, i_data);
 }
+#endif
 
 s32 fopScnRq_Handler() {
     return fpcNdRq_Handler();
