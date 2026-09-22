@@ -55,7 +55,7 @@ static dCcD_SrcCyl l_cyl_src = {
 
 /* 00000078-000000B8       .text _delete__10daSwProp_cFv */
 bool daSwProp_c::_delete() {
-    dComIfG_resDelete(&mPhs, m_arcname[mType]);
+    dComIfG_resDeleteDemo(&mPhs, m_arcname[mType]);
     return true;
 }
 
