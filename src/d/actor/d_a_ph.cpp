@@ -288,13 +288,7 @@ BOOL zaisitu_sound(ph_class* i_this, cCcD_Obj* hitObj) {
 /* 00000AE4-00000B4C       .text puropera_kaiten__FP8ph_class */
 void puropera_kaiten(ph_class* i_this) {
     i_this->m033A += i_this->m0348;
-#if VERSION == VERSION_DEMO
     cLib_addCalcAngleS2(&i_this->m0348, i_this->m034A, 1, i_this->m034C);
-#else
-    s16 target = i_this->m034A;
-    s16 maxStep = i_this->m034C;
-    cLib_addCalcAngleS2(&i_this->m0348, target, 1, maxStep);
-#endif
     cLib_addCalcAngleS2(&i_this->m034C, 0x100, 1, 0x10);
     puropera_sound(i_this);
 }
@@ -366,12 +360,7 @@ void fly_angle_set(ph_class* i_this, unsigned char param) {
         f32 distXZ = std::sqrtf(dx * dx + dz * dz);
         s16 targetX = (s16)cM_atan2s(dy, distXZ);
         cLib_addCalcAngleS2(&actor->current.angle.x, targetX, 1, 0x200);
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x200);
-#else
-        s16 shapeX = actor->current.angle.x;
-        cLib_addCalcAngleS2(&actor->shape_angle.x, shapeX, 1, 0x200);
-#endif
         i_this->m0356[4] += 0xBB8;
         targetZ = 7000.0f * cM_ssin(i_this->m0356[4]);
         break;
@@ -381,20 +370,10 @@ void fly_angle_set(ph_class* i_this, unsigned char param) {
     if (param <= 1 || param == 3) {
         if (i_this->mType == 0) {
             i_this->m0356[3] += 0x320;
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.x, 4000.0f * cM_ssin(i_this->m0356[3]), 1, 0x200);
-#else
-            s16 bob = 4000.0f * cM_ssin(i_this->m0356[3]);
-            cLib_addCalcAngleS2(&actor->shape_angle.x, bob, 1, 0x200);
-#endif
         } else {
             i_this->m0356[3] += 0x384;
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.x, 4000.0f * cM_ssin(i_this->m0356[3]), 1, 0x200);
-#else
-            s16 bob = 4000.0f * cM_ssin(i_this->m0356[3]);
-            cLib_addCalcAngleS2(&actor->shape_angle.x, bob, 1, 0x200);
-#endif
         }
     }
 
@@ -958,12 +937,8 @@ void ph_fly_move(ph_class* i_this) {
             i_this->m034A = 0x1000;
             i_this->m034C = 0;
             i_this->m0378 = 150.0f;
-#if VERSION == VERSION_DEMO
             s16 time = 60;
             i_this->m0364[0] = time + cM_rndF(time);
-#else
-            i_this->m0364[0] = (s16)(60.0f + cM_rndF(60.0f));
-#endif
             i_this->mAtCyl.OnAtSetBit();
             i_this->mAtCyl.OnAtHitBit();
             for (int i = 0; i < 7; i++) {
@@ -1041,12 +1016,7 @@ void ph_fly_sea_move(ph_class* i_this) {
         }
         cLib_addCalc0(&actor->speedF, 1.0f, 5.0f + REG12_F(6));
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x200);
-#else
-            s16 shapeZ = actor->current.angle.z;
-            cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x200);
-#endif
         }
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 0x200);
         fuwafuwa_set(i_this);
@@ -1089,12 +1059,8 @@ void ph_fly_sea_move(ph_class* i_this) {
             i_this->m0346 = 0;
             break;
         }
-#if VERSION == VERSION_DEMO
         f32 speed = 98.0f;
         cLib_addCalc2(&actor->speedF, speed, 1.0f, 10.0f);
-#else
-        cLib_addCalc2(&actor->speedF, 98.0f, 1.0f, 10.0f);
-#endif
         if (i_this->m0364[1] == 0) {
             i_this->m0364[1] = 0xF;
             i_this->m0341 = 0;
@@ -1110,12 +1076,7 @@ void ph_fly_sea_move(ph_class* i_this) {
         // fallthrough
     case 5:
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x200);
-#else
-            s16 shapeZ = actor->current.angle.z;
-            cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x200);
-#endif
         }
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 0x200);
         cLib_addCalc0(&actor->speedF, 1.0f, 5.0f + REG12_F(6));
@@ -1155,12 +1116,7 @@ void ph_fly_sea_move(ph_class* i_this) {
         // fallthrough
     }
     case 8: {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x200);
-#else
-        s16 shapeZ = actor->current.angle.z;
-        cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x200);
-#endif
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 1, 0x200);
         cLib_addCalc0(&actor->speedF, 1.0f, 5.0f + REG12_F(6));
         if (actor->speedF < 1.0f) {
@@ -1188,25 +1144,13 @@ void ph_fly_sea_move(ph_class* i_this) {
 
     puropera_kaiten(i_this);
     {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m0352, 1, 0x500);
         cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x500);
-#else
-        s16 targetY = i_this->m0352;
-        cLib_addCalcAngleS2(&actor->current.angle.y, targetY, 1, 0x500);
-        s16 shapeY = actor->current.angle.y;
-        cLib_addCalcAngleS2(&actor->shape_angle.y, shapeY, 1, 0x500);
-#endif
     }
     sea_water_check(i_this, 1);
     f32 targetY = 500.0f + i_this->m05BC.y + REG12_F(8);
     if (i_this->m0346 == 3) {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.x, 4096.0f + REG12_F(11), 1, 0x800);
-#else
-        s16 targetX = 4096.0f + REG12_F(11);
-        cLib_addCalcAngleS2(&actor->shape_angle.x, targetX, 1, 0x800);
-#endif
         targetY = player->current.pos.y;
     }
     cLib_addCalc2(&actor->current.pos.y, targetY, 1.0f, 50.0f + REG12_F(10));
@@ -1387,21 +1331,11 @@ void ph_bunri_move(ph_class* i_this) {
 
     cLib_addCalcAngleS2(&actor->current.angle.x, 0, 1, 0x500);
     {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x500);
-#else
-        s16 shapeX = actor->current.angle.x;
-        cLib_addCalcAngleS2(&actor->shape_angle.x, shapeX, 1, 0x500);
-#endif
     }
     cLib_addCalcAngleS2(&actor->current.angle.z, 0, 1, 0x500);
     {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x500);
-#else
-        s16 shapeZ = actor->current.angle.z;
-        cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x500);
-#endif
     }
 
     if (body_atari_check(i_this)) {
@@ -1470,12 +1404,7 @@ void ph_fujyou_move(ph_class* i_this) {
         cLib_addCalc2(&i_this->m0384, 4.0f, 0.03f, 0.05f);
         i_this->m0356[4] += (s16)(200.0f * i_this->m0384);
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->current.angle.z, 4000.0f * cM_ssin(i_this->m0356[4]), 1, 0x1000);
-#else
-            s16 targetZ = 4000.0f * cM_ssin(i_this->m0356[4]);
-            cLib_addCalcAngleS2(&actor->current.angle.z, targetZ, 1, 0x1000);
-#endif
         }
         actor->shape_angle.z = actor->current.angle.z;
         actor->speed.y = i_this->m0384;
@@ -1534,12 +1463,7 @@ void ph_fujyou_move(ph_class* i_this) {
         cLib_addCalc2(&i_this->m0384, 6.0f, 0.3f, 0.5f);
         i_this->m0356[4] += (s16)(200.0f * i_this->m0384);
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->current.angle.z, 4000.0f * cM_ssin(i_this->m0356[4]), 1, 0x1000);
-#else
-            s16 targetZ = 4000.0f * cM_ssin(i_this->m0356[4]);
-            cLib_addCalcAngleS2(&actor->current.angle.z, targetZ, 1, 0x1000);
-#endif
         }
         actor->shape_angle.z = actor->current.angle.z;
         actor->speed.y = i_this->m0384;
@@ -1770,11 +1694,7 @@ void ph_damage_dead_move(ph_class* i_this) {
         }
         break;
     case 0x2F: {
-#if VERSION == VERSION_DEMO
         int zero = 0;
-#else
-        s16 zero = 0;
-#endif
         actor->shape_angle.x = zero;
         actor->shape_angle.z = zero;
         actor->current.angle.x = zero;
@@ -1828,15 +1748,8 @@ void ph_damage_dead_move(ph_class* i_this) {
     actor->current.angle.x = 0;
     actor->current.angle.z = 0;
     {
-#if VERSION == VERSION_DEMO
         cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x500);
         cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x500);
-#else
-        s16 shapeX = actor->current.angle.x;
-        cLib_addCalcAngleS2(&actor->shape_angle.x, shapeX, 1, 0x500);
-        s16 shapeZ = actor->current.angle.z;
-        cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x500);
-#endif
     }
     if (actor->health > 0) {
         u8 prevWater = i_this->m0341;
@@ -1903,20 +1816,10 @@ void ph_wind_move(ph_class* i_this) {
     case 0x33:
         i_this->m0356[4] += i_this->m0356[5];
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.z, 20000.0f * cM_ssin(i_this->m0356[4]), 1, 0x500);
-#else
-            s16 targetZ = 20000.0f * cM_ssin(i_this->m0356[4]);
-            cLib_addCalcAngleS2(&actor->shape_angle.z, targetZ, 1, 0x500);
-#endif
         }
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.x, 20000.0f * cM_ssin(i_this->m0356[4]), 1, 0x500);
-#else
-            s16 targetX = 20000.0f * cM_ssin(i_this->m0356[4]);
-            cLib_addCalcAngleS2(&actor->shape_angle.x, targetX, 1, 0x500);
-#endif
         }
         actor->shape_angle.y += i_this->m0356[6];
         cLib_addCalc0(&actor->speedF, 0.3f, 1.0f);
@@ -1961,15 +1864,8 @@ void ph_wind_move(ph_class* i_this) {
             return;
         }
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.z, actor->current.angle.z, 1, 0x500);
             cLib_addCalcAngleS2(&actor->shape_angle.x, actor->current.angle.x, 1, 0x500);
-#else
-            s16 shapeZ = actor->current.angle.z;
-            cLib_addCalcAngleS2(&actor->shape_angle.z, shapeZ, 1, 0x500);
-            s16 shapeX = actor->current.angle.x;
-            cLib_addCalcAngleS2(&actor->shape_angle.x, shapeX, 1, 0x500);
-#endif
         }
         actor->shape_angle.y += i_this->m0356[5];
         if (i_this->mpBodyMorf->isStop()) {
@@ -2045,7 +1941,6 @@ void ph_water_move(ph_class* i_this) {
     case 0x3C:
         i_this->mBodySph.OnCoSetBit();
         i_this->mBodySph.SetTgType(0xFF3DFEFF);
-#if VERSION == VERSION_DEMO
         actor->shape_angle.x = 0;
         actor->shape_angle.z = 0;
         actor->current.angle.x = 0;
@@ -2053,18 +1948,6 @@ void ph_water_move(ph_class* i_this) {
         for (int i = 0; i < 7; i++) {
             i_this->m0356[i] = 0;
         }
-#else
-        {
-            s16 zero = 0;
-            actor->shape_angle.x = zero;
-            actor->shape_angle.z = zero;
-            actor->current.angle.x = zero;
-            actor->current.angle.z = zero;
-            for (int i = 0; i < 7; i++) {
-                i_this->m0356[i] = 0;
-            }
-        }
-#endif
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
         if (i_this->mType != 1) {
@@ -2095,19 +1978,10 @@ void ph_water_move(ph_class* i_this) {
             i_this->m0341 = 0;
         }
         {
-#if VERSION == VERSION_DEMO
             cLib_addCalcAngleS2(&actor->shape_angle.y, actor->current.angle.y, 1, 0x700);
-#else
-            s16 targetY = actor->current.angle.y;
-            cLib_addCalcAngleS2(&actor->shape_angle.y, targetY, 1, 0x700);
-#endif
         }
-#if VERSION == VERSION_DEMO
         f32 speed = 30.0f;
         cLib_addCalc2(&actor->speedF, speed, 1.0f, 10.0f);
-#else
-        cLib_addCalc2(&actor->speedF, 30.0f, 1.0f, 10.0f);
-#endif
         {
             u32 vol = (u32)(3.4f * actor->speedF);
             if (vol > 100) {
@@ -2138,7 +2012,6 @@ void ph_water_move(ph_class* i_this) {
     case 0x46:
         i_this->mBodySph.OnCoSetBit();
         i_this->mBodySph.SetTgType(0xFF3DFEFF);
-#if VERSION == VERSION_DEMO
         {
             s16 zero = 0;
             actor->shape_angle.x = zero;
@@ -2149,18 +2022,6 @@ void ph_water_move(ph_class* i_this) {
                 i_this->m0356[i] = zero;
             }
         }
-#else
-        {
-            s16 zero = 0;
-            actor->shape_angle.x = zero;
-            actor->shape_angle.z = zero;
-            actor->current.angle.x = zero;
-            actor->current.angle.z = zero;
-            for (int i = 0; i < 7; i++) {
-                i_this->m0356[i] = 0;
-            }
-        }
-#endif
         i_this->mAtCyl.OffAtSetBit();
         i_this->mAtCyl.ClrAtSet();
         {
@@ -2371,13 +2232,8 @@ static BOOL daPH_Execute(ph_class* i_this) {
     cMtx_XrotM(*calc_mtx, actor->current.angle.x);
 
     {
-#if VERSION == VERSION_DEMO
         f32 yOff = i_this->m037C;
         f32 zero = 0.0f;
-#else
-        f32 zero = 0.0f;
-        f32 yOff = i_this->m037C;
-#endif
         if (yOff != zero) {
             if (i_this->m02FC.x != zero) {
                 f32 lim = 1000.0f;
