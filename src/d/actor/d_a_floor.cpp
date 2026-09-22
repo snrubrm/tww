@@ -36,7 +36,7 @@ BOOL daFloor_c::Delete() {
 /* 0000012C-000001E8       .text CreateHeap__9daFloor_cFv */
 BOOL daFloor_c::CreateHeap() {
     J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_HHYU1_BDL_HHYU1_e);
-    JUT_ASSERT(0xc1, modelData != NULL);
+    JUT_ASSERT(DEMO_SELECT(0xc6, 0xc1), modelData != NULL);
     mpModel = mDoExt_J3DModel__create(modelData, 0x80000, 0x11000022);
     if (mpModel == NULL)
         return FALSE;
