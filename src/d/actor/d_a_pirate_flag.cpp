@@ -371,6 +371,9 @@ static cXyz get_cloth_anim_factor(pirate_flag_class* param_0, cXyz* param_1, cXy
 
 /* 00001624-00001938       .text pirate_flag_move__FP17pirate_flag_class */
 static void pirate_flag_move(pirate_flag_class* i_this) {
+#if VERSION == VERSION_DEMO
+    f32 windPower = 0.8f;
+#endif
     cXyz* windVec = dKyw_get_wind_vec();
     cXyz* pos = i_this->mPacket.getPos();
     cXyz* nrm = i_this->mPacket.getNrm();
@@ -379,7 +382,12 @@ static void pirate_flag_move(pirate_flag_class* i_this) {
     s16 windAngle = cM_atan2s(windVec->x, windVec->z);
 
     cMtx_YrotS(*calc_mtx, -((s16)(i_this->current.angle.y + i_this->shape_angle.y) - windAngle));
+#if VERSION == VERSION_DEMO
+    f32 windZ = 0.08f * windPower;
+    cXyz tmp(0.0f, 0.0f, windZ);
+#else
     cXyz tmp(0.0f, 0.0f, 0.064f);
+#endif
     cXyz dest;
     MtxPosition(&tmp, &dest);
     tmp.x = 1.0f;
@@ -410,8 +418,12 @@ static void pirate_flag_move(pirate_flag_class* i_this) {
 
     cXyz lightVec;
     dKy_FirstlightVec_get(&lightVec);
+#if VERSION == VERSION_DEMO
+    i_this->mPacket.setCorrectNrmAngle(cM_atan2s(lightVec.x, lightVec.z) - angleY, absZ);
+#else
     s16 lightAngle = cM_atan2s(lightVec.x, lightVec.z);
     i_this->mPacket.setCorrectNrmAngle(lightAngle - angleY, absZ);
+#endif
     i_this->mPacket.setNrmMtx();
 
     for (int i = 0; i < 5; i++) {
