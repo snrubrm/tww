@@ -121,6 +121,19 @@ BOOL daKddoor_c::chkStopOpen() {
         room = getBRoomNo();
     }
     if (chkGenocideCase()) {
+#if VERSION == VERSION_DEMO
+        if (dComIfGp_event_runCheck() == FALSE && dComIfGp_roomControl_checkRoomDisp(room) && !fopAcM_myRoomSearchEnemy(room)) {
+            if (m2A1 != 0) {
+                m2A1--;
+                return FALSE;
+            }
+            if (sw != 0xFF) {
+                dComIfGs_onSwitch(sw, room);
+            }
+            return TRUE;
+        }
+        m2A1 = 0x41;
+#else
         if (!dComIfGp_event_runCheck()) {
             if (dComIfGp_roomControl_checkRoomDisp(room) && !fopAcM_myRoomSearchEnemy(room)) {
                 if (m2A1 != 0) {
@@ -134,6 +147,7 @@ BOOL daKddoor_c::chkStopOpen() {
             }
             m2A1 = 0x41;
         }
+#endif
     } else if (sw != 0xFF && dComIfGs_isSwitch(sw, room)) {
         return TRUE;
     }
@@ -210,10 +224,10 @@ static BOOL nodeCB(J3DNode* node, int phase) {
         dDoor_ssk_sub_c* sub = (dDoor_ssk_sub_c*)model->getUserArea();
         if (sub != NULL && joint > 0 && joint <= 3) {
             MTXCopy(model->getAnmMtx(joint), *calc_mtx);
-            mDoMtx_YrotM(*calc_mtx, (s16)(int)(2000.0f * cM_ssin(joint * 20000 + sub->mAngle * sub->mWaveSpeed * 2)));
-            mDoMtx_XrotM(*calc_mtx, (s16)(int)(2000.0f * cM_ssin(sub->mAngle * 650 + joint * 12000)));
-            mDoMtx_ZrotM(*calc_mtx, (s16)(int)(4000.0f * cM_ssin(joint * 15000 + sub->mAngle * sub->mWaveSpeed)));
-            MTXCopy(*calc_mtx, model->getAnmMtx(joint));
+            cMtx_YrotM(*calc_mtx, (s16)(int)(2000.0f * cM_ssin(joint * 20000 + sub->mAngle * sub->mWaveSpeed * 2)));
+            cMtx_XrotM(*calc_mtx, (s16)(int)(2000.0f * cM_ssin(sub->mAngle * 650 + joint * 12000)));
+            cMtx_ZrotM(*calc_mtx, (s16)(int)(4000.0f * cM_ssin(joint * 15000 + sub->mAngle * sub->mWaveSpeed)));
+            model->setAnmMtx(joint, *calc_mtx);
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -246,7 +260,7 @@ void dDoor_ssk_c::execute(dDoor_info_c* door) {
 
 /* 00000AF8-00000BB0       .text draw__11dDoor_ssk_cFP12dDoor_info_c */
 void dDoor_ssk_c::draw(dDoor_info_c* door) {
-    g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &door->current.pos, &mTevStr);
+    g_env_light.settingTevStruct(DEMO_SELECT(TEV_TYPE_BG0_PLIGHT, TEV_TYPE_ACTOR), &door->current.pos, &mTevStr);
     for (int i = 0; i < 3; i++) {
         if (mSub[i].mpMorf != NULL) {
             g_env_light.setLightTevColorType(mSub[i].mpMorf->getModel(), &mTevStr);
@@ -523,7 +537,7 @@ BOOL daKddoor_c::CreateHeap() {
     if (modelData == NULL) {
         modelData = (J3DModelData*)dComIfG_getStageRes("Stage", getBmdName2());
     }
-    JUT_ASSERT(868, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(866, 868), modelData != 0);
     mpModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
     if (mpModel == NULL) {
         return FALSE;
@@ -620,7 +634,7 @@ void daKddoor_c::openEnd() {
 void daKddoor_c::closeInit() {
     onFlag(2);
     bool rt = dComIfG_Bgsp()->Regist(mpBgW, this);
-    JUT_ASSERT(1023, !rt);
+    JUT_ASSERT(DEMO_SELECT(1021, 1023), !rt);
     dComIfGp_map_clrAGBMapSendStopFlg();
     fopAcM_seStart(this, JA_SE_OBJ_STN_DOOR_MOVE_D, 0);
 }
@@ -655,7 +669,7 @@ void daKddoor_c::calcMtx() {
 /* 00002108-0000220C       .text CreateInit__10daKddoor_cFv */
 BOOL daKddoor_c::CreateInit() {
     if (dComIfG_Bgsp()->Regist(mpBgW, this)) {
-        JUT_ASSERT(1086, 0);
+        JUT_ASSERT(DEMO_SELECT(1084, 1086), 0);
     }
     tevStr.mRoomNo = current.roomNo;
     mOffsetY = 0.0f;
@@ -675,7 +689,7 @@ BOOL daKddoor_c::CreateInit() {
 // Nonmatching - generated destructor ordering in the linked module.
 cPhs_State daKddoor_c::create() {
     cPhs_State ret = dComIfG_resLoad(&mPhase, M_arcname);
-    fopAcM_SetupActor(this, daKddoor_c);
+    fopAcM_ct_Retail(this, daKddoor_c);
     if (ret != cPhs_COMPLEATE_e) {
         return ret;
     }
@@ -685,9 +699,12 @@ cPhs_State daKddoor_c::create() {
             return keyRet;
         }
     }
+    fopAcM_ct_Demo(this, daKddoor_c);
     fopAcM_SetRoomNo(this, getFRoomNo());
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, 0xD960)) {
+#if VERSION > VERSION_DEMO
         mpBgW = NULL;
+#endif
         return cPhs_ERROR_e;
     }
     CreateInit();
@@ -900,7 +917,7 @@ BOOL daKddoor_c::execute() {
         demoProc();
         break;
     default:
-        JUT_ASSERT(1405, 0);
+        JUT_ASSERT(DEMO_SELECT(1402, 1405), 0);
         break;
     }
     mRoomNo2 = dComIfGp_roomControl_getStayNo();
@@ -922,7 +939,10 @@ static BOOL daKddoor_IsDelete(daKddoor_c*) {
 
 /* 00002AFC-00002C44       .text daKddoor_Delete__FP10daKddoor_c */
 static BOOL daKddoor_Delete(daKddoor_c* i_this) {
-    if (i_this->heap != NULL) {
+#if VERSION > VERSION_DEMO
+    if (i_this->heap != NULL)
+#endif
+    {
         dComIfG_Bgsp()->Release(i_this->mpBgW);
     }
     i_this->mStop.end();
@@ -930,7 +950,9 @@ static BOOL daKddoor_Delete(daKddoor_c* i_this) {
     if (i_this->chkMakeKey()) {
         i_this->mKey.keyResDelete();
     }
+#if VERSION > VERSION_DEMO
     i_this->mSmoke.smokeEnd();
+#endif
     i_this->~daKddoor_c();
     return TRUE;
 }
