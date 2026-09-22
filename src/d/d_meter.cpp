@@ -5849,7 +5849,7 @@ void dMeter_clockMultiInit(sub_meter_class* i_Meter) {
     ResTIMG* texture1 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "swimtime_meter_mask.bti", pArchive);
     JKRArchive* pArchive2 = dComIfGp_getMenuArchive();
     ResTIMG* texture2 = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "screw_01.bti", pArchive2);
-    JUT_ASSERT(10626, texture1 != NULL && texture2 != NULL);
+    JUT_ASSERT(VERSION_SELECT(10626, 10626, 10626, 10625), texture1 != NULL && texture2 != NULL);
     for (s32 i = 0; i < 3; i++) {
         clock[i].init(texture1, texture2, 1.0f / scaleX[i], 1.0f / scaleY[i]);
     }
