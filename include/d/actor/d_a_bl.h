@@ -73,7 +73,7 @@ public:
     /* 0x530 */ dCcD_Stts mStts;
     /* 0x56C */ dCcD_Sph mSph;
     /* 0x698 */ cXyz m698[3];
-    /* 0x6BC */ csXyz m6BC[2];
+    /* 0x6BC */ csXyz m6BC[2]; // Constructed as a csXyz array, but the code stores a cXyz position here
     /* 0x6C8 */ dPa_smokeEcallBack mSmokeCb;
     /* 0x6E8 */ dPa_followEcallBack mFollowCb;
     /* 0x6FC */ dPa_followEcallBack mFireCb;
