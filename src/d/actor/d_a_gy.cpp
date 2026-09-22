@@ -70,7 +70,7 @@ static dCcD_SrcSph l_sph_src = {
     // dCcD_SrcGObjInf
     {
         /* Flags             */ 0,
-        /* SrcObjAt  Type    */ 0,
+        /* SrcObjAt  Type    */ DEMO_SELECT(AT_TYPE_UNK800, 0),
         /* SrcObjAt  Atp     */ 0,
         /* SrcObjAt  SPrm    */ cCcD_AtSPrm_GrpAll_e,
         /* SrcObjTg  Type    */ AT_TYPE_ALL & ~AT_TYPE_WATER & ~AT_TYPE_UNK20000 & ~AT_TYPE_WIND & ~AT_TYPE_UNK400000 & ~AT_TYPE_LIGHT,
@@ -100,7 +100,7 @@ static dCcD_SrcCps l_cps_src = {
     // dCcD_SrcGObjInf
     {
         /* Flags             */ 0,
-        /* SrcObjAt  Type    */ 0,
+        /* SrcObjAt  Type    */ DEMO_SELECT(AT_TYPE_UNK800, 0),
         /* SrcObjAt  Atp     */ 0,
         /* SrcObjAt  SPrm    */ cCcD_AtSPrm_GrpAll_e,
         /* SrcObjTg  Type    */ AT_TYPE_ALL & ~AT_TYPE_WATER & ~AT_TYPE_UNK20000 & ~AT_TYPE_WIND & ~AT_TYPE_UNK400000 & ~AT_TYPE_LIGHT,
