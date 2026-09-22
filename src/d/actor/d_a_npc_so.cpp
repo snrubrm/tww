@@ -352,11 +352,24 @@ BOOL daNpc_So_c::jntHitCreateHeap() {
         {-15.0f, 0.0f, 0.0f},
     };
     static __jnt_hit_data_c search_data[] = {
+#if VERSION == VERSION_DEMO
+        {JntHitType_CYL_e, 1, 20.0f, cyl_offset_A},
+        {JntHitType_CYL_e, 2, 2.0f, cyl_offset_B},
+        {JntHitType_CYL_e, 3, 2.0f, cyl_offset_B},
+        {JntHitType_CYL_e, 4, 2.0f, cyl_offset_B},
+        {JntHitType_CYL_e, 6, 2.0f, cyl_offset_B},
+        {JntHitType_CYL_e, 7, 2.0f, cyl_offset_B},
+        {JntHitType_CYL_e, 8, 2.0f, cyl_offset_B},
+        {JntHitType_CYL_e, 0x11, 15.0f, cyl_offset_A},
+        {JntHitType_CYL_e, 0x12, 15.0f, cyl_offset_B},
+        {JntHitType_CYL_e, 0x13, 5.0f, cyl_offset_B},
+#else
         {JntHitType_CYL_e, 4, 2.0f, cyl_offset_B},
         {JntHitType_CYL_e, 8, 2.0f, cyl_offset_B},
+#endif
     };
 
-    mpJntHit = JntHit_create(mpMorf2->getModel(), search_data, 2);
+    mpJntHit = JntHit_create(mpMorf2->getModel(), search_data, ARRAY_SIZE(search_data));
     if (mpJntHit) {
         fopAcM_SetJntHit(this, mpJntHit);
     } else {
@@ -1336,10 +1349,6 @@ void daNpc_So_c::debugDraw() {
         {0xFF, 0x00, 0x00, 0x80},
         {0x00, 0xFF, 0x00, 0x80},
         {0xFF, 0x00, 0x00, 0x80},
-#if VERSION == VERSION_DEMO
-        {0x00, 0xFF, 0x00, 0x80},
-        {0xFF, 0x00, 0x00, 0x80},
-#endif
         {0x00, 0xFF, 0xFF, 0x80},
         {0xFF, 0xFF, 0x00, 0x80},
         {0xFF, 0xFF, 0x00, 0x80},

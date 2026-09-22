@@ -460,6 +460,159 @@ void daNpc_So_c::cutMiniGameStart() {
 }
 
 /* 00006710-00006FE4       .text cutMiniGameProc__10daNpc_So_cFv */
+#if VERSION == VERSION_DEMO
+void daNpc_So_c::cutMiniGameProc() {
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    s16 ang = player->shape_angle.y;
+    cXyz pos = player->current.pos;
+    bool finished = false;
+    daShip_c* ship = dComIfGp_getShipActor();
+    if (ship != NULL) {
+        int tmp = ship->shape_angle.y + REG12_S(6);
+        ang = tmp - 0x4000;
+        pos = ship->current.pos;
+    }
+
+    if (player->checkArrowShoot()) {
+        mB78++;
+    }
+    if (mB78 >= 10) {
+        finished = true;
+        if (mB74 <= 6) {
+            dComIfGp_endMiniGame(8);
+            speedF = 0.0f;
+            mSpeed = 0.0f;
+            speed.y = 0.0f;
+            mB00 = 0.0f;
+            dComIfGp_evmng_cutEnd(mStaffIdx);
+            return;
+        }
+    }
+
+    switch (mB74) {
+    case 0:
+        setAnm(2, false);
+        mTimer = 0x1E;
+        mB84 = 0;
+        mB74++;
+        mSpeed = 0.0f;
+        speedF = mSpeed;
+        offsetSwim();
+        break;
+    case 1:
+        if (cLib_calcTimer(&mTimer) == 0) {
+            mB74++;
+        }
+        break;
+    case 2: {
+        setAnm(2, false);
+        f32 mag = 1000.0f;
+        mB8C = cM_rndF(400.0f) + mag;
+        f32 rnd = cM_rndF(mag);
+        f32 neg = -mag;
+        mB88 = neg / 2.0f + rnd;
+        cXyz offset(mB88, 0.0f, mB8C);
+        cXyz out(0.0f, 0.0f, 0.0f);
+        mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
+        PSMTXMultVec(mDoMtx_stack_c::now, &offset, &out);
+        out += pos;
+        mEventCut.setAttnPos(out);
+        mB74++;
+        offsetSwim();
+        break;
+    }
+    case 3: {
+        cXyz attn = mEventCut.getAttnPos();
+        mSpeed = 12.0f + REG12_F(10);
+        f32 dist = (current.pos - attn).absXZ();
+        s16 target = cLib_targetAngleY(&current.pos, &attn);
+        cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
+        if (dist < 150.0f + REG12_F(7)) {
+            mSpeed = 0.0f;
+            mB74++;
+        }
+        break;
+    }
+    case 4: {
+        f32 mag = 300.0f;
+        f32 rnd = cM_rndF(mag);
+        f32 neg = -mag;
+        rnd = neg / 2.0f + rnd;
+        mB88 = mB88 + rnd;
+        cXyz offset(mB88, 0.0f, mB8C);
+        cXyz out(0.0f, 0.0f, 0.0f);
+        mDoMtx_YrotS(mDoMtx_stack_c::now, ang);
+        PSMTXMultVec(mDoMtx_stack_c::now, &offset, &out);
+        out += pos;
+        mEventCut.setAttnPos(out);
+        mSpeed = 0.0f;
+        speedF = mSpeed;
+        mTimer = 0x1E;
+        mB74++;
+        offsetSwim();
+        break;
+    }
+    case 5: {
+        cXyz attn = mEventCut.getAttnPos();
+        mSpeed = 0.0f;
+        f32 dist = (current.pos - attn).absXZ();
+        s16 target = cLib_targetAngleY(&current.pos, &attn);
+        cLib_addCalcAngleS2(&shape_angle.y, target, 8, 0x400);
+        if (cLib_calcTimer(&mTimer) == 0) {
+            mB74++;
+        }
+        break;
+    }
+    case 6:
+        current.pos.y = dLib_getWaterY(current.pos, mAcch2);
+        mSpeed = mB08 * (cM_rndF(5.0f) + 5.0f);
+        speedF = mSpeed;
+        speed.y = 18.0f * mB08 + 4.0f * speedF;
+        if (speed.y > l_HIO.m50) {
+            speed.y = l_HIO.m50;
+        }
+        gravity = -0.8f;
+        setAnm(4, false);
+        shape_angle.x = l_HIO.m68;
+        offsetZero();
+        mB74++;
+        fopAcM_seStart(this, JA_SE_CM_SO_JUMP_L, 0);
+        break;
+    case 7: {
+        if (mB84 == 0) {
+            setCollision(70.0f, 140.0f);
+            mSph.SetR(l_HIO.m3C);
+            mSph.SetC(current.pos);
+            dComIfG_Ccsp()->Set(&mSph);
+            if ((u8)checkTgHit()) {
+                mB7C++;
+            }
+        }
+        if (current.pos.y <= dLib_getWaterY(current.pos, mAcch2)) {
+            fopAcM_seStart(this, JA_SE_CM_SO_LANDING_L, 0);
+            fopKyM_createWpillar(&current.pos, 1.4f * scale.x, 1.4f, 0);
+            mSpeed = 0.0f;
+            speedF = mSpeed;
+            mB80++;
+            if (mB80 >= 10 || finished) {
+                player->changeDemoMode(daPy_demo_c::DEMO_N_TALK_e);
+                player->changeDemoParam0(1);
+                JAIZelBasic::getInterface()->seStart(JA_SE_END_WHISTLE);
+                initCam();
+                moveCam();
+                dComIfGp_endMiniGame(8);
+                speedF = 0.0f;
+                mSpeed = 0.0f;
+                dComIfGp_evmng_cutEnd(mStaffIdx);
+            } else {
+                mB74 = 0;
+            }
+        }
+        break;
+    }
+    }
+}
+#else
 void daNpc_So_c::cutMiniGameProc() {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     s16 ang = player->shape_angle.y;
@@ -629,6 +782,7 @@ void daNpc_So_c::cutMiniGameProc() {
     }
     }
 }
+#endif
 
 /* 00006FE4-00006FF0       .text cutTurnStart__10daNpc_So_cFv */
 void daNpc_So_c::cutTurnStart() {
