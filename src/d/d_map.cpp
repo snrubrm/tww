@@ -1439,9 +1439,11 @@ void dMap_c::remove() {
 
 /* 80048370-800484A4       .text setImage__6dMap_cFiif */
 void dMap_c::setImage(int param_1, int param_2, f32 param_3) {
+#if VERSION > VERSION_DEMO
     if (param_2 < 0) {
         return;
     }
+#endif
     if (!IsFloorNo(mNowFloorNo)) {
         mNowFloorNo = dMap_GetFloorNo_WithRoom(param_2, param_3);
         if (!IsFloorNo(mNowFloorNo)) {
@@ -1457,7 +1459,12 @@ void dMap_c::setImage(int param_1, int param_2, f32 param_3) {
     {
         JUT_ASSERT(VERSION_SELECT(3908, 3698, 3714, 3714), 0);
     }
-    if (!mNowRoomInfoP && param_1 == param_2 && param_2 != -1) {
+#if VERSION == VERSION_DEMO
+    if (!mNowRoomInfoP && param_1 == param_2)
+#else
+    if (!mNowRoomInfoP && param_1 == param_2 && param_2 != -1)
+#endif
+    {
         setNowRoom(param_2);
     }
 }
@@ -1500,6 +1507,11 @@ BOOL dMap_c::setNowRoom(int param_1) {
             mAGBMapSendStatus = 0;
         }
     }
+#if VERSION == VERSION_DEMO
+    else {
+        JUT_ASSERT(4032, 0);
+    }
+#endif
     return r31;
 }
 
@@ -1663,6 +1675,48 @@ void dMap_c::mapDrawRealSize(f32 param_1, f32 param_2, u8 i_alpha) {
 }
 
 /* 80049354-800494A0       .text mapAGBSendIslandData__6dMap_cFv */
+#if VERSION == VERSION_DEMO
+void dMap_c::mapAGBSendIslandData() {
+    if (mFmapChkPntData_p == NULL) {
+        return;
+    }
+
+    s8 prm;
+    FmapChkPnt* src;
+    u8* dst;
+    u8 xb;
+    u8 yb;
+    int i;
+    s16 x;
+    s16 y;
+    s8 gx;
+    s8 gy;
+    u8 grid;
+    for (dst = mAgbSendBufIsland, i = 0; i < 49; i++, dst += 4) {
+        if (i < mFmapChkPntValue) {
+            src = &mFmapChkPntData_p[i];
+            x = src->field_0x2;
+            y = src->field_0x4;
+            xb = 255.0f * ((50000.0f + x) / 100000.0f);
+            yb = 255.0f * ((50000.0f + y) / 100000.0f);
+            prm = src->field_0x6;
+            gx = src->mSectorX;
+            gy = src->mSectorY;
+            grid = gx + 3 + (gy + 3) * 7;
+            dst[0] = xb;
+            dst[1] = yb;
+            dst[2] = prm;
+            dst[3] = grid;
+        } else {
+            dst[0] = 0;
+            dst[1] = 0;
+            dst[2] = 0;
+            dst[3] = 0xFF;
+        }
+    }
+    mDoGac_SendDataSet((u32*)mAgbSendBufIsland, 0xC4, 0xE, 0);
+}
+#else
 void dMap_c::mapAGBSendIslandData() {
     if (mFmapChkPntData_p == NULL) {
         return;
@@ -1695,6 +1749,7 @@ void dMap_c::mapAGBSendIslandData() {
     }
     mDoGac_SendDataSet((u32*)mAgbSendBufIsland, 0xC4, 0xE, 0);
 }
+#endif
 
 /* 800494A0-800494C8       .text setPlayerStayAgbMapTypeNow__6dMap_cFff */
 void dMap_c::setPlayerStayAgbMapTypeNow(f32 param_1, f32 param_2) {
