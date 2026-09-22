@@ -420,8 +420,12 @@ bool dBgS::WallCrrPos(dBgS_CrrPos* crr) {
                 if (crr->ChkSameActorPid(elm->m_actor_id))
                     continue;
                 dBgW* bgwp = (dBgW*)elm->m_bgw_base_ptr;
+#if VERSION == VERSION_DEMO
+                if (bgwp->ChkPriority(prio) && bgwp->WallCrrPos(crr)) {
+#else
                 BOOL isPrio = bgwp->ChkPriority(prio);
                 if (isPrio && bgwp->WallCrrPos(crr)) {
+#endif
                     crr->SetWallActorInfo(bg_index, elm->m_bgw_base_ptr, elm->m_actor_id);
                     crr->GetPos()->x += crr->GetPosVec().x;
                     crr->GetPos()->y += crr->GetPosVec().y;
@@ -555,8 +559,14 @@ void dBgS_CrrPos::CrrPos(dBgS& i_bgs) {
     
     if (!(mFlag & 4)) {
         f32 dist_sq = GetOldPos()->abs2(*pm_pos);
+#if VERSION == VERSION_DEMO
+        f32 thresh = SQUARE(0.65f) * GetWallR()*GetWallR();
+        bool inWall = false;
+        if (dist_sq > thresh) {
+#else
         bool inWall = false;
         if (dist_sq > (SQUARE(0.65f) * GetWallR()*GetWallR())) {
+#endif
             inWall = true;
             
             cBgS_LinChk linChk;
@@ -572,7 +582,7 @@ void dBgS_CrrPos::CrrPos(dBgS& i_bgs) {
                 *pm_pos = linChk.GetCross();
                 cM3dGPla* plane = i_bgs.GetTriPla(linChk);
                 pm_pos->x += plane->GetNP()->x;
-                pm_pos->y += plane->GetNP()->y - mWallHeight;
+                pm_pos->y += plane->GetNP()->y - GetWallH();
                 pm_pos->z += plane->GetNP()->z;
             }
         }
@@ -581,8 +591,8 @@ void dBgS_CrrPos::CrrPos(dBgS& i_bgs) {
             cBgS_LinChk linChk;
             cXyz startPos(*pm_old_pos);
             cXyz endPos(*pm_pos);
-            startPos.y += mWallHeight;
-            endPos.y += mWallHeight;
+            startPos.y += GetWallH();
+            endPos.y += GetWallH();
             linChk.Set2(&startPos, &endPos, GetActorPid());
             linChk.SetExtChk(*this);
             linChk.SetSttsGroundOff();
@@ -591,7 +601,7 @@ void dBgS_CrrPos::CrrPos(dBgS& i_bgs) {
                 *pm_pos = linChk.GetCross();
                 cM3dGPla* plane = i_bgs.GetTriPla(linChk);
                 pm_pos->x += plane->GetNP()->x;
-                pm_pos->y += plane->GetNP()->y - mWallHeight;
+                pm_pos->y += plane->GetNP()->y - GetWallH();
                 pm_pos->z += plane->GetNP()->z;
             }
         }
