@@ -643,8 +643,13 @@ bool daObjBarrel::Act_c::damage_bg_proc() {
 
 /* 00001FCC-00002154       .text damage_bg_proc_directly__Q211daObjBarrel5Act_cFv */
 bool daObjBarrel::Act_c::damage_bg_proc_directly() {
+#if VERSION == VERSION_DEMO
+    u32 groundHit = mAcch.ChkGroundHit();
+    u32 groundLanding = mAcch.ChkGroundLanding();
+#else
     u32 groundHit = mAcch.ChkGroundHit() ? TRUE : FALSE;
     u32 groundLanding = mAcch.ChkGroundLanding() ? TRUE : FALSE;
+#endif
     bool broken = false;
 
     if (mMode == MODE_WAIT || mMode == MODE_JUMP || mMode == MODE_WALK) {
