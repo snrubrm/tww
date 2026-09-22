@@ -19,12 +19,22 @@ int fopScnPause_Enable(scene_class* i_scene) {
 
 int fopScnPause_Disable(scene_class* i_scene) {
     if (i_scene) {
+#if VERSION == VERSION_DEMO
+        process_node_class* node = i_scene->base.base.mLyTg.mpLayer->mpPcNode;
+        void* tmp = node;
+
+        if (!node) {
+            fpcM_PauseDisable(i_scene, 1);
+            fpcM_PauseDisable(i_scene, 2);
+        } else if (fpcEx_IsExist(node->base.mBsPcId) == 1) {
+#else
         void* tmp = (void*)i_scene->base.base.mLyTg.mpLayer->mpPcNode;
 
         if (!tmp) {
             fpcM_PauseDisable(i_scene, 1);
             fpcM_PauseDisable(i_scene, 2);
         } else if (fpcEx_IsExist((s32)((int*)tmp)[1]) == 1) {
+#endif
             if (!fpcM_IsPause(tmp, 1)) {
                 fpcM_PauseDisable(i_scene, 1);
             }
