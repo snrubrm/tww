@@ -1206,9 +1206,7 @@ void daNpc_So_c::modeGetRupee() {
             if (REG12_S(9) != 0) {
                 dComIfGp_event_onEventFlag(dEvtFlag_UNK8_e);
             }
-            fopAc_ac_c* actor = dComIfGp_getPlayer(0);
-            *(s16*)((u8*)actor + 0x304) = 2;
-            *(int*)((u8*)actor + 0x314) = 1;
+            daPy_getPlayerActorClass()->cancelOriginalDemo();
 #endif
             mB70 = 7;
         }
