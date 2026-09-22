@@ -196,7 +196,7 @@ static BOOL nodeCallBack_head(J3DNode* node, int calcTiming) {
             } else {
                 MtxScale(i_this->m18F0, i_this->m18F0, i_this->m18F0, 1);
             }
-            MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+            model->setAnmMtx(jntNo, *calc_mtx);
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -233,7 +233,7 @@ static BOOL nodeCallBack_body(J3DNode* node, int calcTiming) {
                 cMtx_ZrotM(*calc_mtx, -i_this->mJntRot[j_index + 17].z);
                 j_index += 2;
             }
-            MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+            model->setAnmMtx(jntNo, *calc_mtx);
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -263,7 +263,7 @@ static BOOL nodeCallBack_tail(J3DNode* node, int calcTiming) {
                 cMtx_YrotM(*calc_mtx, i_this->mJntRot[29].x);
                 cMtx_ZrotM(*calc_mtx, -i_this->mJntRot[29].z);
             }
-            MTXCopy(*calc_mtx, model->getAnmMtx(jntNo));
+            model->setAnmMtx(jntNo, *calc_mtx);
             MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
         }
     }
@@ -304,7 +304,7 @@ void body_control2(mt_class* i_this) {
             start = *p4A0;
             start.y += 50.0f;
 
-            mDoMtx_YrotS(*calc_mtx, p560->y);
+            cMtx_YrotS(*calc_mtx, p560->y);
             offset.x = 3.0f;
             offset.y = -200.0f;
             offset.z = 0.0f;
@@ -344,7 +344,7 @@ void body_control2(mt_class* i_this) {
                 offset.x = 3.0f * cM_ssin(i_this->m46A * (REG0_S(5) + 1500) + i * (REG0_S(6) + 7500));
                 offset.y = 0.0f;
                 offset.z = -5.0f + REG0_F(3);
-                mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+                cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
                 MtxPosition(&offset, &wave);
             }
 
@@ -358,8 +358,8 @@ void body_control2(mt_class* i_this) {
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = 35.0f + REG0_F(7);
-            mDoMtx_YrotS(*calc_mtx, angY);
-            mDoMtx_XrotM(*calc_mtx, angX);
+            cMtx_YrotS(*calc_mtx, angY);
+            cMtx_XrotM(*calc_mtx, angX);
             MtxPosition(&offset, &step);
 
             p560->y = angY + 0x8000;
@@ -540,17 +540,25 @@ void body_control1(mt_class* i_this) {
 
         if (i == 0) {
             cXyz offset;
+#if VERSION == VERSION_DEMO
+            offset.set(0.0f, 0.0f, 30.0f + REG0_F(9));
+#else
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = 30.0f + REG0_F(9);
+#endif
             mDoMtx_stack_c::multVec(&offset, &actor->eyePos);
             i_this->mEyeSph.SetC(actor->eyePos);
             i_this->mEyeSph.SetR(l_HIO.m44);
             dComIfG_Ccsp()->Set(&i_this->mEyeSph);
 
+#if VERSION == VERSION_DEMO
+            offset.set(0.0f, 0.0f, 100.0f + REG6_F(9));
+#else
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = 100.0f + REG6_F(9);
+#endif
             cXyz sphPos;
             mDoMtx_stack_c::multVec(&offset, &sphPos);
             i_this->mSph[0].SetC(sphPos);
@@ -608,9 +616,9 @@ void body_control3(mt_class* i_this) {
     csXyz* p560 = i_this->m560;
     s16 ang_off = 0;
 
-    mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
-    mDoMtx_XrotM(*calc_mtx, actor->shape_angle.x);
-    mDoMtx_XrotM(*calc_mtx, actor->shape_angle.z);
+    cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+    cMtx_XrotM(*calc_mtx, actor->shape_angle.x);
+    cMtx_XrotM(*calc_mtx, actor->shape_angle.z);
 
     offset.x = 0.0f;
     offset.y = i_this->m474 * 32.0f;
@@ -629,9 +637,9 @@ void body_control3(mt_class* i_this) {
             offset.x = i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000) + i * (REG0_S(6) + 7000));
             offset.y = 0.0f;
             offset.z = -i_this->m478;
-            mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
-            mDoMtx_XrotM(*calc_mtx, actor->shape_angle.x + ang_off);
-            mDoMtx_ZrotM(*calc_mtx, actor->shape_angle.z);
+            cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+            cMtx_XrotM(*calc_mtx, actor->shape_angle.x + ang_off);
+            cMtx_ZrotM(*calc_mtx, actor->shape_angle.z);
             MtxPosition(&offset, &wave_pos);
 
             f32 dx = wave_pos.x + (p4A0->x - p4A0[-1].x);
@@ -645,8 +653,8 @@ void body_control3(mt_class* i_this) {
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = 35.0f + REG0_F(7);
-            mDoMtx_YrotS(*calc_mtx, angY);
-            mDoMtx_XrotM(*calc_mtx, angX);
+            cMtx_YrotS(*calc_mtx, angY);
+            cMtx_XrotM(*calc_mtx, angX);
             MtxPosition(&offset, &step);
 
             s16 diff = angY - actor->shape_angle.y;
@@ -774,7 +782,7 @@ void body_control5(mt_class* i_this) {
             vec.x = i_this->m474 * ((50.0f + REG0_F(4)) * cM_ssin(i_this->m46A * (REG0_S(5) + 3500) + i * (REG0_S(6) + 7000)));
             vec.y = i_this->m474 * ((80.0f + REG0_F(5)) * cM_ssin(i_this->m46A * (REG0_S(7) + 4500) + i * (REG0_S(8) + 6000)));
             vec.z = -30.0f + REG0_F(3);
-            mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+            cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
             MtxPosition(&vec, &wave_pos);
 
             f32 y = (p4A0->y - 10.0f) + wave_pos.y;
@@ -793,8 +801,8 @@ void body_control5(mt_class* i_this) {
             vec.x = 0.0f;
             vec.y = 0.0f;
             vec.z = 35.0f + REG0_F(7);
-            mDoMtx_YrotS(*calc_mtx, angY);
-            mDoMtx_XrotM(*calc_mtx, angX);
+            cMtx_YrotS(*calc_mtx, angY);
+            cMtx_XrotM(*calc_mtx, angX);
             MtxPosition(&vec, &step);
 
             p560->y = angY + 0x8000;
@@ -826,9 +834,13 @@ void body_control5(mt_class* i_this) {
         model->setBaseTRMtx(mDoMtx_stack_c::get());
 
         if (i == 0) {
+#if VERSION == VERSION_DEMO
+            vec.set(0.0f, 0.0f, 30.0f + REG0_F(9));
+#else
             vec.x = 0.0f;
             vec.y = 0.0f;
             vec.z = 30.0f + REG0_F(9);
+#endif
             mDoMtx_stack_c::multVec(&vec, &actor->eyePos);
             i_this->mEyeSph.SetC(actor->eyePos);
             i_this->mEyeSph.SetR(30.0f);
@@ -868,7 +880,7 @@ void br_draw(mt_class* i_this) {
 
     J3DModel* model = i_this->br_modelL[br_no[i_this->m18D4 - 1]];
     g_env_light.setLightTevColorType(model, &actor->tevStr);
-    MTXCopy(*calc_mtx, model->getBaseTRMtx());
+    model->setBaseTRMtx(*calc_mtx);
     mDoExt_modelUpdateDL(model);
     MtxPull();
 
@@ -879,7 +891,7 @@ void br_draw(mt_class* i_this) {
 
     model = i_this->br_modelR[br_no[i_this->m18D4 - 1]];
     g_env_light.setLightTevColorType(model, &actor->tevStr);
-    MTXCopy(*calc_mtx, model->getBaseTRMtx());
+    model->setBaseTRMtx(*calc_mtx);
     mDoExt_modelUpdateDL(model);
 }
 
@@ -1019,9 +1031,9 @@ void mt_move(mt_class* i_this) {
     int probe_n;
     s16 target_y;
 
-    mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
-    mDoMtx_ZrotM(*calc_mtx, actor->current.angle.z);
+    cMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    cMtx_XrotM(*calc_mtx, actor->current.angle.x);
+    cMtx_ZrotM(*calc_mtx, actor->current.angle.z);
     offset.x = 0.0f;
     offset.y = 50.0f;
     offset.z = 0.0f;
@@ -1080,8 +1092,8 @@ void mt_move(mt_class* i_this) {
 
     if ((bits & 0xC) == 0xC) {
         diff = cross[2] - cross[3];
-        mDoMtx_XrotS(*calc_mtx, -actor->current.angle.x);
-        mDoMtx_YrotM(*calc_mtx, -actor->current.angle.y);
+        cMtx_XrotS(*calc_mtx, -actor->current.angle.x);
+        cMtx_YrotM(*calc_mtx, -actor->current.angle.y);
         MtxPosition(&diff, &trans);
         actor->current.angle.z = cM_atan2s(trans.y, std::sqrtf(trans.x * trans.x + trans.z * trans.z));
     }
@@ -1167,9 +1179,9 @@ void mt_move(mt_class* i_this) {
         cLib_addCalc0(&actor->speedF, 1.0f, 5.0f);
     }
 
-    mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
-    mDoMtx_XrotM(*calc_mtx, actor->current.angle.x);
-    mDoMtx_YrotM(*calc_mtx, i_this->m468);
+    cMtx_YrotS(*calc_mtx, actor->current.angle.y);
+    cMtx_XrotM(*calc_mtx, actor->current.angle.x);
+    cMtx_YrotM(*calc_mtx, i_this->m468);
     offset.x = 0.0f;
     offset.y = 0.0f;
     offset.z = actor->speedF;
@@ -1251,7 +1263,7 @@ void mt_fight(mt_class* i_this) {
         offset.z = l_HIO.m28 + (30.0f + REG0_F(12)) * cM_ssin(i_this->m46A * 600);
         wave_ang = (s16)((-2000.0f + REG0_F(16)) * cM_ssin(i_this->m46A * 1400));
 
-        mDoMtx_YrotS(*calc_mtx, player->shape_angle.y + angs[mt_count]);
+        cMtx_YrotS(*calc_mtx, player->shape_angle.y + angs[mt_count]);
         MtxPosition(&offset, &pos);
         cLib_addCalc2(&actor->current.pos.x, player->current.pos.x + pos.x, 0.1f, 4.0f + REG0_F(10));
         cLib_addCalc2(&actor->current.pos.z, player->current.pos.z + pos.z, 0.1f, 4.0f + REG0_F(10));
@@ -1271,7 +1283,7 @@ void mt_fight(mt_class* i_this) {
             if (cM_rndF(1.0f) < l_HIO.m14 && i_this->m466 == 0) {
                 i_this->m455 = 1;
                 i_this->mC02 = 0;
-                mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+                cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
                 offset.x = 0.0f;
                 offset.y = 30.0f;
                 offset.z = -30.0f;
@@ -1305,8 +1317,8 @@ void mt_fight(mt_class* i_this) {
             anm_init(i_this, 9, 2.0f, 0, 1.0f, 0);
         }
         if (i_this->mC02 == l_HIO.m38) {
-            mDoMtx_YrotS(*calc_mtx, i_this->m496);
-            mDoMtx_XrotM(*calc_mtx, i_this->m494);
+            cMtx_YrotS(*calc_mtx, i_this->m496);
+            cMtx_XrotM(*calc_mtx, i_this->m494);
             offset.x = 0.0f;
             offset.y = -100.0f + REG6_F(6);
             offset.z = 200.0f + REG6_F(7);
@@ -1343,7 +1355,7 @@ void mt_fight(mt_class* i_this) {
         actor->speed.z = i_this->m47C.z - actor->current.pos.z;
         if (player->checkPlayerGuard() && i_this->mSph[0].ChkAtHit()) {
             i_this->m455 = 15;
-            mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+            cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
             offset.x = 0.0f;
             offset.y = 80.0f;
             offset.z = -120.0f;
@@ -1470,7 +1482,7 @@ void mt_move_maru(mt_class* i_this) {
             i_this->mSph[0].OnCoSetBit();
         }
         actor->shape_angle.x += (s16)(200.0f * actor->speedF);
-        mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
+        cMtx_YrotS(*calc_mtx, actor->current.angle.y);
         offset.x = 0.0f;
         offset.y = 0.0f;
         offset.z = actor->speedF;
@@ -1501,7 +1513,7 @@ void mt_move_maru(mt_class* i_this) {
                 gnd_pos.y += 50.0f;
                 gndChk.SetPos(&gnd_pos);
                 gnd_pos.y = dComIfG_Bgsp()->GroundCross(&gndChk);
-                mDoMtx_YrotS(*calc_mtx, actor->current.angle.y);
+                cMtx_YrotS(*calc_mtx, actor->current.angle.y);
                 offset.x = 0.0f;
                 offset.y = 50.0f;
                 offset.z = 5.0f;
@@ -1509,7 +1521,7 @@ void mt_move_maru(mt_class* i_this) {
                 cXyz ahead = actor->current.pos + ahead_ofs;
                 gndChk.SetPos(&ahead);
                 ahead.y = dComIfG_Bgsp()->GroundCross(&gndChk);
-                if (ahead.y != -1.0e9f) {
+                if (ahead.y != -G_CM3D_F_INF) {
                     if (ahead.y < gnd_pos.y - 1.0f) {
                         step = 5.0f;
                         max_step = 0.3f;
@@ -1620,7 +1632,7 @@ void mt_move_maru(mt_class* i_this) {
         }
         if (i_this->mp450 != NULL) {
             MtxTrans(actor->current.pos.x, actor->current.pos.y, actor->current.pos.z, 0);
-            mDoMtx_YrotM(*calc_mtx, actor->shape_angle.y);
+            cMtx_YrotM(*calc_mtx, actor->shape_angle.y);
             ((JPABaseEmitter*)i_this->mp450)->setGlobalRTMatrix(*calc_mtx);
             if (i_this->m34A == 0) {
                 ((JPABaseEmitter*)i_this->mp450)->quitImmortalEmitter();
@@ -1698,7 +1710,7 @@ void damage_check(mt_class* i_this) {
 
             if (atInfo.mResultingAttackType != 6 && i_this->m454 == 1) {
                 i_this->m455 = 15;
-                mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+                cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
                 offset.x = 0.0f;
                 offset.y = 60.0f;
                 offset.z = -120.0f;
@@ -1756,7 +1768,7 @@ void damage_check(mt_class* i_this) {
                 hit_kind = 1;
             } else {
                 i_this->m455 = 15;
-                mDoMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+                cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
                 offset.x = 0.0f;
                 offset.y = 60.0f;
                 offset.z = -120.0f;
@@ -1775,7 +1787,7 @@ void damage_check(mt_class* i_this) {
 
     if (hit_kind != 0) {
         cXyz speed;
-        mDoMtx_YrotS(*calc_mtx, atInfo.m0C.y);
+        cMtx_YrotS(*calc_mtx, atInfo.m0C.y);
         speed.x = 0.0f;
         speed.y = 40.0f * l_HIO.m4C;
         speed.z = -20.0f * l_HIO.m4C;
@@ -1986,7 +1998,7 @@ static BOOL daMt_Execute(mt_class* i_this) {
             break;
         case 6: {
             if (player->getCutType() == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT) {
-                mDoMtx_YrotS(*calc_mtx, i_this->shape_angle.y);
+                cMtx_YrotS(*calc_mtx, i_this->shape_angle.y);
                 cXyz offset;
                 offset.x = 0.0f;
                 offset.y = 0.0f;
@@ -2237,6 +2249,9 @@ static BOOL daMt_Delete(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
     dComIfG_resDelete(&i_this->mPhs, "Mt");
 
+#if VERSION == VERSION_DEMO
+    l_HIO.removeHIO();
+#else
     if (i_this->mp450 != NULL) {
         *(u32*)&i_this->mp450->shape_angle &= ~0x40;
         fopAc_ac_c* other = i_this->mp450;
@@ -2244,6 +2259,7 @@ static BOOL daMt_Delete(mt_class* i_this) {
         *(u32*)&other->shape_angle |= 1;
         i_this->mp450 = NULL;
     }
+#endif
 
     for (int i = 0; i < 8; i++) {
         i_this->mPa[i].remove();
@@ -2300,7 +2316,20 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
         J3DModelData* modelData = model->getModelData();
 
         actor->btk[i] = new mDoExt_btkAnm();
-        JUT_ASSERT(0x11C0, actor->btk[i]);
+        JUT_ASSERT(DEMO_SELECT(0x11A2, 0x11C0), actor->btk[i]);
+#if VERSION == VERSION_DEMO
+        actor->btk[i]->init(
+            model->getModelData(),
+            (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Mt", btk_data[i]),
+            TRUE,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            false,
+            FALSE
+        );
+#else
         if (!actor->btk[i]->init(
                 model->getModelData(),
                 (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Mt", btk_data[i]),
@@ -2315,9 +2344,23 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
         {
             return FALSE;
         }
+#endif
 
         actor->brk[i] = new mDoExt_brkAnm();
-        JUT_ASSERT(0x11CD, actor->brk[i]);
+        JUT_ASSERT(DEMO_SELECT(0x11AC, 0x11CD), actor->brk[i]);
+#if VERSION == VERSION_DEMO
+        actor->brk[i]->init(
+            model->getModelData(),
+            (J3DAnmTevRegKey*)dComIfG_getObjectRes("Mt", brk_data[i]),
+            TRUE,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            false,
+            FALSE
+        );
+#else
         if (!actor->brk[i]->init(
                 model->getModelData(),
                 (J3DAnmTevRegKey*)dComIfG_getObjectRes("Mt", brk_data[i]),
@@ -2332,6 +2375,7 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
         {
             return FALSE;
         }
+#endif
 
         if (i == 0) {
             anm_init(actor, dRes_INDEX_MT_BCK_WAIT1_e, 20.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, 0);
@@ -2385,11 +2429,11 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
 
     for (int i = 0; i < 3; i++) {
         J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes("Mt", br_bmd[i]);
-        JUT_ASSERT(0x127A, modelData != 0);
+        JUT_ASSERT(DEMO_SELECT(0x1256, 0x127A), modelData != 0);
         actor->br_modelL[i] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
-        JUT_ASSERT(0x127D, actor->br_modelL[i] != 0);
+        JUT_ASSERT(DEMO_SELECT(0x1259, 0x127D), actor->br_modelL[i] != 0);
         actor->br_modelR[i] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
-        JUT_ASSERT(0x127F, actor->br_modelR[i] != 0);
+        JUT_ASSERT(DEMO_SELECT(0x125B, 0x127F), actor->br_modelR[i] != 0);
         actor->br_modelL[i]->setBaseScale(i_this->scale);
         actor->br_modelR[i]->setBaseScale(i_this->scale);
     }
@@ -2681,7 +2725,15 @@ static cPhs_State daMt_Create(fopAc_ac_c* i_this) {
             a_this->m9F4[i] = i_this->current.angle;
         }
 
+#if VERSION == VERSION_DEMO
+        l_HIO.entryHIO("マグテイル");
+#endif
+
+#if VERSION == VERSION_DEMO
+        a_this->mAcch.Set(fopAcM_GetPosition_p(i_this), fopAcM_GetOldPosition_p(i_this), i_this, 1, &a_this->mAcchCir, fopAcM_GetSpeed_p(i_this), NULL, NULL);
+#else
         a_this->mAcch.Set(&i_this->current.pos, &i_this->old.pos, i_this, 1, &a_this->mAcchCir, &i_this->speed, NULL, NULL);
+#endif
         a_this->mAcchCir.SetWall(50.0f, 19.0f + REG0_F(0));
         a_this->mStts.Init(250, 2, i_this);
 
@@ -2695,9 +2747,15 @@ static cPhs_State daMt_Create(fopAc_ac_c* i_this) {
         a_this->mEyeSph.SetStts(&a_this->mStts);
 
         a_this->m18F0 = 1.0f;
+#if VERSION == VERSION_DEMO
+        i_this->health = 2;
+        i_this->max_health = 2;
+        a_this->m18FB = 8;
+#else
         a_this->m18FB = 2;
         i_this->max_health = 8;
         i_this->health = 8;
+#endif
         a_this->mEnemyIce.mpActor = i_this;
         a_this->mEnemyIce.mDeathSwitch = a_this->m2B9;
 
