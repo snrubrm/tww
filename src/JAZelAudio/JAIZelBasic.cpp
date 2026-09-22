@@ -4303,7 +4303,11 @@ BOOL JAIZelBasic::checkEventBit(u16 param_1) {
 
 /* 802ABE50-802ABE74       .text checkDayTime__11JAIZelBasicFv */
 BOOL JAIZelBasic::checkDayTime() {
+#if VERSION <= VERSION_JPN
+    if (mHour >= 6 && mHour < 18) {
+#else
     if (mHour >= 6 && mHour < 20) {
+#endif
         return TRUE;
     }
     return FALSE;
