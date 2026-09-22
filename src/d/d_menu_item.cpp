@@ -1088,7 +1088,7 @@ void dMenu_Item_c::itemnameMove() {
 void dMenu_Item_c::itemnameSet() {
     fopMsgM_itemMsgGet_c msgGet;
     u32 msgNo = 0;
-    int r30 = 0;
+    int charSpace = 0;
     int i = 0;
 
     J2DTextBox::TFontSize copiedFontSize;
@@ -1184,7 +1184,7 @@ void dMenu_Item_c::itemnameSet() {
     }
 
     ((J2DTextBox*)m890[0].pane)->setFontSize(fontSize);
-    ((J2DTextBox*)m890[0].pane)->setCharSpace((f32)r30);
+    ((J2DTextBox*)m890[0].pane)->setCharSpace(charSpace);
     ((J2DTextBox*)m890[0].pane)->setString(name[0]);
 
     if (mNowItem == 0x15) {
@@ -1909,19 +1909,19 @@ int dMenu_Item_c::recollectBossCheck() {
 
 /* 801CDDC0-801CF08C       .text cornerMove__12dMenu_Item_cFv */
 void dMenu_Item_c::cornerMove() {
-    int r4 = 0xF0;
+    int cycle = 0xF0;
     int half = 0x14;
     J2DWindow::TContentsColor outColor;
     JUtility::TColor sp1C;
 
     m23FA++;
 
-    if (m23FA >= r4) {
+    if (m23FA >= cycle) {
         m23FA = 0;
     }
 
-    int r4_2 = m23FA % 60;
-    f32 t = fopMsgM_valueIncrease(60, r4_2, 2);
+    int frame = m23FA % 60;
+    f32 t = fopMsgM_valueIncrease(60, frame, 2);
 
     if (m23FA < 60) {
         outColor.mTL.r = m2320.mTL.r + (m2320.mBL.r - m2320.mTL.r) * t;
