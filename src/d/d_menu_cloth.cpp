@@ -251,7 +251,7 @@ static void dummy1() {
 void dMCloth_c::init() {
     cloth_init();
 
-    ResTIMG* image = (ResTIMG*)JKRArchive::getGlbResource('TIMG', "cloth_piece01.bti", mpArc);
+    ResTIMG* image = (ResTIMG*)JKRGetResource('TIMG', "cloth_piece01.bti", mpArc);
     JUT_ASSERT(VERSION_SELECT(528, 526, 530, 530), image != NULL);
 
 #if VERSION == VERSION_DEMO
@@ -259,7 +259,7 @@ void dMCloth_c::init() {
 #endif
 
     GXInitTexObj(
-        &mTexObj,
+        getTexObj(),
         (u8*)image + image->imageOffset,
         image->width,
         image->height,
@@ -274,7 +274,7 @@ void dMCloth_c::init() {
     );
 
     GXInitTexObjLOD(
-        &mTexObj,
+        getTexObj(),
         GXTexFilter(image->minFilter),
         GXTexFilter(image->magFilter),
         image->minLOD * 0.125f,
