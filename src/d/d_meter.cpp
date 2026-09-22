@@ -1740,11 +1740,15 @@ void dMeter_weponChange(sub_meter_class* i_Meter) {
 #endif
             } else {
                 JKRArchive* archive;
+#if VERSION == VERSION_PAL
+                archive = dComIfGp_getActionIconArchive();
+#else
                 if (dComIfGp_getAStatus() == dActStts_RETURN_e || dComIfGp_getAStatus() == dActStts_RETURN_e) {
                     archive = dComIfGp_getMenuArchive();
                 } else {
                     archive = dComIfGp_getActionIconArchive();
                 }
+#endif
                 JKRReadTypeResource(i_Meter->actionTex[0], 0xc00, 'TIMG', dMeter_actionTex(dComIfGp_getAStatus()), archive);
 #if VERSION <= VERSION_JPN
                 DCFlushRangeNoSync(i_Meter->actionTex[0], 0xc00);
