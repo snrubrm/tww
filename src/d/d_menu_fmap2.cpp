@@ -1171,7 +1171,6 @@ static inline u8 dMf2_blendU8(u8 base, u8 target, f32 rate) {
 }
 
 /* 801BFCEC-801C002C       .text gsMoonAnime__13dMenu_Fmap2_cFv */
-// NONMATCHING - demo only: regalloc of the colour blend temps (see gsShipAnime)
 void dMenu_Fmap2_c::gsMoonAnime() {
     JUtility::TColor c1;
     JUtility::TColor c2;
@@ -1185,13 +1184,13 @@ void dMenu_Fmap2_c::gsMoonAnime() {
     if (field_0x281a == 0) {
         tmp = 1.0f - tmp;
     }
-    c1.r = g_mf2HIO.field_0x7c + tmp * (color_0x2824.r - g_mf2HIO.field_0x7c);
-    c1.g = g_mf2HIO.field_0x7d + tmp * (color_0x2824.g - g_mf2HIO.field_0x7d);
-    c1.b = g_mf2HIO.field_0x7e + tmp * (color_0x2824.b - g_mf2HIO.field_0x7e);
+    c1.r = dMf2_blendU8(g_mf2HIO.field_0x7c, color_0x2824.r, tmp);
+    c1.g = dMf2_blendU8(g_mf2HIO.field_0x7d, color_0x2824.g, tmp);
+    c1.b = dMf2_blendU8(g_mf2HIO.field_0x7e, color_0x2824.b, tmp);
     c1.a = color_0x2824.a;
-    c2.r = g_mf2HIO.field_0x80 + tmp * (color_0x2820.r - g_mf2HIO.field_0x80);
-    c2.g = g_mf2HIO.field_0x81 + tmp * (color_0x2820.g - g_mf2HIO.field_0x81);
-    c2.b = g_mf2HIO.field_0x82 + tmp * (color_0x2820.b - g_mf2HIO.field_0x82);
+    c2.r = dMf2_blendU8(g_mf2HIO.field_0x80, color_0x2820.r, tmp);
+    c2.g = dMf2_blendU8(g_mf2HIO.field_0x81, color_0x2820.g, tmp);
+    c2.b = dMf2_blendU8(g_mf2HIO.field_0x82, color_0x2820.b, tmp);
     c2.a = color_0x2820.a;
     if (field_0x2818 == 0) {
         if (field_0x2819 == 0) {
