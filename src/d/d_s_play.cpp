@@ -182,10 +182,25 @@ void dScnPly_msg_HIO_c::dScnPly_msg_HIO_numUpdate(s16 i_addGroup, s16 i_addID) {
 
 /* 80234830-80234AA8       .text dScnPly_msg_HIO_padCheck__17dScnPly_msg_HIO_cFv */
 void dScnPly_msg_HIO_c::dScnPly_msg_HIO_padCheck() {
+#if VERSION == VERSION_DEMO
+    bool trigZ = false;
+    if (CPad_CHECK_TRIG_Z(3)) {
+        trigZ = true;
+    }
+    if (!mIsUpdate) {
+        if (trigZ) {
+            dScnPly_msg_HIO_checkUpdate(1);
+        }
+    } else {
+        if (CPad_CHECK_TRIG_Z(3)) {
+            dScnPly_msg_HIO_checkUpdate(0);
+        }
+#else
     if (mIsUpdate) {
         if (CPad_CHECK_TRIG_Z(3)) {
             dScnPly_msg_HIO_checkUpdate(0);
         }
+#endif
 
         if (CPad_CHECK_TRIG_UP(3)) {
             if (CPad_CHECK_HOLD_A(3)) {
@@ -304,7 +319,7 @@ static BOOL dScnPly_Draw(dScnPly_ply_c* i_this) {
                 fpcNm_OVERLAP8_e,
             };
 
-            JUT_ASSERT(VERSION_SELECT(997, 997, 1001, 1001),
+            JUT_ASSERT(VERSION_SELECT(992, 997, 1001, 1001),
                        dComIfGp_getNextStageWipe() < ARRAY_SIZE(l_wipeType));
 
             if (strcmp(dComIfGp_getNextStageName(), "ENDING") == 0) {
@@ -398,9 +413,37 @@ const char* sea_resName[] = {
     "Cloth",
     "knob",
     "Yslvg00",
+#if VERSION > VERSION_DEMO
     "Kamome",
+#endif
 };
 STATIC_ASSERT(ARRAY_SIZE(sea_resName) <= PRELOAD_RES_MAX);
+
+#if VERSION == VERSION_DEMO
+const char* kaze_resName[] = {
+    "Dalways",
+    "Key",
+    "door13",
+    "Am",
+    "Am2",
+    "Ep",
+    "Hfuck1",
+    "Hhbot",
+    "Hhyu1",
+    "Hjump",
+    "Hpbot1",
+    "Hsen1",
+    "Hsen3",
+    "Kbota_00",
+    "Ph",
+    "Sss",
+    "Trap",
+    "Vmc",
+    "Yaflw00",
+    "ltubw",
+};
+STATIC_ASSERT(ARRAY_SIZE(kaze_resName) <= PRELOAD_RES_MAX);
+#endif
 
 const char* M_Dai_resName[] = {
     "door12",
@@ -740,6 +783,7 @@ const s16 kaze_dylKeyTbl[] = {
 };
 STATIC_ASSERT(ARRAY_SIZE(kaze_dylKeyTbl) <= PRELOAD_DYL_MAX);
 
+#if VERSION > VERSION_DEMO
 const char* kaze_resName[] = {
     "Dalways",
     "Key",
@@ -768,6 +812,7 @@ const char* kaze_resName[] = {
     "ltubw",
 };
 STATIC_ASSERT(ARRAY_SIZE(kaze_resName) <= PRELOAD_RES_MAX);
+#endif
 
 s16 Siren_dylKeyTbl[] = {
     fpcNm_Obj_Hha_e,
@@ -789,11 +834,14 @@ const char* Siren_resName[] = {
     "Htetu1",
     "Os",
     "Htw1",
+#if VERSION > VERSION_DEMO
     "Hcbh",
     "Hdai1",
+#endif
 };
 STATIC_ASSERT(ARRAY_SIZE(Siren_resName) <= PRELOAD_RES_MAX);
 
+#if VERSION > VERSION_DEMO
 s16 GanonJ_dylKeyTbl[] = {
     fpcNm_TBOX_e,
     fpcNm_DOOR10_e,
@@ -873,6 +921,7 @@ const char* GanonM_resName[] = {
     "Gmjwp",
 };
 STATIC_ASSERT(ARRAY_SIZE(GanonM_resName) <= PRELOAD_RES_MAX);
+#endif
 
 const s16 M_DragB_dylKeyTbl[] = {
     fpcNm_WARPFLOWER_e,
@@ -1008,6 +1057,7 @@ const PreLoadInfoT_s PreLoadInfoT[] = {
         ARRAY_SIZE(kindan_dylKeyTbl),
         ARRAY_SIZE(kindan_resName),
     },
+#if VERSION > VERSION_DEMO
     {
         "GanonJ",
         GanonJ_dylKeyTbl,
@@ -1029,6 +1079,7 @@ const PreLoadInfoT_s PreLoadInfoT[] = {
         ARRAY_SIZE(GanonM_dylKeyTbl),
         ARRAY_SIZE(GanonM_resName),
     },
+#endif
 };
 
 /* 80234FD0-802350B4       .text dScnPly_Execute__FP13dScnPly_ply_c */
@@ -1112,6 +1163,9 @@ static BOOL dScnPly_Delete(dScnPly_ply_c* i_this) {
     mDoHIO_deleteChild(g_darkHIO.mNo);
     mDoHIO_deleteChild(g_envHIO.mNo);
     mDoHIO_deleteChild(g_msgDHIO.mNo);
+#if VERSION == VERSION_DEMO
+    g_preLoadHIO.removeHIO();
+#endif
     
     dComIfGp_setWindowNum(0);
     
@@ -1225,11 +1279,23 @@ cPhs_State phase_00(dScnPly_ply_c* i_this) {
 
 /* 802356B0-802356E0       .text phase_01__FP13dScnPly_ply_c */
 cPhs_State phase_01(dScnPly_ply_c* i_this) {
+#if VERSION == VERSION_DEMO
+    if (!mDoAud_load1stDynamicWave()) {
+        return cPhs_INIT_e;
+    }
+    if (mDoRst::isReset()) {
+        mDoRst::offReset();
+        JUTGamePad::clearResetOccurred();
+        JUTGamePad::setResetCallback(mDoRst_resetCallBack, NULL);
+    }
+    return cPhs_NEXT_e;
+#else
     if (!mDoAud_load1stDynamicWave()) {
         return cPhs_INIT_e;
     } else {
         return cPhs_NEXT_e;
     }
+#endif
 }
 
 static mDoDvdThd_mountXArchive_c* l_lkDemoAnmCommand;
@@ -1251,7 +1317,7 @@ cPhs_State phase_0(dScnPly_ply_c* i_this) {
             char buf[32];
             sprintf(buf, "/res/Object/LkD%02d.arc", dComIfGp_getLkDemoAnmNo());
             l_lkDemoAnmCommand = mDoDvdThd_mountXArchive_c::create(buf, 0, JKRArchive::MOUNT_ARAM);
-            JUT_ASSERT(VERSION_SELECT(3399, 3399, 3414, 3414), l_lkDemoAnmCommand != NULL);
+            JUT_ASSERT(VERSION_SELECT(3182, 3399, 3414, 3414), l_lkDemoAnmCommand != NULL);
         }
 
         return cPhs_NEXT_e;
@@ -1265,7 +1331,7 @@ cPhs_State phase_1(dScnPly_ply_c* i_this) {
             return cPhs_INIT_e;
         }
 
-        JUT_ASSERT(VERSION_SELECT(3424, 3424, 3439, 3439), l_lkDemoAnmCommand->getArchive());
+        JUT_ASSERT(VERSION_SELECT(3207, 3424, 3439, 3439), l_lkDemoAnmCommand->getArchive());
         dComIfGp_setLkDemoAnmArchive(l_lkDemoAnmCommand->getArchive());
 
         delete l_lkDemoAnmCommand;
@@ -1277,12 +1343,16 @@ cPhs_State phase_1(dScnPly_ply_c* i_this) {
     dComIfGp_setStartStage(dComIfGp_getNextStartStage());
     dComIfGp_offEnableNextStage();
 
+#if VERSION == VERSION_DEMO
+    JUTReportConsole_f("StartStageName [%s]\n", dComIfGp_getStartStageName());
+#else
     JUTReportConsole_f("Start StageName:RoomNo [%s:%d]\n", dComIfGp_getStartStageName(),
                        dComIfGp_getStartStageRoomNo());
+#endif
     dComIfGp_setStatus(0);
 
     int rt = dComIfG_setStageRes("Stage", NULL);
-    JUT_ASSERT(VERSION_SELECT(3443, 3443, 3458, 3458), rt == 1);
+    JUT_ASSERT(VERSION_SELECT(3226, 3443, 3458, 3458), rt == 1);
 
     dMat_control_c::create((J3DMaterialTable*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BMT_ICE_e),
                            (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTK_ICE_e));
@@ -1293,7 +1363,7 @@ cPhs_State phase_1(dScnPly_ply_c* i_this) {
 /* 802359DC-80235ABC       .text phase_2__FP13dScnPly_ply_c */
 cPhs_State phase_2(dScnPly_ply_c* i_this) {
     int rt = dComIfG_syncStageRes("Stage");
-    JUT_ASSERT(VERSION_SELECT(3470, 3470, 3485, 3485), rt >= 0)
+    JUT_ASSERT(VERSION_SELECT(3253, 3470, 3485, 3485), rt >= 0)
 
     if (rt != 0) {
         return cPhs_INIT_e;
@@ -1319,7 +1389,7 @@ cPhs_State phase_3(dScnPly_ply_c* i_this) {
 /* 80235B0C-80236334       .text phase_4__FP13dScnPly_ply_c */
 cPhs_State phase_4(dScnPly_ply_c* i_this) {
     if (i_this->sceneCommand != NULL) {
-        JUT_ASSERT(VERSION_SELECT(3552, 3552, 3567, 3567), i_this->sceneCommand->getMemAddress() != NULL);
+        JUT_ASSERT(VERSION_SELECT(3335, 3552, 3567, 3567), i_this->sceneCommand->getMemAddress() != NULL);
         dComIfGp_particle_createScene(i_this->sceneCommand->getMemAddress());
         delete i_this->sceneCommand;
     } else {
@@ -1345,7 +1415,7 @@ cPhs_State phase_4(dScnPly_ply_c* i_this) {
     dComIfGd_setView(NULL);
 
     JKRExpHeap* heap = fopMsgM_createExpHeap(VERSION_SELECT(0x736A1, 0x736A1, 0x73EA1, 0x73EA1));
-    JUT_ASSERT(VERSION_SELECT(3633, 3633, 3653, 3653), heap != NULL);
+    JUT_ASSERT(VERSION_SELECT(3416, 3633, 3653, 3653), heap != NULL);
     dComIfGp_setExpHeap2D(heap);
 
     dStage_Create();
@@ -1354,6 +1424,9 @@ cPhs_State phase_4(dScnPly_ply_c* i_this) {
     g_darkHIO.mNo = mDoHIO_createChild("暗闇スポット", &g_darkHIO); // "Darkness Spot"
     g_envHIO.mNo = mDoHIO_createChild("描画設定", &g_envHIO); // "Draw Settings"
     g_msgDHIO.mNo = mDoHIO_createChild("Message Data", &g_msgDHIO);
+#if VERSION == VERSION_DEMO
+    g_preLoadHIO.entryHIO("プリロード制御"); // "Preload Control"
+#endif
 
     new(&dComIfGp_getAttention()) dAttention_c(dComIfGp_getPlayer(0), NULL);
     dComIfGp_getVibration().Init();
@@ -1382,7 +1455,9 @@ cPhs_State phase_4(dScnPly_ply_c* i_this) {
                 dComIfGp_setSelectItem(itemBtn);
             }
         }
-    } else if (dComIfGs_getItem(dInvSlot_BOW_e) == dItemNo_NONE_e) {
+    }
+#if VERSION > VERSION_DEMO
+    else if (dComIfGs_getItem(dInvSlot_BOW_e) == dItemNo_NONE_e) {
         // give the bow back
         if (dComIfGs_isGetItem(dInvSlot_BOW_e, 2))
             dComIfGs_setItem(dInvSlot_BOW_e, dItemNo_LIGHT_ARROW_e);
@@ -1391,7 +1466,11 @@ cPhs_State phase_4(dScnPly_ply_c* i_this) {
         else if (dComIfGs_isGetItem(dInvSlot_BOW_e, 0))
             dComIfGs_setItem(dInvSlot_BOW_e, dItemNo_BOW_e);
     }
+#endif
 
+#if VERSION == VERSION_DEMO
+    else
+#endif
     if (strcmp(dComIfGp_getStartStageName(), "Xboss0") == 0 ||
         strcmp(dComIfGp_getStartStageName(), "Xboss1") == 0 ||
         strcmp(dComIfGp_getStartStageName(), "Xboss2") == 0 ||
@@ -1402,11 +1481,15 @@ cPhs_State phase_4(dScnPly_ply_c* i_this) {
 
     mDoAud_monsSeInit();
 
+#if VERSION == VERSION_DEMO
+    mDoAud_zelAudio_c::onBgmSet();
+#else
     if (fpcM_GetName(i_this) == fpcNm_PLAY_SCENE_e) {
         mDoAud_zelAudio_c::onBgmSet();
     } else {
         mDoAud_zelAudio_c::offBgmSet();
     }
+#endif
 
     dScnPly_ply_c::pauseTimer = 0;
     dScnPly_ply_c::nextPauseTimer = 0;
@@ -1434,17 +1517,30 @@ cPhs_State phase_4(dScnPly_ply_c* i_this) {
 
     preLoadNo = -1;
     if (doPreLoad) {
+#if VERSION == VERSION_DEMO
+        const char* stageName = dComIfGp_getStartStageName();
+        for (int i = 0; i < ARRAY_SIZE(PreLoadInfoT); i++) {
+            if (strcmp(stageName, PreLoadInfoT[i].stageName) == 0) {
+                preLoadNo = i;
+            }
+        }
+#else
         for (int i = 0; i < ARRAY_SIZE(PreLoadInfoT); i++) {
             if (strcmp(dComIfGp_getStartStageName(), PreLoadInfoT[i].stageName) == 0) {
                 preLoadNo = i;
             }
         }
+#endif
     }
 
+#if VERSION == VERSION_DEMO
+    OSTime time = resPreLoadTime0;
+#else
     mDoRst::offReset();
     OSTime time = resPreLoadTime0;
     JUTGamePad::clearResetOccurred();
     JUTGamePad::setResetCallback(mDoRst_resetCallBack, NULL);
+#endif
 
     cPhs_State rt;
     if (preLoadNo < 0)
@@ -1464,7 +1560,7 @@ cPhs_State phase_5(dScnPly_ply_c* i_this) {
         const char** resName = PreLoadInfoT[preLoadNo].resName;
         s32 resNameNum = PreLoadInfoT[preLoadNo].resNameNum;
         if (resName != NULL && resName[0] != NULL) {
-            JUT_ASSERT(VERSION_SELECT(3804, 3804, 3824, 3824), resNameNum <= ARRAY_SIZE(resPhase));
+            JUT_ASSERT(VERSION_SELECT(3562, 3804, 3824, 3824), resNameNum <= ARRAY_SIZE(resPhase));
             for (int i = 0; i < resNameNum; i++) {
                 if (dComIfG_resLoad(&resPhase[i], resName[i]) != cPhs_COMPLEATE_e) {
                     rt = cPhs_INIT_e;
@@ -1487,7 +1583,7 @@ cPhs_State phase_6(dScnPly_ply_c* i_this) {
         const s16* dylKeyTbl = PreLoadInfoT[preLoadNo].dylKeyTbl;
         s32 dylKeyTblNum = PreLoadInfoT[preLoadNo].dylKeyTblNum;
         if (dylKeyTbl != NULL && dylKeyTbl[0] != NULL) {
-            JUT_ASSERT(VERSION_SELECT(3838, 3838, 3858, 3858), dylKeyTblNum <= ARRAY_SIZE(dylPhase));
+            JUT_ASSERT(VERSION_SELECT(3596, 3838, 3858, 3858), dylKeyTblNum <= ARRAY_SIZE(dylPhase));
             for (int i = 0; i < dylKeyTblNum; i++) {
                 if (cDylPhs::Link(&dylPhase[i], dylKeyTbl[i]) != cPhs_COMPLEATE_e) {
                     rt = cPhs_INIT_e;
