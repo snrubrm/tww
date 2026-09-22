@@ -215,10 +215,10 @@ static BOOL nodeCallBack(J3DNode* node, int calcTiming) {
             if (jntNo == 4) {
                 static cXyz l_offsetAttPos(0.0f, 0.0f, 0.0f);
                 static cXyz l_offsetEyePos(20.0f, 10.0f, 0.0f);
-                mDoMtx_stack_c::multVec(&l_offsetAttPos, &i_this->mAttnPos);
+                mDoMtx_stack_c::multVec(&l_offsetAttPos, &i_this->getAttentionBasePos());
                 mDoMtx_stack_c::XrotM(i_this->getHead_y());
                 mDoMtx_stack_c::ZrotM(-i_this->getHead_x());
-                mDoMtx_stack_c::multVec(&l_offsetEyePos, &i_this->mEyePos);
+                mDoMtx_stack_c::multVec(&l_offsetEyePos, &i_this->getEyePos());
                 i_this->incAttnSetCount();
             } else if (jntNo == 2) {
                 mDoMtx_stack_c::XrotM(i_this->getBackbone_y());
@@ -1081,8 +1081,7 @@ void daNpc_P2_c::zukotelescope() {
     mAnmNo = 0x16;
     if (parentActorID != fpcM_ERROR_PROCESS_ID_e) {
         fopAc_ac_c* actor = fopAcM_SearchByID(parentActorID);
-        s16 target = m748 + actor->current.angle.y;
-        cLib_addCalcAngleS2(&current.angle.y, target, 4, 0x800);
+        cLib_addCalcAngleS2(&current.angle.y, m748 + actor->current.angle.y, 4, 0x800);
     }
     if (mHasAttention) {
         mAnmNo = 1;
@@ -1098,8 +1097,7 @@ void daNpc_P2_c::zukotelescope() {
 void daNpc_P2_c::moccowait() {
     if (parentActorID != fpcM_ERROR_PROCESS_ID_e) {
         fopAc_ac_c* actor = fopAcM_SearchByID(parentActorID);
-        s16 target = m748 + actor->current.angle.y;
-        cLib_addCalcAngleS2(&current.angle.y, target, 4, 0x800);
+        cLib_addCalcAngleS2(&current.angle.y, m748 + actor->current.angle.y, 4, 0x800);
     }
 
     if (mAnmNo == 0x15) {
@@ -1518,18 +1516,20 @@ BOOL daNpc_P2_c::_createHeap() {
     };
     static const u8 head_tex_tbl[2] = {0, 1};
     J3DModelData* headModelData;
-    J3DModelData* daggerGripModelData;
     J3DModelData* daggerModelData;
+    J3DModelData* daggerGripModelData;
     J3DModelData* bookModelData;
     J3DModelData* modelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2_e));
-    JUT_ASSERT(0x9F1, modelData != 0);
+    JUT_ASSERT(DEMO_SELECT(0x9F2, 0x9F1), modelData != 0);
     mpMorf = new mDoExt_McaMorf(modelData, NULL, NULL, NULL, -1, 1.0f, 0, -1, 1, NULL, 0x80000, 0x15021222);
     if (mpMorf == NULL || mpMorf->getModel() == NULL) {
+#if VERSION > VERSION_DEMO
         mpMorf = NULL;
+#endif
         return FALSE;
     } else {
         headModelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, head_bdl_tbl[mType]));
-        JUT_ASSERT(0xA0A, headModelData != 0);
+        JUT_ASSERT(DEMO_SELECT(0xA08, 0xA0A), headModelData != 0);
         if (mType != 2) {
             mpHeadModel = mDoExt_J3DModel__create(headModelData, 0x80000, 0x11020022);
             if (mpHeadModel == NULL) {
@@ -1546,20 +1546,20 @@ BOOL daNpc_P2_c::_createHeap() {
             }
         }
         daggerModelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2DAGGER_e));
-        JUT_ASSERT(0xA27, daggerModelData != 0);
+        JUT_ASSERT(DEMO_SELECT(0xA25, 0xA27), daggerModelData != 0);
         mpModel2BC = mDoExt_J3DModel__create(daggerModelData, 0, 0x11020203);
         if (mpModel2BC == NULL) {
             return FALSE;
         }
         daggerGripModelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2_DAGGERGRIP_e));
-        JUT_ASSERT(0xA2E, daggerModelData != 0);
+        JUT_ASSERT(DEMO_SELECT(0xA2C, 0xA2E), daggerModelData != 0);
         mpModel2C0 = mDoExt_J3DModel__create(daggerGripModelData, 0, 0x11020203);
         if (mpModel2C0 == NULL) {
             return FALSE;
         }
         if (mType == 2) {
             bookModelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2BOOK_e));
-            JUT_ASSERT(0xA36, bookModelData != 0);
+            JUT_ASSERT(DEMO_SELECT(0xA34, 0xA36), bookModelData != 0);
             mpMorf2 = new mDoExt_McaMorf(
                 bookModelData, NULL, NULL,
                 static_cast<J3DAnmTransform*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BCK_P2BOOK_WAIT02_e)),
@@ -1571,7 +1571,7 @@ BOOL daNpc_P2_c::_createHeap() {
         }
         if (mType == 0) {
             J3DModelData* telescopeModelData = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arc_name, dRes_INDEX_P2_BDL_P2_TELESCOPE_e));
-            JUT_ASSERT(0xA49, telescopeModelData != 0);
+            JUT_ASSERT(DEMO_SELECT(0xA47, 0xA49), telescopeModelData != 0);
             mpModel2C4 = mDoExt_J3DModel__create(telescopeModelData, 0, 0x11020203);
             if (mpModel2C4 == NULL) {
                 return FALSE;
@@ -1743,10 +1743,11 @@ void daNpc_P2_c::createInit() {
 
 /* 0000476C-0000492C       .text _create__10daNpc_P2_cFv */
 cPhs_State daNpc_P2_c::_create() {
-    fopAcM_SetupActor(this, daNpc_P2_c);
+    fopAcM_ct_Retail(this, daNpc_P2_c);
 
     cPhs_State phase_state = dComIfG_resLoad(&mPhs, m_arc_name);
     if (phase_state == cPhs_COMPLEATE_e) {
+        fopAcM_ct_Demo(this, daNpc_P2_c);
         getArg();
         if (!fopAcM_entrySolidHeap(this, CreateHeap_CB, m_heapsize[mType])) {
             return cPhs_ERROR_e;
@@ -1760,10 +1761,19 @@ cPhs_State daNpc_P2_c::_create() {
 bool daNpc_P2_c::_delete() {
     dComIfG_resDelete(&mPhs, m_arc_name);
     mSmoke.remove();
+#if VERSION == VERSION_DEMO
+    if (mpMorf != NULL) {
+        mpMorf->stopZelAnime();
+    }
+    if (mpMorf2 != NULL) {
+        mpMorf2->stopZelAnime();
+    }
+#else
     mDoAud_seDeleteObject(&mSoundPos);
     if (heap != NULL) {
         mpMorf->stopZelAnime();
     }
+#endif
     return true;
 }
 

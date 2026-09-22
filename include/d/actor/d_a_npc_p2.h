@@ -12,10 +12,10 @@ class daNpc_P2_c : public fopAc_ac_c {
 public:
     typedef int (daNpc_P2_c::*ActionFunc)(void*);
 
-    cXyz getAttentionBasePos() { return mAttnPos; }
+    cXyz& getAttentionBasePos() { return mAttnPos; }
     s16 getBackbone_x() { return mJnt.getBackbone_x(); }
     s16 getBackbone_y() { return mJnt.getBackbone_y(); }
-    cXyz getEyePos() { return mEyePos; }
+    cXyz& getEyePos() { return mEyePos; }
     s16 getHead_x() { return mJnt.getHead_x(); }
     s16 getHead_y() { return mJnt.getHead_y(); }
     void incAttnSetCount() {
