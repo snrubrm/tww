@@ -394,11 +394,8 @@ void Act_c::mode_restart() {
         current.pos.y = home.pos.y;
         mode_wait_init();
     } else if (mTimer < 50) {
-#if VERSION == VERSION_DEMO
-        f32 factor = 0.5f * (1.0f - cM_scos(655.36f * mTimer));
-#else
-        f32 factor = 0.5f * (1.0f - jmaCosTable[u16(s16(655.36f * mTimer)) >> jmaSinShift]);
-#endif
+        s16 ang = 655.36f * mTimer;
+        f32 factor = 0.5f * (1.0f - cM_scos(ang));
         current.pos.y = home.pos.y + factor * (-10.0f - attr().mRoofHeight);
         shape_angle.y = s16(-32768.0f * factor) + home.angle.y;
         current.angle.y = shape_angle.y;
