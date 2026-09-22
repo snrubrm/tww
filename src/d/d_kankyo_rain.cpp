@@ -3716,6 +3716,8 @@ void dKyr_drawRain(Mtx drawMtx, u8** pImg) {
     GXSetCullMode(GX_CULL_NONE);
 #if VERSION > VERSION_JPN
     GXSetClipMode(GX_CLIP_DISABLE);
+#else
+    GXSetClipMode(GX_CLIP_ENABLE);
 #endif
     GXSetNumIndStages(0);
     GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_F32, 0);
