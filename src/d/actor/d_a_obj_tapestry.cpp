@@ -453,8 +453,15 @@ void daObjTapestryDrawData_c::ct_tex() {
     for (; y < 8; y++) {
         f32 ty = y * (1.0f / 7.0f);
         for (int x = 0; x < 6; x++, i++) {
+#if VERSION == VERSION_DEMO
+            f32 tx = x * 0.2f;
+            f32* p = tex_coord();
+            p[i * 2 + 0] = tx;
+            p[i * 2 + 1] = ty;
+#else
             tex_coord()[i * 2 + 0] = x * 0.2f;
             tex_coord()[i * 2 + 1] = ty;
+#endif
         }
     }
 }
@@ -479,10 +486,12 @@ void daObjTapestryDrawData_c::ct_dl() {
                 tmp[1] = idx8;
                 memcpy(mDl + now, tmp, 2);
                 static const u8 tmp_clr[1] = {0};
-                memcpy(&mDl[now + 2], tmp_clr, 1);
+                int n2 = now + 2;
+                memcpy(&mDl[n2], tmp_clr, 1);
                 u8 b[1] = {0};
                 b[0] = idx8;
-                memcpy(&mDl[now + 3], b, 1);
+                int n3 = now + 3;
+                memcpy(&mDl[n3], b, 1);
                 now += 4;
             }
         }
@@ -607,12 +616,19 @@ void daObjTapestryPacket_c::calc_acc_spring(int row, int col) {
     int down = row + 1;
     int left = col - 1;
     int right = col + 1;
+#if VERSION == VERSION_DEMO
+    bool up_ok = up >= 0;
+#endif
     bool down_ok = down < 8;
     bool left_ok = left >= 0;
     bool right_ok = right < 6;
     f32 ortho = attr().m2C;
     f32 diag = attr().m34;
+#if VERSION == VERSION_DEMO
+    if (up_ok) {
+#else
     if (up >= 0) {
+#endif
         calc_acc_spring_sub(now, &prev->pos[up][col], 42.42857f, ortho);
         if (left_ok) {
             calc_acc_spring_sub(now, &prev->pos[up][left], l_mesh_diagonal, diag);
@@ -640,11 +656,18 @@ void daObjTapestryPacket_c::calc_acc_spring(int row, int col) {
     int down2 = row + 2;
     int left2 = col - 2;
     int right2 = col + 2;
+#if VERSION == VERSION_DEMO
+    bool up2_ok = up2 >= 0;
+#endif
     bool down2_ok = down2 < 8;
     bool left2_ok = left2 >= 0;
     bool right2_ok = right2 < 6;
     f32 far = attr().m30;
+#if VERSION == VERSION_DEMO
+    if (up2_ok) {
+#else
     if (up2 >= 0) {
+#endif
         calc_acc_spring_sub(now, &prev->pos[up2][col], 84.85714f, far);
     }
     if (down2_ok) {
@@ -707,8 +730,10 @@ void daObjTapestryPacket_c::calc_acc_wave(int row, int col) {
 /* 00001858-000019CC       .text calc_acc_hit__21daObjTapestryPacket_cFii */
 void daObjTapestryPacket_c::calc_acc_hit(int row, int col) {
     if (m144C > 0.01f) {
-        f32 dy = (f32)row / 7.0f - m145C;
-        f32 dx = (f32)col / 5.0f - m1460;
+        f32 y = (f32)row / 7.0f;
+        f32 x = (f32)col / 5.0f;
+        f32 dy = y - m145C;
+        f32 dx = x - m1460;
         f32 dist = std::sqrtf(dy * dy + dx * dx);
         if (dist < m1450) {
             mAcc += m1440 * (m144C * (dist * m1458) * attr().m3C);
@@ -957,10 +982,17 @@ void daObjTapestryPacket_c::calc_fire() {
             int down = row + 1;
             int left = col - 1;
             int right = col + 1;
+#if VERSION == VERSION_DEMO
+            bool up_ok = up >= 0;
+#endif
             bool down_ok = down < 8;
             bool left_ok = left >= 0;
             bool right_ok = right < 6;
+#if VERSION == VERSION_DEMO
+            if (up_ok) {
+#else
             if (up >= 0) {
+#endif
                 calc_fire_leap_row(this, up, col, left, right, left_ok, right_ok);
             }
             if (down_ok) {
@@ -990,7 +1022,7 @@ void daObjTapestryPacket_c::calc_fire() {
 
 /* 0000331C-0000340C       .text calc__21daObjTapestryPacket_cFP15daObjTapestry_c */
 void daObjTapestryPacket_c::calc(daObjTapestry_c* actor) {
-    mDoMtx_copy(actor->mpModel->getBaseTRMtx(), mDoMtx_stack_c::get());
+    mDoMtx_stack_c::copy(actor->mpModel->getBaseTRMtx());
     mDoMtx_copy(mDoMtx_stack_c::get(), mMtx);
     mInvOk = PSMTXInverse(mMtx, mInvMtx) != 0;
     mBuffer ^= 1;
@@ -1056,12 +1088,19 @@ u8 daObjTapestryPacket_c::eff_start_chk(int row, int col) {
     int down = row + 1;
     int left = col - 1;
     int right = col + 1;
+#if VERSION == VERSION_DEMO
+    bool up_ok = up >= 0;
+#endif
     bool down_ok = down < 8;
     bool left_ok = left >= 0;
     bool right_ok = right < 6;
     daObjTapestryWork_c* w = &mWork;
     u8 ok = 1;
+#if VERSION == VERSION_DEMO
+    if (up_ok) {
+#else
     if (up >= 0) {
+#endif
         if (cM_rnd() < 0.8f && w->alpha[up][col] != 0xFF) {
             ok = 0;
         }
