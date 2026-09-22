@@ -399,15 +399,23 @@ void body_control2(mt_class* i_this) {
         model->setBaseTRMtx(mDoMtx_stack_c::get());
 
         if (i == 0) {
+#if VERSION == VERSION_DEMO
+            offset.set(0.0f, 0.0f, 30.0f + REG0_F(9));
+#else
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = 30.0f + REG0_F(9);
+#endif
             mDoMtx_stack_c::multVec(&offset, &actor->eyePos);
             i_this->mEyeSph.SetC(actor->eyePos);
 
+#if VERSION == VERSION_DEMO
+            offset.set(0.0f, 0.0f, 100.0f + REG6_F(9));
+#else
             offset.x = 0.0f;
             offset.y = 0.0f;
             offset.z = 100.0f + REG6_F(9);
+#endif
             mDoMtx_stack_c::multVec(&offset, &step);
             i_this->mSph[0].SetC(step);
 
@@ -450,9 +458,16 @@ void body_control2(mt_class* i_this) {
             }
             for (int j = 0; j < 6; j++) {
                 int slot = (idx + j) & 0x3F;
+#if VERSION == VERSION_DEMO
+                f32 dx_i = (f32)j * ((p4A0[-1].x - p4A0->x) / 5.0f);
+                f32 dy_i = (f32)j * ((p4A0[-1].y - p4A0->y) / 5.0f);
+                f32 dz_i = (f32)j * ((p4A0[-1].z - p4A0->z) / 5.0f);
+                i_this->m6F4[slot].x = p4A0->x + dx_i;
+#else
                 f32 dy_i = (f32)j * ((p4A0[-1].y - p4A0->y) / 5.0f);
                 f32 dz_i = (f32)j * ((p4A0[-1].z - p4A0->z) / 5.0f);
                 i_this->m6F4[slot].x = p4A0->x + ((f32)j * ((p4A0[-1].x - p4A0->x) / 5.0f));
+#endif
                 i_this->m6F4[slot].y = p4A0->y + dy_i;
                 i_this->m6F4[slot].z = p4A0->z + dz_i;
                 i_this->m9F4[slot] = *p560;
@@ -479,12 +494,18 @@ void body_control2(mt_class* i_this) {
 
 /* 00001B54-00001E44       .text wall_check_sub__FP8mt_classP4cXyzP4cXyz */
 BOOL wall_check_sub(mt_class* i_this, cXyz* i_start, cXyz* i_end) {
+#if VERSION == VERSION_DEMO
+    dBgS_LinChk linChk;
+
+    linChk.Set(i_start, i_end, i_this);
+#else
     mt_class* a = i_this;
     cXyz* b = i_start;
     cXyz* c = i_end;
     dBgS_LinChk linChk;
 
     linChk.Set(b, c, a);
+#endif
     if (dComIfG_Bgsp()->LineCross(&linChk)) {
         return TRUE;
     }
@@ -966,8 +987,15 @@ static BOOL daMt_Draw(mt_class* i_this) {
             }
             i_this->btk[i]->setFrame(btk_frame);
         } else {
+#if VERSION == VERSION_DEMO
+            int brk_frame = i_this->m2E8;
+            i_this->brk[i]->setFrame(brk_frame);
+            int btk_frame = i_this->m2EC;
+            i_this->btk[i]->setFrame(btk_frame);
+#else
             i_this->brk[i]->setFrame(i_this->m2E8);
             i_this->btk[i]->setFrame(i_this->m2EC);
+#endif
         }
 
         if (i == 0) {
@@ -1020,6 +1048,9 @@ void mt_move(mt_class* i_this) {
     static u8 check_bitD[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20};
 
     fopAc_ac_c* actor = i_this;
+#if VERSION == VERSION_DEMO
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+#endif
     dBgS_LinChk linChk;
     u16 bits = 0;
     cXyz dest[6];
@@ -1131,8 +1162,12 @@ void mt_move(mt_class* i_this) {
                     }
                 } else {
                     target_y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+#if VERSION == VERSION_DEMO
+                    cLib_addCalcAngleS2(&i_this->m488, REG0_S(4) + 0x400, 1, 0x10);
+#else
                     s16 tmp = REG0_S(4) + 0x400;
                     cLib_addCalcAngleS2(&i_this->m488, tmp, 1, 0x10);
+#endif
                 }
 
                 if (i_this->m2B5 == 1) {
@@ -1164,10 +1199,15 @@ void mt_move(mt_class* i_this) {
     }
 
     if (i_this->m48E == 0) {
+#if VERSION == VERSION_DEMO
+        f32 amp = 3500.0f + 1000.0f * cM_ssin(i_this->m46A * 100);
+        cLib_addCalcAngleS2(&i_this->m468, amp * cM_ssin(i_this->m46A * (REG0_S(0) + 2000)), 4, 0x400);
+#else
         f32 sin1 = cM_ssin(i_this->m46A * 100);
         f32 sin2 = cM_ssin(i_this->m46A * (REG0_S(0) + 2000));
         s16 wave = (s16)((3500.0f + 1000.0f * sin1) * sin2);
         cLib_addCalcAngleS2(&i_this->m468, wave, 4, 0x400);
+#endif
         f32 spd;
         if (i_this->mC00 != 0) {
             spd = 10.0f;
@@ -1202,7 +1242,12 @@ void mt_move(mt_class* i_this) {
 /* 000042C4-00005088       .text mt_fight__FP8mt_class */
 void mt_fight(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
+#if VERSION == VERSION_DEMO
+    fopAc_ac_c* player = dComIfGp_getPlayer(0);
+    daPy_py_c* py = (daPy_py_c*)player;
+#else
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+#endif
     cXyz offset;
     cXyz pos;
     s16 angs[5];
@@ -1297,7 +1342,7 @@ void mt_fight(mt_class* i_this) {
     case 1: {
         f32 max_step;
         f32 step;
-        if (player->getCutType() == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT) {
+        if (DEMO_SELECT(py, player)->getCutType() == daPy_py_c::CUT_TYPE_BT_VERTICALJUMPCUT) {
             dAttention_c& attn = dComIfGp_getAttention();
             if (attn.Lockon() && actor == attn.LockonTarget(0)) {
                 i_this->m454 = 6;
@@ -1353,7 +1398,7 @@ void mt_fight(mt_class* i_this) {
         actor->speed.x = i_this->m47C.x - actor->current.pos.x;
         actor->speed.y = -1.0f;
         actor->speed.z = i_this->m47C.z - actor->current.pos.z;
-        if (player->checkPlayerGuard() && i_this->mSph[0].ChkAtHit()) {
+        if (DEMO_SELECT(py, player)->checkPlayerGuard() && i_this->mSph[0].ChkAtHit()) {
             i_this->m455 = 15;
             cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
             offset.x = 0.0f;
@@ -1452,6 +1497,14 @@ void mt_fight(mt_class* i_this) {
 
     if (i_this->m454 < 2) {
         if (i_this->m455 < 10) {
+#if VERSION == VERSION_DEMO
+            cLib_addCalcAngleS2(&actor->current.angle.y, i_this->m496, 2, 0x400);
+            pos.y = actor->current.pos.y - i_this->mAcch.GetGroundH();
+            if (pos.y > 250.0f) {
+                i_this->m455 = 10;
+            }
+            cLib_addCalcAngleS2(&actor->current.angle.x, i_this->m494 + wave_ang, 4, 0x800);
+#else
             s16 target_y = i_this->m496;
             cLib_addCalcAngleS2(&actor->current.angle.y, target_y, 2, 0x400);
             pos.y = actor->current.pos.y - i_this->mAcch.GetGroundH();
@@ -1460,6 +1513,7 @@ void mt_fight(mt_class* i_this) {
             }
             s16 target_x = i_this->m494 + wave_ang;
             cLib_addCalcAngleS2(&actor->current.angle.x, target_x, 4, 0x800);
+#endif
         }
         cLib_addCalcAngleS2(&i_this->m468, 0, 1, 0x100);
     }
@@ -1481,7 +1535,12 @@ void mt_move_maru(mt_class* i_this) {
         if (i_this->m456 == 0) {
             i_this->mSph[0].OnCoSetBit();
         }
+#if VERSION == VERSION_DEMO
+        s16 roll = 200.0f * actor->speedF;
+        actor->shape_angle.x += roll;
+#else
         actor->shape_angle.x += (s16)(200.0f * actor->speedF);
+#endif
         cMtx_YrotS(*calc_mtx, actor->current.angle.y);
         offset.x = 0.0f;
         offset.y = 0.0f;
@@ -1604,12 +1663,20 @@ void mt_move_maru(mt_class* i_this) {
             }
         }
         cLib_addCalc0(&i_this->m330, 1.0f, 125.0f);
+#if VERSION == VERSION_DEMO
+        cLib_addCalcAngleS2(&i_this->m468, 5.0f * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))), 2, 0x1000);
+#else
         s16 wave = (s16)(5.0f * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))));
         cLib_addCalcAngleS2(&i_this->m468, wave, 2, 0x1000);
+#endif
         cLib_addCalcAngleS2(&actor->shape_angle.x, 0, 4, 0x1000);
         cLib_addCalc2(&i_this->m474, -0.4f, 1.0f, 0.2f);
+#if VERSION == VERSION_DEMO
+        cLib_addCalcAngleS2(&i_this->m48A, (4.0f + REG0_F(14)) * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))), 1, 0x1000);
+#else
         s16 spin = (s16)((4.0f + REG0_F(14)) * (i_this->m330 * cM_ssin(i_this->m466 * (REG0_S(5) + 5000))));
         cLib_addCalcAngleS2(&i_this->m48A, spin, 1, 0x1000);
+#endif
         actor->current.angle.x = actor->shape_angle.x;
         actor->shape_angle.y = actor->current.angle.y + i_this->m468;
         cLib_addCalc0(&actor->speedF, 1.0f, 0.5f);
@@ -1659,6 +1726,169 @@ void water_damage_se_set(mt_class* i_this) {
 }
 
 /* 00005C54-0000614C       .text damage_check__FP8mt_class */
+#if VERSION == VERSION_DEMO
+void damage_check(mt_class* i_this) {
+    fopAc_ac_c* actor = i_this;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    cXyz offset;
+    CcAtInfo atInfo;
+    atInfo.pParticlePos = NULL;
+    u8 hit_kind = 0;
+    int start = 0;
+
+    i_this->mStts.Move();
+    if (i_this->mC04 == 1) {
+        start = 2;
+    }
+
+    for (int i = start; i < 8; i++) {
+        if (i_this->mSph[i].ChkTgHit() && i_this->m460 == 0) {
+            atInfo.mpObj = i_this->mSph[i].GetTgHitObj();
+            if (atInfo.mpObj->ChkAtType(AT_TYPE_LIGHT_ARROW)) {
+                i_this->m1CBC = 1;
+                i_this->mEnemyIce.mLightShrinkTimer = 1;
+                i_this->mEnemyIce.mYOffset = -20.0f + REG0_F(0);
+                return;
+            }
+
+            at_power_check(&atInfo);
+            if (atInfo.mResultingAttackType == 4 || atInfo.mpObj->ChkAtType(AT_TYPE_ICE_ARROW)) {
+                hit_kind = 2;
+                actor->health = 0;
+                i_this->m460 = 5;
+                water_damage_se_set(i_this);
+                break;
+            }
+
+            if (i_this->m454 == 2 && (atInfo.mResultingAttackType == 6 || atInfo.mResultingAttackType == 2)) {
+                if (atInfo.mResultingAttackType == 2) {
+                    i_this->m18F8 = 3;
+                } else {
+                    i_this->m18F8 = 2;
+                }
+                i_this->m460 = 5;
+                return;
+            }
+
+            if (atInfo.mResultingAttackType == 2) {
+                hit_kind = 1;
+                i_this->m460 = 5;
+                break;
+            }
+
+            if (atInfo.mResultingAttackType != 6 && i_this->m454 == 1) {
+                i_this->m455 = 15;
+                cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+                offset.x = 0.0f;
+                offset.y = 60.0f;
+                offset.z = -120.0f;
+                MtxPosition(&offset, &i_this->m47C);
+                i_this->m47C += actor->current.pos;
+                i_this->m462 = REG6_S(7) + 6;
+                i_this->m456 = REG6_S(8) + 6;
+                i_this->m460 = 5;
+                def_se_set(actor, atInfo.mpObj, 0x40);
+                return;
+            }
+
+            if (i_this->m454 == 2) {
+                i_this->m460 = 5;
+                actor->health = 20;
+                cc_at_check(actor, &atInfo);
+                actor->health = 2;
+                i_this->m18FB -= atInfo.mDamage;
+                f32 scale_v = 1.0f;
+                if ((s8)i_this->m18FB <= 0) {
+                    i_this->m18F8 = 2;
+                    dScnPly_ply_c::setPauseTimer(REG0_S(7) + 6);
+                    dComIfGp_particle_set(dPa_name::ID_AK_JN_CRITICALHITFLASH, &actor->current.pos);
+                    fopAcM_seStart(actor, JA_SE_LK_LAST_HIT, 0);
+                    scale_v = 2.0f;
+                } else {
+                    dScnPly_ply_c::setPauseTimer(REG0_S(5) + 1);
+                }
+                cXyz scale;
+                scale.x = scale.y = scale.z = scale_v;
+                csXyz angle;
+                angle.x = angle.z = 0;
+                angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+                dComIfGp_particle_set(dPa_name::ID_AK_JN_OK, &actor->current.pos, &angle, &scale);
+                dKy_SordFlush_set(actor->current.pos, 1);
+                i_this->m18FC = 12;
+                dComIfGp_particle_set(dPa_name::ID_IT_SN_MAGT_HAHEN_C, &actor->current.pos);
+            }
+            break;
+        }
+    }
+
+    if (i_this->m460 == 0) {
+        if (i_this->mEyeSph.ChkTgHit()) {
+            i_this->m460 = 5;
+            atInfo.mpObj = i_this->mEyeSph.GetTgHitObj();
+            atInfo.pParticlePos = i_this->mEyeSph.GetTgHitPosP();
+            if (atInfo.mpObj->ChkAtType(AT_TYPE_LIGHT_ARROW)) {
+                i_this->mEnemyIce.mLightShrinkTimer = 1;
+                return;
+            }
+
+            at_power_check(&atInfo);
+            if (atInfo.mResultingAttackType != 6 && atInfo.mResultingAttackType != 3 &&
+                atInfo.mResultingAttackType != 4 && atInfo.mResultingAttackType != 2 && i_this->mC04 != 1)
+            {
+                return;
+            }
+
+            atInfo.mpActor = cc_at_check(actor, &atInfo);
+            if (l_HIO.m06 != 0) {
+                actor->health = 10;
+                i_this->m18FB = 8;
+            }
+            if (atInfo.mResultingAttackType == 6) {
+                i_this->m18F8 = 1;
+                actor->health = 0;
+            } else if (atInfo.mResultingAttackType == 4 || atInfo.mpObj->ChkAtType(AT_TYPE_ICE_ARROW)) {
+                hit_kind = 2;
+                actor->health = 0;
+                water_damage_se_set(i_this);
+            }
+
+            if ((s8)actor->health <= 0) {
+                hit_kind = 1;
+            } else {
+                i_this->m455 = 15;
+                cMtx_YrotS(*calc_mtx, actor->shape_angle.y);
+                offset.x = 0.0f;
+                offset.y = 60.0f;
+                offset.z = -120.0f;
+                MtxPosition(&offset, &i_this->m47C);
+                i_this->m47C += actor->current.pos;
+                i_this->m462 = 25;
+                i_this->m456 = 10;
+                actor->current.angle.x = -0x4000;
+            }
+
+            fopAcM_monsSeStart(actor, JA_SE_CV_MG_DAMAGE, 0);
+            anm_init(i_this, 10, 2.0f, 2, 1.0f, 0);
+            i_this->m18D4 = 0;
+        }
+    }
+
+    if (hit_kind != 0) {
+        cXyz speed;
+        cMtx_YrotS(*calc_mtx, atInfo.m0C.y);
+        speed.x = 0.0f;
+        speed.y = 40.0f * l_HIO.m4C;
+        speed.z = -20.0f * l_HIO.m4C;
+        MtxPosition(&speed, &actor->speed);
+        if (hit_kind == 2) {
+            actor->speed.y = 0.0f;
+        }
+        i_this->m454 = 1;
+        i_this->m455 = 0x14;
+        i_this->m2E4 = 1;
+    }
+}
+#else
 void damage_check(mt_class* i_this) {
     fopAc_ac_c* actor = i_this;
     cXyz offset;
@@ -1800,6 +2030,7 @@ void damage_check(mt_class* i_this) {
         i_this->m2E4 = 1;
     }
 }
+#endif
 
 /* 00006188-000074D4       .text daMt_Execute__FP8mt_class */
 static BOOL daMt_Execute(mt_class* i_this) {
@@ -1830,6 +2061,25 @@ static BOOL daMt_Execute(mt_class* i_this) {
         lava_pos->y = pos_y;
         lava_pos->z = pos_z;
         f32 lava_y = dComIfG_Bgsp()->GroundCross(&gndChk);
+#if VERSION == VERSION_DEMO
+        if (lava_y != -G_CM3D_F_INF) {
+            if (i_this->current.pos.y - 30.0f + REG0_F(13) < lava_y) {
+                if (i_this->m18FA == 0) {
+                    i_this->speedF *= 0.1f;
+                    i_this->speed.y = 0.0f;
+                    fopKyM_createMpillar(&cXyz(pos_x, lava_y, pos_z), 0.5f);
+                }
+                i_this->m18FA = 1;
+                i_this->gravity = -0.5f;
+                if (i_this->speed.y < -5.0f) {
+                    i_this->speed.y = -5.0f;
+                }
+            } else {
+                i_this->m18FA = 0;
+                i_this->gravity = -3.0f;
+            }
+        }
+#else
         if (lava_y != -G_CM3D_F_INF && i_this->current.pos.y - 30.0f + REG0_F(13) < lava_y) {
             if (i_this->m18FA == 0) {
                 i_this->speedF *= 0.1f;
@@ -1845,6 +2095,7 @@ static BOOL daMt_Execute(mt_class* i_this) {
             i_this->m18FA = 0;
             i_this->gravity = -3.0f;
         }
+#endif
     }
 
     i_this->attention_info.flags = fopAc_Attn_LOCKON_BATTLE_e;
@@ -1969,8 +2220,13 @@ static BOOL daMt_Execute(mt_class* i_this) {
                 i_this->m2E4 = 0;
                 i_this->m454 = 1;
                 i_this->m455 = 0;
+#if VERSION == VERSION_DEMO
+                i_this->health = 2;
+                i_this->m18FB = 8;
+#else
                 i_this->m18FB = 2;
                 i_this->health = 8;
+#endif
                 i_this->mSph[0].OnTgShield();
                 i_this->m456 = l_HIO.m10;
                 i_this->m48E = 0;
@@ -2029,11 +2285,15 @@ static BOOL daMt_Execute(mt_class* i_this) {
                 } else {
                     i_this->m474 = 0.2f + REG0_F(13);
                     if (i_this->mEyeSph.ChkTgHit()) {
+#if VERSION > VERSION_DEMO
                         i_this->health = 0;
+#endif
                         i_this->m456 = REG0_S(3) + 40;
                         i_this->m474 = 1.5f + REG0_F(13);
                         mDoAud_seStart(JA_SE_LK_LAST_HIT, &i_this->eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(i_this)));
+#if VERSION > VERSION_DEMO
                         fopAcM_monsSeStart(i_this, JA_SE_CV_MG_DAMAGE, 0);
+#endif
                         CcAtInfo atInfo;
                         atInfo.mpObj = i_this->mEyeSph.GetTgHitObj();
                         at_power_check(&atInfo);
@@ -2175,12 +2435,17 @@ static BOOL daMt_Execute(mt_class* i_this) {
                 }
             }
             i_this->mJntRot[i].x = (s16)((5000.0f + REG6_F(11)) * -cM_ssin(wave + i * (REG6_S(2) + 0x32C8)));
+#if VERSION == VERSION_DEMO
+            s16 tz = l_HIO.m0C + (5000.0f + REG6_F(12)) * cM_scos(wave + i * (REG6_S(3) + 0x32C8));
+            cLib_addCalcAngleS2(&i_this->mJntRot[i].z, tz, 1, i_this->m334);
+#else
             cLib_addCalcAngleS2(
                 &i_this->mJntRot[i].z,
                 (s16)(l_HIO.m0C + (5000.0f + REG6_F(12)) * cM_scos(wave + i * (REG6_S(3) + 0x32C8))),
                 1,
                 i_this->m334
             );
+#endif
         }
         cLib_addCalcAngleS2(&i_this->m334, 0x2000, 1, 0x100);
         for (int i = 0; i < 8; i++) {
