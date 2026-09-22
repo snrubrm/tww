@@ -84,12 +84,12 @@ static BOOL daFganon_Draw(fganon_class* i_this) {
     fopAc_ac_c* a_this = &i_this->actor;
     dSnap_RegistFig(DSNAP_TYPE_FGANON, a_this, 1.0f, 1.0f, 1.0f);
     J3DModel* pModel = i_this->mpMorf->getModel();
-    g_env_light.setLightTevColorType(pModel, &a_this->tevStr);
+    g_env_light.setLightTevColorType(pModel, &i_this->actor.tevStr);
     i_this->mpBrkAnm1->entry(pModel->getModelData());
     i_this->mpMorf->entryDL();
     if (i_this->m2D0 != 2) {
         pModel = i_this->mpKenModel;
-        g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &a_this->current.pos, &i_this->mKenTevStr);
+        g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &i_this->actor.current.pos, &i_this->mKenTevStr);
         g_env_light.setLightTevColorType(pModel, &i_this->mKenTevStr);
         i_this->mpBrkAnm2->entry(pModel->getModelData());
         mDoExt_modelUpdateDL(pModel);
