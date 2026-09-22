@@ -1680,16 +1680,16 @@ bool dCamera_c::onStyleChange(s32 i_style1, s32 i_style2) {
 
 /* 80164F5C-8016513C       .text GetCameraTypeFromMapToolID__9dCamera_cFll */
 int dCamera_c::GetCameraTypeFromMapToolID(s32 r27, s32 i_roomNo) {
-    dStage_dt_c& stage_dt = *(dStage_dt_c*)&dComIfGp_getStage();
-    
+    dStage_dt_c* stage_dt = &g_dComIfG_gameInfo.play.getStage();
+
     int cam_type_num;
     int arrowIdx;
     stage_camera_class* camera;
     stage_arrow_class* arrow;
 
     if (i_roomNo == -1) {
-        camera = stage_dt.getCamera();
-        arrow = stage_dt.getArrow();
+        camera = stage_dt->getCamera();
+        arrow = stage_dt->getArrow();
     } else {
         camera = dComIfGp_getRoomCamera(i_roomNo);
         arrow = dComIfGp_getRoomArrow(i_roomNo);
