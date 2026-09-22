@@ -290,10 +290,9 @@ void kantera_move(kantera_class* i_this) {
                 i_this->mJointRot[i].z = 3000.0f * cM_scos(i_this->mAnimCounter * 2500 + i * 16000);
             }
 
-            s8 throwType = mo2->m2A09;
-            if (throwType == 1 || throwType == 2) {
+            if (mo2->m2A09 == 1 || mo2->m2A09 == 2) {
                 i_this->mState = 5;
-                if ((int)mo2->m2A09 == 1) {
+                if (mo2->m2A09 == 1) {
                     i_this->actor.speed.x = cM_rndFX(15.0f);
                     i_this->actor.speed.z = cM_rndFX(15.0f);
                     i_this->actor.speed.y = 30.0f + REG6_F(8);
@@ -307,14 +306,14 @@ void kantera_move(kantera_class* i_this) {
                     MtxPosition(&sp34, &i_this->actor.speed);
                     i_this->actor.speed.y = 10.0f + REG6_F(8);
                 }
-                goto state5;
+            } else {
+                break;
             }
+        } else {
+            break;
         }
-        break;
-    case 3:
-        break;
+        // fallthrough
     case 5:
-    state5:
         cLib_addCalc2(&i_this->mOffsY, 55.0f, 1.0f, 4.0f);
         i_this->actor.current.angle.y += 500;
         i_this->actor.current.angle.x += 1300;
@@ -400,8 +399,7 @@ void kantera_move(kantera_class* i_this) {
         }
 
         if (mo2 != NULL) {
-            s8 throwType2 = mo2->m2A09;
-            if (throwType2 == 2) {
+            if (mo2->m2A09 == 2) {
                 if (i_this->m35C > 110) {
                     i_this->mSph.OnAtSPrmBit(cCcD_AtSPrm_VsEnemy_e);
                 } else {
@@ -409,6 +407,8 @@ void kantera_move(kantera_class* i_this) {
                 }
             }
         }
+        break;
+    case 3:
         break;
     case 100:
         break;
