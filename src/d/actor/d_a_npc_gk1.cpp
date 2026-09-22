@@ -796,7 +796,9 @@ BOOL daNpc_Gk1_c::_delete() {
 
 /* 000022D4-00002520       .text _create__11daNpc_Gk1_cFv */
 cPhs_State daNpc_Gk1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Gk1_c);
+#endif
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
     }
@@ -805,8 +807,15 @@ cPhs_State daNpc_Gk1_c::_create() {
     if (!mLoaded) {
         return phase;
     }
+#if VERSION == VERSION_DEMO
+    l_HIO.entryHIO("貧乏ム−ルの父");
+    fopAcM_SetupActor(this, daNpc_Gk1_c);
+#endif
     static u32 a_siz_tbl[] = {0, 0};
     if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, a_siz_tbl[mType])) {
+#if VERSION == VERSION_DEMO
+        mLoaded = false;
+#endif
         return cPhs_ERROR_e;
     }
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
