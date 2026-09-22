@@ -3237,24 +3237,29 @@ void JAIZelBasic::setLevObjSE(u32 id, Vec* pos, s8 reverb) {
 void JAIZelBasic::processLevObjSE() {
     for (u32 i = 0; i < mLevelSoundCount; i++) {
         f32 left = 0.0f;
-        f32 right = left;
-        f32 rear = left;
+        f32 right = 0.0f;
+        f32 rear = 0.0f;
 #if VERSION == VERSION_DEMO
-        f32 threshold = left;
+        f32 volume = 0.0f;
 #endif
         s8 reverb = 0;
         for (u32 j = 0; j < mLevelSounds[i].count; j++) {
-            f32 volume = mLevelSounds[i].entries[j].volume;
-            if (volume > DEMO_SELECT(threshold, 0.0f)) reverb = mLevelSounds[i].entries[j].reverb;
-            f32 leftVolume = (1.0f - mLevelSounds[i].entries[j].pan) * volume;
-            f32 rightVolume = mLevelSounds[i].entries[j].pan * volume;
-            f32 rearVolume = mLevelSounds[i].entries[j].dolby * volume;
+            f32 entryVolume = mLevelSounds[i].entries[j].volume;
+            if (entryVolume > DEMO_SELECT(volume, 0.0f)) reverb = mLevelSounds[i].entries[j].reverb;
+            f32 leftVolume = (1.0f - mLevelSounds[i].entries[j].pan) * entryVolume;
+            f32 rightVolume = mLevelSounds[i].entries[j].pan * entryVolume;
+            f32 rearVolume = mLevelSounds[i].entries[j].dolby * entryVolume;
             if (leftVolume > left) left = leftVolume;
             if (rightVolume > right) right = rightVolume;
             if (rearVolume > rear) rear = rearVolume;
         }
+#if VERSION == VERSION_DEMO
+        f32 max = left > right ? left : right;
+        volume = max > rear ? max : rear;
+#else
         f32 volume = left > right ? left : right;
         volume = volume > rear ? volume : rear;
+#endif
         f32 pan = 0.5f;
         if (0.0f != left || 0.0f != right) pan = right / (left + right);
 #if VERSION == VERSION_DEMO
