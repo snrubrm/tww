@@ -1408,6 +1408,7 @@ void JAIZelBasic::subBgmStopInner() {
 }
 
 /* 802A4EB8-802A53B4       .text bgmNowBattle__11JAIZelBasicFf */
+// NONMATCHING - the target reloads mMainBgmNum for the TAKT check instead of reusing the switch value
 void JAIZelBasic::bgmNowBattle(f32 i_dist) {
     if (field_0x0063 != 0) {
         return;
@@ -1447,7 +1448,7 @@ void JAIZelBasic::bgmNowBattle(f32 i_dist) {
     if (field_0x0206 == 1) {
         return;
     }
-    switch ((s32&)mMainBgmNum) {
+    switch (mMainBgmNum) {
     case JA_BGM_GOMA:
     case JA_BGM_KINDAN_BOSS:
     case JA_BGM_DIE_LINK:
