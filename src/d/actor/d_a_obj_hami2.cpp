@@ -133,7 +133,7 @@ void daObjHami2::Act_c::daObjHami2_close_stop() {
 void daObjHami2::Act_c::daObjHami2_open_demo_wait() {
     if (eventInfo.checkCommandDemoAccrpt()) {
         mState = 2;
-        mDoAud_seStart(JA_SE_OBJ_KAITEN_AMI_OPEN, &current.pos, 0, dComIfGp_getReverb(current.roomNo));
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_KAITEN_AMI_OPEN, 0);
         mDoAud_seStart(JA_SE_READ_RIDDLE_1);
     } else {
         fopAcM_orderOtherEventId(this, mOpenEvent);
