@@ -31,8 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#line 1 "d_a_obj_search.cpp"
-
 static dCcD_SrcCps cps_src = {
     // dCcD_SrcGObjInf
     {
