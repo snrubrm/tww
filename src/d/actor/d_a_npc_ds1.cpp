@@ -12,6 +12,7 @@
 #include "m_Do/m_Do_controller_pad.h"
 #include "d/actor/d_a_player.h"
 #include "d/d_snap.h"
+#include "d/d_s_play.h"
 #include "m_Do/m_Do_mtx.h"
 #include "m_Do/m_Do_audio.h"
 
@@ -21,7 +22,9 @@ static msg_class* l_msg;
 
 static daNpc_Ds1_HIO_c l_HIO;
 
+#if VERSION > VERSION_DEMO
 static cXyz se_pos[] = {cXyz(-158.0f, 160.0f, -663.0f), cXyz(18.0f, 160.0f, -652.0f), cXyz(-220.0f, 105.0f, -590.0f), cXyz(-225.0f, 260.0f, -590.0f)};
+#endif
 
 static dCcD_SrcCyl l_cyl_src = {
     // dCcD_SrcGObjInf
@@ -97,7 +100,7 @@ s16 daNpc_Ds1_c::XyEventCB(int index) {
     s16 event = -1;
     u8 item = dComIfGp_getSelectItem(index);
     if (item == 0x49 || item == 0x4A || item == 0x4B) {
-        if (!daNpc_Ds1_checkCreateDrugChuchu(item) && ((item == 0x49 && dComIfGs_getBeastNum(4) >= 10) || (item == 0x4A && dComIfGs_getBeastNum(5) >= 15) || (item == 0x4B && dComIfGs_getBeastNum(6) >= 15))) {
+        if (!daNpc_Ds1_checkCreateDrugChuchu(item) && ((item == 0x49 && dComIfGs_getBeastNum(4) >= 10) || (item == 0x4A && dComIfGs_getBeastNum(5) >= DEMO_SELECT(20, 15)) || (item == 0x4B && dComIfGs_getBeastNum(6) >= DEMO_SELECT(20, 15)))) {
             event = mPutItemEvent;
             mOrder = 5;
             mTalkMode = 2;
@@ -122,11 +125,20 @@ static BOOL nodeCallBack_Ds(J3DNode* node, int phase) {
         daNpc_Ds1_c* actor = (daNpc_Ds1_c*)model->getUserArea();
         int joint = ((J3DJoint*)node)->getJntNo();
         if (actor) {
+#if VERSION == VERSION_DEMO
+            MTXCopy(model->getAnmMtx(joint), *calc_mtx);
+#else
             cMtx_copy(model->getAnmMtx(joint), *calc_mtx);
+#endif
             if (joint == actor->getHeadJntNum()) {
                 cXyz offset(0.0f, 0.0f, 0.0f), pos;
+#if VERSION == VERSION_DEMO
+                cMtx_YrotM(*calc_mtx, -actor->getHead_y());
+                cMtx_ZrotM(*calc_mtx, -actor->getHead_x());
+#else
                 mDoMtx_YrotM(*calc_mtx, -actor->getHead_y());
                 mDoMtx_ZrotM(*calc_mtx, -actor->getHead_x());
+#endif
                 MtxPosition(&offset, &pos);
                 actor->setAttentionBasePos(pos);
                 offset.set(28.0f, 20.0f, 0.0f);
@@ -134,8 +146,13 @@ static BOOL nodeCallBack_Ds(J3DNode* node, int phase) {
                 actor->setEyePos(pos);
                 actor->incAttnSetCount();
             } else if (joint == actor->getBackboneJntNum()) {
+#if VERSION == VERSION_DEMO
+                cMtx_XrotM(*calc_mtx, actor->getBackbone_y());
+                cMtx_ZrotM(*calc_mtx, actor->getBackbone_x());
+#else
                 mDoMtx_XrotM(*calc_mtx, actor->getBackbone_y());
                 mDoMtx_ZrotM(*calc_mtx, actor->getBackbone_x());
+#endif
             }
             cMtx_copy(*calc_mtx, J3DSys::mCurrentMtx);
             model->setAnmMtx(joint, *calc_mtx);
@@ -150,7 +167,7 @@ char daNpc_Ds1_c::m_arcname[] = "Ds";
 BOOL daNpc_Ds1_c::initTexPatternAnm(bool modify) {
     J3DModelData* data = mpMorf->getModel()->getModelData();
     m_head_tex_pattern = (J3DAnmTexPattern*)dComIfG_getObjectRes(m_arcname, l_btp_ix_tbl[mTexAnm]);
-    JUT_ASSERT(0x1E8, m_head_tex_pattern != 0);
+    JUT_ASSERT(DEMO_SELECT(0x1DE, 0x1E8), m_head_tex_pattern != 0);
     if (!mBtp.init(data, m_head_tex_pattern, 1, 2, 1.0f, 0, -1, modify, 0)) {
         return FALSE;
     }
@@ -162,8 +179,13 @@ BOOL daNpc_Ds1_c::initTexPatternAnm(bool modify) {
 /* 00000824-000008B0       .text playTexPatternAnm__11daNpc_Ds1_cFv */
 void daNpc_Ds1_c::playTexPatternAnm() {
     if (!cLib_calcTimer(&mBlinkTimer)) {
+#if VERSION == VERSION_DEMO
+        s16 end = m_head_tex_pattern->getFrameMax();
+        if (mTexFrame >= end) {
+#else
         int end = m_head_tex_pattern->getFrameMax();
         if (mTexFrame >= (s16)end) {
+#endif
             mTexFrame -= end;
             mBlinkTimer = 30.0f + cM_rndF(100.0f);
         } else {
@@ -382,7 +404,7 @@ u16 daNpc_Ds1_c::next_msgStatus(u32* msg) {
         }
         break;
     case 0x1DC8:
-        if ((mJellyItem == 0x49 && dComIfGs_getBeastNum(4) >= 10) || (mJellyItem == 0x4A && dComIfGs_getBeastNum(5) >= 15) || (mJellyItem == 0x4B && dComIfGs_getBeastNum(6) >= 15)) {
+        if ((mJellyItem == 0x49 && dComIfGs_getBeastNum(4) >= 10) || (mJellyItem == 0x4A && dComIfGs_getBeastNum(5) >= DEMO_SELECT(20, 15)) || (mJellyItem == 0x4B && dComIfGs_getBeastNum(6) >= DEMO_SELECT(20, 15))) {
             *msg = 0x1DC9;
         } else {
             *msg = 0x1DCE;
@@ -471,11 +493,13 @@ void daNpc_Ds1_c::setCollision() {
     cXyz offset(0.0f, 0.0f, 0.0f), pos;
     offset.z = -16.0f;
     MtxTrans(current.pos.x, current.pos.y, current.pos.z, 0);
-    mDoMtx_YrotM(*calc_mtx, mInitialAngle.y);
+    cMtx_YrotM(*calc_mtx, mInitialAngle.y);
     MtxPosition(&offset, &pos);
+    f32 r = 46.0f;
+    f32 h = 130.0f;
     mCyl.SetC(pos);
-    mCyl.SetR(46.0f);
-    mCyl.SetH(130.0f);
+    mCyl.SetR(r);
+    mCyl.SetH(h);
     dComIfG_Ccsp()->Set(&mCyl);
 }
 
@@ -517,10 +541,10 @@ u16 daNpc_Ds1_c::normal_talk() {
                 amount = -10;
             } else if (mJellyItem == 0x4A) {
                 index = 5;
-                amount = -15;
+                amount = DEMO_SELECT(-20, -15);
             } else {
                 index = 6;
-                amount = -15;
+                amount = DEMO_SELECT(-20, -15);
             }
             dComIfGp_setItemBeastNumCount(index, amount);
         } else if (mCurrMsg == 0x1DC4) {
@@ -683,7 +707,7 @@ BOOL daNpc_Ds1_c::CreateInit() {
     mPutItemEvent = dComIfGp_evmng_getEventIdx("PUT_ITEM", 255);
     mPutItemFailEvent = dComIfGp_evmng_getEventIdx("PUT_ITEM_FAIL", 255);
     if (mRoomEffects) {
-        mpRoomModel->setBaseTRMtx(g_mDoMtx_identity);
+        mpRoomModel->setBaseTRMtx(mDoMtx_getIdentity());
         RoomEffectSet();
     }
     mLight.mPos.set(-60.0f, 123.0f, -555.0f);
@@ -794,9 +818,14 @@ bool daNpc_Ds1_c::talk01() {
 
 /* 00002760-00002A04       .text getdemo_action__11daNpc_Ds1_cFPv */
 int daNpc_Ds1_c::getdemo_action(void*) {
+#if VERSION == VERSION_DEMO
+    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
+    int staff = mgr->getMyStaffId("Ds1", NULL, 0);
+#else
     int staff;
     dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
     staff = mgr->getMyStaffId("Ds1", NULL, 0);
+#endif
     if (mActionState == 0) {
         u8 item;
         if (m7D4 != 255) {
@@ -811,7 +840,7 @@ int daNpc_Ds1_c::getdemo_action(void*) {
         ((daPy_py_c*)dComIfGp_getPlayer(0))->offPlayerNoDraw();
         mLookMode = m895;
         mShopCam.setCamAction(NULL);
-        fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item, 0, -1, fopAcM_GetRoomNo(this), NULL, NULL);
+        fpc_ProcID id = fopAcM_createItemForPresentDemo(&current.pos, item, 0, -1, DEMO_SELECT(-1, fopAcM_GetRoomNo(this)), NULL, NULL);
         if (id != fpcM_ERROR_PROCESS_ID_e) {
             dComIfGp_event_setItemPartnerId(id);
         }
@@ -820,7 +849,11 @@ int daNpc_Ds1_c::getdemo_action(void*) {
     } else if (mActionState != -1) {
         fopMsgM_demoMsgFlagOn();
         mgr->cutEnd(staff);
+#if VERSION == VERSION_DEMO
+        if (dComIfGp_evmng_endCheck(mGetDrugEvent)) {
+#else
         if (mgr->endCheck(mGetDrugEvent)) {
+#endif
             mOrder = 1;
             if (m7D4 != 255) {
                 m7D0 = 0x1DDA;
@@ -846,11 +879,18 @@ int daNpc_Ds1_c::getdemo_action(void*) {
 
 /* 00002A04-00002BD0       .text privateCut__11daNpc_Ds1_cFv */
 int daNpc_Ds1_c::privateCut() {
+#if VERSION == VERSION_DEMO
+    int cut;
+    char* name = mEventCut.getActorName();
+    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
+    int staff = mgr->getMyStaffId(name, NULL, 0);
+#else
     int cut;
     int staff;
     char* name = mEventCut.getActorName();
     dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
     staff = mgr->getMyStaffId(name, NULL, 0);
+#endif
     if (staff == -1) {
         return 0;
     }
@@ -963,7 +1003,10 @@ int daNpc_Ds1_c::evn_Anm() {
     }
     if (mAnm == 6) {
         mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_handL_jnt_num));
-        cXyz pos(mDoMtx_stack_c::get()[0][3], mDoMtx_stack_c::get()[1][3], mDoMtx_stack_c::get()[2][3]);
+        cXyz pos;
+        pos.x = mDoMtx_stack_c::get()[0][3];
+        pos.y = mDoMtx_stack_c::get()[1][3];
+        pos.z = mDoMtx_stack_c::get()[2][3];
         if (mpEmitters[0]) {
             mpEmitters[0]->setGlobalTranslation(pos);
         }
@@ -984,7 +1027,11 @@ int daNpc_Ds1_c::evn_Anm() {
             dComIfGp_getVibration().StartShock(5, -17, cXyz(0.0f, 1.0f, 0.0f));
             mDoAud_seStart(JA_SE_OBJ_CK_CHEMICAL_BOMB, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
             mLight.mPower = 100.0f;
+#if VERSION == VERSION_DEMO
+        } else if (mpMorf->checkFrame(10.0f + REG10_F(7))) {
+#else
         } else if (mpMorf->checkFrame(10.0f)) {
+#endif
             mItemFlags |= 2;
         }
     } else if (mAnm == 8 && mpMorf->checkFrame(128.0f)) {
@@ -1046,10 +1093,10 @@ int daNpc_Ds1_c::evn_talk() {
                     amount = -10;
                 } else if (mJellyItem == 0x4A) {
                     index = 5;
-                    amount = -15;
+                    amount = DEMO_SELECT(-20, -15);
                 } else {
                     index = 6;
-                    amount = -15;
+                    amount = DEMO_SELECT(-20, -15);
                 }
                 dComIfGp_setItemBeastNumCount(index, amount);
             } else if (mCurrMsg == 0x1DC4) {
@@ -1061,7 +1108,7 @@ int daNpc_Ds1_c::evn_talk() {
                 } else {
                     index = 6;
                 }
-                dComIfGp_setItemBeastNumCount(index, -5);
+                dComIfGp_setItemBeastNumCount(index, DEMO_SELECT(-10, -5));
             }
             l_msg->mStatus = 19;
             l_msg = NULL;
@@ -1287,7 +1334,11 @@ BOOL daNpc_Ds1_c::_draw() {
         mDoExt_modelUpdateDL(mpItemL);
     } else {
         g_env_light.setLightTevColorType(mpItemL, &tevStr);
+#if VERSION == VERSION_DEMO
+        mDoMtx_stack_c::transS(-90.0f + REG10_F(0), 95.0f + REG10_F(1), -580.0f + REG10_F(2));
+#else
         mDoMtx_stack_c::transS(-90.0f, 95.0f, -580.0f);
+#endif
         mDoMtx_stack_c::ZXYrotM(1900, 0, 0);
         mpItemL->setBaseTRMtx(mDoMtx_stack_c::get());
         mDoExt_modelUpdateDL(mpItemL);
@@ -1298,8 +1349,13 @@ BOOL daNpc_Ds1_c::_draw() {
         mDoExt_modelUpdateDL(mpItemR);
     } else {
         g_env_light.setLightTevColorType(mpItemR, &tevStr);
+#if VERSION == VERSION_DEMO
+        mDoMtx_stack_c::transS(-11.0f + REG10_F(3), 101.0f + REG10_F(4), -545.0f + REG10_F(5));
+        mDoMtx_stack_c::ZXYrotM(0x8000 + REG10_S(3), 15500 + REG10_S(4), REG10_S(5));
+#else
         mDoMtx_stack_c::transS(-11.0f, 101.0f, -545.0f);
         mDoMtx_stack_c::ZXYrotM(-32768, 15500, 0);
+#endif
         mpItemR->setBaseTRMtx(mDoMtx_stack_c::get());
         mDoExt_modelUpdateDL(mpItemR);
     }
@@ -1355,6 +1411,16 @@ BOOL daNpc_Ds1_c::_execute() {
     model->setBaseTRMtx(mDoMtx_stack_c::get());
     setCollision();
     if (mRoomEffects) {
+#if VERSION == VERSION_DEMO
+        static cXyz se_pos[] = {cXyz(-158.0f, 160.0f, -663.0f), cXyz(18.0f, 160.0f, -652.0f), cXyz(-220.0f, 105.0f, -590.0f)};
+        mDoAud_seStart(JA_SE_OBJ_CK_BOIL_L, &se_pos[0], 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+        mDoAud_seStart(JA_SE_OBJ_CK_BOIL_C, &se_pos[1], 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+        mDoAud_seStart(JA_SE_OBJ_CK_BOIL_R, &se_pos[2], 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+        if (mSoundTimer++ >= 50) {
+            mDoAud_seStart(JA_SE_OBJ_CK_FLASK_STEAM, &cXyz(-225.0f, 260.0f, -590.0f), 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+            mSoundTimer = 0;
+        }
+#else
         mDoAud_seStart(JA_SE_OBJ_CK_BOIL_L, &se_pos[0], 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         mDoAud_seStart(JA_SE_OBJ_CK_BOIL_C, &se_pos[1], 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
         mDoAud_seStart(JA_SE_OBJ_CK_BOIL_R, &se_pos[2], 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
@@ -1362,6 +1428,7 @@ BOOL daNpc_Ds1_c::_execute() {
             mDoAud_seStart(JA_SE_OBJ_CK_FLASK_STEAM, &se_pos[3], 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
             mSoundTimer = 0;
         }
+#endif
         mRoomBtk.play();
     }
     cLib_addCalc0(&mLight.mPower, 0.25f, 20.0f);
@@ -1371,6 +1438,12 @@ BOOL daNpc_Ds1_c::_execute() {
 /* 00004554-0000465C       .text _delete__11daNpc_Ds1_cFv */
 BOOL daNpc_Ds1_c::_delete() {
     dKy_plight_cut(&mLight);
+#if VERSION == VERSION_DEMO
+    dComIfG_deleteObjectRes(m_arcname);
+    if (mpMorf) {
+        mpMorf->stopZelAnime();
+    }
+#else
     dComIfG_resDelete(&mPhase, m_arcname);
     if (heap && mpMorf) {
         mpMorf->stopZelAnime();
@@ -1379,6 +1452,7 @@ BOOL daNpc_Ds1_c::_delete() {
     mDoAud_seDeleteObject(&se_pos[1]);
     mDoAud_seDeleteObject(&se_pos[2]);
     mDoAud_seDeleteObject(&se_pos[3]);
+#endif
     RoomEffectDelete();
     if (l_HIO.mSelected >= 0 && --l_HIO.mSelected < 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
@@ -1393,9 +1467,14 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 
 /* 0000467C-000047BC       .text _create__11daNpc_Ds1_cFv */
 cPhs_State daNpc_Ds1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Ds1_c);
+#endif
     cPhs_State phase = dComIfG_resLoad(&mPhase, m_arcname);
     if (phase == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_SetupActor(this, daNpc_Ds1_c);
+#endif
         mType = (fopAcM_GetParam(this) >> 20)&15;
         switch ((u8)mType) {
         case 0:
@@ -1423,33 +1502,37 @@ cPhs_State daNpc_Ds1_c::_create() {
 /* 00004E08-000052D4       .text CreateHeap__11daNpc_Ds1_cFv */
 BOOL daNpc_Ds1_c::CreateHeap() {
     J3DModelData* data;
-    J3DAnmTextureSRTKey* btk;
-    J3DAnmTevRegKey* brk;
     data = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_CK_e);
     mpMorf = new mDoExt_McaMorf(data, NULL, NULL, (J3DAnmTransform*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BCK_WAIT01_e), 2, 1.0f, 0, -1, 1, NULL, 0, 0x11020203);
     if (!mpMorf || !mpMorf->getModel()) {
+#if VERSION > VERSION_DEMO
         mpMorf = NULL;
+#endif
         return FALSE;
     }
     m_head_jnt_num = data->getJointName()->getIndex("head");
-    JUT_ASSERT(0x9DF, m_head_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x9CE, 0x9DF), m_head_jnt_num >= 0);
     m_backbone_jnt_num = data->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0x9E2, m_backbone_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x9D1, 0x9E2), m_backbone_jnt_num >= 0);
     m_handL_jnt_num = data->getJointName()->getIndex("handL");
-    JUT_ASSERT(0x9E5, m_handL_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x9D4, 0x9E5), m_handL_jnt_num >= 0);
     m_handR_jnt_num = data->getJointName()->getIndex("handR");
-    JUT_ASSERT(0x9E7, m_handR_jnt_num >= 0);
+    JUT_ASSERT(DEMO_SELECT(0x9D6, 0x9E7), m_handR_jnt_num >= 0);
     switch ((u8)mType) {
     case 0:
         mTexAnm = 1;
         break;
     }
+#if VERSION == VERSION_DEMO
+    initTexPatternAnm(false);
+#else
     if (!initTexPatternAnm(false)) {
         return FALSE;
     }
+#endif
     {
         J3DModelData* model_data = static_cast<J3DModelData*>(dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BDL_GTYDS00_e));
-        btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BTK_GTYDS00_e);
+        J3DAnmTextureSRTKey* btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BTK_GTYDS00_e);
         mpRoomModel = mDoExt_J3DModel__create(model_data, 0, 0x11020203);
         mRoomBtk.init(model_data, btk, 1, 2, 1.0f, 0, -1, false, 0);
     }
@@ -1467,8 +1550,8 @@ BOOL daNpc_Ds1_c::CreateHeap() {
     for (u16 i = 0;i < data->getJointNum();i++) if (i == m_head_jnt_num || i == m_backbone_jnt_num) mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack_Ds);
     mpMorf->getModel()->setUserArea((u32)this);
     mAcchCir.SetWall(30.0f, 0.0f);
-    mAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
-    brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BRK_SHOP_CURSOR01_e));
+    mAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this));
+    J3DAnmTevRegKey* brk = static_cast<J3DAnmTevRegKey*>(dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BRK_SHOP_CURSOR01_e));
     data = (J3DModelData*)dComIfG_getObjectRes(m_arcname, dRes_INDEX_DS_BMD_SHOP_CURSOR01_e);
     mpShopCursor = ShopCursor_create(data, brk, l_HIO.mChild[mType].mCursorMin);
     if (mpShopCursor) {
