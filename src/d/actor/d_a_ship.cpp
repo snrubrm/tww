@@ -1999,7 +1999,7 @@ BOOL daShip_c::procCraneUp_init() {
     dComIfGp_getVibration().StartShock(7, -0x31, cXyz(0.0f, 1.0f, 0.0f));
     dComIfGp_getVibration().StartQuake(4, 1, cXyz(0.0f, 1.0f, 0.0f));
 
-#if VERSION > VERSION_DEMO
+#if VERSION > VERSION_JPN
     speedF = 0.0f;
 #endif
 
