@@ -955,7 +955,11 @@ void daPz_c::setAnm(s8 idx, bool param_2, int eyeIdx) {
         dRes_INDEX_PZ_BCK_DEFEND_e,
         dRes_INDEX_PZ_BCK_WAIT04_e,
     };
-    static const dLib_anm_prm_c a_anm_prm_tbl[] = {
+    if (idx != 0xF) {
+        mAnmPrmIdx = idx;
+    }
+
+    dLib_anm_prm_c a_anm_prm_tbl[] = {
         {0, -1, 0, 8.0f, 1.0f, J3DFrameCtrl::EMode_LOOP},
         {0, -1, 0, 8.0f, 1.0f, J3DFrameCtrl::EMode_LOOP},
         {1, -1, 0, 8.0f, 1.0f, J3DFrameCtrl::EMode_LOOP},
@@ -974,17 +978,8 @@ void daPz_c::setAnm(s8 idx, bool param_2, int eyeIdx) {
     };
     static const u8 eye_anm[] = {0, 0, 7, 7, 1, 1, 1, 2, 3, 4, 5, 6, 8, 9, 8};
 
-    if (idx != 0xF) {
-        mAnmPrmIdx = idx;
-    }
-
-    struct daPz_anm_prm_copy {
-        dLib_anm_prm_c m[15];
-    };
-    daPz_anm_prm_copy prm;
-    prm = *(daPz_anm_prm_copy*)a_anm_prm_tbl;
-    prm.m[7].mMorf = l_HIO.mF0;
-    prm.m[8].mMorf = l_HIO.mF4;
+    a_anm_prm_tbl[7].mMorf = l_HIO.mF0;
+    a_anm_prm_tbl[8].mMorf = l_HIO.mF4;
 
     if (mOldAnmPrmIdx != mAnmPrmIdx) {
         if (mAnmPrmIdx == 4) {
@@ -1030,7 +1025,7 @@ void daPz_c::setAnm(s8 idx, bool param_2, int eyeIdx) {
         }
     }
 
-    dLib_bcks_setAnm(m_arc_name, mpMorf, &mBckIdx, &mAnmPrmIdx, &mOldAnmPrmIdx, a_anm_bcks_tbl, prm.m, param_2);
+    dLib_bcks_setAnm(m_arc_name, mpMorf, &mBckIdx, &mAnmPrmIdx, &mOldAnmPrmIdx, a_anm_bcks_tbl, a_anm_prm_tbl, param_2);
 }
 
 /* 0000246C-00002684       .text setAnmRunSpeed__6daPz_cFv */
