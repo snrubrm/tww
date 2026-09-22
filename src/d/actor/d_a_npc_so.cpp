@@ -1355,8 +1355,7 @@ void daNpc_So_c::setScale() {
 
 /* 000033F4-00003844       .text _execute__10daNpc_So_cFv */
 bool daNpc_So_c::_execute() {
-    f32 scaleX = scale.x;
-    fopAcM_setCullSizeBox(this, -100.0f * scaleX, -100.0f * scaleX, -100.0f * scaleX, 100.0f * scaleX, 100.0f * scaleX, 100.0f * scaleX);
+    fopAcM_setCullSizeBox(this, -100.0f * scale.x, -100.0f * scale.x, -100.0f * scale.x, 100.0f * scale.x, 100.0f * scale.x, 100.0f * scale.x);
     if (!dComIfGp_event_runCheck() && mAcch2.ChkGroundHit()) {
         current.pos.y = 0.0f;
         speedF = 0.0f;
