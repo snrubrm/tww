@@ -1379,18 +1379,11 @@ static BOOL useHeapInit(fopAc_ac_c* i_ac) {
         }
         J3DModel* model = i_this->mpMorf->getModel();
         model->setUserArea((u32)i_this);
-#if VERSION == VERSION_DEMO
         for (u16 i = 0; i < i_this->mpMorf->getModel()->getModelData()->getJointNum(); i++) {
             i_this->mpMorf->getModel()->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
         }
         if (i_this->mType == 0 || i_this->mType == 1 || i_this->mType == 4 || i_this->mType == 5) {
             model = i_this->mpMorf->getModel();
-#else
-        for (u16 i = 0; i < (model = i_this->mpMorf->getModel())->getModelData()->getJointNum(); i++) {
-            (model = i_this->mpMorf->getModel())->getModelData()->getJointNodePointer(i)->setCallBack(nodeCallBack);
-        }
-        if (i_this->mType == 0 || i_this->mType == 1 || i_this->mType == 4 || i_this->mType == 5) {
-#endif
             i_this->mpBrk = new mDoExt_brkAnm();
             if (i_this->mpBrk == NULL) {
                 return FALSE;
