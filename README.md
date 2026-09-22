@@ -23,14 +23,15 @@ All GameCube versions are supported:
 Progress
 ========
 
-Matched functions per version, from each version's `build/<version>/report.json`:
+Matched functions and linked code per version, from each version's `build/<version>/report.json` (linked = code in units that
+are byte-identical and linked into the SHA1-checked binary):
 
-| Version | Matched functions |
-|---|---|
-| `GZLE01` (USA) | 39,321 / 39,324 |
-| `GZLP01` (PAL) | 39,303 / 39,305 |
-| `GZLJ01` (JPN) | 39,248 / 39,258 |
-| `D44J01` (demo) | 39,170 / 39,273 |
+| Version | Matched functions | Linked code |
+|---|---|---|
+| `GZLE01` (USA) | 39,247 / 39,324 | 90.78% |
+| `GZLP01` (PAL) | 39,230 / 39,305 | 90.96% |
+| `GZLJ01` (JPN) | 39,176 / 39,258 | 90.04% |
+| `D44J01` (demo) | 39,106 / 39,273 | 73.90% |
 
 Dependencies
 ============
