@@ -457,9 +457,13 @@ void daObjKanoke_c::executeOpenTate() {
         mSmokeAngle.set(0, shape_angle.y, 0);
         mpEmitter[0] = dComIfGp_particle_set(0x817f, &mSmokePos, &mSmokeAngle, NULL, 0xff, NULL, -1, &tevStr.mColorK0, &tevStr.mColorK0);
         mAlpha = 180.0f;
+#if VERSION == VERSION_DEMO
+        dComIfGp_particle_setToon(0xa180, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
+#else
         if (!mSmoke.getEmitter()) {
             dComIfGp_particle_setToon(0xa180, &mSmokePos, &mSmokeAngle, NULL, mAlpha, &mSmoke);
         }
+#endif
         if (mSmoke.getEmitter()) {
             mSmoke.getEmitter()->becomeImmortalEmitter();
         }
