@@ -280,7 +280,8 @@ BOOL daObjVyasi::Act_c::process_sagWind_init() {
 
 /* 00000CC0-00000D20       .text process_sagWind_main__Q210daObjVyasi5Act_cFv */
 void daObjVyasi::Act_c::process_sagWind_main() {
-    if (is_switch()) {
+    int sw = daObj::PrmAbstract<int>(this, 8, 0);
+    if (dComIfGs_isSwitch(sw, fopAcM_GetHomeRoomNo(this))) {
         process_init(3);
     }
 }
