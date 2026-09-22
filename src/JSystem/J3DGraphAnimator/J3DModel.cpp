@@ -84,6 +84,18 @@ s32 J3DModel::entryModelData(J3DModelData* pModelData, u32 modelFlag, u32 mtxBuf
         mpWeightEnvMtx = new Mtx[pModelData->getWEvlpMtxNum()];
     }
 
+#if VERSION <= VERSION_JPN
+    if (pModelData->getJointNum() != 0) {
+        if (mpScaleFlagArr == NULL)
+            return J3DErrType_OutOfMemory;
+
+        if (pModelData->getWEvlpMtxNum() != 0 && mpEvlpScaleFlagArr == NULL)
+            return J3DErrType_OutOfMemory;
+
+        if (mpNodeMtx == NULL)
+            return J3DErrType_OutOfMemory;
+    }
+#else
     if (mpScaleFlagArr == NULL)
         return J3DErrType_OutOfMemory;
 
@@ -92,6 +104,7 @@ s32 J3DModel::entryModelData(J3DModelData* pModelData, u32 modelFlag, u32 mtxBuf
 
     if (mpNodeMtx == NULL)
         return J3DErrType_OutOfMemory;
+#endif
 
     if (pModelData->getWEvlpMtxNum() != 0 && mpWeightEnvMtx == NULL)
         return J3DErrType_OutOfMemory;
