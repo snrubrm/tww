@@ -175,7 +175,7 @@ void daNpc_Pm1_c::playTexPatternAnm() {
         advance = !cLib_calcTimer(&mBlinkTimer);
     }
     if (advance) {
-        int end = m_head_tex_pattern->getFrameMax();
+        s16 end = m_head_tex_pattern->getFrameMax();
         if (++mBtpFrame >= end) {
             if (mTexIndex != 0) {
                 mBtpFrame = m_head_tex_pattern->getFrameMax();
@@ -621,7 +621,9 @@ static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
 
 /* 000018BC-00001A2C       .text _create__11daNpc_Pm1_cFv */
 cPhs_State daNpc_Pm1_c::_create() {
+#if VERSION > VERSION_DEMO
     fopAcM_SetupActor(this, daNpc_Pm1_c);
+#endif
     if (!decideType(fopAcM_GetParam(this) & 0xFF)) {
         return cPhs_ERROR_e;
     }
@@ -633,6 +635,9 @@ cPhs_State daNpc_Pm1_c::_create() {
         l_HIO.mNo = mDoHIO_createChild("貧乏マギ−", &l_HIO);
     }
     l_HIO.mCount++;
+#if VERSION == VERSION_DEMO
+    fopAcM_SetupActor(this, daNpc_Pm1_c);
+#endif
     static u32 a_heap_size_tbl[] = {0x272E0};
     if (fopAcM_entrySolidHeap(this, CheckCreateHeap, a_heap_size_tbl[mType])) {
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -649,14 +654,14 @@ cPhs_State daNpc_Pm1_c::_create() {
 /* 00001E5C-00002168       .text CreateHeap__11daNpc_Pm1_cFv */
 BOOL daNpc_Pm1_c::CreateHeap() {
     J3DModelData* a_mdl_data = (J3DModelData*)dComIfG_getObjectIDRes("Pm", dRes_ID_PM_BDL_PM_e);
-    JUT_ASSERT(1319, a_mdl_data != 0);
+    JUT_ASSERT(DEMO_SELECT(1318, 1319), a_mdl_data != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_data, NULL, NULL, (J3DAnmTransform*)dComIfG_getObjectIDRes("Pm", dRes_ID_PM_BCK_WAIT01_e), 2, 1.0f, 0, -1, TRUE, NULL, 0x80000, 0x11020002);
     if (mpMorf != NULL) {
         if (mpMorf->getModel() != NULL) {
             m_head_jnt_num = a_mdl_data->getJointName()->getIndex("head");
-            JUT_ASSERT(1338, m_head_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(1337, 1338), m_head_jnt_num >= 0);
             m_backbone_jnt_num = a_mdl_data->getJointName()->getIndex("backbone");
-            JUT_ASSERT(1340, m_backbone_jnt_num >= 0);
+            JUT_ASSERT(DEMO_SELECT(1339, 1340), m_backbone_jnt_num >= 0);
             static s8 a_tex_pattern_num_tbl[] = {0};
             mTexIndex = a_tex_pattern_num_tbl[mType];
             if (initTexPatternAnm(false)) {
@@ -669,7 +674,7 @@ BOOL daNpc_Pm1_c::CreateHeap() {
                     }
                     mpMorf->getModel()->setUserArea((u32)this);
                     mAcchCir.SetWall(30.0f, 50.0f);
-                    mObjAcch.Set(&current.pos, &old.pos, this, 1, &mAcchCir, &speed, NULL, NULL);
+                    mObjAcch.Set(fopAcM_GetPosition_p(this), fopAcM_GetOldPosition_p(this), this, 1, &mAcchCir, fopAcM_GetSpeed_p(this), NULL, NULL);
                     return TRUE;
                 }
             }
