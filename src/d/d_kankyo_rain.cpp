@@ -143,7 +143,7 @@ void dKyr_kamome_move() {
                     pWind->mKamomeEff[i].mPos.set(newPos);
                     pWind->mKamomeEff[i].mAngleYSpeed = cM_rndFX(1.0f);
                     pWind->mKamomeEff[i].mScale = 0.0f;
-                    pWind->mKamomeEff[i].mTimer = 300.0f + cM_rndF(180.0f);
+                    pWind->mKamomeEff[i].mTimer = DEMO_SELECT(400.0f, 300.0f) + cM_rndF(180.0f);
                     pWind->mKamomeEff[i].mpEmitter = dComIfGp_particle_set(dPa_name::ID_AK_JN_KAMOME00, &pWind->mKamomeEff[i].mPos);
                     pWind->mKamomeEff[i].mStatus++;
                 } else {
@@ -183,7 +183,11 @@ void dKyr_kamome_move() {
                 newPos.z = pCamera->view.mLookat.mEye.z + newTarget.z;
 
                 pWind->mKamomeEff[i].mPos.set(newPos);
+#if VERSION == VERSION_DEMO
+                pWind->mKamomeEff[i].mpEmitter->setGlobalTranslation(pWind->mKamomeEff[i].mPos.x, pWind->mKamomeEff[i].mPos.y, pWind->mKamomeEff[i].mPos.z);
+#else
                 pWind->mKamomeEff[i].mpEmitter->setGlobalTranslation(pWind->mKamomeEff[i].mPos);
+#endif
 
                 if (pWind->mKamomeEff[i].mTimer != 0 && spawnBirds) {
                     cLib_addCalc(&pWind->mKamomeEff[i].mScale, 1.0f, 0.1f, 0.003f, 0.000001f);
@@ -205,7 +209,7 @@ void dKyr_kamome_move() {
             pWind->mKamomeEff[i].mpEmitter->becomeInvalidEmitter();
             pWind->mKamomeEff[i].mpEmitter = NULL;
             pWind->mKamomeEff[i].mStatus = 0;
-            pWind->mKamomeEff[i].mTimer = cM_rndF(600.0f) + 900.0f;
+            pWind->mKamomeEff[i].mTimer = cM_rndF(DEMO_SELECT(300.0f, 600.0f)) + DEMO_SELECT(300.0f, 900.0f);
             break;
         }
 
@@ -232,7 +236,7 @@ void dKyr_wind_init() {
     for (int i = 0; i < 2; i++) {
         g_env_light.mpWind->mKamomeEff[i].mStatus = 0;
         g_env_light.mpWind->mKamomeEff[i].mScale = 0.0f;
-        g_env_light.mpWind->mKamomeEff[i].mTimer = cM_rndF(1800.0f);
+        g_env_light.mpWind->mKamomeEff[i].mTimer = cM_rndF(DEMO_SELECT(600.0f, 1800.0f));
         g_env_light.mpWind->mKamomeEff[i].mpEmitter = NULL;
     }
 }
@@ -260,7 +264,7 @@ void dKyr_wind_move() {
     f32 var_f17 = 800.0f;
     f32 var_f25 = 255.0f;
     f32 var_f24 = 1.0f;
-    f32 offsetY = 1000.0f;
+    f32 offsetY = DEMO_SELECT(900.0f, 1000.0f);
     f32 var_f22 = 0.2f;
 
     s32 windlineCount = envLight.mWindlineCount;
@@ -558,7 +562,7 @@ void dKyr_sun_move() {
     camera_process_class* pCamera;
     dKankyo_sun_Packet* pSunPkt = dKy_getEnvlight().mpSunPacket;
     dKankyo_sunlenz_Packet* pLenzPkt = dKy_getEnvlight().mpSunlenzPacket;
-    pCamera = (camera_process_class*)dComIfGp_getCamera(0);
+    pCamera = (camera_process_class*)g_dComIfG_gameInfo.play.mCameraInfo[0].mpCamera;
 
     f32 pulsePos;
     f32 staringAtSunAmount = 0.0f;
@@ -584,9 +588,11 @@ void dKyr_sun_move() {
     horizonY *= horizonY;
     pulsePos = 1.0f - horizonY;
 
+#if VERSION > VERSION_DEMO
     if (dComIfGp_getStageStagInfo() != NULL) {
         dComIfGp_getStageStagInfo();
     }
+#endif
 
     if (pSunPkt->field_0x3c != 0)
         pSunPkt->field_0x3c--;
@@ -620,7 +626,11 @@ void dKyr_sun_move() {
             chkpnt.y -= sun_chkpnt[i].y;
 
             if (chkpnt.x > 0.0f && chkpnt.x < 640.0 && chkpnt.y > borderY && chkpnt.y < screenBottom) {
+#if VERSION == VERSION_DEMO
+                if (pSunPkt->mVizChkData[i] == 0xFFFFFF) {
+#else
                 if (pSunPkt->mVizChkData[i] >= 0xFFFFFF) {
+#endif
                     numPointsVisible++;
                     if (i == 0)
                         numCenterPointsVisible++;
@@ -672,10 +682,12 @@ void dKyr_sun_move() {
         numPointsVisible = 0;
     }
 
+#if VERSION > VERSION_DEMO
     if (stType == dStageType_MISC_e) {
         numCenterPointsVisible = 0;
         numPointsVisible = 0;
     }
+#endif
 
     if (dKy_getEnvlight().mCurTime < 120.0f || dKy_getEnvlight().mCurTime > 270.0f) {
         numCenterPointsVisible = 0;
@@ -759,7 +771,8 @@ BOOL overhead_bg_chk() {
     pos.y += 50.0f;
     roofChk.SetPos(pos);
 
-    if (dComIfG_Bgsp()->RoofChk(&roofChk) != G_CM3D_F_INF)
+    f32 roofY = dComIfG_Bgsp()->RoofChk(&roofChk);
+    if (roofY != G_CM3D_F_INF)
         ret = TRUE;
     pos.y += 10000.0f;
     gndChk.SetPos(&pos);
@@ -788,7 +801,8 @@ BOOL forward_overhead_bg_chk(cXyz* pPos, f32 dist) {
     *pPos = pos;
     roofChk.SetPos(pos);
 
-    if (dComIfG_Bgsp()->RoofChk(&roofChk) != G_CM3D_F_INF)
+    f32 roofY = dComIfG_Bgsp()->RoofChk(&roofChk);
+    if (roofY != G_CM3D_F_INF)
         ret = TRUE;
     pos.y += 10000.0f;
     gndChk.SetPos(&pos);
@@ -1844,11 +1858,19 @@ void wave_move() {
 
     pPkt->mSkewDir = cM3d_VectorProduct2d(0.0f, 0.0f, -windPowVec2.x, -windPowVec2.z, vectle.x, vectle.z);
     {
+#if VERSION == VERSION_DEMO
+        f32 a = std::fabsf(windPowVec2.x * vectle.x + windPowVec2.z * vectle.z);
+        f32 b = std::fabsf(windPowVec2.y);
+        f32 t1 = 1.0f;
+        f32 tmp = windPow * (t1 - a);
+        pPkt->mSkewWidth = tmp * (t1 - b);
+#else
         f32 t1 = 1.0f;
         f32 a = std::fabsf(windPowVec2.x * vectle.x + windPowVec2.z * vectle.z);
         f32 b = std::fabsf(windPowVec2.y);
         f32 tmp = t1 - a;
         pPkt->mSkewWidth = tmp * windPow * (t1 - b);
+#endif
     }
     pPkt->mSkewWidth *= 0.6f * std::fabsf(pPkt->mSkewDir);
 
@@ -1920,8 +1942,14 @@ void wave_move() {
 
                         f32 range = outerRadius - innerRadius;
                         if (range > 0.0f) {
+#if VERSION == VERSION_DEMO
+                            f32 ratio = (dist - innerRadius) / range;
+                            if (pPkt->mEff[i].mStrengthEnv > ratio)
+                                pPkt->mEff[i].mStrengthEnv = ratio;
+#else
                             if (pPkt->mEff[i].mStrengthEnv > (dist - innerRadius) / range)
                                 pPkt->mEff[i].mStrengthEnv = (dist - innerRadius) / range;
+#endif
                         } else {
                             pPkt->mEff[i].mStrengthEnv = 0.0f;
                         }
@@ -1937,8 +1965,14 @@ void wave_move() {
                     f32 outerRadius = innerRadius + 1000.0f;
                     f32 range = outerRadius - innerRadius;
                     if (range > 0.0f) {
+#if VERSION == VERSION_DEMO
+                        f32 ratio = (dist - innerRadius) / range;
+                        if (pPkt->mEff[i].mStrengthEnv > ratio)
+                            pPkt->mEff[i].mStrengthEnv = ratio;
+#else
                         if (pPkt->mEff[i].mStrengthEnv > (dist - innerRadius) / range)
                             pPkt->mEff[i].mStrengthEnv = (dist - innerRadius) / range;
+#endif
                     } else {
                         pPkt->mEff[i].mStrengthEnv = 0.0f;
                     }
@@ -1989,6 +2023,8 @@ void wave_move() {
         }
     }
 }
+
+
 
 /* 80091964-80092294       .text cloud_shadow_move__Fv */
 #if VERSION == VERSION_JPN
@@ -2517,6 +2553,9 @@ void poison_move() {
     }
 
     int pattern;
+#if VERSION == VERSION_DEMO
+    f32 rate;
+#endif
     if (dComIfGp_roomControl_getStayNo() < 16) {
         static const int room_pat_tbl[] = {
             -1,
@@ -2596,10 +2635,13 @@ void poison_move() {
         var_f15 = unk_poison_data[1].x28;
     }
 
+#if VERSION == VERSION_DEMO
+    rate = 0.2f;
+#endif
     poison_packet->mBasePos = spD0;
     poison_packet->mBasePos.y += var_f17;
 
-    f32 var_f31 = G_CM3D_F_INF;
+    f32 var_f31 = DEMO_SELECT(1000000000.0f, G_CM3D_F_INF);
     for (int i = 0; i < g_env_light.mPoisonCount; i++) {
         spAC = spA0;
 
@@ -2849,7 +2891,7 @@ void poison_move() {
 
         f32 temp_f2_9 = cM_fsin(poison_packet->mEff[i].field_0x1c);
         poison_packet->mEff[i].field_0x1c += 0.05f;
-        poison_packet->mEff[i].mSize = var_f17 + (var_f17 * var_f18) + ((0.2f * var_f17) * temp_f2_9);
+        poison_packet->mEff[i].mSize = var_f17 + (var_f17 * var_f18) + ((DEMO_SELECT(rate, 0.2f) * var_f17) * temp_f2_9);
 
         f32 var_f14;
         if (poison_packet->mEff[i].mPos.y > spAC.y * 0.5f) {
@@ -2873,17 +2915,18 @@ void poison_move() {
             var_f18 = 1.0f - var_f1_4;
         } else {
             var_f18 = 1.0f;
+            f32 margin = 100.0f;
 
-            if (std::fabsf(poison_packet->mEff[i].mPos.x) > spAC.x - 100.0f) {
-                f32 temp_f3_5 = spAC.x - (spAC.x - 100.0f);
+            if (std::fabsf(poison_packet->mEff[i].mPos.x) > spAC.x - margin) {
+                f32 temp_f3_5 = spAC.x - (spAC.x - margin);
                 var_f18 = 0.0f;
                 if (temp_f3_5 > var_f18) {
                     var_f18 = (spAC.x - std::fabsf(poison_packet->mEff[i].mPos.x)) / temp_f3_5;
                 }
             }
 
-            if (std::fabsf(poison_packet->mEff[i].mPos.z) > spAC.z - 100.0f) {
-                f32 temp_f3_5 = spAC.z - (spAC.z - 100.0f);
+            if (std::fabsf(poison_packet->mEff[i].mPos.z) > spAC.z - margin) {
+                f32 temp_f3_5 = spAC.z - (spAC.z - margin);
                 if (temp_f3_5 > 0.0f) {
                     var_f18 *= (spAC.z - std::fabsf(poison_packet->mEff[i].mPos.z)) / temp_f3_5;
                 } else {
@@ -2926,7 +2969,7 @@ void poison_move() {
             poison_packet->mEff[i].mAlpha *= var_f2 * var_f2 * var_f2;
         }
 
-        if (dComIfGp_getPlayer(0) == dComIfGp_getLinkPlayer() && poison_packet->mEff[i].mAlpha > 0.0001f && poison_packet->mEff[i].field_0x2e == 0) {
+        if (dComIfGp_getPlayer(0) == dComIfGp_getLinkPlayer() && poison_packet->mEff[i].mAlpha > DEMO_SELECT(0.00001f, 0.0001f) && poison_packet->mEff[i].field_0x2e == 0) {
             sp94.y -= 50.0f;
             if (sp94.abs(player->current.pos) < poison_packet->mEff[i].mSize * 0.8f) {
                 player->onPoisonCurse();
@@ -2937,6 +2980,9 @@ void poison_move() {
     g_env_light.mpPoisonPacket->mCount++;
 }
 
+
+
+
 /* 800937BC-800940D4       .text vrkumo_move__Fv */
 void vrkumo_move() {
     cXyz wind_vecpow = dKyw_get_wind_vecpow();
@@ -2944,6 +2990,9 @@ void vrkumo_move() {
     camera_class* camera = (camera_class*)dComIfGp_getCamera(0);
     cXyz sp80;
 
+#if VERSION == VERSION_DEMO
+    f32 max_alpha;
+#endif
     f32 var_f31 = 4.0f;
     f32 var_f30 = 1000.0f;
     f32 var_f24 = 3000.0f;
@@ -3081,8 +3130,8 @@ void vrkumo_move() {
         sp74.y = 0.0f;
 
         f32 sp24 = sp74.abs();
-        f32 sp20 = 1.0f - sp24 / 15000.0f;
-        f32 f2 = sp24 / 15000.0f;
+        f32 f2;
+        f32 sp20 = 1.0f - (f2 = sp24 / 15000.0f);
         if (sp20 < 0.0f) {
             sp20 = 0.0f;
         }
@@ -3096,7 +3145,9 @@ void vrkumo_move() {
         }
         vrkumo_packet->mInst[i].mDistFalloff = 1.0f - (f2 * f2 * f2 * f2 * f2 * f2);
 
+#if VERSION > VERSION_DEMO
         f32 max_alpha;
+#endif
         f32 alpha_step;
         if (strcmp(dComIfGp_getStartStageName(), "M_DragB") == 0) {
             vrkumo_packet->mInst[i].mAlpha = 1.0f;
@@ -3131,6 +3182,7 @@ void vrkumo_move() {
         cLib_addCalc(&vrkumo_packet->mInst[i].mAlpha, max_alpha, 0.2f, alpha_step, 0.01f);
     }
 }
+
 
 /* 800940D4-80094144       .text dKy_wave_chan_init__Fv */
 void dKy_wave_chan_init() {
@@ -5792,7 +5844,11 @@ void dKyr_thunder_move() {
 
                 pThunder->mState = 0;
                 if (g_env_light.mThunderEff.mMode == 0)
+#if VERSION == VERSION_DEMO
+                    g_env_light.mThunderEff.mStatus = 0;
+#else
                     pThunder->mStatus = 0;
+#endif
             }
         }
         break;
@@ -5807,20 +5863,20 @@ void dKyr_thunder_move() {
             pThunder->mLightInfluence.mColor.g = (u8)(pThunder->mFlashTimer * 0.2f * 235.0f);
             pThunder->mLightInfluence.mColor.b = (u8)(pThunder->mFlashTimer * 0.2f * 255.0f);
             if (g_env_light.field_0xc98 == 0) {
-                dKy_actor_addcol_amb_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.5f);
-                dKy_actor_addcol_dif_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.5f);
+                dKy_actor_addcol_amb_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.5f);
+                dKy_actor_addcol_dif_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.5f);
                 dKy_bg_addcol_amb_set(0x32, 0x78, 0xff, pThunder->mFlashTimer * 0.7f);
                 dKy_bg_addcol_dif_set(0x32, 0x78, 0xff, pThunder->mFlashTimer * 0.7f);
-                dKy_bg1_addcol_amb_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.35f);
-                dKy_bg1_addcol_dif_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.35f);
-                dKy_vrbox_addcol_sky0_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.4f);
-                dKy_vrbox_addcol_kasumi_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.5f);
-                dKy_addcol_fog_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.3f);
+                dKy_bg1_addcol_amb_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.35f);
+                dKy_bg1_addcol_dif_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.35f);
+                dKy_vrbox_addcol_sky0_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.4f);
+                dKy_vrbox_addcol_kasumi_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.5f);
+                dKy_addcol_fog_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.3f);
             }
         } else {
-            dKy_vrbox_addcol_sky0_set(0x5a,0xa0,0xf5,(pThunder->mFlashTimer * 0.15f));
-            dKy_vrbox_addcol_kasumi_set(0x5a,0xa0,0xf5,(pThunder->mFlashTimer * 0.35f));
-            dKy_addcol_fog_set(0x5a, 0xa0, 0xf5, pThunder->mFlashTimer * 0.12f);
+            dKy_vrbox_addcol_sky0_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), (pThunder->mFlashTimer * 0.15f));
+            dKy_vrbox_addcol_kasumi_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), (pThunder->mFlashTimer * 0.35f));
+            dKy_addcol_fog_set(DEMO_SELECT(100, 0x5a), DEMO_SELECT(170, 0xa0), DEMO_SELECT(255, 0xf5), pThunder->mFlashTimer * 0.12f);
         }
     }
 }
