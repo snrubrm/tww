@@ -1813,15 +1813,12 @@ bool dCamera_c::watchActorEvCamera() {
             cXyz eye;
             int i = 0;
             cSGlobe search = work->mSearchGlobe;
-            bool unused_bool = false;
             for (i = 0; i < 45; i++) {
                 eye = work->mCenter + search.Xyz();
                 if (allow && !lineBGCheck(&work->mCenter, &eye, 0x8f) &&
                     !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, work->mTarget))
                 {
                     work->mSearchGlobe = search;
-                    unused_bool = true;
-                    (void)unused_bool;
                     break;
                 }
                 search.U(search.U() + step);
@@ -1885,15 +1882,12 @@ bool dCamera_c::watchActorEvCamera() {
             cXyz eye;
             int i = 0;
             cSGlobe search = work->mSearchGlobe;
-            bool unused_bool = false;
             for (i = 0; i < 45; i++) {
                 eye = work->mCenter + search.Xyz();
                 if (allow && !lineBGCheck(&work->mCenter, &eye, 0x8f) &&
                     !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, work->mTarget))
                 {
                     work->mSearchGlobe = search;
-                    unused_bool = true;
-                    (void)unused_bool;
                     break;
                 }
                 search.U(search.U() + step);
@@ -1955,15 +1949,12 @@ bool dCamera_c::watchActorEvCamera() {
             cXyz eye;
             int i = 0;
             cSGlobe search = work->mSearchGlobe;
-            bool unused_bool = false;
             for (i = 0; i < 45; i++) {
                 eye = work->mCenter + search.Xyz();
                 if (allow && !lineBGCheck(&work->mCenter, &eye, 0x8f) &&
                     !lineCollisionCheck(work->mCenter, eye, mpPlayerActor, work->mTarget))
                 {
                     work->mSearchGlobe = search;
-                    unused_bool = true;
-                    (void)unused_bool;
                     break;
                 }
                 search.U(search.U() + step);
