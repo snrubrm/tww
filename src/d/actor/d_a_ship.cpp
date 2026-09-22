@@ -892,7 +892,7 @@ f32 daShip_c::getWaterY() {
         waterY = m03F8;
     }
     else {
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
         waterY = m03F4;
 #else
         daPy_lk_c* link = daPy_getPlayerLinkActorClass();
