@@ -5811,8 +5811,7 @@ void fopMsgM_msgDataProc_c::getString(char* i_dest, char* param_2, char* param_3
     f32 f30 = 0.0f;
 
 #if VERSION <= VERSION_JPN
-    mesg_header* header = msgGet.getMesgHeader(i_msgNo);
-    const char* src = msgGet.getMessage(header);
+    const char* src = msgGet.getMessage(msgGet.getMesgHeader(i_msgNo));
     int offset = 0;
 #else
     const char* src;
