@@ -3038,7 +3038,7 @@ void dMenu_Collect_c::itemnoteSet() {
 
     f32 rubyFontSize = ((J2DTextBox*)m740.pane)->mFontSizeX;
 
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
     f32 f30 = ((J2DTextBox*)m778.pane)->mFontSizeX;
 #else
     J2DTextBox::TFontSize msgFontSize;
@@ -3234,7 +3234,7 @@ void dMenu_Collect_c::itemnoteSet() {
     mMsgProc.setRubyCharSpace(((J2DTextBox*)m740.pane)->getCharSpace());
     mMsgProc.setLineSpace(((J2DTextBox*)m778.pane)->getLineSpace());
     mMsgProc.setMesgEntry(&mesgEntry);
-#if VERSION == VERSION_DEMO
+#if VERSION <= VERSION_JPN
     mMsgProc.setFontSize(f30);
 #else
     mMsgProc.setFontSize(msgFontSize.mSizeX);
@@ -3255,7 +3255,7 @@ void dMenu_Collect_c::itemnoteSet() {
 
     f32 lineSpace = ((J2DTextBox*)m778.pane)->getLineSpace();
 
-    int lineAdjust = 3 - lineCount;
+    int lineAdjust = VERSION_SELECT(2, 2, 3, 3) - lineCount;
     f32 yShift = lineAdjust * (lineSpace / 2.0f);
 
     ((J2DTextBox*)m740.pane)->shiftSet(0.0f, yShift);
