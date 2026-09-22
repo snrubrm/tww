@@ -871,13 +871,13 @@ void J3DModel::calcNrmMtx() {
 
 /* 802EF1B8-802EF2B0       .text calcBumpMtx__8J3DModelFv */
 void J3DModel::calcBumpMtx() {
-    if (getModelData()->checkBumpFlag() == 1) {
+    if (mModelData->checkBumpFlag() == 1) {
         s32 bumpMtxOffset = 0;
-        for (s32 i = 0; i < getModelData()->getMaterialNum(); i++) {
-            J3DMaterial * pMaterial = getModelData()->getMaterialNodePointer(i);
+        for (s32 i = 0; i < mModelData->getMaterialNum(); i++) {
+            J3DMaterial * pMaterial = mModelData->getMaterialNodePointer(i);
             if (pMaterial->getNBTScale()->mbHasScale == 1) {
                 pMaterial->getShape()->calcNBTScale(*pMaterial->getNBTScale()->getScale(), getNrmMtxPtr(), getBumpMtxPtr(bumpMtxOffset));
-                DCStoreRange(getBumpMtxPtr(bumpMtxOffset), getModelData()->getDrawMtxNum() * sizeof(Mtx33));
+                DCStoreRange(getBumpMtxPtr(bumpMtxOffset), mModelData->getDrawMtxNum() * sizeof(Mtx33));
                 bumpMtxOffset++;
             }
         }
