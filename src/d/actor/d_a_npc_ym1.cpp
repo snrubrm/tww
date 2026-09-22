@@ -281,7 +281,8 @@ bool daNpc_Ym1_c::init_texPttrnAnm(s8 index, bool modify) {
     if (index < 0) {
         return false;
     }
-    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*)dComIfG_getObjectIDRes(mArcName, btpResID(index));
+    int res = btpResID(index);
+    J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*)dComIfG_getObjectIDRes(mArcName, res);
     JUT_ASSERT(0x270, a_btp != 0);
     mBtpNo = index;
     mTexFrame = 0;
@@ -693,15 +694,7 @@ bool daNpc_Ym1_c::chk_talk() {
 
 /* 00001C24-00001C64       .text chk_parts_notMov__11daNpc_Ym1_cFv */
 bool daNpc_Ym1_c::chk_parts_notMov() {
-    bool result = false;
-    bool head = false;
-    if (mOldHead == m_jnt.getHead_y() && mOldBackbone == m_jnt.getBackbone_y()) {
-        head = true;
-    }
-    if (head && mOldAngle == current.angle.y) {
-        result = true;
-    }
-    return result;
+    return mOldHead == m_jnt.getHead_y() && mOldBackbone == m_jnt.getBackbone_y() && mOldAngle == current.angle.y;
 }
 
 /* 00001C64-00001DD0       .text lookBack__11daNpc_Ym1_cFv */
