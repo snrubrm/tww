@@ -424,16 +424,8 @@ void daObjTapestryPLight_c::setPointLight(cXyz pos, csXyz angle) {
 
 /* 00000490-00000600       .text execute__22daObjTapestryFireEff_cFP14JPABaseEmitter */
 void daObjTapestryFireEff_c::execute(JPABaseEmitter* emitter) {
-#if VERSION == VERSION_DEMO
     f32 lim = attr().m50;
     cXyz vel = mSpd * attr().m4C;
-#else
-    daObjTapestry_Attr_c a = attr();
-    daObjTapestry_Attr_c b = a;
-    f32 lim = b.m50;
-    daObjTapestry_Attr_c c = a;
-    cXyz vel = mSpd * c.m4C;
-#endif
     vel.x = cLib_minMaxLimit<f32>(vel.x, -lim, lim);
     vel.z = cLib_minMaxLimit<f32>(vel.z, -lim, lim);
     emitter->setDirection(JGeometry::TVec3<f32>(vel.x, 0.1f, vel.z));
@@ -683,15 +675,8 @@ void daObjTapestryPacket_c::calc_acc_spring(int row, int col) {
 
 /* 000014FC-000015B8       .text calc_acc_gravity__21daObjTapestryPacket_cFv */
 void daObjTapestryPacket_c::calc_acc_gravity() {
-#if VERSION == VERSION_DEMO
     f32 g = 0.0011111111f * attr().mGravity;
     mAcc.y += g * attr().m00;
-#else
-    daObjTapestry_Attr_c a = attr();
-    daObjTapestry_Attr_c b = a;
-    daObjTapestry_Attr_c c = a;
-    mAcc.y += 0.0011111111f * b.mGravity * c.m00;
-#endif
 }
 
 /* 000015B8-00001858       .text calc_acc_wave__21daObjTapestryPacket_cFii */
