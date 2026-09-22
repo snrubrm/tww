@@ -135,7 +135,7 @@ void daObjAshut::Act_c::mode_u_l_init() {
     mMode = Mode_U_L;
     mSpeed = 0.0f;
     mBounces = attr().fallBounces;
-    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_CL, &eyePos, 0, dComIfGp_getReverb(current.roomNo));
+    mDoAud_seStart(JA_SE_OBJ_P_SHIP_SHTR_CL, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
 }
 
 /* 00000700-000007C0       .text mode_u_l__Q210daObjAshut5Act_cFv */
