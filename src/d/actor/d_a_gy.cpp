@@ -1672,7 +1672,7 @@ bool daGy_c::_execute() {
 /* 00004264-00004560       .text drawDebug__6daGy_cFv */
 void daGy_c::drawDebug() {
     {
-        if ((u32)l_HIO.m180 - 0x70000 != 0xFFFF || l_HIO.m180 != 0) {
+        if (l_HIO.m180 != 0x7FFFF || l_HIO.m180 != 0) {
             cXyz pos = current.pos;
             pos.y += 10.0f;
             int angle1 = shape_angle.y + l_HIO.m180;
@@ -1687,7 +1687,7 @@ void daGy_c::drawDebug() {
     }
 
     {
-        if ((u32)l_HIO.m140 - 0x70000 != 0xFFFF || l_HIO.m140 != 0) {
+        if (l_HIO.m140 != 0x7FFFF || l_HIO.m140 != 0) {
             daShip_c* ship = dComIfGp_getShipActor();
             if (ship != NULL) {
                 cXyz pos = ship->current.pos;
@@ -1705,7 +1705,7 @@ void daGy_c::drawDebug() {
     }
 
     {
-        if ((u32)l_HIO.m142 - 0x70000 != 0xFFFF || l_HIO.m142 != 0) {
+        if (l_HIO.m142 != 0x7FFFF || l_HIO.m142 != 0) {
             daShip_c* ship = dComIfGp_getShipActor();
             if (ship != NULL) {
                 cXyz pos = ship->current.pos;
