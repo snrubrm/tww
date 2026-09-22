@@ -739,7 +739,7 @@ void daAgb_c::resetCursor(bool param_0) {
     fopAc_ac_c* player_p = dComIfGp_getPlayer(0);
     mIsFree = false;
     setFollowTarget(false);
-    setTargetID(fpcM_ERROR_PROCESS_ID_e);
+    setTargetID(DEMO_SELECT(8, fpcM_ERROR_PROCESS_ID_e));
 
     if (fopAcM_GetName(player_p) != fpcNm_NPC_KAM_e) {
         current.pos = player_p->current.pos;
@@ -897,11 +897,15 @@ void daAgb_c::GbaItemUse() {
     case 16:
         if (daPy_getPlayerLinkActorClass()->checkNoControll() ||
             dComIfGp_checkPlayerStatus0(0, daPyStts0_CRAWL_e) ||
+#if VERSION == VERSION_DEMO
+            daPy_getPlayerActorClass()->checkPlayerFly()
+#else
             (
                 daPy_getPlayerActorClass()->checkPlayerFly() &&
                 !dComIfGp_checkPlayerStatus0(0, daPyStts0_SWIM_e) &&
                 !dComIfGp_checkPlayerStatus0(0, daPyStts0_SHIP_RIDE_e)
             )
+#endif
         ) {
             mEffect = BigLittleChange(0x1F0300);
             return;
@@ -1027,6 +1031,19 @@ void daAgb_c::GbaItemUse() {
         break;
 #endif
     case 7:
+#if VERSION == VERSION_DEMO
+        if (dComIfGs_getItem(dInvSlot_BOW_e) != dItemNo_NONE_e && dComIfGs_getArrowNum() < dComIfGs_getArrowMax()) {
+            temp_r29 |= 0x100;
+        }
+
+        if (dComIfGs_checkGetItem(dItemNo_BOMB_BAG_e) && dComIfGs_getBombNum() < dComIfGs_getBombMax()) {
+            temp_r29 |= 0x10000;
+        }
+
+        if (dComIfGs_checkGetItem(dItemNo_BAIT_BAG_e) && dComIfGs_checkBaitItemEmpty()) {
+            temp_r29 |= 0x1000000;
+        }
+#else
         if (dComIfGs_checkGetItem(dItemNo_BAIT_BAG_e)) {
             if (dComIfGs_checkBaitItemEmpty()) {
                 temp_r29 |= 0x1000000;
@@ -1040,6 +1057,7 @@ void daAgb_c::GbaItemUse() {
                 temp_r29 |= 0x100;
             }
         }
+#endif
         break;
     case 0x14:
         resetCursor(false);
@@ -1058,6 +1076,9 @@ void daAgb_c::GbaItemUse() {
 #endif
     case 10:
         dComIfGp_setItemLifeCount(dComIfGs_getMaxLife());
+#if VERSION == VERSION_DEMO
+    case 9:
+#endif
         dComIfGp_setItemMagicCount(dComIfGs_getMaxMagic());
         resetCursor(false);
         field_0x65c = 60;
@@ -1079,7 +1100,13 @@ void daAgb_c::Shopping() {
     mItemBuy.U8.field_0x0 = mShop.field_0x0;
     
     // The usage of single | instead of double || here looks like a bug
+#if VERSION == VERSION_DEMO
+    BOOL run = dComIfGp_event_runCheck();
+    s8 pause = dScnPly_ply_c::pauseTimer;
+    if (!(run | dMenu_flag() | pause)) {
+#else
     if (!(dComIfGp_event_runCheck() | dMenu_flag())) {
+#endif
         if (dComIfGs_getRupee() < mShop.field_0x2) {
             itemBuy.U8.field_0x1 = 3;
             return;
@@ -1163,6 +1190,27 @@ void daAgb_c::FlagsSend(u32 stage_type) {
     mFlags.field_0x7_1 = dComIfGs_isEventBit(dSv_event_flag_c::UNLOCK_TINGLE_BALLOON_DISCOUNT);
     mFlags.field_0x7_0 = dComIfGs_isEventBit(dSv_event_flag_c::UNLOCK_TING_DISCOUNT);
     
+#if VERSION == VERSION_DEMO
+    if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_0908)) {
+        mFlags.field_0x9_5 = !dComIfGs_isSymbol(dSymbol_NAYRU_e);
+        mFlags.field_0x9_7 = !dComIfGs_isSymbol(dSymbol_DIN_e);
+        mFlags.field_0x9_6 = !dComIfGs_isSymbol(dSymbol_FARORE_e);
+    } else {
+        mFlags.field_0x9_5 = 0;
+        mFlags.field_0x9_7 = 0;
+        mFlags.field_0x9_6 = 0;
+    }
+    
+    if (dComIfGs_isSymbol(dSymbol_NAYRU_e)) {
+        mFlags.field_0x9_4 = !dComIfGs_isEventBit(dSv_event_flag_c::PLACED_DINS_PEARL);
+        mFlags.field_0x9_3 = !dComIfGs_isEventBit(dSv_event_flag_c::PLACED_FARORES_PEARL);
+        mFlags.field_0x9_2 = !dComIfGs_isEventBit(dSv_event_flag_c::PLACED_NAYRUS_PEARL);
+    } else {
+        mFlags.field_0x9_4 = 0;
+        mFlags.field_0x9_3 = 0;
+        mFlags.field_0x9_2 = 0;
+    }
+#else
     if (!dComIfGs_isEventBit(dSv_event_flag_c::MET_KORL) || dComIfGs_isEventBit(dSv_event_flag_c::UNK_1E80)) {
         mFlags.field_0x9_7 = 0;
         mFlags.field_0x9_6 = 0;
@@ -1190,6 +1238,7 @@ void daAgb_c::FlagsSend(u32 stage_type) {
         mFlags.field_0x9_3 = 0;
         mFlags.field_0x9_2 = 0;
     }
+#endif
     
     if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_1820)) {
         mFlags.field_0x9_1 = !dComIfGs_isStageBossEnemy(dSv_save_c::STAGE_WT);
@@ -1287,6 +1336,11 @@ void daAgb_c::CursorMove(fopAc_ac_c* actor, u32 stage_type) {
         
         f32 playerDist = fopAcM_searchPlayerDistanceXZ(actor);
         if (playerDist > 212100.0f) {
+#if VERSION == VERSION_DEMO
+            cXyz r1_50 = player->current.pos - actor->current.pos;
+            actor->home.pos.x = player->current.pos.x - r1_50.x * 212100.0f / playerDist;
+            actor->home.pos.z = player->current.pos.z - r1_50.z * 212100.0f / playerDist;
+#else
             if (mIsFree || !mFollowTarget) {
                 cXyz r1_50 = player->current.pos - actor->current.pos;
                 actor->home.pos.x = player->current.pos.x - r1_50.x * 212100.0f / playerDist;
@@ -1296,25 +1350,36 @@ void daAgb_c::CursorMove(fopAc_ac_c* actor, u32 stage_type) {
                 setFollowTarget(false);
                 setTargetID(fpcM_ERROR_PROCESS_ID_e);
             }
+#endif
         }
     }
     
     cXyz r1_44 = actor->old.pos;
     cXyz r1_38 = actor->old.pos;
-    r1_38.y += 171.0f;
+    r1_38.y += DEMO_SELECT(1.0f + l_HIO.field_0x20, 171.0f);
     dBgS_LinkLinChk r1_11C;
     r1_11C.Set(&r1_44, &r1_38, actor);
     r1_11C.ClrSttsGroundOff();
     r1_11C.ClrSttsWallOff();
+#if VERSION == VERSION_DEMO
+    f32 f31_2 = 1.0f + l_HIO.field_0x20;
+    f32 wallR = 50.0f;
+#else
     f32 f31_2 = 171.0f;
+#endif
     if (dComIfG_Bgsp()->LineCross(&r1_11C)) {
         f31_2 = r1_11C.GetCross().y - 55.0f - actor->current.pos.y;
         if (f31_2 < 20.0f) {
             f31_2 = 20.0f;
         }
     }
+#if VERSION == VERSION_DEMO
+    mCrrPos.SetWall(f31_2, wallR);
+    mAcchCir.SetWall(f31_2, wallR - 10.0f);
+#else
     mCrrPos.SetWall(f31_2, 50.0f);
     mAcchCir.SetWall(f31_2, 40.0f);
+#endif
     mCrrPos.CrrPos(*dComIfG_Bgsp());
     mAcch.CrrPos(*dComIfG_Bgsp());
     
@@ -1367,7 +1432,7 @@ void daAgb_c::CursorMove(fopAc_ac_c* actor, u32 stage_type) {
     }
     
     cLib_chaseF(&actor->current.pos.y, actor->home.pos.y, 25.0f);
-    if (f30 > actor->current.pos.y && f30 < actor->current.pos.y + 170.0f + 1.0f) {
+    if (f30 > actor->current.pos.y && f30 < actor->current.pos.y + DEMO_SELECT(l_HIO.field_0x20, 170.0f) + 1.0f) {
         actor->home.pos.y = f30;
     }
 }
@@ -1377,10 +1442,20 @@ void daAgb_c::modeMove() {
     daPy_py_c* player = daPy_getPlayerActorClass();
     
     // single | instead of double ||: bug?
+#if VERSION == VERSION_DEMO
+    BOOL run = dComIfGp_event_runCheck();
+    s8 pause = dScnPly_ply_c::pauseTimer;
+    BOOL r26 = run | dMenu_flag() | pause;
+#else
     BOOL r26 = dComIfGp_event_runCheck() | dMenu_flag();
+#endif
     
+#if VERSION == VERSION_DEMO
+    u32 stage_type = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo());
+#else
     stage_stag_info_class* stag_info = dComIfGp_getStageStagInfo();
     u16 stage_type = dStage_stagInfo_GetSTType(stag_info);
+#endif
     
 #if VERSION > VERSION_DEMO
     if (eventInfo.checkCommandTalk()) {
@@ -1440,11 +1515,15 @@ void daAgb_c::modeMove() {
         if (!field_0x67d &&
             !daPy_getPlayerLinkActorClass()->checkNoControll() &&
             !dComIfGp_checkPlayerStatus0(0, daPyStts0_CRAWL_e) &&
+#if VERSION == VERSION_DEMO
+            !daPy_getPlayerActorClass()->checkPlayerFly()
+#else
             (
                 !daPy_getPlayerActorClass()->checkPlayerFly() ||
                 dComIfGp_checkPlayerStatus0(0, daPyStts0_SWIM_e) ||
                 dComIfGp_checkPlayerStatus0(0, daPyStts0_SHIP_RIDE_e)
             )
+#endif
         ) {
             mMode = MODE_LOOK_ATTENTION;
             offActive();
@@ -1490,7 +1569,7 @@ void daAgb_c::modeMove() {
             setTargetID(fpcM_ERROR_PROCESS_ID_e);
             setFollowTarget(false);
         } else if (stage_type != dStageType_MINIBOSS_e) {
-            dAttList_c* attList = dComIfGp_getAttention().GetLockonList(0);
+            dAttList_c* attList = g_dComIfG_gameInfo.play.getAttention().GetLockonList(0);
             if (attList) {
                 fopAc_ac_c* r3 = attList->getActor();
                 if (r3) {
@@ -1546,9 +1625,18 @@ void daAgb_c::modeMove() {
         CursorMove(this, stage_type);
     }
     
+#if VERSION == VERSION_DEMO
+    if (eventInfo.checkCommandTalk()) {
+        mUploadAction = UpAct_UNK0;
+        mMode = MODE_LOAD;
+    } else {
+        eventInfo.onCondition(dEvtCnd_CANTALK_e);
+    }
+#else
     if (mMode == MODE_MOVE) {
         eventInfo.onCondition(dEvtCnd_CANTALK_e);
     }
+#endif
 }
 
 /* 800D303C-800D30D4       .text modeDelete__7daAgb_cFv */
@@ -1584,10 +1672,19 @@ static BOOL daAgb_Execute(daAgb_c* i_this) {
         mDoGaC_DataStatusReset(4);
     } else {
         CPad_GET_ERROR_STATUS(mDoGaC_getPortNo()) = 1;
+#if VERSION == VERSION_DEMO
+        i_this->field_0x673 = false;
+#endif
     }
 
     // single | instead of double ||: bug?
+#if VERSION == VERSION_DEMO
+    BOOL run = dComIfGp_event_runCheck();
+    s8 pause = dScnPly_ply_c::pauseTimer;
+    BOOL var_r27 = run | dMenu_flag() | pause;
+#else
     BOOL var_r27 = dComIfGp_event_runCheck() | dMenu_flag();
+#endif
 
     u32 stage_type = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo());
 
@@ -1767,6 +1864,9 @@ static BOOL daAgb_IsDelete(daAgb_c* i_this) {
 static BOOL daAgb_Delete(daAgb_c* i_this) {
     dComIfG_resDelete(&i_this->mPhase, "Agb");
     i_this->field_0x684.remove();
+#if VERSION == VERSION_DEMO
+    l_HIO.removeHIO();
+#endif
     return TRUE;
 }
 
@@ -1809,18 +1909,18 @@ static cPhs_State daAgb_Create(fopAc_ac_c* i_this) {
     cPhs_State phase = dComIfG_resLoad(&a_this->mPhase, "Agb");
     if (phase == cPhs_COMPLEATE_e) {
         dComIfGp_setAgb(a_this);
-        if (!fopAcM_entrySolidHeap(i_this, createHeap_CB, 0x500)) {
+        if (!fopAcM_entrySolidHeap(a_this, createHeap_CB, 0x500)) {
             return cPhs_ERROR_e;
         }
 
-        a_this->mCrrPos.Set(fopAcM_GetPosition_p(a_this), fopAcM_GetOldPosition_p(a_this), (void*)NULL, NULL);
-        a_this->mCrrPos.SetWall(171.0f, 50.0f);
-        a_this->mCrrPos.SetGndUpY(170.0f);
+        a_this->mCrrPos.Set(fopAcM_GetPosition_p(i_this), fopAcM_GetOldPosition_p(i_this), fpcM_ERROR_PROCESS_ID_e, NULL);
+        a_this->mCrrPos.SetWall(DEMO_SELECT(1.0f + l_HIO.field_0x20, 171.0f), 50.0f);
+        a_this->mCrrPos.SetGndUpY(DEMO_SELECT(l_HIO.field_0x20, 170.0f));
         a_this->mCrrPos.ClrNoRoof();
-        a_this->mAcch.Set(fopAcM_GetPosition_p(i_this), fopAcM_GetOldPosition_p(i_this), i_this, 1, &a_this->mAcchCir);
+        a_this->mAcch.Set(fopAcM_GetPosition_p(a_this), fopAcM_GetOldPosition_p(a_this), a_this, 1, &a_this->mAcchCir);
         a_this->mAcch.OnLineCheck();
         a_this->mAcch.SetGrndNone();
-        a_this->mAcchCir.SetWall(171.0f, 40.0f);
+        a_this->mAcchCir.SetWall(DEMO_SELECT(1.0f + l_HIO.field_0x20, 171.0f), 40.0f);
 
         TestDataManager[4].mpData = &a_this->mGbaFlg;
         TestDataManager[8].mpData = &a_this->mSwitch;
