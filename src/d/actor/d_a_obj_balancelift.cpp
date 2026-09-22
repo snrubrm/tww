@@ -315,14 +315,12 @@ inline cPhs_State daBalancelift_c::_create() {
         if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0xe40)) {
             phase = CreateInit();
         } else {
-            phase = cPhs_ERROR_e;
-            goto done;
+            return cPhs_ERROR_e;
         }
         fopAcM_SetMtx(this, M_mdl->getBaseTRMtx());
         fopAcM_setCullSizeBox(this, -150.0f, -150.0f, -150.0f, 150.0f, 1000.0f, 150.0f);
         MTXCopy(M_mdl->getBaseTRMtx(), mBgMtx);
     }
-done:
     return phase;
 }
 
