@@ -456,17 +456,15 @@ bool daObjMagmarock::Act_c::_execute() {
 }
 
 inline bool daObjMagmarock::Act_c::_draw() {
-    cXyz* pos;
-    dKy_tevstr_c* tev;
-    g_env_light.settingTevStruct(TEV_TYPE_BG0, pos = &current.pos, tev = &tevStr);
-    g_env_light.settingTevStruct(TEV_TYPE_ACTOR, pos, &mEffectTev);
+    g_env_light.settingTevStruct(TEV_TYPE_BG0, &current.pos, &tevStr);
+    g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &mEffectTev);
     mEffectTev.mColorC0.r = (u8)(mEffectTev.mColorC0.r + (int)(0.12f * (255 - mEffectTev.mColorC0.r)));
     mEffectTev.mColorC0.g = (u8)(mEffectTev.mColorC0.g + (int)(0.12f * (255 - mEffectTev.mColorC0.g)));
     mEffectTev.mColorC0.b = (u8)(mEffectTev.mColorC0.b + (int)(0.12f * (255 - mEffectTev.mColorC0.b)));
     mEffectTev.mColorK0.r = (u8)(mEffectTev.mColorK0.r + (int)(0.12f * (255 - mEffectTev.mColorK0.r)));
     mEffectTev.mColorK0.g = (u8)(mEffectTev.mColorK0.g + (int)(0.12f * (255 - mEffectTev.mColorK0.g)));
     mEffectTev.mColorK0.b = (u8)(mEffectTev.mColorK0.b + (int)(0.12f * (255 - mEffectTev.mColorK0.b)));
-    g_env_light.setLightTevColorType(mpModel, tev);
+    g_env_light.setLightTevColorType(mpModel, &tevStr);
     mBrk.entry(mpModel->getModelData(), (s16)mBrkFrame);
     mBck.entry(mpModel->getModelData(), (s16)mBckFrame);
     mDoExt_modelUpdateDL(mpModel);
@@ -474,6 +472,7 @@ inline bool daObjMagmarock::Act_c::_draw() {
 }
 
 /* 00001EC0-00002128       .text Draw__Q214daObjMagmarock6MethodFPv */
+// NONMATCHING - regalloc: the target keeps &current.pos and &tevStr in saved registers instead of recomputing them
 BOOL daObjMagmarock::Method::Draw(void* actor) {
     Act_c* self = static_cast<Act_c*>(actor);
     return self->_draw();
