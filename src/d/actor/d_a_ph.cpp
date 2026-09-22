@@ -328,14 +328,8 @@ void fly_angle_set(ph_class* i_this, unsigned char param) {
         cLib_addCalcAngleS2(&actor->current.angle.x, targetX, 1, 0x200);
     }
     case 3: {
-#if VERSION == VERSION_DEMO
-        targetY = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+        targetY = fopAcM_searchPlayerAngleY(actor);
         cLib_addCalcAngleS2(&actor->current.angle.y, targetY, 1, 0x500);
-#else
-        s16 yaw = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
-        targetY = yaw;
-        cLib_addCalcAngleS2(&actor->current.angle.y, yaw, 1, 0x500);
-#endif
         break;
     }
     case 2: {
