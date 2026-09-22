@@ -389,15 +389,6 @@ void daNpc_Sarace_c::wait01() {
     }
 }
 
-#if VERSION == VERSION_DEMO
-static inline u32 make_barrel2_prm(daObjBarrel2::Type_e type, int item, bool buoy, bool coming) {
-    int itemNo = (item & 0x3F);
-    int b = buoy ? 1 : 0;
-    int c = coming ? 1 : 0;
-    return (itemNo << 0) | (0x7F << 16) | (type << 24) | (b << 8) | (c << 28);
-}
-#endif
-
 /* 00001024-000014B8       .text talk01__14daNpc_Sarace_cFv */
 void daNpc_Sarace_c::talk01() {
     if (talk(1) == 0x12) {
@@ -406,13 +397,8 @@ void daNpc_Sarace_c::talk01() {
             static cXyz barrelPos[] = {cXyz(175875.0f, 50.0f, 276520.0f), cXyz(176030.0f, 50.0f, 278884.0f)};
             dComIfGp_event_reset();
             mEventOrder = 3;
-#if VERSION == VERSION_DEMO
-            mHBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, make_barrel2_prm(daObjBarrel2::Type_01_e, 1, true, false), &barrelPos[0], -1, NULL, NULL, -1, NULL);
-            mVBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, make_barrel2_prm(daObjBarrel2::Type_e(0), 1, true, false), &barrelPos[1], -1, NULL, NULL, -1, NULL);
-#else
-            mHBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, 0x017F0101, &barrelPos[0], -1, NULL, NULL, -1, NULL);
-            mVBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, 0x007F0101, &barrelPos[1], -1, NULL, NULL, -1, NULL);
-#endif
+            mHBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, daObjBarrel2::Act_c::make_prm(daObjBarrel2::Type_01_e, 1, true, false, daObjBuoyflag::Texture_00_e), &barrelPos[0], -1, NULL, NULL, -1, NULL);
+            mVBarrelId = fopAcM_create(fpcNm_Obj_Barrel2_e, daObjBarrel2::Act_c::make_prm(daObjBarrel2::Type_00_e, 1, true, false, daObjBuoyflag::Texture_00_e), &barrelPos[1], -1, NULL, NULL, -1, NULL);
         } else if (mCurrMsgNo == 0xFB0) {
             dComIfGs_onEventBit(0x2840);
             dComIfGp_setNextStage("Ocean", 1, 0, 0, 0.0f, 0, 1, 0);
