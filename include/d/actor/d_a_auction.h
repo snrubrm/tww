@@ -21,11 +21,11 @@ public:
 
     daAuction_c();
 
-    void chkNpcExec(int) {}
+    BOOL chkNpcExec(int no) { return m820 & (1 << no); }
     void getAnmNpcNo() {}
     u8 getAucMdlNo(u8 idx) { return mAucMdlNo[idx]; }
     u8 getAucNpcNo(u8 idx) { return m80C[idx]; }
-    void getBetNpcNo() {}
+    u8 getBetNpcNo() { return m829; }
     void getKind(unsigned char) {}
     void getNpcNo() {}
     void isAucBet() {}

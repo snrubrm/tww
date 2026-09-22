@@ -25,6 +25,7 @@ public:
     inline BOOL _execute();
 
     u8 getMdlNo() { return mMdlNo; }
+    u8 getNpcNo() { return mNpcNo; }
     request_of_phase_process_class* getPhaseP() { return &mPhs; }
     f32 getPiconOfsY() { return mPiconOfsY; }
     void setAction(ActionFunc func) { mAction = func; }
