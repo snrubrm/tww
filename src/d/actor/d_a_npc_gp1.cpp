@@ -78,13 +78,13 @@ static BOOL nodeCallBack_Gp1(J3DNode* node, int phase) {
 
 /* 0000025C-000003AC       .text nodeGp1Control__11daNpc_Gp1_cFP7J3DNodeP8J3DModel */
 void daNpc_Gp1_c::nodeGp1Control(J3DNode* node, J3DModel* model) {
-    static cXyz a_eye_pos_offst(24.0f, -24.0f, 0.0f);
+    static cXyz a_eye_pos_off(24.0f, -24.0f, 0.0f);
     int joint = ((J3DJoint*)node)->getJntNo();
     mDoMtx_stack_c::copy(model->getAnmMtx(joint));
     if (joint == m_hed_jnt_num) {
         mDoMtx_stack_c::YrotM(-m_jnt.getHead_y());
         mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
-        mDoMtx_stack_c::multVec(&a_eye_pos_offst, &mEyeLocal);
+        mDoMtx_stack_c::multVec(&a_eye_pos_off, &mEyeLocal);
     }
     if (joint == m_bbone_jnt_num) {
         mDoMtx_stack_c::XrotM(m_jnt.getBackbone_y());
@@ -170,14 +170,14 @@ void daNpc_Gp1_c::setMtx(bool force) {
 
 /* 00000758-0000076C       .text anmNum_toResID__11daNpc_Gp1_cFi */
 int daNpc_Gp1_c::anmNum_toResID(int index) {
-    static const int a_anm_num_tbl[] = {dRes_ID_GP_BCK_WAIT01_e, dRes_ID_GP_BCK_WAIT01_e, dRes_ID_GP_BCK_TALK02_e, dRes_ID_GP_BCK_TALK03_e, dRes_ID_GP_BCK_HAIR_e, dRes_ID_GP_BCK_GRIN_e, dRes_ID_GP_BCK_GIVE_e, dRes_ID_GP_BCK_WALK_e};
-    return a_anm_num_tbl[index];
+    static const int a_bck_resID_tbl[] = {dRes_ID_GP_BCK_WAIT01_e, dRes_ID_GP_BCK_WAIT01_e, dRes_ID_GP_BCK_TALK02_e, dRes_ID_GP_BCK_TALK03_e, dRes_ID_GP_BCK_HAIR_e, dRes_ID_GP_BCK_GRIN_e, dRes_ID_GP_BCK_GIVE_e, dRes_ID_GP_BCK_WALK_e};
+    return a_bck_resID_tbl[index];
 }
 
 /* 0000076C-00000780       .text btpNum_toResID__11daNpc_Gp1_cFi */
 int daNpc_Gp1_c::btpNum_toResID(int index) {
-    static const int a_btp_num_tbl[] = {dRes_ID_GP_BTP_MABA01_e};
-    return a_btp_num_tbl[index];
+    static const int a_btp_resID_tbl[] = {dRes_ID_GP_BTP_MABA01_e};
+    return a_btp_resID_tbl[index];
 }
 
 /* 00000780-00000890       .text setBtp__11daNpc_Gp1_cFbi */
@@ -1141,13 +1141,12 @@ u8 daNpc_Gp1_c::demo() {
     }
     return mDemo;
 }
-// Retain the original unused debug drawing colors.
-extern const GXColor l_gp1DebugRed = {255, 0, 0, 128};
-extern const GXColor l_gp1DebugBlue = {0, 0, 255, 128};
-extern const GXColor l_gp1DebugGreen1 = {0, 255, 0, 128};
-extern const GXColor l_gp1DebugGreen2 = {0, 255, 0, 128};
 /* 00002C6C-00002E24       .text _draw__11daNpc_Gp1_cFv */
 BOOL daNpc_Gp1_c::_draw() {
+    GXColor dummy_1 = {0xFF, 0x00, 0x00, 0x80};
+    GXColor dummy_2 = {0x00, 0x00, 0xFF, 0x80};
+    GXColor dummy_3 = {0x00, 0xFF, 0x00, 0x80};
+    GXColor dummy_4 = {0x00, 0xFF, 0x00, 0x80};
     daNpc_Gp1_c* i_this = this;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
