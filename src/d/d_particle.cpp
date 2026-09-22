@@ -1082,7 +1082,11 @@ void dPa_ripplePcallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* ptcl
     if (fopAcM_getWaterY(&pos, &height)) {
         JGeometry::TVec3<f32> offsetPos;
         ptcl->getOffsetPosition(offsetPos);
-        ptcl->setOffsetPosition(JGeometry::TVec3<f32>(offsetPos.x, height, offsetPos.z));
+        JGeometry::TVec3<f32> newPos;
+        newPos.x = offsetPos.x;
+        newPos.y = height;
+        newPos.z = offsetPos.z;
+        ptcl->setOffsetPosition(newPos);
     }
 }
 
@@ -1138,33 +1142,33 @@ void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
     cXyz chk;
     f32 height;
     if (dPa_control_c::isStatus(1)) {
+        chk.z = z0 + posZ;
         chk.x = x0 + posX;
         chk.y = posY;
-        chk.z = z0 + posZ;
         if (fopAcM_getWaterY(&chk, &height)) {
             y0 = 2.0f + height;
         } else {
             y0 = 2.0f + posY;
         }
+        chk.z = z1 + posZ;
         chk.x = x1 + posX;
         chk.y = posY;
-        chk.z = z1 + posZ;
         if (fopAcM_getWaterY(&chk, &height)) {
             y1 = 2.0f + height;
         } else {
             y1 = 2.0f + posY;
         }
+        chk.z = z2 + posZ;
         chk.x = x2 + posX;
         chk.y = posY;
-        chk.z = z2 + posZ;
         if (fopAcM_getWaterY(&chk, &height)) {
             y2 = 2.0f + height;
         } else {
             y2 = 2.0f + posY;
         }
+        chk.z = z3 + posZ;
         chk.x = x3 + posX;
         chk.y = posY;
-        chk.z = z3 + posZ;
         if (fopAcM_getWaterY(&chk, &height)) {
             y3 = 2.0f + height;
         } else {
