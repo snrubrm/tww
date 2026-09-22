@@ -1089,6 +1089,116 @@ void dPa_ripplePcallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* ptcl
 }
 
 /* 8007DE94-8007E254       .text draw__19dPa_ripplePcallBackFP14JPABaseEmitterP15JPABaseParticle */
+#if VERSION == VERSION_DEMO
+void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
+    f32 x0, z0, x1, z1, x2, z2, x3, z3;
+    f32 posX, posY, posZ;
+    f32 y0, y1, y2, y3;
+    f32 sinNY;
+    f32 sinHX;
+    f32 nx;
+    f32 sinHY;
+    f32 cosHX;
+    f32 cosNX;
+    f32 cosHY;
+    f32 halfY;
+    f32 cosNY;
+    f32 sinNX;
+    f32 sin;
+    f32 cos;
+    f32 ny;
+    f32 halfX;
+    posX = particle->mGlobalPosition.x;
+    posY = particle->mGlobalPosition.y;
+    posZ = particle->mGlobalPosition.z;
+    JPADrawParams* params = particle->getDrawParamPPtr();
+    sin = JMASSin(params->mRotateAngle);
+    cos = JMASCos(params->mRotateAngle);
+    f32 sizeX = 2.0f * params->mScaleX * JPADraw::cb.mGlobalScaleX;
+    halfX = 0.5f * sizeX;
+    f32 sizeY = 2.0f * params->mScaleY * JPADraw::cb.mGlobalScaleY;
+    halfY = 0.5f * sizeY;
+    nx = -halfX;
+    ny = -halfY;
+    cosHY = cos * halfY;
+    sinNX = sin * nx;
+    z0 = cosHY + sinNX;
+    cosNX = cos * nx;
+    sinHY = sin * halfY;
+    x0 = cosNX - sinHY;
+    sinHX = sin * halfX;
+    z1 = cosHY + sinHX;
+    cosHX = cos * halfX;
+    x1 = cosHX - sinHY;
+    cosNY = cos * ny;
+    z2 = cosNY + sinHX;
+    sinNY = sin * ny;
+    x2 = cosHX - sinNY;
+    z3 = cosNY + sinNX;
+    x3 = cosNX - sinNY;
+
+    cXyz chk;
+    f32 height;
+    if (dPa_control_c::isStatus(1)) {
+        chk.x = x0 + posX;
+        chk.y = posY;
+        chk.z = z0 + posZ;
+        if (fopAcM_getWaterY(&chk, &height)) {
+            y0 = 2.0f + height;
+        } else {
+            y0 = 2.0f + posY;
+        }
+        chk.x = x1 + posX;
+        chk.y = posY;
+        chk.z = z1 + posZ;
+        if (fopAcM_getWaterY(&chk, &height)) {
+            y1 = 2.0f + height;
+        } else {
+            y1 = 2.0f + posY;
+        }
+        chk.x = x2 + posX;
+        chk.y = posY;
+        chk.z = z2 + posZ;
+        if (fopAcM_getWaterY(&chk, &height)) {
+            y2 = 2.0f + height;
+        } else {
+            y2 = 2.0f + posY;
+        }
+        chk.x = x3 + posX;
+        chk.y = posY;
+        chk.z = z3 + posZ;
+        if (fopAcM_getWaterY(&chk, &height)) {
+            y3 = 2.0f + height;
+        } else {
+            y3 = 2.0f + posY;
+        }
+    } else {
+        chk.x = posX;
+        chk.y = posY;
+        chk.z = posZ;
+        if (fopAcM_getWaterY(&chk, &height)) {
+            y0 = 2.0f + height;
+        } else {
+            y0 = 2.0f + posY;
+        }
+        y1 = y0;
+        y2 = y0;
+        y3 = y0;
+    }
+
+    GXSetCullMode(GX_CULL_NONE);
+    GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+    { f32 pz = z0 + posZ; f32 px = x0 + posX; GXPosition3f32(px, y0, pz); }
+    GXTexCoord2f32(0.0f, 0.0f);
+    { f32 pz = z1 + posZ; f32 px = x1 + posX; GXPosition3f32(px, y1, pz); }
+    GXTexCoord2f32(1.0f, 0.0f);
+    { f32 pz = z2 + posZ; f32 px = x2 + posX; GXPosition3f32(px, y2, pz); }
+    GXTexCoord2f32(1.0f, 1.0f);
+    { f32 pz = z3 + posZ; f32 px = x3 + posX; GXPosition3f32(px, y3, pz); }
+    GXTexCoord2f32(0.0f, 1.0f);
+    particle->setInvisibleParticleFlag();
+}
+#else
 void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
     f32 z0;
     f32 sinNY;
@@ -1200,6 +1310,7 @@ void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
     GXTexCoord2f32(0.0f, 1.0f);
     particle->setInvisibleParticleFlag();
 }
+#endif
 
 /* 8007E254-8007E288       .text setup__17dPa_waveEcallBackFP14JPABaseEmitterPC4cXyzPC5csXyzSc */
 void dPa_waveEcallBack::setup(JPABaseEmitter* emitter, const cXyz* pos, const csXyz* rot, s8 param_4) {
