@@ -1404,10 +1404,11 @@ void dKyw_evt_wind_set_go() {
 
 /* 8008A96C-8008A9F8       .text dKyw_gbwind_use_check__Fv */
 BOOL dKyw_gbwind_use_check() {
+    dScnKy_env_light_c& env_light = dKy_getEnvlight();
     dStage_FileList_dt_c* fili_p = NULL;
     BOOL rt = 0;
 
-    if (g_env_light.mWind.mpWindVecOverride == NULL) {
+    if (env_light.mWind.mpWindVecOverride == NULL) {
         s32 roomNo = dComIfGp_roomControl_getStayNo();
         if (roomNo >= 0) {
             fili_p = dComIfGp_roomControl_getStatusRoomDt(roomNo)->getFileListInfo();
