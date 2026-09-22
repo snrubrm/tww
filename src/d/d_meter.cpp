@@ -744,8 +744,14 @@ void dMeter_alphaControl(sub_meter_class* i_Meter) {
 
 /* 801EFC40-801F01C0       .text dMeter_statusCheck__FP15sub_meter_class */
 void dMeter_statusCheck(sub_meter_class* i_Meter) {
+#if VERSION == VERSION_DEMO
+    dComIfG_inf_c* info = &g_dComIfG_gameInfo;
+    i_Meter->mStatusFlags = 0;
+    if (!info->play.show2dCheck() || (dCam_getBody()->chkFlag(0x2000000))) {
+#else
     i_Meter->mStatusFlags = 0;
     if (!dComIfGp_2dShowCheck() || (dCam_getBody()->chkFlag(0x2000000))) {
+#endif
         i_Meter->mStatusFlags |= dMtrStts_UNK4000_e;
     } else if ((dMeter_isAuctionFlag() && dComIfGp_getMesgStatus() == 0) ||
                (dComIfGs_isTmpBit(dSv_event_tmp_flag_c::UNK_0408) && dComIfGp_getMesgStatus() == 0) ||
@@ -798,12 +804,16 @@ void dMeter_statusCheck(sub_meter_class* i_Meter) {
             i_Meter->mStatusFlags |= dMtrStts_UNK20_e;
         }
     } else {
+#if VERSION == VERSION_DEMO
+        if (
+#else
         if (dComIfGp_getCb1Player() == daPy_getPlayerActorClass() || daNpc_kam_c::m_hyoi_kamome != 0) {
             i_Meter->mStatusFlags |= dMtrStts_UNK40000_e;
             if (dComIfGp_getAStatus() == dActStts_sword_01) {
                 dComIfGp_setAStatus(dActStts_BLANK_e);
             }
         } else if (
+#endif
             dComIfGp_checkPlayerStatus0(0, daPyStts0_SUBJECT_e) ||
             // @bug Out of bounds array read.
             // It seems like the developers probably intended to have a check like this:
@@ -837,7 +847,12 @@ void dMeter_statusCheck(sub_meter_class* i_Meter) {
         } else if (dComIfGp_checkPlayerStatus0(0, daPyStts0_CRAWL_e)) {
             i_Meter->mStatusFlags |= dMtrStts_UNK200_e;
         } else if (dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK800000_e)) {
+#if VERSION == VERSION_DEMO
+            if (((daPy_py_c*)info->play.getPlayer(0))->checkRopeTag()) {
+#else
             if (daPy_getPlayerActorClass()->checkRopeTag()) {
+#endif
+
                 i_Meter->mStatusFlags |= dMtrStts_UNK800_e;
             } else {
                 i_Meter->mStatusFlags |= dMtrStts_UNK1000_e;
@@ -848,6 +863,10 @@ void dMeter_statusCheck(sub_meter_class* i_Meter) {
             i_Meter->mStatusFlags |= dMtrStts_UNK8000_e;
         } else if (dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK4000000_e)) {
             i_Meter->mStatusFlags |= dMtrStts_UNK10000_e;
+#if VERSION == VERSION_DEMO
+        } else if (dComIfGp_getCb1Player() == (daPy_py_c*)info->play.getPlayer(0) || daNpc_kam_c::m_hyoi_kamome != 0) {
+            i_Meter->mStatusFlags |= dMtrStts_UNK40000_e;
+#endif
         }
     }
     if (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_DUNGEON_e) {
