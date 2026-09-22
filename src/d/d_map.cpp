@@ -566,7 +566,11 @@ dStage_FloorInfo_dt_c* dMap_GetFloorInfoDtP(dStage_FloorInfo_c* floor, f32 ret) 
 
     if (floor && floor->num >= 1) {
         entry = floor->m_entries;
+#if VERSION == VERSION_DEMO
+        for (int i = 0; !valid && i < floor->num; i++, entry++) {
+#else
         for (int i = 0; i < floor->num; i++, entry++) {
+#endif
             if (i == floor->num - 1) {
                 if (floor->num == 1 || ret >= entry->field_0x00) {
                     valid = true;
@@ -1121,10 +1125,17 @@ void dMap_RoomInfo_c::roomDrawRoomRealSize(int param_1, int param_2, int param_3
     if (field_0x1 & 1) {
         f32 f28 = getStageMapInfoP()->field_0x30 / param_9;
         f32 f27 = getStageMapInfoP()->field_0x30 / param_10;
+#if VERSION == VERSION_DEMO
+        field_0x8c.setCenterPos(
+            field_0x28 * 0.5f + (param_5 - param_7) / getMapInfo_scale(getStageMapInfoP()),
+            field_0x2c * 0.5f + (param_6 - param_8) / getMapInfo_scale(getStageMapInfoP())
+        );
+#else
         field_0x8c.setCenterPos(
             field_0x28 * 0.5f + (param_5 - param_7) / getStageMapInfoP()->field_0x30,
             field_0x2c * 0.5f + (param_6 - param_8) / getStageMapInfoP()->field_0x30
         );
+#endif
         field_0x8c.setScale(f28, f27);
         field_0x8c.setPos(param_1, param_2, param_1 + param_3, param_2 + param_4);
         field_0x8c.setAlpha(i_alpha);
@@ -1341,7 +1352,7 @@ void dMap_c::create() {
     mDispPosLeftUpY = g_mapHIO.field_0x16;
     mDispSizeX = 120;
     mDispSizeY = 120;
-    mIconFreePosX = g_mapHIO.field_0x14 + 60;
+    mIconFreePosX = mDispPosLeftUpX + 60;
 #else
     mDispPosLeftUpX = 25;
     mDispPosLeftUpY = 338;
@@ -1351,8 +1362,7 @@ void dMap_c::create() {
 #endif
     mIconFreePosY = 324;
     ResTIMG* timg;
-    int i;
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", frameArcIdx[i]));
         JUT_ASSERT(VERSION_SELECT(3617, 3446, 3450, 3450), timg != NULL);
         mFrameTexture[i].init(timg, i + 2, (GXColor){255, 255, 255, 255});
@@ -1384,11 +1394,11 @@ void dMap_c::create() {
     mShip.init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 0, 0, 0, 1.0f, 1.0f, 0);
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_TREASUREBOX_e));
     JUT_ASSERT(VERSION_SELECT(3666, 3495, 3511, 3511), timg != NULL);
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++) {
         mTbox[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
     timg = static_cast<ResTIMG*>(dComIfG_getObjectRes("Always", dRes_INDEX_ALWAYS_BTI_BLACK_WHITE_2_e));
-    for (i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++) {
         mDoor[i].init(timg, 0.0f, 0.0f, 0.0f, 0.0f, 1, 0, 0, 1.0f, 1.0f, 0);
     }
     initPoint();
