@@ -9,6 +9,7 @@
 #include "d/actor/d_a_beam.h"
 #include "d/actor/d_a_player.h"
 #include "d/d_a_obj.h"
+#include "d/d_s_play.h"
 #include "res/Object/Mozo.h"
 #include "f_op/f_op_actor_mng.h"
 #include "JSystem/J3DGraphAnimator/J3DJoint.h"
@@ -402,7 +403,7 @@ void daMozo_c::search_fire_proc() {
     anime_proc();
 
     if (mAnm == 1 || mAnm == 3) {
-        if (mAnimMorf->getFrame() > mAnimMorf->getEndFrame() - 50.0f) {
+        if (mAnimMorf->getFrame() > DEMO_SELECT(REG10_F(10), 0.0f) + (mAnimMorf->getEndFrame() - 50.0f)) {
             if (mFireEmitter0 == NULL) {
                 mFireEmitter0 = dComIfGp_particle_set(dPa_name::ID_AK_SN_MOZFIRE00, &current.pos);
             }
@@ -411,8 +412,13 @@ void daMozo_c::search_fire_proc() {
             }
 
             mDoMtx_stack_c::copy(mAnimMorf->getModel()->getAnmMtx(MOZ_JNT_ATAMA_J_e));
+#if VERSION == VERSION_DEMO
+            mDoMtx_stack_c::XYZrotM(0x640 + REG10_S(0), 0x4000 + REG10_S(1), REG10_S(2));
+            mDoMtx_stack_c::transM(0.0f, 50.0f + REG10_F(0), 52.0f + REG10_F(1));
+#else
             mDoMtx_stack_c::XYZrotM(0x640, 0x4000, 0);
             mDoMtx_stack_c::transM(0.0f, 50.0f, 52.0f);
+#endif
             if (mFireEmitter0 != NULL) {
                 mFireEmitter0->setGlobalRTMatrix(mDoMtx_stack_c::get());
             }
@@ -425,10 +431,17 @@ void daMozo_c::search_fire_proc() {
                 dir = cXyz::Zero;
             }
             cXyz scaled = dir;
+#if VERSION == VERSION_DEMO
+            f32 length = mFireTimer * (45.0f + REG10_F(5));
+            f32 radius = mFireTimer * (3.0f + REG10_F(7));
+            length = cLib_maxLimit<f32>(length, 600.0f + REG10_F(6));
+            radius = cLib_maxLimit<f32>(radius, 80.0f + REG10_F(8));
+#else
             f32 length = 45.0f * mFireTimer;
             f32 radius = 3.0f * mFireTimer;
             length = cLib_maxLimit<f32>(length, 600.0f);
             radius = cLib_maxLimit<f32>(radius, 80.0f);
+#endif
             scaled *= length;
             scaled += mFireStart;
             mCps.cM3dGCps::Set(mFireStart, scaled, radius);
@@ -681,11 +694,18 @@ cPhs_State daMozo_c::CreateInit() {
 
 /* 00002228-000023B0       .text _create__8daMozo_cFv */
 cPhs_State daMozo_c::_create() {
+#if VERSION == VERSION_DEMO
+    cPhs_State result = dComIfG_resLoad(&mPhs, "Mozo");
+
+    if (result == cPhs_COMPLEATE_e) {
+        fopAcM_SetupActor(this, daMozo_c);
+#else
     fopAcM_ct(this, daMozo_c);
 
     cPhs_State result = dComIfG_resLoad(&mPhs, "Mozo");
 
     if (result == cPhs_COMPLEATE_e) {
+#endif
         if (fopAcM_entrySolidHeap(this, CheckCreateHeap, 0x1AA0)) {
             result = CreateInit();
             _execute();
