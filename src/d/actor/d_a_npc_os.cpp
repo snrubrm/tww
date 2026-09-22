@@ -121,11 +121,13 @@ static char* l_daiza_name[] = {
     "Hdai3"
 };
 
+#if VERSION > VERSION_DEMO
 static Vec l_finish_home_pos[] = {
     {683.0f, 340.0f, -8947.0f},
     {-683.0f, 340.0f, -8947.0f},
     {0.0f, 340.0f, -9630.0}
 };
+#endif
 
 /* 000000EC-00000154       .text __ct__15daNpc_Os_HIO2_cFv */
 daNpc_Os_HIO2_c::daNpc_Os_HIO2_c() {
@@ -202,26 +204,35 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 
 /* 00000374-00000538       .text create__10daNpc_Os_cFv */
 cPhs_State daNpc_Os_c::create() {
+#if VERSION > VERSION_DEMO
     fopAcM_ct(this, daNpc_Os_c)
+#endif
 
     static u32 l_heap_size = 0xFA0;
 
     cPhs_State result = dComIfG_resLoad(&mPhs, "Os");
     if(result == cPhs_COMPLEATE_e) {
+#if VERSION == VERSION_DEMO
+        fopAcM_ct(this, daNpc_Os_c)
+#endif
         if(!fopAcM_entrySolidHeap(this, CheckCreateHeap, l_heap_size)) {
+#if VERSION > VERSION_DEMO
             mpMorf = NULL;
+#endif
             return cPhs_ERROR_e;
         }
 
         if(!finishCheck()) {
             checkRestart(getRestartNumber());
         }
+#if VERSION > VERSION_DEMO
         else {
             if(argument < 3) {
                 home.pos = l_finish_home_pos[argument];
                 current.pos = home.pos;
             }
         }
+#endif
 
         setBaseMtx();
         fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
@@ -629,9 +640,11 @@ void daNpc_Os_c::npcAction(void* param_1) {
     if(!mNpcAction) {
         speedF = 0.0f;
         
+#if VERSION > VERSION_DEMO
         if(field_0x7A2 == 8) {
             initBrkAnm(6, true);
         }
+#endif
 
         setNpcAction(&daNpc_Os_c::waitNpcAction, 0);
     }
