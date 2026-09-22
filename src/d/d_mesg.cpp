@@ -669,6 +669,7 @@ void dMesg_tSequenceProcessor::setCharacter() {
     }
 }
 
+#if VERSION != VERSION_PAL
 /* 801E16F4-801E1858       .text ruby_character__24dMesg_tSequenceProcessorFPci */
 char* dMesg_tSequenceProcessor::ruby_character(char* param_1, int param_2) {
     dMesg_tControl* mesgControl = (dMesg_tControl*)getControl();
@@ -694,6 +695,7 @@ char* dMesg_tSequenceProcessor::ruby_character(char* param_1, int param_2) {
     }
     return buffer;
 }
+#endif
 
 /* 801E1858-801E1B5C       .text do_systemTagCode__24dMesg_tSequenceProcessorFUsPCvUl */
 bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2, u32 param_3) {
@@ -754,6 +756,7 @@ bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2
         }
         return true;
     case 2:
+#if VERSION != VERSION_PAL
         if (field_0x44 == 0.0f) {
             field_0x48 = field_0x44;
         } else {
@@ -765,6 +768,7 @@ bool dMesg_tSequenceProcessor::do_systemTagCode(u16 param_1, const void* param_2
         for (int i = 1; i < int(param_3); i += 2) {
             strcat(field_0x97, ruby_character((char*)param_2, i));
         }
+#endif
         return true;
     case 3:
         return true;
