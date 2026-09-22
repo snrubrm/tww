@@ -141,7 +141,8 @@ void daObjFlame::Act_c::create_mode_init() {
         for (int mask = currentSch; !(bits & mask); mask <<= 1) {
             ++shift;
         }
-        f32 time = (timer + period * shift) * attr_scl().cycleSpeed;
+        int t = timer + period * shift;
+        f32 time = t * attr_scl().cycleSpeed;
         if (mType != 1) {
             time -= 127.0f;
         }
