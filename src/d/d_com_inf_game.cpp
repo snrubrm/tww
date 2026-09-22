@@ -1542,6 +1542,37 @@ void dComIfGs_setPlayerRecollectionData() {
     tmp_item.mItems[dInvSlot_BOTTLE3_e] = dComIfGs_getItem(dInvSlot_BOTTLE3_e);
     tmp_item.mItems[dInvSlot_CAMERA_e]  = dComIfGs_getItem(dInvSlot_CAMERA_e);
 
+#if VERSION == VERSION_DEMO
+    u8* buffer = (u8*)dComIfGp_getPlayerInfoBuffer();
+    memcpy(buffer, dComIfGs_getpPlayerStatusA(), sizeof(dSv_player_status_a_c));
+    buffer += sizeof(dSv_player_status_a_c);
+    memcpy(buffer, dComIfGs_getpItem(), sizeof(dSv_player_item_c));
+    buffer += sizeof(dSv_player_item_c);
+    memcpy(buffer, &dComIfGs_getpItemRecord()->mItemRecord2, sizeof(dSv_player_item_record2_c));
+    buffer += sizeof(dSv_player_item_record2_c);
+    memcpy(buffer, &dComIfGs_getpItemMax()->mItemMax2, sizeof(dSv_player_item_max2_c));
+    buffer += sizeof(dSv_player_item_max2_c);
+    memcpy(buffer, dComIfGs_getpBagItem(), sizeof(dSv_player_bag_item_c));
+    buffer += sizeof(dSv_player_bag_item_c);
+    memcpy(buffer, dComIfGs_getpBagItemRecord(), sizeof(dSv_player_bag_item_record_c));
+    buffer += sizeof(dSv_player_bag_item_record_c);
+    memcpy(buffer, dComIfGs_getpCollect(), sizeof(dSv_player_collect_c));
+
+    u8* stts = (u8*)dComIfGs_getpPlayerStatusC(tbl);
+    memcpy(dComIfGs_getpPlayerStatusA(), stts, sizeof(dSv_player_status_a_c));
+    stts += sizeof(dSv_player_status_a_c);
+    memcpy(dComIfGs_getpItem(), stts, sizeof(dSv_player_item_c));
+    stts += sizeof(dSv_player_item_c);
+    memcpy(&dComIfGs_getpItemRecord()->mItemRecord2, stts, sizeof(dSv_player_item_record2_c));
+    stts += sizeof(dSv_player_item_record2_c);
+    memcpy(&dComIfGs_getpItemMax()->mItemMax2, stts, sizeof(dSv_player_item_max2_c));
+    stts += sizeof(dSv_player_item_max2_c);
+    memcpy(dComIfGs_getpBagItem(), stts, sizeof(dSv_player_bag_item_c));
+    stts += sizeof(dSv_player_bag_item_c);
+    memcpy(dComIfGs_getpBagItemRecord(), stts, sizeof(dSv_player_bag_item_record_c));
+    stts += sizeof(dSv_player_bag_item_record_c);
+    memcpy(dComIfGs_getpCollect(), stts, sizeof(dSv_player_collect_c));
+#else
     // TODO: This matches but could probably be cleaned up somehow.
     dSv_player_status_c_c* stts = dComIfGs_getpPlayerStatusC(tbl);
     u32 buffer = (u32)dComIfGp_getPlayerInfoBuffer();
@@ -1560,6 +1591,7 @@ void dComIfGs_setPlayerRecollectionData() {
     memcpy(dComIfGs_getpBagItem(),                   &stts->mRecollectBagItem,       sizeof(stts->mRecollectBagItem));
     memcpy(dComIfGs_getpBagItemRecord(),             &stts->mRecollectBagItemRecord, sizeof(stts->mRecollectBagItemRecord));
     memcpy(dComIfGs_getpCollect(),                   &stts->mRecollectCollect,       sizeof(stts->mRecollectCollect));
+#endif
 
     dComIfGs_setMaxLife(tmp_sttsA.mMaxLife);
     dComIfGs_setLife(tmp_sttsA.mLife);
