@@ -473,10 +473,11 @@ void daNpc_Gk1_c::lookBack() {
 
 /* 000013BC-0000143C       .text chkAttention__11daNpc_Gk1_cFv */
 bool daNpc_Gk1_c::chkAttention() {
-    if (dComIfGp_getAttention().LockonTruth()) {
-        return this == dComIfGp_getAttention().LockonTarget(0);
+    dAttention_c& attention = dComIfGp_getAttention();
+    if (attention.LockonTruth()) {
+        return this == attention.LockonTarget(0);
     }
-    return this == dComIfGp_getAttention().ActionTarget(0);
+    return this == attention.ActionTarget(0);
 }
 
 /* 0000143C-00001494       .text setAttention__11daNpc_Gk1_cFb */
