@@ -101,6 +101,9 @@ public:
     /* 0x7B7 */ u8 mDemo;
     /* 0x7B8 */ u8 m7B8;
     /* 0x7B9 */ u8 m7B9[3];
+#if VERSION == VERSION_DEMO
+    /* 0x7BC */ JPABaseEmitter* mpLeavesEmitter;
+#endif
     /* 0x7BC */ dPa_followEcallBack mLeaves;
     /* 0x7D0 */ cXyz mLeavesPos;
     /* 0x7DC */ fpc_ProcID m_cc_ID[10];
@@ -120,7 +123,7 @@ public:
     /* 0x81F */ s8 mMsgAnmStarted;
 };
 
-STATIC_ASSERT(sizeof(daNpc_De1_c) == 0x820);
+STATIC_ASSERT(sizeof(daNpc_De1_c) == DEMO_SELECT(0x824, 0x820));
 
 class daNpc_De1_HIO_c : public JORReflexible {
 public:

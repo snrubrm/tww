@@ -494,15 +494,29 @@ void daNpc_De1_c::cc_set() {
 
 void daNpc_De1_c::set_pa_happa() {
     mLeaves.remove();
+#if VERSION == VERSION_DEMO
+    mpLeavesEmitter = dComIfGp_particle_set(0x81BA, &mLeavesPos, &current.angle, NULL, 0xFF, &mLeaves, fopAcM_GetRoomNo(this));
+#else
     dComIfGp_particle_set(0x81BA, &mLeavesPos, &current.angle, NULL, 0xFF, &mLeaves, fopAcM_GetRoomNo(this));
+#endif
 }
 
 void daNpc_De1_c::del_pa_happa() {
+#if VERSION == VERSION_DEMO
+    if (mpLeavesEmitter != NULL) {
+        mpLeavesEmitter->becomeInvalidEmitter();
+        mpLeavesEmitter = NULL;
+    }
+#endif
     mLeaves.remove();
 }
 
 void daNpc_De1_c::followPa_happa() {
+#if VERSION == VERSION_DEMO
+    if (mpLeavesEmitter != NULL) {
+#else
     if (mLeaves.getEmitter() != NULL) {
+#endif
         mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_branchL_jnt_num));
         mLeavesPos.x = mDoMtx_stack_c::get()[0][3];
         mLeavesPos.y = mDoMtx_stack_c::get()[1][3];
