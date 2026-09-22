@@ -1165,6 +1165,7 @@ void dMenu_Fmap2_c::gsMoonAnimeInit() {
 }
 
 /* 801BFCEC-801C002C       .text gsMoonAnime__13dMenu_Fmap2_cFv */
+// NONMATCHING - demo only: regalloc of the colour blend temps (see gsShipAnime)
 void dMenu_Fmap2_c::gsMoonAnime() {
     JUtility::TColor c1;
     JUtility::TColor c2;
