@@ -2249,7 +2249,11 @@ void dMenu_Fmap2_c::changeCmapName() {
     } else {
         msgNo = cmapNo + 0x36eb;
     }
+#if VERSION <= VERSION_JPN
+    if ((u32)(cmapNo - 1) <= 7 || cmapNo == 11 || cmapNo == 24 || cmapNo == 36 || cmapNo == 48) {
+#else
     if (cmapNo <= 8) {
+#endif
         ((J2DTextBox*)field_0x1484[field_0x2814 ^ 1].pane)->setBlackWhite(JUtility::TColor(0xD6, 0x00, 0x00, 0x00), JUtility::TColor(0xF4, 0x2F, 0x00, 0xFF));
         ((J2DTextBox*)field_0x1484[(field_0x2814 ^ 1) + 2].pane)->setBlackWhite(JUtility::TColor(0x65, 0x10, 0x00, 0x00), JUtility::TColor(0xAB, 0x00, 0x00, 0xFF));
     } else {
