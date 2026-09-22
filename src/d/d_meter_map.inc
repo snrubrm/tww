@@ -2,7 +2,8 @@
 // d_meter's main one (the section also holds __sinit and ~dMeter_info_c), and because the map HIO
 // vtable is generated before the other HIO vtables. Their constants are numbered right after the
 // g_meter_mapHIO registration, so they were compiled at this point of d_meter.cpp.
-// The original name of this file is not known as there are no asserts within it, so a guess was taken.
+// The original name of this file is not known as there are no asserts within it; "d_meter_map" follows Twilight
+// Princess, which has separate d_meter_map.cpp and d_meter_HIO.cpp files.
 
 #include "d/d_meter.h"
 #include "d/d_camera.h"
