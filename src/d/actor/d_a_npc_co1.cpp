@@ -860,13 +860,12 @@ void daNpc_Co1_c::shadowDraw() {
         current.pos.y, mObjAcch.GetGroundH(), mObjAcch.m_gnd, &tevStr, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
 }
 
-// Retain the unused debug drawing colors present in the original actor.
-extern const GXColor l_co1DebugRed = {255, 0, 0, 128};
-extern const GXColor l_co1DebugBlue = {0, 0, 255, 128};
-extern const GXColor l_co1DebugGreen = {0, 255, 0, 128};
-
 /* 000027AC-0000295C       .text _draw__11daNpc_Co1_cFv */
 BOOL daNpc_Co1_c::_draw() {
+    // Unused colors, needed for the .rodata section to match.
+    GXColor red = {0xFF, 0x00, 0x00, 0x80};
+    GXColor blue = {0x00, 0x00, 0xFF, 0x80};
+    GXColor green = {0x00, 0xFF, 0x00, 0x80};
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     J3DModel* pearl = mpPearlMorf->getModel();
