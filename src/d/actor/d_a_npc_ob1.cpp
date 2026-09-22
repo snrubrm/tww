@@ -718,7 +718,6 @@ void daNpc_Ob1_c::partner_srch() {
 #else
     switch (mActionState) {
     case 1:
-    default:
         break;
     }
 #endif
@@ -798,8 +797,9 @@ int daNpc_Ob1_c::ob_movPass() {
 
 /* 00001DC0-00001E50       .text ob_clcMovSpd__11daNpc_Ob1_cFv */
 void daNpc_Ob1_c::ob_clcMovSpd() {
-    (mMoveTarget - current.pos).abs2XZ();
-    cLib_chaseAngleS(&current.angle.y, cLib_targetAngleY(&current.pos, &mMoveTarget), l_HIO.mPrm.mAngleMax);
+    f32 dist2 = (mMoveTarget - current.pos).abs2XZ();
+    s16 angle = cLib_targetAngleY(&current.pos, &mMoveTarget);
+    cLib_chaseAngleS(&current.angle.y, angle, l_HIO.mPrm.mAngleMax);
     cLib_chaseF(&speedF, mTargetSpeed, mSpeedStep);
 }
 
