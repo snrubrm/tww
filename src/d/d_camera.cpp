@@ -3963,6 +3963,7 @@ int dCamera_c::getMsgCmdCut() {
 }
 
 /* 8016D8D0-80170434       .text talktoCamera__9dCamera_cFl */
+// NONMATCHING - the original reloads talk->m3B4 in the switch cases; we reuse the switch value.
 bool dCamera_c::talktoCamera(s32 param_1) {
     f32 val1 = mCamParam.Val(param_1, 1);
     f32 val5 = mCamParam.Val(param_1, 5);
@@ -4187,7 +4188,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         }
     }
 
-    switch (((TalkWork*)&mWork)->m3B4) {
+    switch (talk->m3B4) {
     case 0: {
         if (fopAcM_GetName(speaker) == fpcNm_SHIP_e) {
             cXyz offset(val1, val5, val0);
