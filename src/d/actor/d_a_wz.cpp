@@ -656,7 +656,7 @@ void action_dousa(wz_class* i_this) {
         i_this->mMode++;
         // Fall-through
     case 2:
-        i_this->mTimer = 0x5A;
+        i_this->mTimers[0] = 0x5A;
         i_this->m3F8 = 0;
         if (i_this->mBehaviorType == 1 && i_this->mHasChildActor == 0) {
             i_this->m3F8 = 1;
@@ -696,7 +696,7 @@ void action_dousa(wz_class* i_this) {
             );
         }
         rod_size_set(i_this, 0);
-        if (i_this->mTimer != 0) {
+        if (i_this->mTimers[0] != 0) {
             break;
         }
         i_this->mMode++;
@@ -839,7 +839,7 @@ void action_dousa(wz_class* i_this) {
             break;
         }
         if (i_this->mHasChildActor != 0) {
-            i_this->mTimers[0] = (int)(100.0f + cM_rndF(100.0f));
+            i_this->mTimers[1] = (int)(100.0f + cM_rndF(100.0f));
         }
         actor->scale.setall(0.0f);
         i_this->mAlpha = 0;
@@ -847,7 +847,7 @@ void action_dousa(wz_class* i_this) {
         // Fall-through
     }
     case 8:
-        if (i_this->mTimers[0] != 0) {
+        if (i_this->mTimers[1] != 0) {
             break;
         }
         if (i_this->mPathIndex != 0xFF && i_this->mpRoomPath != NULL) {
@@ -921,7 +921,7 @@ void action_itai(wz_class* i_this) {
             fopAcM_seStart(actor, JA_SE_CM_MD_PIYO, 0);
             anm_init(i_this, dRes_INDEX_WZ_BCK_KIZETU1_e, 5.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
             actor->speedF = 28.0f;
-            i_this->mTimer = 0x4B;
+            i_this->mTimers[0] = 0x4B;
             i_this->mMode = 0xD;
             break;
         case 9:
@@ -968,7 +968,7 @@ void action_itai(wz_class* i_this) {
         break;
     case 0xD:
         cLib_addCalc0(&actor->speedF, 1.0f, 2.0f);
-        if (i_this->mTimer == 0) {
+        if (i_this->mTimers[0] == 0) {
             i_this->mBodyCyl.OffTgSetBit();
             i_this->mBodyCyl.ClrTgHit();
             i_this->mAction = 0;
@@ -1218,13 +1218,13 @@ void action_demo(wz_class* i_this) {
             }
         } else {
             player->changeDemoMode(daPy_demo_c::DEMO_SURPRISED_e);
-            i_this->mTimer = (s16)(45.0f + REG11_F(2));
+            i_this->mTimers[0] = (s16)(45.0f + REG11_F(2));
             actor->current.pos.setall(0.0f);
             i_this->mMode = 0x50;
         }
         break;
     case 0x50:
-        if (i_this->mTimer != 0) {
+        if (i_this->mTimers[0] != 0) {
             break;
         }
         cLib_addCalc2(&i_this->mCamFov, 50.0f + REG11_F(3), 1.0f, 0.5f + REG12_F(14));
@@ -1244,7 +1244,7 @@ void action_demo(wz_class* i_this) {
         i_this->mCamCenter.x = 1470.0f + REG11_F(7);
         i_this->mCamCenter.y = 917.0f + REG11_F(8);
         i_this->mCamCenter.z = -222.0f + REG11_F(9);
-        i_this->mTimer = (s16)(20.0f + REG11_F(10));
+        i_this->mTimers[0] = (s16)(20.0f + REG11_F(10));
         anm_init(i_this, dRes_INDEX_WZ_BCK_S_DEMO_WAIT1_e, 0.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
         i_this->mMode++;
         // Fall-through
@@ -1256,14 +1256,14 @@ void action_demo(wz_class* i_this) {
             i_this->mCamCenter.x = 1470.0f + REG11_F(7);
             i_this->mCamCenter.y = 917.0f + REG11_F(8);
             i_this->mCamCenter.z = -222.0f + REG11_F(9);
-            i_this->mTimer = (s16)(20.0f + REG11_F(10));
+            i_this->mTimers[0] = (s16)(20.0f + REG11_F(10));
             break;
         }
-        if (i_this->mTimer == 0) {
+        if (i_this->mTimers[0] == 0) {
             switch (i_this->m3DE[0]) {
             case 0:
                 player->changeDemoMode(daPy_demo_c::DEMO_L_AROUND2_e);
-                i_this->mTimer = (s16)(60.0f + REG11_F(11));
+                i_this->mTimers[0] = (s16)(60.0f + REG11_F(11));
 #if VERSION == VERSION_DEMO
                 cMtx_YrotS(*calc_mtx, player_ac->shape_angle.y);
                 mtx_off.x = 0.0f;
@@ -1280,7 +1280,7 @@ void action_demo(wz_class* i_this) {
                 break;
             case 1:
                 player->changeDemoMode(daPy_demo_c::DEMO_TBACK_e);
-                i_this->mTimer = (s16)(45.0f + REG11_F(13));
+                i_this->mTimers[0] = (s16)(45.0f + REG11_F(13));
 #if VERSION == VERSION_DEMO
                 cMtx_YrotS(*calc_mtx, player_ac->shape_angle.y + 0x8000);
                 mtx_off.x = 0.0f;
@@ -1317,7 +1317,7 @@ void action_demo(wz_class* i_this) {
         mag = mag * (0.01f + REG11_F(19));
         cLib_addCalc2(&i_this->mCamCenter.z, (f32)(REG11_S(2) - 0x336), 1.0f, mag);
         if (i_this->m3DE[0] >= 2) {
-            if (i_this->mTimer <= (s16)(REG11_S(3) + 0x14)) {
+            if (i_this->mTimers[0] <= (s16)(REG11_S(3) + 0x14)) {
                 if (i_this->m3DE[0] == 2) {
                     fopAcM_seStart(actor, JA_SE_CM_WZ_APPEAR, 0);
                     i_this->m3DE[0] = 3;
@@ -1327,9 +1327,9 @@ void action_demo(wz_class* i_this) {
                     i_this->mAlpha = 0xFF;
                 }
             }
-            if (REG0_S(9) == 0 && i_this->mTimer == 0) {
+            if (REG0_S(9) == 0 && i_this->mTimers[0] == 0) {
                 player->changeDemoMode(daPy_demo_c::DEMO_SURPRISED_e);
-                i_this->mTimer = REG11_S(5) + 0x1E;
+                i_this->mTimers[0] = REG11_S(5) + 0x1E;
                 i_this->mMode++;
             }
         }
@@ -1339,7 +1339,7 @@ void action_demo(wz_class* i_this) {
         if (i_this->mAlpha > 0xFF) {
             i_this->mAlpha = 0xFF;
         }
-        if (i_this->mTimer == 0) {
+        if (i_this->mTimers[0] == 0) {
             i_this->mMode++;
         }
         break;
@@ -1375,13 +1375,13 @@ void action_demo(wz_class* i_this) {
             i_this->mpMorf->setPlaySpeed(0.0f);
             break;
         }
-        i_this->mTimer = (s16)REG12_F(12);
+        i_this->mTimers[0] = (s16)REG12_F(12);
         i_this->mpMorf->setPlaySpeed(1.0f);
         i_this->mMode++;
         // Fall-through
     }
     case 0x55:
-        if (i_this->mTimer != 0) {
+        if (i_this->mTimers[0] != 0) {
             break;
         }
         i_this->mpMorf->setPlaySpeed(1.0f);
@@ -1414,7 +1414,7 @@ void action_demo(wz_class* i_this) {
                 actor->speedF = -(10.0f + REG12_F(10));
                 i_this->m3DE[0] = 0;
                 i_this->m3DE[1] = 0;
-                i_this->mTimer = 2;
+                i_this->mTimers[0] = 2;
                 i_this->mMode++;
             }
         }
@@ -1422,10 +1422,10 @@ void action_demo(wz_class* i_this) {
     case 0x57:
         cLib_addCalc0(&actor->speedF, 1.0f, 0.3f + REG12_F(11));
         if (REG8_S(4) != 0) {
-            i_this->mTimer = 1;
+            i_this->mTimers[0] = 1;
             REG8_S(4) = 0;
         }
-        if (i_this->m3DE[0] == 0 && i_this->mTimer == 0) {
+        if (i_this->m3DE[0] == 0 && i_this->mTimers[0] == 0) {
             scale = actor->scale;
 #if VERSION == VERSION_DEMO
             u32 params = 0xFFFFFF00;
@@ -1465,13 +1465,13 @@ void action_demo(wz_class* i_this) {
                 break;
             }
             i_this->m3DE[0] = 1;
-            i_this->mTimers[0] = 0x28;
-            i_this->mTimers[1] = (s16)(70.0f + REG12_F(9));
+            i_this->mTimers[1] = 0x28;
+            i_this->mTimers[2] = (s16)(70.0f + REG12_F(9));
         }
-        if (i_this->mTimers[1] == 1) {
+        if (i_this->mTimers[2] == 1) {
             mDoAud_subBgmStart(JA_BGM_MBOSS);
         }
-        if (i_this->m3DE[0] != 0 && i_this->m3DE[1] == 0 && i_this->mTimers[0] == 0) {
+        if (i_this->m3DE[0] != 0 && i_this->m3DE[1] == 0 && i_this->mTimers[1] == 0) {
             offset.x = 215.0f;
             offset.y = 0.0f;
             offset.z = 100.0f;
@@ -1586,11 +1586,11 @@ void action_demo(wz_class* i_this) {
         i_this->mRodScale.setall(0.0f);
         i_this->mBodyCyl.OffTgSetBit();
         i_this->mBodyCyl.ClrTgHit();
-        i_this->mTimer = REG12_S(3) + 0x1E;
+        i_this->mTimers[0] = REG12_S(3) + 0x1E;
         i_this->mMode++;
         // Fall-through
     case 0x5C:
-        if (i_this->mTimer != 0) {
+        if (i_this->mTimers[0] != 0) {
             break;
         }
         dComIfGp_getVibration().StopQuake(0x20);
@@ -1739,7 +1739,7 @@ void summon_call_sub(wz_class* i_this) {
         return;
     }
 #endif
-    if (i_this->mTimer != 1) {
+    if (i_this->mTimers[0] != 1) {
         return;
     }
 
@@ -1991,7 +1991,7 @@ void action_tama_dousa(wz_class* i_this) {
             next_tama_move(i_this, actor->current.pos);
             break;
         }
-        if (i_this->mTimers[1] == 0 || i_this->mAcch.ChkWallHit()) {
+        if (i_this->mTimers[2] == 0 || i_this->mAcch.ChkWallHit()) {
             next_tama_move(i_this, actor->current.pos);
             break;
         }
@@ -2016,8 +2016,8 @@ void action_tama_dousa(wz_class* i_this) {
             dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZFLOORFIRE01, &pos, &angle);
             dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZFLOORFIRE02, &pos, &angle);
             dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZHITFIRE00, &pos, &actor->current.angle);
-            if (i_this->mTimers[0] == 0) {
-                i_this->mTimers[0] = (int)cM_rndF(5.0f);
+            if (i_this->mTimers[1] == 0) {
+                i_this->mTimers[1] = (int)cM_rndF(5.0f);
                 i_this->mBallAlpha = (int)(8.0f + cM_rndF(5.0f));
             }
 #if VERSION > VERSION_DEMO
@@ -2027,7 +2027,7 @@ void action_tama_dousa(wz_class* i_this) {
                 dKy_arrowcol_chg_on(NULL, 0);
             }
             fopAcM_OnStatus(actor, fopAcStts_UNK4000_e);
-            i_this->mTimer = 0x50;
+            i_this->mTimers[0] = 0x50;
             fopAcM_seStart(actor, JA_SE_OBJ_WZ_FIRE_B_IMP, 0);
             break;
         case WZ_TYPE_DAMAGE_BALL_ICE:
@@ -2067,7 +2067,7 @@ void action_tama_dousa(wz_class* i_this) {
             i_this->mBallSph.OffTgSetBit();
             i_this->mBallSph.ClrTgHit();
             actor->scale.setall(0.0f);
-            i_this->mTimer = REG0_S(0) + 0x1E;
+            i_this->mTimers[0] = REG0_S(0) + 0x1E;
             break;
         }
         i_this->mParticleCb0.remove();
@@ -2077,16 +2077,16 @@ void action_tama_dousa(wz_class* i_this) {
     case 0x67:
         if (i_this->mBehaviorType == WZ_TYPE_DAMAGE_BALL_FIRE) {
             actor->shape_angle.y += 0x100;
-            if (i_this->mTimer > 0xA) {
-                if (i_this->mTimers[0] == 0) {
-                    i_this->mTimers[0] = (int)cM_rndF(5.0f);
+            if (i_this->mTimers[0] > 0xA) {
+                if (i_this->mTimers[1] == 0) {
+                    i_this->mTimers[1] = (int)cM_rndF(5.0f);
                     i_this->mBallAlpha = (int)(8.0f + cM_rndF(5.0f));
                 }
             } else if (i_this->mBallAlpha > 0) {
                 i_this->mBallAlpha--;
             }
         }
-        if (i_this->mTimer == 0) {
+        if (i_this->mTimers[0] == 0) {
             fopAcM_delete(actor);
             break;
         }
@@ -2169,7 +2169,7 @@ void action_summon_dousa(wz_class* i_this) {
                 emitter->setGlobalParticleScale(JGeometry::TVec3<f32>(sx, sy, sz));
             }
         }
-        i_this->mTimer = 0x28;
+        i_this->mTimers[0] = 0x28;
         for (int i = 0; i < 20; i++) {
             i_this->mChildIds[i] = fpcM_ERROR_PROCESS_ID_e;
             i_this->mChildAlive[i] = 0;
@@ -2300,8 +2300,8 @@ static BOOL daWZ_Execute(wz_class* i_this) {
     }
 
     for (int i = 0; i < 5; i++) {
-        if ((&i_this->mTimer)[i] != 0) {
-            (&i_this->mTimer)[i]--;
+        if (i_this->mTimers[i] != 0) {
+            i_this->mTimers[i]--;
         }
     }
 
@@ -2863,7 +2863,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             i_this->mWallRadius = 40.0f;
             i_this->mBallSph.Set(ball_co_sph_src);
             i_this->mBallSph.SetStts(&i_this->mStts);
-            i_this->mTimers[1] = 0x12C;
+            i_this->mTimers[2] = 0x12C;
             i_this->mAction = 0x64;
             i_this->mMode = 0x64;
         } else {

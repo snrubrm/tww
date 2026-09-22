@@ -61,8 +61,7 @@ public:
     /* 0x35C */ fpc_ProcID mChildIds[20];
     /* 0x3AC */ u8 mChildAlive[20];
     /* 0x3C0 */ u8 mChildHidden[20];
-    /* 0x3D4 */ s16 mTimer;
-    /* 0x3D6 */ s16 mTimers[4];
+    /* 0x3D4 */ s16 mTimers[5];
     /* 0x3DE */ s16 m3DE[4];
     /* 0x3E6 */ s16 mTargetAngleY;
     /* 0x3E8 */ s16 mFuwafuwaAngle;
