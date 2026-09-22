@@ -234,7 +234,7 @@ BOOL daBalancelift_c::CreateHeap() {
     pm_bgw->Set(static_cast<cBgD_t*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_HTEN1_DZB_HTEN1_e)), 1, &mBgMtx);
     pm_bgw->SetCrrFunc(dBgS_MoveBGProc_Typical);
     JUT_ASSERT(0x1b0, pm_bgw != 0);
-    return (bool)(M_mdl != 0 && m_chain != 0 && pm_bgw != 0);
+    return M_mdl != 0 && m_chain != 0 && pm_bgw != 0;
 }
 
 /* 00000BA0-00000F34       .text CreateInit__15daBalancelift_cFv */
