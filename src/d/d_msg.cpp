@@ -669,11 +669,15 @@ void dMsg_screenDataSet(sub_msg_class* i_Msg) {
 #else
     textFont = mDoExt_getMesgFont();
     JUT_ASSERT(1157, textFont != NULL);
-    textFont = mDoExt_getRubyFont();
-    JUT_ASSERT(1159, textFont != NULL);
+    rubyFont = mDoExt_getRubyFont();
+    JUT_ASSERT(1159, rubyFont != NULL);
 #endif
     for (s32 i = 0; i < 3; i++) {
+#if VERSION == VERSION_JPN
+        numberPane[i] = new J2DTextBox("rock_24_20_4i1.bfn", "０");
+#else
         numberPane[i] = new J2DTextBox("rock_24_20_4i_usa.bfn", "0");
+#endif
 #if VERSION == VERSION_PAL
         JUT_ASSERT(1202, numberPane[i] != NULL);
 #endif
@@ -1513,12 +1517,16 @@ void dMsg_tactGuideShow(sub_msg_class* i_Msg, u8 param_2) {
 
 /* 80210AA0-80210CA4       .text dMsg_numberInput__FP13sub_msg_class */
 void dMsg_numberInput(sub_msg_class* i_Msg) {
+#if VERSION == VERSION_JPN
+    static const char* num_str[] = {"０", "１", "２", "３", "４", "５", "６", "７", "８", "９"};
+#else
     static const char* num_str[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+#endif
 
     for (s32 i = 0; i < dMsg_OUTFONT_MAX; i++) {
         if (i_Msg->mMsgDataProc.getIconNum(i) == fopMsgM_Icon_INPUT_e) {
             i_Msg->m10EC = ((i_Msg->m0544[0].pane)->getBounds().i.x + i_Msg->mMsgDataProc.getIconPosX(i));
-            i_Msg->m10F0 = ((i_Msg->m0544[0].pane)->getBounds().i.y + (i_Msg->m1104 * (s32)((3 - i_Msg->m1108) + (i_Msg->mMsgDataProc.getIconPosY(i)) * 2)));
+            i_Msg->m10F0 = ((i_Msg->m0544[0].pane)->getBounds().i.y + (i_Msg->m1104 * (s32)((VERSION_SELECT(3, 2, 3, 3) - i_Msg->m1108) + (i_Msg->mMsgDataProc.getIconPosY(i)) * 2)));
         }
     }
     if (i_Msg->mMsgNo == 0x1cfa) {
