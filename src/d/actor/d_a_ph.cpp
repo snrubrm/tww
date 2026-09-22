@@ -1463,14 +1463,9 @@ void dead_item(ph_class* i_this) {
         fopAcM_createDisappear(i_this, &pos, scale, daDisItem_IBALL_e, i_this->stealItemBitNo);
     } else {
         fopAcM_createDisappear(i_this, &pos, scale, daDisItem_IBALL_e, 0xFF);
-#if VERSION == VERSION_DEMO
-        dComIfGs_setEventReg(dSv_event_flag_c::UNK_7EFF, cLib_maxLimit<int>(dComIfGs_getEventReg(dSv_event_flag_c::UNK_7EFF) + 1, 0xFF));
-#else
-        dSv_event_c* pEvent = &g_dComIfG_gameInfo.save.getEvent();
-        int n = pEvent->getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
+        int n = dComIfGs_getEventReg(dSv_event_flag_c::UNK_7EFF) + 1;
         n = cLib_maxLimit<int>(n, 0xFF) & 0xFF;
-        pEvent->setEventReg(dSv_event_flag_c::UNK_7EFF, n);
-#endif
+        dComIfGs_setEventReg(dSv_event_flag_c::UNK_7EFF, n);
     }
 
     fopAcM_onActor(i_this);
