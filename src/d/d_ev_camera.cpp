@@ -1034,11 +1034,13 @@ bool dCamera_c::uniformTransEvCamera() {
         if (work->mRelActor != NULL) {
             work->mRelActorId = fopAcM_GetID(work->mRelActor);
             if (work->mRelUseMask[1] == 'r') {
-                cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
+                cXyz startCtr;
+                startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
                 if (m080 & 1) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
-                cXyz startEye = relationalPos(work->mRelActor, &work->mStartEye);
+                cXyz startEye;
+                startEye = relationalPos(work->mRelActor, &work->mStartEye);
                 if (lineBGCheck(&startCtr, &startEye, 0x8f)) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
@@ -1054,8 +1056,10 @@ bool dCamera_c::uniformTransEvCamera() {
                         work->mStartEye.x = -work->mStartEye.x;
                     }
                 }
-                cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
-                cXyz startEye = relationalPos(work->mRelActor, &work->mStartEye);
+                cXyz startCtr;
+                startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
+                cXyz startEye;
+                startEye = relationalPos(work->mRelActor, &work->mStartEye);
                 if (lineBGCheck(&startCtr, &startEye, 0x8f)) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
@@ -1071,8 +1075,10 @@ bool dCamera_c::uniformTransEvCamera() {
                         work->mEye.x = -work->mEye.x;
                     }
                 }
-                cXyz endCtr = relationalPos(work->mRelActor, &work->mCenter);
-                cXyz endEye = relationalPos(work->mRelActor, &work->mEye);
+                cXyz endCtr;
+                endCtr = relationalPos(work->mRelActor, &work->mCenter);
+                cXyz endEye;
+                endEye = relationalPos(work->mRelActor, &work->mEye);
                 if (lineBGCheck(&endCtr, &endEye, 0x8f)) {
                     work->mEye.x = -work->mEye.x;
                 }
@@ -1099,11 +1105,13 @@ bool dCamera_c::uniformTransEvCamera() {
                     work->mEye.x = -work->mEye.x;
                 }
             } else if (work->mRelUseMask[3] == 'r') {
-                cXyz endCtr = relationalPos(work->mRelActor, &work->mCenter);
+                cXyz endCtr;
+                endCtr = relationalPos(work->mRelActor, &work->mCenter);
                 if (m080 & 1) {
                     work->mEye.x = -work->mEye.x;
                 }
-                cXyz endEye = relationalPos(work->mRelActor, &work->mEye);
+                cXyz endEye;
+                endEye = relationalPos(work->mRelActor, &work->mEye);
                 if (lineBGCheck(&endCtr, &endEye, 0x8f)) {
                     work->mEye.x = -work->mEye.x;
                 }
@@ -1264,11 +1272,13 @@ bool dCamera_c::uniformBrakeEvCamera() {
         if (work->mRelActor != NULL) {
             work->mRelActorId = fopAcM_GetID(work->mRelActor);
             if (work->mRelUseMask[1] == 'r') {
-                cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
+                cXyz startCtr;
+                startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
                 if (m080 & 1) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
-                cXyz startEye = relationalPos(work->mRelActor, &work->mStartEye);
+                cXyz startEye;
+                startEye = relationalPos(work->mRelActor, &work->mStartEye);
                 if (lineBGCheck(&startCtr, &startEye, 0x8f)) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
@@ -1284,8 +1294,10 @@ bool dCamera_c::uniformBrakeEvCamera() {
                         work->mStartEye.x = -work->mStartEye.x;
                     }
                 }
-                cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
-                cXyz startEye = relationalPos(work->mRelActor, &work->mStartEye);
+                cXyz startCtr;
+                startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
+                cXyz startEye;
+                startEye = relationalPos(work->mRelActor, &work->mStartEye);
                 if (lineBGCheck(&startCtr, &startEye, 0x8f)) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
@@ -1301,8 +1313,10 @@ bool dCamera_c::uniformBrakeEvCamera() {
                         work->mEye.x = -work->mEye.x;
                     }
                 }
-                cXyz endCtr = relationalPos(work->mRelActor, &work->mCenter);
-                cXyz endEye = relationalPos(work->mRelActor, &work->mEye);
+                cXyz endCtr;
+                endCtr = relationalPos(work->mRelActor, &work->mCenter);
+                cXyz endEye;
+                endEye = relationalPos(work->mRelActor, &work->mEye);
                 if (lineBGCheck(&endCtr, &endEye, 0x8f)) {
                     work->mEye.x = -work->mEye.x;
                 }
@@ -1329,11 +1343,13 @@ bool dCamera_c::uniformBrakeEvCamera() {
                     work->mEye.x = -work->mEye.x;
                 }
             } else if (work->mRelUseMask[3] == 'r') {
-                cXyz endCtr = relationalPos(work->mRelActor, &work->mCenter);
+                cXyz endCtr;
+                endCtr = relationalPos(work->mRelActor, &work->mCenter);
                 if (m080 & 1) {
                     work->mEye.x = -work->mEye.x;
                 }
-                cXyz endEye = relationalPos(work->mRelActor, &work->mEye);
+                cXyz endEye;
+                endEye = relationalPos(work->mRelActor, &work->mEye);
                 if (lineBGCheck(&endCtr, &endEye, 0x8f)) {
                     work->mEye.x = -work->mEye.x;
                 }
@@ -1506,11 +1522,13 @@ bool dCamera_c::uniformAcceleEvCamera() {
         if (work->mRelActor != NULL) {
             work->mRelActorId = fopAcM_GetID(work->mRelActor);
             if (work->mRelUseMask[1] == 'r') {
-                cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
+                cXyz startCtr;
+                startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
                 if (m080 & 1) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
-                cXyz startEye = relationalPos(work->mRelActor, &work->mStartEye);
+                cXyz startEye;
+                startEye = relationalPos(work->mRelActor, &work->mStartEye);
                 if (lineBGCheck(&startCtr, &startEye, 0x8f)) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
@@ -1526,8 +1544,10 @@ bool dCamera_c::uniformAcceleEvCamera() {
                         work->mStartEye.x = -work->mStartEye.x;
                     }
                 }
-                cXyz startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
-                cXyz startEye = relationalPos(work->mRelActor, &work->mStartEye);
+                cXyz startCtr;
+                startCtr = relationalPos(work->mRelActor, &work->mStartCenter);
+                cXyz startEye;
+                startEye = relationalPos(work->mRelActor, &work->mStartEye);
                 if (lineBGCheck(&startCtr, &startEye, 0x8f)) {
                     work->mStartEye.x = -work->mStartEye.x;
                 }
@@ -1543,8 +1563,10 @@ bool dCamera_c::uniformAcceleEvCamera() {
                         work->mEye.x = -work->mEye.x;
                     }
                 }
-                cXyz endCtr = relationalPos(work->mRelActor, &work->mCenter);
-                cXyz endEye = relationalPos(work->mRelActor, &work->mEye);
+                cXyz endCtr;
+                endCtr = relationalPos(work->mRelActor, &work->mCenter);
+                cXyz endEye;
+                endEye = relationalPos(work->mRelActor, &work->mEye);
                 if (lineBGCheck(&endCtr, &endEye, 0x8f)) {
                     work->mEye.x = -work->mEye.x;
                 }
@@ -1571,11 +1593,13 @@ bool dCamera_c::uniformAcceleEvCamera() {
                     work->mEye.x = -work->mEye.x;
                 }
             } else if (work->mRelUseMask[3] == 'r') {
-                cXyz endCtr = relationalPos(work->mRelActor, &work->mCenter);
+                cXyz endCtr;
+                endCtr = relationalPos(work->mRelActor, &work->mCenter);
                 if (m080 & 1) {
                     work->mEye.x = -work->mEye.x;
                 }
-                cXyz endEye = relationalPos(work->mRelActor, &work->mEye);
+                cXyz endEye;
+                endEye = relationalPos(work->mRelActor, &work->mEye);
                 if (lineBGCheck(&endCtr, &endEye, 0x8f)) {
                     work->mEye.x = -work->mEye.x;
                 }
