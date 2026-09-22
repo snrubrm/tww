@@ -109,7 +109,9 @@ bool daNpc_Gk1_c::init_GK1_0() {
 
 /* 0000058C-00000720       .text createInit__11daNpc_Gk1_cFv */
 bool daNpc_Gk1_c::createInit() {
-    mEventIds[0] = dComIfGp_evmng_getEventIdx(l_evn_tbl[0]);
+    for (int i = 0; i < 1; i++) {
+        mEventIds[i] = dComIfGp_evmng_getEventIdx(l_evn_tbl[i]);
+    }
     mEventCut.setActorInfo2("Gk1", this);
     attention_info.flags = 0xA;
     fopAcM_setCullSizeFar(this, 12000.0f / mDoLib_clipper::getFar());
