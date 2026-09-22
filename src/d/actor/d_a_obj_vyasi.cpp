@@ -359,9 +359,13 @@ bool daObjVyasi::Act_c::create_heap() {
     mpBckData = (J3DAnmTransformKey*)dComIfG_getObjectRes(M_arcname, dRes_INDEX_VYASI_BCK_VYASI_e);
     J3DAnmTransformKey*& M_bck_data = mpBckData;
     JUT_ASSERT(1151, M_bck_data != 0);
+#if VERSION == VERSION_DEMO
+    mpMorf = new mDoExt_McaMorf(mdl_data, NULL, NULL, mpBckData, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11000002);
+#else
     if (mpBckData && mdl_data) {
         mpMorf = new mDoExt_McaMorf(mdl_data, NULL, NULL, mpBckData, 0, 1.0f, 0, -1, TRUE, NULL, 0, 0x11000002);
     }
+#endif
     return bool(mpBckData && mpMorf) && mpMorf->getModel();
 }
 
