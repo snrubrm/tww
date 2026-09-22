@@ -76,8 +76,7 @@ void jbo_move(jbo_class* i_this) {
     switch (i_this->mMode) {
         case daJbo_Mode_IDLE_e: {
             if (dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK80_e) && i_this->mCoSph.ChkCoHit()) {
-                J3DAnmTransform* anm = (J3DAnmTransform*)dComIfG_getObjectRes("JBO", dRes_INDEX_JBO_BCK_IN1_e);
-                i_this->mpMorf->setAnm(anm, J3DFrameCtrl::EMode_NONE, 0.0, 1.0, 0.0, -1.0, NULL);
+                i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("JBO", dRes_INDEX_JBO_BCK_IN1_e), J3DFrameCtrl::EMode_NONE, 0.0, 1.0, 0.0, -1.0, NULL);
                 fopAcM_seStart(actor, JA_SE_OBJ_JFLOWER_IN, 0);
                 dComIfGp_setItemMagicCount(4);
                 i_this->mFramesUntilJump = JUMP_ANIMATION_TIME;
@@ -93,8 +92,7 @@ void jbo_move(jbo_class* i_this) {
                 player->onForceVomitJump();
             }
             if (dComIfGp_checkPlayerStatus0(0, daPyStts0_UNK80000000_e)) {
-                J3DAnmTransform* anm = (J3DAnmTransform*)dComIfG_getObjectRes("JBO", dRes_INDEX_JBO_BCK_OUT1_e);
-                i_this->mpMorf->setAnm(anm, J3DFrameCtrl::EMode_NONE, 0.0, 1.0, 0.0, -1.0, NULL);
+                i_this->mpMorf->setAnm((J3DAnmTransform*)dComIfG_getObjectRes("JBO", dRes_INDEX_JBO_BCK_OUT1_e), J3DFrameCtrl::EMode_NONE, 0.0, 1.0, 0.0, -1.0, NULL);
                 fopAcM_seStart(actor, JA_SE_OBJ_JFLOWER_OUT, 0);
                 i_this->mAnimationSpeed = 0;
                 i_this->mAnimRotation = 0;
