@@ -156,9 +156,15 @@ public:
     /* 0x76C */ f32 m76C;
     /* 0x770 */ csXyz mPreviousAngles;
     /* 0x778 */ BOOL mUpdateEye;
+#if VERSION > VERSION_JPN
     /* 0x77C */ s16 mEventIds[8];
     /* 0x78C */ s16 mEventIndex;
     /* 0x78E */ u8 m78E[0x792 - 0x78E];
+#else
+    /* 0x77C */ s16 mEventIds[7];
+    /* 0x78A */ s16 mEventIndex;
+    /* 0x78C */ u8 m78E[0x790 - 0x78C];
+#endif
     /* 0x792 */ s16 m792;
     /* 0x794 */ s16 m794;
     /* 0x796 */ s16 m796;

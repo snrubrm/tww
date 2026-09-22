@@ -55,7 +55,9 @@ daNpc_Kk1_HIO_c::~daNpc_Kk1_HIO_c() {}
 
 static char* l_evn_tbl[] = {
     "run_start",
+#if VERSION > VERSION_JPN
     "run_start_2",
+#endif
     "catch",
     "get_empty_btl",
     "bye",
@@ -147,7 +149,7 @@ bool daNpc_Kk1_c::init_KK1_0() {
 
 /* 00000598-000007B0       .text createInit__11daNpc_Kk1_cFv */
 bool daNpc_Kk1_c::createInit() {
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < VERSION_SELECT(7, 7, 8, 8); i++) {
         mEventIds[i] = dComIfGp_evmng_getEventIdx(l_evn_tbl[i]);
     }
     mEventCut.setActorInfo2("Kk1", this);
@@ -284,7 +286,7 @@ bool daNpc_Kk1_c::setBtp(s8 number, bool modify) {
         return false;
     }
     J3DAnmTexPattern* a_btp = (J3DAnmTexPattern*)dComIfG_getObjectIDRes(mArcName, btpResID(number));
-    JUT_ASSERT(0x234, a_btp != 0);
+    JUT_ASSERT(VERSION_SELECT(0x233, 0x233, 0x234, 0x234), a_btp != 0);
     mBtpNo = number;
     mBtpFrame = 0;
     mBtpTimer = 0;
@@ -691,6 +693,7 @@ void daNpc_Kk1_c::checkOrder() {
     if (eventInfo.checkCommandDemoAccrpt()) {
         if (dComIfGp_evmng_startCheck(mEventIds[mEventIndex]) && mOrder >= 3) {
             switch (mEventIndex) {
+#if VERSION > VERSION_JPN
             case 4:
                 setAnm_NUM(0, 1);
                 break;
@@ -702,6 +705,18 @@ void daNpc_Kk1_c::checkOrder() {
             case 6:
             case 7:
                 break;
+#else
+            case 3:
+                setAnm_NUM(0, 1);
+                break;
+            case 0:
+            case 1:
+            case 2:
+            case 4:
+            case 5:
+            case 6:
+                break;
+#endif
             }
             mOrder = 0;
             mAnmAttr = 0xFF;
@@ -863,7 +878,7 @@ bool daNpc_Kk1_c::decideType(int) {
 void daNpc_Kk1_c::cut_init_RUN_START(int) {
     int deleted;
     fopAc_ac_c* a_actor = searchByID(mPartnerId, &deleted);
-    JUT_ASSERT(0x54F, a_actor != 0);
+    JUT_ASSERT(VERSION_SELECT(0x54D, 0x54D, 0x54F, 0x54F), a_actor != 0);
     dComIfGp_event_setItemPartner(a_actor);
     mPath.nextIdxAuto();
 }
@@ -1328,39 +1343,41 @@ void daNpc_Kk1_c::event_proc(int staff) {
     if (dComIfGp_evmng_endCheck(mEventIds[mEventIndex])) {
         switch (mEventIndex) {
         case 0:
+#if VERSION > VERSION_JPN
         case 1:
+#endif
             setStt(5);
             break;
-        case 2:
+        case VERSION_SELECT(1, 1, 2, 2):
             eventInfo.setEventId(-1);
             switch (mCurrMsgNo) {
             case 0x1C9A:
-                mOrder = 10;
+                mOrder = VERSION_SELECT(9, 9, 10, 10);
                 m81E = 0;
                 m7C4 = 1;
                 break;
             case 0x1C98:
             case 0x1C9C:
-                mOrder = 7;
+                mOrder = VERSION_SELECT(6, 6, 7, 7);
                 m81E = 1;
                 m7C4 = 1;
                 break;
             case 0x1C9F:
                 setStt(6);
-                mOrder = 6;
+                mOrder = VERSION_SELECT(5, 5, 6, 6);
                 m81E = 0;
                 m7C4 = 1;
                 break;
             }
             break;
-        case 3:
+        case VERSION_SELECT(2, 2, 3, 3):
             mOrder = 1;
             dComIfGs_onEventBit(0xE08);
             m7BA = 1;
             break;
-        case 4:
-        case 6:
-        case 7:
+        case VERSION_SELECT(3, 3, 4, 4):
+        case VERSION_SELECT(5, 5, 6, 6):
+        case VERSION_SELECT(6, 6, 7, 7):
             fopAcM_delete(this);
             break;
         }
@@ -1793,6 +1810,7 @@ BOOL daNpc_Kk1_c::wait_2() {
     }
     m81E = 0;
     m7C4 = 1;
+#if VERSION > VERSION_JPN
     if (mOrder == 3 || mOrder == 4) {
         return TRUE;
     }
@@ -1810,6 +1828,16 @@ BOOL daNpc_Kk1_c::wait_2() {
             return TRUE;
         }
     }
+#else
+    if (mOrder == 3) {
+        return TRUE;
+    }
+    if (m7B8 && mSwNo != 0xFF && dComIfGs_isSwitch(mSwNo, current.roomNo)) {
+        mOrder = 3;
+        mStts.SetWeight(0xD9);
+        return TRUE;
+    }
+#endif
     mOrder = 2;
     return TRUE;
 }
@@ -1826,7 +1854,7 @@ void daNpc_Kk1_c::init_CMT_WAI() {
 void daNpc_Kk1_c::move_CMT_WAI() {
     if (cLib_calcTimer(&m7A4) == 0) {
         if (mOrder != 1 && mOrder < 3 && chk_areaIN(l_HIO.mPrm.m50, current.pos)) {
-            mOrder = 8;
+            mOrder = VERSION_SELECT(7, 7, 8, 8);
         } else {
             m816 = 0;
             setAnm_NUM(3, 1);
@@ -1834,7 +1862,7 @@ void daNpc_Kk1_c::move_CMT_WAI() {
         }
     } else if (mOrder != 1 && mOrder < 3) {
         if (startEvent_check()) {
-            mOrder = 9;
+            mOrder = VERSION_SELECT(8, 8, 9, 9);
         }
     }
 }
@@ -1858,7 +1886,7 @@ void daNpc_Kk1_c::move_CMT_TRN() {
     if (cLib_calcTimer(&m798) != 0) {
         if (mOrder != 1 && mOrder < 3) {
             if (startEvent_check()) {
-                mOrder = 9;
+                mOrder = VERSION_SELECT(8, 8, 9, 9);
             }
         }
     } else if (m7A4 == 0) {
@@ -1867,7 +1895,7 @@ void daNpc_Kk1_c::move_CMT_TRN() {
         cLib_addCalcAngleS(&current.angle.y, targetAngle, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
         if (mOrder != 1 && mOrder < 3) {
             if (startEvent_check()) {
-                mOrder = 9;
+                mOrder = VERSION_SELECT(8, 8, 9, 9);
             } else if (current.angle.y == targetAngle) {
                 m816 = 0;
                 setAnm_NUM(3, 1);
@@ -1884,7 +1912,7 @@ void daNpc_Kk1_c::move_CMT_TRN() {
             if (cLib_calcTimer(&m7A4) == 0) {
                 if (mOrder != 1 && mOrder < 3) {
                     if (chk_areaIN(l_HIO.mPrm.m50, current.pos)) {
-                        mOrder = 8;
+                        mOrder = VERSION_SELECT(7, 7, 8, 8);
                     }
                 }
                 m81E = 0;
@@ -1893,7 +1921,7 @@ void daNpc_Kk1_c::move_CMT_TRN() {
         }
         if (mOrder != 1 && mOrder < 3) {
             if (startEvent_check()) {
-                mOrder = 9;
+                mOrder = VERSION_SELECT(8, 8, 9, 9);
             }
         }
     }
@@ -1905,7 +1933,7 @@ void daNpc_Kk1_c::init_CMT_PCK() {
     m7A4 = l_HIO.mPrm.m1A;
     m81E = 0;
     m7C4 = 1;
-    mEventIndex = 2;
+    mEventIndex = VERSION_SELECT(1, 1, 2, 2);
     eventInfo.setEventId(mEventIds[mEventIndex]);
 }
 
@@ -1917,7 +1945,7 @@ void daNpc_Kk1_c::move_CMT_PCK() {
         cLib_addCalcAngleS(&current.angle.y, target, l_HIO.mPrm.m24, l_HIO.mPrm.m26, 0x80);
         if (mOrder != 1 && mOrder < 3) {
             if (startEvent_check()) {
-                mOrder = 9;
+                mOrder = VERSION_SELECT(8, 8, 9, 9);
             } else if (current.angle.y == target) {
                 m816 = 0;
                 setAnm_NUM(3, 1);
@@ -1958,7 +1986,7 @@ BOOL daNpc_Kk1_c::cmmt_1() {
 
     if (mOrder != 1 && mOrder < 3 && mAnmNo != 1) {
         if (startEvent_check()) {
-            mOrder = 9;
+            mOrder = VERSION_SELECT(8, 8, 9, 9);
         }
     }
     m81E = 0;
@@ -2071,7 +2099,7 @@ BOOL daNpc_Kk1_c::talk_1() {
             dComIfGs_onEventBit(0xE10);
             break;
         case 0x1CAB:
-            mOrder = 7;
+            mOrder = VERSION_SELECT(6, 6, 7, 7);
             break;
         case 0x1CAC:
             m81E = 1;
@@ -2309,7 +2337,7 @@ cPhs_State daNpc_Kk1_c::_create() {
 /* 00006118-0000638C       .text bodyCreateHeap__11daNpc_Kk1_cFv */
 BOOL daNpc_Kk1_c::bodyCreateHeap() {
     J3DModelData* a_mdl_dat = (J3DModelData*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BDL_KK_e);
-    JUT_ASSERT(0xDD6, a_mdl_dat != 0);
+    JUT_ASSERT(VERSION_SELECT(0xDBD, 0xDBD, 0xDD6, 0xDD6), a_mdl_dat != 0);
     mpMorf = new mDoExt_McaMorf(a_mdl_dat, NULL, NULL, NULL, -1, 1.0f, 0, -1, 1, NULL, 0x80000, 0x11020022);
     if (mpMorf == NULL) {
         return FALSE;
@@ -2323,9 +2351,9 @@ BOOL daNpc_Kk1_c::bodyCreateHeap() {
         return FALSE;
     }
     m_hed_jnt_num = a_mdl_dat->getJointName()->getIndex("head");
-    JUT_ASSERT(0xDEA, m_hed_jnt_num >= 0);
+    JUT_ASSERT(VERSION_SELECT(0xDD1, 0xDD1, 0xDEA, 0xDEA), m_hed_jnt_num >= 0);
     m_bbone_jnt_num = a_mdl_dat->getJointName()->getIndex("backbone");
-    JUT_ASSERT(0xDEC, m_bbone_jnt_num >= 0);
+    JUT_ASSERT(VERSION_SELECT(0xDD3, 0xDD3, 0xDEC, 0xDEC), m_bbone_jnt_num >= 0);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_hed_jnt_num)->setCallBack(nodeCB_Head);
     mpMorf->getModel()->getModelData()->getJointNodePointer(m_bbone_jnt_num)->setCallBack(nodeCB_BackBone);
     mpMorf->getModel()->setUserArea((u32)this);
@@ -2338,17 +2366,17 @@ BOOL daNpc_Kk1_c::effcCreateHeap() {
     mpEffModel = mDoExt_J3DModel__create(a_mdl_dat, 0, 0x11020203);
     if (mpEffModel != NULL) {
         J3DAnmColor* a_bpk = (J3DAnmColor*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BPK_GFKDS00_e);
-        JUT_ASSERT(0xE01, 0 != a_bpk);
+        JUT_ASSERT(VERSION_SELECT(0xDE8, 0xDE8, 0xE01, 0xE01), 0 != a_bpk);
         if (!mBpkAnm.init(mpEffModel->getModelData(), a_bpk, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false, 0)) {
             return FALSE;
         }
         J3DAnmTextureSRTKey* a_btk = (J3DAnmTextureSRTKey*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BTK_GFKDS00_e);
-        JUT_ASSERT(0xE09, 0 != a_btk);
+        JUT_ASSERT(VERSION_SELECT(0xDF0, 0xDF0, 0xE09, 0xE09), 0 != a_btk);
         if (!mBtkAnm.init(mpEffModel->getModelData(), a_btk, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false, 0)) {
             return FALSE;
         }
         J3DAnmTransform* a_bck = (J3DAnmTransform*)dComIfG_getObjectIDRes(mArcName, dRes_ID_KK_BCK_GFKDS00_e);
-        JUT_ASSERT(0xE11, 0 != a_bck);
+        JUT_ASSERT(VERSION_SELECT(0xDF8, 0xDF8, 0xE11, 0xE11), 0 != a_bck);
         if (!mBckAnm.init(mpEffModel->getModelData(), a_bck, TRUE, J3DFrameCtrl::EMode_NONE, 0.0f, 0, -1, false)) {
             return FALSE;
         }
