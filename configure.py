@@ -1568,7 +1568,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_himo3"),
     ActorRel(Matching,    "d_a_hmlif"),
     ActorRel(Matching,    "d_a_hys"),
-    ActorRel(MatchingFor("GZLE01") or Equivalent,  "d_a_kamome"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01") or Equivalent,  "d_a_kamome"),
     ActorRel(Matching,    "d_a_kamome2"), # Demo-only TU
     ActorRel(MatchingFor("GZLE01", "GZLP01"), "d_a_kantera"),
     ActorRel(Matching,    "d_a_kn"),
