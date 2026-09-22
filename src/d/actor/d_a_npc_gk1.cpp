@@ -507,8 +507,22 @@ void daNpc_Gk1_c::privateCut(int staff) {
         if (mCutIndex == -1) {
             dComIfGp_evmng_cutEnd(staff);
         } else {
-            dComIfGp_evmng_getIsAddvance(staff);
-            dComIfGp_evmng_cutEnd(staff);
+            if (dComIfGp_evmng_getIsAddvance(staff)) {
+                switch (mCutIndex) {
+                case 0:
+                    break;
+                }
+            }
+            bool result;
+            switch (mCutIndex) {
+            case 0:
+            default:
+                result = true;
+                break;
+            }
+            if (result) {
+                dComIfGp_evmng_cutEnd(staff);
+            }
         }
     }
 }
