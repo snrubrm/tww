@@ -2551,8 +2551,7 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
 /* 8004B148-8004B1D0       .text isPointStayInDspNowRoomAgbScr__6dMap_cFss */
 BOOL dMap_c::isPointStayInDspNowRoomAgbScr(s16 param_1, s16 param_2) {
     BOOL ret = true;
-    f32 tmp;
-    if (param_1 < -8 || (tmp = mNowRoomInfoP->field_0x28, param_1 > 8.0f + tmp) || param_2 < -8 || (tmp = mNowRoomInfoP->field_0x2c, param_2 > 8.0f + tmp)) {
+    if (param_1 < -8 || param_1 > 8.0f + mNowRoomInfoP->getMap1Width() || param_2 < -8 || param_2 > 8.0f + mNowRoomInfoP->getMap1Height()) {
         ret = false;
     }
     return ret;
