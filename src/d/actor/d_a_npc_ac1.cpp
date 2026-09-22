@@ -44,11 +44,11 @@ void daNpc_Ac1_c::nodeWngControl(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::copy(model->getAnmMtx(joint));
     if (joint == m_wngL1_jnt_num) {
         MTXCopy(mLeftShoulder, j3dSys.mCurrentMtx);
-        MTXCopy(mLeftShoulder, model->getAnmMtx(joint));
+        model->setAnmMtx(joint, mLeftShoulder);
     }
     if (joint == m_wngR1_jnt_num) {
         MTXCopy(mRightShoulder, j3dSys.mCurrentMtx);
-        MTXCopy(mRightShoulder, model->getAnmMtx(joint));
+        model->setAnmMtx(joint, mRightShoulder);
     }
 }
 static BOOL nodeCallBack_Arm(J3DNode* node, int timing) {
