@@ -3737,6 +3737,97 @@ void dMap_2DMtMapSpcl_c::setPos(s16 param_1, s16 param_2, s16 param_3, s16 param
 }
 
 /* 8004DC1C-8004E068       .text draw__18dMap_2DMtMapSpcl_cFv */
+#if VERSION == VERSION_DEMO
+void dMap_2DMtMapSpcl_c::draw() {
+    GXVtxAttrFmtList fmtList[GX_VA_MAX_ATTR + 1];
+    GXGetVtxAttrFmtv(GX_VTXFMT0, fmtList);
+    GXSetVtxAttrFmt(GX_VTXFMT0, GX_VA_POS, GX_POS_XYZ, GX_S16, 0);
+    GXClearVtxDesc();
+    GXSetVtxDesc(GX_VA_POS, GX_DIRECT);
+    GXSetZMode(GX_DISABLE, GX_LEQUAL, GX_DISABLE);
+    int i;
+    dMap_2DMtMapSpcl_tex_c* r27 = field_0x8;
+    int r28 = 0;
+    for (i = 0; i < field_0x4; r27++, i++) {
+        if (r27->field_0x0 == 0) {
+            continue;
+        }
+        if (r27->getCI()) {
+            u32 name = r27->field_0x44;
+            GXLoadTlut(&r27->mTlutObj, name);
+        }
+        GXLoadTexObj(&r27->mTexObj, GXTexMapID(r28));
+        GXSetVtxAttrFmt(GX_VTXFMT0, GXAttr(GX_VA_TEX0 + r28), GX_TEX_ST, GX_F32, 0);
+        GXSetVtxDesc(GXAttr(GX_VA_TEX0 + r28), GX_DIRECT);
+        GXSetTevColor(GXTevRegID(GX_TEVREG0 + r28), r27->mColor);
+        GXSetTexCoordGen(GXTexCoordID(r28), GX_TG_MTX2x4, GXTexGenSrc(GX_TG_TEX0 + r28), GX_IDENTITY);
+        GXSetTevOrder(GXTevStageID(r28), GXTexCoordID(r28), GXTexMapID(r28), GX_COLOR_NULL);
+        GXSetTevColorIn(GXTevStageID(r28), GX_CC_ZERO, GXTevColorArg(GX_CC_C0 + r28 * 2), GX_CC_TEXC, r28 ? GX_CC_CPREV : GX_CC_ZERO);
+        GXSetTevColorOp(GXTevStageID(r28), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+        GXSetTevAlphaIn(GXTevStageID(r28), GX_CA_ZERO, GXTevAlphaArg(GX_CA_A0 + r28), GX_CA_TEXA, r28 ? GX_CA_APREV : GX_CA_ZERO);
+        GXSetTevAlphaOp(GXTevStageID(r28), GX_TEV_ADD, GX_TB_ZERO, GX_CS_SCALE_1, GX_TRUE, GX_TEVPREV);
+        r28 += 1;
+        if (r28 >= 3) {
+            break;
+        }
+    }
+    if (r28 == 0) {
+        return;
+    }
+    GXSetNumChans(0);
+    GXSetNumTexGens(r28);
+    GXSetNumTevStages(r28);
+    switch (field_0x5) {
+    case 0:
+        GXSetBlendMode(GX_BM_BLEND, GX_BL_SRC_ALPHA, GX_BL_INV_SRC_ALPHA, GX_LO_SET);
+        break;
+    case 1:
+        GXSetBlendMode(GX_BM_BLEND, GX_BL_SRC_ALPHA, GX_BL_INV_SRC_ALPHA, GX_LO_SET);
+        GXSetDstAlpha(GX_ENABLE,0);
+        GXSetAlphaUpdate(GX_ENABLE);
+    case 2:
+        GXSetBlendMode(GX_BM_BLEND, GX_BL_DST_ALPHA, GX_BL_INV_DST_ALPHA, GX_LO_SET);
+        break;
+    case 3:
+        GXSetBlendMode(GX_BM_BLEND, GX_BL_SRC_ALPHA, GX_BL_ONE, GX_LO_SET);
+        break;
+    }
+    GXSetAlphaCompare(GX_GREATER, 0, GX_AOP_AND, GX_ALWAYS, 0);
+    GXBegin(GX_QUADS, GX_VTXFMT0, 4);
+    GXPosition3s16(field_0xc, field_0xe, 0);
+    r27 = field_0x8;
+    for (int i = 0; i < field_0x4; r27++, i++) {
+        if (r27->field_0x0) {
+            GXTexCoord2f32(r27->getS(), r27->getT());
+        }
+    }
+    GXPosition3s16(field_0x10, field_0xe, 0);
+    r27 = field_0x8;
+    for (int i = 0; i < field_0x4; r27++, i++) {
+        if (r27->field_0x0) {
+            GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT());
+        }
+    }
+    GXPosition3s16(field_0x10, field_0x12, 0);
+    r27 = field_0x8;
+    for (int i = 0; i < field_0x4; r27++, i++) {
+        if (r27->field_0x0) {
+            GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT() + r27->getTw());
+        }
+    }
+    GXPosition3s16(field_0xc, field_0x12, 0);
+    r27 = field_0x8;
+    for (int i = 0; i < field_0x4; r27++, i++) {
+        if (r27->field_0x0) {
+            GXTexCoord2f32(r27->getS(), r27->getT() + r27->getTw());
+        }
+    }
+    GXEnd();
+    GXSetDstAlpha(GX_DISABLE, 0);
+    GXSetAlphaUpdate(GX_DISABLE);
+    GXSetVtxAttrFmtv(GX_VTXFMT0, fmtList);
+}
+#else
 void dMap_2DMtMapSpcl_c::draw() {
     GXVtxAttrFmtList fmtList[GX_VA_MAX_ATTR + 1];
     GXGetVtxAttrFmtv(GX_VTXFMT0, fmtList);
@@ -3824,6 +3915,7 @@ void dMap_2DMtMapSpcl_c::draw() {
     GXSetAlphaUpdate(GX_DISABLE);
     GXSetVtxAttrFmtv(GX_VTXFMT0, fmtList);
 }
+#endif
 
 /* 8004E068-8004E1CC       .text setImage__18dMap_2DAGBScrDsp_cFP7ResTIMGP8map_dt_c */
 void dMap_2DAGBScrDsp_c::setImage(ResTIMG* i_img, map_dt_c* param_2) {
