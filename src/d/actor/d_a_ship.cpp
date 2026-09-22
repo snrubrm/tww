@@ -2663,10 +2663,17 @@ BOOL daShip_c::procTornadoUp() {
     
     if (m03A6 == 0 && current.pos.y > tornado->current.pos.y + 5000.0f) {
         m03A6 = 1;
+#if VERSION == VERSION_DEMO
+        int exitId = (s32)cM_rndF(6.0f) + 0xC6;
+        if (exitId >= 0xCC) {
+            exitId = 0xCB;
+        }
+#else
         int exitId = (s32)cM_rndF(8.0f) + 0xC6;
         if (exitId >= 0xCE) {
             exitId = 0xCD;
         }
+#endif
         dStage_changeScene(exitId, 0.0f, 0, 0xFF);
     }
     
