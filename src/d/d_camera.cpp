@@ -5089,7 +5089,7 @@ bool dCamera_c::subjectCamera(s32 param_1) {
 /* 801719C4-80172C20       .text towerCamera__9dCamera_cFl */
 bool dCamera_c::towerCamera(s32 param_1) {
     f32 cush = 0.9f;
-    cSAngle chargeLat = cSAngle(mCamSetup.m0A4);
+    cSAngle chargeLat = cSAngle(mCamSetup.UnkAngle0A4());
     cSAngle latMax(80.0f);
     f32 val1 = mCamParam.Val(param_1, 1);
     f32 val5 = mCamParam.Val(param_1, 5);
@@ -5112,6 +5112,10 @@ bool dCamera_c::towerCamera(s32 param_1) {
     cSAngle val24(mCamParam.Val(param_1, 24));
     f32 val20 = mCamParam.Val(param_1, 20);
     f32 val21 = mCamParam.Val(param_1, 21);
+    f32 timerScale = 8.0f;
+#if VERSION == VERSION_DEMO
+    dBgS* bgs = dComIfG_Bgsp();
+#endif
 
     if (mCurArrowIdx == 0xFF) {
         followCamera(param_1);
@@ -5160,8 +5164,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
         if (mStickMainPosXLast > 0.2f) {
             work->m3D5 = 0;
         }
-        f32 target = work->m3D5 ? -45.0f : 45.0f;
-        work->m3A8 += 0.04f * (target - work->m3A8);
+        work->m3A8 += 0.04f * ((work->m3D5 ? -45.0f : 45.0f) - work->m3A8);
     } else {
         work->m3A8 += 0.06f * (val1 - work->m3A8);
     }
@@ -5208,7 +5211,7 @@ bool dCamera_c::towerCamera(s32 param_1) {
 
             f32 height = get_actor_height(mpPlayerActor);
             dist /= height < 10.0f ? 10.0f : height;
-            work->m37C = (int)(8.0f * std::sqrtf(dist)) + 1;
+            work->m37C = (int)(timerScale * std::sqrtf(dist)) + 1;
             work->m380 = work->m37C * (work->m37C + 1) >> 1;
         }
         work->m384 = 0.0f;
@@ -5222,7 +5225,11 @@ bool dCamera_c::towerCamera(s32 param_1) {
 
     if (m100 == 0) {
         if (m31D) {
+#if VERSION == VERSION_DEMO
+            bgs->MoveBgMatrixCrrPos(mBG.m5C.m04, true, &work->m3B8, NULL, NULL);
+#else
             dComIfG_Bgsp()->MoveBgMatrixCrrPos(mBG.m5C.m04, true, &work->m3B8, NULL, NULL);
+#endif
         }
 
         work->m384 = (f32)(s32)(work->m37C - m108);
@@ -5234,7 +5241,11 @@ bool dCamera_c::towerCamera(s32 param_1) {
         attn.y -= 15.0f;
         dBgS_CamLinChk_NorWtr lin_chk;
         if (lineBGCheck(&attn, &mViewCache.mCenter, &lin_chk, 0x7f)) {
+#if VERSION == VERSION_DEMO
+            cM3dGPla* plane = bgs->GetTriPla(lin_chk);
+#else
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
+#endif
             mViewCache.mCenter = lin_chk.GetCross();
             mViewCache.mCenter += plane->mNormal;
         }
@@ -5287,7 +5298,11 @@ bool dCamera_c::towerCamera(s32 param_1) {
     attn.y -= 15.0f;
     dBgS_CamLinChk_NorWtr lin_chk;
     if (lineBGCheck(&attn, &mViewCache.mCenter, &lin_chk, 0x7f)) {
+#if VERSION == VERSION_DEMO
+        cM3dGPla* plane = bgs->GetTriPla(lin_chk);
+#else
         cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
+#endif
         mViewCache.mCenter = lin_chk.GetCross();
         mViewCache.mCenter += plane->mNormal;
     }
