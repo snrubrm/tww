@@ -1263,6 +1263,7 @@ void ph_hane_move(ph_class* i_this) {
 void ph_bunri_move(ph_class* i_this) {
     fopAc_ac_c* actor = i_this;
 #if VERSION == VERSION_DEMO
+    // Unused, but its dead load leaves &g_dComIfG_gameInfo hoisted into a register as in the target.
     fopAc_ac_c* player = dComIfGp_getPlayer(0);
 #endif
 
