@@ -2318,9 +2318,9 @@ static BOOL daPH_IsDelete(ph_class*) {
 /* 000061AC-00006224       .text daPH_Delete__FP8ph_class */
 static BOOL daPH_Delete(ph_class* i_this) {
     if (i_this->mType == 0) {
-        dComIfG_resDelete(&i_this->mPhs, "PH");
+        dComIfG_resDeleteDemo(&i_this->mPhs, "PH");
     } else {
-        dComIfG_resDelete(&i_this->mPhs, "SH");
+        dComIfG_resDeleteDemo(&i_this->mPhs, "SH");
     }
     i_this->mParticleCallBack.remove();
     enemy_fire_remove(&i_this->mBodyEnemyFire);
