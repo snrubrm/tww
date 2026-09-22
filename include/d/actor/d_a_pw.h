@@ -34,13 +34,18 @@ public:
     /* 0x33D */ u8 m33D;
     /* 0x33E */ u8 m33E;
     /* 0x33F */ u8 m33F;
+#if VERSION == VERSION_DEMO
+    /* 0x340 */ u8 m346;
+#endif
     /* 0x340 */ u8 m340;
     /* 0x341 */ u8 m341;
     /* 0x342 */ u8 m342;
     /* 0x343 */ u8 m343;
     /* 0x344 */ u8 m344;
     /* 0x345 */ u8 m345;
+#if VERSION > VERSION_DEMO
     /* 0x346 */ s16 m346;
+#endif
     /* 0x348 */ dPath* mpPath;
     /* 0x34C */ u8 m34C[0x358 - 0x34C];
     /* 0x358 */ s8 mPathPntIdx;
@@ -57,7 +62,9 @@ public:
     /* 0x37C */ s16 m37C;
     /* 0x37E */ s16 m37E;
     /* 0x380 */ s16 m380;
+#if VERSION > VERSION_DEMO
     /* 0x382 */ s16 m382;
+#endif
     /* 0x384 */ s16 m384[4];
     /* 0x38C */ s16 m38C;
     /* 0x38E */ s16 m38E;
@@ -78,7 +85,11 @@ public:
     /* 0x3B8 */ f32 m3B8;
     /* 0x3BC */ dBgS_AcchCir mAcchCir;
     /* 0x3FC */ dBgS_ObjAcch mAcch;
+#if VERSION == VERSION_DEMO
+    /* 0x5C0 */ JPABaseEmitter* m5C0_demo;
+#else
     /* 0x5C0 */ u8 m5C0[0x5C4 - 0x5C0];
+#endif
     /* 0x5C4 */ dPa_followEcallBack m5C4;
     /* 0x5D8 */ actor_place mActorPlace;
     /* 0x5EC */ dCcD_Stts mStts;
