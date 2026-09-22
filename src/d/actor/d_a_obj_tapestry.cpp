@@ -1129,8 +1129,13 @@ void daObjTapestryPacket_c::eff_end() {
     mPLight.plight_delete();
 }
 
+// Name unknown; mwcc-instr shows an inline call here (its folded work arg/return temps give the target's add+lbz 0x1030
+// instead of ir:cse lbzx temps; a named w = &mWork pointer/ref local stays a live node in D44J01, so no plain spelling matches all 4).
+static inline u8 get_alpha(daObjTapestryWork_c* work, int row, int col) {
+    return work->alpha[row][col];
+}
+
 /* 000039C0-00003CC0       .text eff_pos__21daObjTapestryPacket_cFv */
-// NONMATCHING - regalloc/addressing of the alpha[row][col] load (target adds col to the row base before the 0x1030 offset)
 void daObjTapestryPacket_c::eff_pos() {
     if (mFireCount > 0) {
         daObjTapestryDrawVtx_c prev = mDraw[mBuffer ^ 1];
@@ -1138,7 +1143,7 @@ void daObjTapestryPacket_c::eff_pos() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 6; col++) {
                 if (mWork.alpha[row][col] != 0xFF) {
-                    u8 idx = mWork.alpha[row][col];
+                    u8 idx = get_alpha(&mWork, row, col);
                     cXyz world;
                     mDoMtx_multVec(mMtx, &now.pos[row][col], &world);
                     mFire[idx].set_pos(world);
