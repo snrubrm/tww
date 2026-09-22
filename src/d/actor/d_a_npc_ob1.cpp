@@ -1318,10 +1318,6 @@ void daNpc_Ob1_c::shadowDraw() {
         dComIfGd_addRealShadow(mShadowId, mpHeadModel);
     }
 }
-// Retain the original unused debug drawing colors.
-extern const GXColor l_ob1DebugRed = {255, 0, 0, 128};
-extern const GXColor l_ob1DebugBlue = {0, 0, 255, 128};
-extern const GXColor l_ob1DebugGreen = {0, 255, 0, 128};
 
 /* 00002F18-0000300C       .text _draw__11daNpc_Ob1_cFv */
 BOOL daNpc_Ob1_c::_draw() {
@@ -1340,6 +1336,9 @@ BOOL daNpc_Ob1_c::_draw() {
     g_env_light.setLightTevColorType(head, &tevStr);
     shadowDraw();
     dSnap_RegistFig(DSNAP_TYPE_UNK4F, this, 1.0f, 1.0f, 1.0f);
+    GXColor red = {255, 0, 0, 128};
+    GXColor blue = {0, 0, 255, 128};
+    GXColor green = {0, 255, 0, 128}; // Unused colors, needed for the .rodata section to match.
     return TRUE;
 }
 
