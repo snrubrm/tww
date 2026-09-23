@@ -1263,17 +1263,19 @@ void daGy_c::createWave() {
 #endif
 
 /* 00003004-00003268       .text setWave__6daGy_cFv */
-// NONMATCHING - target multiplies m18 by a 1.0f local and reloads l_HIO.m24 in case 1 instead of reusing it
+// NONMATCHING - target reloads l_HIO.m24 in case 1 instead of reusing the value loaded for max_speed
+// (demo loads the 1.0f speed_ratio into a register at the top, so it was a local)
 void daGy_c::setWave() {
     f32 splash_target;
     f32 wave_speed;
     f32 max_speed = l_HIO.m24;
+    f32 speed_ratio = 1.0f;
 
     if (mPrmIdx == 5 || mPrmIdx == 8 || mPrmIdx == 9 || mPrmIdx == 6) {
         wave_speed = 0.0f;
         splash_target = 0.0f;
     } else {
-        wave_speed = l_HIO.m18;
+        wave_speed = l_HIO.m18 * speed_ratio;
         splash_target = l_HIO.m10;
     }
 
