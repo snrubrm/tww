@@ -1124,7 +1124,7 @@ BOOL daNpc_Os_c::searchNpcAction(void*) {
     }
     else if(field_0x7A9 != -1) {
         field_0x7A4 = 1;
-        daPy_py_c* player = daPy_getPlayerActorClass();
+        daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
 
         BOOL door = player->eventInfo.checkCommandDoor();
         f32 dist_sq = fopAcM_searchPlayerDistanceXZ2(this);
