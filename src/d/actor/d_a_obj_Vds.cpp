@@ -86,7 +86,7 @@ BOOL daObjVds::Act_c::process_off_init() {
 void daObjVds::Act_c::process_off_main() {
     for (int i = 0; i < 2; i++) {
         daObjSwlight::Act_c* actor = static_cast<daObjSwlight::Act_c*>(fopAcM_SearchByID(mSwitchId[i]));
-        mIntensity[i] = actor->mF30;
+        mIntensity[i] = actor->get_power();
     }
     if (is_switch()) process_init(1);
 }
