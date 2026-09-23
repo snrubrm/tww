@@ -1021,7 +1021,7 @@ BOOL daObj_Search::Act_c::_execute() {
     f32 time = dComIfGs_getTime();
 #if VERSION == VERSION_DEMO
     if (time > 240.0f || time < 60.0f) {
-        if (m860) {
+        if (isSecond()) {
             m834 = 0;
         } else {
             m834 = 1;
@@ -1032,7 +1032,7 @@ BOOL daObj_Search::Act_c::_execute() {
 #else
     if (time < 240.0f && time > 60.0f) {
         m834 = 0;
-    } else if (m860) {
+    } else if (isSecond()) {
         m834 = 0;
     } else {
         m834 = 1;
