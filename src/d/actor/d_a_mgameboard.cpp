@@ -409,10 +409,10 @@ bool daMgBoard_c::_execute() {
         if (cLib_calcTimer(&mTimer) == 0) {
             mState = 0;
             if (mSeaFightGame.mAliveShipNum != 0) {
-                mDoAud_seStart(JA_SE_PLAYSPOT_END_F, &mNPCPos);
+                mDoAud_seStart(JA_SE_PLAYSPOT_END_F, &mNPCPos, 0);
             }
             else {
-                mDoAud_seStart(JA_SE_PLAYSPOT_END_S, &mNPCPos);
+                mDoAud_seStart(JA_SE_PLAYSPOT_END_S, &mNPCPos, 0);
             }
         }
         break;
@@ -455,12 +455,12 @@ BOOL daMgBoard_c::MinigameMain() {
         mLastFirePosX = mBoardPosX;
         mLastFirePosY = mBoardPosY;
         if (result >= 0) {
-            mDoAud_seStart(JA_SE_PLAYSPOT_RIGHT, &mNPCPos);
+            mDoAud_seStart(JA_SE_PLAYSPOT_RIGHT, &mNPCPos, 0);
             if (oldShips != ships && ships != 0) {
-                mDoAud_seStart(JA_SE_PLAYSPOT_DESTROY, &mNPCPos);
+                mDoAud_seStart(JA_SE_PLAYSPOT_DESTROY, &mNPCPos, 0);
             }
             dComIfGp_getVibration().StartShock(7, -33, cXyz(0.0f, 1.0f, 0.0f));
-        } else if (result == -1) mDoAud_seStart(JA_SE_PLAYSPOT_WRONG, &mNPCPos);
+        } else if (result == -1) mDoAud_seStart(JA_SE_PLAYSPOT_WRONG, &mNPCPos, 0);
         if (dead > 0) {
             mpSquidIcon[dead - 1]->offBeforeTex();
         }
