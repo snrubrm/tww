@@ -267,10 +267,11 @@ void daObjFirewall_c::particle_delete() {
 /* 00000A1C-00000AB0       .text seStart__15daObjFirewall_cFUl */
 void daObjFirewall_c::seStart(unsigned long sound) {
 #if VERSION == VERSION_DEMO
+    cXyz pos;
     s16 angle = 0;
     for (int i = 0; i < 8; angle += 0x2000, ++i) {
-        cXyz pos(current.pos.x + scale.x * (1000.0f * cM_ssin(angle)), current.pos.y,
-                 current.pos.z + scale.x * (1000.0f * cM_scos(angle)));
+        pos.set(current.pos.x + scale.x * (1000.0f * cM_ssin(angle)), current.pos.y,
+                current.pos.z + scale.x * (1000.0f * cM_scos(angle)));
         mDoAud_seStart(sound, &pos);
     }
 #else
