@@ -287,17 +287,17 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
     }
 
     u8 prmNo = i_this->getPrmNpcNo();
-    u8 mdlNo = auction->getAucNpcNo(prmNo);
-    i_this->setMdlNo(mdlNo);
+    u8 npcNo = auction->getAucNpcNo(prmNo);
+    i_this->setNpcNo(npcNo);
 
-    if (!auction->setNpcID(mdlNo, fopAcM_GetID(i_this))) {
+    if (!auction->setNpcID(npcNo, fopAcM_GetID(i_this))) {
         return cPhs_INIT_e;
     }
 
-    int minKind = l_kind_max[mdlNo][0];
-    int maxKind = l_kind_max[mdlNo][1];
+    int minKind = l_kind_max[npcNo][0];
+    int maxKind = l_kind_max[npcNo][1];
     u8 kind;
-    if (mdlNo == 2 || mdlNo == 3) {
+    if (npcNo == 2 || npcNo == 3) {
         if (auction->m81C == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
             auction->m81C = kind;
@@ -311,7 +311,7 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
                 }
             }
         }
-    } else if (mdlNo == 4 || mdlNo == 5) {
+    } else if (npcNo == 4 || npcNo == 5) {
         if (auction->m81D == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
             auction->m81D = kind;
@@ -329,8 +329,8 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
         kind = minKind + i_this->getRand(maxKind - minKind + 1);
     }
 
-    i_this->setNpcNo(kind);
-    auction->setAucMdlNo(mdlNo, kind);
+    i_this->setMdlNo(kind);
+    auction->setAucMdlNo(npcNo, kind);
     i_this->setBtpNo(l_btp_ix_tbl[kind]);
     i_this->setBmtNo(l_bmt_ix_tbl[kind]);
     return cPhs_NEXT_e;
@@ -338,7 +338,7 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
 
 /* 00000ACC-00000B4C       .text phase_2__FP14daNpcAuction_c */
 static cPhs_State phase_2(daNpcAuction_c* i_this) {
-    cPhs_State phase_state = dComIfG_resLoad(i_this->getPhaseP(), l_arcname_tbl[i_this->getNpcNo()]);
+    cPhs_State phase_state = dComIfG_resLoad(i_this->getPhaseP(), l_arcname_tbl[i_this->getMdlNo()]);
     if (phase_state == cPhs_COMPLEATE_e) {
         if (fopAcM_entrySolidHeap(i_this, CheckCreateHeap, 0x10000)) {
             return i_this->createInit();
@@ -363,23 +363,23 @@ inline cPhs_State daNpcAuction_c::_create() {
 
 /* 00000B4C-00000E74       .text createHeap__14daNpcAuction_cFv */
 BOOL daNpcAuction_c::createHeap() {
-    J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], l_bmd_ix_tbl[mNpcNo]);
+    J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectIDRes(l_arcname_tbl[mMdlNo], l_bmd_ix_tbl[mMdlNo]);
     mpMorf = new mDoExt_McaMorf(
         modelData,
         NULL, NULL,
-        (J3DAnmTransform*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], l_bck_ix_tbl[mNpcNo][mAnmNo]),
+        (J3DAnmTransform*)dComIfG_getObjectIDRes(l_arcname_tbl[mMdlNo], l_bck_ix_tbl[mMdlNo][mAnmNo]),
         J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, 1,
         NULL,
         0x80000,
-        l_diff_flag_tbl[mNpcNo]
+        l_diff_flag_tbl[mMdlNo]
     );
 
     if (mpMorf == NULL || mpMorf->getModel() == NULL) {
         return FALSE;
     }
 
-    if (l_head_bmd_ix_tbl[mNpcNo] >= 0) {
-        J3DModelData* headModelData = (J3DModelData*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], l_head_bmd_ix_tbl[mNpcNo]);
+    if (l_head_bmd_ix_tbl[mMdlNo] >= 0) {
+        J3DModelData* headModelData = (J3DModelData*)dComIfG_getObjectIDRes(l_arcname_tbl[mMdlNo], l_head_bmd_ix_tbl[mMdlNo]);
         mpHeadModel = mDoExt_J3DModel__create(headModelData, 0x80000, 0x15020022);
         if (mpHeadModel == NULL) {
             return FALSE;
@@ -397,7 +397,7 @@ BOOL daNpcAuction_c::createHeap() {
 
     for (u16 i = 0; i < modelData->getJointNum(); i++) {
         if (i == m_jnt.getHeadJntNum() || i == m_jnt.getBackboneJntNum()) {
-            modelData->getJointNodePointer(i)->setCallBack(l_node_call_back_tbl[mMdlNo]);
+            modelData->getJointNodePointer(i)->setCallBack(l_node_call_back_tbl[mNpcNo]);
         }
     }
     mpMorf->getModel()->setUserArea((u32)this);
@@ -425,7 +425,7 @@ cPhs_State daNpcAuction_c::createInit() {
     setCollision(60.0f, 150.0f);
 #endif
     gravity = -9.0f;
-    mEventCut.setActorInfo2(l_npc_staff_id[mMdlNo], this);
+    mEventCut.setActorInfo2(l_npc_staff_id[mNpcNo], this);
 #if VERSION == VERSION_DEMO
     setMtx();
 #endif
@@ -434,7 +434,7 @@ cPhs_State daNpcAuction_c::createInit() {
     m73D = 0;
     fopAcM_SetMtx(this, mpMorf->getModel()->getBaseTRMtx());
     wait_action_init();
-    if (mMdlNo == 0) {
+    if (mNpcNo == 0) {
         attention_info.distances[fopAc_Attn_TYPE_TALK_e] = 0xAD;
         attention_info.distances[fopAc_Attn_TYPE_SPEAK_e] = 0xAD;
     } else {
@@ -446,7 +446,7 @@ cPhs_State daNpcAuction_c::createInit() {
     eventInfo.setEventName("AUCTION_TALK");
     eventInfo.setXyCheckCB(&daNpcAuction_XyCheckCB);
     eventInfo.setXyEventCB(&daNpcAuction_XyEventCB);
-    mMaxAttnDistXZ = l_npc_dat[mNpcNo].mMaxAttnDistXZ;
+    mMaxAttnDistXZ = l_npc_dat[mMdlNo].mMaxAttnDistXZ;
 #if VERSION > VERSION_DEMO
     setMtx();
     mpMorf->getModel()->calc();
@@ -476,7 +476,7 @@ void daNpcAuction_c::wait_action() {
             setAnm2(7, 2, 8.0f);
             if (m745 == 0) {
                 dComIfGp_event_onEventFlag(8);
-            } else if (mMdlNo == 0) {
+            } else if (mNpcNo == 0) {
                 daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
                 if (auction != NULL) {
                     if (m745 == 1) {
@@ -533,7 +533,7 @@ void daNpcAuction_c::eventMove() {
     } else if (dComIfGp_evmng_endCheck("AUCTION_TALK_XY")) {
         if (m745 == 0) {
             dComIfGp_event_onEventFlag(8);
-        } else if (mMdlNo == 0) {
+        } else if (mNpcNo == 0) {
             daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
             if (auction != NULL) {
                 if (m745 == 1) {
@@ -554,7 +554,7 @@ void daNpcAuction_c::eventMove() {
             }
         } else {
             privateCut();
-            if (mMdlNo == 7) {
+            if (mNpcNo == 7) {
                 setAnmFromMsgTag();
             }
         }
@@ -564,7 +564,7 @@ void daNpcAuction_c::eventMove() {
 /* 000013FC-00001548       .text privateCut__14daNpcAuction_cFv */
 void daNpcAuction_c::privateCut() {
     static char* cut_name_tbl[] = {"MAIN", "MES_SET"};
-    int staffIdx = dComIfGp_evmng_getMyStaffId(l_npc_staff_id[mMdlNo]);
+    int staffIdx = dComIfGp_evmng_getMyStaffId(l_npc_staff_id[mNpcNo]);
     if (staffIdx != -1) {
         mCutAct = dComIfGp_evmng_getMyActIdx(staffIdx, cut_name_tbl, 2, 1, 0);
         if (mCutAct == -1) {
@@ -613,7 +613,7 @@ bool daNpcAuction_c::eventMain() {
             setAnm2(3, 2, 8.0f);
             m747 |= 0x08;
         }
-    } else if (mMdlNo == auction->getBetNpcNo()) {
+    } else if (mNpcNo == auction->getBetNpcNo()) {
         if (flags & 0x01) {
             if ((m747 & 0x04) == 0) {
                 setAnm2(2, 2, 8.0f);
@@ -661,7 +661,7 @@ bool daNpcAuction_c::eventMain() {
         if (mpEmitter != NULL) {
             MTXCopy(mpMorf->getModel()->getAnmMtx(m_jnt.getHeadJntNum()), *calc_mtx);
             mDoMtx_ZrotM(*calc_mtx, -0x4000);
-            mDoMtx_stack_c::transS(0.0f, l_npc_dat[mNpcNo].field_0x2C, 0.0f);
+            mDoMtx_stack_c::transS(0.0f, l_npc_dat[mMdlNo].field_0x2C, 0.0f);
             mDoMtx_concat(*calc_mtx, mDoMtx_stack_c::now, *calc_mtx);
             mpEmitter->setGlobalRTMatrix(*calc_mtx);
         }
@@ -814,7 +814,7 @@ u16 daNpcAuction_c::next_msgStatus(u32* pMsgNo) {
 /* 00001CD4-00001F04       .text getMsg__14daNpcAuction_cFv */
 u32 daNpcAuction_c::getMsg() {
     u32 msgNo;
-    if (mMdlNo == 0) {
+    if (mNpcNo == 0) {
         if (dComIfGp_event_chkTalkXY()) {
             u8 itemNo = dComIfGp_event_getPreItemNo();
             if (itemNo == dItemNo_POSTMAN_STATUE_e) {
@@ -852,17 +852,17 @@ u32 daNpcAuction_c::getMsg() {
             dComIfGs_onEventBit(dSv_event_flag_c::UNK_1002);
             msgNo = 0x27DA;
         }
-    } else if (mMdlNo == 6) {
+    } else if (mNpcNo == 6) {
         msgNo = 0x1D35;
     } else {
         daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
         u8 winner = auction->m824;
         if (winner == 0) {
-            msgNo = l_npc_msg_id[mNpcNo][0];
-        } else if (winner == mMdlNo) {
-            msgNo = l_npc_msg_id[mNpcNo][1];
+            msgNo = l_npc_msg_id[mMdlNo][0];
+        } else if (winner == mNpcNo) {
+            msgNo = l_npc_msg_id[mMdlNo][1];
         } else {
-            msgNo = l_npc_msg_id[mNpcNo][2];
+            msgNo = l_npc_msg_id[mMdlNo][2];
         }
     }
     return msgNo;
@@ -871,7 +871,7 @@ u32 daNpcAuction_c::getMsg() {
 /* 00001F04-00002070       .text setAnmFromMsgTag__14daNpcAuction_cFv */
 void daNpcAuction_c::setAnmFromMsgTag() {
     int attr = dComIfGp_getMesgAnimeAttrInfo();
-    if (mMdlNo == 0 || mMdlNo == 7) {
+    if (mNpcNo == 0 || mNpcNo == 7) {
         switch (attr) {
         case 0:
         case 1:
@@ -943,8 +943,8 @@ void daNpcAuction_c::setMtx() {
 
 /* 00002118-00002488       .text lookBack__14daNpcAuction_cFv */
 void daNpcAuction_c::lookBack() {
-    f32 attnY = l_npc_dat[mNpcNo].m04;
-    s16 maxVel = l_npc_dat[mNpcNo].mMaxHeadTurnVel;
+    f32 attnY = l_npc_dat[mMdlNo].m04;
+    s16 maxVel = l_npc_dat[mMdlNo].mMaxHeadTurnVel;
     s16 defaultY = current.angle.y;
     cXyz* dstPosP = NULL;
     cXyz dstPos;
@@ -969,7 +969,7 @@ void daNpcAuction_c::lookBack() {
     } else {
         fopAc_ac_c* player = dComIfGp_getLinkPlayer();
         f32 maxDist = mMaxAttnDistXZ;
-        int maxAng = l_npc_dat[mNpcNo].mMaxAttnAngleY;
+        int maxAng = l_npc_dat[mMdlNo].mMaxAttnAngleY;
         int lim0 = 0x4000;
         f32 dist;
         s16 ang;
@@ -999,7 +999,7 @@ void daNpcAuction_c::lookBack() {
             }
         } else {
             m73D = 0;
-            if (mMdlNo == 0) {
+            if (mNpcNo == 0) {
                 defaultY = home.angle.y;
                 noTurn = false;
                 m_jnt.setTrn();
@@ -1032,7 +1032,7 @@ BOOL daNpcAuction_c::initTexPatternAnm(bool i_modify) {
     } else {
         modelData = mpMorf->getModel()->getModelData();
     }
-    m_head_tex_pattern = (J3DAnmTexPattern*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], mBtpNo);
+    m_head_tex_pattern = (J3DAnmTexPattern*)dComIfG_getObjectIDRes(l_arcname_tbl[mMdlNo], mBtpNo);
     JUT_ASSERT(DEMO_SELECT(0x891, 0x89B), m_head_tex_pattern != 0);
     if (!mBtpAnm.init(modelData, m_head_tex_pattern, TRUE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, i_modify, FALSE)) {
         return FALSE;
@@ -1069,7 +1069,7 @@ void daNpcAuction_c::playAnm() {
 
 /* 000026CC-0000278C       .text setAnm__14daNpcAuction_cFUcif */
 void daNpcAuction_c::setAnm(u8 idx, int mode, f32 morf) {
-    J3DAnmTransform* anm = (J3DAnmTransform*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], l_bck_ix_tbl[mNpcNo][idx]);
+    J3DAnmTransform* anm = (J3DAnmTransform*)dComIfG_getObjectIDRes(l_arcname_tbl[mMdlNo], l_bck_ix_tbl[mMdlNo][idx]);
     mpMorf->setAnm(anm, mode, morf, 1.0f, 0.0f, -1.0f, NULL);
     mAnmNo = idx;
 }
@@ -1105,15 +1105,15 @@ static u32 l_mdl_status[] = {
 
 /* 00002874-00002928       .text isExecute__14daNpcAuction_cFv */
 BOOL daNpcAuction_c::isExecute() {
-    fopAcM_OffStatus(this, l_mdl_status[mNpcNo]);
+    fopAcM_OffStatus(this, l_mdl_status[mMdlNo]);
     daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
     if (auction == NULL) {
         return FALSE;
     }
-    if (!auction->chkNpcExec(mMdlNo)) {
+    if (!auction->chkNpcExec(mNpcNo)) {
         return FALSE;
     }
-    fopAcM_OnStatus(this, l_mdl_status[mNpcNo]);
+    fopAcM_OnStatus(this, l_mdl_status[mMdlNo]);
     return TRUE;
 }
 
@@ -1141,7 +1141,7 @@ void daNpcAuction_c::clrEmitter() {
 }
 
 inline BOOL daNpcAuction_c::_delete() {
-    dComIfG_resDeleteDemo(&mPhs, l_arcname_tbl[mNpcNo]);
+    dComIfG_resDeleteDemo(&mPhs, l_arcname_tbl[mMdlNo]);
 #if VERSION == VERSION_DEMO
     if (mpMorf != NULL) {
 #else
@@ -1154,7 +1154,7 @@ inline BOOL daNpcAuction_c::_delete() {
 
 inline BOOL daNpcAuction_c::_execute() {
     if (isExecute()) {
-        daNpc_Auction2_HIO_c* dat = &l_npc_dat[mNpcNo];
+        daNpc_Auction2_HIO_c* dat = &l_npc_dat[mMdlNo];
         m_jnt.setParam(
             dat->mMaxBackboneX, dat->mMaxBackboneY, dat->mMinBackboneX, dat->mMinBackboneY,
             dat->mMaxHeadX, dat->mMaxHeadY, dat->mMinHeadX, dat->mMinHeadY, dat->mMaxTurnStep
@@ -1171,8 +1171,8 @@ inline BOOL daNpcAuction_c::_execute() {
         playAnm();
         mObjAcch.CrrPos(*dComIfG_Bgsp());
         setCollision(60.0f, 150.0f);
-        attention_info.position.set(current.pos.x, current.pos.y + l_npc_dat[mNpcNo].mAttnYOffset, current.pos.z);
-        eyePos.set(current.pos.x, current.pos.y + l_npc_dat[mNpcNo].field_0x28, current.pos.z);
+        attention_info.position.set(current.pos.x, current.pos.y + l_npc_dat[mMdlNo].mAttnYOffset, current.pos.z);
+        eyePos.set(current.pos.x, current.pos.y + l_npc_dat[mMdlNo].field_0x28, current.pos.z);
         lookBack();
         setMtx();
         if (mSeTimer != 0) {
@@ -1181,7 +1181,7 @@ inline BOOL daNpcAuction_c::_execute() {
                 mDoAud_seStart(mSeNo);
             }
         }
-        mPiconOfsY = l_npc_dat[mNpcNo].field_0x30;
+        mPiconOfsY = l_npc_dat[mMdlNo].field_0x30;
     }
     return FALSE;
 }
@@ -1197,7 +1197,7 @@ inline BOOL daNpcAuction_c::_draw() {
             g_env_light.setLightTevColorType(mpHeadModel, &tevStr);
             mBtpAnm.entry(pModelData, mBtpFrame);
             if (mBmtNo >= 0) {
-                mpMorf->updateDL((J3DMaterialTable*)dComIfG_getObjectIDRes(l_arcname_tbl[mNpcNo], mBmtNo));
+                mpMorf->updateDL((J3DMaterialTable*)dComIfG_getObjectIDRes(l_arcname_tbl[mMdlNo], mBmtNo));
             } else {
                 mpMorf->updateDL();
             }
@@ -1220,7 +1220,7 @@ inline BOOL daNpcAuction_c::_draw() {
         if (mShadowId != 0 && mpHeadModel != NULL) {
             dComIfGd_addRealShadow(mShadowId, mpHeadModel);
         }
-        dSnap_RegistFig(l_photo_no[mNpcNo], this, 1.0f, 1.0f, 1.0f);
+        dSnap_RegistFig(l_photo_no[mMdlNo], this, 1.0f, 1.0f, 1.0f);
     }
     return TRUE;
 }

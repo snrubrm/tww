@@ -92,8 +92,8 @@ public:
     /* 0x73D */ u8 m73D;
     /* 0x73E */ u8 mEventOrder;
     /* 0x73F */ u8 mBtpFrame;
-    /* 0x740 */ u8 mMdlNo;
-    /* 0x741 */ u8 mNpcNo;
+    /* 0x740 */ u8 mNpcNo;
+    /* 0x741 */ u8 mMdlNo;
     /* 0x742 */ u8 m742;
     /* 0x743 */ u8 m743;
     /* 0x744 */ u8 m744;
