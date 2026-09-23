@@ -110,7 +110,7 @@ protected:
 class dMesg_tSequenceProcessor : public JMessage::TSequenceProcessor {
 public:
     void resetWaitRest() { mWaitRest = 0; }
-    void setWaitRest() {} // TODO
+    void setWaitRest() { mWaitRest = field_0x8c; }
     int decWaitRest() {
         return mWaitRest > 0 ? mWaitRest-- : 0;
     }

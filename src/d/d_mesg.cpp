@@ -520,7 +520,7 @@ void dMesg_tSequenceProcessor::do_character(int param_1) {
             mWaitRest = VERSION_SELECT(3, 3, 1, 1);
         }
     } else {
-        mWaitRest = field_0x8c;
+        setWaitRest();
     }
 }
 
@@ -756,7 +756,7 @@ bool dMesg_tSequenceProcessor::do_tag(u32 param_1, const void* param_2, u32 para
             sprintf(sp18, "\x1b" "CR[%d]", mesgControl->getNowFontSize());
             strcat(mMesg->text[0], sp18);
             strcat(mMesg->text[2], sp18);
-            mWaitRest = field_0x8c;
+            setWaitRest();
             r29 = true;
             break;
         }
