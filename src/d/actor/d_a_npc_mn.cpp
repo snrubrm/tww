@@ -1109,7 +1109,7 @@ u8 daNpcMn_c::getPrmSwitchBit2() {
 /* 000030C0-00003148       .text setMtx__9daNpcMn_cFv */
 void daNpcMn_c::setMtx() {
     mpMorf->getModel()->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(current.angle.y);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
 }
