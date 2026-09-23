@@ -6,6 +6,7 @@
 #include "JSystem/JSystem.h" // IWYU pragma: keep
 
 #include "JSystem/J3DGraphBase/J3DGD.h"
+#include "dolphin/gd/GDLight.h"
 #include "dolphin/types.h"
 #include "dolphin/os/OS.h"
 
@@ -94,17 +95,6 @@ void J3DGDSetIndTexStageNum(u32 indTevNum) {
     GDOverflowCheck(10);
     J3DGDWriteBPCmd(0x070000 | 0xFE << 24);
     J3DGDWriteBPCmd(indTevNum << 16 | 0x00 << 24);
-}
-
-inline u16 __GDLightID2Index(GXLightID id) {
-    u16 lightIdx = (31 - __cntlzw(id));
-    if (lightIdx > 7)
-        lightIdx = 0;
-    return lightIdx;
-}
-
-inline u16 __GDLightID2Offset(GXLightID id) {
-    return __GDLightID2Index(id) * 0x10;
 }
 
 /* 802D632C-802D6624       .text J3DGDSetLightAttn__F10_GXLightIDffffff */
