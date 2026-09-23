@@ -57,7 +57,7 @@ daNpc_Gp1_HIO_c::daNpc_Gp1_HIO_c() {
 static char* l_evn_tbl[] = {"Kaere_Kaere", "Gp1_Get_Itm", "Giv_Rupee"};
 /* 00000198-00000210       .text searchActor_Bm__FPvPv */
 static void* searchActor_Bm(void* actor, void*) {
-    if (l_check_wrk < 20 && fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_BM4_e) {
+    if (l_check_wrk < 20 && fopAcM_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_BM4_e) {
         l_check_inf[l_check_wrk] = (fopAc_ac_c*)actor;
         l_check_wrk++;
     }
