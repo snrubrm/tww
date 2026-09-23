@@ -67,6 +67,22 @@ inline bool cLib_checkMinMaxLimit(T val, T min, T max) {
 }
 
 template <typename T>
+inline bool cLib_checkMinLimit(T val, T min) {
+    if (val >= min) {
+        return true;
+    }
+    return false;
+}
+
+template <typename T>
+inline bool cLib_checkMaxLimit(T val, T max) {
+    if (val <= max) {
+        return true;
+    }
+    return false;
+}
+
+template <typename T>
 inline T cLib_maxLimit(T val, T max) {
     return (T)((T)val > max ? max : (T)val);
 }

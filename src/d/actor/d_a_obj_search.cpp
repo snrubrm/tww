@@ -557,8 +557,8 @@ void daObj_Search::Act_c::modeFind2nd() {
     BOOL above;
     s16 maxP = REG12_S(0) + 0x6590;
     s16 minP = REG12_S(1) - 0x2710;
-    below = pitch <= minP;
-    above = pitch >= maxP;
+    below = cLib_checkMaxLimit<s16>(pitch, minP);
+    above = cLib_checkMinLimit<s16>(pitch, maxP);
     if (above) {
         pitch = cLib_minLimit<s16>(pitch, maxP);
     }
