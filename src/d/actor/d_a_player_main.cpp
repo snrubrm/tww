@@ -11141,7 +11141,7 @@ void daPy_lk_c::checkRoofRestart() {
     if (mCurProc == daPyProc_CRAWL_START_e) { return; }
     if (mCurProc == daPyProc_CRAWL_END_e) { return; }
     if (mCurProc == daPyProc_WHIDE_READY_e) { return; }
-    if (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_BOSS_e) { return; }
+    if (dStage_stagInfo_GetSTType(dComIfGp_getStage().getStagInfo()) == dStageType_BOSS_e) { return; }
 #if VERSION > VERSION_DEMO
     if (
         dComIfG_Bgsp()->ChkMoveBG(mAcch.m_roof) &&
