@@ -19,7 +19,12 @@ public:
         }
         return FALSE;
     }
-    void getSalvageKind() {}
+    static int getSalvageKind() {
+        if (isValidSalvageId()) {
+            return mTagData_p->getType(getSalvageId());
+        }
+        return -1;
+    }
     
     BOOL checkRegist(int arg1) { return mTagData_p->checkRegist(arg1); }
     BOOL checkUsed(int arg1) { return mTagData_p->checkUsed(arg1); }
