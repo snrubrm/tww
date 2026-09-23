@@ -136,7 +136,7 @@ public:
     void getAdjustPriority() {}
     u32 getFadetime() { return mFadeCounter; }
     u32 getID() { return mSoundID; }
-    void getInfoPointer() {}
+    void* getInfoPointer() { return field_0x40; }
     void getMapInfo() {}
     void getNextSound() {}
     void getPlayGameFrameCounter() {}

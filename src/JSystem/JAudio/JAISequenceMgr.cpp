@@ -607,7 +607,7 @@ void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 s
     } else if (playing->mState == 1) {
         *handle = NULL;
         return;
-    } else if (((u8*)playing->field_0x40)[4] <= ((u8*)info)[4]) {
+    } else if (((u8*)playing->getInfoPointer())[4] <= ((u8*)info)[4]) {
         playing->getSeqParameter()->getRootTrackPointer()->stopSeq();
         playing->clearMainSoundPPointer();
         stopSeq(playing);
