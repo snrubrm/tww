@@ -1417,9 +1417,7 @@ void daNpc_Ko1_c::setPrtcl_Hamon(float scale, float rate) {
 void daNpc_Ko1_c::setPrtcl_HanaPachi() {
     mDoMtx_stack_c::copy(mpBalloonMorf->getModel()->getAnmMtx(m_bln_jnt_num));
     cXyz pos;
-    pos.x = mDoMtx_stack_c::now[0][3];
-    pos.y = mDoMtx_stack_c::now[1][3];
-    pos.z = mDoMtx_stack_c::now[2][3];
+    mDoMtx_stack_c::multVecZero(&pos);
     mpHanaEmitterA = dComIfGp_particle_set(
         dPa_name::ID_IT_SN_KO_HANAPACHIA,
         &pos,
