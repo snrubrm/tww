@@ -1697,7 +1697,7 @@ void daNpc_Kk1_c::setBikon(cXyz offset) {
     JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_IT_SN_PF_BIKON00, &pos);
     if (emitter != NULL) {
 #endif
-        mDoAud_seStart(JA_SE_CM_CMN_NOTICE, &current.pos, 0, 0);
+        mDoAud_seStart(JA_SE_CM_CMN_NOTICE, &current.pos);
     }
 }
 
@@ -2025,7 +2025,7 @@ void daNpc_Kk1_c::move_CMT_PCK() {
             eventInfo.setEventId(-1);
             mOrder = 0;
         } else {
-            mDoAud_seStart(JA_SE_CM_KK_HEARTBEAT, &current.pos, 0, 0);
+            mDoAud_seStart(JA_SE_CM_KK_HEARTBEAT, &current.pos);
             mOrder = 2;
         }
     }
