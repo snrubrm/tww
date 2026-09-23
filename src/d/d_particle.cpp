@@ -81,7 +81,7 @@ void dPa_J3DmodelEmitter_c::draw() {
         Mtx sp44, sp14;
         mDoMtx_identity(sp44);
         mDoMtx_identity(sp14);
-        for (JSULink<JPABaseParticle>* link = list->getFirst(); link != NULL; link = link->getNext()) {
+        for (JSULink<JPABaseParticle>* link = list->getFirst(); link != list->getEnd(); link = link->getNext()) {
             J3DModel* model = dPa_modelControl_c::newModel(modelData);
             if (model == NULL)
                 return;
