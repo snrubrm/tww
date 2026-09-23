@@ -320,7 +320,7 @@ void daNpc_Pm1_c::checkOrder() {
     if (eventInfo.checkCommandDemoAccrpt()) {
         return;
     }
-    if (eventInfo.checkCommandTalk() && (mEventOrder == 1 || mEventOrder == 2)) {
+    if (eventInfo.getCommand() == dEvtCmd_INTALK_e && (mEventOrder == 1 || mEventOrder == 2)) {
         mEventOrder = 0;
         mTalking = true;
     }
