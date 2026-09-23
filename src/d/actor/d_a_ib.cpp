@@ -52,6 +52,8 @@ const daIball_c__data m_data = {
     /* m3A              */ 60,
 };
 
+inline const daIball_c__data* getData() { return &m_data; }
+
 /* 800F3228-800F3380       .text setPointLight__9daIball_cFv */
 void daIball_c::setPointLight() {
     static const s16 light_color[3][3] = {
@@ -83,7 +85,7 @@ void daIball_c::createDisappearEffect(int param_1, int color_idx) {
     cXyz scale;
     scale.setall(1.0f);
     cXyz pos(current.pos);
-    pos.y += m_data.mYOffset;
+    pos.y += getData()->mYOffset;
     switch (param_1) {
     case 0:
         dComIfGp_particle_set(dPa_name::ID_AK_JN_BREAKLIFEBALL, &pos, NULL, &scale, 0xFF, dPa_control_c::getLifeBallSetColorEcallBack(color_idx));
@@ -147,7 +149,7 @@ BOOL daIball_c::createItem() {
         if (cM_rndFX(1.0f) < 0.0f) {
             speed_f = -1.0f;
         }
-        speed_f = speed_f*m_data.mSpeedF + cM_rndFX(m_data.mRandSpeedF);
+        speed_f = speed_f*getData()->mSpeedF + cM_rndFX(getData()->mRandSpeedF);
         
         angle.y = (s16)cM_rndF((f32)0x7FFF);
         
@@ -156,7 +158,7 @@ BOOL daIball_c::createItem() {
         s8 roomNo = current.roomNo;
         fopAcM_fastCreateItem(
             &current.pos, items[i], roomNo, &angle, &scale,
-            speed_f, m_data.mSpeedY + cM_rndF(10.0f), -6.0f, itemBitNo, itemParamSet_CB
+            speed_f, getData()->mSpeedY + cM_rndF(10.0f), -6.0f, itemBitNo, itemParamSet_CB
         );
     }
     
@@ -189,7 +191,7 @@ void daIball_c::checkGeo() {
     };
     
     mPrevSpeedY = speed.y;
-    if (mTimer > m_data.mMoveDelay) {
+    if (mTimer > getData()->mMoveDelay) {
         fopAcM_posMoveF(this, mStts.GetCCMoveP());
     }
     mAcch.CrrPos(*dComIfG_Bgsp());
@@ -197,7 +199,7 @@ void daIball_c::checkGeo() {
     (this->*mode_proc[mMode])();
     
     dBgS_ObjGndChk_Yogan lavaChk;
-    cXyz pos(current.pos.x, old.pos.y + 30.0f + m_data.mYOffset, current.pos.z);
+    cXyz pos(current.pos.x, old.pos.y + 30.0f + getData()->mYOffset, current.pos.z);
     lavaChk.SetPos(&pos);
     f32 lavaY = dComIfG_Bgsp()->GroundCross(&lavaChk);
     f32 groundH = mAcch.GetGroundH();
@@ -224,7 +226,7 @@ void daIball_c::mode_wait_init() {
 /* 800F3EB0-800F3F6C       .text mode_wait__9daIball_cFv */
 void daIball_c::mode_wait() {
     if (mAcch.ChkGroundLanding()) {
-        mPrevSpeedY *= m_data.mBounceSpeedMult;
+        mPrevSpeedY *= getData()->mBounceSpeedMult;
         if (mPrevSpeedY > fopAcM_GetGravity(this) - 0.5f) {
             speedF = 0.0f;
         } else {
@@ -264,7 +266,7 @@ void daIball_c::animControl() {
         isEventRun = TRUE;
     }
     
-    mBrkAnm[0].setPlaySpeed(m_data.mPlaySpeeds[mPlaySpeedIdx]);
+    mBrkAnm[0].setPlaySpeed(getData()->mPlaySpeeds[mPlaySpeedIdx]);
     mBrkAnm[0].play();
     BOOL isLoop = mBrkAnm[0].isLoop();
     mBrkAnm[1].setPlaySpeed(1.0f);
@@ -307,7 +309,7 @@ void daIball_c::damage() {
 /* 800F4250-800F42E8       .text set_mtx__9daIball_cFv */
 void daIball_c::set_mtx() {
     mpModel->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos.x, current.pos.y + m_data.mYOffset, current.pos.z);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y + getData()->mYOffset, current.pos.z);
     mDoMtx_stack_c::XYZrotM(current.angle);
     mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
 }
@@ -324,9 +326,9 @@ void daIball_c::CreateInit() {
     mAcch.OnSeaWaterHeight();
     
     mbPlayedSe = false;
-    gravity = m_data.mGravity;
+    gravity = getData()->mGravity;
     mMode = MODE_WAIT;
-    current.pos.y -= m_data.mYOffset;
+    current.pos.y -= getData()->mYOffset;
     
     mBckAnm.entry(mpModel->getModelData());
     
