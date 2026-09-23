@@ -308,7 +308,7 @@ void dScnOpen_proc_c::proc_execute() {
         fopMsgM_paneTrans(&pane[10], 0.0f, -190.0f);
         mState = 3;
     case 3:
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 4;
         break;
     case 4:
@@ -343,7 +343,7 @@ void dScnOpen_proc_c::proc_execute() {
         mState = 9;
     case 9:
         mPosX -= 0.5719626f;
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 10;
         fopMsgM_paneTrans(&pane[0], 0.0f, mPosX);
         break;
@@ -367,7 +367,7 @@ void dScnOpen_proc_c::proc_execute() {
         m_message->set_message(0x57b, 3);
         mState = 13;
     case 13:
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 14;
         break;
     case 14:
@@ -397,7 +397,7 @@ void dScnOpen_proc_c::proc_execute() {
         fopMsgM_setNowAlpha(&pane[2], 1.0f);
         mState = 19;
     case 19:
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 20;
         break;
     case 20:
@@ -433,7 +433,7 @@ void dScnOpen_proc_c::proc_execute() {
         mState = 25;
     case 25:
         mPosX -= 0.47482014f;
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 26;
         fopMsgM_paneTrans(&pane[3], mPosX, 0.0f);
         break;
@@ -460,7 +460,7 @@ void dScnOpen_proc_c::proc_execute() {
         fopMsgM_setNowAlpha(&pane[5], 1.0f);
         mState = 29;
     case 29:
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 30;
         break;
     case 30:
@@ -489,7 +489,7 @@ void dScnOpen_proc_c::proc_execute() {
         fopMsgM_paneTrans(&pane[10], 0.0f, -190.0f);
         mState = 35;
     case 35:
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 36;
         break;
     case 36:
@@ -526,7 +526,7 @@ void dScnOpen_proc_c::proc_execute() {
         if (mScale < 1.0f)
             mScale = 1.0f;
         fopMsgM_paneScaleXY(&pane[6], mScale);
-        if (m_message->field_0x22e8 != 0)
+        if (m_message->isNext())
             mState = 42;
         break;
     case 42:
@@ -544,7 +544,7 @@ void dScnOpen_proc_c::proc_execute() {
         break;
     }
 
-    f32 alpha = m_message->alpha;
+    f32 alpha = m_message->getAlpha();
     fopMsgM_setNowAlpha(&pane[9], alpha);
     fopMsgM_setNowAlpha(&pane[10], alpha);
 

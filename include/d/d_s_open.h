@@ -16,6 +16,8 @@ public:
     inline void set_pane_pointer(J2DPane* tx1, J2DPane* tx2);
     void set_message(u32, int);
     void exec();
+    f32 getAlpha() { return alpha; }
+    u8 isNext() { return field_0x22e8; }
 
 public:
     /* 0x0004 */ char msg1[0x800];
