@@ -292,7 +292,7 @@ int daMbdoor_c::getDemoAction() {
 
 /* 00000B3C-00000F78       .text demoProc__10daMbdoor_cFv */
 void daMbdoor_c::demoProc() {
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     int actIdx = getDemoAction();
     cXyz goal;
     s16 angle;
