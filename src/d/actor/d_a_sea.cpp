@@ -344,13 +344,31 @@ bool daSea_ChkArea(f32 x, f32 z) {
     return false;
 }
 
+static inline f32 calcGridHeight(f32 x, f32 z, cXyz& v00, cXyz& v01, cXyz& v10, cXyz& v11) {
+    const f32 frac = 1.0f / GRID_SIZE;
+    Vec norm;
+    f32 baseY;
+
+    f32 f1 = x - v00.x;
+    f32 f0 = z - v00.z;
+    f1 *= frac;
+    f0 *= frac;
+
+    if (f1 + f0 >= 1.0f) {
+        cM3d_CalcPla(&v01, &v10, &v11, &norm, &baseY);
+    } else {
+        cM3d_CalcPla(&v00, &v01, &v10, &norm, &baseY);
+    }
+
+    return -((norm.x * x) + (norm.z * z) + baseY) / norm.y;
+}
+
 /* 8015BBFC-8015BDB0       .text daSea_calcWave__Fff */
 f32 daSea_calcWave(f32 x, f32 z) {
     if (!daSea_ChkArea(x, z)) {
         return daSea_packet_c::BASE_HEIGHT;
     }
 
-#if VERSION == VERSION_DEMO
     f32 dx = x - l_cloth.getMinX();
     f32 dz = z - l_cloth.getMinZ();
     const f32 frac = 1.0f / GRID_SIZE;
@@ -358,10 +376,15 @@ f32 daSea_calcWave(f32 x, f32 z) {
     int x0 = dx * frac;
     int z0 = dz * frac;
 
+#if VERSION == VERSION_DEMO
     f32* pY = &l_cloth.mpHeightTable[x0];
+#else
+    f32* pY = l_cloth.mpHeightTable;
+    pY += x0;
+#endif
     pY += z0 * GRID_CELLS;
 
-    Vec v00, v01, v10, v11;
+    cXyz v00, v01, v10, v11;
 
     v00.x = (x0 * GRID_SIZE) + l_cloth.getMinX();
     v00.y = pY[GRID_INDEX(0, 0)];
@@ -374,56 +397,12 @@ f32 daSea_calcWave(f32 x, f32 z) {
     v10.x = v00.x + GRID_SIZE;
     v10.y = pY[GRID_INDEX(1, 0)];
     v10.z = v00.z;
-#else
-    f32 frac = 1.0f / GRID_SIZE;
-
-    int x0 = (x - l_cloth.getMinX()) * frac;
-    int z0 = (z - l_cloth.getMinZ()) * frac;
-
-    f32* pY = l_cloth.mpHeightTable;
-    pY += x0;
-    pY += z0 * GRID_CELLS;
-
-    Vec v00, v01, v10, v11;
-
-    v00.x = (x0 * GRID_SIZE) + l_cloth.getMinX();
-    v00.y = pY[GRID_INDEX(0, 0)];
-    v00.z = (z0 * GRID_SIZE) + l_cloth.getMinZ();
-
-    v01.x = (x0 * GRID_SIZE) + l_cloth.getMinX();
-    v01.y = pY[GRID_INDEX(0, 1)];
-    v01.z = v00.z + GRID_SIZE;
-
-    v10.x = v01.x + GRID_SIZE;
-    v10.y = pY[GRID_INDEX(1, 0)];
-    v10.z = (z0 * GRID_SIZE) + l_cloth.getMinZ();
-#endif
 
     v11.x = v10.x;
     v11.y = pY[GRID_INDEX(1, 1)];
     v11.z = v01.z;
 
-    Vec norm;
-    f32 baseY;
-
-    f32 f0, f1;
-#if VERSION == VERSION_DEMO
-    f1 = x - v00.x;
-    f0 = z - v00.z;
-#else
-    f1 = x - v01.x;
-    f0 = z - v10.z;
-#endif
-    f1 *= frac;
-    f0 *= frac;
-
-    if (f1 + f0 >= 1.0f) {
-        cM3d_CalcPla(&v01, &v10, &v11, &norm, &baseY);
-    } else {
-        cM3d_CalcPla(&v00, &v01, &v10, &norm, &baseY);
-    }
-
-    return -((norm.x * x) + (norm.z * z) + baseY) / norm.y;
+    return calcGridHeight(x, z, v00, v01, v10, v11);
 }
 
 
