@@ -1073,25 +1073,28 @@ cPhs_State daNpc_Nz_c::_create() {
 
     getArg();
 
-    cPhs_State result = dComIfG_resLoad(&mPhs1, m_arc_name);
-    if(result != cPhs_COMPLEATE_e) {
-        return result;
+    cPhs_State phase1 = dComIfG_resLoad(&mPhs1, m_arc_name);
+    if(phase1 != cPhs_COMPLEATE_e) {
+        return phase1;
     }
 
-    result = dComIfG_resLoad(&mPhs2, m_bdl_arc_name);
-    if(result != cPhs_COMPLEATE_e) {
-        return result;
+    cPhs_State phase2 = dComIfG_resLoad(&mPhs2, m_bdl_arc_name);
+    if(phase2 != cPhs_COMPLEATE_e) {
+        return phase2;
     }
 
-    if(!fopAcM_entrySolidHeap(this, createHeap_CB, 0x2FE0)) {
-        return cPhs_ERROR_e;
+    cPhs_State result = cPhs_COMPLEATE_e;
+    if(result == cPhs_COMPLEATE_e) {
+        if(!fopAcM_entrySolidHeap(this, createHeap_CB, 0x2FE0)) {
+            return cPhs_ERROR_e;
+        }
+
+        if(!createInit()) {
+            return cPhs_ERROR_e;
+        }
     }
 
-    if (!createInit()) {
-        return cPhs_ERROR_e;
-    } else {
-        return cPhs_COMPLEATE_e;
-    }
+    return result;
 #endif
 }
 
