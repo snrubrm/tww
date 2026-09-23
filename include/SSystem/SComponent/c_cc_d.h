@@ -354,7 +354,7 @@ public:
         m_cc_move.x = m_cc_move.y = m_cc_move.z = 0.0f;
     }
     void PlusDmg(int dmg) { m_dmg = dmg; }
-    u8 GetDmg() { return m_dmg; }
+    u8 GetDmg() const { return m_dmg; }
     f32 GetWeightF() const { return (s32)m_weight; }
     u8 GetWeightUc() const { return m_weight; }
     void SetWeight(u8 weight) { m_weight = weight; }
