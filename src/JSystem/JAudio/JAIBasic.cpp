@@ -505,9 +505,9 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
                 continue;
             }
             JAInter::SeqParameter* seqParam = JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->getSeqParameter();
-            JASystem::TTrack* track = &seqParam->mTrack;
+            JASystem::TTrack* track = seqParam->getRootTrackPointer();
             if (track == (JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID & 0x800 ? param_1->getParent()->getParent() : param_1->getParent())) {
-                trackNo = JAInter::routeToTrack(param_1->field_0x36c);
+                trackNo = JAInter::routeToTrack(param_1->getRoute());
                 result = JAInter::SoundTable::getInfoPointer(JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x48->mSoundID)->mFlag >> 8;
                 JAInter::SystemInterface::outerInit(JAInter::SequenceMgr::getPlayTrackInfo(i), param_1, trackNo, result, param_2 & 1);
                 JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x4 |= 1 << trackNo;
@@ -517,7 +517,7 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
         }
         break;
     case 1: {
-        u8 route = param_1->field_0x36c;
+        u8 route = param_1->getRoute();
         JAInter::SeMgr::seTrackUpdate_s* trackUpdate = JAInter::SeMgr::seTrackUpdate;
         outerParam = param_1->mOuterParam;
         outerParam->setParam(OUTERPARAM_Volume, trackUpdate[route].field_0x4);
