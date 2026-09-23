@@ -392,4 +392,11 @@ public:
     /* 0x20F0 */ u8 field_0x20F0[0x20F4 - 0x20F0];
 };
 
+inline f32 JAIZelGetMax(f32 a, f32 b) {
+    if (a > b) {
+        return a;
+    }
+    return b;
+}
+
 #endif /* JAZELAUDIO_JAIZELBASIC_H */

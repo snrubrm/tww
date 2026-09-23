@@ -3253,12 +3253,11 @@ void JAIZelBasic::processLevObjSE() {
             if (rightVolume > right) right = rightVolume;
             if (rearVolume > rear) rear = rearVolume;
         }
+        f32 max = JAIZelGetMax(left, right);
 #if VERSION == VERSION_DEMO
-        f32 max = left > right ? left : right;
-        volume = max > rear ? max : rear;
+        volume = JAIZelGetMax(max, rear);
 #else
-        f32 volume = left > right ? left : right;
-        volume = volume > rear ? volume : rear;
+        f32 volume = JAIZelGetMax(max, rear);
 #endif
         f32 pan = 0.5f;
         if (0.0f != left || 0.0f != right) pan = right / (left + right);
