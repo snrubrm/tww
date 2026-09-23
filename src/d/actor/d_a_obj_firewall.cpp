@@ -315,7 +315,7 @@ void daObjFirewall_c::set_pl_se() {
     int staff = dComIfGp_evmng_getMyStaffId("Link");
     if (staff != -1) {
         if (strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff), chk_word_table[mVoiceIndex]) == 0) {
-            daPy_py_c* player = daPy_getPlayerActorClass();
+            daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
             if (player != NULL) {
                 player->voiceStart(voice_table[mVoiceIndex]);
                 ++mVoiceIndex;
