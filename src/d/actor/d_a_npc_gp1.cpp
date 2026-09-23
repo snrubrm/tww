@@ -717,7 +717,7 @@ BOOL daNpc_Gp1_c::create_rupee() {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
         random = offsets[counter % 3] + (cM_rndF(30.0f) - 15.0f);
         angle.y = current.angle.y + cM_deg2s((s16)random);
-        room = current.roomNo;
+        room = fopAcM_GetRoomNo(this);
         item = (fopAc_ac_c*)fopAcM_fastCreateItem(&pos, 4, room, NULL, NULL, 10.0f + cM_rndFX(3.0f), 33.0f + cM_rndFX(6.0f), -2.0f, -1, NULL);
         if (item == NULL) {
             break;
