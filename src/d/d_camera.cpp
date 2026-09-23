@@ -128,7 +128,7 @@ namespace {
         /* 0x3A0 */ cSGlobe m3A0;
         /* 0x3A8 */ cSGlobe m3A8;
         /* 0x3B0 */ int m3B0;
-        /* 0x3B4 */ int m3B4;
+        /* 0x3B4 */ s32 m3B4;
         /* 0x3B8 */ int m3B8;
         /* 0x3BC */ int m3BC;
         /* 0x3C0 */ int m3C0;
@@ -3961,7 +3961,6 @@ int dCamera_c::getMsgCmdCut() {
 }
 
 /* 8016D8D0-80170434       .text talktoCamera__9dCamera_cFl */
-// NONMATCHING - the original reloads talk->m3B4 in the switch cases; we reuse the switch value.
 bool dCamera_c::talktoCamera(s32 param_1) {
     f32 val1 = mCamParam.Val(param_1, 1);
     f32 val5 = mCamParam.Val(param_1, 5);
