@@ -1645,8 +1645,8 @@ void action_demo(wz_class* i_this) {
 void next_tama_move(wz_class* i_this, cXyz pos) {
     i_this->mTamaTarget = pos;
     i_this->speedF = 0.0f;
-    i_this->mBallSph.OffAtSetBit();
-    i_this->mBallSph.OffAtSetBit();
+    i_this->mBallSph.OffAtSPrmBit(cCcD_AtSPrm_Set_e);
+    i_this->mBallSph.ClrAtSet();
     i_this->mMode = 0x68;
 }
 
