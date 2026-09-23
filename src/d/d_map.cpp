@@ -1116,8 +1116,8 @@ void dMap_RoomInfo_c::roomDrawRoomRealSize(int param_1, int param_2, int param_3
     f32 param_5, f32 param_6, f32 param_7, f32 param_8, f32 param_9, f32 param_10, u8 i_alpha
 ) {
     if (field_0x1 & 1) {
-        f32 f28 = getStageMapInfoP()->field_0x30 / param_9;
-        f32 f27 = getStageMapInfoP()->field_0x30 / param_10;
+        f32 f28 = getStageMapInfoPE()->field_0x30 / param_9;
+        f32 f27 = getStageMapInfoPE()->field_0x30 / param_10;
 #if VERSION == VERSION_DEMO
         field_0x8c.setCenterPos(
             field_0x28 * 0.5f + (param_5 - param_7) / getStageMapInfoCmPDot(),
@@ -1125,8 +1125,8 @@ void dMap_RoomInfo_c::roomDrawRoomRealSize(int param_1, int param_2, int param_3
         );
 #else
         field_0x8c.setCenterPos(
-            field_0x28 * 0.5f + (param_5 - param_7) / getStageMapInfoP()->field_0x30,
-            field_0x2c * 0.5f + (param_6 - param_8) / getStageMapInfoP()->field_0x30
+            field_0x28 * 0.5f + (param_5 - param_7) / getStageMapInfoPE()->field_0x30,
+            field_0x2c * 0.5f + (param_6 - param_8) / getStageMapInfoPE()->field_0x30
         );
 #endif
         field_0x8c.setScale(f28, f27);
@@ -1491,8 +1491,8 @@ BOOL dMap_c::setNowRoom(int param_1) {
     }
     if (r31) {
         if (mNowRoomInfoP->getEnableFlg() & 2) {
-            mEnlargementSizeCenterX = mNowRoomInfoP->getStageMapInfoP()->field_0x10;
-            mEnlargementSizeCenterZ = mNowRoomInfoP->getStageMapInfoP()->field_0x14;
+            mEnlargementSizeCenterX = mNowRoomInfoP->getStageMapInfoPE()->field_0x10;
+            mEnlargementSizeCenterZ = mNowRoomInfoP->getStageMapInfoPE()->field_0x14;
             mEnlargementSizeScaleX = mNowRoomInfoP->field_0x18;
             mEnlargementSizeScaleZ = mNowRoomInfoP->field_0x1c;
         }
@@ -1646,8 +1646,8 @@ void dMap_c::mapDrawRealSize(f32 param_1, f32 param_2, u8 i_alpha) {
                 mNowRoomInfoP->getRoomNo(),
                 mDispPosLeftUpX, mDispPosLeftUpY, mDispSizeX, mDispSizeY,
                 param_1, param_2,
-                getMapInfo_map1_XC(mNowRoomInfoP->getStageMapInfoP()),
-                getMapInfo_map1_ZC(mNowRoomInfoP->getStageMapInfoP()),
+                getMapInfo_map1_XC(mNowRoomInfoP->getStageMapInfoPE()),
+                getMapInfo_map1_ZC(mNowRoomInfoP->getStageMapInfoPE()),
                 mNowRoomInfoP->getStageMapInfoCmPDot(),
                 mNowRoomInfoP->getStageMapInfoCmPDot(),
                 i_alpha
@@ -1832,16 +1832,16 @@ BOOL dMap_c::isInDspArea(f32 param_1, f32 param_2, bool param_3) {
     if (mNowRoomInfoP) {
         if (param_3) {
             if (mNowRoomInfoP->getEnableFlg() & 1) {
-                if (param_1 >= getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoP()) && param_1 <= getMapInfo_map1_X1(mNowRoomInfoP->getStageMapInfoP())) {
-                    if (param_2 >= getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoP()) && param_2 <= getMapInfo_map1_Z1(mNowRoomInfoP->getStageMapInfoP())) {
+                if (param_1 >= getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoPE()) && param_1 <= getMapInfo_map1_X1(mNowRoomInfoP->getStageMapInfoPE())) {
+                    if (param_2 >= getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoPE()) && param_2 <= getMapInfo_map1_Z1(mNowRoomInfoP->getStageMapInfoPE())) {
                         ret = true;
                     }
                 }
             }
         } else {
             if (mNowRoomInfoP->getEnableFlg() & 2) {
-                if (param_1 >= mNowRoomInfoP->getStageMapInfoP()->field_0x00 && param_1 <= mNowRoomInfoP->getStageMapInfoP()->field_0x08) {
-                    if (param_2 >= mNowRoomInfoP->getStageMapInfoP()->field_0x04 && param_2 <= mNowRoomInfoP->getStageMapInfoP()->field_0x0C) {
+                if (param_1 >= mNowRoomInfoP->getStageMapInfoPE()->field_0x00 && param_1 <= mNowRoomInfoP->getStageMapInfoPE()->field_0x08) {
+                    if (param_2 >= mNowRoomInfoP->getStageMapInfoPE()->field_0x04 && param_2 <= mNowRoomInfoP->getStageMapInfoPE()->field_0x0C) {
                         ret = true;
                     }
                 }
@@ -2156,8 +2156,8 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
         mNowScaleZ = mNowRoomInfoP->field_0x24;
     }
     calcScissor();
-    if (mNowRoomInfoP->mStageMapInfoP) {
-        mCompAlpha = ((u8)mNowRoomInfoP->mStageMapInfoP->field_0x34 * mAlpha) >> 8;
+    if (mNowRoomInfoP->getStageMapInfoP()) {
+        mCompAlpha = (mNowRoomInfoP->getStageMapInfoAlpha() * mAlpha) >> 8;
     } else {
         mCompAlpha = 0;
     }
@@ -2207,8 +2207,8 @@ void dMap_c::mapMoveAll(f32 param_1, f32 param_2, int param_3, f32 param_4) {
                 mNowScaleZ = mNowRoomInfoP->field_0x24;
             }
             calcScissor();
-            if (mNowRoomInfoP->mStageMapInfoP) {
-                mCompAlpha = ((u8)mNowRoomInfoP->mStageMapInfoP->field_0x34 * mAlpha) >> 8;
+            if (mNowRoomInfoP->getStageMapInfoP()) {
+                mCompAlpha = (mNowRoomInfoP->getStageMapInfoAlpha() * mAlpha) >> 8;
             } else {
                 mCompAlpha = 0;
             }
@@ -2597,8 +2597,8 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
     }
 
     {
-        s16 sx = (x - getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoP())) * mNowRoomInfoP->getMap1ScaleX();
-        s16 sz = (z - getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoP())) * mNowRoomInfoP->getMap1ScaleZ();
+        s16 sx = (x - getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoPE())) * mNowRoomInfoP->getMap1ScaleX();
+        s16 sz = (z - getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoPE())) * mNowRoomInfoP->getMap1ScaleZ();
         s16 scrX = sx - agbScrollX();
         s16 scrY = sz - agbScrollY();
 

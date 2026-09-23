@@ -165,21 +165,20 @@ public:
     void clrUseRoom() {}
     void setUseRoom() {}
     void checkUseRoom() {}
-    void getStageMapInfoPE() {}
-    f32 getStageMapInfoCmPDot() { return getStageMapInfoP()->field_0x30; }
-    f32 getStageMapInfoMap0_X0() { return getStageMapInfoP()->field_0x00; }
-    f32 getStageMapInfoMap0_X1() { return getStageMapInfoP()->field_0x08; }
-    f32 getStageMapInfoMap0_Z0() { return getStageMapInfoP()->field_0x04; }
-    f32 getStageMapInfoMap0_Z1() { return getStageMapInfoP()->field_0x0C; }
-    f32 getStageMapInfoMap0_XC() { return getStageMapInfoP()->field_0x10; }
-    f32 getStageMapInfoMap0_ZC() { return getStageMapInfoP()->field_0x14; }
-    f32 getStageMapInfoMap1_X0() { return getStageMapInfoP()->field_0x18; }
-    f32 getStageMapInfoMap1_X1() { return getStageMapInfoP()->field_0x20; }
-    f32 getStageMapInfoMap1_Z0() { return getStageMapInfoP()->field_0x1C; }
-    f32 getStageMapInfoMap1_Z1() { return getStageMapInfoP()->field_0x24; }
-    f32 getStageMapInfoMap1_ZC() { return getStageMapInfoP()->field_0x2c; }
-    f32 getStageMapInfoMap1_XC() { return getStageMapInfoP()->field_0x28; }
-    void getStageMapInfoAlpha() {}
+    f32 getStageMapInfoCmPDot() { return getStageMapInfoPE()->field_0x30; }
+    f32 getStageMapInfoMap0_X0() { return getStageMapInfoPE()->field_0x00; }
+    f32 getStageMapInfoMap0_X1() { return getStageMapInfoPE()->field_0x08; }
+    f32 getStageMapInfoMap0_Z0() { return getStageMapInfoPE()->field_0x04; }
+    f32 getStageMapInfoMap0_Z1() { return getStageMapInfoPE()->field_0x0C; }
+    f32 getStageMapInfoMap0_XC() { return getStageMapInfoPE()->field_0x10; }
+    f32 getStageMapInfoMap0_ZC() { return getStageMapInfoPE()->field_0x14; }
+    f32 getStageMapInfoMap1_X0() { return getStageMapInfoPE()->field_0x18; }
+    f32 getStageMapInfoMap1_X1() { return getStageMapInfoPE()->field_0x20; }
+    f32 getStageMapInfoMap1_Z0() { return getStageMapInfoPE()->field_0x1C; }
+    f32 getStageMapInfoMap1_Z1() { return getStageMapInfoPE()->field_0x24; }
+    f32 getStageMapInfoMap1_ZC() { return getStageMapInfoPE()->field_0x2c; }
+    f32 getStageMapInfoMap1_XC() { return getStageMapInfoPE()->field_0x28; }
+    u8 getStageMapInfoAlpha() { return mStageMapInfoP->field_0x34; }
     void getMapDtP() {}
     u8 getNowDspFloorNo() { return field_0xc; }
     void getMapDtSize() {}
@@ -192,7 +191,8 @@ public:
 
     u8 getEnableFlg() { return field_0x1; }
     int getRoomNo() { return m_no; }
-    stage_map_info_class* getStageMapInfoP() {
+    stage_map_info_class* getStageMapInfoP() { return mStageMapInfoP; }
+    stage_map_info_class* getStageMapInfoPE() {
         JUT_ASSERT(DEMO_SELECT(1129, 1127), mStageMapInfoP != NULL);
         return mStageMapInfoP;
     }
