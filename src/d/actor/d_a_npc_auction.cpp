@@ -298,12 +298,12 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
     int maxKind = l_kind_max[npcNo][1];
     u8 kind;
     if (npcNo == 2 || npcNo == 3) {
-        if (auction->m81C == 0xFF) {
+        if (auction->getKind(0) == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            auction->m81C = kind;
+            auction->setKind(0, kind);
         } else {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            if (kind == auction->m81C) {
+            if (kind == auction->getKind(0)) {
                 if (kind == (u8)maxKind) {
                     kind--;
                 } else {
@@ -312,12 +312,12 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
             }
         }
     } else if (npcNo == 4 || npcNo == 5) {
-        if (auction->m81D == 0xFF) {
+        if (auction->getKind(1) == 0xFF) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            auction->m81D = kind;
+            auction->setKind(1, kind);
         } else {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            if (kind == auction->m81D) {
+            if (kind == auction->getKind(1)) {
                 if (kind == (u8)maxKind) {
                     kind--;
                 } else {

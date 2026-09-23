@@ -211,8 +211,8 @@ daAuction_c::daAuction_c() {
     m821 = 0;
     m7EC = 0;
     m7F0 = 0;
-    m81C = 0xFF;
-    m81D = 0xFF;
+    mKind[0] = 0xFF;
+    mKind[1] = 0xFF;
     mpEmitter = NULL;
     m836 = 0;
 

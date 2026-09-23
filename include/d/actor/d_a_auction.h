@@ -26,7 +26,7 @@ public:
     u8 getAucMdlNo(u8 idx) { return mAucMdlNo[idx]; }
     u8 getAucNpcNo(u8 idx) { return m80C[idx]; }
     u8 getBetNpcNo() { return m829; }
-    void getKind(unsigned char) {}
+    u8 getKind(u8 idx) { return mKind[idx]; }
     void getNpcNo() {}
     void isAucBet() {}
     void isAucBet2() {}
@@ -41,7 +41,7 @@ public:
     void onCameraOld(unsigned char) {}
     void setAucMdlNo(u8 idx, u8 mdlNo) { mAucMdlNo[idx] = mdlNo; }
     void setItemNo(unsigned char) {}
-    void setKind(unsigned char, unsigned char) {}
+    void setKind(u8 idx, u8 kind) { mKind[idx] = kind; }
     BOOL setNpcID(int idx, fpc_ProcID id) {
         if (m738[idx] == fpcM_ERROR_PROCESS_ID_e) {
             m738[idx] = id;
@@ -136,8 +136,7 @@ public:
     /* 0x80A */ s16 m80A;
     /* 0x80C */ u8 m80C[8];
     /* 0x814 */ u8 mAucMdlNo[8];
-    /* 0x81C */ u8 m81C;
-    /* 0x81D */ u8 m81D;
+    /* 0x81C */ u8 mKind[2];
     /* 0x81E */ u8 mMoveState;
     /* 0x81F */ u8 m81F;
     /* 0x820 */ u8 m820;
