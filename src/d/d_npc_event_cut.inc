@@ -111,7 +111,7 @@ void dNpc_EventCut_c::cutTurnToActorStart() {
         mSetId = 0;
     }
 
-    cXyz* pos = dComIfGp_evmng_getMyXyzP(mEvtStaffId, "OffsetPos");
+    Vec* pos = dComIfGp_evmng_getMyVec3dP(mEvtStaffId, "OffsetPos");
     if(pos) {
         mOffsetPos = *pos;
     }
