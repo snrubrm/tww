@@ -2183,12 +2183,11 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
             }
         }
     }
-    int taktMute = field_0x0207;
 #if VERSION == VERSION_DEMO
-    if (taktMute != 0 && (i_seNum & ~0xFFF) != 0 && (i_seNum & ~0xFFF) != 0x200) {
+    if (isTaktUsing() && (i_seNum & ~0xFFF) != 0 && (i_seNum & ~0xFFF) != 0x200) {
         switch (i_seNum) {
 #else
-    if (taktMute != 0 && (i_seNum & ~0xFFF) != 0) {
+    if (isTaktUsing() && (i_seNum & ~0xFFF) != 0) {
         switch (i_seNum) {
         case 0x2066:
         case 0x2868:
@@ -2520,7 +2519,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (isDemo() == TRUE) {
             return NULL;
         }
-        if ((int)field_0x0207 != 0) {
+        if (isTaktUsing()) {
             return NULL;
         }
         if (field_0x00be != 0) {
@@ -2531,7 +2530,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (checkStreamPlaying(0xC0000005) == TRUE) {
             return NULL;
         }
-        if (isDemo() == TRUE || (int)field_0x0207 != 0) {
+        if (isDemo() == TRUE || isTaktUsing()) {
             i_seNum = JA_SE_DEMO_MSG_NEXT;
         }
         if (field_0x00be != 0) {

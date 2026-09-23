@@ -20,7 +20,7 @@ void JAIZelAnime::setAnimSound(Vec* pos, f32 frame, f32 rate, u32 mtrlSndId, s8 
 void JAIZelAnime::startAnimSound(void* i_basic, u32 i_soundID, JAISound** i_sound, JAInter::Actor* i_actor, u8 param_4) {
     JAIZelBasic* basic = (JAIZelBasic*)i_basic;
 
-    if ((int)basic->field_0x0207 != 0) {
+    if (basic->isTaktUsing()) {
         return;
     }
 

@@ -368,13 +368,13 @@ void JAIZelBasic::waterfallSePlay(u8 type, Vec* pos, s8 reverb) {
         seStart(id, &mWaterfallPos[field_0x1e98], 0, reverb);
     }
 #else
-    if ((int)field_0x0207 != 0) {
+    if (isTaktUsing()) {
         if (field_0x1e98 < 15) {
             field_0x1e98++;
         }
         return;
     }
-    if (checkPlayingStreamBgmFlag() != 0xC000003C && (int)field_0x0207 == 0) {
+    if (checkPlayingStreamBgmFlag() != 0xC000003C && !isTaktUsing()) {
         seStart(id, &mWaterfallPos[field_0x1e98], 0, reverb);
     }
 #endif
