@@ -333,7 +333,7 @@ static void hand_move(sss_class* i_this) {
         player->onVineCatch();
         player->setFace(daPy_py_c::daPyFace_TIYAYA);
         if (dComIfGs_getMagic() != 0) {
-            g_dComIfG_gameInfo.play.field_0x4965 |= 1;
+            dComIfGp_onMagicGaugeBlink();
             fopAcM_seStart(actor, JA_SE_OBJ_ATK_VINE_MP_SUCK, 0);
             if ((i_this->mFrame & 31) == 0) dComIfGp_setItemMagicCount(-1);
         }
@@ -487,7 +487,8 @@ static void hand_move(sss_class* i_this) {
         actor->speed.x = cM_rndFX(10.0f);
         actor->speed.y = 30.0f + cM_rndF(10.0f);
         actor->speed.z = cM_rndFX(10.0f);
-        cXyz effectScale(0.3f, 0.3f, 0.3f);
+        cXyz effectScale;
+        effectScale.set(0.3f, 0.3f, 0.3f);
         dComIfGp_particle_set(dPa_name::ID_AK_JN_SIBOUFLASH, &actor->eyePos, NULL, &effectScale);
         i_this->mCutEffect = 1;
         sss_s* source = i_this->mSegments;

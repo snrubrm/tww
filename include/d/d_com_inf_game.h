@@ -447,6 +447,7 @@ public:
 
     int getItemNowMagic() { return mItemNowMagicCount; }
     void setItemNowMagic(s16 num) { mItemNowMagicCount = num; }
+    void onMagicGaugeBlink() { field_0x4965 |= 1; }
 
     u32 getNpcNameMessageID() { return mNpcNameMessageID; }
     void setNpcNameMessageID(u32 id) { mNpcNameMessageID = id; }
@@ -2753,6 +2754,10 @@ inline s16 dComIfGp_getItemMagicCount() {
 
 inline void dComIfGp_setItemMagicCount(s16 magic) {
     g_dComIfG_gameInfo.play.setItemMagicCount(magic);
+}
+
+inline void dComIfGp_onMagicGaugeBlink() {
+    g_dComIfG_gameInfo.play.onMagicGaugeBlink();
 }
 
 inline s16 dComIfGp_getItemMaxMagicCount() {
