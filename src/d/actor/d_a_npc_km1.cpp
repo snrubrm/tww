@@ -352,7 +352,7 @@ void daNpc_Km1_c::checkOrder() {
     if(eventInfo.checkCommandDemoAccrpt()){
         return;
     }
-    if(!eventInfo.checkCommandTalk()){
+    if(eventInfo.getCommand() != dEvtCmd_INTALK_e){
         return;
     }
     if(field_0x7CF != 1 && field_0x7CF != 2){
