@@ -1327,7 +1327,8 @@ BOOL fopAcM_getGroundAngle(fopAc_ac_c* actor, csXyz* p_angle) {
         gndChk.SetPos(&chk_pos);
         f32 groundY = dComIfG_Bgsp()->GroundCross(&gndChk);
         if (groundY != -G_CM3D_F_INF) {
-            targetAngleX = -cM_atan2s(groundY - pos.y, chk_pos.z - pos.z);
+            targetAngleX = cM_atan2s(groundY - pos.y, chk_pos.z - pos.z);
+            targetAngleX = -targetAngleX;
         } else {
             ret = FALSE;
         }
