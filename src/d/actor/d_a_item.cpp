@@ -1334,8 +1334,7 @@ void daItem_c::mode_water() {
         current.pos.y = mAcch.m_wtr.GetHeight();
     }
     
-    s16 rotationSpeed = 0xFFFF / daItemBase_c::m_data.mRotateYSpeed;
-    fopAcM_addAngleY(this, current.angle.y + rotationSpeed, rotationSpeed);
+    RotateBase();
 }
 
 /* 800F8528-800F8950       .text initAction__8daItem_cFv */

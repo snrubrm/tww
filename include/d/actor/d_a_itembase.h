@@ -2,6 +2,7 @@
 #define D_A_ITEMBASE_H
 
 #include "f_op/f_op_actor.h"
+#include "f_op/f_op_actor_mng.h"
 #include "SSystem/SComponent/c_phase.h"
 #include "d/d_bg_s.h"
 #include "d/d_bg_s_acch.h"
@@ -65,6 +66,10 @@ public:
     void setLoadError();
 
     const daItemBase_c_m_data* getData();
+    void RotateBase() {
+        s16 rotationSpeed = 0xFFFF / m_data.mRotateYSpeed;
+        fopAcM_addAngleY(this, current.angle.y + rotationSpeed, rotationSpeed);
+    }
 
     static const daItemBase_c_m_data m_data;
 
