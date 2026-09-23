@@ -214,7 +214,8 @@ void daNpc_Nz_c::cutEatesaFirstStart() {
 
 /* 00003D40-00003F54       .text cutEatesaFirstProc__10daNpc_Nz_cFv */
 void daNpc_Nz_c::cutEatesaFirstProc() {
-    cXyz target(field_0x6C4);
+    cXyz target;
+    target = field_0x6C4;
     target.x += cM_ssin(home.angle.y) * 100.0f;
     target.z += cM_scos(home.angle.y) * 100.0f;
 
