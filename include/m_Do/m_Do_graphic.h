@@ -90,7 +90,7 @@ public:
     static void setMonotoneRate(s16 rate) { mMonotoneRate = rate; }
     static void setMonotoneRateSpeed(s16 speed) { mMonotoneRateSpeed = speed; }
 
-    static void alloc32(u32) {}
+    static void* alloc32(u32 size) { return alloc(size, 32); }
     static void getFrameBufferMemory() {}
     static void getFrameBufferSize() {}
 

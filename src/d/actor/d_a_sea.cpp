@@ -665,7 +665,7 @@ void daSea_packet_c::execute(cXyz& pos) {
 void daSea_packet_c::draw() {
     if (ChkCullStop()) return;
 
-    m_draw_vtx = (cXyz*)mDoGph_gInf_c::alloc(sizeof(cXyz) * GRID_CELLS * GRID_CELLS, 0x20);
+    m_draw_vtx = (cXyz*)mDoGph_gInf_c::alloc32(sizeof(cXyz) * GRID_CELLS * GRID_CELLS);
     if (m_draw_vtx == NULL) {
         return;
     }
