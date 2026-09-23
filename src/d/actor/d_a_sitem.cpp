@@ -40,7 +40,8 @@ static void hand_mtx_set(sitem_class* i_this) {
     cMtx_XrotM(*calc_mtx, i_this->mModelAngle.x);
     cMtx_YrotM(*calc_mtx, i_this->mModelAngle.y);
     cMtx_XrotM(*calc_mtx, REG12_S(1) + 0x4000);
-    cXyz offset(0.0f, -60.0f + REG12_F(4), 0.0f);
+    cXyz offset;
+    offset.set(0.0f, -60.0f + REG12_F(4), 0.0f);
     MtxPosition(&offset, &i_this->mCollisionPos);
     MtxTrans(0.0f, -50.0f + REG12_F(3), 0.0f, true);
     J3DModel* model = i_this->mpModel;
