@@ -505,46 +505,34 @@ void daNpc_Btsw_c::set_mtx() {
     if (field_0x9C5 == 10 || field_0x9C5 == 9) {
         cXyz vec;
         csXyz angle;
-        s16 ax, ay, az;
 
 #if VERSION == VERSION_DEMO
         if (mpMorf->getFrame() < 19.0f + REG10_F(5)) {
 #else
         if (mpMorf->getFrame() < 19.0f) {
 #endif
+            // The demo debug map shows cM_deg2s here; three-decimal values are one of several that give the same s16.
             if (field_0x9C5 == 9) {
                 vec.set(28.68f, 4.68f, -8.45f);
-                ax = -0x43A2;
-                ay = 0x9CA;
-                az = -0x233;
-                angle.set(ax, ay, az);
+                angle.set(cM_deg2s(-95.11f), cM_deg2s(13.77f), cM_deg2s(-3.095f));
             } else {
                 vec.set(28.68f, -0.43f, -8.19f);
-                ax = -0x43A2;
-                ay = 0x9CA;
-                az = -0x2CB;
-                angle.set(ax, ay, az);
+                angle.set(cM_deg2s(-95.11f), cM_deg2s(13.77f), cM_deg2s(-3.93f));
             }
             mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_handR));
         } else {
             if (field_0x9C5 == 9) {
                 vec.set(23.61f, -5.08f, -7.22f);
-                ax = -0x49FC;
-                ay = -0x458;
-                az = -0x568F;
-                angle.set(ax, ay, az);
+                angle.set(cM_deg2s(-104.042f), cM_deg2s(-6.11f), cM_deg2s(-121.725f));
             } else {
                 vec.set(24.9f, 0.62f, -7.51f);
-                ax = -0x4C7F;
-                ay = -0x7A;
-                az = -0x491D;
-                angle.set(ax, ay, az);
+                angle.set(cM_deg2s(-107.575f), cM_deg2s(-0.672f), cM_deg2s(-102.82f));
             }
             mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_handL));
         }
 
         mDoMtx_stack_c::transM(vec);
-        mDoMtx_stack_c::XYZrotM(angle);
+        mDoMtx_stack_c::XYZrotM(angle.x, angle.y, angle.z);
         field_0x6D0->setBaseTRMtx(mDoMtx_stack_c::get());
     }
 }
