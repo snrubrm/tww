@@ -780,9 +780,9 @@ bool daPz_c::checkTgHit() {
             fopAc_ac_c* hitAc = mCyl.GetTgHitAc();
             if (fopAcM_GetName(hitAc) == fpcNm_ARROW_e) {
                 daArrow_c* arrow = (daArrow_c*)hitAc;
-                if (arrow->mbLinkReflect) {
+                if (arrow->isLinkReflect()) {
                     mHitType = 5;
-                } else if (arrow->mbSetByZelda) {
+                } else if (arrow->isSetByZelda()) {
                     return false;
                 }
             }
