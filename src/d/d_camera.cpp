@@ -408,8 +408,8 @@ void dCamera_c::initialize(camera_class* camera, fopAc_ac_c* playerActor, u32 ca
     dStage_dt_c* stage_dt = &dComIfGp_getStage();
     if (stage_dt != NULL) {
         stage_stag_info_class* stag_info = stage_dt->getStagInfo();
-        if (stag_info && stag_info->mCameraMapToolID != -1) { // Bug, comparing unsigned value with -1 
-            mapToolType = GetCameraTypeFromMapToolID(stag_info->mCameraMapToolID, -1);
+        if (stag_info && dStage_stagInfo_DefaultCameraType(stag_info) != -1) { // Bug, comparing unsigned value with -1
+            mapToolType = GetCameraTypeFromMapToolID(dStage_stagInfo_DefaultCameraType(stag_info), -1);
             if (mapToolType != 0xFF && Chtyp(mapToolType)) {
                 mMapToolType = mapToolType;
             }
