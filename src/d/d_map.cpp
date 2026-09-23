@@ -2603,7 +2603,6 @@ void dMap_c::setCollectPoint(u8 param_1, u8 param_2, f32 param_3, f32 param_4, f
 }
 
 /* 8004B33C-8004B814       .text setGbaPoint_dungeon__6dMap_cFUcffsUcUcUcUc */
-// NONMATCHING - the original sign-extends sx/sz before subtracting the AGB scroll; we don't.
 void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm6, u8 prm7, u8 prm8) {
     u8* ptr;
     if (mNowRoomInfoP == NULL || !mNowRoomInfoP->getEnableFlg()) {
@@ -2613,8 +2612,8 @@ void dMap_c::setGbaPoint_dungeon(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 p
     {
         s16 sx = (x - getMapInfo_map1_X0(mNowRoomInfoP->getStageMapInfoPE())) * mNowRoomInfoP->getMap1ScaleX();
         s16 sz = (z - getMapInfo_map1_Z0(mNowRoomInfoP->getStageMapInfoPE())) * mNowRoomInfoP->getMap1ScaleZ();
-        s16 scrX = sx - agbScrollX();
-        s16 scrY = sz - agbScrollY();
+        s16 scrX = (s16)sx - agbScrollX();
+        s16 scrY = (s16)sz - agbScrollY();
 
         if (type == 1 || (type != 1 && (u8)isPointStayInDspNowRoomAgbScr(sx, sz))) {
             if (type == 1 || type == 3 || ((f32)scrX >= -8.0f && (f32)scrX <= 160.0f && (f32)scrY >= -8.0f && (f32)scrY <= 160.0f)) {
@@ -4332,9 +4331,9 @@ void dMap_2DTri_c::draw() {
     GXSetZMode(GX_FALSE, GX_LEQUAL, GX_FALSE);
     GXSetScissor(mScissorX, mScissorY, mScissorWidth, mScissorHeight);
     GXBegin(GX_TRIANGLES, GX_VTXFMT0, 3);
-    GXPosition3s16(px[0], py[0], 0);
-    GXPosition3s16(px[1], py[1], 0);
-    GXPosition3s16(px[2], py[2], 0);
+    GXPosition3s16((s16)px[0], (s16)py[0], 0);
+    GXPosition3s16((s16)px[1], (s16)py[1], 0);
+    GXPosition3s16((s16)px[2], (s16)py[2], 0);
     GXSetScissor(0, 0, 0x280, 0x1E0);
 }
 
