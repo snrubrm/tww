@@ -1475,7 +1475,7 @@ void daPz_c::modeAttackInit() {
     if (m0F65 == 0) {
         talkState = 0;
     }
-    if (mAnmPrmIdx != 4 && mAnmPrmIdx != 5) {
+    if (!isAnm(4) && !isAnm(5)) {
         m08EC = l_HIO.m92[talkState] + cM_rndF(l_HIO.m98[talkState]);
         m08F0 = l_HIO.m80[talkState];
         setAnm(4, false, 0xF);
