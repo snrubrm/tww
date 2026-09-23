@@ -558,7 +558,6 @@ BOOL daNpc_Pm1_c::_draw() {
     // Unused colors, needed for the .rodata section to match.
     GXColor red = {0xFF, 0x00, 0x00, 0x80};
     GXColor blue = {0x00, 0x00, 0xFF, 0x80};
-    daNpc_Pm1_c* i_this = this;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &tevStr);
@@ -570,9 +569,9 @@ BOOL daNpc_Pm1_c::_draw() {
     cXyz pos(current.pos.x, 150.0f + current.pos.y, current.pos.z);
     mShadowId = dComIfGd_setRealShadow(mShadowId, 1, mpShadowModel, &pos, 800.0f, current.pos.y - mObjAcch.GetGroundH(), NULL);
     if (!mShadowId) {
-        dComIfGd_setSimpleShadow(&current.pos, mObjAcch.GetGroundH(), 40.0f, dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd)->GetNP(), 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
+        dComIfGd_setSimpleShadow(&current.pos, mObjAcch.GetGroundH(), 40.0f, &dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd)->mNormal, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
-    dSnap_RegistFig(DSNAP_TYPE_UNK5A, i_this, 1.0f, 1.0f, 1.0f);
+    dSnap_RegistFig(DSNAP_TYPE_UNK5A, this, 1.0f, 1.0f, 1.0f);
     return TRUE;
 }
 
