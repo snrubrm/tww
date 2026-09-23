@@ -797,7 +797,7 @@ bool dPa_control_c::removeRoomScene() {
 void dPa_control_c::removeScene() {
     removeRoomScene();
     for (s32 i = 0; i < mNumSimpleCommon; i++)
-        mSimpleCallbacks[i].mpBaseEmitter = NULL;
+        mSimpleCallbacks[i].removeEmitter();
     mEmitterMng->forceDeleteAllEmitter();
 #if VERSION > VERSION_DEMO
     mModelControl->~dPa_modelControl_c();

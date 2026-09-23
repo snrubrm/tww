@@ -108,6 +108,7 @@ public:
     bool set(cXyz const*, u8, GXColor const&, GXColor const&, int);
 
     u16 getID() { return mResID; }
+    void removeEmitter() { mpBaseEmitter = NULL; }
 
     /* 0x004 */ JPABaseEmitter* mpBaseEmitter;
     /* 0x008 */ u16 mResID;
