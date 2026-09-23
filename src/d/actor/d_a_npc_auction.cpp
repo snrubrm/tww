@@ -921,7 +921,7 @@ void daNpcAuction_c::setAnmFromMsgTag() {
             break;
         }
     }
-    dComIfGp_clearMesgAnimeAttrInfo();
+    dComIfGp_setMesgAnimeAttrInfo(0xFF);
 }
 
 /* 00002070-00002090       .text getPrmNpcNo__14daNpcAuction_cFv */
