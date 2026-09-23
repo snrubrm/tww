@@ -5925,7 +5925,7 @@ BOOL daNpc_Md_c::execute() {
             return TRUE;
         }
         initialRestartOption(2, isTypeM_Dai());
-        if ((dComIfGp_getCb1Player() == this) && ((!dComIfGs_isEventBit(dSv_event_flag_c::UNK_1620) || (isTypeShipRide())) || (isTypeM_DaiB()))) {
+        if (dComIfGp_getCb1Player() == this && (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_1620) || isTypeShipRide() || isTypeM_DaiB())) {
             dComIfGp_setCb1Player(NULL);
         }
         fopAcM_setStageLayer(this);
@@ -5939,7 +5939,7 @@ BOOL daNpc_Md_c::execute() {
             m312B = 0;
             return TRUE;
         }
-        if (((m3131 != 0) && (dComIfG_Bgsp()->ChkPolySafe(mPolyInfo))) && (dComIfG_Bgsp()->ChkMoveBG(mPolyInfo))) {
+        if (m3131 != 0 && dComIfG_Bgsp()->ChkPolySafe(mPolyInfo) && dComIfG_Bgsp()->ChkMoveBG(mPolyInfo)) {
             local_30 = old.pos;
             dComIfG_Bgsp()->MoveBgCrrPos(mPolyInfo, true, &old.pos, NULL, NULL);
         }

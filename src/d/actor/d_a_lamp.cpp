@@ -50,9 +50,7 @@ static BOOL daLamp_Execute(lamp_class* i_this) {
     MtxTrans(10.0f + DEMO_SELECT(REG0_F(6), 0.0f), -140.0f + DEMO_SELECT(REG0_F(7), 0.0f), -15.0f + DEMO_SELECT(REG0_F(8), 0.0f), 1);
 
     cXyz offset;
-    offset.z = 0.0f;
-    offset.y = 0.0f;
-    offset.x = 0.0f;
+    offset.x = offset.y = offset.z = 0.0f;
     MtxPosition(&offset, &i_this->mPos);
 
     if (!i_this->mParticleInit) {

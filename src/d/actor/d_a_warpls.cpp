@@ -5,20 +5,22 @@
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_warpls.h"
-#include "d/d_com_inf_game.h"
-#include "d/d_com_lib_game.h"
+#include "d/actor/d_a_player_main.h"
 #include "d/d_lib.h"
-#include "f_op/f_op_actor_mng.h"
-#include "JSystem/JUtility/JUTAssert.h"
+#include "f_pc/f_pc_name.h"
 #include "res/Object/Ywarp00.h"
 #include "res/Object/Ysdls00.h"
 
-const char* daWarpls_c::m_arcname[2] = {"Ywarp00", "Ysdls00"};
-const s16 daWarpls_c::m_bdlidx[2] = {dRes_INDEX_YWARP00_BMD_YWARP00_e, dRes_INDEX_YSDLS00_BDL_YSDLS00_e};
-const s16 daWarpls_c::m_brkidx[2] = {dRes_INDEX_YWARP00_BRK_YWARP00_e, -1};
-const s16 daWarpls_c::m_bckidx[2] = {dRes_INDEX_YWARP00_BCK_YWARP00_e, -1};
-const u32 daWarpls_c::m_heapsize[2] = {0x2000, 0x2000};
+const char* daWarpls_c::m_arcname[] = { "Ywarp00", "Ysdls00" };
+const s16 daWarpls_c::m_bdlidx[] = { dRes_INDEX_YWARP00_BMD_YWARP00_e, dRes_INDEX_YSDLS00_BDL_YSDLS00_e };
+const s16 daWarpls_c::m_brkidx[] = { dRes_INDEX_YWARP00_BRK_YWARP00_e, 0xFFFF };
+const s16 daWarpls_c::m_bckidx[] = { dRes_INDEX_YWARP00_BCK_YWARP00_e, 0xFFFF };
+const u32 daWarpls_c::m_heapsize[] = { 0x2000, 0x2000 };
 const f32 daWarpls_c::m_warp_distance = 112.5f;
+
+enum daWarpls_WarpType_e {Type_Tower, Type_Dungeon};
+enum daWarpls_EvtType_e {EvtType_TowerUp, EvtType_TowerDown, EvtType_Dungeon};
+enum daWarpls_EvtState_e {EvtState_None, EvtState_Activation, EvtState_Warping};
 
 /* 00000078-000000E0       .text _delete__10daWarpls_cFv */
 bool daWarpls_c::_delete() {
@@ -26,231 +28,327 @@ bool daWarpls_c::_delete() {
         mpEmitter->becomeInvalidEmitter();
         mpEmitter = NULL;
     }
-#if VERSION == VERSION_DEMO
-    dComIfG_deleteObjectRes(m_arcname[mType]);
-#else
-    dComIfG_resDelete(&mPhase, m_arcname[mType]);
-#endif
-    return true;
+    dComIfG_resDeleteDemo(&mPhs, m_arcname[mWarpType]);
+    return TRUE;
 }
 
 /* 000000E0-00000100       .text CheckCreateHeap__FP10fopAc_ac_c */
 static BOOL CheckCreateHeap(fopAc_ac_c* actor) {
-    return static_cast<daWarpls_c*>(actor)->CreateHeap();
+    return ((daWarpls_c*)actor)->CreateHeap();
 }
 
 /* 00000100-000003D8       .text CreateHeap__10daWarpls_cFv */
-BOOL daWarpls_c::CreateHeap() {
-    J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname[mType], m_bdlidx[mType]);
-    JUT_ASSERT(DEMO_SELECT(230, 233), modelData != 0);
+int daWarpls_c::CreateHeap() {
+    J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes(m_arcname[mWarpType],m_bdlidx[mWarpType]);
+    JUT_ASSERT(DEMO_SELECT(230, 233), modelData != NULL);
     mpModel = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
-    if (mpModel == NULL) return FALSE;
-    mpBrk = NULL;
-    if (m_brkidx[mType] != -1) {
-        J3DAnmTevRegKey* pbrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(m_arcname[mType], m_brkidx[mType]);
-        JUT_ASSERT(DEMO_SELECT(245, 248), pbrk != 0);
-        mpBrk = new mDoExt_brkAnm;
-        if (mpBrk == NULL || !mpBrk->init(modelData, pbrk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false, 0)) return FALSE;
+    
+    if (mpModel == NULL) {
+        return FALSE;
     }
-    mpBck = NULL;
-    if (m_bckidx[mType] != -1) {
-        J3DAnmTransform* pbck = (J3DAnmTransform*)dComIfG_getObjectRes(m_arcname[mType], m_bckidx[mType]);
-        JUT_ASSERT(DEMO_SELECT(264, 267), pbck != 0);
-        mpBck = new mDoExt_bckAnm;
-        if (mpBck == NULL || !mpBck->init(modelData, pbck, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, false)) return FALSE;
+
+    mpBrkAnm = NULL;
+    if (m_brkidx[mWarpType] != -1) {
+        J3DAnmTevRegKey* pbrk = (J3DAnmTevRegKey*)dComIfG_getObjectRes(m_arcname[mWarpType],m_brkidx[mWarpType]);
+        JUT_ASSERT(DEMO_SELECT(245, 248), pbrk != NULL);
+
+        mpBrkAnm = new mDoExt_brkAnm();
+        if (mpBrkAnm == NULL || !mpBrkAnm->init(modelData, pbrk, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, FALSE, 0)) {
+            return FALSE;
+        }
+    }
+
+    mpBckAnm = NULL;
+    if (m_bckidx[mWarpType] != -1) {
+        J3DAnmTransform* pbck = (J3DAnmTransform*)dComIfG_getObjectRes( m_arcname[mWarpType],m_bckidx[mWarpType]);
+        JUT_ASSERT(DEMO_SELECT(264, 267), pbck != NULL);
+
+        mpBckAnm = new mDoExt_bckAnm();
+        if (mpBckAnm == NULL || !mpBckAnm->init(modelData, pbck, TRUE, J3DFrameCtrl::EMode_NONE, 1.0f, 0, -1, FALSE)) {
+            return FALSE;
+        }
     }
     return TRUE;
 }
 
 /* 00000420-00000764       .text CreateInit__10daWarpls_cFv */
 void daWarpls_c::CreateInit() {
-    const char* events[] = {"TOWER_WARP_U", "TOWER_WARP_D", "DUNGEON_WARP"};
-    if (strcmp(dComIfGp_getStartStageName(), "Siren") == 0) {
-        if (fopAcM_GetRoomNo(this) == 7) mWarpType = 0;
-        else if (fopAcM_GetRoomNo(this) == 17) mWarpType = 1;
+    const char* eventNames[3] = {
+        "TOWER_WARP_U",
+        "TOWER_WARP_D",
+        "DUNGEON_WARP"
+    };
+
+    if (!strcmp(dComIfGp_getStartStageName(), "Siren")) {
+        s8 room_no = fopAcM_GetRoomNo(this);
+
+        if (room_no == 7) {
+            mEvtType = EvtType_TowerUp;
+        } else if (room_no == 17) {
+            mEvtType = EvtType_TowerDown;
+        }
     } else {
-        mWarpType = 2;
+        mEvtType = EvtType_Dungeon;
     }
-    mSwitch = fopAcM_GetParam(this) & 0xFF;
-    mExit = (fopAcM_GetParam(this) >> 8) & 0xFF;
-    switch (mType) {
-    case 0:
-        scale.x = scale.z = 2.0f;
-        mpEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WARPLIGHTSHAFT00, &current.pos, &current.angle);
-        if (mpEmitter != NULL) {
+
+    mSwitchNo = daWarpls_prm::getSwitchNo(this);
+    mSceneNo = daWarpls_prm::getSceneNo(this);
+
+    switch (mWarpType) {
+    case Type_Tower:
+        scale.z = 2.0f;
+        scale.x = 2.0f;
+        mpEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WARPLIGHTSHAFT00, &current.pos, &current.angle, 0, 0xFF);
+        if (mpEmitter == NULL) break; {
             mpEmitter->becomeImmortalEmitter();
             mpEmitter->setGlobalDynamicsScale(scale);
+            break;
         }
-        break;
-    case 1:
-        mpEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_SUBDUNLIGHTSHAFT00, &current.pos, &current.angle);
+    case Type_Dungeon:
+        mpEmitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_SUBDUNLIGHTSHAFT00, &current.pos, &current.angle, 0, 0xFF);
         break;
     }
-    if (fopAcM_isSwitch(this, mSwitch) || mSwitch == 0xFF) {
-        if (mpEmitter != NULL) mpEmitter->playCreateParticle();
-        if (mpBrk != NULL) mpBrk->setFrame(mpBrk->getEndFrame());
-        if (mpBck != NULL) mpBck->setFrame(mpBck->getEndFrame());
-        mPrevSwitch = 1;
-        mActive = 1;
-        mInitiallyActive = 1;
-        mTimer = 0;
+
+    BOOL is_switch_on = fopAcM_isSwitch(this, mSwitchNo);
+    if (is_switch_on || mSwitchNo == 0xFF) {
+        if (mpEmitter != NULL) {
+            mpEmitter->playCreateParticle();
+        }
+        if (mpBrkAnm != NULL) {
+            mpBrkAnm->setFrame(mpBrkAnm->getEndFrame());
+        }
+        if (mpBckAnm != NULL) {
+            mpBckAnm->setFrame(mpBckAnm->getEndFrame());
+        }
+        mPrevSwitchState = 1;
+        mWarpActive = TRUE;
+        mSkipActivationEvt = TRUE;
+        mStartupDelayTimer = 0;
     } else {
-        if (mpEmitter != NULL) mpEmitter->stopCreateParticle();
-        mActive = 0;
-        mTimer = 10;
+ 
+        if (mpEmitter != NULL) {
+            mpEmitter->setStatus(JPAEmtrStts_StopEmit);
+        }
+        mWarpActive = FALSE;
+        mStartupDelayTimer = 10;
     }
-    mOrder = 0;
-    mAppearEvent = dComIfGp_evmng_getEventIdx(NULL, fopAcM_GetParamBit(fopAcM_GetParam(this), 16, 8));
-    mWarpEvent = dComIfGp_evmng_getEventIdx(events[mWarpType]);
+
+    mEvtState = EvtState_None;
+    mActivationEvtIdx = dComIfGp_evmng_getEventIdx(NULL, daWarpls_prm::getEvId(this));
+    mWarpingEvtIdx = dComIfGp_evmng_getEventIdx(eventNames[mEvtType], 0xFF);
     fopAcM_SetMtx(this, mpModel->getBaseTRMtx());
     fopAcM_setCullSizeBox(this, -250.0f, 0.0f, -250.0f, 250.0f, 2600.0f, 250.0f);
-    fopAcM_setCullSizeFar(this, 1.0f);
+    fopAcM_setCullSizeFar(this,1.0f);
     set_mtx();
-    if (check_warp_distance()) mWaitForExit = 1;
+
+    if (check_warp_distance()) {
+        mPlayerStartedInWarp = TRUE;
+    }
 }
 
 /* 00000764-0000082C       .text _create__10daWarpls_cFv */
 cPhs_State daWarpls_c::_create() {
-    fopAcM_SetupActor(this, daWarpls_c);
-    mType = fopAcM_GetParam(this) >> 28;
-    cPhs_State phase = dComIfG_resLoad(&mPhase, m_arcname[mType]);
-    if (phase == cPhs_COMPLEATE_e) {
-        if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, m_heapsize[mType])) return cPhs_ERROR_e;
+    cPhs_State rt = cPhs_ERROR_e;
+    fopAcM_ct(this, daWarpls_c);
+    mWarpType = daWarpls_prm::getType(this);
+    rt = dComIfG_resLoad(&mPhs, m_arcname[mWarpType]);
+
+    if (rt == cPhs_COMPLEATE_e) {
+        if (!fopAcM_entrySolidHeap(this, CheckCreateHeap, m_heapsize[mWarpType])) {
+            return cPhs_ERROR_e;
+        }
         CreateInit();
     }
-    return phase;
+    return rt;
 }
 
 /* 0000082C-0000089C       .text set_mtx__10daWarpls_cFv */
 inline void daWarpls_c::set_mtx() {
     mpModel->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
 }
 
 /* 0000089C-00000984       .text _execute__10daWarpls_cFv */
 bool daWarpls_c::_execute() {
-    u8 sw = fopAcM_isSwitch(this, mSwitch);
-    if (mTimer > 0) mTimer--;
+    u8 is_switch_on = fopAcM_isSwitch(this, mSwitchNo);
+
+    if (mStartupDelayTimer > 0) {
+        mStartupDelayTimer -= 1;
+    }
     checkOrder();
     eventOrder();
     setStatus();
-    if (mpBrk != NULL) mpBrk->play();
-    if (mpBck != NULL) mpBck->play();
-    set_mtx();
-    mPrevSwitch = sw;
-    return true;
+
+    if (mpBrkAnm != NULL) mpBrkAnm->play();
+    if (mpBckAnm != NULL) mpBckAnm->play();
+
+    mpModel->setBaseScale(scale);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
+    mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
+    mPrevSwitchState = is_switch_on;
+    return TRUE;
 }
 
 /* 00000984-00000AC4       .text checkOrder__10daWarpls_cFv */
 void daWarpls_c::checkOrder() {
     if (eventInfo.checkCommandDemoAccrpt()) {
-        if (dComIfGp_evmng_startCheck(mAppearEvent) && mOrder == 1) {
-            mOrder = 0;
+        if (dComIfGp_evmng_startCheck(mActivationEvtIdx) && mEvtState == EvtState_Activation) {
+            mEvtState = EvtState_None;
             warp_eff_start();
         }
-        if (dComIfGp_evmng_endCheck(mAppearEvent)) dComIfGp_event_reset();
-        if (dComIfGp_evmng_startCheck(mWarpEvent) && mOrder == 2) {
-            mOrder = 0;
+        if (dComIfGp_evmng_endCheck((mActivationEvtIdx))) {
+            dComIfGp_event_reset();
+        }
+        if (dComIfGp_evmng_startCheck(mWarpingEvtIdx) != 0 && mEvtState == EvtState_Warping) {
+            mEvtState = EvtState_None;
             dComIfGp_evmng_setGoal(&current.pos);
         }
-        if (dComIfGp_evmng_endCheck(mWarpEvent)) {
-            dLib_setNextStageBySclsNum(mExit, fopAcM_GetRoomNo(this));
-            mDoAud_seStart(JA_SE_LK_WAPR_EFF_WARP, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+        if (dComIfGp_evmng_endCheck(mWarpingEvtIdx)) {
+            dLib_setNextStageBySclsNum(mSceneNo, fopAcM_GetRoomNo(this));
+            fopAcM_seStart(this,JA_SE_LK_WAPR_EFF_WARP,0);
         }
-    } else {
-        demo();
+        return;
     }
+    demo();
 }
 
 /* 00000AC4-00000BFC       .text eventOrder__10daWarpls_cFv */
 void daWarpls_c::eventOrder() {
-    u8 sw = fopAcM_isSwitch(this, mSwitch);
-    if (mOrder == 1) {
-#if VERSION == VERSION_DEMO
-        fopAcM_orderOtherEventId(this, mAppearEvent, fopAcM_GetParamBit(fopAcM_GetParam(this), 16, 8));
-#else
-        fopAcM_orderOtherEventId(this, mAppearEvent, (fopAcM_GetParam(this) >> 16) & 0xFF);
-#endif
-        eventInfo.onCondition(2);
-    } else if (mOrder == 2) {
-#if VERSION > VERSION_DEMO
-        if (mWarpType == 0) {
-            if (!check_warp_distance()) mOrder = 0;
-            else fopAcM_orderOtherEventId(this, mWarpEvent, 0xFF, 0xFFFF, 0, 5);
-        } else
-#endif
-        {
-            fopAcM_orderOtherEventId(this, mWarpEvent);
+    u8 is_switch_on = fopAcM_isSwitch(this, mSwitchNo);
+
+    if (mEvtState == EvtState_Activation) {
+        fopAcM_orderOtherEventId(this, mActivationEvtIdx, daWarpls_prm::getEvId(this), 0xffff, 0, 1);
+        eventInfo.onCondition(dEvtCnd_UNK2_e);
+    
+    } else if (mEvtState == EvtState_Warping) {
+        #if VERSION == VERSION_DEMO
+        fopAcM_orderOtherEventId(this, mWarpingEvtIdx, 0xff, 0xffff, 0, 1);
+        #else
+        if (mEvtType == EvtType_TowerUp) {
+            if (!check_warp_distance()) {
+                mEvtState = EvtState_None;
+            } else {
+                fopAcM_orderOtherEventId(this, mWarpingEvtIdx, 0xff, 0xffff, 0, 5);
+            }
+        } else {
+            fopAcM_orderOtherEventId(this, mWarpingEvtIdx, 0xff, 0xffff, 0, 1);
         }
-        eventInfo.onCondition(2);
-    } else if ((mAppearEvent == -1 && mSwitch == 0xFF) || (mAppearEvent == -1 && sw != 0)) {
-        warp_eff_start();
-    }
+        #endif
+        eventInfo.onCondition(dEvtCnd_UNK2_e);
+
+       } else if ((mActivationEvtIdx == -1 && mSwitchNo == 0xFF) || (mActivationEvtIdx == -1 && is_switch_on)) {
+            warp_eff_start();
+        }
 }
 
 /* 00000BFC-00000C7C       .text setStatus__10daWarpls_cFv */
-BOOL daWarpls_c::setStatus() {
-    if (mActive != 0) mDoAud_seStart(JA_SE_OBJ_WARP_EFF_SUS, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+bool daWarpls_c::setStatus() {
+    if (mWarpActive)
+        fopAcM_seStart(this,JA_SE_OBJ_WARP_EFF_SUS,0);
     return TRUE;
 }
 
 /* 00000C7C-00000DC4       .text demo__10daWarpls_cFv */
-BOOL daWarpls_c::demo() {
-    u8 sw = fopAcM_isSwitch(this, mSwitch);
-    if (mWaitForExit != 0) {
-        if (!check_warp_distance()) mWaitForExit = 0;
+bool daWarpls_c::demo() {
+    u8 is_switch_on = fopAcM_isSwitch(this, mSwitchNo);
+
+    if (mPlayerStartedInWarp) {
+        if (!check_warp_distance()) {
+            mPlayerStartedInWarp = FALSE;
+        }
         return TRUE;
     }
-    if (mOrder == 0 && mInitiallyActive == 0 && sw != 0 && mActive == 0 && mAppearEvent != -1) mOrder = 1;
-    if (sw != 0 || mSwitch == 0xFF) {
-        if (check_warp_link() && mOrder == 0) mOrder = 2;
-    } else {
-        if (mpBrk != NULL) mpBrk->setPlaySpeed(-1.0f);
-        if (mpBck != NULL) mpBck->setPlaySpeed(-1.0f);
-        if (mpEmitter != NULL) mpEmitter->stopCreateParticle();
-        mActive = 0;
+
+    if (mEvtState == EvtState_None && !mSkipActivationEvt && is_switch_on && !mWarpActive && mActivationEvtIdx != -1) {
+        mEvtState = EvtState_Activation;
     }
+
+    if (is_switch_on || mSwitchNo == 0xFF) {
+        int result = check_warp_link();
+        if (result && mEvtState == EvtState_None) {
+            mEvtState = EvtState_Warping;
+        }
+    } else {
+        if (mpBrkAnm != NULL) {
+            mpBrkAnm->setPlaySpeed(-1.0f);
+        }
+        if (mpBckAnm != NULL) {
+            mpBckAnm->setPlaySpeed(-1.0f);
+        }
+        if (mpEmitter != NULL) {
+            mpEmitter->setStatus(JPAEmtrStts_StopEmit);
+        }
+        mWarpActive = FALSE;
+    }
+
     return TRUE;
 }
 
 /* 00000DC4-00000EE8       .text check_warp_link__10daWarpls_cFv */
-BOOL daWarpls_c::check_warp_link() {
-    fopAc_ac_c* link = dComIfGp_getLinkPlayer();
-    if (link != dComIfGp_getPlayer(0) || mActive == 0 || mWaitForExit != 0) return FALSE;
-    f32 dist = (link->current.pos - current.pos).absXZ();
-    if (dist < m_warp_distance * scale.x) return TRUE;
+int daWarpls_c::check_warp_link() {
+    fopAc_ac_c* player = daPy_getPlayerLinkActorClass();
+    if (player != daPy_getPlayerActorClass() || !mWarpActive || mPlayerStartedInWarp) {
+        return FALSE;
+    }
+
+    f32 distance_to_player = (player->current.pos - current.pos).absXZ();
+
+    if (distance_to_player < m_warp_distance * scale.x) {
+        return TRUE;
+    }
     return FALSE;
 }
 
 /* 00000EE8-00000FF4       .text check_warp_distance__10daWarpls_cFv */
-BOOL daWarpls_c::check_warp_distance() {
-    fopAc_ac_c* link = dComIfGp_getLinkPlayer();
-    if (link != dComIfGp_getPlayer(0)) return FALSE;
-    f32 dist = (link->current.pos - current.pos).absXZ();
-    if (dist < m_warp_distance * scale.x) return TRUE;
+int daWarpls_c::check_warp_distance() {
+    fopAc_ac_c* player = daPy_getPlayerLinkActorClass();
+    if (player != daPy_getPlayerActorClass()) {
+        return FALSE;
+    }
+
+    f32 distance_to_player = (player->current.pos - current.pos).absXZ();
+    
+    if (distance_to_player < m_warp_distance * scale.x) {
+        return TRUE;
+    }
     return FALSE;
 }
 
 /* 00000FF4-000010C8       .text warp_eff_start__10daWarpls_cFv */
 void daWarpls_c::warp_eff_start() {
-    if (mActive == 0) {
-        if (mpBrk != NULL) mpBrk->setPlaySpeed(1.0f);
-        if (mpBck != NULL) mpBck->setPlaySpeed(1.0f);
-        if (mpEmitter != NULL) mpEmitter->playCreateParticle();
-        mDoAud_seStart(JA_SE_OBJ_WARP_EFF_APPEAR, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
-        mActive = 1;
-    }
+    if (mWarpActive) 
+        return;
+
+    if (mpBrkAnm != NULL)
+        mpBrkAnm->setPlaySpeed(1.0f);
+
+    if (mpBckAnm != NULL)
+        mpBckAnm->setPlaySpeed(1.0f);
+
+    if (mpEmitter != NULL)
+        mpEmitter->playCreateParticle();
+
+    fopAcM_seStart(this, JA_SE_OBJ_WARP_EFF_APPEAR, 0);
+    mWarpActive = TRUE;
 }
 
-inline bool daWarpls_c::_draw() {
-    if (mActive == 0) return true;
+bool daWarpls_c::_draw() {
+    if (!mWarpActive) 
+        return TRUE; 
+    
     g_env_light.settingTevStruct(TEV_TYPE_ACTOR, &current.pos, &tevStr);
     g_env_light.setLightTevColorType(mpModel, &tevStr);
-    if (mpBrk != NULL) mpBrk->entry(mpModel->getModelData());
-    if (mpBck != NULL) mpBck->entry(mpModel->getModelData());
+
+    if (mpBrkAnm != NULL) {
+        mpBrkAnm->entry(mpModel->getModelData());
+    }
+
+    if (mpBckAnm != NULL) {
+        mpBckAnm->entry(mpModel->getModelData());
+    }
     mDoExt_modelUpdateDL(mpModel);
-    return true;
+    return TRUE;
 }
 
 /* 000010C8-000010E8       .text daWarpls_Create__FPv */
@@ -264,8 +362,8 @@ static BOOL daWarpls_Delete(void* i_this) {
 }
 
 /* 0000110C-000011D0       .text daWarpls_Draw__FPv */
-static BOOL daWarpls_Draw(void* actor) {
-    return static_cast<daWarpls_c*>(actor)->_draw();
+static BOOL daWarpls_Draw(void* i_this) {
+    return ((daWarpls_c*)i_this)->_draw();
 }
 
 /* 000011D0-000011F4       .text daWarpls_Execute__FPv */

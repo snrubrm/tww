@@ -424,7 +424,7 @@ static BOOL daGnd_Draw(gnd_class* i_this) {
         dDlst_shadowControl_c::getSimpleTex()
     );
 
-    dSnap_RegistFig(DSNAP_TYPE_UNKCE, actor, 1.0f, 1.0f, 1.0f);
+    dSnap_RegistFig(DSNAP_TYPE_GND, actor, 1.0f, 1.0f, 1.0f);
 
     if (l_HIO.m07 != 0) {
         i_this->mLineMat.update(20, 2.25f + REG0_F(3), (GXColor){0xFF, 0x64, 0x00, 0xFF}, 2, &actor->tevStr);

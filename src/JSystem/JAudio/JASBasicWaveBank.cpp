@@ -81,18 +81,18 @@ void JASystem::TBasicWaveBank::decWaveTable(const TWaveGroup* waveGroup) {
     OSLockMutex(&mMutex);
     for (int i = 0; i < waveGroup->getWaveCount(); i++) {
         TWaveInfo** waveTable = &mWaveTable[waveGroup->getWaveID(i)];
-        TWaveInfo* waveInfo2 = &waveGroup->mCtrlWaveArray[i];
-        for (TWaveInfo* waveInfo = *waveTable; waveInfo; waveInfo = waveInfo->mPrev) {
-            if (waveInfo != waveInfo2) {
+        TWaveInfo* waveInfo = &waveGroup->mCtrlWaveArray[i];
+        for (TWaveInfo* it = *waveTable; it; it = it->mPrev) {
+            if (it != waveInfo) {
                 continue;
             }
-            if (!waveInfo->mNext) {
-                *waveTable = waveInfo->mPrev;
+            if (!it->mNext) {
+                *waveTable = it->mPrev;
             } else {
-                waveInfo->mNext->mPrev = waveInfo->mPrev;
+                it->mNext->mPrev = it->mPrev;
             }
-            if (waveInfo->mPrev) {
-                waveInfo->mPrev->mNext = waveInfo->mNext;
+            if (it->mPrev) {
+                it->mPrev->mNext = it->mNext;
             }
             break;
         }

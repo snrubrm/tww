@@ -1,7 +1,8 @@
 #ifndef JAISEQUENCEMGR_H
 #define JAISEQUENCEMGR_H
 
-#include "JSystem/JAudio/JAISound.h"
+#include "JSystem/JAudio/JAIGlobalParameter.h"
+#include "JSystem/JAudio/JAISoundParams.h"
 #include "JSystem/JAudio/JASCmdStack.h"
 #include "JSystem/JAudio/JASTrack.h"
 
@@ -41,10 +42,10 @@ namespace JAInter {
 
         /* 0x00 */ u8 field_0x0;
         /* 0x01 */ u8 field_0x1;
-        /* 0x02 */ u8 field_0x2;
+        /* 0x02 */ u8 mPrepareFlag;
         /* 0x03 */ u8 field_0x3;
         /* 0x04 */ int field_0x4;
-        /* 0x08 */ u32 field_0x8;
+        /* 0x08 */ u32 mActiveTrackFlag;
         /* 0x0C */ f32 mSeqVolume;
         /* 0x10 */ f32 mSeqPitch;
         /* 0x14 */ f32 mSeqFxmix;
@@ -58,9 +59,9 @@ namespace JAInter {
         /* 0x34 */ f32* trackDolby;
         /* 0x38 */ int field_0x38;
         /* 0x3C */ int field_0x3c;
-        /* 0x40 */ int field_0x40;
+        /* 0x40 */ u8* field_0x40;
         /* 0x44 */ u32* trackupdate;
-        /* 0x48 */ JAISound* field_0x48;
+        /* 0x48 */ JAISound* mSequence;
         /* 0x4C */ PlayerParameter* systemTrackParameter;
     };
 
@@ -106,7 +107,7 @@ namespace JAInter {
         /* 0x0A60 */ MoveParaSetInitZero mTrackDolbys[32];
         /* 0x0C60 */ MoveParaSetInitZero field_0xc60[32];
         /* 0x0E60 */ u16 mTrackPortData[32][16];
-        /* 0x1260 */ u8 field_0x1260;
+        /* 0x1260 */ u8 mHeapIndex;
         /* 0x1261 */ u8 field_0x1261;
         /* 0x1262 */ u16 field_0x1262;
         /* 0x1264 */ u32 field_0x1264;
@@ -126,9 +127,9 @@ namespace JAInter {
         /* 0x129C */ u32 field_0x129c[32];
         /* 0x131C */ u8 field_0x131c[32];
         /* 0x133C */ MuteBit mMuteBits[32];
-        /* 0x135C */ SeqUpdateData* field_0x135c;
+        /* 0x135C */ SeqUpdateData* mUpdateData;
         /* 0x1360 */ JASystem::TTrack mTrack;
-        /* 0x16EC */ JASystem::TTrack::TOuterParam field_0x16ec;
+        /* 0x16EC */ JASystem::TTrack::TOuterParam mOuterParam;
     };
 
     namespace SequenceMgr {

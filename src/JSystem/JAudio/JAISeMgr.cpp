@@ -19,7 +19,7 @@ namespace JAISeMgr = JAInter::SeMgr;
 
 JAInter::SeMgr::seTrackUpdate_s* JAInter::SeMgr::seTrackUpdate;
 u8** JAInter::SeMgr::categoryInfoTable;
-u32** JAInter::SeMgr::sePlaySound;
+JAISound*** JAInter::SeMgr::sePlaySound;
 JAInter::SeParameter* JAInter::SeMgr::seParameterFreeStartPointer;
 JAInter::SeParameter* JAInter::SeMgr::seParameterUsedEndPointer;
 JAInter::LinkSound* JAInter::SeMgr::seRegist;
@@ -46,7 +46,7 @@ void JAInter::SeMgr::init() {
     }
     seRegist = new (JAIBasic::getCurrentJAIHeap(), 0x20) LinkSound[JAIGlobalParameter::getParamSeCategoryMax()];
     JUT_ASSERT_MSG(63, seRegist, "JAIData::initHeap Cannot Alloc Heap!!\n");
-    sePlaySound = new (JAIBasic::getCurrentJAIHeap(), 0x20) u32*[JAIGlobalParameter::getParamSeCategoryMax()];
+    sePlaySound = new (JAIBasic::getCurrentJAIHeap(), 0x20) JAISound**[JAIGlobalParameter::getParamSeCategoryMax()];
     JUT_ASSERT_MSG(65, sePlaySound, "JAIData::initHeap Cannot Alloc Heap!!\n");
     seRegistBuffer = new (JAIBasic::getCurrentJAIHeap(), 0x20) JAISound*[JAIGlobalParameter::getParamSeCategoryMax()];
     JUT_ASSERT_MSG(67, seRegistBuffer, "JAIData::initHeap Cannot Alloc Heap!!\n");
@@ -54,22 +54,22 @@ void JAInter::SeMgr::init() {
         seRegistBuffer[i] = JAIBasic::getInterface()->makeSound(JAIGlobalParameter::getParamSeRegistMax());
         JUT_ASSERT_MSG(72, seRegistBuffer[i], "JAIData::initHeap Cannot Alloc Heap!!\n");
         seRegist[i].init(seRegistBuffer[i], JAIGlobalParameter::getParamSeRegistMax());
-        sePlaySound[i] = new (JAIBasic::getCurrentJAIHeap(), 0x20) u32[0x10];
+        sePlaySound[i] = new (JAIBasic::getCurrentJAIHeap(), 0x20) JAISound*[0x10];
         JUT_ASSERT_MSG(78, sePlaySound[i], "JAIData::initHeap Cannot Alloc Heap!!\n");
         for (int j = 0; j < 16; j++) {
-            sePlaySound[i][j] = 0;
+            sePlaySound[i][j] = NULL;
         }
     }
     seTrackUpdate = new (JAIBasic::getCurrentJAIHeap(), 0x20) seTrackUpdate_s[JAIGlobalParameter::getParamSeTrackMax()];
     JUT_ASSERT_MSG(86, seTrackUpdate, "JAIData::initHeap Cannot Alloc Heap!!\n");
     for (int i = 0; i < JAIGlobalParameter::getParamSeTrackMax(); i++) {
         seTrackUpdate_s* tmp = &seTrackUpdate[i];
-        tmp->field_0x4 = 1.0f;
-        tmp->field_0x8 = 1.0f;
-        tmp->field_0xc = 0.0f;
-        tmp->field_0x10 = 0.5f;
+        tmp->mPlayingVolume = 1.0f;
+        tmp->mPlayingPitch = 1.0f;
+        tmp->mPlayingFxmix = 0.0f;
+        tmp->mPlayingPan = 0.5f;
         tmp->field_0x0 = 0xff;
-        tmp->field_0x14 = 0.0f;
+        tmp->mPlayingDolby = 0.0f;
     }
     SeParameter* parameterObject = new (JAIBasic::getCurrentJAIHeap(), 0x20) SeParameter[JAIGlobalParameter::getParamSeCategoryMax() * JAIGlobalParameter::getParamSeRegistMax()];
     JUT_ASSERT_MSG(99, parameterObject, "JAIData::initHeap Cannot Alloc Heap!!\n");
@@ -263,7 +263,7 @@ void JAInter::SeMgr::checkNextFrameSe() {
         slot = 0;
         for (; slot < slotMax; slot++) {
             u8 available = 0;
-            JAISound* playing = (JAISound*)sePlaySound[category][slot];
+            JAISound* playing = sePlaySound[category][slot];
             if (playing == NULL) {
                 available = 1;
             } else if (playing->mState == 4) {
@@ -279,11 +279,11 @@ void JAInter::SeMgr::checkNextFrameSe() {
 #else
             } else if (playing->mState == 0 || playing->mState == 5) {
 #endif
-                sePlaySound[category][slot] = 0;
+                sePlaySound[category][slot] = NULL;
                 available = 1;
             } else {
                 for (j = 0; j < slotMax; j++) {
-                    JAISound* playing = (JAISound*)sePlaySound[category][slot];
+                    JAISound* playing = sePlaySound[category][slot];
                     if (playing == candidates[j].sound) {
                         candidates[j].sound = NULL;
                         j = slotMax;
@@ -294,21 +294,21 @@ void JAInter::SeMgr::checkNextFrameSe() {
                 for (j = 0; j < slotMax; j++) {
                     if (candidates[j].sound != NULL && candidates[j].sound->mState != 3) {
                         for (u8 k = 0; k < slotMax; k++) {
-                            JAISound* other = (JAISound*)sePlaySound[category][k];
+                            JAISound* other = sePlaySound[category][k];
                             if (other != NULL && candidates[j].sound == other) {
                                 available = 0;
                                 k = slotMax;
                             }
                         }
                         if (available == 1) {
-                            sePlaySound[category][slot] = (u32)candidates[j].sound;
+                            sePlaySound[category][slot] = candidates[j].sound;
                             candidates[j].sound = NULL;
                             j = slotMax + 1;
                         }
                     }
                 }
                 if (j == slotMax) {
-                    sePlaySound[category][slot] = 0;
+                    sePlaySound[category][slot] = NULL;
                 }
             }
         }
@@ -323,7 +323,7 @@ void JAInter::SeMgr::checkPlayingSe() {
     u8 category;
     for (category = 0; category < JAIGlobalParameter::getParamSeCategoryMax(); category++) {
         for (slot = 0; slot < categoryInfoTable[seScene][(u32)category * 2]; track++, slot++) {
-            sound = (JAISound*)sePlaySound[category][slot];
+            sound = sePlaySound[category][slot];
             if (sound != NULL) {
                 u32 bit;
                 u8 camera;
@@ -354,11 +354,11 @@ void JAInter::SeMgr::checkPlayingSe() {
                         }
                     }
                     SeParameter* parameter = sound->getSeParameter();
-                    for (u8 i = 0; parameter->field_0x0[16] != 0; i++) {
+                    for (u8 i = 0; parameter->field_0x20 != 0; i++) {
                         bit = 1 << i;
-                        if (parameter->field_0x0[16] & bit) {
+                        if (parameter->field_0x20 & bit) {
                             seHandle->setTrackPortData(sound->getTrack(), i, sound->getSeParameter()->field_0x0[i]);
-                            parameter->field_0x0[16] ^= bit;
+                            parameter->field_0x20 ^= bit;
                         }
                     }
                     sound->setSeDistanceParameters();
@@ -399,7 +399,7 @@ void JAInter::SeMgr::checkPlayingSe() {
                 } else if (active == 0 && command != 1) {
                     releaseSeRegist(sound);
                 } else if (sound->mFadeCounter != 0) {
-                    if (sound->getSeParameter()->field_0x124[6].mCurrentValue != 0.0f) {
+                    if (sound->getSeParameter()->mVolumes[6].mCurrentValue != 0.0f) {
                         sound->setSeDistanceParameters();
                         sendSeAllParameter(sound);
                         if (sound->mSoundID & 0xC00) {
@@ -427,7 +427,7 @@ void JAInter::SeMgr::checkPlayingSe() {
 /* 802941DC-802942B0       .text setSeqMuteFromSeStart__Q27JAInter5SeMgrFP8JAISound */
 void JAInter::SeMgr::setSeqMuteFromSeStart(JAISound* sound) {
     for (u32 i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
-        JAISound* sequence = SequenceMgr::getPlayTrackInfo(i)->field_0x48;
+        JAISound* sequence = SequenceMgr::getPlayTrackInfo(i)->mSequence;
         if (i != seHandle->field_0x4 && sequence != NULL && !(sequence->getSwBit() & 8)) {
             sequence->setSeqInterVolume(9, JAIGlobalParameter::getParamSeqMuteVolumeSePlay() / 127.0f,
                 JAIGlobalParameter::getParamSeqMuteMoveSpeedSePlay());
@@ -440,7 +440,7 @@ void JAInter::SeMgr::setSeqMuteFromSeStart(JAISound* sound) {
 void JAInter::SeMgr::clearSeqMuteFromSeStop(JAISound* sound) {
     if (seqMuteFlagFromSe != 0 && (sound->getSwBit() & 8)) {
         for (u32 i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
-            JAISound* sequence = SequenceMgr::getPlayTrackInfo(i)->field_0x48;
+            JAISound* sequence = SequenceMgr::getPlayTrackInfo(i)->mSequence;
             if (i != seHandle->field_0x4 && sequence != NULL && !(sequence->getSwBit() & 8)) {
                 seqMuteFlagFromSe &= (1 << sound->field_0x4) ^ 0xFFFFFFFF;
                 if (seqMuteFlagFromSe == 0) {
@@ -459,12 +459,12 @@ void JAInter::SeMgr::checkSeMovePara() {
     for (u8 i = 0; i < JAIGlobalParameter::getParamSeCategoryMax(); i++) {
         for (JAISound* sound = seRegist[i].field_0x4; sound; sound = sound->field_0x34) {
             for (u8 j = 0; j < 8; j++) {
-                sound->getSeParameter()->field_0x124[j].move();
-                sound->getSeParameter()->field_0x1a4[j].move();
-                sound->getSeParameter()->field_0x2a4[j].move();
+                sound->getSeParameter()->mVolumes[j].move();
+                sound->getSeParameter()->mPans[j].move();
+                sound->getSeParameter()->mFxmixes[j].move();
                 sound->getSeParameter()->field_0x324[j].move();
-                sound->getSeParameter()->field_0x3a4[j].move();
-                sound->getSeParameter()->field_0x224[j].move();
+                sound->getSeParameter()->mDolbys[j].move();
+                sound->getSeParameter()->mPitches[j].move();
             }
         }
     }
@@ -478,16 +478,16 @@ void JAInter::SeMgr::sendSeAllParameter(JAISound* sound) {
     update = &seTrackUpdate[sound->field_0x4];
     parameter = sound->getSeParameter();
     sequence = SequenceMgr::getPlayTrackInfo(seHandle->getTrack());
-    checkPlayingSeUpdateMultiplication(sound, sequence, parameter->field_0x424, parameter->field_0x124,
-                                      seCategoryVolume[sound->getSeCategoryNumber()], 2, &update->field_0x4);
-    checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x428, parameter->field_0x1a4,
-                                4, &update->field_0x10, 0.5f);
-    checkPlayingSeUpdateMultiplication(sound, sequence, parameter->field_0x42c, parameter->field_0x224,
-                                      1.0f, 3, &update->field_0x8);
-    checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x430, parameter->field_0x2a4,
-                                5, &update->field_0xc, 0.0f);
-    checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x438, parameter->field_0x3a4,
-                                6, &update->field_0x14, JAIGlobalParameter::getParamSeDolbyCenterValue() / 127.0f);
+    checkPlayingSeUpdateMultiplication(sound, sequence, parameter->field_0x424, parameter->mVolumes,
+                                      seCategoryVolume[sound->getSeCategoryNumber()], 2, &update->mPlayingVolume);
+    checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x428, parameter->mPans,
+                                4, &update->mPlayingPan, 0.5f);
+    checkPlayingSeUpdateMultiplication(sound, sequence, parameter->field_0x42c, parameter->mPitches,
+                                      1.0f, 3, &update->mPlayingPitch);
+    checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x430, parameter->mFxmixes,
+                                5, &update->mPlayingFxmix, 0.0f);
+    checkPlayingSeUpdateAddition(sound, sequence, parameter->field_0x438, parameter->mDolbys,
+                                6, &update->mPlayingDolby, JAIGlobalParameter::getParamSeDolbyCenterValue() / 127.0f);
     if (sequence->trackupdate[sound->field_0x4] != 0) {
         SystemInterface::setSeqPortargsU32(SequenceMgr::getPlayTrackInfo(seHandle->getTrack()), sound->field_0x4, 1, sequence->trackupdate[sound->field_0x4]);
         sequence->systemTrackParameter[sound->field_0x4].mCommand.addPortCmdOnce();
@@ -566,9 +566,9 @@ void JAInter::SeMgr::releaseSeRegist(JAISound* sound) {
     u8 max = categoryInfoTable[seScene][sound->getSeCategoryNumber() * 2];
     u8 category = sound->getSeCategoryNumber();
     for (u8 i = 0; i < max; i++) {
-        u32 playing = sePlaySound[category][i];
-        if (playing == (u32)sound) {
-            sePlaySound[category][i] = 0;
+        JAISound* playing = sePlaySound[category][i];
+        if (playing == sound) {
+            sePlaySound[category][i] = NULL;
             i = max;
         }
     }
@@ -733,26 +733,26 @@ void JAInter::SeMgr::storeSeBuffer(JAISound** handle, JAInter::Actor* actor, u32
     }
     f32 dolby = JAIGlobalParameter::getParamSeDolbyCenterValue() / 127.0f;
     for (u32 i = 0; i < 8; i++) {
-        parameter->field_0x124[i].init(1.0f);
-        parameter->field_0x1a4[i].init(0.5f);
-        parameter->field_0x224[i].init(1.0f);
-        parameter->field_0x2a4[i].init(0.0f);
+        parameter->mVolumes[i].init(1.0f);
+        parameter->mPans[i].init(0.5f);
+        parameter->mPitches[i].init(1.0f);
+        parameter->mFxmixes[i].init(0.0f);
         parameter->field_0x324[i].init(0.0f);
-        parameter->field_0x3a4[i].init(dolby);
+        parameter->mDolbys[i].init(dolby);
     }
-    parameter->field_0x124[7].init(-1.0f);
-    parameter->field_0x1a4[7].init(-1.0f);
-    parameter->field_0x224[7].init(-1.0f);
-    parameter->field_0x2a4[7].init(-1.0f);
+    parameter->mVolumes[7].init(-1.0f);
+    parameter->mPans[7].init(-1.0f);
+    parameter->mPitches[7].init(-1.0f);
+    parameter->mFxmixes[7].init(-1.0f);
     parameter->field_0x324[7].init(-1.0f);
-    parameter->field_0x3a4[7].init(-1.0f);
+    parameter->mDolbys[7].init(-1.0f);
     parameter->field_0x424 = NULL;
     parameter->field_0x428 = NULL;
     parameter->field_0x42c = NULL;
     parameter->field_0x430 = NULL;
-    parameter->field_0x434 = NULL;
+    parameter->field_0x434 = 0;
     parameter->field_0x438 = NULL;
-    parameter->field_0x0[16] = 0;
+    parameter->field_0x20 = 0;
     sound->field_0x3c = parameter;
     sound->mState = 1;
     sound->field_0x4 = 0xFF;

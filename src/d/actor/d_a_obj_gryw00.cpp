@@ -26,26 +26,27 @@ class daObjGryw00_HIO_c : public JORReflexible {
 public:
     daObjGryw00_HIO_c();
     virtual ~daObjGryw00_HIO_c() {}
+    
+    void genMessage(JORMContext* ctx) { UNUSED(ctx); }
 
 public:
     /* 0x04 */ s8 mNo;
     /* 0x08 */ f32 field_0x08;
-    /* 0x0C */ f32 mGeyserSeLen;
-    /* 0x10 */ u8 mPlayGeyserSe;
-    /* 0x11 */ u8 mPlayWOutSe;
-    /* 0x12 */ u8 mPlayWUpSe;
-};
+    /* 0x0C */ f32 field_0x0C;
+    /* 0x10 */ u8 field_0x10;
+    /* 0x11 */ u8 field_0x11;
+    /* 0x12 */ u8 field_0x12;
+};  // Size: 0x14
 
 static daObjGryw00_HIO_c l_HIO;
 
-/* 000000EC-0000012C       .text __ct__17daObjGryw00_HIO_cFv */
 daObjGryw00_HIO_c::daObjGryw00_HIO_c() {
     mNo = -1;
     field_0x08 = 0.0f;
-    mGeyserSeLen = GEYSER_SOUND_LEN;
-    mPlayGeyserSe = 1;
-    mPlayWOutSe = 1;
-    mPlayWUpSe = 1;
+    field_0x0C = GEYSER_SOUND_LEN;
+    field_0x10 = true;
+    field_0x11 = true;
+    field_0x12 = true;
 }
 #endif
 
@@ -112,19 +113,16 @@ void daObjGryw00_c::set_se() {
     }
     if (mGeyserSeRemaining > 0) {
         mGeyserSeRemaining--;
-#if VERSION == VERSION_DEMO
-        if (l_HIO.mPlayGeyserSe == 1)
-#endif
-        fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_GEYSER, 0);
+        if (DEMO_SELECT(l_HIO.field_0x10, true) == true) {
+            fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_GEYSER, 0);
+        }
     }
-#if VERSION == VERSION_DEMO
-    if (l_HIO.mPlayWOutSe == 1)
-#endif
-    fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_W_OUT, 0);
-#if VERSION == VERSION_DEMO
-    if (l_HIO.mPlayWUpSe == 1)
-#endif
-    fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_W_UP, 0);
+    if (DEMO_SELECT(l_HIO.field_0x11, true) == true) {
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_W_OUT, 0);
+    }
+    if (DEMO_SELECT(l_HIO.field_0x12, true) == true) {
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_RDUN_MAE_W_UP, 0);
+    }
 }
 
 /* 000004C4-00000654       .text CreateHeap__13daObjGryw00_cFv */
@@ -185,7 +183,7 @@ BOOL daObjGryw00_c::Create() {
     fopAcM_SetMtx(this, mpModel->getBaseTRMtx());
 #if VERSION == VERSION_DEMO
     if (l_HIO.mNo < 0) {
-        l_HIO.mNo = mDoHIO_createChild("竜の山ダンジョン前の水", &l_HIO); // "Water in front of Dragon Roost dungeon"
+        l_HIO.mNo = mDoHIO_createChild("竜の山ダンジョン前の水", &l_HIO); // "Water Before Dragon Roost Dungeon"
     }
 #endif
     return TRUE;
@@ -238,11 +236,7 @@ void daObjGryw00_c::switch_wait_act_proc() {
     mWaterLvIncrement = WATER_WAVE_GROWTH_SPEED;
     mWaterMaxLv = 5;
     particle_set();
-#if VERSION == VERSION_DEMO
-    mGeyserSeRemaining = l_HIO.mGeyserSeLen;
-#else
-    mGeyserSeRemaining = GEYSER_SOUND_LEN;
-#endif
+    mGeyserSeRemaining = DEMO_SELECT(l_HIO.field_0x0C, GEYSER_SOUND_LEN);
     mShouldPlaySe = TRUE;
     mIsHidden = FALSE;
     modeFunc = &daObjGryw00_c::spread_water_face_act_proc;

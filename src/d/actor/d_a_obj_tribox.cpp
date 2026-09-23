@@ -178,7 +178,7 @@ void daObjTribox::Act_c::block_init() {
 
 /* 000005C0-00000604       .text chk_light__Q211daObjTribox5Act_cCFv */
 u8 daObjTribox::Act_c::chk_light() const {
-    return dComIfGs_isEventBit(dSv_event_flag_c::UNK_3820) ? 2 : 0;
+    return dComIfGs_isEventBit(dSv_event_flag_c::MOVED_HYRULE_STATUE) ? 2 : 0;
 }
 
 /* 00000604-0000068C       .text correct_before_init__Q211daObjTribox5Act_cFv */

@@ -648,8 +648,8 @@ void JAIZelBasic::resetProcess() {
 
     for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
         JAInter::SeqUpdateData* data = JAInter::SequenceMgr::getPlayTrackInfo(i);
-        if (data && data->field_0x48) {
-            data->field_0x48->setSeqInterVolume(SOUNDPARAM_Direct, 0.0f, 1);
+        if (data && data->mSequence) {
+            data->mSequence->setSeqInterVolume(SOUNDPARAM_Direct, 0.0f, 1);
         }
     }
     if (JAInter::StreamMgr::getUpdateInfo()->mpSound) {
@@ -673,8 +673,8 @@ void JAIZelBasic::resetRecover() {
     }
     for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
         JAInter::SeqUpdateData* data = JAInter::SequenceMgr::getPlayTrackInfo(i);
-        if (data && data->field_0x48 && data->field_0x48 != JAInter::SeMgr::seHandle) {
-            data->field_0x48->stop(0);
+        if (data && data->mSequence && data->mSequence != JAInter::SeMgr::seHandle) {
+            data->mSequence->stop(0);
         }
     }
     setScene(0, dIsleRoom_SeaFloor_e, 0, -1);
@@ -4436,7 +4436,7 @@ int JAIZelBasic::checkStreamPlaying(u32 param_1) {
     if (JAInter::StreamLib::getPlayingFlag() == 0) {
         return false;
     }
-    if (param_1 != sound->mSoundID) {
+    if (param_1 != sound->getID()) {
         return false;
     }
     return true;
@@ -4626,8 +4626,8 @@ JAIZelSound::~JAIZelSound() {}
 BOOL JAIZelBasic::checkSeqIDDemoPlaying(u32 id) {
     for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
         JAInter::SeqUpdateData* info = JAInter::SequenceMgr::getPlayTrackInfo(i);
-        if (info && info->field_0x48) {
-            JAISound* sound = info->field_0x48;
+        if (info && info->mSequence) {
+            JAISound* sound = info->mSequence;
             if (sound != mpMainBgmSound && sound != mpSubBgmSound && sound->getID() != JA_BGM_SE_SEQUENCE && id == sound->getID()) {
                 return 1;
             }
@@ -4680,8 +4680,8 @@ void JAIZelBasic::muteMainBgmAll() {
     field_0x008c = 0.0f;
     for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
         JAInter::SeqUpdateData* info = JAInter::SequenceMgr::getPlayTrackInfo(i);
-        if (info && info->field_0x48) {
-            JAISound* sound = info->field_0x48;
+        if (info && info->mSequence) {
+            JAISound* sound = info->mSequence;
             if (sound->field_0x4 == 0) {
                 sound->setVolume(calcMainBgmVol(), 1, SOUNDPARAM_Unk0);
             }
@@ -4698,8 +4698,8 @@ void JAIZelBasic::unmuteMainBgmAll() {
     field_0x008c = 1.0f;
     for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
         JAInter::SeqUpdateData* info = JAInter::SequenceMgr::getPlayTrackInfo(i);
-        if (info && info->field_0x48) {
-            JAISound* sound = info->field_0x48;
+        if (info && info->mSequence) {
+            JAISound* sound = info->mSequence;
             if (sound->field_0x4 == 0) {
                 sound->setVolume(calcMainBgmVol(), 45, SOUNDPARAM_Unk0);
             }
@@ -4715,8 +4715,8 @@ void JAIZelBasic::unmuteMainBgmAll() {
 void JAIZelBasic::demoBgmStop(u32 i_fadeTime) {
     for (int i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax(); i++) {
         JAInter::SeqUpdateData* info = JAInter::SequenceMgr::getPlayTrackInfo(i);
-        if (info && info->field_0x48) {
-            JAISound* sound = info->field_0x48;
+        if (info && info->mSequence) {
+            JAISound* sound = info->mSequence;
 #if VERSION == VERSION_DEMO
             if (sound != mpMainBgmSound && sound->field_0x4 == 0) {
 #else

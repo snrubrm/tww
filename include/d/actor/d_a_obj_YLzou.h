@@ -1,23 +1,32 @@
 #ifndef D_A_OBJ_YLZOU_H
 #define D_A_OBJ_YLZOU_H
 
-#include "f_op/f_op_actor.h"
-#include "d/d_particle.h"
-#include "d/d_bg_w.h"
 #include "d/d_a_obj.h"
+#include "d/d_particle.h"
+#include "f_op/f_op_actor.h"
+
+class dBgW;
 
 class EffSmokeCB : public dPa_smokeEcallBack {
 public:
     EffSmokeCB() {}
     virtual ~EffSmokeCB() {}
-    /* 0x20 */ cXyz mPos;
-    /* 0x2C */ csXyz mAngle;
-};
+
+public:
+    /* 0x20 */ cXyz field_0x20;
+    /* 0x2C */ csXyz field_0x2C;
+};  // Size: 0x34
 
 class daObjYLzou_c : public fopAc_ac_c {
 public:
-    enum Param_e { PRM_SWSAVE_W = 8, PRM_SWSAVE_S = 0 };
-    int param_get_swSave() const { return daObj::PrmAbstract(this, PRM_SWSAVE_W, PRM_SWSAVE_S); }
+    enum Param_e {
+        PARAM_SWSAVE_W = 8,
+        PARAM_SWSAVE_S = 0,
+    };
+
+    typedef void (daObjYLzou_c::*ProcFunc)();
+
+    s32 param_get_swSave() const { return daObj::PrmAbstract(this, PARAM_SWSAVE_W, PARAM_SWSAVE_S); }
 
     void set_start_type();
     void set_mtx();
@@ -55,27 +64,26 @@ public:
     bool _draw();
 
 public:
-    typedef void (daObjYLzou_c::*Action)();
-
-    /* 0x290 */ request_of_phase_process_class mPhase;
-    /* 0x298 */ J3DModel* mpModel;
-    /* 0x29C */ dBgW* mpBgW;
-    /* 0x2A0 */ Mtx mBgMtx;
-    /* 0x2D0 */ Action mAction;
+    /* 0x290 */ request_of_phase_process_class field_0x290;
+    /* 0x298 */ J3DModel* field_0x298;
+    /* 0x29C */ dBgW* field_0x29C;
+    /* 0x2A0 */ Mtx field_0x2A0;
+    /* 0x2D0 */ void (daObjYLzou_c::*mCurrentActProc)();
     /* 0x2DC */ int mActionIdx;
-    /* 0x2E0 */ int mSwitch;
-    /* 0x2E4 */ s16 mEventIdx;
-    /* 0x2E8 */ int mType;
-    /* 0x2EC */ int mDemo;
-    /* 0x2F0 */ EffSmokeCB mSmoke[2];
-    /* 0x358 */ s16 mVibAngle;
-    /* 0x35C */ f32 mVibAmplitude;
-    /* 0x360 */ u8 mSmokeState;
-    /* 0x361 */ u8 mSmokeNext;
-    /* 0x364 */ int mVibState;
-    /* 0x368 */ int mVibNext;
-};
-
-STATIC_ASSERT(sizeof(daObjYLzou_c) == 0x36C);
+    /* 0x2E0 */ int field_0x2E0;
+    /* 0x2E4 */ s16 field_0x2E4;
+    /* 0x2E6 */ u8 field_0x2E6[0x2E8 - 0x2E6];
+    /* 0x2E8 */ BOOL field_0x2E8;
+    /* 0x2EC */ int mDemoIdx;
+    /* 0x2F0 */ EffSmokeCB mSmokeCbs[2];
+    /* 0x358 */ s16 field_0x358;
+    /* 0x35A */ u8 field_0x35A[0x35C - 0x35A];
+    /* 0x35C */ f32 field_0x35C;
+    /* 0x360 */ u8 field_0x360;
+    /* 0x361 */ u8 field_0x361;
+    /* 0x362 */ u8 field_0x362[0x364 - 0x362];
+    /* 0x364 */ int field_0x364;
+    /* 0x368 */ int field_0x368;
+}; // Size: 0x36C
 
 #endif /* D_A_OBJ_YLZOU_H */

@@ -1,16 +1,11 @@
 /**
  * d_a_obj_YLzou.cpp
- * Object - Hyrule Castle - Link statue
+ * Object - Hyrule Castle - Link Statue / 勇者像 (Yuusha Zou)
  */
 
 #include "d/dolzel_rel.h" // IWYU pragma: keep
 #include "d/actor/d_a_obj_YLzou.h"
-#include "d/d_com_inf_game.h"
-#include "f_op/f_op_actor_mng.h"
-#include "JSystem/JUtility/JUTAssert.h"
-#if VERSION == VERSION_DEMO
-#include "m_Do/m_Do_hostIO.h"
-#endif
+#include "res/Object/YLzou.h"
 
 enum YLzouAction {
     /* 0x00 */ ACTION_MOVE_YLZOU_DEMO_START_WAIT = 0x00,
@@ -38,50 +33,51 @@ enum YLzouDemoNameIdx {
 };
 
 namespace {
-    const char l_arcname[] = "YLzou";
-    const char l_move_ylzou_demo_name[] = "move_YLzou";
-    const char l_go_up_stairs_demo_name[] = "go_up_stairs";
-    const char l_go_up_stairs_demo2_name[] = "go_up_stairs2";
-    const char* l_demo_name[] = {NULL, l_move_ylzou_demo_name, l_go_up_stairs_demo_name, l_go_up_stairs_demo2_name};
-}
+static const char l_arcname[] = "YLzou";
+static const char l_move_ylzou_demo_name[] = "move_YLzou";
+static const char l_go_up_stairs_demo_name[] = "go_up_stairs";
+static const char l_go_up_stairs_demo2_name[] = "go_up_stairs2";
+static const char* l_demo_name[4] = {
+    NULL,
+    l_move_ylzou_demo_name,
+    l_go_up_stairs_demo_name,
+    l_go_up_stairs_demo2_name,
+};
+} // namespace
 
 #if VERSION == VERSION_DEMO
 class daObjYLzou_HIO_c : public JORReflexible {
 public:
     daObjYLzou_HIO_c();
-    virtual ~daObjYLzou_HIO_c() {}
-
-    void genMessage(JORMContext*) {}
+    virtual ~daObjYLzou_HIO_c() {};
+    void genMessage(JORMContext*);
 
 public:
-    /* 0x04 */ s8 mNo;
-    /* 0x08 */ f32 mMaxSpeed;
-    /* 0x0C */ f32 mAccel;
-    /* 0x10 */ f32 mSmokeScale;
-    /* 0x14 */ f32 mVibAngleStep;
-    /* 0x18 */ f32 mVibAmplitudeStep;
-    /* 0x1C */ f32 mVibAmplitudeMax;
-    /* 0x20 */ f32 mVibAmplitudeMin;
-    /* 0x24 */ u8 m24;
-    /* 0x25 */ u8 m25;
-    /* 0x26 */ u8 m26;
-    /* 0x27 */ u8 m27;
-    /* 0x28 */ u8 m28;
-    /* 0x29 */ u8 m29;
-    /* 0x2A */ u8 m2A;
+    /* 0x04*/ s8 mNo;
+    /* 0x08*/ f32 m8;
+    /* 0x0C*/ f32 mC;
+    /* 0x10*/ f32 m10;
+    /* 0x14*/ f32 m14;
+    /* 0x18*/ f32 m18;
+    /* 0x1C*/ f32 m1C;
+    /* 0x20*/ f32 m20;
+    /* 0x24*/ u8 m24;
+    /* 0x25*/ u8 m25;
+    /* 0x26*/ u8 m26;
+    /* 0x27*/ u8 m27;
+    /* 0x28*/ u8 m28;
+    /* 0x29*/ u8 m29;
+    /* 0x2A*/ u8 m2A;
 };
 
-static daObjYLzou_HIO_c l_HIO;
-
-/* 000000EC-0000015C       .text __ct__16daObjYLzou_HIO_cFv */
 daObjYLzou_HIO_c::daObjYLzou_HIO_c() {
     mNo = -1;
-    mMaxSpeed = 6.0f;
-    mAccel = 0.1f;
-    mSmokeScale = 2.0f;
-    mVibAngleStep = 16384.0f;
-    mVibAmplitudeStep = 0.05f;
-    mVibAmplitudeMax = 0.8f;
+    m8 = 6.0f;
+    mC = 0.1f;
+    m10 = 2.0f;
+    m14 = 16384.0f;
+    m18 = 0.05f;
+    m1C = 0.8f;
     m24 = 0;
     m25 = 0;
     m26 = 0;
@@ -99,29 +95,29 @@ void daObjYLzou_c::set_start_type() {
     YLzouDemoNameIdx demo_idx = DEMO_NONE;
     bool statue_moved = false;
 
-    if (!dComIfGs_isEventBit(0x2d04)) {
-        if (mSwitch != 0xFF && fopAcM_isSwitch(this, mSwitch) == FALSE) {
+    if (!dComIfGs_isEventBit(dSv_event_flag_c::MASTER_SWORD_CUTSCENE)) {
+        if (field_0x2E0 != 0xFF && fopAcM_isSwitch(this, field_0x2E0) == FALSE) {
             action_idx = ACTION_MOVE_YLZOU_DEMO_START_WAIT;
             demo_idx = DEMO_MOVE_YLZOU;
         } else {
             action_idx = ACTION_OPEN_WAIT;
             statue_moved = true;
         }
-    } else if (!dComIfGs_isEventBit(0x3a04)) {
+    } else if (!dComIfGs_isEventBit(dSv_event_flag_c::MASTER_SWORD_SWINGING_CUTSCENE)) {
         action_idx = ACTION_OPEN_WAIT;
         statue_moved = true;
-    } else if (!dComIfGs_isEventBit(0x3804)) {
-        if (dComIfGs_isEventBit(0x3820) == TRUE) {
+    } else if (!dComIfGs_isEventBit(dSv_event_flag_c::HYRULE_COURTYARD_CUTSCENE)) {
+        if (dComIfGs_isEventBit(dSv_event_flag_c::MOVED_HYRULE_STATUE) == TRUE) {
             action_idx = ACTION_GO_UP_STAIRS_DEMO_REGIST_WAIT;
             demo_idx = DEMO_GO_UP_STAIRS;
         } else {
             action_idx = ACTION_CLOSE_WAIT_1;
         }
-    } else if (!dComIfGs_isEventBit(0x2d02)) {
+    } else if (!dComIfGs_isEventBit(dSv_event_flag_c::ZELDA_AWAKENED)) {
         action_idx = ACTION_OPEN_WAIT;
         statue_moved = true;
     } else if (dComIfGs_getTriforceNum() < 8) {
-        if (dComIfGs_isEventBit(0x3820) == TRUE) {
+        if (dComIfGs_isEventBit(dSv_event_flag_c::MOVED_HYRULE_STATUE) == TRUE) {
             action_idx = ACTION_GO_UP_STAIRS_DEMO_REGIST_WAIT;
             demo_idx = DEMO_GO_UP_STAIRS;
         } else {
@@ -129,9 +125,9 @@ void daObjYLzou_c::set_start_type() {
         }
     } else {
         triforce_complete = TRUE;
-        if (!dComIfGs_isEventBit(0x2c01)) {
+        if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_2C01)) {
             action_idx = ACTION_CLOSE_WAIT_2;
-        } else if (!dComIfGs_isEventBit(0x3980)) {
+        } else if (!dComIfGs_isEventBit(dSv_event_flag_c::UNK_3980)) {
             action_idx = ACTION_GO_UP_STAIRS2_DEMO_REGIST_WAIT;
             demo_idx = DEMO_GO_UP_STAIRS2;
         } else {
@@ -140,66 +136,77 @@ void daObjYLzou_c::set_start_type() {
     }
 
     mActionIdx = action_idx;
-    mType = triforce_complete;
-    mDemo = demo_idx;
+    field_0x2E8 = triforce_complete;
+    mDemoIdx = demo_idx;
     if (!statue_moved) {
-        dComIfGs_offEventBit(0x3820);
+        dComIfGs_offEventBit(dSv_event_flag_c::MOVED_HYRULE_STATUE);
     } else {
-        dComIfGs_onEventBit(0x3820);
+        dComIfGs_onEventBit(dSv_event_flag_c::MOVED_HYRULE_STATUE);
     }
 }
 
 /* 000002B8-00000374       .text set_mtx__12daObjYLzou_cFv */
 void daObjYLzou_c::set_mtx() {
-    mDoMtx_stack_c::transS(current.pos.x, current.pos.y + mVibAmplitude * cM_ssin(mVibAngle), current.pos.z);
-    mDoMtx_stack_c::XYZrotM(shape_angle.x, shape_angle.y, shape_angle.z);
-    mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
-    mDoMtx_stack_c::scaleM(scale.x, scale.y, scale.z);
-    MTXCopy(mDoMtx_stack_c::get(), mBgMtx);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y + field_0x35C * cM_ssin(field_0x358), current.pos.z);
+    mDoMtx_stack_c::XYZrotM(shape_angle);
+    field_0x298->setBaseTRMtx(mDoMtx_stack_c::get());
+    mDoMtx_stack_c::scaleM(scale);
+    cMtx_copy(mDoMtx_stack_c::get(), field_0x2A0);
 }
 
 /* 00000374-000003B0       .text init_mtx__12daObjYLzou_cFv */
 void daObjYLzou_c::init_mtx() {
-    mpModel->setBaseScale(scale);
+    field_0x298->setBaseScale(scale);
     set_mtx();
 }
 
 /* 000003B0-000003D4       .text solidHeapCB__12daObjYLzou_cFP10fopAc_ac_c */
-BOOL daObjYLzou_c::solidHeapCB(fopAc_ac_c* actor) {
-    return static_cast<daObjYLzou_c*>(actor)->create_heap();
+BOOL daObjYLzou_c::solidHeapCB(fopAc_ac_c* i_this) {
+    return ((daObjYLzou_c*)i_this)->create_heap();
 }
 
 /* 000003D4-000004F4       .text create_heap__12daObjYLzou_cFv */
 bool daObjYLzou_c::create_heap() {
-    bool result = true;
-    static int bdl_table[] = {4, 5};
-    static int dzb_table[] = {8, 9};
-    J3DModelData* data = (J3DModelData*)dComIfG_getObjectRes(l_arcname, bdl_table[mType]);
-    if (!data) {
-        JUT_ASSERT(DEMO_SELECT(404, 408), 0);
-        result = false;
+    static int bdl_table[] = {dRes_INDEX_YLZOU_BDL_YLZOU_e, dRes_INDEX_YLZOU_BDL_YLZOU2_e};
+    static int dzb_table[] = {dRes_INDEX_YLZOU_DZB_YLZOU_e, dRes_INDEX_YLZOU_DZB_YLZOU2_e};
+
+    bool res = true;
+    J3DModelData* model_data = (J3DModelData*)dComIfG_getObjectRes(l_arcname, bdl_table[field_0x2E8]);
+
+    if (model_data == NULL) {
+        JUT_ASSERT(DEMO_SELECT(404, 408), FALSE);
+        res = false;
     } else {
-        mpModel = mDoExt_J3DModel__create(data, 0x80000, 0x11000022);
-        mpBgW = dBgW_NewSet((cBgD_t*)dComIfG_getObjectRes(l_arcname, dzb_table[mType]), 1, (Mtx*)mpModel->getBaseTRMtx());
-        if (!mpModel || !mpBgW) {
-            result = false;
+        J3DModel* model = mDoExt_J3DModel__create(model_data, 0x80000, 0x11000022);
+        field_0x298 = model;
+        model = field_0x298;
+        dBgW* bgw = dBgW_NewSet((cBgD_t*)dComIfG_getObjectRes(l_arcname, dzb_table[field_0x2E8]), cBgW::MOVE_BG_e, &model->getBaseTRMtx());
+        field_0x29C = bgw;
+        if (field_0x298 == NULL || field_0x29C == NULL) {
+            res = false;
         }
     }
-    return result;
+
+    return res;
 }
+
+#if VERSION == VERSION_DEMO
+static daObjYLzou_HIO_c l_HIO;
+#endif
 
 /* 000004F4-00000668       .text eff_set_slip_smoke_pos__12daObjYLzou_cFv */
 void daObjYLzou_c::eff_set_slip_smoke_pos() {
-    static cXyz base_pos[] = {cXyz(-240.0f, 0.0f, -240.0f), cXyz(240.0f, 0.0f, -240.0f)};
-    mDoMtx_stack_c::transS(current.pos.x, -1550.0f + current.pos.y, -1200.0f + current.pos.z);
+    static cXyz base_pos[(int)ARRAY_SIZE(mSmokeCbs)] = {cXyz(-240.0f, 0.0f, -240.0f), cXyz(240.0f, 0.0f, -240.0f)};
+    f32 new_z = current.pos.z + -1200;
+    f32 new_y = current.pos.y + -1550;
+
+    mDoMtx_stack_c::transS(current.pos.x, new_y, new_z);
     mDoMtx_stack_c::YrotM(current.angle.y);
-    for (int i = 0; i < 2; ++i) {
+    for (int i = 0; i < (int)ARRAY_SIZE(mSmokeCbs); ++i) {
         mDoMtx_stack_c::push();
         mDoMtx_stack_c::transM(base_pos[i]);
-        mSmoke[i].mPos.x = mDoMtx_stack_c::get()[0][3];
-        mSmoke[i].mPos.y = mDoMtx_stack_c::get()[1][3];
-        mSmoke[i].mPos.z = mDoMtx_stack_c::get()[2][3];
-        mSmoke[i].mAngle.set(0, current.angle.y, 0);
+        mDoMtx_stack_c::multVecZero(&mSmokeCbs[i].field_0x20);
+        mSmokeCbs[i].field_0x2C.set(0, current.angle.y, 0);
         mDoMtx_stack_c::pop();
     }
 }
@@ -207,14 +214,27 @@ void daObjYLzou_c::eff_set_slip_smoke_pos() {
 /* 000006A4-000007AC       .text eff_smoke_slip_start__12daObjYLzou_cFv */
 void daObjYLzou_c::eff_smoke_slip_start() {
     static cXyz scl(2.0f, 2.0f, 2.0f);
+
     eff_set_slip_smoke_pos();
+
 #if VERSION == VERSION_DEMO
-    scl.set((s16)l_HIO.mSmokeScale, (s16)l_HIO.mSmokeScale, (s16)l_HIO.mSmokeScale);
+    scl.set((s16)l_HIO.m10, (s16)l_HIO.m10, (s16)l_HIO.m10);
 #endif
-    for (int i = 0; i < 2; ++i) {
-        s8 roomNo = fopAcM_GetRoomNo(this);
-        JPABaseEmitter* emitter = dComIfGp_particle_setToon(0x2022, &mSmoke[i].mPos, &mSmoke[i].mAngle, &scl, 0xb9, &mSmoke[i], roomNo);
-        if (emitter) {
+
+    for (int i = 0; i < (int)ARRAY_SIZE(mSmokeCbs); ++i) {
+        JPABaseEmitter* emitter = dComIfGp_particle_setToon(
+            dPa_name::ID_AK_JT_ELEMENTSMOKE00,
+            &mSmokeCbs[i].field_0x20,
+            &mSmokeCbs[i].field_0x2C,
+            &scl,
+            0xB9,
+            &mSmokeCbs[i],
+            fopAcM_GetRoomNo(this),
+            NULL,
+            NULL,
+            NULL
+        );
+        if (emitter != NULL) {
             emitter->setRate(2.0f);
             emitter->setDirectionalSpeed(15.0f);
             emitter->setSpread(0.15f);
@@ -225,133 +245,113 @@ void daObjYLzou_c::eff_smoke_slip_start() {
 
 /* 000007AC-0000080C       .text eff_smoke_slip_end__12daObjYLzou_cFv */
 void daObjYLzou_c::eff_smoke_slip_end() {
-    for (int i = 0; i < 2; ++i) {
-        mSmoke[i].end();
+    for (int i = 0; i < (int)ARRAY_SIZE(mSmokeCbs); ++i) {
+        mSmokeCbs[i].remove();
     }
 }
 
 /* 0000080C-0000086C       .text eff_smoke_slip_remove__12daObjYLzou_cFv */
 void daObjYLzou_c::eff_smoke_slip_remove() {
-    for (int i = 0; i < 2; ++i) {
-        mSmoke[i].end();
+    for (int i = 0; i < (int)ARRAY_SIZE(mSmokeCbs); ++i) {
+        mSmokeCbs[i].remove();
     }
 }
 
 /* 0000086C-000008D0       .text eff_smoke_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::eff_smoke_proc() {
-    if (mSmokeState != mSmokeNext) {
-        if (mSmokeNext == 1) {
+    if (field_0x360 != field_0x361) {
+        if (field_0x361 == 1) {
             eff_smoke_slip_start();
         } else {
             eff_smoke_slip_end();
         }
-        mSmokeState = mSmokeNext;
+        field_0x360 = field_0x361;
     } else {
-        if (mSmokeState == 1) eff_set_slip_smoke_pos();
+        if (field_0x360 == 1) {
+            eff_set_slip_smoke_pos();
+        }
     }
 }
 
 /* 000008D0-000009A4       .text vib_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::vib_proc() {
-    if (mVibState != mVibNext) {
-        mVibState = mVibNext;
+    if (field_0x364 != field_0x368) {
+        field_0x364 = field_0x368;
     }
-    switch (mVibState) {
-    case 1:
-#if VERSION == VERSION_DEMO
-        mVibAngle += (s16)l_HIO.mVibAngleStep;
-        mVibAmplitude += l_HIO.mVibAmplitudeStep;
-        if (mVibAmplitude > l_HIO.mVibAmplitudeMax) {
-            mVibAmplitude = l_HIO.mVibAmplitudeMax;
-        }
-#else
-        mVibAngle += 0x4000;
-        mVibAmplitude += 0.05f;
-        if (mVibAmplitude > 0.8f) {
-            mVibAmplitude = 0.8f;
-        }
-#endif
-        break;
-    case 2:
-#if VERSION == VERSION_DEMO
-        mVibAngle += (s16)l_HIO.mVibAngleStep;
-        mVibAmplitude -= l_HIO.mVibAmplitudeStep;
-        if (mVibAmplitude < l_HIO.mVibAmplitudeMin) {
-            mVibAmplitude = l_HIO.mVibAmplitudeMin;
-        }
-#else
-        mVibAngle += 0x4000;
-        mVibAmplitude -= 0.05f;
-        if (mVibAmplitude < 0.4f) {
-            mVibAmplitude = 0.4f;
-        }
-#endif
-        break;
-    default:
-#if VERSION == VERSION_DEMO
-        mVibAngle += (s16)l_HIO.mVibAngleStep;
-        mVibAmplitude -= 2.0f * l_HIO.mVibAmplitudeStep;
-#else
-        mVibAngle += 0x4000;
-        mVibAmplitude -= 0.1f;
-#endif
-        if (mVibAmplitude < 0.0f) {
-            mVibAmplitude = 0.0f;
-        }
-        break;
+
+    switch (field_0x364) {
+        case 1:
+            field_0x358 += DEMO_SELECT((s16)l_HIO.m14, 0x4000);
+            field_0x35C += DEMO_SELECT(l_HIO.m18, 0.05f);
+            if (field_0x35C > DEMO_SELECT(l_HIO.m1C, 0.8f)) {
+                field_0x35C = DEMO_SELECT(l_HIO.m1C, 0.8f);
+            }
+            break;
+        case 2:
+            field_0x358 += DEMO_SELECT((s16)l_HIO.m14, 0x4000);
+            field_0x35C -= DEMO_SELECT(l_HIO.m18, 0.05f);
+            if (field_0x35C < DEMO_SELECT(l_HIO.m20, 0.4f)) {
+                field_0x35C = DEMO_SELECT(l_HIO.m20, 0.4f);
+            }
+            break;
+        default:
+            field_0x358 += DEMO_SELECT((s16)l_HIO.m14, 0x4000);
+            field_0x35C -= DEMO_SELECT(l_HIO.m18 * 2.0f, 0.1f);
+            if (field_0x35C < 0.0f) {
+                field_0x35C = 0.0f;
+            }
+            break;
     }
 }
 
 /* 000009A4-00000AE0       .text _create__12daObjYLzou_cFv */
 cPhs_State daObjYLzou_c::_create() {
-    fopAcM_SetupActor(this, daObjYLzou_c);
+    static u32 solidHeapSize_table[] = {0x5840, 0x49e0};
+
+    fopAcM_ct(this, daObjYLzou_c);
     if (fopAcM_IsFirstCreating(this)) {
-        mSwitch = param_get_swSave();
+        field_0x2E0 = param_get_swSave();
         set_start_type();
     }
-    cPhs_State phase = dComIfG_resLoad(&mPhase, l_arcname);
-    static u32 solidHeapSize_table[] = {0x5840, 0x49e0};
-    if (phase == cPhs_COMPLEATE_e) {
-        if (fopAcM_entrySolidHeap(this, solidHeapCB, solidHeapSize_table[mType])) {
-            if (dComIfG_Bgsp()->Regist(mpBgW, this)) {
-                phase = cPhs_ERROR_e;
+    cPhs_State cphs_state = dComIfG_resLoad(&field_0x290, l_arcname);
+    if (cphs_state == cPhs_COMPLEATE_e) {
+        if (fopAcM_entrySolidHeap(this, solidHeapCB, solidHeapSize_table[field_0x2E8])) {
+            if (dComIfG_Bgsp()->Regist(field_0x29C, this)) {
+                cphs_state = cPhs_ERROR_e;
             } else {
-                fopAcM_SetMtx(this, mpModel->getBaseTRMtx());
+                fopAcM_SetMtx(this, field_0x298->getBaseTRMtx());
                 setup_action(mActionIdx);
                 init_mtx();
             }
         } else {
-            phase = cPhs_ERROR_e;
+            cphs_state = cPhs_ERROR_e;
         }
     }
 #if VERSION == VERSION_DEMO
     if (l_HIO.mNo < 0) {
-        l_HIO.mNo = mDoHIO_createChild("勇者像", &l_HIO);
+        l_HIO.mNo = mDoHIO_createChild("勇者像", &l_HIO); // Hero Statue
     }
 #endif
-    return phase;
+    return cphs_state;
 }
 
 /* 00000AE0-00000B7C       .text _delete__12daObjYLzou_cFv */
 bool daObjYLzou_c::_delete() {
-    dComIfG_resDelete(&mPhase, l_arcname);
+    dComIfG_resDelete(&field_0x290, l_arcname);
     eff_smoke_slip_remove();
-#if VERSION == VERSION_DEMO
-    if (mpBgW) {
-        if (mpBgW->ChkUsed()) {
-            dComIfG_Bgsp()->Release(mpBgW);
+    if (DEMO_SELECT(TRUE, heap != NULL) && field_0x29C != NULL) {
+        if (field_0x29C->ChkUsed()) {
+            dComIfG_Bgsp()->Release(field_0x29C);
         }
+
+#if VERSION > VERSION_DEMO
+        field_0x29C = NULL;
+#endif
     }
+#if VERSION == VERSION_DEMO
     if (l_HIO.mNo >= 0) {
         mDoHIO_deleteChild(l_HIO.mNo);
         l_HIO.mNo = -1;
-    }
-#else
-    if (heap && mpBgW) {
-        if (mpBgW->ChkUsed()) {
-            dComIfG_Bgsp()->Release(mpBgW);
-        }
-        mpBgW = NULL;
     }
 #endif
     return true;
@@ -359,130 +359,118 @@ bool daObjYLzou_c::_delete() {
 
 /* 00000B7C-00000BD8       .text move_ylzou_demo_start_wait_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_start_wait_act_proc() {
-    if (mSwitch != 0xff && dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this)) == 1) {
-        setup_action(1);
+    if (field_0x2E0 != 0xFF) {
+        if (fopAcM_isSwitch(this, field_0x2E0) == TRUE) {
+            setup_action(ACTION_MOVE_YLZOU_DEMO_REGIST_WAIT);
+        }
     }
 #if VERSION == VERSION_DEMO
     if (l_HIO.m24 == 1) {
-        setup_action(4);
+        setup_action(ACTION_MOVE_YLZOU_DEMO_MOVE);
     } else if (l_HIO.m26 == 1) {
-        setup_action(1);
+        setup_action(ACTION_MOVE_YLZOU_DEMO_REGIST_WAIT);
     }
 #endif
 }
 
 /* 00000BD8-00000C70       .text demo_regist_wait_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_regist_wait_act_proc() {
-    if (mEventIdx != -1) {
+    if (field_0x2E4 != -1) {
         if (eventInfo.checkCommandDemoAccrpt()) {
             setup_action(mActionIdx + 1);
         } else {
-            fopAcM_orderOtherEventId(this, mEventIdx);
+            fopAcM_orderOtherEventId(this, field_0x2E4);
         }
     } else {
-        mEventIdx = dComIfGp_evmng_getEventIdx(l_demo_name[mDemo]);
+        field_0x2E4 = dComIfGp_evmng_getEventIdx(l_demo_name[mDemoIdx]);
     }
 }
 
 /* 00000C70-00000D18       .text demo_vib_start_wait_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_vib_start_wait_act_proc() {
-#if VERSION == VERSION_DEMO
-    if (dComIfGp_evmng_existence(mEventIdx)) {
-#else
-    if (dComIfGp_getPEvtManager()->getEventData(mEventIdx)) {
-#endif
-        int staff = dComIfGp_evmng_getMyStaffId("YLzou");
-        if (staff != -1 && !strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff), "Vibrate")) {
-            setup_action(mActionIdx + 1);
+    if (dComIfGp_evmng_existence(field_0x2E4)) {
+        int staff_idx = dComIfGp_evmng_getMyStaffId("YLzou", NULL, 0);
+        if (staff_idx != -1) {
+            if (strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff_idx), "Vibrate") == 0) {
+                setup_action(mActionIdx + 1);
+            }
         }
     }
 }
 
 /* 00000D18-00000E08       .text demo_vib_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_vib_act_proc() {
-#if VERSION == VERSION_DEMO
-    if (dComIfGp_evmng_existence(mEventIdx)) {
-#else
-    if (dComIfGp_getPEvtManager()->getEventData(mEventIdx)) {
-#endif
-        int staff = dComIfGp_evmng_getMyStaffId("YLzou");
-        if (staff != -1 && !strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff), "Move")) {
-            setup_action(mActionIdx + 1);
+    if (dComIfGp_evmng_existence(field_0x2E4)) {
+        int staff_idx = dComIfGp_evmng_getMyStaffId("YLzou", NULL, 0);
+        if (staff_idx != -1) {
+            if (strcmp(dComIfGp_getPEvtManager()->getMyNowCutName(staff_idx), "Move") == 0) {
+                setup_action(mActionIdx + 1);
+            }
         }
     }
-    fopAcM_seStartCurrent(this, 0x6225, 0);
+    fopAcM_seStartCurrent(this, JA_SE_OBJ_H_STATUE_VIB, 0);
 }
 
 /* 00000E08-00000F0C       .text move_ylzou_demo_move_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_move_act_proc() {
-    if (current.pos.z < -680.0f + home.pos.z) {
+    if (current.pos.z < home.pos.z + -680) {
 #if VERSION == VERSION_DEMO
         if (l_HIO.m24 == 1) {
             l_HIO.m24 = 0;
             speedF = 0.0f;
-            mSmokeNext = 0;
+            field_0x361 = 0;
             dComIfGp_getVibration().StopQuake(-1);
-            mVibNext = 0;
-            setup_action(6);
-        } else {
-            l_HIO.m26 = 0;
-            fopAcM_seStartCurrent(this, 0x6a27, 0);
-            setup_action(5);
+            field_0x368 = 0;
+            setup_action(ACTION_OPEN_WAIT);
+            return;
         }
-#else
-        fopAcM_seStartCurrent(this, 0x6a27, 0);
-        setup_action(5);
+        l_HIO.m26 = 0;
 #endif
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_H_STATUE_STOP, 0);
+        setup_action(ACTION_MOVE_YLZOU_DEMO_END_WAIT);
     } else {
-#if VERSION == VERSION_DEMO
-        speedF += l_HIO.mAccel;
-        if (speedF > l_HIO.mMaxSpeed) {
-            speedF = l_HIO.mMaxSpeed;
+        speedF += DEMO_SELECT(l_HIO.mC, 0.1f);
+        if (speedF > DEMO_SELECT(l_HIO.m8, 6.0f)) {
+            speedF = DEMO_SELECT(l_HIO.m8, 6.0f);
         }
-#else
-        speedF += 0.1f;
-        if (speedF > 6.0f) {
-            speedF = 6.0f;
-        }
-#endif
-        fopAcM_seStartCurrent(this, 0x6226, 0);
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_H_STATUE_MOVE, 0);
     }
 }
 
 /* 00000F0C-00001008       .text go_up_stairs_demo_move_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::go_up_stairs_demo_move_act_proc() {
     if (current.pos.z > home.pos.z) {
-        fopAcM_seStartCurrent(this, 0x6a27, 0);
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_H_STATUE_STOP, 0);
 #if VERSION == VERSION_DEMO
         l_HIO.m24 = 0;
 #endif
-        setup_action(10);
+        setup_action(ACTION_GO_UP_STAIRS_DEMO_END_WAIT);
     } else {
-#if VERSION == VERSION_DEMO
-        speedF += l_HIO.mAccel;
-        if (speedF > l_HIO.mMaxSpeed) {
-            speedF = l_HIO.mMaxSpeed;
+        speedF += DEMO_SELECT(l_HIO.mC, 0.1f);
+        if (speedF > DEMO_SELECT(l_HIO.m8, 6.0f)) {
+            speedF = DEMO_SELECT(l_HIO.m8, 6.0f);
         }
-#else
-        speedF += 0.1f;
-        if (speedF > 6.0f) {
-            speedF = 6.0f;
-        }
-#endif
-        fopAcM_seStartCurrent(this, 0x6226, 0);
+
+        fopAcM_seStartCurrent(this, JA_SE_OBJ_H_STATUE_MOVE, 0);
     }
 }
 
 /* 00001008-000010A8       .text demo_end_wait_act_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_end_wait_act_proc() {
-    static int next_act_idx[] = {-1, 6, 11, 12};
-    if (dComIfGp_evmng_endCheck(mEventIdx)) {
+    static int next_act_idx[4] = {
+        -1,
+        ACTION_OPEN_WAIT,
+        ACTION_CLOSE_WAIT_1,
+        ACTION_CLOSE_WAIT_2,
+    };
+
+    if (dComIfGp_evmng_endCheck(field_0x2E4)) {
         dComIfGp_event_reset();
-        if (mActionIdx == 14) {
-            dComIfGs_onEventBit(0x3980);
+        if (mActionIdx == ACTION_GO_UP_STAIRS2_DEMO_END_WAIT) {
+            dComIfGs_onEventBit(dSv_event_flag_c::UNK_3980);
         }
-        fopAcM_OffStatus(this, 0x4000);
-        setup_action(next_act_idx[mDemo]);
+        fopAcM_OffStatus(this, fopAcStts_UNK4000_e);
+        setup_action(next_act_idx[mDemoIdx]);
     }
 }
 
@@ -490,91 +478,102 @@ void daObjYLzou_c::demo_end_wait_act_proc() {
 void daObjYLzou_c::wait_act_proc() {
 #if VERSION == VERSION_DEMO
     if (l_HIO.m25 == 1) {
-        dComIfGs_offEventBit(0x3820);
-        setup_action(0);
+        dComIfGs_offEventBit(dSv_event_flag_c::MOVED_HYRULE_STATUE);
+        setup_action(ACTION_MOVE_YLZOU_DEMO_START_WAIT);
     }
 #endif
 }
 
 /* 000010AC-000010D8       .text move_ylzou_demo_start_wait_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_start_wait_act_init_proc() {
-    mEventIdx = -1;
-    home.pos.set(0.0f, 0.0f, 0.0f);
-    current.pos.set(0.0f, 0.0f, 0.0f);
+    field_0x2E4 = -1;
+    home.pos.x = 0.0f;
+    home.pos.y = 0.0f;
+    home.pos.z = 0.0f;
+    current.pos.x = 0.0f;
+    current.pos.y = 0.0f;
+    current.pos.z = 0.0f;
 }
 
 /* 000010D8-00001174       .text demo_regist_wait_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_regist_wait_act_init_proc() {
-    if (mDemo != 1) {
-        dComIfGp_getPEvtManager()->cancelStartDemo();
-        fopAcM_OnStatus(this, 0x4000);
+    if (mDemoIdx != DEMO_MOVE_YLZOU) {
+        dComIfGp_evmng_cancelStartDemo();
+        fopAcM_OnStatus(this, fopAcStts_UNK4000_e);
     }
-    mEventIdx = dComIfGp_evmng_getEventIdx(l_demo_name[mDemo]);
-    fopAcM_orderOtherEventId(this, mEventIdx);
+
+    field_0x2E4 = dComIfGp_evmng_getEventIdx(l_demo_name[mDemoIdx]);
+    fopAcM_orderOtherEventId(this, field_0x2E4, 0xFF, 0xFFFF, 0, 1);
 }
 
 /* 00001174-000011A4       .text move_ylzou_demo_vib_start_wait_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_vib_start_wait_act_init_proc() {
-    dComIfGs_onEventBit(0x3820);
+    dComIfGs_onEventBit(dSv_event_flag_c::MOVED_HYRULE_STATUE);
 }
 
 /* 000011A4-0000120C       .text move_ylzou_demo_vib_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_vib_act_init_proc() {
-    dComIfGp_getVibration().StartQuake(6, 1, cXyz(0.0f, 1.0f, 0.0f));
-    mVibNext = 1;
+    dComIfGp_getVibration().StartQuake(6, 1, cXyz(0, 1, 0));
+    field_0x368 = 1;
 }
 
 /* 0000120C-00001228       .text move_ylzou_demo_move_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::move_ylzou_demo_move_act_init_proc() {
-    mSmokeNext = 1;
-    mVibNext = 2;
-    current.angle.y = -0x8000;
+    field_0x361 = 1;
+    field_0x368 = 2;
+    current.angle.y = SHRT_MIN;
 }
 
 /* 00001228-000012C8       .text demo_end_wait_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::demo_end_wait_act_init_proc() {
     speedF = 0.0f;
-    mSmokeNext = 0;
-#if VERSION > VERSION_DEMO
-    if (mDemo != 3)
-#endif
-    {
+    field_0x361 = 0;
+    if (DEMO_SELECT(TRUE, mDemoIdx != DEMO_GO_UP_STAIRS2)) {
         dComIfGp_getVibration().StopQuake(-1);
-        dComIfGp_getVibration().StartShock(8, 1, cXyz(0.0f, 1.0f, 0.0f));
+        dComIfGp_getVibration().StartShock(8, 1, cXyz(0, 1, 0));
     }
-    mVibNext = 0;
+    field_0x368 = 0;
 }
 
 /* 000012C8-000012F4       .text open_wait_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::open_wait_act_init_proc() {
-    home.pos.set(0.0f, 0.0f, -680.0f);
-    current.pos.set(0.0f, 0.0f, -680.0f);
+    home.pos.x = 0.0f;
+    home.pos.y = 0.0f;
+    home.pos.z = -680.0f;
+    current.pos.x = 0.0f;
+    current.pos.y = 0.0f;
+    current.pos.z = -680.0f;
 }
 
 /* 000012F4-00001318       .text close_wait_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::close_wait_act_init_proc() {
-    home.pos.set(0.0f, 0.0f, 0.0f);
-    current.pos.set(0.0f, 0.0f, 0.0f);
+    home.pos.x = 0.0f;
+    home.pos.y = 0.0f;
+    home.pos.z = 0.0f;
+    current.pos.x = 0.0f;
+    current.pos.y = 0.0f;
+    current.pos.z = 0.0f;
 }
 
 /* 00001318-000013A4       .text go_up_stairs_demo_move_start_wait_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::go_up_stairs_demo_move_start_wait_act_init_proc() {
     current.angle.y = 0;
-    home.pos.set(0.0f, 0.0f, 0.0f);
-    current.pos.set(0.0f, 0.0f, -680.0f);
-    dComIfGp_getVibration().StartQuake(6, 1, cXyz(0.0f, 1.0f, 0.0f));
-    mVibNext = 1;
+    home.pos.set(0, 0, 0);
+    current.pos.set(0, 0, -680);
+
+    dComIfGp_getVibration().StartQuake(6, 1, cXyz(0, 1, 0));
+    field_0x368 = 1;
 }
 
 /* 000013A4-000013B8       .text go_up_stairs_demo_move_act_init_proc__12daObjYLzou_cFv */
 void daObjYLzou_c::go_up_stairs_demo_move_act_init_proc() {
-    mSmokeNext = 1;
-    mVibNext = 2;
+    field_0x361 = 1;
+    field_0x368 = 2;
 }
 
 /* 000013B8-00001740       .text setup_action__12daObjYLzou_cFi */
-void daObjYLzou_c::setup_action(int action) {
-    static Action act_init_proc[] = {
+void daObjYLzou_c::setup_action(int i_action_idx) {
+    static ProcFunc act_init_proc[15] = {
         &daObjYLzou_c::move_ylzou_demo_start_wait_act_init_proc,
         &daObjYLzou_c::demo_regist_wait_act_init_proc,
         &daObjYLzou_c::move_ylzou_demo_vib_start_wait_act_init_proc,
@@ -589,9 +588,10 @@ void daObjYLzou_c::setup_action(int action) {
         &daObjYLzou_c::close_wait_act_init_proc,
         &daObjYLzou_c::close_wait_act_init_proc,
         &daObjYLzou_c::demo_regist_wait_act_init_proc,
-        &daObjYLzou_c::demo_end_wait_act_init_proc
+        &daObjYLzou_c::demo_end_wait_act_init_proc,
     };
-    static Action act_proc[] = {
+
+    static ProcFunc act_proc[15] = {
         &daObjYLzou_c::move_ylzou_demo_start_wait_act_proc,
         &daObjYLzou_c::demo_regist_wait_act_proc,
         &daObjYLzou_c::demo_vib_start_wait_act_proc,
@@ -606,36 +606,39 @@ void daObjYLzou_c::setup_action(int action) {
         &daObjYLzou_c::wait_act_proc,
         &daObjYLzou_c::wait_act_proc,
         &daObjYLzou_c::demo_regist_wait_act_proc,
-        &daObjYLzou_c::demo_end_wait_act_proc
+        &daObjYLzou_c::demo_end_wait_act_proc,
     };
-    (this->*act_init_proc[action])();
-    mAction = act_proc[action];
-    mActionIdx = action;
+
+    (this->*act_init_proc[i_action_idx])();
+    mCurrentActProc = act_proc[i_action_idx];
+    mActionIdx = i_action_idx;
 }
 
 /* 00001740-000017D4       .text _execute__12daObjYLzou_cFv */
 bool daObjYLzou_c::_execute() {
     fopAcM_posMoveF(this, NULL);
     set_mtx();
-    if (mpBgW && mpBgW->ChkUsed()) {
-        mpBgW->Move();
+    if (field_0x29C != NULL) {
+        if (field_0x29C->ChkUsed()) {
+            field_0x29C->Move();
+        }
     }
-    (this->*mAction)();
+    (this->*mCurrentActProc)();
 #if VERSION == VERSION_DEMO
     if (l_HIO.m29 == 1) {
         if (l_HIO.m27 == 1) {
-            mSmokeNext = 1;
+            field_0x361 = 1;
         } else {
-            mSmokeNext = 0;
+            field_0x361 = 0;
         }
     }
     if (l_HIO.m2A == 1) {
         if (l_HIO.m28 == 1) {
             dComIfGp_getVibration().StartQuake(6, 1, cXyz(0.0f, 1.0f, 0.0f));
-            mVibNext = 1;
+            field_0x368 = 1;
         } else {
             dComIfGp_getVibration().StopQuake(-1);
-            mVibNext = 0;
+            field_0x368 = 0;
         }
     }
 #endif
@@ -646,9 +649,9 @@ bool daObjYLzou_c::_execute() {
 
 /* 000017D4-00001834       .text _draw__12daObjYLzou_cFv */
 bool daObjYLzou_c::_draw() {
-    g_env_light.settingTevStruct(1, &current.pos, &tevStr);
-    g_env_light.setLightTevColorType(mpModel, &tevStr);
-    mDoExt_modelUpdateDL(mpModel);
+    g_env_light.settingTevStruct(TEV_TYPE_BG0, &current.pos, &tevStr);
+    g_env_light.setLightTevColorType(field_0x298, &tevStr);
+    mDoExt_modelUpdateDL(field_0x298);
     return true;
 }
 

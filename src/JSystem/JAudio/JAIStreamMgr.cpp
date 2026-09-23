@@ -162,7 +162,7 @@ void JAInter::StreamMgr::storeStreamBuffer(JAISound** param_1, JAInter::Actor* p
     para->init();
     sound->mState = SOUNDSTATE_Stored;
     sound->field_0x6 = 10;
-    streamUpdate->field_0x2 = 0;
+    streamUpdate->mPrepareFlag = 0;
     sound->initParameter(param_1, param_2, param_3, param_4, param_5, param_6);
 }
 
@@ -241,7 +241,7 @@ void JAInter::StreamMgr::checkRequestStream() {
     if (sound->mState != SOUNDSTATE_Ready) {
         return;
     }
-    if (streamUpdate->field_0x2) {
+    if (streamUpdate->mPrepareFlag) {
         return;
     }
     sound->mState = SOUNDSTATE_Playing;

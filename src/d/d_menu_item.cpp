@@ -515,38 +515,38 @@ void dMenu_Item_c::checkMove() {
             if (dMeter_subWinFlag()) {
                 if (sel >= dInvSlot_ReserveFirst_e) {
                     if (m2405 == 2) {
-                        sel = sel - dInvSlot_ReserveFirst_e;
+                        sel -= dInvSlot_ReserveFirst_e;
                         m2030[i].mPosCenter.x = mE78[sel].mPosCenter.x;
                         m2030[i].mPosCenter.y = mE78[sel].mPosCenter.y;
                         m231C->insertChild(m1230.pane, m2030[i].pane);
                     } else {
-                        u8 slot = fopMsgM_itemNum(dItemNo_DELIVERY_BAG_e);
-                        m2030[i].mPosCenter.x = m1658[slot].mPosCenterOrig.x;
-                        m2030[i].mPosCenter.y = m1658[slot].mPosCenterOrig.y;
+                        sel = fopMsgM_itemNum(dItemNo_DELIVERY_BAG_e);
+                        m2030[i].mPosCenter.x = m1658[sel].mPosCenterOrig.x;
+                        m2030[i].mPosCenter.y = m1658[sel].mPosCenterOrig.y;
                         m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
                     }
                 } else if (sel >= dInvSlot_BaitFirst_e) {
                     if (m2405 == 1) {
-                        sel = sel - dInvSlot_BaitFirst_e;
+                        sel -= dInvSlot_BaitFirst_e;
                         m2030[i].mPosCenter.x = mE78[sel].mPosCenter.x;
                         m2030[i].mPosCenter.y = mE78[sel].mPosCenter.y;
                         m231C->insertChild(m1230.pane, m2030[i].pane);
                     } else {
-                        u8 slot = fopMsgM_itemNum(dItemNo_BAIT_BAG_e);
-                        m2030[i].mPosCenter.x = m1658[slot].mPosCenterOrig.x;
-                        m2030[i].mPosCenter.y = m1658[slot].mPosCenterOrig.y;
+                        sel = fopMsgM_itemNum(dItemNo_BAIT_BAG_e);
+                        m2030[i].mPosCenter.x = m1658[sel].mPosCenterOrig.x;
+                        m2030[i].mPosCenter.y = m1658[sel].mPosCenterOrig.y;
                         m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
                     }
                 } else if (sel >= dInvSlot_BeastFirst_e) {
                     if (m2405 == 0) {
-                        sel = sel - dInvSlot_BeastFirst_e;
+                        sel -= dInvSlot_BeastFirst_e;
                         m2030[i].mPosCenter.x = mE78[sel].mPosCenter.x;
                         m2030[i].mPosCenter.y = mE78[sel].mPosCenter.y;
                         m231C->insertChild(m1230.pane, m2030[i].pane);
                     } else {
-                        u8 slot = fopMsgM_itemNum(dItemNo_SPOILS_BAG_e);
-                        m2030[i].mPosCenter.x = m1658[slot].mPosCenterOrig.x;
-                        m2030[i].mPosCenter.y = m1658[slot].mPosCenterOrig.y;
+                        sel = fopMsgM_itemNum(dItemNo_SPOILS_BAG_e);
+                        m2030[i].mPosCenter.x = m1658[sel].mPosCenterOrig.x;
+                        m2030[i].mPosCenter.y = m1658[sel].mPosCenterOrig.y;
                         m231C->insertChild(m1AF0[20].pane, m2030[i].pane);
                     }
                 } else {
