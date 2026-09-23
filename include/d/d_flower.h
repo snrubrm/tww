@@ -46,6 +46,8 @@ public:
 
     dFlower_room_c();
 
+    dFlower_data_c* getData() { return field_0x0; }
+
     /* 0x0 */ dFlower_data_c* field_0x0;
 }; // Size: 0x4
 

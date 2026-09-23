@@ -340,7 +340,7 @@ void dFlower_packet_c::draw() {
         GXSetTevColor(GX_TEVREG1, tevstr->mColorK0);
         dKy_GxFog_tevstr_set(tevstr);
 
-        dFlower_data_c* pNext = pRoom->field_0x0;
+        dFlower_data_c* pNext = pRoom->getData();
         while(pNext) {
             if(!cLib_checkBit<u8>(pNext->field_0x00, 0x4) && !cLib_checkBit<u8>(pNext->field_0x00, 0x20)) {
                 GXLoadPosMtxImm(pNext->field_0x10, 0);
@@ -368,7 +368,7 @@ void dFlower_packet_c::draw() {
         GXSetTevColorS10(GX_TEVREG0, tevstr->mColorC0);
         GXSetTevColor(GX_TEVREG1, tevstr->mColorK0);
 
-        dFlower_data_c* pNext = pRoom->field_0x0;
+        dFlower_data_c* pNext = pRoom->getData();
         while(pNext) {
             if(!cLib_checkBit<u8>(pNext->field_0x00, 0x4) && cLib_checkBit<u8>(pNext->field_0x00, 0x20)) {
                 GXLoadPosMtxImm(pNext->field_0x10, 0);
