@@ -1118,7 +1118,7 @@ fpc_ProcID daNpc_Ko1_c::partner_srch_sub(void* (*judge)(void*, void*)) {
     }
     fpcM_Search(judge, this);
     if (l_check_wrk != 0) {
-        id = fpcM_GetID(l_check_inf[0]);
+        id = fopAcM_GetID(l_check_inf[0]);
     }
     return id;
 }
