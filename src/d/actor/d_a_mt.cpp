@@ -2779,7 +2779,7 @@ static cPhs_State daMt_Create(fopAc_ac_c* i_this) {
             a_this->m2BB = a_this->m2B8 + 1;
         }
 
-        i_this->cullMtx = a_this->mpMorf[1]->getModel()->getBaseTRMtx();
+        fopAcM_SetMtx(i_this, a_this->mpMorf[1]->getModel()->getBaseTRMtx());
         i_this->cull.box.min.x = -200.0f;
         i_this->cull.box.min.y = -200.0f;
         i_this->cull.box.min.z = -200.0f;
