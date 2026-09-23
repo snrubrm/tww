@@ -2816,7 +2816,7 @@ void daNpc_Cb1_c::setBaseMtx() {
 
         mDoMtx_stack_c::transS(current.pos.x, current.pos.y + 25.0f, current.pos.z);
         mDoMtx_stack_c::YrotM(shape_angle.y);
-        mDoMtx_stack_c::transM(m904);
+        mDoMtx_stack_c::transM(m904.x, m904.y, m904.z);
         mDoMtx_stack_c::XrotM(shape_angle.x);
         mDoMtx_stack_c::transM(0.0f, -25.0f, 0.0f);
         mDoMtx_stack_c::ZrotM(shape_angle.z);
