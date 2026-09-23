@@ -215,9 +215,7 @@ void JPABaseEmitter::calcEmitterInfo() {
     MTXConcat(emtrInfo.mEmitterGlobalRot, mtxScale, emtrInfo.mEmitterGlobalSR);
     JPAGetDirMtx(mEmitterDir, emtrInfo.mEmitterDirMtx);
     emtrInfo.mEmitterGlobalScale.mul(mEmitterScale, mGlobalDynamicsScale);
-    emtrInfo.mEmitterTranslation.x = mEmitterTranslation.x;
-    emtrInfo.mEmitterTranslation.y = mEmitterTranslation.y;
-    emtrInfo.mEmitterTranslation.z = mEmitterTranslation.z;
+    emtrInfo.mEmitterTranslation.set(mEmitterTranslation);
     emtrInfo.mPublicScale.mul(mGlobalDynamicsScale, JGeometry::TVec3<f32>(1.0f, 1.0f, 1.0f));
     MTXMultVec(mtx, mEmitterTranslation, emtrInfo.mEmitterGlobalCenter);
 }
