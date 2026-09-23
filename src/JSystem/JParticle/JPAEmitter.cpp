@@ -291,7 +291,7 @@ void JPABaseEmitter::createChildren(JPABaseParticle* ptcl) {
         JPABaseParticle * chld = getPtclFromVacList();
         if (chld == NULL)
             break;
-        mChildParticles.prepend(&chld->mLink);
+        mChildParticles.prepend(chld->getLinkBufferPtr());
         chld->initChild(ptcl);
         mDraw.initChild(ptcl, chld);
     }
@@ -301,7 +301,7 @@ void JPABaseEmitter::createChildren(JPABaseParticle* ptcl) {
 JPABaseParticle * JPABaseEmitter::createParticle() {
     JPABaseParticle * ptcl = getPtclFromVacList();
     if (ptcl != NULL) {
-        mActiveParticles.prepend(&ptcl->mLink);
+        mActiveParticles.prepend(ptcl->getLinkBufferPtr());
         (this->*mVolumeFunc)();
         ptcl->initParticle();
         mDraw.initParticle(ptcl);
@@ -393,8 +393,8 @@ void JPABaseEmitter::calcKey() {
 /* 8025DA90-8025DAD8       .text deleteParticle__14JPABaseEmitterFP15JPABaseParticleP26JSUList<15JPABaseParticle> */
 void JPABaseEmitter::deleteParticle(JPABaseParticle* ptcl, JSUList<JPABaseParticle>* list) {
     JSUPtrList * ptrlist = list;
-    ptrlist->remove(&ptcl->mLink);
-    mpPtclVacList->prepend(&ptcl->mLink);
+    ptrlist->remove(ptcl->getLinkBufferPtr());
+    mpPtclVacList->prepend(ptcl->getLinkBufferPtr());
 }
 
 /* 8025DAD8-8025DB68       .text deleteAllParticle__14JPABaseEmitterFv */
@@ -419,7 +419,7 @@ JPABaseParticle * JPABaseEmitter::getPtclFromVacList() {
     JPABaseParticle * ptcl = NULL;
     if (mpPtclVacList->getNumLinks() != 0) {
         ptcl = (JPABaseParticle*)mpPtclVacList->getFirstLink()->getObjectPtr();
-        mpPtclVacList->remove(&ptcl->mLink);
+        mpPtclVacList->remove(ptcl->getLinkBufferPtr());
     }
     return ptcl;
 }
