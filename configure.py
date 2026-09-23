@@ -1682,7 +1682,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_npc_btsw2"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_co1"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_de1"),
-    ActorRel(NonMatching, "d_a_npc_ds1"),
+    ActorRel(Equivalent, "d_a_npc_ds1"), # Orphan .rodata constant (@5746) from a stripped function shifts literal offsets
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_gk1"),
     ActorRel(NonMatching, "d_a_npc_gp1"),
     ActorRel(Matching,    "d_a_npc_hi1"),
