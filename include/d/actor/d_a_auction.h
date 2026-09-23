@@ -40,7 +40,7 @@ public:
     void onCamera(unsigned char) {}
     void onCameraOld(unsigned char) {}
     void setAucMdlNo(u8 idx, u8 mdlNo) { mAucMdlNo[idx] = mdlNo; }
-    void setItemNo(unsigned char) {}
+    void setItemNo(u8 no) { mCurrAuctionItemIndex = no; }
     void setKind(u8 idx, u8 kind) { mKind[idx] = kind; }
     BOOL setNpcID(int idx, fpc_ProcID id) {
         if (m738[idx] == fpcM_ERROR_PROCESS_ID_e) {
@@ -49,7 +49,7 @@ public:
         }
         return FALSE;
     }
-    void setStart(unsigned char) {}
+    void setStart(u8 start) { m821 = start; }
 
     cPhs_State _create();
     BOOL createHeap();

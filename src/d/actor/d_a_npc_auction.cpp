@@ -480,10 +480,10 @@ void daNpcAuction_c::wait_action() {
                 daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
                 if (auction != NULL) {
                     if (m745 == 1) {
-                        auction->m821 = 1;
+                        auction->setStart(1);
                     } else if (m745 == 2) {
-                        auction->m821 = 2;
-                        auction->mCurrAuctionItemIndex = m743;
+                        auction->setStart(2);
+                        auction->setItemNo(m743);
                     }
                 }
             }
@@ -537,10 +537,10 @@ void daNpcAuction_c::eventMove() {
             daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
             if (auction != NULL) {
                 if (m745 == 1) {
-                    auction->m821 = 1;
+                    auction->setStart(1);
                 } else if (m745 == 2) {
-                    auction->m821 = 2;
-                    auction->mCurrAuctionItemIndex = m743;
+                    auction->setStart(2);
+                    auction->setItemNo(m743);
                 }
             }
         }
