@@ -2628,7 +2628,7 @@ s32 dMsg_demoProc(sub_msg_class* i_Msg) {
         local_64[0] = 0.0f;
         for (int i = 0; i < mBeatNum[melody_no]; i++) {
             s32 lStack_68;
-            local_64[i + 1] = mDoAud_tact_getMelodyPattern((u8)melody_no, i, &lStack_68);
+            local_64[i + 1] = mDoAud_tact_getMelodyPattern((u32)melody_no, i, &lStack_68);
             local_64[i + 1] += local_64[i];
         }
         if (i_Msg->m1100 == 0) {
