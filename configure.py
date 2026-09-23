@@ -944,7 +944,7 @@ config.libs = [
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JAZelAudio/JAIZelAnime.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JAZelAudio/JAIZelAtmos.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelInst.cpp"),
-            Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "JAZelAudio/JAIZelParam.cpp"),
+            Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"),    "JAZelAudio/JAIZelParam.cpp"),
             Object(Matching, "JAZelAudio/JAIZelCharVoiceTable.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelScene.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelSound.cpp"),
@@ -1309,7 +1309,7 @@ config.libs = [
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/direct_io.c"),
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/file_io.c", extra_cflags=["-inline noauto"]),
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/FILE_POS.c"),
-            Object(NonMatching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/locale.c"), # Demo-only TU
+            Object(MatchingFor("D44J01"), "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/locale.c"), # Demo-only TU
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"), "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/mbstring.c", extra_cflags=["-inline noauto"]),
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/mem.c"),
             Object(Matching, "PowerPC_EABI_Support/MSL/MSL_C/MSL_Common/Src/mem_funcs.c"),
