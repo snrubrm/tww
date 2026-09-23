@@ -624,7 +624,7 @@ void JAInter::SequenceMgr::storeSeqBuffer(JAISound** handle, Actor* actor, u32 s
         }
         sound->getSeqParameter()->init();
         playing = sound;
-        playing->mSoundID = soundID;
+        playing->setID(soundID);
         playing->getSeqParameter()->field_0x135c = &seqTrackInfo[track];
         playing->field_0x4 = track;
         seqTrackInfo[track].field_0x8 = 1;

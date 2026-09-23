@@ -155,7 +155,7 @@ public:
     void setDemoPitch(f32 f1, u32 r4) { setPitch(f1, r4, 3); }
     void setDemoVolume(f32 f1, u32 r4) { setVolume(f1, r4, SOUNDPARAM_Unk3); }
     void setFadetime(u32) {}
-    void setID(u32) {}
+    void setID(u32 id) { mSoundID = id; }
     void setMainSoundPPointer(JAISound**) {}
     void setNextSound(JAISound*) {}
     void setPrevSound(JAISound*) {}
