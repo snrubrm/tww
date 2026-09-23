@@ -273,6 +273,7 @@ static void hand_move(sitem_class* i_this) {
     f32 approach, maxSpeed, extension, length, lengthStep, wave;
     cXyz offset, direction, target, center;
     dBgS_GndChk ground;
+    bool turn = false;
     bool cut = false;
     approach = 0.1f;
     maxSpeed = 8.0f;
@@ -323,7 +324,7 @@ static void hand_move(sitem_class* i_this) {
         break;
     case 6:
         cut = true;
-        wave = extension;
+        wave = 0.0f;
         i_this->mHitTimer = 10;
         if (i_this->mTimers[0] < 40) {
             lengthStep = 0.05f * length;
@@ -353,8 +354,8 @@ static void hand_move(sitem_class* i_this) {
         cLib_addCalc2(&i_this->mPos.y, target.y, approach, actor->speedF);
         cLib_addCalc2(&i_this->mPos.z, target.z, approach, actor->speedF);
 #if VERSION == VERSION_DEMO
-        if (cut) {
-            cLib_addCalcAngleS2(&actor->current.angle.y, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)), 0x10, 0x800);
+        if (turn && actor->current.angle.x == 0) {
+            cLib_addCalcAngleS2(&actor->current.angle.y, fopAcM_searchPlayerAngleY(actor), 0x10, 0x800);
         }
 #endif
         control1(i_this);
@@ -433,7 +434,8 @@ static void hand_move(sitem_class* i_this) {
                 actor->speed.x = cM_rndFX(10.0f);
                 actor->speed.y = 10.0f + cM_rndF(5.0f);
                 actor->speed.z = cM_rndFX(10.0f);
-                cXyz scale(0.3f, 0.3f, 0.3f);
+                cXyz scale;
+                scale.set(0.3f, 0.3f, 0.3f);
                 dComIfGp_particle_set(0x16, &actor->eyePos, NULL, &scale);
                 i_this->mSmokeActive = true;
                 hit = 1;
