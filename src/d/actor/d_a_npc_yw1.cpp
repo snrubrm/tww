@@ -939,21 +939,16 @@ int daNpc_Yw1_c::wait_3() {
     return 1;
 }
 
-// NONMATCHING - the target shares one targetSpeed = 0.0f block between both failed conditions
+// NONMATCHING - .rodata offsets, see the note above lookBack
 int daNpc_Yw1_c::walk_1() {
     if (chk_brkTsubo()) return 1;
     if (!mPathEnd && mPath.chkPointPass(current.pos, (bool) mPath.getDir())) mPathEnd = !mPath.nextIdx();
     f32 targetSpeed;
-    if (!mPathEnd) {
-        bool outside = !chk_areaIN(l_HIO.mChild[mType].mPrm.areaRadius, 100.0f, 0x4000, current.pos);
-        if (outside && !mTalking && !chk_bm1Odoroki()) {
-            cXyz pos = mPath.getPoint(mPath.getIdx());
-            int angle = cLib_targetAngleY(&current.pos, &pos);
-            cLib_addCalcAngleS(&current.angle.y, angle, l_HIO.mChild[mType].mPrm.walkTurnRate, l_HIO.mChild[mType].mPrm.walkTurnSpeed, 0);
-            targetSpeed = l_HIO.mChild[mType].mPrm.walkSpeed;
-        } else {
-            targetSpeed = 0.0f;
-        }
+    if (!mPathEnd && chk_areaIN(l_HIO.mChild[mType].mPrm.areaRadius, 100.0f, 0x4000, current.pos) == false && !mTalking && !chk_bm1Odoroki()) {
+        cXyz pos = mPath.getPoint(mPath.getIdx());
+        int angle = cLib_targetAngleY(&current.pos, &pos);
+        cLib_addCalcAngleS(&current.angle.y, angle, l_HIO.mChild[mType].mPrm.walkTurnRate, l_HIO.mChild[mType].mPrm.walkTurnSpeed, 0);
+        targetSpeed = l_HIO.mChild[mType].mPrm.walkSpeed;
     } else {
         targetSpeed = 0.0f;
     }
