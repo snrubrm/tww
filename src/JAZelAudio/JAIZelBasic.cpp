@@ -4282,10 +4282,10 @@ BOOL JAIZelBasic::check1stDynamicWave() {
     u32 first = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][0];
     u32 second = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][1];
     if (first) {
-        firstStatus = 2 - JAInter::BankWave::getWaveLoadStatus(first);
+        firstStatus = 2 - getWaveLoadStatus(first);
     }
     if (second) {
-        secondStatus = 2 - JAInter::BankWave::getWaveLoadStatus(second);
+        secondStatus = 2 - getWaveLoadStatus(second);
     }
     return (firstStatus << 8) + secondStatus;
 }
@@ -4341,7 +4341,7 @@ static void dummy2() {
 
 /* 802AB888-802AB8B0       .text checkFirstWaves__11JAIZelBasicFv */
 s32 JAIZelBasic::checkFirstWaves() {
-    return 2 - JAInter::BankWave::getWaveLoadStatus(2);
+    return 2 - getWaveLoadStatus(2);
 }
 
 /* 802AB8B0-802AB9F4       .text setLinkHp__11JAIZelBasicFll */

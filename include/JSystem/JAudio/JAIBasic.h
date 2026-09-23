@@ -109,7 +109,7 @@ public:
     void getInitOnCodeSeScene() {}
     void getSceneSetFlag() {}
     void getSeSoundHandle() {}
-    void getWaveLoadStatus(s32) {}
+    s32 getWaveLoadStatus(s32 wave) { return JAInter::BankWave::getWaveLoadStatus(wave); }
     void initAudio(JKRSolidHeap* heap, u32 size, u8 flag) {
         initDriver(heap, size, flag);
         initInterface(flag);
