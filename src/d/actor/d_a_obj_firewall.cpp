@@ -176,13 +176,14 @@ void daObjFirewall_c::setPointLight() {
         mLights[i].mFluctuation = 250.0f;
         if (mLightStrength > 1.0f) {
             cXyz pos = mLightPos[i];
-            cXyz scl(1.5f * mLightStrength, 1.5f * mLightStrength, 1.5f * mLightStrength);
+            cXyz scl;
+            scl.setall(1.5f * mLightStrength);
             pos.y += 1.1f * ((220.0f + REG12_F(1)) * mLightStrength);
 #if VERSION == VERSION_DEMO
             if (mpKageroEmitter[i] == NULL) {
                 mpKageroEmitter[i] = dComIfGp_particle_setProjection(0x4004, &pos, NULL, &scl);
             } else {
-                mpKageroEmitter[i]->setGlobalParticleScale(scl);
+                mpKageroEmitter[i]->setGlobalParticleScale(JGeometry::TVec3<f32>(scl.x, scl.y, scl.z));
                 if (REG12_S(1) == 0) {
                     mpKageroEmitter[i]->setGlobalTranslation(pos.x, pos.y, pos.z);
                 }
