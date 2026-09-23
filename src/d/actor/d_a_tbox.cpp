@@ -656,9 +656,7 @@ void daTbox_c::demoProcOpen() {
 /* 00001890-00001A40       .text demoInitAppear_Tact__8daTbox_cFv */
 void daTbox_c::demoInitAppear_Tact() {
     csXyz angle;
-    angle.x = current.angle.x;
-    angle.y = current.angle.y;
-    angle.z = current.angle.z;
+    angle = current.angle;
 
     dComIfGp_particle_set(dPa_name::ID_AK_SN_WINDCHEST01, &current.pos, &angle);
     dComIfGp_particle_set(dPa_name::ID_AK_SN_WINDCHEST00, &current.pos, &angle);
