@@ -102,7 +102,7 @@ static BOOL daNpc_Mn_nodeCallBack(J3DNode* node, int phase) {
             cMtx_ZrotM(*calc_mtx, -npc->m_jnt.getBackbone_x());
         }
 #else
-        cMtx_copy(model->getAnmMtx(joint), *calc_mtx);
+        MTXCopy(model->getAnmMtx(joint), *calc_mtx);
         if (joint == npc->m_jnt.getHeadJntNum()) {
             mDoMtx_XrotM(*calc_mtx, npc->m_jnt.getHead_y());
             mDoMtx_ZrotM(*calc_mtx, -npc->m_jnt.getHead_x());
@@ -114,7 +114,7 @@ static BOOL daNpc_Mn_nodeCallBack(J3DNode* node, int phase) {
 #endif
         MtxP mtx = *calc_mtx;
         model->setAnmMtx(joint, mtx);
-        cMtx_copy(*calc_mtx, J3DSys::mCurrentMtx);
+        MTXCopy(*calc_mtx, J3DSys::mCurrentMtx);
     }
     return TRUE;
 }
