@@ -221,7 +221,7 @@ public:
     void draw(JPABaseEmitter*);
 
     JPABaseEmitter* getEmitter() { return mpBaseEmitter; }
-    void isStatus(u8) {}
+    u32 isStatus(u8 flag) { return mFlags & flag; }
     void offStatus(int flag) { mFlags &= ~flag; }
     void onStatus(int flag) { mFlags |= flag;}
     void remove() { end(); }

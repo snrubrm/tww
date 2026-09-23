@@ -1020,7 +1020,7 @@ void dPa_rippleEcallBack::setup(JPABaseEmitter* emitter, const cXyz* pos, const 
     emitter->setParticleCallBackPtr(dPa_control_c::getRipplePcallBack());
     mPos = pos;
     mRate = 1.0f;
-    mFlags |= 1;
+    onStatus(1);
     mpBaseEmitter = emitter;
 }
 
@@ -1040,7 +1040,7 @@ void dPa_rippleEcallBack::end() {
 void dPa_rippleEcallBack::execute(JPABaseEmitter* emtr) {
     emtr->setGlobalTranslation(mPos->x, mPos->y, mPos->z);
     emtr->setRate(mRate * 0.1333f + 0.0667f);
-    if (mFlags & 1) {
+    if (isStatus(1)) {
         GXColor amb, dif;
         dKy_get_seacolor(&amb, &dif);
         emtr->setGlobalPrmColor(amb.r, amb.g, amb.b);
