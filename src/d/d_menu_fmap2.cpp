@@ -2596,7 +2596,6 @@ void dMenu_Fmap2_c::paneScaleXYChild(fopMsgM_pane_class* pane, f32 scale) {
 }
 
 /* 801C5BF4-801C5D6C       .text paneTransSelCmapCle__13dMenu_Fmap2_cFsUcffffUcUci */
-// NONMATCHING - demo only: the two differences are scheduled before the multiplies in the target
 BOOL dMenu_Fmap2_c::paneTransSelCmapCle(s16 param_1, u8 param_2, f32 param_3, f32 param_4, f32 param_5, f32 param_6, u8 param_7, u8 param_8, int param_9) {
     if (param_1 < 0) {
         return false;
@@ -2606,8 +2605,10 @@ BOOL dMenu_Fmap2_c::paneTransSelCmapCle(s16 param_1, u8 param_2, f32 param_3, f3
     }
     int i;
     f32 f29 = fopMsgM_valueIncrease(param_2, param_1, param_7);
-    f32 dt = f29 * (param_6 - param_5);
-    f32 ds = f29 * (param_4 - param_3);
+    f32 transDiff = param_6 - param_5;
+    f32 scaleDiff = param_4 - param_3;
+    f32 dt = f29 * transDiff;
+    f32 ds = f29 * scaleDiff;
     for (i = 0; i < 2; i++) {
         fopMsgM_paneScaleXY(&field_0x1244[param_8][i], param_3 + ds);
         fopMsgM_paneTrans(&field_0x1244[param_8][i], param_5 + dt, 0.0f);
