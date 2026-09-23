@@ -4216,13 +4216,13 @@ void JAIZelBasic::load1stDynamicWave() {
         JAInter::BankWave::setWsGroupNumber(field_0x0230, -1);
     }
     if (field_0x0231 && field_0x022f) {
-        JAInter::BankWave::loadSceneWave(field_0x022f, 0);
+        loadSceneWave(field_0x022f, 0);
     }
     if (mSetNum) {
         u32 first = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][0];
         u32 second = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][1];
-        if (first) JAInter::BankWave::loadSceneWave(first, 0);
-        if (second) JAInter::BankWave::loadSceneWave(second, 0);
+        if (first) loadSceneWave(first, 0);
+        if (second) loadSceneWave(second, 0);
     }
     field_0x022c = 0;
     field_0x1f3c = 0;
@@ -4314,8 +4314,8 @@ void JAIZelBasic::load2ndDynamicWave() {
     if (field_0x0237) {
         u32 first = m_dy_wave_set_2nd[mSecondDynamicSceneWaveIndex][0];
         u32 second = m_dy_wave_set_2nd[mSecondDynamicSceneWaveIndex][1];
-        if (first) JAInter::BankWave::loadSceneWave(first, 0);
-        if (second) JAInter::BankWave::loadSceneWave(second, 0);
+        if (first) loadSceneWave(first, 0);
+        if (second) loadSceneWave(second, 0);
     }
     if (stream) {
         bgmStreamPrepare(stream);

@@ -114,7 +114,7 @@ public:
         initDriver(heap, size, flag);
         initInterface(flag);
     }
-    void loadSceneWave(s32, s32) {}
+    void loadSceneWave(s32 wave, s32 param_2) { JAInter::BankWave::loadSceneWave(wave, param_2); }
     void setInitDataInfo(char*) {}
     void setInitOnCodeSeScene(u32*) {}
 
