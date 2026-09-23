@@ -161,7 +161,7 @@ static void yari_off_check(mo2_class* i_this) {
     if (i_this->mSpawnWeaponActor != 0) {
         i_this->m05AE = l_mo2HIO.m08A;
         MTXCopy(i_this->mpMorf->getModel()->getAnmMtx(MO_JNT_MO_YARI_e), *calc_mtx);
-        local_48.setall(0.0f);
+        local_48.set(0.0f, 0.0f, 0.0f);
         MtxPosition(&local_48, &cStack_54);
         i_this->mWeaponPcId = fopAcM_create(fpcNm_BOKO_e, daBoko_c::Type_MOBLIN_SPEAR_e, &cStack_54, fopAcM_GetRoomNo(actor));
         i_this->mbThrowWeapon = 1;
@@ -589,7 +589,7 @@ static void ke_disp(mo2_class* i_this) {
     fopAc_ac_c* actor = &i_this->actor;
     ke_s* pkVar2 = i_this->m0DD8;
     cM_initRnd2(0xC, 0x7B, 0x32);
-    wind.setall(0.0f);
+    wind.set(0.0f, 0.0f, 0.0f);
     for (s32 i = 0; i < 16; i++, pkVar2++) {
         ke_control(i_this, pkVar2, i);
         ke_draw(i_this, pkVar2, i);
