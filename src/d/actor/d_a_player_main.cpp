@@ -485,7 +485,7 @@ static BOOL daPy_jointCallback0(J3DNode* node, int calcTiming) {
 
 /* 80103F28-80104178       .text jointCB1__9daPy_lk_cFv */
 BOOL daPy_lk_c::jointCB1() {
-    if (m_old_fdata->getOldFrameFlg() == false) {
+    if (!m_old_fdata->getOldFrameFlg()) {
         return false;
     }
 
