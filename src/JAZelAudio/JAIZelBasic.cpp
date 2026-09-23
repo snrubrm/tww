@@ -2434,7 +2434,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
                 i_variation = 9;
             }
         }
-        if (field_0x0045 == 1) {
+        if (getLinkSwShieldBeat() == 1) {
             seStart(JA_SE_LK_FT_SW_SHIELD, i_sePos, 0, i_reverb, 1.0f, 1.0f, -1.0f, -1.0f, 0);
         }
         break;

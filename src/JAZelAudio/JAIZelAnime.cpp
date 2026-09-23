@@ -134,7 +134,7 @@ void JAIZelAnime::startAnimSound(void* i_basic, u32 i_soundID, JAISound** i_soun
         break;
     }
 
-    if (basic->field_0x0045 == 1) {
+    if (basic->getLinkSwShieldBeat() == 1) {
         switch (i_soundID) {
         case JA_SE_LK_FT_BOUND:
             break;

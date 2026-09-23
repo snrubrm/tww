@@ -174,7 +174,7 @@ public:
     void checkTBoxDemo() {}
     JAInter::Camera* getCurCamera(u32 i_no) { return &mAudioCamera[i_no]; }
     u8 getLinkBootsType() { return field_0x0046; }
-    void getLinkSwShieldBeat() {}
+    u8 getLinkSwShieldBeat() { return field_0x0045; }
     BOOL isTaktUsing() { return field_0x0207; }
 
     static JAIZelBasic* getInterface() { return zel_basic; }
