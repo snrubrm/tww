@@ -47,17 +47,17 @@ const dCcD_SrcCps daObjFlame::Act_c::M_cps_src = {
 const daObjFlame::Act_c::AttrScale_c daObjFlame::Act_c::M_attr_scl[4] = {
     {
         1.0f, 1.0f, 1.0f, 1.0f,
-        dRes_INDEX_YFIRE_00_BMD_YFIRE_00_e, dRes_INDEX_YFIRE_00_BTK_YFIRE_00_e, dRes_INDEX_YFIRE_00_BRK_YFIRE_00_e, 0x52e0,
+        dRes_INDEX_YFIRE_00_BMD_YFIRE_00_e, dRes_INDEX_YFIRE_00_BTK_YFIRE_00_e, dRes_INDEX_YFIRE_00_BRK_YFIRE_00_e, DEMO_SELECT(0x5740, 0x52e0),
         1.0f, 1.0f, dPa_name::ID_AK_SN_O_FIRESHAFTFOOT, true, true,
         1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
         -150, -1, -150, 150, 1500, 150,
         0.7f,
     },
     {
-        4.3333335f, 3.3333335f, 1.0f, 0.815f,
-        dRes_INDEX_YFIRE_00_BMD_YFIRB_00_e, dRes_INDEX_YFIRE_00_BTK_YFIRB_00_e, -1, 0x62a0,
+        4.3333335f, 3.3333335f, 1.0f, DEMO_SELECT(0.69f, 0.815f),
+        dRes_INDEX_YFIRE_00_BMD_YFIRB_00_e, dRes_INDEX_YFIRE_00_BTK_YFIRB_00_e, -1, DEMO_SELECT(0x6760, 0x62a0),
         1.0f, 0.5f, dPa_name::ID_AK_SN_FIRESHAFTFOOTBIG, false, false,
-        4.3333335f, 2.7166667f, 4.3333335f, 2.7166667f, 0.8666667f, 0.54333335f,
+        4.3333335f, 3.3333335f * DEMO_SELECT(0.69f, 0.815f), 4.3333335f, 3.3333335f * DEMO_SELECT(0.69f, 0.815f), 0.8666667f, 0.6666667f * DEMO_SELECT(0.69f, 0.815f),
         -700, -1, -700, 700, 7500, 700,
         0.0f,
     },
@@ -71,7 +71,7 @@ const daObjFlame::Act_c::AttrScale_c daObjFlame::Act_c::M_attr_scl[4] = {
     },
     {
         0.5f, 0.5f, 0.5f, 0.5f,
-        dRes_INDEX_YFIRE_00_BMD_YFIRE_00_e, dRes_INDEX_YFIRE_00_BTK_YFIRE_00_e, dRes_INDEX_YFIRE_00_BRK_YFIRE_00_e, 0x52e0,
+        dRes_INDEX_YFIRE_00_BMD_YFIRE_00_e, dRes_INDEX_YFIRE_00_BTK_YFIRE_00_e, dRes_INDEX_YFIRE_00_BRK_YFIRE_00_e, DEMO_SELECT(0x5740, 0x52e0),
         1.0f, 1.0f, dPa_name::ID_AK_SN_O_FIRESHAFTFOOT, false, true,
         0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f,
         -75, -1, -75, 75, 750, 75,
@@ -418,7 +418,7 @@ void* daObjFlame::Act_c::liftup_mflft(void* candidate, void* arg) {
         f32 maxHeight;
         if (lift->m29A == 0) {
             targetScale = 1.0f;
-            targetExtra = 1.0004418f;
+            targetExtra = DEMO_SELECT(1.1816812f, 1.0004418f);
             maxHeight = 5000.0f;
         } else {
             targetScale = 1.0f;
@@ -614,7 +614,7 @@ cPhs_State daObjFlame::Act_c::_create() {
             mOrigScale = scale;
             if (mType == 1) {
                 m46C = 1.0f;
-                mExtraScaleY = 1.0004418f;
+                mExtraScaleY = DEMO_SELECT(1.1816812f, 1.0004418f);
             } else {
                 m46C = 1.0f;
                 mExtraScaleY = 1.0f;

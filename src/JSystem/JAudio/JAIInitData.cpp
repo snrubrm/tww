@@ -86,10 +86,9 @@ void JAInter::InitData::checkInitDataOnMemory() {
             r30 += 3;
             break;
         case 5:
-            StreamMgr::initOnCodeStrm = (JAInter::streamList_t*)transInitDataFile((u8*)(aafPointer + r30), 8);
-            // fakematch?
-            *(JAInter::streamList_t**)StreamMgr::initOnCodeStrm = (JAInter::streamList_t*)transInitDataFile((u8*)aafPointer + aafPointer[r30], aafPointer[r30 + 1]);
-            StreamMgr::streamList = *(JAInter::streamList_t**)StreamMgr::initOnCodeStrm;
+            StreamMgr::initOnCodeStrm = (JAInter::streamList_t**)transInitDataFile((u8*)(aafPointer + r30), 8);
+            *StreamMgr::initOnCodeStrm = (JAInter::streamList_t*)transInitDataFile((u8*)aafPointer + aafPointer[r30], aafPointer[r30 + 1]);
+            StreamMgr::streamList = *StreamMgr::initOnCodeStrm;
             r30 += 3;
             break;
         case 6: {

@@ -106,17 +106,16 @@ BOOL daNpc_Uk_c::chkPositioning(f32 distance, f32 minY, f32 maxY, s16 minAngle, 
 }
 
 /* 0000045C-000008B0       .text nextVisitMode__10daNpc_Uk_cFv */
-// NONMATCHING - retail: the first leader null check and load use the call result register instead of leader's
 u8 daNpc_Uk_c::nextVisitMode() {
     cXyz delta;
-    daNpc_Mk_c* leader = (daNpc_Mk_c*)fopAcM_SearchByID(mLeaderID);
+    fopAc_ac_c* leader = fopAcM_SearchByID(mLeaderID);
     daPy_lk_c* player = daPy_getPlayerLinkActorClass();
     u8 mode;
 
     if (leader == NULL) {
         mVisitMode = 0;
     } else {
-        mode = leader->mVisitMode;
+        mode = static_cast<daNpc_Mk_c*>(leader)->mVisitMode;
     }
 
     if (mVisitMode == 10 && mWaitTimer != 0) {
@@ -125,11 +124,11 @@ u8 daNpc_Uk_c::nextVisitMode() {
     }
 
     if (mVisitMode == 0) {
-        leader = (daNpc_Mk_c*)fopAcM_searchFromName("Mk", 0xFF, 1);
+        leader = fopAcM_searchFromName("Mk", 0xFF, 1);
 
         if (leader != NULL) {
             mLeaderID = fopAcM_GetID(leader);
-            mode = leader->mVisitMode;
+            mode = static_cast<daNpc_Mk_c*>(leader)->mVisitMode;
         } else {
             return 0;
         }
@@ -1622,9 +1621,9 @@ bool daNpc_Uk_c::demoProc() {
                 dComIfGp_getVibration().StartShock(4, -33, cXyz(0.0f, 1.0f, 0.0f));
 
                 if (mEventAction == 12) {
-                    static cXyz particleScale(0.6f, 0.6f, 0.6f);
+                    static cXyz scale(0.6f, 0.6f, 0.6f);
 
-                    JPABaseEmitter* emitter = dComIfGp_particle_set(0x23, &current.pos, &current.angle, &particleScale);
+                    JPABaseEmitter* emitter = dComIfGp_particle_set(0x23, &current.pos, &current.angle, &scale);
 
                     if (emitter != NULL) {
                         emitter->setRate(18.0f);

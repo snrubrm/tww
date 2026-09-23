@@ -299,10 +299,10 @@ void daObjVtil_c::to_throw_mode() {
 }
 
 /* 00000F14-00000FDC       .text calc_throw__11daObjVtil_cCFPfPfPf */
-// NONMATCHING - instruction order: the target loads the sea height before current.pos.y
+// Retail NONMATCHING - instruction order: the target loads the sea height before current.pos.y
 void daObjVtil_c::calc_throw(float* grav, float* drag, float* drag2) const {
-    if (mAcch.m_flags & dBgS_Acch::SEA_IN) {
-        f32 distance = current.pos.y - mAcch.m_sea_height;
+    if (mAcch.ChkSeaIn()) {
+        f32 distance = current.pos.y - mAcch.GetSeaHeight();
         f32 depth;
         if (distance >= 0.0f) {
             depth = 0.0f;

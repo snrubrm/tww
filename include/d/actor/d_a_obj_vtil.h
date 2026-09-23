@@ -53,7 +53,7 @@ public:
     static const char M_arcname[];
     /* 0x290 */ J3DModel* mpModel;
     /* 0x294 */ request_of_phase_process_class mPhase;
-    /* 0x29C */ dBgS_ObjAcch mAcch;
+    /* 0x29C */ mutable dBgS_ObjAcch mAcch;
     /* 0x460 */ dBgS_AcchCir mAcchCir;
     /* 0x4A0 */ dCcD_Stts mStts;
     /* 0x4DC */ dCcD_Cyl mCyl;

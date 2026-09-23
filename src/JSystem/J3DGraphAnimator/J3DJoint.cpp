@@ -91,7 +91,7 @@ void J3DMtxCalcBasic::calc(u16 jnt_no) {
 }
 
 /* 802F52BC-802F5508       .text calcTransform__19J3DMtxCalcSoftimageFUsRC16J3DTransformInfo */
-// NONMATCHING - the target materialises &mtx (r3) before the scaled stores instead of at the setAnmMtx call
+// NONMATCHING - one remaining 1.0f literal relocation differs in .sdata2
 void J3DMtxCalcSoftimage::calcTransform(u16 jnt_no, const J3DTransformInfo& info) {
     Mtx mtx;
     J3DGetTranslateRotateMtx(
@@ -116,18 +116,20 @@ void J3DMtxCalcSoftimage::calcTransform(u16 jnt_no, const J3DTransformInfo& info
         var2 = 0;
     }
     if (!var2) {
-        mtx[0][0] = J3DSys::mCurrentMtx[0][0] * J3DSys::mCurrentS.x;
-        mtx[0][1] = J3DSys::mCurrentMtx[0][1] * J3DSys::mCurrentS.y;
-        mtx[0][2] = J3DSys::mCurrentMtx[0][2] * J3DSys::mCurrentS.z;
-        mtx[0][3] = J3DSys::mCurrentMtx[0][3];
-        mtx[1][0] = J3DSys::mCurrentMtx[1][0] * J3DSys::mCurrentS.x;
-        mtx[1][1] = J3DSys::mCurrentMtx[1][1] * J3DSys::mCurrentS.y;
-        mtx[1][2] = J3DSys::mCurrentMtx[1][2] * J3DSys::mCurrentS.z;
-        mtx[1][3] = J3DSys::mCurrentMtx[1][3];
-        mtx[2][0] = J3DSys::mCurrentMtx[2][0] * J3DSys::mCurrentS.x;
-        mtx[2][1] = J3DSys::mCurrentMtx[2][1] * J3DSys::mCurrentS.y;
-        mtx[2][2] = J3DSys::mCurrentMtx[2][2] * J3DSys::mCurrentS.z;
-        mtx[2][3] = J3DSys::mCurrentMtx[2][3];
+        f32* p = mtx[0];
+        f32* q = J3DSys::mCurrentMtx[0];
+        *p++ = *q++ * J3DSys::mCurrentS.x;
+        *p++ = *q++ * J3DSys::mCurrentS.y;
+        *p++ = *q++ * J3DSys::mCurrentS.z;
+        *p++ = *q++;
+        *p++ = *q++ * J3DSys::mCurrentS.x;
+        *p++ = *q++ * J3DSys::mCurrentS.y;
+        *p++ = *q++ * J3DSys::mCurrentS.z;
+        *p++ = *q++;
+        *p++ = *q++ * J3DSys::mCurrentS.x;
+        *p++ = *q++ * J3DSys::mCurrentS.y;
+        *p++ = *q++ * J3DSys::mCurrentS.z;
+        *p++ = *q++;
         J3DModel* model = j3dSys.getModel();
         model->setAnmMtx(jnt_no, mtx);
     } else {

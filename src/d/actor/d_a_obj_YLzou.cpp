@@ -12,6 +12,31 @@
 #include "m_Do/m_Do_hostIO.h"
 #endif
 
+enum YLzouAction {
+    /* 0x00 */ ACTION_MOVE_YLZOU_DEMO_START_WAIT = 0x00,
+    /* 0x01 */ ACTION_MOVE_YLZOU_DEMO_REGIST_WAIT = 0x01,
+    /* 0x02 */ ACTION_MOVE_YLZOU_DEMO_VIB_START_WAIT = 0x02,
+    /* 0x03 */ ACTION_MOVE_YLZOU_DEMO_VIB = 0x03,
+    /* 0x04 */ ACTION_MOVE_YLZOU_DEMO_MOVE = 0x04,
+    /* 0x05 */ ACTION_MOVE_YLZOU_DEMO_END_WAIT = 0x05,
+    /* 0x06 */ ACTION_OPEN_WAIT = 0x06,
+    /* 0x07 */ ACTION_GO_UP_STAIRS_DEMO_REGIST_WAIT = 0x07,
+    /* 0x08 */ ACTION_GO_UP_STAIRS_DEMO_MOVE_START_WAIT = 0x08,
+    /* 0x09 */ ACTION_GO_UP_STAIRS_DEMO_MOVE = 0x09,
+    /* 0x0A */ ACTION_GO_UP_STAIRS_DEMO_END_WAIT = 0x0A,
+    /* 0x0B */ ACTION_CLOSE_WAIT_1 = 0x0B,
+    /* 0x0C */ ACTION_CLOSE_WAIT_2 = 0x0C,
+    /* 0x0D */ ACTION_GO_UP_STAIRS2_DEMO_REGIST_WAIT = 0x0D,
+    /* 0x0E */ ACTION_GO_UP_STAIRS2_DEMO_END_WAIT = 0x0E,
+};
+
+enum YLzouDemoNameIdx {
+    /* 0x00 */ DEMO_NONE,
+    /* 0x01 */ DEMO_MOVE_YLZOU,
+    /* 0x02 */ DEMO_GO_UP_STAIRS,
+    /* 0x03 */ DEMO_GO_UP_STAIRS2,
+};
+
 namespace {
     const char l_arcname[] = "YLzou";
     const char l_move_ylzou_demo_name[] = "move_YLzou";
@@ -69,53 +94,55 @@ daObjYLzou_HIO_c::daObjYLzou_HIO_c() {
 
 /* 000000EC-000002B8       .text set_start_type__12daObjYLzou_cFv */
 void daObjYLzou_c::set_start_type() {
-    int type = 0;
-    int demo = 0;
-    u8 opened = 0;
-    int action;
+    YLzouAction action_idx;
+    BOOL triforce_complete = FALSE;
+    YLzouDemoNameIdx demo_idx = DEMO_NONE;
+    bool statue_moved = false;
+
     if (!dComIfGs_isEventBit(0x2d04)) {
-        if (mSwitch != 0xff && !dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this))) {
-            action = 0;
-            demo = 1;
+        if (mSwitch != 0xFF && fopAcM_isSwitch(this, mSwitch) == FALSE) {
+            action_idx = ACTION_MOVE_YLZOU_DEMO_START_WAIT;
+            demo_idx = DEMO_MOVE_YLZOU;
         } else {
-            action = 6;
-            opened = 1;
+            action_idx = ACTION_OPEN_WAIT;
+            statue_moved = true;
         }
     } else if (!dComIfGs_isEventBit(0x3a04)) {
-        action = 6;
-        opened = 1;
+        action_idx = ACTION_OPEN_WAIT;
+        statue_moved = true;
     } else if (!dComIfGs_isEventBit(0x3804)) {
-        if (dComIfGs_isEventBit(0x3820) == 1) {
-            action = 7;
-            demo = 2;
+        if (dComIfGs_isEventBit(0x3820) == TRUE) {
+            action_idx = ACTION_GO_UP_STAIRS_DEMO_REGIST_WAIT;
+            demo_idx = DEMO_GO_UP_STAIRS;
         } else {
-            action = 11;
+            action_idx = ACTION_CLOSE_WAIT_1;
         }
     } else if (!dComIfGs_isEventBit(0x2d02)) {
-        action = 6;
-        opened = 1;
+        action_idx = ACTION_OPEN_WAIT;
+        statue_moved = true;
     } else if (dComIfGs_getTriforceNum() < 8) {
-        if (dComIfGs_isEventBit(0x3820) == 1) {
-            action = 7;
-            demo = 2;
+        if (dComIfGs_isEventBit(0x3820) == TRUE) {
+            action_idx = ACTION_GO_UP_STAIRS_DEMO_REGIST_WAIT;
+            demo_idx = DEMO_GO_UP_STAIRS;
         } else {
-            action = 11;
+            action_idx = ACTION_CLOSE_WAIT_1;
         }
     } else {
-        type = 1;
+        triforce_complete = TRUE;
         if (!dComIfGs_isEventBit(0x2c01)) {
-            action = 12;
+            action_idx = ACTION_CLOSE_WAIT_2;
         } else if (!dComIfGs_isEventBit(0x3980)) {
-            action = 13;
-            demo = 3;
+            action_idx = ACTION_GO_UP_STAIRS2_DEMO_REGIST_WAIT;
+            demo_idx = DEMO_GO_UP_STAIRS2;
         } else {
-            action = 12;
+            action_idx = ACTION_CLOSE_WAIT_2;
         }
     }
-    mActionIdx = action;
-    mType = type;
-    mDemo = demo;
-    if (!opened) {
+
+    mActionIdx = action_idx;
+    mType = triforce_complete;
+    mDemo = demo_idx;
+    if (!statue_moved) {
         dComIfGs_offEventBit(0x3820);
     } else {
         dComIfGs_onEventBit(0x3820);

@@ -6,4 +6,14 @@
 #include "mbstring.h"
 #include "strtoul.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int abs(int);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

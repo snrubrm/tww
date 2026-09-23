@@ -77,7 +77,7 @@ namespace JAInter {
         extern flags_t flags;
         extern streamUpdate_t* streamUpdate;
         extern streamList_t* streamList;
-        extern streamList_t* initOnCodeStrm;
+        extern streamList_t** initOnCodeStrm;
 
         inline streamUpdate_t* getUpdateInfo() { return streamUpdate; }
     }

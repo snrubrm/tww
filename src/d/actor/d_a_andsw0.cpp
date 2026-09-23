@@ -318,8 +318,6 @@ static BOOL daAndsw0_Delete(andsw0_class*) {
 
 /* 00000974-00000A64       .text daAndsw0_Create__FP10fopAc_ac_c */
 static cPhs_State daAndsw0_Create(fopAc_ac_c* ac) {
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
-
     fopAcM_ct(ac, andsw0_class);
 
     andsw0_class * i_this = (andsw0_class *)ac;

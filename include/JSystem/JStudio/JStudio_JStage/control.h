@@ -35,6 +35,7 @@ struct TAdaptor_object_ {
 };
 
 struct TAdaptor_actor : public JStudio::TAdaptor_actor {
+    typedef JStudio::TObject_actor JStudioObject;
     typedef void (JStage::TActor::*IDFunction)(u32);
     typedef TVariableValueOutput_object_<TAdaptor_actor, JStage::TActor> TVVOutputObject;
     
@@ -101,6 +102,7 @@ struct TAdaptor_actor : public JStudio::TAdaptor_actor {
 };  // Size: 0x144
 
 struct TAdaptor_ambientLight : public JStudio::TAdaptor_ambientLight {
+    typedef JStudio::TObject_ambientLight JStudioObject;
     TAdaptor_ambientLight(JStage::TSystem const*, JStage::TAmbientLight*);
 
     virtual ~TAdaptor_ambientLight();
@@ -115,6 +117,7 @@ struct TAdaptor_ambientLight : public JStudio::TAdaptor_ambientLight {
 };  // Size: 0x64
 
 struct TAdaptor_camera : public JStudio::TAdaptor_camera {
+    typedef JStudio::TObject_camera JStudioObject;
     typedef TVariableValueOutput_object_<TAdaptor_camera, JStage::TCamera> TVVOutput;
 
     TAdaptor_camera(JStage::TSystem const*, JStage::TCamera*);
@@ -137,6 +140,7 @@ struct TAdaptor_camera : public JStudio::TAdaptor_camera {
 };  // Size: 0xF8
 
 struct TAdaptor_fog : public JStudio::TAdaptor_fog {
+    typedef JStudio::TObject_fog JStudioObject;
     typedef TVariableValueOutput_object_<TAdaptor_fog, JStage::TFog> TVVOutput;
 
     TAdaptor_fog(JStage::TSystem const*, JStage::TFog*);
@@ -178,6 +182,7 @@ struct TVariableValueOutput_object_ : public JStudio::TVariableValue::TOutput {
 };
 
 struct TAdaptor_light : public JStudio::TAdaptor_light {
+    typedef JStudio::TObject_light JStudioObject;
     struct TVVOutput_direction_ : public JStudio::TVariableValue::TOutput {
         TVVOutput_direction_(JStudio::TAdaptor_light::TEVariableValue val, JStudio_JStage::TAdaptor_light::TEDirection_ dir)
         {

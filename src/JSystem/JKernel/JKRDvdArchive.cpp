@@ -11,7 +11,7 @@
 #include "JSystem/JKernel/JKRDvdRipper.h"
 #include "JSystem/JKernel/JKRHeap.h"
 #include "JSystem/JUtility/JUTAssert.h"
-#include "math.h"
+#include "stdlib.h"
 #include "string.h"
 #include "dolphin/os/OS.h"
 

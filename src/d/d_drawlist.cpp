@@ -1078,12 +1078,9 @@ void dDlst_shadowPoly_c::draw() {
     GXEnd();
 }
 
-static void dummy() {
-    // Fakematch to fix the vtable order and weak destructor order of dDlst_shadowReal_c and dDlst_shadowTri_c.
-    struct {
-        dDlst_shadowReal_c temp[1];
-    }* temp = NULL;
-    delete temp;
+dDlst_shadowReal_c::~dDlst_shadowReal_c() {
+    delete mpTexData;
+    delete mpDrawBuffer;
 }
 
 /* 80083668-800836E0       .text J3DDrawBuffer__create__FUl */

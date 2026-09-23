@@ -86,6 +86,7 @@ public:
     };
 
     dBgS_Acch();
+    dBgS_Acch(const dBgS_Acch& other);
     void Init();
     void Set(fopAc_ac_c*, int, dBgS_AcchCir*);
     void Set(cXyz* pos, cXyz* old_pos, fopAc_ac_c* actor, int tbl_size, dBgS_AcchCir* acchCir,
@@ -264,6 +265,7 @@ public:
         SetObj();
     }
 
+    dBgS_ObjAcch(const dBgS_ObjAcch& other);
     virtual ~dBgS_ObjAcch() {}
 };  // Size: 0x1C4
 

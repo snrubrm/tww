@@ -1122,8 +1122,6 @@ void JPADrawExecStripe::exec(const JPADrawContext* pDC) {
         JGeometry::TRotation3<JGeometry::TMatrix33<JGeometry::SMatrix33R<f32> > > mtx;
         mtx.setXYZDir(side, dir, params->mAxis);
 
-        f32* hack = &mtx.mMtx[0][0];
-
         JGeometry::TVec3<f32> v1(cx0, 0.0f, sx0);
         JGeometry::TVec3<f32> v2(cx1, 0.0f, sx1);
         mtx.mult(v1);
@@ -1210,8 +1208,6 @@ void JPADrawExecStripeCross::exec(const JPADrawContext* pDC) {
         params->mAxis.normalize();
 
         mtx.setXYZDir(side, dir, params->mAxis);
-
-        f32* hack = &mtx.mMtx[0][0];
 
         v1.set(cx0, 0.0f, sx0);
         v2.set(cx1, 0.0f, sx1);

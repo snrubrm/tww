@@ -307,13 +307,13 @@ void daBoko_c::setFlameEffect() {
         pJVar5->setDirection(s);
 
         s = current.pos - old.pos;
+        JGeometry::TVec3<f32> s2(1.0f, 1.0f, 1.0f);
         f32 fVar11 = (REG0_F(12) + 0.05f) * std::sqrtf(SQUARE(s.x) + SQUARE(s.y) + SQUARE(s.z)) + 1.0f;
-        f32 f5 = 1.0f;
         if (fVar11 > REG0_F(13) + 2.0f) {
             fVar11 = REG0_F(13) + 2.0f;
         }
 
-        JGeometry::TVec3<f32> s2(f5, fVar11, f5);
+        s2.y = fVar11;
         pJVar5->setGlobalParticleScale(s2);
         m320 = m2D0;
         mDoAud_seStart(JA_SE_OBJ_TORCH_BURNING, &m2D0, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));

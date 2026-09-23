@@ -82,7 +82,7 @@ namespace {
             return true;
         }
 
-        if (*(u16*)&g_mDoCPd_cpadInfo[padId].mButtonHold) { 
+        if (g_mDoCPd_cpadInfo[padId].mButtonHold.raw) {
             return true;
         }
 
@@ -789,7 +789,7 @@ void dCamera_c::updateMonitor() {
 
         mMonitor.mPos = playerPos;
 
-        if (!m144 && *(u16*)&g_mDoCPd_cpadInfo[0].mButtonHold == 0 && mStickMainValueLast < 0.05f && mStickCValueLast < 0.05f) { // Possible union between u16 and bitfield rather than *(u16*) cast
+        if (!m144 && g_mDoCPd_cpadInfo[0].mButtonHold.raw == 0 && mStickMainValueLast < 0.05f && mStickCValueLast < 0.05f) {
             mMonitor.field_0x18++;
         }
         else {

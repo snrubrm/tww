@@ -916,7 +916,6 @@ void daObjTapestryPacket_c::calc_fire_leap(int row, int col) {
 }
 
 /* 00003008-0000331C       .text calc_fire__21daObjTapestryPacket_cFv */
-// NONMATCHING - regalloc: the target keeps the up/down row in a separate copy register (r18) for the neighbour calc_fire_leap calls
 void daObjTapestryPacket_c::calc_fire() {
     if (m1454) {
         int row = (int)(7.0f * m145C);
@@ -948,10 +947,10 @@ void daObjTapestryPacket_c::calc_fire() {
                 continue;
             }
             mWork.flag0[row][col] |= 1;
-            int up = row - 1;
-            int down = row + 1;
-            int left = col - 1;
-            int right = col + 1;
+            const int up = row - 1;
+            const int down = row + 1;
+            const int left = col - 1;
+            const int right = col + 1;
 #if VERSION == VERSION_DEMO
             bool up_ok = up >= 0;
 #endif

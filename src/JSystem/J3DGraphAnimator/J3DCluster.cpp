@@ -13,6 +13,7 @@
 #include "JSystem/J3DAssert.h"
 #include "dolphin/os/OS.h"
 #include "string.h"
+#include "math.h"
 
 /* 802F37C4-802F37E4       .text clear__13J3DDeformDataFv */
 void J3DDeformData::clear() {

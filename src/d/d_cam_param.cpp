@@ -3,11 +3,13 @@
 // Translation Unit: d_cam_param.cpp
 //
 
-#include "d/dolzel.h" // IWYU pragma: keep
+#include "math.h"
+#include "global.h"
 #include "d/d_cam_param.h"
-#include "d/d_kankyo_wether.h"
 #include "m_Do/m_Do_mtx.h"
 #include "SSystem/SComponent/c_math.h"
+
+extern f32 dKyw_get_wind_pow();
 
 /* 800AF384-800AF4F4       .text rationalBezierRatio__8dCamMathFff */
 f32 dCamMath::rationalBezierRatio(f32 param_0, f32 param_1) {

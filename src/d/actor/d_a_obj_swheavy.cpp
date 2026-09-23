@@ -103,8 +103,6 @@ u8 daObjSwheavy::Act_c::create_heap() {
         mpBgW2 = NULL;
     }
 #endif
-    // Fakematch? This function should probably have return type bool (as it is in the demo), but the
-    // codegen towards the end here doesn't work unless the return type is u8.
     return success;
 }
 
