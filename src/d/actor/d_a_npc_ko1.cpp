@@ -2820,7 +2820,7 @@ BOOL daNpc_Ko1_c::_execute() {
         }
         cM3dGPla* pla = dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd);
         if (pla != NULL) {
-            mMoveDir = *pla->GetNP();
+            mMoveDir = pla->mNormal;
         }
         if (!mFreezeAngle) {
             mModelAngle = current.angle;
