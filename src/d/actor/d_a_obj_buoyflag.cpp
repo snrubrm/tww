@@ -22,6 +22,7 @@ struct Attr_c {
     f32 airTiltDrag, seaTiltDrag, tiltSpring;
 };
 static const Attr_c L_attr = {0.5f, -0.03f, 20.0f, 0.5f, 0.03f, 0.6f, -8.0f, 0.006f, 0.002f, 0.04f, 0.015f, 1000, 0.03f, 0.08f, 0.005f};
+inline const Attr_c& attr() { return L_attr; }
 namespace Khasi {
 #include "assets/l_k_taru02TEX__d_a_obj_buoyflag.h"
 static Vec l_pos[11] = {
@@ -142,14 +143,14 @@ bool Packet_c::M_hasi_nrm_flag;
 inline void daObjBuoyflag::Packet_c::calc_pos_spring(int y, int x) {
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
     cXyz* pos = &prev->pos[y][x];
-    if (x > 0) calc_pos_spring_near(pos, &prev->pos[y][x - 1], 12.5f, L_attr.spring);
-    if (x < 6) calc_pos_spring_near(pos, &prev->pos[y][x + 1], 12.5f, L_attr.spring);
-    if (y > 0) calc_pos_spring_near(pos, &prev->pos[y - 1][x], 12.5f, 0.8f * L_attr.spring);
-    if (y < 4) calc_pos_spring_near(pos, &prev->pos[y + 1][x], 12.5f, L_attr.spring);
+    if (x > 0) calc_pos_spring_near(pos, &prev->pos[y][x - 1], 12.5f, attr().spring);
+    if (x < 6) calc_pos_spring_near(pos, &prev->pos[y][x + 1], 12.5f, attr().spring);
+    if (y > 0) calc_pos_spring_near(pos, &prev->pos[y - 1][x], 12.5f, 0.8f * attr().spring);
+    if (y < 4) calc_pos_spring_near(pos, &prev->pos[y + 1][x], 12.5f, attr().spring);
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_gravity(int y, int x) {
     f32 ratio = 0.25f * (4 - y) + (1.0f / 6.0f) * x;
-    f32 g = 0.5f * (ratio * L_attr.gravity);
+    f32 g = 0.5f * (ratio * attr().gravity);
     mForce += mGravity * g;
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
@@ -163,13 +164,13 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     s16 angle3 = 32768.0f * distance + mPhase[11];
     f32 wave = 1.0f + (1.0f / 3.0f) * (cM_ssin(angle1) + cM_ssin(angle2) + cM_ssin(angle3));
     f32 dot = normal->inprod(mWind);
-    f32 w = wave * L_attr.wave;
-    mForce += *normal * (dot * (w * (1.0f / L_attr.windScale)));
+    f32 w = wave * attr().wave;
+    mForce += *normal * (dot * (w * (1.0f / attr().windScale)));
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_spd(int y, int x) {
     cXyz* speed = &mMove.speed[y][x];
     *speed += mForce;
-    f32 drag = -((0.6f + 0.4f * ((1.0f / 6.0f) * x)) * L_attr.drag);
+    f32 drag = -((0.6f + 0.4f * ((1.0f / 6.0f) * x)) * attr().drag);
     cXyz wind, relative, friction;
     wind = mWind;
     cXyz random(0.9f + cM_rndF(0.2f), 0.9f + cM_rndF(0.2f), 0.9f + cM_rndF(0.2f));
@@ -423,7 +424,7 @@ void daObjBuoyflag::Packet_c::calc_wind_base(Act_c* actor) {
     int z = 5632.0f * cM_ssin(mPhase[4]) + 2048.0f * cM_ssin(mPhase[5]);
     f32 wave = cM_rndF(0.2f) + (0.2f + 0.35f * (1.0f + (0.15f * cM_ssin(mPhase[8]) + (0.5f * cM_ssin(mPhase[6]) + 0.35f * cM_ssin(mPhase[7])))));
     cXyz wind = dKyw_get_AllWind_vecpow(&prev->pos[0][0]);
-    wind *= 0.5f * wave * L_attr.windScale;
+    wind *= 0.5f * wave * attr().windScale;
     cXyz motion(0.2f * (actor->m10C0[0][3] - actor->m1090[0][3]), 0.2f * (actor->m10C0[1][3] - actor->m1090[1][3]), 0.2f * (actor->m10C0[2][3] - actor->m1090[2][3]));
     f32 mag2 = motion.abs2();
     if (mag2 > 625.0f) {
@@ -437,12 +438,12 @@ void daObjBuoyflag::Packet_c::calc_wind_base(Act_c* actor) {
     mDoMtx_stack_c::ZXYrotM(x, y, z);
     mDoMtx_stack_c::multVecSR(&wind, &mWind);
     mag2 = mWind.abs2();
-    if (mag2 < L_attr.minWind * L_attr.minWind) {
+    if (mag2 < attr().minWind * attr().minWind) {
         if (mag2 < 0.001f) {
             mDoMtx_stack_c::multVecSR(&cXyz::BaseZ, &mWind);
-            mWind *= L_attr.minWind;
+            mWind *= attr().minWind;
         } else {
-            f32 scale = L_attr.minWind / std::sqrtf(mag2);
+            f32 scale = attr().minWind / std::sqrtf(mag2);
             mWind *= scale;
         }
     }
@@ -598,9 +599,9 @@ bool daObjBuoyflag::Act_c::mode_afl() {
 /* 000024B0-0000278C       .text mode_jumpToSea__Q213daObjBuoyflag5Act_cFv */
 bool daObjBuoyflag::Act_c::mode_jumpToSea() {
     if (m1128) {
-        gravity = L_attr.fallGravity;
+        gravity = attr().fallGravity;
         mTilt = 0;
-        mTiltSpeed = L_attr.tiltSpeed;
+        mTiltSpeed = attr().tiltSpeed;
         s16 y = cM_rndFX(32768.0f);
         s16 x = cM_rndFX(4000.0f);
         mDoMtx_stack_c::ZXYrotS(x, y, 0);
@@ -609,15 +610,15 @@ bool daObjBuoyflag::Act_c::mode_jumpToSea() {
     f32 sea = daSea_calcWave(current.pos.x, current.pos.z);
     if (current.pos.y < sea - 180.0f * scale.y) return false;
     if (current.pos.y > sea) {
-        mTiltSpeed -= mTilt * L_attr.tiltSpring;
-        mTiltSpeed *= 1.0f - L_attr.airTiltDrag;
+        mTiltSpeed -= mTilt * attr().tiltSpring;
+        mTiltSpeed *= 1.0f - attr().airTiltDrag;
         mTilt += (s16)(int)mTiltSpeed;
-        daObj::posMoveF_stream(this, NULL, &cXyz::Zero, L_attr.airXZ, L_attr.airY);
+        daObj::posMoveF_stream(this, NULL, &cXyz::Zero, attr().airXZ, attr().airY);
     } else {
-        mTiltSpeed -= mTilt * L_attr.tiltSpring;
-        mTiltSpeed *= 1.0f - L_attr.seaTiltDrag;
+        mTiltSpeed -= mTilt * attr().tiltSpring;
+        mTiltSpeed *= 1.0f - attr().seaTiltDrag;
         mTilt += (s16)(int)mTiltSpeed;
-        daObj::posMoveF_stream(this, NULL, &cXyz::Zero, L_attr.seaXZ, L_attr.seaY);
+        daObj::posMoveF_stream(this, NULL, &cXyz::Zero, attr().seaXZ, attr().seaY);
     }
     mDoMtx_stack_c::transS(current.pos);
     mDoMtx_stack_c::transM(0.0f, 60.0f, 0.0f);
