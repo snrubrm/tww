@@ -422,7 +422,8 @@ f32 dDlst_2DOutFont_c::iconset(int i_iconNo, char** param_1) {
 }
 
 /* 800C9D5C-800CA8A8       .text messageSet__17dDlst_2DOutFont_cFUl */
-// NONMATCHING - the copied SJIS/ruby bytes are sign-extended into separate registers in the target
+// NONMATCHING - the target sign-extends the second copied ruby byte before the (u8) cast (extra extsb), and the SJIS
+// bytes get different registers
 void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
     fopMsgM_itemMsgGet_c msgGet;
     mesg_header* head_p = msgGet.getMesgHeader(i_msgNo);
@@ -536,13 +537,12 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
 #if VERSION < VERSION_PAL
             int hi_nibble = ((u8)*message >> 4) & 0xF;
             if (hi_nibble == 8 || hi_nibble == 9) {
-                char temp_r4_2 = message[0];
+                char temp_r4_2 = *message++;
                 *(dst++) = temp_r4_2;
 
-                char temp_r5 = message[1];
+                char temp_r5 = *message++;
                 *(dst++) = temp_r5;
 
-                message += 2;
                 m68 += charWidth(((u8)temp_r4_2 << 8) | (u8)temp_r5);
 
                 if (var_r30 != 0) {
@@ -570,9 +570,8 @@ void dDlst_2DOutFont_c::messageSet(u32 i_msgNo) {
             } else
 #endif
             {
-                char var_r5_2 = *message;
+                char var_r5_2 = *message++;
                 *(dst++) = var_r5_2;
-                message++;
 
                 if (var_r5_2 == '\n') {
 #if VERSION == VERSION_PAL
