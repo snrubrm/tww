@@ -281,7 +281,7 @@ namespace JASystem {
 
         u8 checkImport(int i) const { return mTrackPort.checkImport(i); }
         u8 checkExport(int i) const { return mTrackPort.checkExport(i); }
-        void getActivity() const {}
+        u8 getActivity() const { return field_0x37e; }
         int getRoute() const { return field_0x36c; }
         TSeqCtrl* getSeq() { return &mSeqCtrl; }
         void pauseTrackAll() { pause(true, true); }

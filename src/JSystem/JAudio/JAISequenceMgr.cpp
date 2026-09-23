@@ -276,7 +276,7 @@ void JAInter::SequenceMgr::checkReadSeq() {
             update->field_0x48->getSeqParameter()->field_0x1264 == 0xFFFFFFFF &&
             update->field_0x48->getSeqParameter()->field_0x135c->field_0x2 == 0) {
             SeqParameter* param = update->field_0x48->getSeqParameter();
-            if (param->mTrack.field_0x37e == 0) {
+            if (param->mTrack.getActivity() == 0) {
                 u32 soundID = update->field_0x48->getID();
                 u32 size = JASystem::ResArcLoader::getResSize(arcPointer,
                     JAIBasic::msBasic->getSoundOffsetNumberFromID(soundID));
