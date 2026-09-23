@@ -175,7 +175,7 @@ public:
     JAInter::Camera* getCurCamera(u32 i_no) { return &mAudioCamera[i_no]; }
     void getLinkBootsType() {}
     void getLinkSwShieldBeat() {}
-    void isTaktUsing() {}
+    BOOL isTaktUsing() { return field_0x0207; }
 
     static JAIZelBasic* getInterface() { return zel_basic; }
 

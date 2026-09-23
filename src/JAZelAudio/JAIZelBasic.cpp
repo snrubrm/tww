@@ -3235,7 +3235,6 @@ void JAIZelBasic::setLevObjSE(u32 id, Vec* pos, s8 reverb) {
 }
 
 /* 802A8F58-802A90C0       .text processLevObjSE__11JAIZelBasicFv */
-// NONMATCHING - the target compares field_0x0207 with a signed cmpwi
 void JAIZelBasic::processLevObjSE() {
     for (u32 i = 0; i < mLevelSoundCount; i++) {
         f32 left = 0.0f;
@@ -3267,7 +3266,7 @@ void JAIZelBasic::processLevObjSE() {
 #if VERSION == VERSION_DEMO
         seStart(mLevelSounds[i].id, NULL, 0, reverb, 1.0f, volume, pan, rear, 1);
 #else
-        if (field_0x0207 == 0) {
+        if (!isTaktUsing()) {
             seStart(mLevelSounds[i].id, NULL, 0, reverb, 1.0f, volume, pan, rear, 1);
         }
 #endif
