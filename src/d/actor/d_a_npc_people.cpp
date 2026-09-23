@@ -4906,7 +4906,7 @@ bool daNpcPeople_c::_execute() {
     setCollision(&mCyl, current.pos, m74C, mpNpcDat->field_0x40);
     cXyz temp(mpNpcDat->field_0x18, mpNpcDat->field_0x1C, mpNpcDat->field_0x20);
     mDoMtx_stack_c::YrotS(current.angle.y);
-    mDoMtx_stack_c::multVec(&temp, &temp);
+    cMtx_multVec(mDoMtx_stack_c::get(), &temp, &temp);
     temp += current.pos;
     attention_info.position = temp;
     eyePos.set(current.pos.x, current.pos.y + mpNpcDat->field_0x24, current.pos.z);
