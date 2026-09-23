@@ -241,13 +241,13 @@ void daNpc_Kk1_c::play_animation() {
 /* 00000918-00000A98       .text setMtx__11daNpc_Kk1_cFb */
 void daNpc_Kk1_c::setMtx(bool force) {
     mpMorf->getModel()->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos);
-    mDoMtx_stack_c::ZXYrotM(mModelAngle);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
+    mDoMtx_stack_c::ZXYrotM(mModelAngle.x, mModelAngle.y, mModelAngle.z);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
     mpMorf->calc();
     cXyz offset(0.0f, 120.0f, 30.0f);
     mBckAnm.entry(mpEffModel->getModelData(), mBckFrame);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(current.angle.y);
     mDoMtx_stack_c::transM(offset.x, offset.y, offset.z);
     mpEffModel->setBaseTRMtx(mDoMtx_stack_c::get());
@@ -1160,7 +1160,7 @@ void daNpc_Kk1_c::cut_init_PLYER_MOV(int staff) {
         cXyz dst;
         cXyz offset(0.0f, 0.0f, 0.0f);
         diff = diff > 0 ? 0x2800 : -0x2800;
-        mDoMtx_stack_c::transS(current.pos);
+        mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
         mDoMtx_stack_c::YrotM(current.angle.y + diff);
         offset.z = 150.0f;
         mDoMtx_stack_c::multVec(&offset, &dst);
@@ -1174,7 +1174,7 @@ void daNpc_Kk1_c::cut_init_PLYER_MOV(int staff) {
         cXyz dst;
         cXyz offset(0.0f, 0.0f, 0.0f);
         diff = diff > 0 ? 0x2800 : -0x2800;
-        mDoMtx_stack_c::transS(current.pos);
+        mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
         mDoMtx_stack_c::YrotM(current.angle.y + diff);
         offset.z = 150.0f;
         mDoMtx_stack_c::multVec(&offset, &dst);
@@ -1653,7 +1653,7 @@ cXyz daNpc_Kk1_c::kyoroPos(int idx) {
         {-40.0f, 10.0f, 40.0f},
     };
     cXyz src(a_tgt_offst[idx].x, a_tgt_offst[idx].y, a_tgt_offst[idx].z);
-    mDoMtx_stack_c::transS(eyePos);
+    mDoMtx_stack_c::transS(eyePos.x, eyePos.y, eyePos.z);
     mDoMtx_stack_c::YrotM(current.angle.y);
     cXyz dst;
     mDoMtx_stack_c::multVec(&src, &dst);
@@ -1686,7 +1686,7 @@ bool daNpc_Kk1_c::chk_attn() {
 /* 00003C9C-00003D9C       .text setBikon__11daNpc_Kk1_cF4cXyz */
 void daNpc_Kk1_c::setBikon(cXyz offset) {
     delBikon();
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(current.angle.y);
     cXyz pos;
     mDoMtx_stack_c::multVec(&offset, &pos);
@@ -1772,7 +1772,7 @@ BOOL daNpc_Kk1_c::wait_1() {
         return TRUE;
     }
     cXyz offset(-100.0f, 0.0f, 0.0f);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(mInitialAngle.y);
     mDoMtx_stack_c::multVec(&offset, &pos);
     s16 target = cLib_targetAngleY(&current.pos, &pos);
