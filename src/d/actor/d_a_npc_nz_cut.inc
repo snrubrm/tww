@@ -22,7 +22,7 @@ BOOL daNpc_Nz_c::_searchEsa(fopAc_ac_c* pActor) {
             if(mpMorf->getFrame() < 6.0f) {
                 cLib_addCalcPos2(&pBait->current.pos, current.pos, 0.1f, 2.5f);
                 mDoMtx_stack_c::transS(pBait->current.pos);
-                mDoMtx_stack_c::ZXYrotM(pBait->current.angle);
+                mDoMtx_stack_c::ZXYrotM(pBait->current.angle.x, pBait->current.angle.y, pBait->current.angle.z);
                 pBait->mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
             }
 
