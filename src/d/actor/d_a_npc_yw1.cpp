@@ -626,7 +626,6 @@ bool daNpc_Yw1_c::decideType(int type) {
     return result;
 }
 
-// NONMATCHING - demo only: the target tests a constant-true flag (li/cmplwi) before cutEnd
 void daNpc_Yw1_c::privateCut(int staff) {
     if (staff != -1) {
         static char* a_cut_tbl[] = {
@@ -636,7 +635,13 @@ void daNpc_Yw1_c::privateCut(int staff) {
         if (mCut == -1) dComIfGp_evmng_cutEnd(staff);
         else {
             dComIfGp_evmng_getIsAddvance(staff);
-            dComIfGp_evmng_cutEnd(staff);
+            bool done;
+            switch (mCut) {
+            default:
+                done = true;
+                break;
+            }
+            if (done) dComIfGp_evmng_cutEnd(staff);
         }
     }
 }
