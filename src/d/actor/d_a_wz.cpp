@@ -616,7 +616,7 @@ void action_dousa(wz_class* i_this) {
         f32 dist = 7500.0f;
         if (fopAcM_searchActorDistance(actor, player) > dist) {
 #else
-        if (fopAcM_searchActorDistance(actor, dComIfGp_getPlayer(0)) > 7500.0f) {
+        if (fopAcM_searchPlayerDistance(actor) > 7500.0f) {
 #endif
             break;
         }
@@ -771,7 +771,7 @@ void action_dousa(wz_class* i_this) {
 #else
             if (i_this->mpMorf->getFrame() < 38.0f) {
 #endif
-                i_this->mTargetAngleY = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
+                i_this->mTargetAngleY = fopAcM_searchPlayerAngleY(actor);
             }
         }
         if (i_this->mpMorf->checkFrame(35.0f)) {
