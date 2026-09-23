@@ -232,8 +232,8 @@ public:
         field_0x02 = 0;
         field_0x04 = 0;
     }
-    void defaultCalcX(s16) {}
-    void defaultCalcY(s16) {}
+    void defaultCalcX(s16 target) { cLib_addCalcAngleS(&field_0x00, target, 4, 0x1000, 0x100); }
+    void defaultCalcY(s16 target) { cLib_addCalcAngleS(&field_0x02, target, 4, 0x1000, 0x100); }
     void setProc(SwingProc proc) { mProc = proc; }
 
     /* 0x00 */ s16 field_0x00;
