@@ -967,7 +967,7 @@ BOOL daNpc_Nz_c::createInit() {
 #endif
     mAcch.SetWallNone();
     mAcch.SetRoofNone();
-    gravity = 0.0f;
+    fopAcM_SetGravity(this, 0.0f);
     mAcch.CrrPos(*dComIfG_Bgsp());
 
     setMtx();
