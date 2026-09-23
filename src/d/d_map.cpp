@@ -2082,14 +2082,28 @@ void dMap_c::calcEnlargementSizeParameter(f32 param_1, f32 param_2) {
 }
 #endif
 
+inline int cnvFromVXtoVX2(int x) {
+    return (x - -9.0f) * 640.0f / 659.0f;
+}
+
+inline int cnvFromVYtoVY2(int y) {
+    return (y - -21.0f) * 480.0f / 524.0f;
+}
+
+inline int cnvFromVWtoVW2(int w) {
+    return w * 640.0f / 659.0f;
+}
+
+inline int cnvFromVHtoVH2(int h) {
+    return h * 480.0f / 524.0f;
+}
+
 /* 8004A3A4-8004A478       .text calcScissor__6dMap_cFv */
 void dMap_c::calcScissor() {
-    s16 px = mDispPosLeftUpX;
-    int x = (px - -9.0f) * 640.0f / 659.0f;
-    s16 py = mDispPosLeftUpY;
-    int y = (py - -21.0f) * 480.0f / 524.0f;
-    int width = 116;
-    int height = 109;
+    int x = cnvFromVXtoVX2(mDispPosLeftUpX);
+    int y = cnvFromVYtoVY2(mDispPosLeftUpY);
+    int width = cnvFromVWtoVW2(120);
+    int height = cnvFromVHtoVH2(120);
 
     if (x < 0) {
         width += x;
