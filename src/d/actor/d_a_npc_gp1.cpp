@@ -1137,7 +1137,6 @@ BOOL daNpc_Gp1_c::_draw() {
     GXColor dummy_2 = {0x00, 0x00, 0xFF, 0x80};
     GXColor dummy_3 = {0x00, 0xFF, 0x00, 0x80};
     GXColor dummy_4 = {0x00, 0xFF, 0x00, 0x80};
-    daNpc_Gp1_c* i_this = this;
     J3DModel* model = mpMorf->getModel();
     J3DModelData* data = model->getModelData();
     if (mHidden || mNoDraw) {
@@ -1152,13 +1151,13 @@ BOOL daNpc_Gp1_c::_draw() {
     cXyz pos(current.pos.x, current.pos.y + 150.0f, current.pos.z);
     mShadowId = dComIfGd_setRealShadow(mShadowId, 1, mpShadowModel, &pos, 800.0f, current.pos.y - mObjAcch.GetGroundH(), NULL);
     if (mShadowId == 0) {
-        dComIfGd_setSimpleShadow(&current.pos, mObjAcch.GetGroundH(), 40.0f, dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd)->GetNP(), 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
+        dComIfGd_setSimpleShadow(&current.pos, mObjAcch.GetGroundH(), 40.0f, &dComIfG_Bgsp()->GetTriPla(mObjAcch.m_gnd)->mNormal, 0, 1.0f, dDlst_shadowControl_c::getSimpleTex());
     }
     if (l_HIO.mPrm.mDebug) {
         cXyz debug = current.pos;
         debug.y = eyePos.y;
     }
-    dSnap_RegistFig(DSNAP_TYPE_UNK5B, i_this, 1.0f, 1.0f, 1.0f);
+    dSnap_RegistFig(DSNAP_TYPE_UNK5B, this, 1.0f, 1.0f, 1.0f);
     return TRUE;
 }
 
