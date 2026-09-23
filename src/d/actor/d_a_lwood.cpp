@@ -96,7 +96,7 @@ static BOOL nodeCallBack(J3DNode* joint, int calcTiming) {
             mDoMtx_stack_c::copy(model->getAnmMtx(jntNo));
             mDoMtx_stack_c::ZXYrotM(p0, p1, p2);
             model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
-            mDoMtx_copy(mDoMtx_stack_c::get(), j3dSys.mCurrentMtx);
+            MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
         }
     }
 
