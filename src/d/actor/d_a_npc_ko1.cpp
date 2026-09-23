@@ -1368,7 +1368,7 @@ BOOL daNpc_Ko1_c::routeCheck(f32, s16* pAngle) {
 /* 00003D34-00003DE8       .text chk_start_swim__11daNpc_Ko1_cFv */
 bool daNpc_Ko1_c::chk_start_swim() {
     bool result = false;
-    if (mObjAcch.MaskWaterIn()) {
+    if (mObjAcch.ChkWaterIn()) {
         result = mObjAcch.m_wtr.GetHeight() - mObjAcch.GetGroundH() > 62.0f;
         if (result) {
             if (mState != 7) {
