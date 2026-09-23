@@ -607,29 +607,28 @@ void daNpcAuction_c::eventMainInit() {
 /* 00001554-00001888       .text eventMain__14daNpcAuction_cFv */
 bool daNpcAuction_c::eventMain() {
     daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
-    u8 flags = auction->m834;
-    if (flags & 0x04) {
+    if (auction->isAucBet2()) {
         if ((m747 & 0x08) == 0) {
             setAnm2(3, 2, 8.0f);
             m747 |= 0x08;
         }
-    } else if (mNpcNo == auction->getBetNpcNo()) {
-        if (flags & 0x01) {
+    } else if (mNpcNo == auction->getAnmNpcNo()) {
+        if (auction->isAucBet()) {
             if ((m747 & 0x04) == 0) {
                 setAnm2(2, 2, 8.0f);
                 m747 |= 0x04;
             }
-        } else if (flags & 0x08) {
+        } else if (auction->isAucBetA()) {
             if ((m747 & 0x10) == 0) {
                 setAnm2(4, 2, 8.0f);
                 m747 |= 0x10;
             }
-        } else if (flags & 0x20) {
+        } else if (auction->isAucJikkyou()) {
             if ((m747 & 0x40) == 0) {
                 setAnm2(6, 2, 8.0f);
                 m747 |= 0x40;
             }
-        } else if (flags & 0x10) {
+        } else if (auction->isAucGet()) {
             if ((m747 & 0x20) == 0) {
                 setAnm2(5, 2, 8.0f);
                 m747 |= 0x20;
@@ -648,7 +647,7 @@ bool daNpcAuction_c::eventMain() {
         }
     }
 
-    if (auction->m834 & 0x04) {
+    if (auction->isAucBet2()) {
         if (mpEmitter == NULL) {
             mpEmitter = dComIfGp_particle_set(
                 dPa_name::ID_IT_SN_MD_PIYOPIYO00, &current.pos, NULL, NULL, 0xFF, NULL,

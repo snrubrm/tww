@@ -22,17 +22,17 @@ public:
     daAuction_c();
 
     BOOL chkNpcExec(int no) { return m820 & (1 << no); }
-    void getAnmNpcNo() {}
+    u8 getAnmNpcNo() { return m829; }
     u8 getAucMdlNo(u8 idx) { return mAucMdlNo[idx]; }
     u8 getAucNpcNo(u8 idx) { return m80C[idx]; }
     u8 getBetNpcNo() { return m829; }
     u8 getKind(u8 idx) { return mKind[idx]; }
-    void getNpcNo() {}
-    void isAucBet() {}
-    void isAucBet2() {}
-    void isAucBetA() {}
-    void isAucGet() {}
-    void isAucJikkyou() {}
+    u8 getNpcNo() { return m824; }
+    BOOL isAucBet() { return m834 & 0x01; }
+    BOOL isAucBet2() { return m834 & 0x04; }
+    BOOL isAucBetA() { return m834 & 0x08; }
+    BOOL isAucGet() { return m834 & 0x10; }
+    BOOL isAucJikkyou() { return m834 & 0x20; }
     void offCamera() { // Might be incorrect
         m835 |= 2;
         m835 &= 0xFE;
