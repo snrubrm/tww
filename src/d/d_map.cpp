@@ -3753,17 +3753,16 @@ void dMap_2DMtMapSpcl_c::draw() {
     dMap_2DMtMapSpcl_tex_c* r27 = field_0x8;
     int r28 = 0;
     for (i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0 == 0) {
+        if (!r27->check()) {
             continue;
         }
         if (r27->getCI()) {
-            u32 name = r27->field_0x44;
-            GXLoadTlut(&r27->mTlutObj, name);
+            GXLoadTlut(r27->getTlutObj(), r27->getTlutName());
         }
-        GXLoadTexObj(&r27->mTexObj, GXTexMapID(r28));
+        GXLoadTexObj(r27->getTexObj(), GXTexMapID(r28));
         GXSetVtxAttrFmt(GX_VTXFMT0, GXAttr(GX_VA_TEX0 + r28), GX_TEX_ST, GX_F32, 0);
         GXSetVtxDesc(GXAttr(GX_VA_TEX0 + r28), GX_DIRECT);
-        GXSetTevColor(GXTevRegID(GX_TEVREG0 + r28), r27->mColor);
+        GXSetTevColor(GXTevRegID(GX_TEVREG0 + r28), r27->getColor());
         GXSetTexCoordGen(GXTexCoordID(r28), GX_TG_MTX2x4, GXTexGenSrc(GX_TG_TEX0 + r28), GX_IDENTITY);
         GXSetTevOrder(GXTevStageID(r28), GXTexCoordID(r28), GXTexMapID(r28), GX_COLOR_NULL);
         GXSetTevColorIn(GXTevStageID(r28), GX_CC_ZERO, GXTevColorArg(GX_CC_C0 + r28 * 2), GX_CC_TEXC, r28 ? GX_CC_CPREV : GX_CC_ZERO);
@@ -3801,28 +3800,28 @@ void dMap_2DMtMapSpcl_c::draw() {
     GXPosition3s16(field_0xc, field_0xe, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS(), r27->getT());
         }
     }
     GXPosition3s16(field_0x10, field_0xe, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT());
         }
     }
     GXPosition3s16(field_0x10, field_0x12, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT() + r27->getTw());
         }
     }
     GXPosition3s16(field_0xc, field_0x12, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS(), r27->getT() + r27->getTw());
         }
     }
@@ -3842,16 +3841,16 @@ void dMap_2DMtMapSpcl_c::draw() {
     dMap_2DMtMapSpcl_tex_c* r27 = field_0x8;
     int r28 = 0;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0 == 0) {
+        if (!r27->check()) {
             continue;
         }
         if (r27->getCI()) {
-            GXLoadTlut(&r27->mTlutObj, r27->field_0x44);
+            GXLoadTlut(r27->getTlutObj(), r27->getTlutName());
         }
-        GXLoadTexObj(&r27->mTexObj, GXTexMapID(r28));
+        GXLoadTexObj(r27->getTexObj(), GXTexMapID(r28));
         GXSetVtxAttrFmt(GX_VTXFMT0, GXAttr(GX_VA_TEX0 + r28), GX_TEX_ST, GX_F32, 0);
         GXSetVtxDesc(GXAttr(GX_VA_TEX0 + r28), GX_DIRECT);
-        GXSetTevColor(GXTevRegID(GX_TEVREG0 + r28), r27->mColor);
+        GXSetTevColor(GXTevRegID(GX_TEVREG0 + r28), r27->getColor());
         GXSetTexCoordGen(GXTexCoordID(r28), GX_TG_MTX2x4, GXTexGenSrc(GX_TG_TEX0 + r28), GX_IDENTITY);
         GXSetTevOrder(GXTevStageID(r28), GXTexCoordID(r28), GXTexMapID(r28), GX_COLOR_NULL);
         GXSetTevColorIn(GXTevStageID(r28), GX_CC_ZERO, GXTevColorArg(GX_CC_C0 + r28 * 2), GX_CC_TEXC, r28 ? GX_CC_CPREV : GX_CC_ZERO);
@@ -3889,28 +3888,28 @@ void dMap_2DMtMapSpcl_c::draw() {
     GXPosition3s16(field_0xc, field_0xe, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS(), r27->getT());
         }
     }
     GXPosition3s16(field_0x10, field_0xe, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT());
         }
     }
     GXPosition3s16(field_0x10, field_0x12, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS() + r27->getSw(), r27->getT() + r27->getTw());
         }
     }
     GXPosition3s16(field_0xc, field_0x12, 0);
     r27 = field_0x8;
     for (int i = 0; i < field_0x4; r27++, i++) {
-        if (r27->field_0x0) {
+        if (r27->check()) {
             GXTexCoord2f32(r27->getS(), r27->getT() + r27->getTw());
         }
     }

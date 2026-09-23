@@ -72,6 +72,10 @@ public:
     void setScroll(f32, f32, f32, f32);
     u8 check() { return field_0x0; }
     int getCI() { return field_0x1; }
+    GXTexObj* getTexObj() { return &mTexObj; }
+    GXTlutObj* getTlutObj() { return &mTlutObj; }
+    u32 getTlutName() { return field_0x44; }
+    GXColor& getColor() { return mColor; }
     f32 getS() { return field_0x34; }
     f32 getT() { return field_0x38; }
     f32 getSw() { return field_0x3c; }
