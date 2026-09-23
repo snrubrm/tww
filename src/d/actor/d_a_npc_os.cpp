@@ -1485,7 +1485,8 @@ BOOL daNpc_Os_c::actionMoveEvent(int staffIdx) {
 
     if(mpPedestal) {
 #if VERSION == VERSION_DEMO
-        walkProc(value, fopAcM_searchActorAngleY(this, mpPedestal));
+        s16 angle = fopAcM_searchActorAngleY(this, mpPedestal);
+        walkProc(value, angle);
         mpMorf->setPlaySpeed(value * 2.0f);
         cLib_addCalcAngleS(&shape_angle.y, current.angle.y, l_HIO.mOs2.field_0x28, l_HIO.mOs2.field_0x24 * 2, l_HIO.mOs2.field_0x26 * 2);
         mJntCtrl.lookAtTarget(&shape_angle.y, 0, cXyz::Zero, shape_angle.y, 0, false);
@@ -1505,7 +1506,8 @@ BOOL daNpc_Os_c::actionMoveEvent(int staffIdx) {
             setAnm(0);
         }
         else {
-            walkProc(value, fopAcM_searchActorAngleY(this, mpPedestal));
+            s16 angle = fopAcM_searchActorAngleY(this, mpPedestal);
+            walkProc(value, angle);
             mpMorf->setPlaySpeed(value * 2.0f);
             cLib_addCalcAngleS(&shape_angle.y, current.angle.y, l_HIO.mOs2.field_0x28, l_HIO.mOs2.field_0x24 * 2, l_HIO.mOs2.field_0x26 * 2);
             mJntCtrl.lookAtTarget(&shape_angle.y, 0, cXyz::Zero, shape_angle.y, 0, false);
