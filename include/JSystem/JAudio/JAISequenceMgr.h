@@ -66,7 +66,15 @@ namespace JAInter {
 
     class MuteBit {
     public:
-        MuteBit();
+        MuteBit() { init(); }
+        void init() {
+            flag1 = 0;
+            flag3 = 0;
+        }
+        void setBitNow(bool bit) { flag1 = bit; }
+        bool getBitTarget() { return flag2; }
+        bool getBitNow() { return flag1; }
+        bool getBitUpdate() { return flag3; }
 
         u8 flag1 : 1;
         u8 flag2 : 1;

@@ -495,13 +495,13 @@ void JAInter::SequenceMgr::checkPlayingSeqTrack(u32 track) {
         if (update->field_0x8 & 0x20) {
             update->field_0x8 ^= 0x20;
             for (u8 i = 0; i < JAIGlobalParameter::getParamSeqTrackMax(); i++) {
-                if ((u8)(param->mMuteBits[i].flag3 != 0) == 1 &&
-                    (u8)(param->mMuteBits[i].flag1 != 0) != (u8)(param->mMuteBits[i].flag2 != 0)) {
+                if (param->mMuteBits[i].getBitUpdate() == true &&
+                    param->mMuteBits[i].getBitNow() != param->mMuteBits[i].getBitTarget()) {
                     JASystem::TTrack* child = SystemInterface::trackToSeqp(update->field_0x48, i);
                     if (child) {
-                        child->muteTrack((u8)(param->mMuteBits[i].flag2 != 0));
+                        child->muteTrack(param->mMuteBits[i].getBitTarget());
                     }
-                    param->mMuteBits[i].flag1 = param->mMuteBits[i].flag2 != 0;
+                    param->mMuteBits[i].setBitNow(param->mMuteBits[i].getBitTarget());
                 }
             }
         }
@@ -661,12 +661,6 @@ void JAInter::SequenceMgr::releaseSeqBuffer(JAISound* sound, u32 fadeTime) {
 /* 802982C0-802982D0       .text getPlayTrackInfo__Q27JAInter11SequenceMgrFUl */
 JAInter::SeqUpdateData* JAInter::SequenceMgr::getPlayTrackInfo(u32 track) {
     return &seqTrackInfo[track];
-}
-
-/* 802982D0-802982F0       .text __ct__Q27JAInter7MuteBitFv */
-JAInter::MuteBit::MuteBit() {
-    flag1 = 0;
-    flag3 = 0;
 }
 
 inline void JAInter::SeqParameter::init() {
