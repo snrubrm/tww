@@ -3962,8 +3962,8 @@ void dMap_2DAGBScrDsp_c::getScrnPrm(f32 param_1, f32 param_2, int param_3, f32 p
         if (param_5) {
             *param_5 = tmp1;
         }
-        f32 tmp2 = fmod(f31, f30);
-        tmp2 = fmod(f30 + tmp2, f30);
+        f32 tmp2 = std::fmodf(f31, f30);
+        tmp2 = std::fmodf(f30 + tmp2, f30);
         if (param_6) {
             *param_6 = tmp2;
         }
