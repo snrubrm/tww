@@ -320,8 +320,6 @@ void daNpc_Kk1_c::play_btp_anm() {
 }
 
 /* 00000C80-00000CFC       .text play_eff_anm__11daNpc_Kk1_cFv */
-// NONMATCHING - retail sign-extends the loaded frame max again before each compare (demo matches);
-// `mBtkFrame >= (s16)frameMax` gives 100% in all versions but is a cast with no source-level purpose
 void daNpc_Kk1_c::play_eff_anm() {
     s16 bpkMax = 0x1E;
     mBpkFrame++;
@@ -330,12 +328,12 @@ void daNpc_Kk1_c::play_eff_anm() {
     }
     int frameMax = mBtkAnm.getBtkAnm()->getFrameMax();
     mBtkFrame++;
-    if (mBtkFrame >= frameMax) {
+    if (mBtkFrame >= (s16)frameMax) {
         mBtkFrame = frameMax - 1;
     }
     frameMax = mBckAnm.getBckAnm()->getFrameMax();
     mBckFrame++;
-    if (mBckFrame >= frameMax) {
+    if (mBckFrame >= (s16)frameMax) {
         mBckFrame = 0x3B;
     }
 }
