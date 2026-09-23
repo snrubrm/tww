@@ -1391,7 +1391,7 @@ fpc_ProcID daNpc_Ko1_c::get_crsActorID() {
     if (mCyl.ChkCoHit()) {
         cCcD_Obj* obj = mCyl.GetCoHitObj();
         if (obj != NULL) {
-            fopAc_ac_c* actor = obj->GetAc();
+            fopAc_ac_c* actor = dCc_GetAc(obj->GetAc());
             return fopAcM_GetID(actor);
         }
     }
