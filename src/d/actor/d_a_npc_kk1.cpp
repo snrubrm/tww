@@ -89,7 +89,7 @@ void daNpc_Kk1_c::_nodeCB_Head(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::multVec(&a_eye_pos_off, &m72C);
     mDoMtx_stack_c::XrotM(m_jnt.getHead_y());
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
-    MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
+    cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
     model->setAnmMtx(joint, mDoMtx_stack_c::get());
 }
 
