@@ -1135,7 +1135,7 @@ void daPz_c::ctrlEye() {
 /* 00002AE0-00002D38       .text playEyeAnm__6daPz_cFv */
 void daPz_c::playEyeAnm() {
     bool moveEye = true;
-    if (mCurEye == 0 || mCurEye == 7) {
+    if (isEyeAnm(0) || isEyeAnm(7)) {
         if (cLib_calcTimer(&mEyeTimer) == 0) {
             m0F67++;
             if (m0F67 > mBtpAnm.getEndFrame()) {
@@ -1143,7 +1143,7 @@ void daPz_c::playEyeAnm() {
                 m0F67 = 0;
             }
         }
-    } else if (mCurEye == 1 || mCurEye == 2 || mCurEye == 5 || mCurEye == 6) {
+    } else if (isEyeAnm(1) || isEyeAnm(2) || isEyeAnm(5) || isEyeAnm(6)) {
         m0F67 = 1;
     } else {
         m0F67++;
@@ -1153,7 +1153,7 @@ void daPz_c::playEyeAnm() {
         }
     }
 
-    if (mCurEye == 4) {
+    if (isEyeAnm(4)) {
         moveEye = false;
     }
     if (moveEye) {
