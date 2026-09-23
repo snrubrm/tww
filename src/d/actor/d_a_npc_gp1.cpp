@@ -597,7 +597,7 @@ bool daNpc_Gp1_c::partner_srch_sub(void* (*callback)(void*, void*)) {
     for (int i = 0; i < 20; i++) {
         l_check_inf[i] = NULL;
     }
-    fpcEx_Search(callback, this);
+    fpcM_Search(callback, this);
     if (l_check_wrk != 0) {
         mPartnerID = fopAcM_GetID(l_check_inf[0]);
         result = true;
