@@ -1129,11 +1129,10 @@ int daNpcAuction_c::getRand(int max) {
 void daNpcAuction_c::clrEmitter() {
     JPABaseEmitter* em = mpEmitter;
     if (em != NULL) {
+        JSUList<JPABaseParticle>* list = em->getParticleList();
         em->becomeInvalidEmitter();
-        JSULink<JPABaseParticle>* link = em->getParticleList()->getFirst();
-        while (link != NULL) {
+        for (JSULink<JPABaseParticle>* link = list->getFirst(); link != list->getEnd(); link = link->getNext()) {
             link->getObject()->setDeleteParticleFlag();
-            link = link->getNext();
         }
         mpEmitter = NULL;
     }
