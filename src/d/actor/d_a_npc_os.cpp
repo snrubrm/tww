@@ -1037,7 +1037,7 @@ f32 daNpc_Os_c::checkForwardGroundY(s16 param_1) {
     if(wallHit >= 0) {
         cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(mAcchCir[wallHit]);
         if(plane) {
-            if(cLib_distanceAngleS(param_1, cM_atan2s(plane->GetNP()->x, plane->GetNP()->z)) > 0x4000) {
+            if(cLib_distanceAngleS(param_1, cM_atan2s(plane->mNormal.x, plane->mNormal.z)) > 0x4000) {
                 dBgS_GndChk gndChk;
 
                 gndChk.OffWall();
