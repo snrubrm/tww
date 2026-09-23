@@ -468,10 +468,8 @@ inline bool daObjMagmarock::Act_c::_draw() {
 }
 
 /* 00001EC0-00002128       .text Draw__Q214daObjMagmarock6MethodFPv */
-// NONMATCHING - regalloc: the target keeps &current.pos and &tevStr in saved registers instead of recomputing them
 BOOL daObjMagmarock::Method::Draw(void* actor) {
-    Act_c* self = static_cast<Act_c*>(actor);
-    return self->_draw();
+    return static_cast<Act_c*>(actor)->_draw();
 }
 
 /* 00002128-00002130       .text IsDelete__Q214daObjMagmarock6MethodFPv */
