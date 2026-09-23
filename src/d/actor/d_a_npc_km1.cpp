@@ -369,7 +369,7 @@ void daNpc_Km1_c::lookBack() {
     cXyz vec2 = current.pos;
     vec2.y = eyePos.y;
     
-    vec1.setall(0.0);
+    vec1.set(0.0f, 0.0f, 0.0f);
 
     cXyz* dstPos = NULL;
     s16 targetY = current.angle.y;
