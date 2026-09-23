@@ -475,7 +475,7 @@ void daNpcAuction_c::wait_action() {
             mTalking = 0;
             setAnm2(7, 2, 8.0f);
             if (m745 == 0) {
-                dComIfGp_event_onEventFlag(8);
+                dComIfGp_event_reset();
             } else if (mNpcNo == 0) {
                 daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
                 if (auction != NULL) {
@@ -532,7 +532,7 @@ void daNpcAuction_c::eventMove() {
         mMaxAttnDistXZ = 200.0f;
     } else if (dComIfGp_evmng_endCheck("AUCTION_TALK_XY")) {
         if (m745 == 0) {
-            dComIfGp_event_onEventFlag(8);
+            dComIfGp_event_reset();
         } else if (mNpcNo == 0) {
             daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
             if (auction != NULL) {
