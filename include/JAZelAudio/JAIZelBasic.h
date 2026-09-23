@@ -173,7 +173,7 @@ public:
     void checkSeMute() {}
     void checkTBoxDemo() {}
     JAInter::Camera* getCurCamera(u32 i_no) { return &mAudioCamera[i_no]; }
-    void getLinkBootsType() {}
+    u8 getLinkBootsType() { return field_0x0046; }
     void getLinkSwShieldBeat() {}
     BOOL isTaktUsing() { return field_0x0207; }
 

@@ -2428,7 +2428,7 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         break;
     case JA_SE_FT_LADDER_CLIMB:
     case JA_SE_FT_LADDER_CLIMB_D:
-        if (field_0x0046 == 1) {
+        if (getLinkBootsType() == 1) {
             i_seNum = JA_SE_LK_WALK_HEAVY;
             if (i_variation != 0xD) {
                 i_variation = 9;
