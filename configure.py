@@ -1093,7 +1093,7 @@ config.libs = [
             Object(Matching,    "JSystem/J3DGraphLoader/J3DMaterialFactory.cpp"),
             Object(Matching,    "JSystem/J3DGraphLoader/J3DMaterialFactory_v21.cpp"),
             Object(Matching,    "JSystem/J3DGraphLoader/J3DClusterLoader.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "JSystem/J3DGraphLoader/J3DModelLoader.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/J3DGraphLoader/J3DModelLoader.cpp"),
             Object(Matching,    "JSystem/J3DGraphLoader/J3DModelLoaderCalcSize.cpp"),
             Object(Matching,    "JSystem/J3DGraphLoader/J3DJointFactory.cpp"),
             Object(Matching,    "JSystem/J3DGraphLoader/J3DShapeFactory.cpp"),
