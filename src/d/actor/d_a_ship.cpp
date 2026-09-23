@@ -1491,7 +1491,7 @@ BOOL daShip_c::procReady() {
             mCurMode = 4;
         }
         if (mCurMode == MODE_READY_FIRST_e) {
-            playerAngle = fopAcM_searchPlayerAngleY(this);
+            playerAngle = fopAcM_searchActorAngleY(this, daPy_getPlayerActorClass());
             if ((s16)(playerAngle - shape_angle.y) > 0) {
                 playerAngle = -0x800;
             }
