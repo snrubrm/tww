@@ -101,12 +101,17 @@ BOOL daNpc_Nz_c::TailNodeCallBack(J3DNode* node, int calcTiming) {
 }
 
 /* 000003A4-00000978       .text TailControl__10daNpc_Nz_cFv */
-// NONMATCHING - demo: regalloc differs slightly
 void daNpc_Nz_c::TailControl() {
     cXyz sp64;
     cXyz sp58;
     cXyz sp4C;
     cXyz sp40;
+    int i;
+    s16 temp9;
+    int temp7;
+    cXyz* r19;
+    cXyz* r18;
+    cXyz* r17;
     sp58.set(0.0f, 0.0f, 5.0f);
     field_0x974[0] = field_0xA64[0];
     sp64 = field_0xA64[1] - field_0xA64[0];
@@ -117,12 +122,9 @@ void daNpc_Nz_c::TailControl() {
     mDoMtx_stack_c::XrotM(angle2);
     mDoMtx_stack_c::multVec(&sp58, &sp40);
 
-    int i;
-    s16 temp9;
-    int temp7;
-    cXyz* r19 = &field_0x974[1];
-    cXyz* r18 = &field_0x9EC[1];
-    cXyz* r17 = field_0x934.getPos(0);
+    r19 = &field_0x974[1];
+    r18 = &field_0x9EC[1];
+    r17 = field_0x934.getPos(0);
     dBgS_GndChk gndChk;
     for(i = 1; i < 10; i++, r19++, r18++) {
         f32 temp3 = 1.0f - (i-1) * 0.1f;
