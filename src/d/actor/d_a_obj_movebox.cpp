@@ -1135,12 +1135,7 @@ void Act_c::path_init() {
         
         bool isMoved1 = is_switch1();
         
-        u32 isMoved2 = false;
-        if (swSave2 == 0xFF) {
-            isMoved2 = false;
-        } else {
-            isMoved2 = is_switch2() ? true : false;
-        }
+        bool isMoved2 = swSave2 == 0xFF ? FALSE : is_switch2();
         int pntIdx = 0;
         if (isMoved1) {
             pntIdx += 1;
