@@ -1332,8 +1332,8 @@ void dMap_c::create() {
     mMapDispMode = 0;
     mNowFloorNo = -1;
     setFmapChkDtPrm();
-    mRoomInfoCtrl.m_num = 0x14;
-    mRoomInfoCtrl.m_info = mRoomInfo;
+    mRoomInfoCtrl.setRoomValue(0x14);
+    mRoomInfoCtrl.setMapRoomInfoP(mRoomInfo);
     mRoomInfoCtrl.init();
     mNowRoomInfoP = NULL;
     mCursor.init(0, 0, l_cursorColor, 6.0f, 10.0f, 0);

@@ -238,6 +238,8 @@ public:
 #endif
 
     dMap_RoomInfo_c* getMapRoomInfoP() { return m_info; }
+    void setMapRoomInfoP(dMap_RoomInfo_c* i_info) { m_info = i_info; }
+    void setRoomValue(int i_num) { m_num = i_num; }
 
 public:
     /* 0x00 */ s32 m_num;
