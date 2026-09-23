@@ -121,7 +121,7 @@ bool daNpc_Gp1_c::createInit() {
     if (pathNo != 0xFF) {
         mPath.setInf(pathNo, fopAcM_GetRoomNo(this), 1);
         if (mPath.isPath()) {
-            fopAcM_OffStatus(this, 0x80);
+            actor_status &= ~fopAcStts_NOCULLEXEC_e;
             weight = DEMO_SELECT(0xF0, 0xD9);
         } else return false;
     }
@@ -722,7 +722,7 @@ BOOL daNpc_Gp1_c::create_rupee() {
         if (item == NULL) {
             break;
         }
-        fopAcM_OnStatus(item, 0x4000);
+        item->actor_status |= fopAcStts_UNK4000_e;
         item->scale = itemScale;
         item->current.angle = angle;
         item->shape_angle = angle;
@@ -826,7 +826,7 @@ void daNpc_Gp1_c::event_proc(int staff) {
         switch (mEventIndex) {
         case 0:
             dComIfGs_onEventBit(0x1808);
-            fopAcM_OnStatus(this, 0x80);
+            actor_status |= fopAcStts_NOCULLEXEC_e;
             setStt(1);
             mWaitTimer = 0;
             mHairTimer = (g_Counter.mCounter0 & 3) + 2;
@@ -1059,10 +1059,10 @@ int daNpc_Gp1_c::wait_action1(void*) {
     switch (mActionState) {
     case 0:
         if (dNpc_chkArasoi()) {
-            fopAcM_OffStatus(this, 0x80);
+            actor_status &= ~fopAcStts_NOCULLEXEC_e;
             setStt(3);
         } else {
-            fopAcM_OnStatus(this, 0x80);
+            actor_status |= fopAcStts_NOCULLEXEC_e;
             setStt(1);
             mHairTimer = (g_Counter.mCounter0 & 3) + 2;
         }
