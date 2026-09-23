@@ -1150,7 +1150,7 @@ void daNpc_Kk1_c::cut_init_PLYER_MOV(int staff) {
         daPy_getPlayerLinkActorClass()->setPlayerPosAndAngle(&daPy_getPlayerLinkActorClass()->current.pos, diff);
         daPy_getPlayerLinkActorClass()->changeOriginalDemo();
         daPy_getPlayerLinkActorClass()->mDemo.setDemoMode(daPy_demo_c::DEMO_LDAM_e);
-        daPy_getPlayerLinkActorClass()->mDemo.setParam0(-diff);
+        daPy_getPlayerLinkActorClass()->changeDemoParam0(-diff);
         return;
     }
     diff = angle - current.angle.y;
