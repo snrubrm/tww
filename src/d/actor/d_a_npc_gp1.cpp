@@ -998,7 +998,7 @@ BOOL daNpc_Gp1_c::walk_1() {
     if (mArrived) {
         mArrived = 0;
         if (mMoveMode == 0) {
-            mPath.clrIdx();
+            mPath.setIdx(0);
             mMoveMode = 1;
         }
     }
