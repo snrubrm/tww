@@ -375,7 +375,7 @@ void daNpc_Gp1_c::checkOrder() {
         if (dComIfGp_evmng_startCheck(mEventIds[mEventIndex])) {
             mEventOrder = 0;
         }
-    } else if (eventInfo.checkCommandTalk() && (mEventOrder == 1 || mEventOrder == 2)) {
+    } else if (eventInfo.getCommand() == dEvtCmd_INTALK_e && (mEventOrder == 1 || mEventOrder == 2)) {
         mEventOrder = 0;
         mTalking = true;
     }
