@@ -490,7 +490,8 @@ static void br_draw(bk_class* i_this) {
 static void daBk_shadowDraw(bk_class* i_this) {
     J3DModel* model = i_this->mpMorf->getModel();
     if (!fopAcM_checkCarryNow(i_this)) {
-        cXyz shadowPos(
+        cXyz shadowPos;
+        shadowPos.set(
             i_this->current.pos.x,
             i_this->current.pos.y + 150.0f + REG8_F(18),
             i_this->current.pos.z
@@ -979,7 +980,7 @@ static void path_check(bk_class* i_this, u8 r19) {
     u8 sp90[0x100];
     dBgS_LinChk linChk;
     cXyz sp18;
-    sp18.set(i_this->current.pos);
+    sp18 = i_this->current.pos;
     sp18.y += 100.0f;
     cXyz spc;
     
@@ -4420,7 +4421,8 @@ static BOOL daBk_Execute(bk_class* i_this) {
     yari_off_check(i_this);
     MtxTrans(i_this->current.pos.x, i_this->current.pos.y, i_this->current.pos.z, 0);
     cMtx_YrotM(*calc_mtx, i_this->current.angle.y);
-    cXyz sp58(0.0f, 0.0f, 35.0f);
+    cXyz sp58;
+    sp58.set(0.0f, 0.0f, 35.0f);
     cXyz sp4C;
     MtxPosition(&sp58, &sp4C);
     i_this->m0B88.SetC(sp4C);
