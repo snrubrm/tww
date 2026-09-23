@@ -3285,7 +3285,7 @@ void daShip_c::setRopePos() {
     spBC.y = spC8.y;
     spBC.z = sin * spC8.x + cos * spC8.z;
     
-    mDoMtx_trans(mDoMtx_stack_c::get(), currentRopeSegment->x, currentRopeSegment->y, currentRopeSegment->z);
+    mDoMtx_stack_c::transS(currentRopeSegment->x, currentRopeSegment->y, currentRopeSegment->z);
     mDoMtx_stack_c::ZXYrotM(
         sVar14 + cM_atan2s(spBC.z, spBC.y),
         shape_angle.y,
@@ -3963,7 +3963,7 @@ BOOL daShip_c::execute() {
         shape_angle.z = m036C + m0372;
     }
 
-    mDoMtx_trans(mDoMtx_stack_c::get(), current.pos.x, current.pos.y, current.pos.z);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     
     mDoMtx_stack_c::ZXYrotM(shape_angle.x, shape_angle.y, shape_angle.z);
     
