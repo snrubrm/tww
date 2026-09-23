@@ -178,7 +178,7 @@ bool daNpc_Ko1_c::init_HNA_0() {
 bool daNpc_Ko1_c::init_HNA_1() {
     if (dComIfGs_isEventBit(0xE20)) {
         mpBalloonMorf = NULL;
-        fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
+        actor_status &= ~fopAcStts_NOCULLEXEC_e;
         set_action(&daNpc_Ko1_c::hana_action2, NULL);
         return true;
     }
@@ -199,8 +199,8 @@ bool daNpc_Ko1_c::init_HNA_2() {
 bool daNpc_Ko1_c::init_HNA_3() {
     if (dComIfGs_isEventBit(0x520)) {
         if (dKy_daynight_check() == 0) {
-            fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
-            fopAcM_OnStatus(this, fopAcStts_UNK4000_e);
+            actor_status &= ~fopAcStts_NOCULLEXEC_e;
+            actor_status |= fopAcStts_UNK4000_e;
             mpBalloonMorf = NULL;
             set_action(&daNpc_Ko1_c::hana_action4, NULL);
             return true;
@@ -224,7 +224,7 @@ bool daNpc_Ko1_c::init_HNA_4() {
 bool daNpc_Ko1_c::init_BOU_0() {
     if (!dComIfGs_isEventBit(0xE20)) {
         set_action(&daNpc_Ko1_c::wait_action1, NULL);
-        fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
+        actor_status &= ~fopAcStts_NOCULLEXEC_e;
         return true;
     }
     return false;
@@ -234,7 +234,7 @@ bool daNpc_Ko1_c::init_BOU_0() {
 bool daNpc_Ko1_c::init_BOU_1() {
     if (dComIfGs_isEventBit(0xE20)) {
         set_action(&daNpc_Ko1_c::wait_action2, NULL);
-        fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
+        actor_status &= ~fopAcStts_NOCULLEXEC_e;
         return true;
     }
     return false;
@@ -244,8 +244,8 @@ bool daNpc_Ko1_c::init_BOU_1() {
 bool daNpc_Ko1_c::init_BOU_2() {
     if (dComIfGs_isEventBit(0x520)) {
         if (dKy_daynight_check() == 0) {
-            fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
-            fopAcM_OnStatus(this, fopAcStts_UNK4000_e);
+            actor_status &= ~fopAcStts_NOCULLEXEC_e;
+            actor_status |= fopAcStts_UNK4000_e;
             set_action(&daNpc_Ko1_c::wait_action3, NULL);
             mpItemModel = NULL;
             return true;
@@ -298,7 +298,7 @@ bool daNpc_Ko1_c::createInit() {
         if (mPath.isPath() == false) {
             return false;
         }
-        fopAcM_OffStatus(this, fopAcStts_NOCULLEXEC_e);
+        actor_status &= ~fopAcStts_NOCULLEXEC_e;
         weight = 0xF0;
     }
 
@@ -814,7 +814,7 @@ bool daNpc_Ko1_c::chk_manzai_1() {
         if (npc->field_0x6bc[0] == 2) {
             ready++;
         } else {
-            fopAcM_OnStatus(npc, fopAcStts_UNK4000_e);
+            npc->actor_status |= fopAcStts_UNK4000_e;
             npc->mManzaiPartnerId = fopAcM_GetID(this);
             npc->field_0x6bc[0] = 1;
         }
@@ -2300,7 +2300,7 @@ BOOL daNpc_Ko1_c::manzai() {
         break;
     }
     case 3:
-        fopAcM_OffStatus(this, fopAcStts_UNK4000_e);
+        actor_status &= ~fopAcStts_UNK4000_e;
         setStt(m8A4);
         field_0x6bc[0] = 0;
         break;
