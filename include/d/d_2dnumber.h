@@ -14,7 +14,7 @@ public:
     dDlst_2DNumber_c();
     ~dDlst_2DNumber_c();
     bool init(int, s16, s16, s16, s16, u8);
-    void setValue(int value) { mValue = value; }
+    void set(int value) { mValue = value; }
     void draw();
 
 private:

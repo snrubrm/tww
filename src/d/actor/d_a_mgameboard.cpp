@@ -377,8 +377,8 @@ bool daMgBoard_c::_execute() {
     int highScore;
     highScore = dComIfGs_getEventReg(0xBEFF);
     score = mSeaFightGame.mScore;
-    mpNumber0->setValue(highScore);
-    mpNumber1->setValue(score);
+    mpNumber0->set(highScore);
+    mpNumber1->set(score);
     set_2dposition();
     if (mbForceEnd) {
         execEndGame();
