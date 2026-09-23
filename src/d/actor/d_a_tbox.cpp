@@ -1164,7 +1164,9 @@ BOOL daTbox_c::execute() {
             mIsFlashPlaying = FALSE;
         }
 
-        mpFlashMdl->setBaseScale(cXyz(10.0f / 7.0f, 1.0f, 1.0f));
+        cXyz scale;
+        scale.set(10.0f / 7.0f, 1.0f, 1.0f);
+        mpFlashMdl->setBaseScale(scale);
 
         mDoMtx_stack_c::transS(current.pos.x, current.pos.y + 50.0f, current.pos.z);
         mDoMtx_stack_c::YrotM(current.angle.y + 0x7FFF);
