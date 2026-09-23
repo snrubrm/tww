@@ -1886,9 +1886,8 @@ void wave_move() {
 #if VERSION == VERSION_DEMO
         f32 a = std::fabsf(windPowVec2.x * vectle.x + windPowVec2.z * vectle.z);
         f32 b = std::fabsf(windPowVec2.y);
-        f32 t1 = 1.0f;
-        f32 tmp = windPow * (t1 - a);
-        pPkt->mSkewWidth = tmp * (t1 - b);
+        f32 tmp = (1.0f - a) * windPow;
+        pPkt->mSkewWidth = tmp * (1.0f - b);
 #else
         f32 t1 = 1.0f;
         f32 a = std::fabsf(windPowVec2.x * vectle.x + windPowVec2.z * vectle.z);
