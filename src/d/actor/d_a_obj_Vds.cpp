@@ -128,7 +128,7 @@ void daObjVds::Act_c::process_common() {
     switch (mLightState) {
     case 0:
         for (int i = 0; i < 2; i++) mSwitchId[i] = fpcM_ERROR_PROCESS_ID_e;
-        fopAcIt_Judge(ds_search_switchCB, this);
+        fopAcM_Search(ds_search_switchCB, this);
         if (mSwitchId[0] != fpcM_ERROR_PROCESS_ID_e && mSwitchId[1] != fpcM_ERROR_PROCESS_ID_e) {
             fopAc_ac_c* left = fopAcM_SearchByID(mSwitchId[0]);
             fopAc_ac_c* right = fopAcM_SearchByID(mSwitchId[1]);
