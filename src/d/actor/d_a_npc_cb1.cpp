@@ -1231,9 +1231,9 @@ void daNpc_Cb1_c::evInitMovePos(int staffIdx) {
         shape_angle.y = angle;
     }
 
-    cXyz* pPos = dComIfGp_evmng_getMyXyzP(staffIdx, "Pos");
+    Vec* pPos = dComIfGp_evmng_getMyVec3dP(staffIdx, "Pos");
     if(pPos) {
-        current.pos = *pPos;
+        current.pos.set(*pPos);
     }
 
     const char* pShipRide = dComIfGp_evmng_getMyStringP(staffIdx, "ShipRide");
