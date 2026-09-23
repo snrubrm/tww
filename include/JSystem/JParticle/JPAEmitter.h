@@ -119,7 +119,7 @@ public:
     ~JPAEmitterInfo() {}
 
 public:
-    /* 0x000 */ JMath::TRandom_fast_ mRandom;
+    /* 0x000 */ JMath::TRandom_<JMath::TRandom_fast_> mRandom;
     /* 0x004 */ JPABaseEmitter * mpCurEmitter;
     /* 0x008 */ Mtx mEmitterGlobalSR;
     /* 0x038 */ Mtx mEmitterGlobalRot;
