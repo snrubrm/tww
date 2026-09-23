@@ -201,7 +201,8 @@ void hontai_draw(wz_class* i_this) {
 
     if (i_this->mAlpha != 0) {
         i_this->mpRodMorf->entryDL();
-        cXyz shadowPos(i_this->current.pos.x, i_this->current.pos.y + REG8_F(18), i_this->current.pos.z);
+        cXyz shadowPos;
+        shadowPos.set(i_this->current.pos.x, i_this->current.pos.y + REG8_F(18), i_this->current.pos.z);
         i_this->mShadowId = dComIfGd_setShadow(
             i_this->mShadowId,
             1,
@@ -1865,7 +1866,8 @@ BOOL sea_water_check(wz_class* i_this) {
     }
 
     if (hit) {
-        cXyz scale(2.0f, 2.0f, 2.0f);
+        cXyz scale;
+        scale.setall(2.0f);
         dComIfGp_particle_set(dPa_name::ID_AK_JN_EVAPORATION00, &i_this->current.pos, &i_this->current.angle, &scale);
         return TRUE;
     }
