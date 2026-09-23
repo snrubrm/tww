@@ -1854,9 +1854,7 @@ void dr_damage_anime(damagereaction* dr) {
             break;
     }
 
-    csxyz_temp.x = 0;
-    csxyz_temp.y = 0;
-    csxyz_temp.z = 0;
+    csxyz_temp.set(0, 0, 0);
     for(int i = 0; i < 20; i++) {
         if((dr->m474 > 0.1f && (i == 2 || i == 6 || i == 7 || i == 3) && (dr->m70E & 8)) ||
             ((i == 0 || i == 4 || i == 5 || i == 1) && (dr->m70E & 4)) ||
