@@ -4079,7 +4079,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         }
 
         if (fopAcM_GetName(speaker) == fpcNm_SHIP_e) {
-            cSAngle toAttn(cLib_targetAngleY(&speaker->current.pos, &speakerAttn));
+            cSAngle toAttn(cLib_targetAngleY(positionPntOf(speaker), &speakerAttn));
             cSAngle diff = directionOf(speaker) - toAttn;
             cSAngle add;
             if (diff < cSAngle::_0) {

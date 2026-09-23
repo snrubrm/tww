@@ -647,7 +647,7 @@ public:
     void U2(s16) {}
     void V() {}
     void isModeOK() {}
-    void positionPntOf(fopAc_ac_c*) {}
+    cXyz* positionPntOf(fopAc_ac_c* i_actor) { return &i_actor->current.pos; }
 
     void Far4Debug() {}
     void Near4Debug() {}
