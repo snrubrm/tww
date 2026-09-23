@@ -1627,7 +1627,7 @@ void action_demo(wz_class* i_this) {
         mDoMtx_YrotS(*calc_mtx, fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0)));
         mtx_off.set(0.0f, 0.0f, 400.0f);
         MtxPosition(&mtx_off, &dst);
-        VECAdd(&dst, &actor->current.pos, &dst);
+        dst += actor->current.pos;
         i_this->mCamCenter.x = dst.x - 100.0f;
         i_this->mCamCenter.y = 400.0f + dst.y;
         i_this->mCamCenter.z = dst.z - 300.0f;
