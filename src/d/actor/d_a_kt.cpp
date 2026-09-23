@@ -93,7 +93,7 @@ void kotori_move(kt_class* i_this) {
             offs.x = 0.0f;
             offs.y = 0.0f;
             offs.z = REG0_F(13) * 100.0f + 3000.0f;
-            cMtx_YrotS(*calc_mtx, player->shape_angle.y);
+            cMtx_YrotS(*calc_mtx, fopAcM_GetShapeAngle_p(player)->y);
 
             MtxPosition(&offs, &pt);
             i_this->mTargetPosHome.x = player->current.pos.x + pt.x + cM_rndFX(REG0_F(14) + 200.0f);
