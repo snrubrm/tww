@@ -83,9 +83,9 @@ static BOOL searchEsaInit_CB(void* pActor1, void* pActor2) {
         pos.x += cM_ssin(pNz->current.angle.y) * 150.0f;
         pos.z += cM_scos(pNz->current.angle.y) * 150.0f;
 #if VERSION == VERSION_DEMO
-        s16 angle = cAngle::d2s(cM_rndFX2(179.0f));
+        s16 angle = cM_deg2s(cM_rndFX2(179.0f));
 #else
-        s16 angle = cAngle::d2s(cM_rndFX(358.0f));
+        s16 angle = cM_deg2s(cM_rndFX(358.0f));
 #endif
         f32 mag = cM_rndF(30.0f);
         pos.x += mag * cM_ssin(angle);
