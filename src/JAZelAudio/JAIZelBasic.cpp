@@ -3437,8 +3437,7 @@ void JAIZelBasic::init(JKRSolidHeap* param_1, u32 param_2) {
     JAIGlobalParameter::setParamDummyObjectMax(JAIZelParam::DUMMY_POSITION_MAX);
     JAIGlobalParameter::setParamDummyObjectLifeTime(JAIZelParam::DUMMY_POSITION_LIFE_TIME);
     JAIGlobalParameter::setParamStreamInsideBufferCut(true);
-    initDriver(param_1, param_2, 1);
-    initInterface(1);
+    initAudio(param_1, param_2, 1);
     mpMainBgmSound = NULL;
     mpSubBgmSound = NULL;
     mpStreamBgmSound = NULL;

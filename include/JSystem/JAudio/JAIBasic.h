@@ -110,7 +110,10 @@ public:
     void getSceneSetFlag() {}
     void getSeSoundHandle() {}
     void getWaveLoadStatus(s32) {}
-    void initAudio(JKRSolidHeap*, u32, u8) {}
+    void initAudio(JKRSolidHeap* heap, u32 size, u8 flag) {
+        initDriver(heap, size, flag);
+        initInterface(flag);
+    }
     void loadSceneWave(s32, s32) {}
     void setInitDataInfo(char*) {}
     void setInitOnCodeSeScene(u32*) {}
