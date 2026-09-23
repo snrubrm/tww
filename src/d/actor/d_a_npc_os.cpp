@@ -2294,8 +2294,8 @@ BOOL daNpc_Os_c::execute() {
                 }
             }
 
-            speed.x = fopAcM_GetSpeedF(this) * cM_ssin(current.angle.y);
-            speed.z = fopAcM_GetSpeedF(this) * cM_scos(current.angle.y);
+            speed.x = speedF * cM_ssin(current.angle.y);
+            speed.z = speedF * cM_scos(current.angle.y);
 
             fopAcM_posMove(this, mStts.GetCCMoveP());
         }
@@ -2321,7 +2321,7 @@ BOOL daNpc_Os_c::execute() {
         if(mAcch.GetGroundH() != -G_CM3D_F_INF) {
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(mAcch.m_gnd);
             if(plane) {
-                field_0x7F0 = *plane->GetNP();
+                field_0x7F0 = plane->mNormal;
             }
 
             s8 roomNo = dComIfG_Bgsp()->GetRoomId(mAcch.m_gnd);
