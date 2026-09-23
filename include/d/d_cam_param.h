@@ -235,9 +235,8 @@ public:
     virtual ~dCstick_c() {}
 
     s32 Shift(u32);
-    // names are guesses
-    f32 ThresholdLow() { return m00; }
-    f32 ThresholdHigh() { return m04; }
+    f32 SwTHL() { return m00; }
+    f32 SwTHH() { return m04; }
 };
 
 class dCamBGChk_c {

@@ -1248,11 +1248,11 @@ int dCamera_c::nextMode(s32 i_curMode) {
                         )
                     ) {
                         if (m184 == 1) {
-                            if (mStickCPosYLast < mCamSetup.mCstick.ThresholdLow()) {
+                            if (mStickCPosYLast < mCamSetup.mCstick.SwTHL()) {
                                 m184 = 0;
                             }
                         }
-                        else if (mStickCPosYLast > mCamSetup.mCstick.ThresholdHigh()) {
+                        else if (mStickCPosYLast > mCamSetup.mCstick.SwTHH()) {
                             // C-stick up.
                             setComStat(dCamAttnStts_00001000_e);
                             m184 = 1;
