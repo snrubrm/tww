@@ -64,7 +64,7 @@ inline daNpc_Ko1_childHIO_c::~daNpc_Ko1_childHIO_c() {}
 
 /* 00000268-000002E0       .text searchActor_Ko_Hna__FPvPv */
 static void* searchActor_Ko_Hna(void* actor, void*) {
-    if (l_check_wrk < 20 && fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_KO1_e) {
+    if (l_check_wrk < 20 && fopAcM_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_KO1_e) {
         l_check_inf[l_check_wrk] = (fopAc_ac_c*)actor;
         l_check_wrk++;
     }
@@ -73,7 +73,7 @@ static void* searchActor_Ko_Hna(void* actor, void*) {
 
 /* 000002E0-00000358       .text searchActor_Ko_Bou__FPvPv */
 static void* searchActor_Ko_Bou(void* actor, void*) {
-    if (l_check_wrk < 20 && fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_KO2_e) {
+    if (l_check_wrk < 20 && fopAcM_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_KO2_e) {
         l_check_inf[l_check_wrk] = (fopAc_ac_c*)actor;
         l_check_wrk++;
     }
@@ -82,7 +82,7 @@ static void* searchActor_Ko_Bou(void* actor, void*) {
 
 /* 00000358-000003D0       .text searchActor_Ob__FPvPv */
 static void* searchActor_Ob(void* actor, void*) {
-    if (l_check_wrk < 20 && fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_OB1_e) {
+    if (l_check_wrk < 20 && fopAcM_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_NPC_OB1_e) {
         l_check_inf[l_check_wrk] = (fopAc_ac_c*)actor;
         l_check_wrk++;
     }
