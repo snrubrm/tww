@@ -1176,7 +1176,7 @@ void daPz_c::playEyeAnm() {
 /* 00002D38-00002DC8       .text setMtx__6daPz_cFv */
 void daPz_c::setMtx() {
     mpMorf->getModel()->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::ZXYrotM(shape_angle.x, shape_angle.y, shape_angle.z);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
 }
