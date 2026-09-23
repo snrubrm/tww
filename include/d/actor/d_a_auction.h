@@ -25,7 +25,7 @@ public:
     u8 getAnmNpcNo() { return m829; }
     u8 getAucMdlNo(u8 idx) { return mAucMdlNo[idx]; }
     u8 getAucNpcNo(u8 idx) { return m80C[idx]; }
-    u8 getBetNpcNo() { return m829; }
+    u8 getBetNpcNo() { return m827; }
     u8 getKind(u8 idx) { return mKind[idx]; }
     u8 getNpcNo() { return m824; }
     BOOL isAucBet() { return m834 & 0x01; }

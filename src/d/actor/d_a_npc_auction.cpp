@@ -797,7 +797,7 @@ u16 daNpcAuction_c::next_msgStatus(u32* pMsgNo) {
         *pMsgNo = 0x1D37;
         break;
     case 0x1D37:
-        if (auction->m827 == 0) {
+        if (auction->getBetNpcNo() == 0) {
             *pMsgNo = 0x1D38;
         } else {
             *pMsgNo = 0x1D39;
