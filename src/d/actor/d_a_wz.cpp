@@ -523,9 +523,7 @@ void weapon_shoot(wz_class* i_this, unsigned char type) {
     u32 params = 0xFFFFFF00;
 #endif
     csXyz angle = i_this->shape_angle;
-    angle.x = i_this->shape_angle.x;
-    angle.y = i_this->shape_angle.y;
-    angle.z = i_this->shape_angle.z;
+    angle = i_this->shape_angle;
 
     fopAcM_monsSeStart(actor, JA_SE_CV_WZ_ATTACK, 0);
 
