@@ -383,7 +383,7 @@ void daNpc_Ko1_c::setMtx(bool param) {
     }
     tevStr.mRoomNo = dComIfG_Bgsp()->GetRoomId(mObjAcch.m_gnd);
     tevStr.mEnvrIdxOverride = dComIfG_Bgsp()->GetPolyColor(mObjAcch.m_gnd);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(mModelAngle.y);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
     mpMorf->calc();
@@ -1183,7 +1183,7 @@ void daNpc_Ko1_c::ko_setPthPos() {
 /* 0000299C-00002AA4       .text set_tgtPos__11daNpc_Ko1_cF4cXyz */
 cXyz daNpc_Ko1_c::set_tgtPos(cXyz pos) {
     cXyz offset(0.0f, 0.0f, 0.0f);
-    mDoMtx_stack_c::transS(pos);
+    mDoMtx_stack_c::transS(pos.x, pos.y, pos.z);
     mDoMtx_stack_c::YrotM(dComIfGp_getLinkPlayer()->current.angle.y);
     f32 s = cM_ssin(mTgtAngle);
     offset.x = 80.0f * s;
