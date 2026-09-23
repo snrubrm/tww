@@ -2115,19 +2115,19 @@ void action_summon_dousa(wz_class* i_this) {
         }
         for (int i = 0; i < 5; i++) {
             JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZSUMMONWIND00, &actor->current.pos);
-            JGeometry::TVec3<f32> scale(actor->scale.x, actor->scale.y, actor->scale.z);
+            JGeometry::TVec3<f32> scale;
+            scale.set(actor->scale.x, actor->scale.y, actor->scale.z);
             if (emitter != NULL) {
-                emitter->setGlobalDynamicsScale(scale);
-                emitter->setGlobalParticleScale(scale);
+                emitter->setGlobalScale(scale);
             }
         }
         fopAcM_seStart(actor, JA_SE_OBJ_WZ_SUMMON_B_SMN, 0);
         {
             JPABaseEmitter* emitter = dComIfGp_particle_set(dPa_name::ID_AK_SN_WIZSUMMONSMOKE00, &actor->current.pos);
-            JGeometry::TVec3<f32> scale(actor->scale.x, actor->scale.y, actor->scale.z);
+            JGeometry::TVec3<f32> scale;
+            scale.set(actor->scale.x, actor->scale.y, actor->scale.z);
             if (emitter != NULL) {
-                emitter->setGlobalDynamicsScale(scale);
-                emitter->setGlobalParticleScale(scale);
+                emitter->setGlobalScale(scale);
             }
         }
         i_this->mTimers[0] = 0x28;
