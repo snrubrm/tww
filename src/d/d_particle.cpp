@@ -283,7 +283,7 @@ void dPa_followEcallBack::execute(JPABaseEmitter* emtr) {
         end();
     }
 
-    if (mFlag & 1) {
+    if (isEnd()) {
         s16 alpha = emtr->getGlobalAlpha();
         cLib_chaseS(&alpha, 1, 4);
         emtr->setGlobalAlpha(alpha);
