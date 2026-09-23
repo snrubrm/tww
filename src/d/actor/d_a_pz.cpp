@@ -587,7 +587,7 @@ void daPz_c::setFallSplash() {
                 }
             }
         } else {
-            mFollowCb1.end();
+            mFollowCb1.remove();
         }
         if (cLib_calcTimer(&mSplashTimer) == 0) {
             static Vec fall_ripple_scale = {0.75f, 0.75f, 0.75f};
@@ -600,7 +600,7 @@ void daPz_c::setFallSplash() {
             mSplashTimer = 0xF;
         }
     } else {
-        mFollowCb1.end();
+        mFollowCb1.remove();
     }
 }
 
@@ -631,7 +631,7 @@ void daPz_c::setRipple() {
                 }
             }
         } else {
-            mRippleCb.end();
+            mRippleCb.remove();
         }
     }
 }
@@ -986,7 +986,7 @@ void daPz_c::setAnm(s8 idx, bool param_2, int eyeIdx) {
         if (mAnmPrmIdx == 9) {
             setHeadSplash();
         } else {
-            mFollowCb2.end();
+            mFollowCb2.remove();
         }
         if (mAnmPrmIdx == 4 || mAnmPrmIdx == 5 || mAnmPrmIdx == 6) {
             setBowString(true);
@@ -2433,9 +2433,9 @@ cPhs_State daPz_c::_create() {
 /* 00007DA0-00007E20       .text _delete__6daPz_cFv */
 bool daPz_c::_delete() {
     dComIfG_resDelete(&mPhs, m_arc_name);
-    mRippleCb.end();
-    mFollowCb1.end();
-    mFollowCb2.end();
+    mRippleCb.remove();
+    mFollowCb1.remove();
+    mFollowCb2.remove();
 #if VERSION > VERSION_DEMO
     if (heap != NULL) {
         mpMorf->stopZelAnime();
