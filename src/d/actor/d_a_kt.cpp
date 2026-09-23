@@ -44,7 +44,9 @@ static BOOL daKt_Draw(kt_class* i_this) {
 
 /* 000001E0-000011D4       .text kotori_move__FP8kt_class */
 // NONMATCHING - regalloc: the target holds &current.pos.x/y/z and &current.angle.y in saved registers. The demo debug map
-// (d_a_ktD.map) shows no position accessor in this object, so it wasn't an inline; see the map's inline list for this function.
+// (d_a_ktD.map) shows no position accessor in this object, so it wasn't an inline. mwcc-instr: those addresses are only
+// CSE'd when i_this is converted to fopAc_ac_c* at each access (e.g. ((fopAc_ac_c*)i_this)->current..., USA 98.09%, demo 99.71%;
+// a macro would fit), but that cast is redundant, so it isn't used; plain locals/references/qualified access change nothing.
 void kotori_move(kt_class* i_this) {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     bool dispWing = false;
