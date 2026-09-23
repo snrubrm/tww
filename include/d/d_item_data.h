@@ -348,7 +348,7 @@ public:
     static u8 getShadowSize(u8 no) { return item_info[no].mShadowSize; }
     static const u8 getH(u8 no) { return item_info[no].mCollisionH; }
     static const u8 getR(u8 no) { return item_info[no].mCollisionR; }
-    static bool chkFlag(u8 no, u32 mask) { return item_info[no].mFlag & mask; }
+    static BOOL chkFlag(u8 no, int mask) { return item_info[no].mFlag & mask; }
     
     static bool checkAppearEffect(u8 no);
     static u16 getAppearEffect(u8 no);
