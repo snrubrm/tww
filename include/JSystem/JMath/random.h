@@ -31,7 +31,7 @@ struct TRandom_fast_ {
 };
 
 struct TRandom_enough_ {
-    TRandom_enough_() { setSeed(0); }
+    TRandom_enough_(u32 seed) { setSeed(seed); }
     void setSeed(u32 value);
     f32 get();
 
@@ -42,6 +42,12 @@ struct TRandom_enough_ {
     u32 field_0x0;
     u32 field_0x4;
     u32 field_0x8[32];
+};
+
+template <class RandomT>
+class TRandom_ : public RandomT {
+public:
+    TRandom_(u32 value) : RandomT(value) {}
 };
 }  // namespace JMath
 

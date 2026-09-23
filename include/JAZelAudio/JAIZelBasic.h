@@ -388,7 +388,7 @@ public:
     /* 0x2050 */ JAISound* field_0x2050[4];
     /* 0x2060 */ JAISound* field_0x2060;
     /* 0x2064 */ int field_0x2064;
-    /* 0x2068 */ JMath::TRandom_enough_ field_0x2068;
+    /* 0x2068 */ JMath::TRandom_<JMath::TRandom_enough_> field_0x2068;
     /* 0x20F0 */ u8 field_0x20F0[0x20F4 - 0x20F0];
 };
 

@@ -22,7 +22,7 @@ JAIZelBasic* JAIZelBasic::zel_basic;
 u32 jai_rnd_seed = 0x12345678;
 
 /* 802A1C78-802A1EB4       .text __ct__11JAIZelBasicFv */
-JAIZelBasic::JAIZelBasic() {
+JAIZelBasic::JAIZelBasic() : field_0x2068(0) {
     zel_basic = this;
     field_0x0021 = 0;
     field_0x0024 = 0;
