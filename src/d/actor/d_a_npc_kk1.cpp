@@ -125,7 +125,7 @@ static void* searchActor_SWC00(void* i_actor, void* i_data) {
     fopAc_ac_c* actor = (fopAc_ac_c*)i_actor;
     daNpc_Kk1_c* i_this = (daNpc_Kk1_c*)i_data;
     if (l_check_wrk < 20) {
-        if (fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_SWC00_e) {
+        if (fopAcM_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_SWC00_e) {
             if (daSwc00_getType((swc00_class*)actor) == 0 && daSwc00_getSw1No((swc00_class*)actor) == i_this->getSWbit()) {
                 l_check_inf[l_check_wrk] = actor;
                 l_check_wrk++;
@@ -775,7 +775,7 @@ bool daNpc_Kk1_c::partner_search_sub(void* (*judge)(void*, void*)) {
     }
     fpcM_Search(judge, this);
     if (l_check_wrk != 0) {
-        mPartnerId = fpcM_GetID(l_check_inf[0]);
+        mPartnerId = fopAcM_GetID(l_check_inf[0]);
         result = true;
     }
     return result;
