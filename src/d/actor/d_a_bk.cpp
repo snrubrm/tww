@@ -855,7 +855,7 @@ static BOOL daBk_bomb_check(bk_class* i_this) {
 /* 000034B8-0000385C       .text daBk_player_bg_check__FP8bk_classP4cXyz */
 static BOOL daBk_player_bg_check(bk_class* i_this, cXyz* r22) {
     fopAc_ac_c* i_actor = i_this;
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
 #if VERSION != VERSION_USA
     if (search_sp != 0) { return FALSE; }
 #else
@@ -880,7 +880,7 @@ static BOOL daBk_player_bg_check(bk_class* i_this, cXyz* r22) {
 
 /* 0000385C-00003A18       .text daBk_player_view_check__FP8bk_classP4cXyzss */
 static BOOL daBk_player_view_check(bk_class* i_this, cXyz* r30, s16 r27, s16 r31) {
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
 #if VERSION != VERSION_USA
     if (search_sp != 0) { return TRUE; }
 #else
@@ -1203,7 +1203,7 @@ static void* ken_s_sub(void* param_1, void*) {
 
 /* 000048E4-000053E0       .text stand__FP8bk_class */
 static void stand(bk_class* i_this) {
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     i_this->dr.m710 = 0;
     bool r28 = false;
     bool r27 = false;
@@ -1775,7 +1775,7 @@ static void* shot_s_sub(void* param_1, void*) {
 
 /* 000064D8-000073B8       .text fight_run__FP8bk_class */
 static void fight_run(bk_class* i_this) {
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     f32 stickPosX = CPad_GET_STICK_POS_X(0);
     s8 r29 = 0;
     if (i_this->dr.mAcch.ChkGroundHit() && i_this->dr.mAcch.ChkWallHit()) {
