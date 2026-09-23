@@ -526,7 +526,7 @@ void daObjFirewall_c::demo_end_wait_act_proc() {
 void daObjFirewall_c::burn_wait_act_proc() {
     mStts.Move();
     registCollisionTable();
-    if (mSwitch != 0xFF && dComIfGs_isSwitch(mSwitch, fopAcM_GetHomeRoomNo(this)) == TRUE) {
+    if (mSwitch != 0xFF && fopAcM_isSwitch(this, mSwitch) == TRUE) {
         J3DAnmTevRegKey* brk_anm_p = (J3DAnmTevRegKey*)dComIfG_getObjectRes(l_arcname, dRes_INDEX_YSWDR00_BRK_YSWDR00_e);
         JUT_ASSERT(DEMO_SELECT(1041, 0x4e4), brk_anm_p != 0);
         mBrk.init(mpModel->getModelData(), brk_anm_p, TRUE, J3DFrameCtrl::EMode_NONE, -1.0f, 0, -1, true, 0);
