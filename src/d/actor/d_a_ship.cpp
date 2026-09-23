@@ -3131,9 +3131,9 @@ void daShip_c::incRopeCnt(int lengthChange, int minSegmentLimit) {
     }
 
     for (i = mRopeCnt; i < targetRopeCnt; i++, currRopeSegment++, ropeSegments++) {
-        currRopeSegment->set(l_rope_base_vec);
+        *currRopeSegment = l_rope_base_vec;
         if (mRopeCnt) {
-            ropeSegments->set(*(ropeSegments - 1) - l_rope_base_vec);
+            *ropeSegments = *(ropeSegments - 1) - l_rope_base_vec;
         }
     }
 
@@ -3216,7 +3216,7 @@ void daShip_c::setRopePos() {
 
             *currentRopeSegment += *ropeSegments;
 
-            spEC.set(*currentRopeSegment - *(currentRopeSegment + 1));
+            spEC = *currentRopeSegment - *(currentRopeSegment + 1);
 
             f32 fVar17 = std::sqrtf(spEC.abs2());
 
