@@ -7624,7 +7624,7 @@ u8 daNpcPeople_c::getPrmArg0() {
 /* 00007BA0-00007C28       .text setMtx__13daNpcPeople_cFv */
 void daNpcPeople_c::setMtx() {
     mpMorf->getModel()->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(current.angle.y);
     mpMorf->getModel()->setBaseTRMtx(mDoMtx_stack_c::get());
 }
