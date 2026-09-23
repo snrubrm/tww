@@ -26,6 +26,9 @@ public:
     u8 getShipStartX(int i) { return mShips[i].field_0xb; }
     u8 getShipStartY(int i) { return mShips[i].field_0xc; }
     s8 getShipVecY(int i) { return mShips[i].field_0xe; }
+    u8 getMaxHP(int i) { return mShips[i].field_0x8; }
+    u8 checkUsedBullet() { return mScore; }
+    bool isClearGame() { return mAliveShipNum == 0; }
 
     /* 0x00 */ u8 mGrid[8][8];
     /* 0x40 */ dSeaFightGame_ship_data mShips[4];

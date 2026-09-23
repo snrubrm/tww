@@ -376,7 +376,7 @@ bool daMgBoard_c::_execute() {
     int score;
     int highScore;
     highScore = dComIfGs_getEventReg(0xBEFF);
-    score = mSeaFightGame.mScore;
+    score = mSeaFightGame.checkUsedBullet();
     mpNumber0->set(highScore);
     mpNumber1->set(score);
     set_2dposition();
@@ -408,7 +408,7 @@ bool daMgBoard_c::_execute() {
     case 4:
         if (cLib_calcTimer(&mTimer) == 0) {
             mState = 0;
-            if (mSeaFightGame.mAliveShipNum != 0) {
+            if (!mSeaFightGame.isClearGame()) {
                 mDoAud_seStart(JA_SE_PLAYSPOT_END_F, &mNPCPos, 0);
             }
             else {
@@ -582,7 +582,7 @@ bool daMgBoard_c::_draw() {
     }
     dComIfGd_setList();
     for (int i = 0; i < 3; ++i) {
-        int type = mSeaFightGame.mShips[i].field_0x8;
+        int type = mSeaFightGame.getMaxHP(i);
         s32 bullets = mSeaFightGame.mBulletNum;
         s32 alive = mSeaFightGame.mAliveShipNum;
         bool ended = false;
