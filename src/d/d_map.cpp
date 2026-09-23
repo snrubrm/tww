@@ -4382,7 +4382,6 @@ void dMap_2DAGBCursor_c::init(s16 param_1, s16 param_2, const GXColor& param_3, 
 
 /* 8004F214-8004F3C0       .text draw__18dMap_2DAGBCursor_cFv */
 void dMap_2DAGBCursor_c::draw() {
-    /* Nonmatching */
     u8 pointSize = field_0x1c / 3;
     u8 offset = pointSize / 6;
 
@@ -4400,11 +4399,11 @@ void dMap_2DAGBCursor_c::draw() {
     GXSetZMode(GX_FALSE, GX_LEQUAL, GX_FALSE);
     GXSetScissor(mScissorX, mScissorY, mScissorWidth, mScissorHeight);
     GXBegin(GX_POINTS, GX_VTXFMT0, 5);
-    GXPosition3s16(field_0x14, field_0x16, 0);
-    GXPosition3s16(field_0x14 + offset, field_0x16, 0);
-    GXPosition3s16(field_0x14 - offset, field_0x16, 0);
-    GXPosition3s16(field_0x14, field_0x16 + offset, 0);
-    GXPosition3s16(field_0x14, field_0x16 - offset, 0);
+    GXPosition3s16((s32)field_0x14, (s32)field_0x16, 0);
+    GXPosition3s16(field_0x14 + offset, (s32)field_0x16, 0);
+    GXPosition3s16(field_0x14 - offset, (s32)field_0x16, 0);
+    GXPosition3s16((s32)field_0x14, field_0x16 + offset, 0);
+    GXPosition3s16((s32)field_0x14, field_0x16 - offset, 0);
     GXSetScissor(0, 0, 0x280, 0x1E0);
 }
 
