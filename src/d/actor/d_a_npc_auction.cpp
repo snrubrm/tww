@@ -855,7 +855,7 @@ u32 daNpcAuction_c::getMsg() {
         msgNo = 0x1D35;
     } else {
         daAuction_c* auction = (daAuction_c*)fopAcM_SearchByName(fpcNm_AUCTION_e);
-        u8 winner = auction->m824;
+        u8 winner = auction->getNpcNo();
         if (winner == 0) {
             msgNo = l_npc_msg_id[mMdlNo][0];
         } else if (winner == mNpcNo) {
