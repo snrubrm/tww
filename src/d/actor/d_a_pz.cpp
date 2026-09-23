@@ -2178,7 +2178,7 @@ void daPz_c::bodyDraw() {
 
     dComIfGd_setListP0();
     mBtpAnm.entry(modelData, m0F67);
-    j3dSys.getDrawBuffer(0)->entryImm(&mOnCupOffAup2, 0);
+    mOnCupOffAup2.entryOpa();
 
     for (u16 i = 0; i < modelData->getMaterialNum(); i++) {
         J3DMaterial* mat = modelData->getMaterialNodePointer(i);
@@ -2190,7 +2190,7 @@ void daPz_c::bodyDraw() {
     }
 
     mRootJoint->entryIn();
-    j3dSys.getDrawBuffer(0)->entryImm(&mOffCupOnAup2, 0);
+    mOffCupOnAup2.entryOpa();
 
     mBtkAnm.entry(modelData);
 
@@ -2216,7 +2216,7 @@ void daPz_c::bodyDraw() {
     }
 
     mRootJoint->entryIn();
-    j3dSys.getDrawBuffer(0)->entryImm(&mOnCupOffAup1, 0);
+    mOnCupOffAup1.entryOpa();
 
     for (int i = 0; i < 4; i++) {
         mFaceShape[i]->hide();
@@ -2228,7 +2228,7 @@ void daPz_c::bodyDraw() {
     mEyebrowShape[4]->show();
 
     mRootJoint->entryIn();
-    j3dSys.getDrawBuffer(0)->entryImm(&mOffCupOnAup1, 0);
+    mOffCupOnAup1.entryOpa();
 
     mEyeShape[1]->hide();
     mEyeShape[4]->hide();
