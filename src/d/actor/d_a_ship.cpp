@@ -832,7 +832,7 @@ void daShip_c::setWaveAngle(short* param1, short* param2) {
     static cXyz local_right(-80.0f, 0.0f, 0.0f);
     static cXyz local_left(80.0f, 0.0f, 0.0f);
 
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     
     mDoMtx_stack_c::ZXYrotM(shape_angle.x, shape_angle.y, shape_angle.z);
 
