@@ -585,12 +585,11 @@ bool daObjBuoyflag::Act_c::mode_afl() {
     if (attr_type().collision) {
         f32 radius = scale.x * M_cyl_src.mCylAttr.mCyl.mRadius;
         f32 height = scale.y * M_cyl_src.mCylAttr.mCyl.mHeight;
-        cXyz center = M_cyl_src.mCylAttr.mCyl.mCenter;
+        cXyz center;
+        center.set(M_cyl_src.mCylAttr.mCyl.mCenter);
         center *= scale;
         center += current.pos;
-        mCyl.SetC(center);
-        mCyl.SetR(radius);
-        mCyl.SetH(height);
+        mCyl.cM3dGCyl::Set(center, radius, height);
         dComIfG_Ccsp()->Set(&mCyl);
     }
     return true;
