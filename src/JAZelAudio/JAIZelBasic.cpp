@@ -2132,7 +2132,7 @@ void JAIZelBasic::initSe() {
 }
 
 /* 802A6720-802A8550       .text seStart__11JAIZelBasicFUlP3VecUlScffffUc */
-// NONMATCHING - in two cases the float conversions of i_variation are ordered/allocated differently
+// NONMATCHING - retail only: in the JA_SE_CM_BGN_T_ROUND case the float conversions of i_variation are ordered/allocated differently
 JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i_reverb, f32 i_pitch, f32 i_volume, f32 i_pan, f32 i_dolby, u8 i_levPlay) {
 #if VERSION == VERSION_DEMO
     if (field_0x01f8 != 0 && i_seNum < 0x1800) {
@@ -2666,10 +2666,10 @@ JAISound** JAIZelBasic::seStart(u32 i_seNum, Vec* i_sePos, u32 i_variation, s8 i
         if (i_variation == 0) {
             return NULL;
         }
-        f32 volVar = i_variation;
-        f32 pitchVar = i_variation;
-        i_volume = (volVar * volVar) / 10000.0f;
-        i_pitch = 0.75f + (pitchVar * pitchVar) / 40000.0f;
+        i_volume = i_variation;
+        i_pitch = i_variation;
+        i_volume = (i_volume * i_volume) / 10000.0f;
+        i_pitch = 0.75f + (i_pitch * i_pitch) / 40000.0f;
         break;
     }
     case JA_SE_CM_BGN_MECHA_ROTATE: {
