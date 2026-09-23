@@ -22,11 +22,6 @@ const u16 l_B_sand2TEX__height = 256;
 #include "assets/l_matDL__d_a_bwdg.h"
 l_matDL__d_a_bwdg(l_B_sand2TEX);
 
-// Fakematch: For some reason daBwdg_packet_c::draw needs to have .data pooling disabled, but the in-function statics cause .data pooling to be used.
-// Disabling data pooling for the entire TU breaks wave_cont, which uses ...rodata pooling, so instead disable it for just this one function.
-#pragma push
-#pragma pool_data off
-
 /* 00000078-000001C4       .text draw__15daBwdg_packet_cFv */
 void daBwdg_packet_c::draw() {
     static GXVtxDescList l_vtxDescList[] = {
@@ -60,7 +55,6 @@ void daBwdg_packet_c::draw() {
     m00010 ^= 0x01;
 }
 
-#pragma pop
 
 /* 000001C4-00000260       .text daBwdg_Draw__FP10bwdg_class */
 static BOOL daBwdg_Draw(bwdg_class* i_this) {

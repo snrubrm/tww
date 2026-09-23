@@ -97,10 +97,6 @@ void TAdaptor_particle::adaptor_do_PARENT(JStudio::data::TEOperationData operati
     case JStudio::data::TEOD_Unknown_18:
         if (mSystem != NULL) {
             mObject = (JStage::TObject*)mSystem->JSGFindObject((const char*)param_2, JStage::TOBJ_ACTOR_UNK);
-            if (mObject == 0) {
-                // Fakematch, just need something in here to stop the compiler from optimizing out the cmplwi
-                *(f32*)NULL = *(f32*)NULL;
-            }
         }
         break;
     default:

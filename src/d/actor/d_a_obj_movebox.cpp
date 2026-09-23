@@ -1141,9 +1141,6 @@ void Act_c::path_init() {
         } else {
             isMoved2 = is_switch2() ? true : false;
         }
-        // TODO: is this a fakematch? why the extra conversion to bool here?
-        isMoved2 = isMoved2 ? true : false;
-        
         int pntIdx = 0;
         if (isMoved1) {
             pntIdx += 1;

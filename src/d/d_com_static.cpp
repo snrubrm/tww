@@ -190,7 +190,7 @@ bool daObjLight::Act_c::set_light_dif_angle_FRRS(s16 r3) {
         M_S_pre_set_frame_FRRS = g_Counter.mCounter0;
         return true;
     } else {
-        M_S_pre_set_frame_FRRS = *(s32*)&g_Counter.mCounter0; // fakematch
+        M_S_pre_set_frame_FRRS = g_Counter.mCounter0;
         return false;
     }
 }

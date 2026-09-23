@@ -113,10 +113,7 @@ static BOOL itemParamSet_CB(void* i_actor) {
 
 /* 800F3658-800F3994       .text createItem__9daIball_cFv */
 BOOL daIball_c::createItem() {
-    // Fakematch: itemBitNo and itemTableIdx should really be separate variables as they aren't
-    // related, but we need r27 to be used for both of them in order for the regalloc to match.
-    int itemBitNo = daIball_prm::getAdId(this);
-    int itemTableIdx = itemBitNo;
+    int itemTableIdx = daIball_prm::getAdId(this);
     u32 items[8];
     
     items[0] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM0(), itemTableIdx);
@@ -129,7 +126,7 @@ BOOL daIball_c::createItem() {
     items[7] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM7(), itemTableIdx);
     
     for (int i = 0; i < 8; i++) {
-        itemBitNo = -1;
+        int itemBitNo = -1;
         if (isLimitedItem(items[i])) {
             itemBitNo = daIball_prm::getItemBitNo(this);
             if ((itemBitNo == 0x1F || itemBitNo == 0xFF || itemBitNo == -1) || fopAcM_isItemForIb(itemBitNo, items[i], fopAcM_GetRoomNo(this))) {

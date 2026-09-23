@@ -1087,14 +1087,8 @@ cPhs_State daNpc_Nz_c::_create() {
         return cPhs_ERROR_e;
     }
 
-    BOOL success = createInit();
-    if (!success) {
-        // Fakematch?
-        if (success) {
-            return cPhs_ERROR_e;
-        } else {
-            return cPhs_ERROR_e;
-        }
+    if (!createInit()) {
+        return cPhs_ERROR_e;
     } else {
         return cPhs_COMPLEATE_e;
     }

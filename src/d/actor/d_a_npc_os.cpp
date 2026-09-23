@@ -1730,10 +1730,9 @@ void daNpc_Os_c::setAnm(int param_1) {
     f32 playSpeed = prm.mPlaySpeed;
     if(prm.mAnmTblIdx != field_0x7A0 || prm.mPlaySpeed != mpMorf->getPlaySpeed()) {
         field_0x7A0 = prm.mAnmTblIdx;
-        s8* temp2 = &l_anmTbl[field_0x7A0]; // fakematch
         mPrevMorfFrame = 0.0f;
         mReachedAnimEnd = false;
-        dNpc_Os_setAnm(mpMorf, prm.mLoopMode, prm.mMorf, playSpeed, *temp2, "Os");
+        dNpc_Os_setAnm(mpMorf, prm.mLoopMode, prm.mMorf, playSpeed, l_anmTbl[field_0x7A0], "Os");
 
         if(prm.m10 < 0) {
             mpMorf->setFrame(mpMorf->getEndFrame());

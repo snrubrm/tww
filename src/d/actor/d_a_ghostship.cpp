@@ -311,9 +311,7 @@ static BOOL daGhostshipExecute(void* i_this) {
 /* 00001048-0000182C .text _execute__13daGhostship_cFv */
 bool daGhostship_c::_execute() {
     f32 time = dComIfGs_getTime();
-    fopAc_ac_c* player = dComIfGp_getPlayer(0);
-    // Fakematch, debug map says fopAcM_searchPlayerDistanceXZ was used, but that causes regalloc
-    f32 dist = fopAcM_searchActorDistanceXZ(this, player);
+    f32 dist = fopAcM_searchPlayerDistanceXZ(this);
 
     mbCanEnterShip = false;
     if(moonPhase != dKy_moon_type_chk() || (time > 90.0f && time < DEMO_SELECT(330.0f, 285.0f))) {

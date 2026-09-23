@@ -74,7 +74,7 @@ J3DModelData* J3DModelLoader::load(const void* i_data, u32 i_flags) {
     for (u32 block_no = 0; block_no < data->mBlockNum; block_no++) {
         switch (block->mType) {
             case 'INF1':
-                readInformation((J3DModelInfoBlock*)block, (u32)i_flags); // cast fixes regalloc
+                readInformation((J3DModelInfoBlock*)block, i_flags);
                 break;
             case 'VTX1':
                 readVertex((J3DVertexBlock*)block);
@@ -159,7 +159,7 @@ J3DModelData* J3DModelLoader::loadBinaryDisplayList(const void* i_data, u32 i_fl
     for (u32 block_no = 0; block_no < data->mBlockNum; block_no++) {
         switch (block->mType) {
             case 'INF1':
-                readInformation((J3DModelInfoBlock*)block, (u32)i_flags); // cast fixes regalloc
+                readInformation((J3DModelInfoBlock*)block, i_flags);
                 break;
             case 'VTX1':
                 readVertex((J3DVertexBlock*)block);
@@ -592,7 +592,7 @@ void J3DModelLoader::readMaterialDL(const J3DMaterialDLBlock* i_block, u32 i_fla
         mpMaterialTable->mMaterialBase = NULL;
         for (u16 i = 0; i < mpMaterialTable->mMaterialNum; i++) {
             mpMaterialTable->mMaterialNodePointer[i] = factory.create(
-                NULL, J3DMaterialFactory::MATERIAL_TYPE_LOCKED, i, (u32)i_flags // cast fixes regalloc
+                NULL, J3DMaterialFactory::MATERIAL_TYPE_LOCKED, i, i_flags
             );
         }
         for (u16 i = 0; i < mpMaterialTable->mMaterialNum; i++) {
@@ -602,7 +602,7 @@ void J3DModelLoader::readMaterialDL(const J3DMaterialDLBlock* i_block, u32 i_fla
         for (u16 i = 0; i < mpMaterialTable->mMaterialNum; i++) {
             mpMaterialTable->mMaterialNodePointer[i] = factory.create(
                 mpMaterialTable->mMaterialNodePointer[i],
-                J3DMaterialFactory::MATERIAL_TYPE_LOCKED, i, (u32)i_flags // cast fixes regalloc
+                J3DMaterialFactory::MATERIAL_TYPE_LOCKED, i, i_flags
             );
         }
     }

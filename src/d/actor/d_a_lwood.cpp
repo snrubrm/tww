@@ -86,10 +86,7 @@ static BOOL nodeCallBack(J3DNode* joint, int calcTiming) {
             f32 cy = cM_scos(i_this->getYureTimer() * 300);
             s16 r0 = windSpeed.z * cy * 10.0f;
 
-            // Fakematch: In order for the compiler to put the conversion in the right order, this
-            // needs to be a double assignment for some reason. An unused temp variable is enough.
-            s16 faketemp;
-            s16 r1 = faketemp = fabs(sy + 1.0f) * 250.0f;
+            s16 r1 = fabs(sy + 1.0f) * 250.0f;
 #endif
 
             s16 p1 = i_this->getYureScale() * r2;

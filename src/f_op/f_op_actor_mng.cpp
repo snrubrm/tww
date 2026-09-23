@@ -1329,7 +1329,6 @@ BOOL fopAcM_getGroundAngle(fopAc_ac_c* actor, csXyz* p_angle) {
         if (groundY != -G_CM3D_F_INF) {
             targetAngleX = -cM_atan2s(groundY - pos.y, chk_pos.z - pos.z);
         } else {
-            pos.y = pos.y; // ?? fakematch?
             ret = FALSE;
         }
         
