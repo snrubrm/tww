@@ -68,7 +68,7 @@ BOOL daNpc_Nz_c::NodeCallBack(J3DNode* node, int calcTiming) {
         }
 
         model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
-        cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
+        MTXCopy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
     }
 
     return true;
