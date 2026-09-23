@@ -77,8 +77,11 @@ public:
     // void DrawPoly(cBgS_PolyInfo&, _GXColor&) {}
     dBgW* GetBgWPointer(cBgS_PolyInfo& i_poly) { return (dBgW*)cBgS::GetBgWPointer(i_poly); }
     // void GetPolyCamId(cBgS_PolyInfo&) {}
-    // void GroundCross(cBgS_GndChk*) {}
-    // void LineCross(cBgS_LinChk*) {}
+#ifdef DEBUG
+    // Out-of-line in the demo debug build (frameworkD.map, d_bg_s.o); retail calls cBgS's directly.
+    f32 GroundCross(cBgS_GndChk*);
+    bool LineCross(cBgS_LinChk*);
+#endif
     // void ShdwDraw(cBgS_ShdwDraw*) {}
 
     virtual void Ct();
