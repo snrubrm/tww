@@ -481,7 +481,7 @@ void daShip_c::setInitMessage() {
         mNextMessageNo = 0xd65;
     }
     else if (dComIfGs_isEventBit(dSv_event_flag_c::UNK_1E40)) {
-        if (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_DUNGEON_e) {
+        if (dStage_stagInfo_GetSTType(dComIfGp_getStage().getStagInfo()) == dStageType_DUNGEON_e) {
             mNextMessageNo = 0xd63;
         }
         else {
@@ -1003,7 +1003,7 @@ BOOL daShip_c::checkOutRange() {
 
     pathIndex = 0;
     bVar4 = FALSE;
-    bVar5 = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_SEA_e;
+    bVar5 = dStage_stagInfo_GetSTType(dComIfGp_getStage().getStagInfo()) == dStageType_SEA_e;
     path = dPath_GetRoomPath(m034B, -1);
     while (path) {
         pnt = path->m_points;
@@ -4668,7 +4668,7 @@ cPhs_State daShip_c::create() {
         }
 
         if (
-            (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_SEA_e)
+            (dStage_stagInfo_GetSTType(dComIfGp_getStage().getStagInfo()) == dStageType_SEA_e)
             || !strcmp(dComIfGp_getStartStageName(), "Hyrule")
 #if VERSION > VERSION_JPN
             || !strcmp(dComIfGp_getStartStageName(), "Ocean")
@@ -4755,7 +4755,7 @@ cPhs_State daShip_c::create() {
         mWaveR.setMaxSpeed(40.0f);
         m19C0.mRate = 0.0f;
 
-        if (dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo()) == dStageType_SEA_e) {
+        if (dStage_stagInfo_GetSTType(dComIfGp_getStage().getStagInfo()) == dStageType_SEA_e) {
             fopAcM_createChild(fpcNm_Coming2_e, fopAcM_GetID(this), 0, &current.pos, -1, NULL);
         }
     }
