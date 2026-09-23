@@ -1970,7 +1970,7 @@ void dMsg_numberInput(sub_msg_class* i_Msg) {
     if (dMsg_CHECK_TRIG_AB() || fopMsgM_checkMessageSend()) {
         dMsg_setCancelMode(i_Msg);
     } else {
-        dMeter_Info.field_0x0 = 3;
+        dMeter_setDoStatus(3);
     }
 }
 
@@ -2368,7 +2368,7 @@ s32 dMsg_stopProc(sub_msg_class* i_Msg) {
             if ((bVar1 != 5) && (bVar1 != 0xe)) {
                 dMsg_arrowInit(i_Msg);
             }
-            dMeter_Info.field_0x0 = 2;
+            dMeter_setDoStatus(2);
             if (dComIfGp_getDoStatusForce() == dActStts_CANCEL_e) {
                 mDoAud_seStart(JA_SE_TALK_SEL_CANCEL);
             } else {
@@ -2381,7 +2381,7 @@ s32 dMsg_stopProc(sub_msg_class* i_Msg) {
             if ((bVar1 != 5) && (bVar1 != 0xe)) {
                 dMsg_arrowMove(i_Msg);
             }
-            dMeter_Info.field_0x0 = 1;
+            dMeter_setDoStatus(1);
         }
     } else {
         if (dMsg_CHECK_TRIG_AB() && (!dComIfGp_checkMesgBgm())) {
@@ -2392,7 +2392,7 @@ s32 dMsg_stopProc(sub_msg_class* i_Msg) {
             if ((i_Msg->mMesgEntry.mTextboxType != 5) && (i_Msg->mMesgEntry.mTextboxType != 0xe)) {
                 dMsg_arrowInit(i_Msg);
             }
-            dMeter_Info.field_0x0 = 2;
+            dMeter_setDoStatus(2);
             if (dComIfGp_getDoStatusForce() == dActStts_CANCEL_e) {
                 mDoAud_seStart(JA_SE_TALK_SEL_CANCEL);
             } else {
@@ -2418,7 +2418,7 @@ s32 dMsg_stopProc(sub_msg_class* i_Msg) {
             if ((i_Msg->mMesgEntry.mTextboxType != 5) && (i_Msg->mMesgEntry.mTextboxType != 0xe)) {
                 dMsg_arrowMove(i_Msg);
             }
-            dMeter_Info.field_0x0 = 1;
+            dMeter_setDoStatus(1);
         }
     }
     return TRUE;
@@ -2450,7 +2450,7 @@ s32 dMsg_selectProc(sub_msg_class* i_Msg) {
             if ((i_Msg->mMesgEntry.mTextboxType != 5) && (i_Msg->mMesgEntry.mTextboxType != 0xe)) {
                 dMsg_arrowMove(i_Msg);
             }
-            dMeter_Info.field_0x0 = 1;
+            dMeter_setDoStatus(1);
         } else {
             if (i_Msg->mStatus == fopMsgStts_SELECT_YOKO_e) {
                 i_Msg->m026C[0].mUserArea = 2;
@@ -2818,7 +2818,7 @@ s32 dMsg_continueProc(sub_msg_class* i_Msg) {
             mDoAud_messageSePlay(i_Msg->mMesgEntry.mInitialSound, NULL, dComIfGp_getReverb(dComIfGp_roomControl_getStayNo()));
         }
         dMsg_setString(i_Msg);
-        dMeter_Info.field_0x0 = 2;
+        dMeter_setDoStatus(2);
         if (dComIfGp_getDoStatusForce() == dActStts_CANCEL_e) {
             mDoAud_seStart(JA_SE_TALK_SEL_CANCEL);
         } else {
@@ -2909,7 +2909,7 @@ s32 dMsg_continueProc(sub_msg_class* i_Msg) {
         if ((i_Msg->mMesgEntry.mTextboxType != 5) && (i_Msg->mMesgEntry.mTextboxType != 0xe)) {
             dMsg_arrowMove(i_Msg);
         }
-        dMeter_Info.field_0x0 = 1;
+        dMeter_setDoStatus(1);
     }
     return TRUE;
 }
@@ -2941,7 +2941,7 @@ s32 dMsg_closewaitProc(sub_msg_class* i_Msg) {
                         fopMsgM_setNowAlphaZero(&i_Msg->m050C);
                     }
                     i_Msg->m1100 = 0;
-                    dMeter_Info.field_0x0 = 0;
+                    dMeter_setDoStatus(0);
                     i_Msg->m116A++;
                     dComIfGp_setMesgSendButton(i_Msg->m116A);
                 } else {
@@ -2949,7 +2949,7 @@ s32 dMsg_closewaitProc(sub_msg_class* i_Msg) {
                     if ((bVar1 != 5) && (bVar1 != 0xe)) {
                         dMsg_dotMove(i_Msg);
                     }
-                    dMeter_Info.field_0x0 = 4;
+                    dMeter_setDoStatus(4);
                 }
             } else {
                 i_Msg->mMsgDataProc.handSendFlag = 0;
@@ -2959,7 +2959,7 @@ s32 dMsg_closewaitProc(sub_msg_class* i_Msg) {
                     fopMsgM_setNowAlphaZero(&i_Msg->m050C);
                 }
                 i_Msg->m1100 = 0;
-                dMeter_Info.field_0x0 = 0;
+                dMeter_setDoStatus(0);
                 i_Msg->m116A++;
                 dComIfGp_setMesgSendButton(i_Msg->m116A);
             }
@@ -2985,7 +2985,7 @@ s32 dMsg_finishProc(sub_msg_class* i_Msg) {
             fopMsgM_setNowAlphaZero(&i_Msg->m050C);
         }
         i_Msg->m1100 = 0;
-        dMeter_Info.field_0x0 = 0;
+        dMeter_setDoStatus(0);
         i_Msg->m116A++;
         dComIfGp_setMesgSendButton(i_Msg->m116A);
         if (i_Msg->mMsgNo == 0x1072) {
@@ -2995,7 +2995,7 @@ s32 dMsg_finishProc(sub_msg_class* i_Msg) {
         if ((i_Msg->mMesgEntry.mTextboxType != 5) && (i_Msg->mMesgEntry.mTextboxType != 0xe)) {
             dMsg_dotMove(i_Msg);
         }
-        dMeter_Info.field_0x0 = 4;
+        dMeter_setDoStatus(4);
     }
     return TRUE;
 }
@@ -3010,7 +3010,7 @@ s32 dMsg_openTalkProc(sub_msg_class* i_Msg) {
             mDoAud_messageSePlay(i_Msg->mMesgEntry.mInitialSound, NULL, dComIfGp_getReverb(dComIfGp_roomControl_getStayNo()));
         }
         dMsg_setString(i_Msg);
-        dMeter_Info.field_0x0 = 2;
+        dMeter_setDoStatus(2);
     } else {
         dMsg_frame_openTalk(i_Msg);
     }
@@ -3056,7 +3056,7 @@ s32 dMsg_openItemProc(sub_msg_class* i_Msg) {
             local_28.set(x, y, 0.0f);
             i_Msg->m10B4[0] = dComIfGp_particle_set2Dfore(dPa_name::ID_HM_J2_ARWG_FLAME00, &local_28);
         }
-        dMeter_Info.field_0x0 = 2;
+        dMeter_setDoStatus(2);
     } else {
         dMsg_frame_openItem(i_Msg);
     }

@@ -521,12 +521,15 @@ public:
 class dMeter_info_c {
 public:
     inline ~dMeter_info_c();
+    void setDoStatus(u8 status) { field_0x0 = status; }
 
     /* 0x00 */ u8 field_0x0;
     /* 0x01 */ u8 mButtonIconMode;
 };
 
 extern dMeter_info_c dMeter_Info;
+
+inline void dMeter_setDoStatus(u8 status) { dMeter_Info.setDoStatus(status); }
 
 enum dMeterStatus_e {
     dMtrStts_UNK1_e = 0x00000001,
