@@ -2637,7 +2637,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
 #endif
     if (i_this->mBehaviorType > WZ_TYPE_DAMAGE_BALL_FIRE) {
         i_this->mBallSph.SetAtType(AT_TYPE_MACHETE);
-        i_this->mRelatedId = i_this->parentActorID;
+        i_this->mRelatedId = fopAcM_GetLinkId(i_this);
         if (i_this->mRelatedId == fpcM_ERROR_PROCESS_ID_e) {
             return cPhs_ERROR_e;
         }
@@ -2843,7 +2843,7 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
 #if VERSION <= VERSION_JPN
         if (i_this->mBehaviorType > WZ_TYPE_DAMAGE_BALL_FIRE) {
             i_this->mBallSph.SetAtType(AT_TYPE_MACHETE);
-            i_this->mRelatedId = i_this->parentActorID;
+            i_this->mRelatedId = fopAcM_GetLinkId(i_this);
             if (i_this->mRelatedId == fpcM_ERROR_PROCESS_ID_e) {
                 return cPhs_ERROR_e;
             }
