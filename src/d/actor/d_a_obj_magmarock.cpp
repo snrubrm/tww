@@ -22,10 +22,10 @@ GXColor daObjMagmarock::Act_c::default_color = {255, 255, 255, 255};
 /* 00000078-00000128       .text set_mtx__Q214daObjMagmarock5Act_cFv */
 void daObjMagmarock::Act_c::set_mtx() {
     mpModel->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos);
-    mDoMtx_stack_c::ZXYrotM(shape_angle);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
+    mDoMtx_stack_c::ZXYrotM(shape_angle.x, shape_angle.y, shape_angle.z);
     Quaternion quat;
-    QUATMultiply(&mRideQuat, &mGroundQuat, &quat);
+    mDoMtx_quatMultiply(&mRideQuat, &mGroundQuat, &quat);
     mDoMtx_stack_c::quatM(&quat);
     mpModel->setBaseTRMtx(mDoMtx_stack_c::get());
     MTXCopy(mDoMtx_stack_c::get(), mBgMtx);
@@ -221,9 +221,9 @@ BOOL daObjMagmarock::Act_c::CreateHeap() {
     JUT_ASSERT(DEMO_SELECT(0x151, 0x156), M_bck != 0);
     BOOL brkOK = mBrk.init(modelData, M_brk, FALSE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false, 0);
     BOOL bckOK = mBck.init(modelData, M_bck, FALSE, J3DFrameCtrl::EMode_LOOP, 1.0f, 0, -1, false);
-    mDoMtx_stack_c::transS(current.pos);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
     mDoMtx_stack_c::YrotM(shape_angle.y);
-    mDoMtx_stack_c::scaleM(scale);
+    mDoMtx_stack_c::scaleM(scale.x, scale.y, scale.z);
     MTXCopy(mDoMtx_stack_c::get(), mBgMtx);
     mpBgW = dBgW_NewSet(static_cast<cBgD_t*>(dComIfG_getObjectRes(M_arcname, dRes_INDEX_KYJIM_DZB_KYJIM_00_e)), 1, &mBgMtx);
     mpBgW->SetCrrFunc(dBgS_MoveBGProc_Typical);
