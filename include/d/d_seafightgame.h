@@ -22,6 +22,11 @@ public:
     int attack(u8, u8);
     int getNearEnemy(int, int);
 
+    u8 checkState(u8 x, u8 y) { return mGrid[x][y]; }
+    u8 getShipStartX(int i) { return mShips[i].field_0xb; }
+    u8 getShipStartY(int i) { return mShips[i].field_0xc; }
+    s8 getShipVecY(int i) { return mShips[i].field_0xe; }
+
     /* 0x00 */ u8 mGrid[8][8];
     /* 0x40 */ dSeaFightGame_ship_data mShips[4];
     /* 0x7C */ u8 mAliveShipNum;

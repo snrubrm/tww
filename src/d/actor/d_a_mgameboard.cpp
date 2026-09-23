@@ -327,7 +327,7 @@ void daMgBoard_c::set_mtx() {
     mHitModelCount = 0;
     for (x = 0; x < 8; ++x) {
         for (y = 0; y < 8; ++y) {
-            int cell = mSeaFightGame.mGrid[x][y];
+            int cell = mSeaFightGame.checkState(x, y);
             piece = NULL;
             if (cell == 3) {
                 piece = mpHitModel[mHitModelCount];
@@ -353,11 +353,11 @@ void daMgBoard_c::set_mtx() {
         default: piece = NULL; break;
         }
         if (piece) {
-            u8 x = mSeaFightGame.mShips[i].field_0xb;
-            u8 y = mSeaFightGame.mShips[i].field_0xc;
+            u8 x = mSeaFightGame.getShipStartX(i);
+            u8 y = mSeaFightGame.getShipStartY(i);
             mDoMtx_stack_c::transS(current.pos.x + m_cur_table[y][x].x, current.pos.y + m_cur_table[y][x].y, current.pos.z + m_cur_table[y][x].z);
             mDoMtx_stack_c::YrotM(current.angle.y);
-            if ((s8)mSeaFightGame.mShips[i].field_0xe == 0) {
+            if (mSeaFightGame.getShipVecY(i) == 0) {
                 mDoMtx_stack_c::ZrotM(0x4000);
             }
             else {
