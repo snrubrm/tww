@@ -943,7 +943,7 @@ void daShip_c::setYPos() {
     }
     else {
         f32 f1 = 55.0f;
-        fVar2 = std::abs(speedF) / f1;
+        fVar2 = std::fabsf(speedF) / f1;
         if (fVar2 > 1.0f) {
             fVar2 = 1.0f;
         }
@@ -1138,7 +1138,7 @@ s16 daShip_c::getAimControllAngle(short referenceAngle) {
 void daShip_c::setMoveAngle(short moveAngle) {
     if (!checkForceMove()) {
         s16 initialAngle = shape_angle.y;
-        f32 turnRate = 4.0f - std::abs(speedF) / 55.0f * 3.0f;
+        f32 turnRate = 4.0f - std::fabsf(speedF) / 55.0f * 3.0f;
         if (turnRate > 3.6f) {
             turnRate = 3.6f;
         }
