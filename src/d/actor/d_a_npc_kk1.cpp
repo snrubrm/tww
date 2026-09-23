@@ -1722,9 +1722,7 @@ void daNpc_Kk1_c::flwAse() {
     if (mpAse != NULL) {
         mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_hed_jnt_num));
         cXyz pos;
-        pos.x = mDoMtx_stack_c::get()[0][3];
-        pos.y = mDoMtx_stack_c::get()[1][3];
-        pos.z = mDoMtx_stack_c::get()[2][3];
+        mDoMtx_stack_c::multVecZero(&pos);
         mpAse->setGlobalTranslation(pos.x, pos.y, pos.z);
     }
 }
