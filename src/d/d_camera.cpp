@@ -2850,7 +2850,6 @@ bool dCamera_c::followCamera2(s32 param_0) {
 }
 
 /* 8016A110-8016C4F8       .text followCamera__9dCamera_cFl */
-// NONMATCHING - the original reloads m38C for the `< 0xf` test after the bVar2 `== 0 && angle` check; we reuse the first load.
 bool dCamera_c::followCamera(s32 param_1) {
     s32 iVar17;
     bool bVar2;
@@ -3316,7 +3315,7 @@ bool dCamera_c::followCamera(s32 param_1) {
                     mWork.follow.m38C = 0x10;
                 }
             }
-            else if (mWork.follow.m38C < 0xf) {
+            else if (mWork.follow.m38C < 15L) {
                 mWork.follow.m3B8 = mWork.follow.m38C * 0.033333335f;
                 mWork.follow.m38C++;
             }
@@ -3333,7 +3332,7 @@ bool dCamera_c::followCamera(s32 param_1) {
             if (mWork.follow.m38C == 0 && (local_4ac <= cSAngle::_270 || local_4ac >= cSAngle::_90)) {
                 mWork.follow.m38C = 1;
             }
-            else if (mWork.follow.m38C < 0xf) {
+            else if (mWork.follow.m38C < 15L) {
                 mWork.follow.m3B8 = mWork.follow.m38C * 0.033333335f;
                 mWork.follow.m38C++;
             }
