@@ -853,7 +853,7 @@ bool daPz_c::checkTgHit() {
 
 /* 00001EEC-00001F10       .text getArg__6daPz_cFv */
 void daPz_c::getArg() {
-    mArg = (fopAcM_GetParam(this) >> 8) & 0xFF;
+    mArg = fopAcM_GetParamBit(fopAcM_GetParam(this), 8, 8);
     if (mArg == 0xFF) {
         mArg = 0;
     }
