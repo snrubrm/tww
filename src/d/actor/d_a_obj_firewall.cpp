@@ -112,9 +112,10 @@ bool daObjFirewall_c::create_heap() {
 void daObjFirewall_c::registCollisionTable() {
 #if VERSION == VERSION_DEMO
     f32 radius, height;
+    cXyz pos;
     f32 inset = l_HIO.mRadiusInset;
     f32 ofs = l_HIO.mHeightOffset;
-    cXyz pos = current.pos;
+    pos = current.pos;
     pos.y -= ofs;
     radius = 1000.0f * scale.x;
     height = ofs + 10000.0f * scale.y;
