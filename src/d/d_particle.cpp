@@ -396,14 +396,14 @@ void smokeEcallBack(JPABaseEmitter* emtr, dKy_tevstr_c* tevStr, s8, GXColor colo
         GXSetNumChans(1);
         if (tevStr == NULL) {
             GXColorS10 dif;
-            dif.r = g_env_light.mActorC0.r;
-            dif.g = g_env_light.mActorC0.g;
-            dif.b = g_env_light.mActorC0.b;
+            dif.r = dKy_getEnvlight().mActorC0.r;
+            dif.g = dKy_getEnvlight().mActorC0.g;
+            dif.b = dKy_getEnvlight().mActorC0.b;
             dif.a = 0xFF;
             GXColor amb;
-            amb.r = g_env_light.mActorK0.r;
-            amb.g = g_env_light.mActorK0.g;
-            amb.b = g_env_light.mActorK0.b;
+            amb.r = dKy_getEnvlight().mActorK0.r;
+            amb.g = dKy_getEnvlight().mActorK0.g;
+            amb.b = dKy_getEnvlight().mActorK0.b;
             amb.a = 0xFF;
             initiateLighting(dif, amb, color);
         } else {
