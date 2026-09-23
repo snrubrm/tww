@@ -593,9 +593,7 @@ void daPz_c::setFallSplash() {
             static Vec fall_ripple_scale = {0.75f, 0.75f, 0.75f};
             cXyz pos;
             MtxP mtx = mpMorf->getModel()->getAnmMtx(PZ_JNT_WORLD_ROOT_e);
-            pos.x = mtx[0][3];
-            pos.y = mtx[1][3];
-            pos.z = mtx[2][3];
+            mDoMtx_multVecZero(mtx, &pos);
             dComIfGp_particle_setSingleRipple(dPa_name::ID_IT_JN_WP_HAMON03, &pos, NULL, (const cXyz*)&fall_ripple_scale);
             mSplashTimer = 0xF;
         }
