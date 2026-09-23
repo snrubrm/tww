@@ -202,15 +202,14 @@ void JPABaseEmitter::calcEmitterInfo() {
     emtrInfo.mDivNumber = mDivNumber * 2 + 1;
     emtrInfo.mVolumeSize = mVolumeSize;
     
-    Mtx mtxScale, mtxRot, mtx;
+    Mtx mtxScale, mtxRot;
+    JGeometry::TPosition3f32 mtx;
     MTXScale(mtxScale, mEmitterScale.x, mEmitterScale.y, mEmitterScale.z);
     JPAGetXYZRotateMtx((mEmitterRot.x * 0x4000) / 90, (mEmitterRot.y * 0x4000) / 90, (mEmitterRot.z * 0x4000) / 90, mtxRot);
     
     MTXScale(mtx, mGlobalDynamicsScale.x, mGlobalDynamicsScale.y, mGlobalDynamicsScale.z);
     MTXConcat(mGlobalRotation, mtx, mtx);
-    mtx[0][3] = mGlobalTranslation.x;
-    mtx[1][3] = mGlobalTranslation.y;
-    mtx[2][3] = mGlobalTranslation.z;
+    mtx.setTrans(mGlobalTranslation);
     MTXCopy(mGlobalRotation, emtrInfo.mGlobalRot);
     MTXConcat(mGlobalRotation, mtxRot, emtrInfo.mEmitterGlobalRot);
     MTXConcat(emtrInfo.mEmitterGlobalRot, mtxScale, emtrInfo.mEmitterGlobalSR);
@@ -458,12 +457,10 @@ bool JPABaseEmitter::doTerminationProcess() {
 
 /* 8025DCDC-8025DD5C       .text calcEmitterGlobalPosition__14JPABaseEmitterFRQ29JGeometry8TVec3<f> */
 void JPABaseEmitter::calcEmitterGlobalPosition(JGeometry::TVec3<float>& dst) {
-    Mtx mtx;
+    JGeometry::TPosition3f32 mtx;
     MTXScale(mtx, mGlobalDynamicsScale.x, mGlobalDynamicsScale.y, mGlobalDynamicsScale.z);
     MTXConcat(mGlobalRotation, mtx, mtx);
-    mtx[0][3] = mGlobalTranslation.x;
-    mtx[1][3] = mGlobalTranslation.y;
-    mtx[2][3] = mGlobalTranslation.z;
+    mtx.setTrans(mGlobalTranslation);
     MTXMultVec(mtx, mEmitterTranslation, dst);
 }
 

@@ -16,6 +16,8 @@ template <>
 struct SMatrix34C<f32> {
     f32 data[3][4];
 
+    SMatrix34C() {}
+    f32& ref(u32 i, u32 j) { return data[i][j]; }
     void identity() { MTXIdentity(data); }
 
     typedef f32 ArrType[4];
@@ -44,9 +46,15 @@ struct TRotation3 : public T {
 };
 
 template <typename T>
-struct TPosition3 : public T {};
+struct TPosition3 : public TRotation3<T> {
+    void setTrans(const TVec3<f32>& trans) {
+        this->ref(0, 3) = trans.x;
+        this->ref(1, 3) = trans.y;
+        this->ref(2, 3) = trans.z;
+    }
+};
 
-typedef TPosition3<TRotation3<TMatrix34<SMatrix34C<f32> > > > TPosition3f32;
+typedef TPosition3<TMatrix34<SMatrix34C<f32> > > TPosition3f32;
 
 }  // namespace JGeometry
 
