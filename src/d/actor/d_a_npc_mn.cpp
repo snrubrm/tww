@@ -132,7 +132,7 @@ static cPhs_State phase_1(daNpcMn_c* npc) {
         {
             dComIfGs_setEventReg(0x870F, 0);
             int sw = npc->getPrmSwitchBit();
-            if (dComIfGs_isSwitch(sw, DEMO_SELECT(fopAcM_GetHomeRoomNo(npc), npc->home.roomNo))) {
+            if (DEMO_SELECT(fopAcM_isSwitch(npc, sw), dComIfGs_isSwitch(sw, npc->home.roomNo))) {
                 return cPhs_STOP_e;
             }
             break;
@@ -416,9 +416,13 @@ void daNpcMn_c::executeWait() {
             }
             if (!(mEventFlags & 1)) {
                 int sw = getPrmSwitchBit();
-                if (dComIfGs_isSwitch(sw, DEMO_SELECT(fopAcM_GetHomeRoomNo(this), home.roomNo))) {
+                if (DEMO_SELECT(fopAcM_isSwitch(this, sw), dComIfGs_isSwitch(sw, home.roomNo))) {
                     sw = getPrmSwitchBit();
-                    dComIfGs_onSwitch(sw, DEMO_SELECT(fopAcM_GetHomeRoomNo(this), home.roomNo));
+#if VERSION == VERSION_DEMO
+                    fopAcM_onSwitch(this, sw);
+#else
+                    dComIfGs_onSwitch(sw, home.roomNo);
+#endif
                     mEventFlags |= 1;
                     mCanTurn = 0;
                     mCanLook = 0;
