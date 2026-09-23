@@ -11,6 +11,7 @@
 #include "d/actor/d_a_sea.h"
 #include "d/d_com_inf_game.h"
 #include "f_op/f_op_camera.h"
+#include "f_op/f_op_camera_mng.h"
 #include "m_Do/m_Do_mtx.h"
 #include "m_Do/m_Do_controller_pad.h"
 
@@ -387,7 +388,10 @@ void daItem_c::execMainNormalDirection() {
         current.pos.y = headPos.y;
     }
     
-    current.angle = dComIfGp_getCamera(0)->mAngle;
+    camera_class* camera = dComIfGp_getCamera(0);
+    current.angle.x = fopCamM_GetAngleX(camera);
+    current.angle.y = fopCamM_GetAngleY(camera);
+    current.angle.z = fopCamM_GetAngleZ(camera);
     
     mSimpleExistTimer--;
     if (mSimpleExistTimer < 0) {
