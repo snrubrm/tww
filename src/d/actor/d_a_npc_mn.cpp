@@ -1083,7 +1083,7 @@ void daNpcMn_c::setAnmFromMsgTag() {
         setAnmTbl(l_npc_anm_wait2);
         break;
     }
-    dComIfGp_clearMesgAnimeAttrInfo();
+    dComIfGp_setMesgAnimeAttrInfo(0xFF);
 }
 
 /* 0000302C-0000303C       .text getPrmNpcNo__9daNpcMn_cFv */
