@@ -1545,7 +1545,7 @@ bool daNpc_Kk1_c::chkHitPlayer() {
     if (mCyl.ChkCoHit()) {
         cCcD_Obj* obj = mCyl.GetCoHitObj();
         if (obj != NULL) {
-            fopAc_ac_c* actor = obj->GetAc();
+            fopAc_ac_c* actor = dCc_GetAc(obj->GetAc());
             if (actor != NULL) {
                 result = fopAcM_GetName(actor) == fpcNm_PLAYER_e;
             }
