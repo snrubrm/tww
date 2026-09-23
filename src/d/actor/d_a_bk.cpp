@@ -2140,7 +2140,7 @@ static fopAc_ac_c* yari_hit_check(bk_class* i_this) {
         if (i_this->m1040.ChkAtHit()) {
             i_this->m0B78 = 5;
             cCcD_Obj* hitObj = i_this->m1040.GetAtHitObj();
-            return hitObj->GetAc();
+            return dCc_GetAc(hitObj->GetAc());
         }
     }
     
