@@ -23,9 +23,9 @@ const Attr_c L_attr = {{222.5f, 598.73f, 178.9f}, {1024, 1024, 1024, 0}, 2200.0f
 }
 }
 
-inline BOOL daObjVds::Act_c::is_switch() {
+inline BOOL daObjVds::Act_c::is_switch() const {
     int sw = daObj::PrmAbstract(this, 8, 0);
-    return fopAcM_isSwitch(this, sw);
+    return fopAcM_isSwitch(const_cast<Act_c*>(this), sw);
 }
 
 /* 00000078-00000134       .text SetLoopJointAnimation__Q28daObjVds5Act_cFP18J3DAnmTransformKeyP18J3DAnmTransformKeyff */
