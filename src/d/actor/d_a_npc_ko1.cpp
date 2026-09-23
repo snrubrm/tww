@@ -371,7 +371,7 @@ void daNpc_Ko1_c::setMtx(bool param) {
         mLastFrame = mpMorf->getFrame();
         if (mAnmIndex == 4) {
             if (mpMorf->checkFrame(10.0f)) {
-                mDoAud_seStart(JA_SE_CM_GAKI_HANASUSURI, &eyePos, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(this)));
+                fopAcM_seStart(this, JA_SE_CM_GAKI_HANASUSURI, 0);
             }
         }
         mpHeadMorf->play(&eyePos, 0, 0);
