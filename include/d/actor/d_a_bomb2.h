@@ -6,6 +6,7 @@
 #include "d/d_bg_s_acch.h"
 #include "d/d_cc_d.h"
 #include "d/actor/d_a_bomb.h"
+#include "d/d_a_obj.h"
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_ext.h"
 
@@ -70,8 +71,8 @@ namespace daBomb2 {
 
     class Act_c : public fopAc_ac_c {
     public:
-        void prm_get_start() const {}
-        void prm_get_stick() const {}
+        Start_e prm_get_start() const { return (Start_e)daObj::PrmAbstract(this, PRM_2_W, PRM_2_S); }
+        bool prm_get_stick() const { return daObj::PrmAbstract(this, PRM_1_W, PRM_1_S); }
         static u32 prm_make(Start_e p0, bool p1) { // Might be wrong
             u32 prm = p1 ? 1 : 0;
             return (prm << 8) | p0;

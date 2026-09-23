@@ -381,7 +381,7 @@ void Act_c::start_proc_call() {
         &Act_c::start_carry
     };
 
-    int proc = daObj::PrmAbstract(this, PRM_2_W, PRM_2_S);
+    int proc = prm_get_start();
     return (this->*start_proc[proc])();
 }
 
@@ -395,7 +395,7 @@ void Act_c::create_init() {
     fopAcM_setCullSizeBox(this, -36.0f, 0.0f, -36.0f, 36.0f, 66.0f, 36.0f);
     fopAcM_setCullSizeFar(this, 10.0f);
 
-    if(daObj::PrmAbstract(this, PRM_1_W, PRM_1_S)) {
+    if(prm_get_stick()) {
         off_carry();
     }
     else {
@@ -1030,7 +1030,7 @@ void Act_c::mode_wait() {
             mode_carry();
         }
         else {
-            bool temp = daObj::PrmAbstract(this, PRM_1_W, PRM_1_S);
+            bool temp = prm_get_stick();
             f32 yVel = 0.0f;
             if(!temp) {
                 if(!field_0x745) {
@@ -1284,7 +1284,7 @@ void Act_c::tensor_proc_call() {
         &Act_c::tensor_sink,
     };
 
-    if(!daObj::PrmAbstract(this, PRM_1_W, PRM_1_S)) {
+    if(!prm_get_stick()) {
         (this->*tensor_proc[mState])();
         vib_proc();
         set_vib_tensor();
