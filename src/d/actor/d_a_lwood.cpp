@@ -106,17 +106,17 @@ static BOOL nodeCallBack(J3DNode* joint, int calcTiming) {
 /* 000004D8-00000560       .text set_mtx__9daLwood_cFv */
 void daLwood_c::set_mtx() {
     mModel->setBaseScale(scale);
-    mDoMtx_stack_c::transS(current.pos);
-    mDoMtx_stack_c::ZXYrotM(current.angle);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
+    mDoMtx_stack_c::ZXYrotM(current.angle.x, current.angle.y, current.angle.z);
     mModel->setBaseTRMtx(mDoMtx_stack_c::get());
 }
 
 /* 00000560-000005D8       .text setMoveBGMtx__9daLwood_cFv */
 void daLwood_c::setMoveBGMtx() {
-    mDoMtx_stack_c::transS(current.pos);
-    mDoMtx_stack_c::ZXYrotM(current.angle);
-    mDoMtx_stack_c::scaleM(scale);
-    mDoMtx_copy(mDoMtx_stack_c::get(), mtx);
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
+    mDoMtx_stack_c::ZXYrotM(current.angle.x, current.angle.y, current.angle.z);
+    mDoMtx_stack_c::scaleM(scale.x, scale.y, scale.z);
+    MTXCopy(mDoMtx_stack_c::get(), mtx);
 }
 
 cPhs_State daLwood_c::_create() {
