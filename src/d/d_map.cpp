@@ -1142,11 +1142,11 @@ bool dMap_RoomInfoCtrl_c::roomExistenceCheck(int i_no, dMap_RoomInfo_c** roomInf
     JUT_ASSERT(VERSION_SELECT(3075, 2943, 2947, 2947), roomInfoPP != NULL);
     bool ret = false;
     *roomInfoPP = NULL;
-    dMap_RoomInfo_c* roomInfoP = m_info;
+    dMap_RoomInfo_c* roomInfoP = getMapRoomInfoP();
     JUT_ASSERT(VERSION_SELECT(3083, 2951, 2955, 2955), roomInfoP != NULL);
-    for (; !ret && roomInfoP != NULL; roomInfoP = roomInfoP->m_next) {
+    for (; !ret && roomInfoP != NULL; roomInfoP = roomInfoP->getNextRoomInfoP()) {
         if (roomInfoP->m_exist) {
-            if (i_no == roomInfoP->m_no) {
+            if (i_no == roomInfoP->getRoomNo()) {
                 *roomInfoPP = roomInfoP;
                 ret = TRUE;
             }

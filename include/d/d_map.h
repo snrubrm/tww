@@ -237,6 +237,8 @@ public:
     void checkFloorMoveImageChangeRoom(u8, u8, int, s16, s16, f32);
 #endif
 
+    dMap_RoomInfo_c* getMapRoomInfoP() { return m_info; }
+
 public:
     /* 0x00 */ s32 m_num;
     /* 0x04 */ dMap_RoomInfo_c *m_info;
