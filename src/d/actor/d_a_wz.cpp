@@ -1732,9 +1732,7 @@ void summon_call_sub(wz_class* i_this) {
     tableIndex += parent->mSummonWave << 1;
     birthNum = birth_dt[tableIndex];
     csXyz angle;
-    angle.x = 0;
-    angle.y = 0;
-    angle.z = 0;
+    angle.setall(0);
     angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
     pos = actor->current.pos;
     if (tableIndex == 0xC0) {
@@ -1786,9 +1784,7 @@ void summon_call_sub(wz_class* i_this) {
         return;
     }
     spawned = birth_dt[tableIndex];
-    angle.x = 0;
-    angle.y = 0;
-    angle.z = 0;
+    angle.setall(0);
     angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
     pos = actor->current.pos;
 
@@ -1816,9 +1812,7 @@ void summon_call_sub(wz_class* i_this) {
         return;
     }
     spawned = birth_dt[nextIndex];
-    angle.x = 0;
-    angle.y = 0;
-    angle.z = 0;
+    angle.setall(0);
     angle.y = fopAcM_searchActorAngleY(actor, dComIfGp_getPlayer(0));
     pos = actor->current.pos;
 
