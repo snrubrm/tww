@@ -258,9 +258,7 @@ void daPz_c::_nodeHeadControl(J3DNode* node, J3DModel* model) {
     mDoMtx_stack_c::YrotM(-m_jnt.getHead_y());
     mDoMtx_stack_c::ZrotM(-m_jnt.getHead_x());
     mDoMtx_stack_c::multVec(&l_offsetEyePos, &mEyePos);
-    mHeadPos.x = mDoMtx_stack_c::get()[0][3];
-    mHeadPos.y = mDoMtx_stack_c::get()[1][3];
-    mHeadPos.z = mDoMtx_stack_c::get()[2][3];
+    mDoMtx_stack_c::multVecZero(&mHeadPos);
     cMtx_copy(mDoMtx_stack_c::get(), J3DSys::mCurrentMtx);
     model->setAnmMtx(jntNo, mDoMtx_stack_c::get());
 }
