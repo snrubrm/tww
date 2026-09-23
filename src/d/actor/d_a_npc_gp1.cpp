@@ -711,9 +711,7 @@ BOOL daNpc_Gp1_c::create_rupee() {
     int counter;
     f32 random;
     mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_hnd_L_jnt_num));
-    pos.x = mDoMtx_stack_c::get()[0][3];
-    pos.y = mDoMtx_stack_c::get()[1][3];
-    pos.z = mDoMtx_stack_c::get()[2][3];
+    mDoMtx_stack_c::multVecZero(&pos);
     counter = g_Counter.mCounter0;
     for (i = 0; i < mRupeeCount; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
