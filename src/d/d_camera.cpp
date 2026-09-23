@@ -4554,6 +4554,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
         break;
     }
     case 29: {
+        fopAc_ac_c* actor1 = speaker;
         hideActor(listener);
         mViewCache.mCenter = positionOf(speaker);
         if (talk->m3BC == 0) {
@@ -4566,7 +4567,7 @@ bool dCamera_c::talktoCamera(s32 param_1) {
             m101 = 1;
             m100 = 1;
         }
-        mViewCache.mCenter.y = positionOf(speaker).y + talk->m394.y;
+        mViewCache.mCenter.y = positionOf(actor1).y + talk->m394.y;
         mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
         mViewCache.mFovy = 55.0f;
         break;
