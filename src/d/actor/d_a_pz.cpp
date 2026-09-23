@@ -2053,7 +2053,7 @@ bool daPz_c::_execute() {
     if (mbHasGanondorf) {
         mbEyesFollowGanondorf = checkEyeArea(mGanondorfPosCurrent);
     }
-    gravity = l_HIO.mB0;
+    fopAcM_SetGravity(this, l_HIO.mB0);
     if (mMode != MODE_AFRAID && mMode != MODE_DOWN && m073F != 0) {
         modeProc(PROC_INIT_e, MODE_AFRAID);
     }
