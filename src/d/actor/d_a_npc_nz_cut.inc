@@ -254,7 +254,7 @@ void daNpc_Nz_c::cutKillAllStart() {
     fopAcM_Search((fopAcIt_JudgeFunc)&searchEsaInit_CB, this);
     
 #if VERSION == VERSION_DEMO
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
 #endif
     cXyz pos = field_0x6C4;
     s16 r5 = home.angle.y + 0x8000;

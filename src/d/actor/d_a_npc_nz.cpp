@@ -235,7 +235,7 @@ static s16 daNpc_Nz_XyCheckCB(void* i_actor, int i_itemBtn) {
 
     if(dComIfGp_getSelectItem(i_itemBtn) == dItemNo_BIRD_BAIT_5_e) {
         f32 temp2 = l_HIO.field_0x20;
-        daPy_py_c* player = daPy_getPlayerActorClass();
+        fopAc_ac_c* player = dComIfGp_getPlayer(0);
         cXyz temp(player->current.pos);
         temp.x += temp2 * cM_ssin(player->current.angle.y);
         temp.z += temp2 * cM_scos(player->current.angle.y);
