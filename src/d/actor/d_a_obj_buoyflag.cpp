@@ -160,10 +160,18 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     f32 a = 0.25f * y - 0.5f;
     f32 b = (1.0f / 6.0f) * x;
     f32 distance = std::sqrtf(a * a + b * b);
-    s16 angle1 = 32768.0f * distance + mPhase[9];
-    s16 angle2 = 32768.0f * distance + mPhase[10];
+    s16 angle1 = (int)(32768.0f * distance + mPhase[9]);
+    s16 angle2 = (int)(32768.0f * distance + mPhase[10]);
     s16 angle3 = 32768.0f * distance + mPhase[11];
+#if VERSION == VERSION_DEMO
     f32 wave = 1.0f + (1.0f / 3.0f) * (cM_ssin(angle1) + cM_ssin(angle2) + cM_ssin(angle3));
+#else
+    // fakematch: the sine table lookups are written out so the sum is computed before the inprod call
+    f32 wave = 1.0f + (1.0f / 3.0f) * (
+        jmaSinTable[(u16)angle1 >> jmaSinShift] +
+        jmaSinTable[(u16)angle2 >> jmaSinShift] +
+        jmaSinTable[(u16)angle3 >> jmaSinShift]);
+#endif
     f32 dot = normal->inprod(mWind);
     mForce += *normal * (dot * (wave * attr().wave * (1.0f / attr().windScale)));
 }
@@ -457,8 +465,6 @@ void daObjBuoyflag::Packet_c::calc_pos_spring_near(const cXyz* pos, const cXyz* 
 }
 
 /* 000015FC-00001BC0       .text calc_pos__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
-// NONMATCHING - retail: the calc_pos_wave sum is computed after the inprod call instead of before it (keeps the three
-// sines in f23-f25); demo: the angle1/angle2 conversions lack an extsh (an (int) cast before the s16 store matches the demo)
 void daObjBuoyflag::Packet_c::calc_pos(Act_c* actor) {
     DrawVtx_c* draw = &mDraw[mBuffer];
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
