@@ -115,20 +115,21 @@ static BOOL itemParamSet_CB(void* i_actor) {
 
 /* 800F3658-800F3994       .text createItem__9daIball_cFv */
 BOOL daIball_c::createItem() {
-    int itemTableIdx = daIball_prm::getAdId(this);
+    // One variable holds the item table index here and the item bit number in the loop (one register in the target).
+    int itemBitNo = daIball_prm::getAdId(this);
     u32 items[8];
     
-    items[0] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM0(), itemTableIdx);
-    items[1] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM1(), itemTableIdx);
-    items[2] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM2(), itemTableIdx);
-    items[3] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM3(), itemTableIdx);
-    items[4] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM4(), itemTableIdx);
-    items[5] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM5(), itemTableIdx);
-    items[6] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM6(), itemTableIdx);
-    items[7] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM7(), itemTableIdx);
+    items[0] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM0(), itemBitNo);
+    items[1] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM1(), itemBitNo);
+    items[2] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM2(), itemBitNo);
+    items[3] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM3(), itemBitNo);
+    items[4] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM4(), itemBitNo);
+    items[5] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM5(), itemBitNo);
+    items[6] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM6(), itemBitNo);
+    items[7] = dComIfGp_CharTbl()->GetInf(dComIfGp_CharTbl()->GetITEM7(), itemBitNo);
     
     for (int i = 0; i < 8; i++) {
-        int itemBitNo = -1;
+        itemBitNo = -1;
         if (isLimitedItem(items[i])) {
             itemBitNo = daIball_prm::getItemBitNo(this);
             if ((itemBitNo == 0x1F || itemBitNo == 0xFF || itemBitNo == -1) || fopAcM_isItemForIb(itemBitNo, items[i], fopAcM_GetRoomNo(this))) {
