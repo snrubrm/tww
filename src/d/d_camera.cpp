@@ -2815,7 +2815,9 @@ void dCamera_c::checkGroundInfo() {
 
     cXyz pos1;
     cXyz pos2;
-    if (dComIfG_Bgsp()->GroundCross(&gnd_chk_2) < mBG.m5C.m58 + 40.0f) {
+    f32 eye_gnd_y = dComIfG_Bgsp()->GroundCross(&gnd_chk_2);
+    f32 player_gnd_y = mBG.m5C.m58;
+    if (eye_gnd_y < player_gnd_y + 40.0f) {
         pos1 = mEye;
         pos2 = attentionPos(mpPlayerActor);
         pos2 += (pos1 - pos2) * 0.5f;
