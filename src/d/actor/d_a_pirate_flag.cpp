@@ -59,6 +59,7 @@ void daPirate_Flag_packet_c::setCorrectNrmAngle(s16 param_0, f32 param_1) {
     m878 = 300.0f * cM_ssin(m87C);
 
     s16 temp_r0 = param_0 + 0x8000;
+    s16 angle = (s16)param_0;
     s16 temp_r26 = (l_HIO.m1C * (1.0f - param_1 * 0.5f));
 
     if (abs((s32)temp_r0) < (s16)cM_deg2s(temp_r26 * 1.25f)) {
@@ -70,9 +71,9 @@ void daPirate_Flag_packet_c::setCorrectNrmAngle(s16 param_0, f32 param_1) {
         }
 
         cLib_addCalcAngleS2(&m87A, var_r4, 5, 0xC0);
-    } else if (abs(param_0) < (s16)cM_deg2s(temp_r26 * 1.25f)) {
+    } else if (abs(angle) < (s16)cM_deg2s(temp_r26 * 1.25f)) {
         s16 var_r4;
-        if (param_0 > 0) {
+        if (angle > 0) {
             var_r4 = (s16)cM_deg2s(-temp_r26);
         } else {
             var_r4 = (s16)cM_deg2s(temp_r26);
