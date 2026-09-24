@@ -1077,7 +1077,7 @@ config.libs = [
         "J3DGraphAnimator",
         [
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DModelData.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01"),    "JSystem/J3DGraphAnimator/J3DModel.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"),    "JSystem/J3DGraphAnimator/J3DModel.cpp"),
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DAnimation.cpp"),
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DMaterialAnm.cpp"),
             Object(Matching,    "JSystem/J3DGraphAnimator/J3DVisibility.cpp"),
@@ -1841,7 +1841,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_warpmj"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_waterfall"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"),    "d_a_windmill"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01"), "d_a_wz"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_wz"),
     ActorRel(Matching,    "d_a_ygcwp"),
     ActorRel(Matching,    "d_a_yougan"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"),    "d_a_ghostship"),
