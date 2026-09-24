@@ -7022,7 +7022,6 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
 /* 80179F8C-8017A80C       .text fixedPositionCamera__9dCamera_cFl */
 bool dCamera_c::fixedPositionCamera(s32 param_1) {
     int uVar10;
-    f32 fVar8_2;
     cXyz sp160;
     cXyz sp154;
     cXyz sp148;
@@ -7038,6 +7037,7 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
     f32 fVar6 = mCamParam.Val(param_1, 24);
     f32 fVar7 = mCamParam.Val(param_1, 23);
     f32 fVar8 = mCamParam.Val(param_1, 25);
+    f32 fVar8_2;
 
 #if VERSION > VERSION_JPN
     if (m11C == 0) {
@@ -7080,20 +7080,20 @@ bool dCamera_c::fixedPositionCamera(s32 param_1) {
 
     if (m11C == 0) {
         if (mWork.fixedPos.m39C == 0) {
-            fVar15 = cXyz(sp160 - mEye).abs();
-            if (fVar15 > fVar4) {
-                fVar15 = fVar4;
+            f32 eye_dist = cXyz(sp160 - mEye).abs();
+            if (eye_dist > fVar4) {
+                eye_dist = fVar4;
             }
 
-            fVar16 = cXyz(mCenter - relationalPos(mpPlayerActor, &sp154)).abs();
-            if (fVar15 > fVar16) {
-                fVar16 = fVar15;
+            f32 dist = cXyz(mCenter - relationalPos(mpPlayerActor, &sp154)).abs();
+            if (eye_dist > dist) {
+                dist = eye_dist;
             }
 
             f32 temp = heightOf(mpPlayerActor);
-            fVar16 = fVar16 / (temp < 10.0f ? 10.0f : temp);
+            dist = dist / (temp < 10.0f ? 10.0f : temp);
 
-            mWork.fixedPos.m378 = (s32)(fVar6 * std::sqrtf(fVar16)) + 1;
+            mWork.fixedPos.m378 = (s32)(fVar6 * std::sqrtf(dist)) + 1;
             mWork.fixedPos.m37C = mWork.fixedPos.m378 * (mWork.fixedPos.m378 + 1) >> 1;
         }
         else {
