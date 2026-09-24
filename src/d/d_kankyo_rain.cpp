@@ -5887,7 +5887,8 @@ void dKyr_thunder_init() {
 
 /* 8009B9D8-8009BDEC       .text dKyr_thunder_move__Fv */
 void dKyr_thunder_move() {
-    EF_THUNDER * pThunder = &g_env_light.mThunderEff;
+    dScnKy_env_light_c& envLight = dKy_getEnvlight();
+    EF_THUNDER * pThunder = &envLight.mThunderEff;
     camera_process_class * pCamera = dComIfGp_getCamera(0);
 
     switch (pThunder->mState) {
