@@ -394,7 +394,10 @@ bool daGhostship_c::_execute() {
             dComIfGs_setEventReg(dSv_event_flag_c::UNK_C3FF, roomNo);
             dComIfGs_setEventReg(dSv_event_flag_c::UNK_85FF, startCode);
 #if VERSION == VERSION_DEMO
-            dComIfGp_setNextStage("PShip", 0, r29);
+            // fakematch (demo only): named stage-name local, same pattern as d_s_play phase_2's
+            // `const char* stage = "Stage";` (its node gives r29 the extra interference the target needs)
+            const char* stage = "PShip";
+            dComIfGp_setNextStage(stage, 0, r29);
 #else
             dComIfGp_setNextStage("PShip", 0, 2);
             mbEnteredShip = true;
