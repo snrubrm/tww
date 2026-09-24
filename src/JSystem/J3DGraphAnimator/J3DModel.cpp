@@ -854,7 +854,7 @@ void J3DModel::viewCalc() {
 
 /* 802EF050-802EF1B8       .text calcNrmMtx__8J3DModelFv */
 void J3DModel::calcNrmMtx() {
-    if (mModelData->checkFlag(J3DMdlDataFlag_ConcatView) == 0) {
+    if (!getModelData()->checkFlag(J3DMdlDataFlag_ConcatView)) {
         for (u16 i = 0; i < mModelData->getDrawMtxNum(); i++) {
             if (mModelData->getDrawMtxFlag(i) == 0) {
                 if (mpScaleFlagArr[mModelData->getDrawMtxIndex(i)] == 1) {
