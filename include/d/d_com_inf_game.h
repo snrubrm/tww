@@ -1157,8 +1157,6 @@ inline void dComIfGs_setItem(int i_invIdx, u8 i_itemNo) {
         return;
     } else if (i_invIdx < dInvSlot_ReserveLast_e) {
         dComIfGs_setItemReserve(i_invIdx - dInvSlot_ReserveFirst_e, i_itemNo);
-    } else {
-        return;
     }
 }
 
