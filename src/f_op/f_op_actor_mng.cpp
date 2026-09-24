@@ -1297,7 +1297,7 @@ fopAc_ac_c* fopAcM_myRoomSearchEnemy(s8 roomNo) {
 
 /* 80027A9C-80027B24       .text fopAcM_createDisappear__FP10fopAc_ac_cP4cXyzUcUcUc */
 fpc_ProcID fopAcM_createDisappear(fopAc_ac_c* i_actor, cXyz* p_pos, u8 i_scale, u8 i_dropType, u8 i_itemBitNo) {
-    u32 params = (i_itemBitNo & 0xFF) << 16 | (i_scale & 0xFF) << 8 | (i_dropType & 0xFF) << 0;
+    u32 params = i_itemBitNo << 16 | i_scale << 8 | i_dropType;
 #if VERSION == VERSION_DEMO
     fopAc_ac_c* disappear = (fopAc_ac_c*)fopAcM_fastCreate(fpcNm_DISAPPEAR_e, params, p_pos, fopAcM_GetRoomNo(i_actor));
 #else
