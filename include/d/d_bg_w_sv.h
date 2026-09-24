@@ -11,7 +11,7 @@ public:
     virtual ~dBgWSv() {}
 
     virtual void MatrixCrrPos(cBgS_PolyInfo&, void*, bool, cXyz*, csXyz*, csXyz*) {}
-    bool ChkNoCrrPos() { return mSvFlag & 1; }
+    u32 ChkNoCrrPos() { return mSvFlag & 1; }
     void SetFlag(u32 flag) { mSvFlag = flag; }
     Vec* GetBackVtx() { return mBackVtx; }
     void SetBackVtx(Vec* vtx) { mBackVtx = vtx; }
