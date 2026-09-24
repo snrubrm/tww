@@ -19,6 +19,7 @@ namespace daObjVds {
         BOOL PlayLoopJointAnimation();
         void set_first_process();
         void* search_switchCB(fopAc_ac_c*);
+        void get_eye_set_info(cXyz*, short*, int);
         BOOL process_off_init();
         void process_off_main();
         BOOL process_on_init();

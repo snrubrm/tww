@@ -57,8 +57,6 @@ void* daObjVds::ds_search_switchCB(void* actor, void* self) {
 
 /* 00000214-000002B0       .text search_switchCB__Q28daObjVds5Act_cFP10fopAc_ac_c */
 void* daObjVds::Act_c::search_switchCB(fopAc_ac_c* actor) {
-    cXyz left, right;
-    static s16 angle_data[2] = {0, 0};
     if (fopAc_IsActor(actor) && fopAcM_GetName(actor) == fpcNm_Obj_Swlight_e) {
         for (int i = 0; i < 2; i++) {
             if (mSwitchId[i] == fpcM_ERROR_PROCESS_ID_e) {
@@ -68,6 +66,19 @@ void* daObjVds::Act_c::search_switchCB(fopAc_ac_c* actor) {
         }
     }
     return NULL;
+}
+
+// Unused; stripped by the linker. Name/signature from d_a_obj_VdsD.map; body reconstructed from its leftover
+// eye-offset literals and guarded angle_data static. The angle_data values fold away in retail; +-40 degrees is taken
+// from the eye switches (MsuSWB) placed around the statue in M_Dai room 16.
+void daObjVds::Act_c::get_eye_set_info(cXyz* pos, short* angle, int idx) {
+    cXyz offset[2] = {
+        cXyz(-222.5f, 598.73f, 178.9f),
+        cXyz(222.5f, 598.73f, 178.9f),
+    };
+    static s16 angle_data[2] = {cM_deg2s(-40.0f), cM_deg2s(40.0f)};
+    cMtx_multVec(mBgMtx, &offset[idx], pos);
+    *angle = shape_angle.y + angle_data[idx];
 }
 
 /* 000002EC-000003C8       .text process_off_init__Q28daObjVds5Act_cFv */
@@ -279,7 +290,6 @@ bool daObjVds::Act_c::create_heap() {
 }
 
 /* 00001020-000011EC       .text _create__Q28daObjVds5Act_cFv */
-// NONMATCHING - rodata offsets: four unreferenced floats (-222.5, 598.73, 178.9, 222.5) of unknown origin at .rodata 0x30 are missing
 cPhs_State daObjVds::Act_c::_create() {
     fopAcM_SetupActor(this, Act_c);
     cPhs_State phase = dComIfG_resLoad(&mPhase, M_arcname);
