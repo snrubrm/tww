@@ -4603,6 +4603,10 @@ bool dCamera_c::CalcSubjectAngle(s16* param_1, s16* param_2) {
     f32 fVar6;
     f32 dVar11;
     f32 dVar12;
+#if VERSION == VERSION_DEMO
+    f32 eyeY;
+    f32 f2;
+#endif
 
     bool bVar9 = true;
     
@@ -4658,6 +4662,13 @@ bool dCamera_c::CalcSubjectAngle(s16* param_1, s16* param_2) {
         f1 = fVar6 / 0.7f;
     }
 
+#if VERSION == VERSION_DEMO
+    fVar5 = fVar5 > 0.7f ? 1.0f : fVar5 < -0.7f ? -1.0f : fVar5 / 0.7f;
+
+    f2 = 5.0f;
+    eyeY = mEye.y;
+    if ((eyeY <= m354 + f2 || eyeY <= mBG.m5C.m58 + f2) && ((mWork.subject.m388 >= 0.0f && fVar5 > 0.0f) || (mWork.subject.m388 < 0.0f && fVar5 <= 0.0f))) {
+#else
     f32 f3;
     if (fVar5 > 0.7f) {
         f3 = 1.0f;
@@ -4673,6 +4684,7 @@ bool dCamera_c::CalcSubjectAngle(s16* param_1, s16* param_2) {
     f32 f2 = 5.0f;
     f32 eyeY = mEye.y;
     if ((eyeY <= m354 + f2 || eyeY <= mBG.m5C.m58 + f2) && ((mWork.subject.m388 >= 0.0f && f3 > 0.0f) || (mWork.subject.m388 < 0.0f && f3 <= 0.0f))) {
+#endif
         fVar5 = 0.0f;
     }
     
