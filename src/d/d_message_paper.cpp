@@ -579,13 +579,12 @@ u8 dMsg3_aimBrightness() {
 }
 
 /* 801ECEEC-801ED2C8       .text dMsg3_setCharAlpha__FP14sub_msg3_classUc */
-// NONMATCHING - retail only: the u8 index extension is scheduled before the first float subtraction
 void dMsg3_setCharAlpha(sub_msg3_class* i_Msg, u8 i_index) {
     int temp_r6 = ((J2DTextBox*)i_Msg->text_pane[0].pane)->getLineSpace();
     f32 temp_f1 = i_Msg->field_0xcfc[0].mPosTopLeftOrig.y - i_Msg->field_0xda4[0].mPosTopLeftOrig.y;
 
-    int var_r31 = i_index;
-    f32 temp_f2 = temp_f1 + i_Msg->text_pane[var_r31].mPosTopLeft.y + (i_Msg->field_0xeac * (2 - i_Msg->field_0xec8[i_index]));
+    int var_r31;
+    f32 temp_f2 = temp_f1 + i_Msg->text_pane[var_r31 = i_index].mPosTopLeft.y + (i_Msg->field_0xeac * (2 - i_Msg->field_0xec8[i_index]));
 
     int var_r27 = (int)temp_f2;
     int var_r26 = var_r27 + temp_r6 * i_Msg->field_0xec8[i_index];
