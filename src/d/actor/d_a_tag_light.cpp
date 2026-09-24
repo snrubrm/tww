@@ -506,10 +506,10 @@ bool Act_c::_draw() {
         }
 
         J3DModelData* modelData = mpModel->getModelData();
-        s8 signedAlpha = m308 * 255.5f;
-        u8 alpha = signedAlpha;
-        set_material(modelData->getJointNodePointer(MSPOT_JNT_HIKARITAG_e)->getMesh(), alpha);
-        set_material(modelData->getJointNodePointer(MSPOT_JNT_KOGEN_e)->getMesh(), alpha);
+        s8 tmp = (m308 * 255.5f);
+        u8 tmp2 = tmp;
+        set_material(modelData->getJointNodePointer(MSPOT_JNT_HIKARITAG_e)->getMesh(), (u8)tmp2);
+        set_material(modelData->getJointNodePointer(MSPOT_JNT_KOGEN_e)->getMesh(), (u8)tmp2);
         mDoExt_modelUpdateDL(mpModel);
     }
     return true;
