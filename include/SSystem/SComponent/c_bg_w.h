@@ -193,11 +193,11 @@ public:
 
     void SetPriority(PRIORITY priority) { mWallCorrectPriority = priority; }
     void SetLock() { mFlags |= LOCK_e; }
-    bool ChkLock() { return mFlags & LOCK_e; }
-    bool ChkMoveBg() { return mFlags & MOVE_BG_e; }
+    u32 ChkLock() { return mFlags & LOCK_e; }
+    u32 ChkMoveBg() { return mFlags & MOVE_BG_e; }
     void SetNoCalcVtx() { mFlags |= NO_CALC_VTX_e; }
     void ClrNoCalcVtx() { mFlags &= ~NO_CALC_VTX_e; }
-    bool ChkNoCalcVtx() { return mFlags & NO_CALC_VTX_e; }
+    u32 ChkNoCalcVtx() { return mFlags & NO_CALC_VTX_e; }
     BOOL ChkPriority(int prio) { return mWallCorrectPriority == prio; }
 
     Mtx* GetBaseMtxP() { return pm_base; }
@@ -237,7 +237,7 @@ public:
     }
 
     void GetOldInvMtx(Mtx) const {}
-    bool ChkFlush() { return mIgnorePlaneType & 8; }
+    u32 ChkFlush() { return mIgnorePlaneType & 8; }
     void ChkGroundRegist() {}
     void ChkRoofRegist() {}
     void ChkThrough() {}
