@@ -110,6 +110,23 @@ namespace JAInter {
         /* 0x16EC */ JASystem::TTrack::TOuterParam mOuterParam;
     };
 
+    inline void SeqUpdateData::init() {
+        mSeqVolume = 1.0f;
+        mSeqPan = 0.5f;
+        mSeqPitch = 1.0f;
+        mSeqFxmix = 0.0f;
+        mSeqDolby = 0.0f;
+        mSeqTempo = 1.0f;
+        for (u32 i = 0; i < JAIGlobalParameter::getParamSeqTrackMax(); i++) {
+            trackVolume[i] = 1.0f;
+            trackPan[i] = 64.0f;
+            trackPitch[i] = 1.0f;
+            trackFxmix[i] = 0.0f;
+            trackDolby[i] = 0.0f;
+            trackupdate[i] = 0;
+        }
+    }
+
     inline void SeqParameter::init() {
         mTrack.assignExtBuffer(&mOuterParam);
         field_0x1264 = 0xFFFFFFFF;

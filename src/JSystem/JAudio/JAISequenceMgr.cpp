@@ -23,23 +23,6 @@ JAInter::SeqUpdateData* JAInter::SequenceMgr::seqTrackInfo;
 JAISound** JAInter::SequenceMgr::FixSeqBufPointer;
 JKRArchive* JAInter::SequenceMgr::arcPointer;
 
-inline void JAInter::SeqUpdateData::init() {
-    mSeqVolume = 1.0f;
-    mSeqPan = 0.5f;
-    mSeqPitch = 1.0f;
-    mSeqFxmix = 0.0f;
-    mSeqDolby = 0.0f;
-    mSeqTempo = 1.0f;
-    for (u32 i = 0; i < JAIGlobalParameter::getParamSeqTrackMax(); i++) {
-        trackVolume[i] = 1.0f;
-        trackPan[i] = 64.0f;
-        trackPitch[i] = 1.0f;
-        trackFxmix[i] = 0.0f;
-        trackDolby[i] = 0.0f;
-        trackupdate[i] = 0;
-    }
-}
-
 /* 80295684-802960A0       .text init__Q27JAInter11SequenceMgrFv */
 void JAInter::SequenceMgr::init() {
     JAIBasic* basic = JAIBasic::getInterface();
