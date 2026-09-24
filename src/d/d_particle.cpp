@@ -1092,11 +1092,10 @@ void dPa_ripplePcallBack::execute(JPABaseEmitter* emitter, JPABaseParticle* ptcl
 
 /* 8007DE94-8007E254       .text draw__19dPa_ripplePcallBackFP14JPABaseEmitterP15JPABaseParticle */
 #if VERSION == VERSION_DEMO
-// NONMATCHING - the vertex z sums are computed before the x sums in the target
+// NONMATCHING - demo only: regalloc (the pos members and the vertex x/z members are coloured in a different order)
 void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
-    f32 x0, z0, x1, z1, x2, z2, x3, z3;
-    f32 posX, posY, posZ;
-    f32 y0, y1, y2, y3;
+    Vec v0, v1, v2, v3;
+    Vec pos;
     f32 sinNY;
     f32 sinHX;
     f32 nx;
@@ -1111,9 +1110,9 @@ void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
     f32 cos;
     f32 ny;
     f32 halfX;
-    posX = particle->mGlobalPosition.x;
-    posY = particle->mGlobalPosition.y;
-    posZ = particle->mGlobalPosition.z;
+    pos.x = particle->mGlobalPosition.x;
+    pos.y = particle->mGlobalPosition.y;
+    pos.z = particle->mGlobalPosition.z;
     JPADrawParams* params = particle->getDrawParamPPtr();
     sin = JMASSin(params->mRotateAngle);
     cos = JMASCos(params->mRotateAngle);
@@ -1125,79 +1124,71 @@ void dPa_ripplePcallBack::draw(JPABaseEmitter*, JPABaseParticle* particle) {
     ny = -halfY;
     cosHY = cos * halfY;
     sinNX = sin * nx;
-    z0 = cosHY + sinNX;
+    v0.z = cosHY + sinNX;
     cosNX = cos * nx;
     sinHY = sin * halfY;
-    x0 = cosNX - sinHY;
+    v0.x = cosNX - sinHY;
     sinHX = sin * halfX;
-    z1 = cosHY + sinHX;
+    v1.z = cosHY + sinHX;
     cosHX = cos * halfX;
-    x1 = cosHX - sinHY;
+    v1.x = cosHX - sinHY;
     cosNY = cos * ny;
-    z2 = cosNY + sinHX;
+    v2.z = cosNY + sinHX;
     sinNY = sin * ny;
-    x2 = cosHX - sinNY;
-    z3 = cosNY + sinNX;
-    x3 = cosNX - sinNY;
+    v2.x = cosHX - sinNY;
+    v3.z = cosNY + sinNX;
+    v3.x = cosNX - sinNY;
 
     cXyz chk;
     f32 height;
     if (dPa_control_c::isStatus(1)) {
-        chk.z = z0 + posZ;
-        chk.x = x0 + posX;
-        chk.y = posY;
+        chk.set(v0.x + pos.x, pos.y, v0.z + pos.z);
         if (fopAcM_getWaterY(&chk, &height)) {
-            y0 = 2.0f + height;
+            v0.y = 2.0f + height;
         } else {
-            y0 = 2.0f + posY;
+            v0.y = 2.0f + pos.y;
         }
-        chk.z = z1 + posZ;
-        chk.x = x1 + posX;
-        chk.y = posY;
+        chk.set(v1.x + pos.x, pos.y, v1.z + pos.z);
         if (fopAcM_getWaterY(&chk, &height)) {
-            y1 = 2.0f + height;
+            v1.y = 2.0f + height;
         } else {
-            y1 = 2.0f + posY;
+            v1.y = 2.0f + pos.y;
         }
-        chk.z = z2 + posZ;
-        chk.x = x2 + posX;
-        chk.y = posY;
+        chk.set(v2.x + pos.x, pos.y, v2.z + pos.z);
         if (fopAcM_getWaterY(&chk, &height)) {
-            y2 = 2.0f + height;
+            v2.y = 2.0f + height;
         } else {
-            y2 = 2.0f + posY;
+            v2.y = 2.0f + pos.y;
         }
-        chk.z = z3 + posZ;
-        chk.x = x3 + posX;
-        chk.y = posY;
+        chk.set(v3.x + pos.x, pos.y, v3.z + pos.z);
         if (fopAcM_getWaterY(&chk, &height)) {
-            y3 = 2.0f + height;
+            v3.y = 2.0f + height;
         } else {
-            y3 = 2.0f + posY;
+            v3.y = 2.0f + pos.y;
         }
     } else {
-        chk.x = posX;
-        chk.y = posY;
-        chk.z = posZ;
+        chk.x = pos.x;
+        chk.y = pos.y;
+        chk.z = pos.z;
         if (fopAcM_getWaterY(&chk, &height)) {
-            y0 = 2.0f + height;
+            v0.y = 2.0f + height;
         } else {
-            y0 = 2.0f + posY;
+            v0.y = 2.0f + pos.y;
         }
-        y1 = y0;
-        y2 = y0;
-        y3 = y0;
+        v1.y = v0.y;
+        v2.y = v0.y;
+        v3.y = v0.y;
     }
 
     GXSetCullMode(GX_CULL_NONE);
     GXBegin(GX_QUADS, GX_VTXFMT0, 4);
-    GXPosition3f32(x0 + posX, y0, z0 + posZ);
+    GXPosition3f32(v0.x + pos.x, v0.y, v0.z + pos.z);
     GXTexCoord2f32(0.0f, 0.0f);
-    GXPosition3f32(x1 + posX, y1, z1 + posZ);
+    GXPosition3f32(v1.x + pos.x, v1.y, v1.z + pos.z);
     GXTexCoord2f32(1.0f, 0.0f);
-    GXPosition3f32(x2 + posX, y2, z2 + posZ);
+    GXPosition3f32(v2.x + pos.x, v2.y, v2.z + pos.z);
     GXTexCoord2f32(1.0f, 1.0f);
-    GXPosition3f32(x3 + posX, y3, z3 + posZ);
+    GXPosition3f32(v3.x + pos.x, v3.y, v3.z + pos.z);
     GXTexCoord2f32(0.0f, 1.0f);
     particle->setInvisibleParticleFlag();
 }
