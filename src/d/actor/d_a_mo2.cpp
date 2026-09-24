@@ -1904,6 +1904,28 @@ static void fight(mo2_class* i_this) {
             }
             fopAc_ac_c* hitActor = yari_hit_check(i_this);
             if (hitActor != NULL) {
+#if VERSION == VERSION_DEMO
+                // fakematch (demo only): the demo target branches `beq case; b next` on the name, the
+                // shape a one-case switch produces; if/else-if gives `bne`. Still 99.79%: the name stays in r4 in the
+                // target and the checkPlayerGuard test also has the `bne; b` shape (not reproduced).
+                switch (fopAcM_GetName(hitActor)) {
+                case fpcNm_PLAYER_e:
+                    if (player->checkPlayerGuard() && i_this->m2060 != 3) {
+                        i_this->mpMorf->setPlaySpeed(-1.0f);
+                        if (i_this->m05F0 != 0) {
+                            i_this->m05F0 = l_mo2HIO.m024 + 6;
+                        }
+                        i_this->m207E = 0xFF;
+                        i_this->mpMorf->play(&actor->eyePos, 0, 0);
+                    }
+                    break;
+                default:
+                    if (fopAcM_GetName(hitActor) == fpcNm_MO2_e) {
+                        i_this->m2954 = fopAcM_GetID(hitActor);
+                    }
+                    break;
+                }
+#else
                 if (fopAcM_GetName(hitActor) == fpcNm_PLAYER_e) {
                     if (player->checkPlayerGuard() && i_this->m2060 != 3) {
                         i_this->mpMorf->setPlaySpeed(-1.0f);
@@ -1916,6 +1938,7 @@ static void fight(mo2_class* i_this) {
                 } else if (fopAcM_GetName(hitActor) == fpcNm_MO2_e) {
                     i_this->m2954 = fopAcM_GetID(hitActor);
                 }
+#endif
             } else {
                 i_this->mWeaponSph.ClrAtHit();
                 i_this->mWeapon2Sph.ClrAtHit();
