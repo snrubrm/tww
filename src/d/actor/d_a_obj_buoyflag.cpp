@@ -149,8 +149,9 @@ inline void daObjBuoyflag::Packet_c::calc_pos_spring(int y, int x) {
     if (y < 4) calc_pos_spring_near(pos, &prev->pos[y + 1][x], 12.5f, attr().spring);
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_gravity(int y, int x) {
-    f32 ratio = 0.25f * (4 - y) + (1.0f / 6.0f) * x;
-    f32 g = 0.5f * (ratio * attr().gravity);
+    f32 a = 0.25f * (4 - y);
+    f32 b = (1.0f / 6.0f) * x;
+    f32 g = 0.5f * ((a + b) * attr().gravity);
     mForce += mGravity * g;
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
@@ -164,8 +165,7 @@ inline void daObjBuoyflag::Packet_c::calc_pos_wave(int y, int x) {
     s16 angle3 = 32768.0f * distance + mPhase[11];
     f32 wave = 1.0f + (1.0f / 3.0f) * (cM_ssin(angle1) + cM_ssin(angle2) + cM_ssin(angle3));
     f32 dot = normal->inprod(mWind);
-    f32 w = wave * attr().wave;
-    mForce += *normal * (dot * (w * (1.0f / attr().windScale)));
+    mForce += *normal * (dot * (wave * attr().wave * (1.0f / attr().windScale)));
 }
 inline void daObjBuoyflag::Packet_c::calc_pos_spd(int y, int x) {
     cXyz* speed = &mMove.speed[y][x];
@@ -457,7 +457,8 @@ void daObjBuoyflag::Packet_c::calc_pos_spring_near(const cXyz* pos, const cXyz* 
 }
 
 /* 000015FC-00001BC0       .text calc_pos__Q213daObjBuoyflag8Packet_cFPQ213daObjBuoyflag5Act_c */
-// NONMATCHING - retail only: the inlined cM_ssin lookups in calc_pos_wave are scheduled differently (demo matches)
+// NONMATCHING - retail: the calc_pos_wave sum is computed after the inprod call instead of before it (keeps the three
+// sines in f23-f25); demo: the angle1/angle2 conversions lack an extsh (an (int) cast before the s16 store matches the demo)
 void daObjBuoyflag::Packet_c::calc_pos(Act_c* actor) {
     DrawVtx_c* draw = &mDraw[mBuffer];
     DrawVtx_c* prev = &mDraw[mBuffer ^ 1];
