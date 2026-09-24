@@ -511,6 +511,13 @@ void J3DModel::calcAnmMtx() {
 
 static f32 J3DUnit01[] = {0.0f, 1.0f};
 
+#if VERSION <= VERSION_JPN
+// The demo/JPN target has this function at optimization level 1 (register allocated, but mModelData reloaded for every
+// access and no strength reduction); level 1 reproduces it exactly, levels 0, 2, 3 and 4 do not.
+#pragma push
+#pragma optimization_level 1
+#endif
+
 /* 802EE67C-802EE874       .text calcWeightEnvelopeMtx__8J3DModelFv */
 void J3DModel::calcWeightEnvelopeMtx() {
     __REGISTER Mtx* worldMtx;
@@ -672,6 +679,10 @@ void J3DModel::calcWeightEnvelopeMtx() {
         #endif
     }
 }
+
+#if VERSION <= VERSION_JPN
+#pragma pop
+#endif
 
 #if VERSION <= VERSION_JPN
 // The demo/JPN target has these functions unoptimized (flag tests materialised as li 1/li 0 + cmpwi, no CSE/copy
