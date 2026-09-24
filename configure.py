@@ -1574,7 +1574,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_kn"),
     ActorRel(Matching,    "d_a_kokiie"),
     ActorRel(Matching,    "d_a_ks"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01"), "d_a_kt"), # regalloc
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_kt"), # regalloc
     ActorRel(Matching,    "d_a_mflft"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"),    "d_a_npc_cb1"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"), "d_a_npc_md"),
@@ -1707,7 +1707,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_os"),
     ActorRel(Matching, "d_a_npc_p1"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_p2"),
-    ActorRel(MatchingFor("D44J01", "GZLE01", "GZLP01"), "d_a_npc_people"), # regalloc
+    ActorRel(MatchingFor("D44J01", "GZLE01", "GZLP01", "GZLJ01"), "d_a_npc_people"), # regalloc
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_pf1"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"),    "d_a_npc_photo"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_pm1"),
@@ -1733,7 +1733,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_obj_apzl"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_obj_ashut"),
     ActorRel(Matching,    "d_a_obj_auzu"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01"), "d_a_obj_buoyflag"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_obj_buoyflag"),
     ActorRel(Matching,    "d_a_obj_buoyrace"),
     ActorRel(Matching,    "d_a_obj_correct"),
     ActorRel(Matching,    "d_a_obj_dmgroom"),
@@ -1844,7 +1844,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLE01", "GZLP01"), "d_a_wz"),
     ActorRel(Matching,    "d_a_ygcwp"),
     ActorRel(Matching,    "d_a_yougan"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01"),    "d_a_ghostship"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"),    "d_a_ghostship"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_movie_player", extra_cflags=["-O3,p"]),
 ]
 
