@@ -28,7 +28,7 @@ public:
     virtual ~cBgS_ChkElm() {}
     virtual void Regist2(cBgW*, fpc_ProcID, void*);
 
-    bool ChkUsed() const { return (m_flags & 1); }
+    u32 ChkUsed() const { return (m_flags & 1); }
 };  // Size: 0x14
 
 STATIC_ASSERT(sizeof(cBgS_ChkElm) == 0x14);
