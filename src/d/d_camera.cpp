@@ -6466,6 +6466,7 @@ bool dCamera_c::vomitCamera(s32 param_1) {
     targetV = globe.V();
     cSAngle targetU;
     targetU.Val(directionOf(mpPlayerActor).Inv());
+    f32 cushV = val19;
 
     u32 launched = check_owner_action(mPadId, daPyStts0_UNK80000000_e);
     if (launched) {
@@ -6485,7 +6486,7 @@ bool dCamera_c::vomitCamera(s32 param_1) {
     }
 
     mViewCache.mDirection.R(mViewCache.mDirection.R() + val14 * (targetR - mViewCache.mDirection.R()));
-    mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * val19);
+    mViewCache.mDirection.V(mViewCache.mDirection.V() + (targetV - mViewCache.mDirection.V()) * cushV);
     mViewCache.mDirection.U(targetU);
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
     mViewCache.mFovy += val29 * (val25 - mViewCache.mFovy);
