@@ -39,7 +39,6 @@ static u8 dMsg2_tex_i4_color[] = {
 };
 
 /* 801E73B4-801E74F4       .text dMsg2_value_init__FP14sub_msg2_classUc */
-// NONMATCHING - retail only: colour/alpha register allocation and instruction order differ; matches D44J01 (non-const getters).
 void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     static const u32 colorTable[] = {
         0x00000000,
@@ -58,6 +57,7 @@ void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     char ruby_buf[32];
     char rubySdw_buf[32];
 
+#if VERSION == VERSION_DEMO
     const u32 color = colorTable[i_Msg->colorNo];
     int i = i_index;
 
@@ -73,6 +73,31 @@ void dMsg2_value_init(sub_msg2_class* i_Msg, u8 i_index) {
     u32 b = i_Msg->msgDataProc[i].getGradAlpha();
     u32 c = i_Msg->msgDataProc[i].getRCharAlpha();
     u32 d = i_Msg->msgDataProc[i].getRGradAlpha();
+#else
+    const u32& color = (u32)colorTable[i_Msg->colorNo];
+    int i = (u8)i_index;
+
+    u8 ca = i_Msg->msgDataProc[i].getCharAlpha();
+    u8 cb = i_Msg->msgDataProc[i].getGradAlpha();
+    u8 cc = i_Msg->msgDataProc[i].getRCharAlpha();
+    u8 cd = i_Msg->msgDataProc[i].getRGradAlpha();
+    const u32& ea = ca;
+    const u32& eb = cb;
+    const u32& ec = cc;
+    const u32& ed = cd;
+    u32 x0 = color;
+    x0 |= ea;
+    u32 x1 = color;
+    x1 |= eb;
+    u32 x2 = color;
+    x2 |= ec;
+    u32 x3 = color;
+    x3 |= ed;
+    u32 a = i_Msg->msgDataProc[i].getCharAlpha() & 0xFF;
+    u32 b = i_Msg->msgDataProc[i].getGradAlpha() & 0xFF;
+    u32 c = i_Msg->msgDataProc[i].getRCharAlpha() & 0xFF;
+    u32 d = i_Msg->msgDataProc[i].getRGradAlpha() & 0xFF;
+#endif
 
     sprintf(text_buf, "\x1b""CC[%08x]\x1bGC[%08x]", x0, x1);
     sprintf(ruby_buf, "\x1b""CC[%08x]\x1bGC[%08x]", x2, x3);
