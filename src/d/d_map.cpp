@@ -2452,7 +2452,6 @@ void dMap_c::initPoint() {
 }
 
 /* 8004AE28-8004B148       .text setGbaPoint_ocean__6dMap_cFUcffsUcUcUcUc */
-// NONMATCHING - missing a discarded getKindMapType() call for type 2 (the original's use of the result is unknown).
 void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm6, u8 prm7, u8 prm8) {
     s32 sx = (s32)(((50000.0f + x) + 300000.0f) * (256.0f / 100000.0f));
     s32 sz = (s32)(((50000.0f + z) + 300000.0f) * (256.0f / 100000.0f));
@@ -2530,6 +2529,9 @@ void dMap_c::setGbaPoint_ocean(u8 type, f32 x, f32 z, s16 angle, u8 prm5, u8 prm
     case 21: {
         if (type == 6 && prm8 == 0x18) {
             return;
+        }
+        if (type == 2) {
+            getKindMapType(); // result is unused in the original too
         }
         if (type == 2 && prm8 == 0x15) {
             return;
