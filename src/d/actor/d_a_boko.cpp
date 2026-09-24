@@ -83,11 +83,12 @@ void daBoko_c::keCalc1(ke_c_s* arg1, int arg2) {
     cXyz* pcVar11 = &arg1->m000[1];
     cXyz* pcVar10 = &arg1->m078[1];
     cXyz sp18(0.0f, 0.0f, 21.875f);
-    f32 tmp = -6.25f;
     f32 fVar1;
     f32 fVar7;
     f32 fVar5;
     f32 fVar6;
+    f32 fVar14;
+    f32 tmp = -6.25f;
 
     dBgS_GndChk gndChk;
     Vec temp;
@@ -97,7 +98,7 @@ void daBoko_c::keCalc1(ke_c_s* arg1, int arg2) {
     temp.y += 100.0f;
     gndChk.m_pos.set(temp);
 
-    f32 fVar14 = dComIfG_Bgsp()->GroundCross(&gndChk) + 3.0f;
+    fVar14 = dComIfG_Bgsp()->GroundCross(&gndChk) + 3.0f;
     if (fVar14 == -G_CM3D_F_INF) {
         fVar14 = G_CM3D_F_INF;
     }
