@@ -47,6 +47,8 @@ static BOOL daKt_Draw(kt_class* i_this) {
 // address CSE / register allocation (see research/final/d_a_kt__kotori_move.patch)
 void kotori_move(kt_class* i_this) {
 #if VERSION == VERSION_DEMO
+    // fakematch: C-style declarations ahead of `player` give it the register ID below angleY that the demo needs
+    // (mwcc-instr); retail keeps the original layout (this form drops it to 98.27%).
     bool dispWing;
     u8 ret;
     s16 angleX;

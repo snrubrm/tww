@@ -1058,6 +1058,8 @@ void blockenc(u8* block) {
             r22 |= (r24 & 0x03) << r21;
         }
     } else { // VERSION_DEMO only block (optimized out in retail)
+        // fakematch: which reused variable plays which role in this block (color_num as the loop counter, i as the colour
+        // count, r18/r20/r22/offs2) was found by brute-force search and only steers the demo's register allocation.
         color_num = i = offs1 = 0;
         for (; color_num < 0x30; color_num += 3, offs1 += 4) {
             if (block[offs1+3] == 0xFF) {
