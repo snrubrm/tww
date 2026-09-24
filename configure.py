@@ -1576,7 +1576,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_ks"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_kt"), # regalloc
     ActorRel(Matching,    "d_a_mflft"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"),    "d_a_npc_cb1"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"),    "d_a_npc_cb1"),
     ActorRel(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"), "d_a_npc_md"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_npc_so"),
     ActorRel(Matching,    "d_a_nzg"),
@@ -1733,7 +1733,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_obj_apzl"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_obj_ashut"),
     ActorRel(Matching,    "d_a_obj_auzu"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_obj_buoyflag"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_obj_buoyflag"),
     ActorRel(Matching,    "d_a_obj_buoyrace"),
     ActorRel(Matching,    "d_a_obj_correct"),
     ActorRel(Matching,    "d_a_obj_dmgroom"),
