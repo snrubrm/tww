@@ -81,6 +81,7 @@ public:
     const char* getBmdName();
     const char* getBmdName2();
     const char* getDzbName();
+    f32 getSize2X();
     BOOL CreateHeap();
     void setEventPrm();
     void openInit();
