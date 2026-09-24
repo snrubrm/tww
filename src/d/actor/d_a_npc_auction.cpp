@@ -276,6 +276,10 @@ static BOOL CheckCreateHeap(fopAc_ac_c* i_this) {
 
 /* 00000868-00000ACC       .text phase_1__FP14daNpcAuction_c */
 static cPhs_State phase_1(daNpcAuction_c* i_this) {
+    // fakematch (found by permuter): rndKind (assignment-in-expression copy of kind) and the npcNo copy
+    // "no" only steer demo register allocation (minKind needs one fewer interference); retail is unaffected.
+    u8 rndKind;
+    u8 no;
     fopAcM_ct(i_this, daNpcAuction_c);
 
     daAuction_c* auction;
@@ -288,13 +292,14 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
 
     u8 prmNo = i_this->getPrmNpcNo();
     u8 npcNo = auction->getAucNpcNo(prmNo);
+    no = npcNo;
     i_this->setNpcNo(npcNo);
 
     if (!auction->setNpcID(npcNo, fopAcM_GetID(i_this))) {
         return cPhs_INIT_e;
     }
 
-    int minKind = l_kind_max[npcNo][0];
+    int minKind = l_kind_max[no][0];
     int maxKind = l_kind_max[npcNo][1];
     u8 kind;
     if (npcNo == 2 || npcNo == 3) {
@@ -302,9 +307,9 @@ static cPhs_State phase_1(daNpcAuction_c* i_this) {
             kind = minKind + i_this->getRand(maxKind - minKind + 1);
             auction->setKind(0, kind);
         } else {
-            kind = minKind + i_this->getRand(maxKind - minKind + 1);
-            if (kind == auction->getKind(0)) {
-                if (kind == (u8)maxKind) {
+            kind = (rndKind = minKind + i_this->getRand(maxKind - minKind + 1));
+            if (rndKind == auction->getKind(0)) {
+                if (rndKind == (u8)maxKind) {
                     kind--;
                 } else {
                     kind++;
