@@ -29,13 +29,13 @@ public:
     bool ChkHit() { return mFlag & 0x10; }
     void SetSttsWallOff() { mFlag |= 0x40000000; }
     void ClrSttsWallOff() { mFlag &= ~0x40000000; }
-    bool ChkSttsWallOff() { return mFlag & 0x40000000; }
+    bool ChkSttsWallOff() { return (mFlag & 0x40000000) != 0; }
     void SetSttsGroundOff() { mFlag |= 0x80000000; }
     void ClrSttsGroundOff() { mFlag &= ~0x80000000; }
-    bool ChkSttsGroundOff() { return mFlag & 0x80000000; }
+    bool ChkSttsGroundOff() { return (mFlag & 0x80000000) != 0; }
     void SetSttsRoofOff() { mFlag |= 0x20000000; }
     void ClrSttsRoofOff() { mFlag &= ~0x20000000; }
-    bool ChkSttsRoofOff() { return mFlag & 0x20000000; }
+    bool ChkSttsRoofOff() { return (mFlag & 0x20000000) != 0; }
 
     void SetCross(cXyz& pos) { mLin.SetEnd(pos); }
     cXyz& GetCross() { return mLin.GetEnd(); }
