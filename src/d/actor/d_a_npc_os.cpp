@@ -1683,10 +1683,14 @@ void daNpc_Os_c::setAnm(int param_1) {
         /* 0x10 */ int m10;
     };
 
-    static s8 l_anmTbl[] = {
-        dRes_INDEX_OS_BCK_OS_MOVE01_e,
-        dRes_INDEX_OS_BCK_OS_MOVE01_e,
-        dRes_INDEX_OS_BCK_OS_AWAKE_e,
+    struct anmTbl_c {
+        /* 0x00 */ s8 mBckFileIdx;
+    };
+
+    static anmTbl_c l_anmTbl[] = {
+        {dRes_INDEX_OS_BCK_OS_MOVE01_e},
+        {dRes_INDEX_OS_BCK_OS_MOVE01_e},
+        {dRes_INDEX_OS_BCK_OS_AWAKE_e},
     };
 
     static anmPrm_c l_anmPrm[] = {
@@ -1728,17 +1732,23 @@ void daNpc_Os_c::setAnm(int param_1) {
     };
 
     field_0x78C = param_1;
-    anmPrm_c& prm = l_anmPrm[param_1];
-    f32 playSpeed = prm.mPlaySpeed;
-    if(prm.mAnmTblIdx != field_0x7A0 || prm.mPlaySpeed != mpMorf->getPlaySpeed()) {
-        field_0x7A0 = prm.mAnmTblIdx;
-        mPrevMorfFrame = 0.0f;
-        mReachedAnimEnd = false;
-        dNpc_Os_setAnm(mpMorf, prm.mLoopMode, prm.mMorf, playSpeed, l_anmTbl[field_0x7A0], "Os");
+    anmPrm_c* anmPrm = &l_anmPrm[param_1];
 
-        if(prm.m10 < 0) {
-            mpMorf->setFrame(mpMorf->getEndFrame());
-        }
+    f32 playSpeed = anmPrm->mPlaySpeed;
+
+    if (anmPrm->mAnmTblIdx == field_0x7A0 && anmPrm->mPlaySpeed == mpMorf->getPlaySpeed()) {
+        return;
+    }
+
+    field_0x7A0 = anmPrm->mAnmTblIdx;
+    anmTbl_c* anmTbl = &l_anmTbl[field_0x7A0];
+
+    mPrevMorfFrame = 0.0f;
+    mReachedAnimEnd = false;
+    dNpc_Os_setAnm(mpMorf, anmPrm->mLoopMode, anmPrm->mMorf, playSpeed, anmTbl->mBckFileIdx, "Os");
+
+    if (anmPrm->m10 < 0) {
+        mpMorf->setFrame(mpMorf->getEndFrame());
     }
 }
 
