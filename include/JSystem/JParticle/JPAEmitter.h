@@ -198,7 +198,7 @@ public:
     u32 checkStatus(u32 status) { return mFlags & status; }
     void initStatus(u32 status) { mFlags = status; }
 
-    bool checkEmDataFlag(u32 mask) { return mDataFlag & mask; }
+    u32 checkEmDataFlag(u32 mask) { return mDataFlag & mask; }
 
     int getParticleNumber() {
         return mActiveParticles.getNumLinks() + mChildParticles.getNumLinks();
