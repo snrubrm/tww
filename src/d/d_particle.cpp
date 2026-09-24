@@ -1403,7 +1403,7 @@ void dPa_waveEcallBack::draw(JPABaseEmitter* emitter) {
         u = 0.0f;
 #if VERSION == VERSION_DEMO
         JGeometry::TVec3<f32> out2;
-        out2 = reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[0]) * collapse->x + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[1]) * collapse->y + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[2]) * collapse->z;
+        out2.set(reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[0]) * collapse->x + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[1]) * collapse->y + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[2]) * collapse->z);
 #else
         JGeometry::TVec3<f32> out2 = reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[0]) * collapse->x + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[1]) * collapse->y + reinterpret_cast<JGeometry::TVec3<f32>&>(mRotMtx[2]) * collapse->z;
 #endif
