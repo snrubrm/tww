@@ -4829,8 +4829,7 @@ static cPhs_State daBk_Create(fopAc_ac_c* i_actor) {
         if (i_this->m02C4 == NULL) {
             return cPhs_ERROR_e;
         }
-        J3DAnmTexPattern* btp = (J3DAnmTexPattern*)dComIfG_getObjectRes("Bk", dRes_INDEX_BK_BTP_TMABATAKI_e);
-        if (!i_this->m02C4->init(model->getModelData(), btp, TRUE, J3DFrameCtrl::EMode_NONE)) {
+        if (!i_this->m02C4->init(model->getModelData(), (J3DAnmTexPattern*)dComIfG_getObjectRes("Bk", dRes_INDEX_BK_BTP_TMABATAKI_e), TRUE, J3DFrameCtrl::EMode_NONE)) {
             return cPhs_ERROR_e;
         }
         
