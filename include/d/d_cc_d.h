@@ -195,7 +195,7 @@ public:
     fpc_ProcID GetAtOldApid() { return mAtOldApid; }
     fpc_ProcID GetTgApid() { return mTgApid; }
     fpc_ProcID GetTgOldApid() { return mTgOldApid; }
-    bool ChkNoActor() { return mFlag & 1; }
+    BOOL ChkNoActor() { return mFlag & 1; }
     bool ChkNoneActorPerfTblId() { return mActorPerfTblId == 0xFFFF; }
     dCcG_At_Spl GetAtSpl() { return (dCcG_At_Spl)mAtSpl; }
     void SetAtSpl(dCcG_At_Spl spl) { mAtSpl = spl; }
@@ -283,7 +283,12 @@ public:
         if (mEffCounter < 0)
             mEffCounter = 0;
     }
-    bool ChkEffCounter() { return mEffCounter > 0; }
+    bool ChkEffCounter() {
+        if (mEffCounter > 0) {
+            return true;
+        }
+        return false;
+    }
     virtual ~dCcD_GAtTgCoCommonBase() {}
 
     void ClrEffCounter() { mEffCounter = 0; }
@@ -314,8 +319,8 @@ public:
     void SetSe(u8 se) { mSe = se; }
     void SetSpl(dCcG_At_Spl spl) { mSpl = spl; }
     u8 GetSe() { return mSe; }
-    u8 GetSpl() { return mSpl; }
-    u8 GetHitMark() { return mHitMark; }
+    dCcG_At_Spl GetSpl() { return (dCcG_At_Spl)mSpl; }
+    int GetHitMark() { return mHitMark; }
     void SetRVec(cXyz& vec) { mRVec = vec; }
     void SetHitPos(cXyz& pos) { mHitPos = pos; }
     cXyz* GetHitPosP() { return &mHitPos; }
@@ -342,9 +347,9 @@ public:
     void SetShieldFrontRangeYAngle(s16* angle) { mpShieldFrontRangeYAngle = angle; }
     void SetHitMark(CcG_Tg_HitMark mark) { mHitMark = mark; }
     s16* GetShieldFrontRangeYAngle() { return mpShieldFrontRangeYAngle; }
-    u8 GetSpl() { return mSpl; }
+    int GetSpl() { return mSpl; }
     void SetSpl(dCcG_Tg_Spl spl) { mSpl = spl; }
-    u8 GetHitMark() { return mHitMark; }
+    int GetHitMark() { return mHitMark; }
     void SetRVec(cXyz& vec) { mRVec = vec; }
     cXyz* GetVecP() { return &mVec; }
     cXyz* GetRVecP() { return &mRVec; }
@@ -429,7 +434,7 @@ public:
     cXyz* GetAtVecP() { return mGObjAt.GetVecP(); }
     cXyz* GetTgVecP() { return mGObjTg.GetVecP(); }
     cXyz* GetTgRVecP() { return mGObjTg.GetRVecP(); }
-    dCcG_At_Spl GetAtSpl() { return (dCcG_At_Spl)mGObjAt.GetSpl(); }
+    dCcG_At_Spl GetAtSpl() { return mGObjAt.GetSpl(); }
     void SetAtSpl(dCcG_At_Spl spl) { mGObjAt.SetSpl(spl); }
     dCcG_Tg_Spl GetTgSpl() { return (dCcG_Tg_Spl)mGObjTg.GetSpl(); }
     void SetTgSpl(dCcG_Tg_Spl spl) { mGObjTg.SetSpl(spl); }
