@@ -46,9 +46,19 @@ static BOOL daKt_Draw(kt_class* i_this) {
 // fakematch: the per-access fopAc_ac_c* casts on current.pos and the per-case angle pointer locals only steer MWCC's
 // address CSE / register allocation (see research/final/d_a_kt__kotori_move.patch)
 void kotori_move(kt_class* i_this) {
+#if VERSION == VERSION_DEMO
+    bool dispWing;
+    u8 ret;
+    s16 angleX;
+    s16 angleY;
+    daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
+    dispWing = false;
+    ret = 0;
+#else
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     bool dispWing = false;
     u8 ret = 0;
+#endif
     dBgS_GndChk gndChk;
 
     f32 dx = player->current.pos.x - ((fopAc_ac_c*)i_this)->current.pos.x;
@@ -59,8 +69,13 @@ void kotori_move(kt_class* i_this) {
     f32 vx = i_this->mTargetPos.x - ((fopAc_ac_c*)i_this)->current.pos.x;
     f32 vy = i_this->mTargetPos.y - ((fopAc_ac_c*)i_this)->current.pos.y;
     f32 vz = i_this->mTargetPos.z - ((fopAc_ac_c*)i_this)->current.pos.z;
+#if VERSION == VERSION_DEMO
+    angleX = cM_atan2s(vx, vz);
+    angleY = -cM_atan2s(vy, std::sqrtf(vx*vx + vz*vz));
+#else
     s16 angleX = cM_atan2s(vx, vz);
     s16 angleY = -cM_atan2s(vy, std::sqrtf(vx*vx + vz*vz));
+#endif
 
     cXyz offs;
     cXyz pt;
