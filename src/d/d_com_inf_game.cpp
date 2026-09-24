@@ -1788,11 +1788,11 @@ void dComIfGs_exchangePlayerRecollectionData() {
     tmp_collect.mCollect[3] = dComIfGs_checkCollect(3);
     tmp_collect.mCollect[4] = dComIfGs_checkCollect(4);
 
-    tmp_sttsA.mSelectEquip[0] = dComIfGs_getSelectEquip(0);
-    tmp_sttsA.mSelectEquip[1] = dComIfGs_getSelectEquip(1);
-    tmp_sttsA.mSelectEquip[2] = dComIfGs_getSelectEquip(2);
-    tmp_sttsA.mSelectEquip[3] = dComIfGs_getSelectEquip(3);
-    tmp_sttsA.mSelectEquip[4] = dComIfGs_getSelectEquip(4);
+    u8 selectEquip0 = dComIfGs_getSelectEquip(0);
+    u8 selectEquip1 = dComIfGs_getSelectEquip(1);
+    u8 selectEquip2 = dComIfGs_getSelectEquip(2);
+    u8 selectEquip3 = dComIfGs_getSelectEquip(3);
+    u8 selectEquip4 = dComIfGs_getSelectEquip(4);
 
     tmp_item.mItems[dInvSlot_BOTTLE0_e] = dComIfGs_getItem(dInvSlot_BOTTLE0_e);
     tmp_item.mItems[dInvSlot_BOTTLE1_e] = dComIfGs_getItem(dInvSlot_BOTTLE1_e);
@@ -1872,14 +1872,14 @@ void dComIfGs_exchangePlayerRecollectionData() {
     dComIfGs_setCollect(3, tmp_collect.mCollect[3]);
     dComIfGs_setCollect(4, tmp_collect.mCollect[4]);
 
-    dComIfGs_setSelectEquip(0, tmp_sttsA.mSelectEquip[0]);
-    dComIfGs_setSelectEquip(1, tmp_sttsA.mSelectEquip[1]);
-    dComIfGs_setSelectEquip(2, tmp_sttsA.mSelectEquip[2]);
-    dComIfGs_setSelectEquip(3, tmp_sttsA.mSelectEquip[3]);
+    dComIfGs_setSelectEquip(0, selectEquip0);
+    dComIfGs_setSelectEquip(1, selectEquip1);
+    dComIfGs_setSelectEquip(2, selectEquip2);
+    dComIfGs_setSelectEquip(3, selectEquip3);
     // Potential bug: This array is only length 4, so it's reading and writing the wallet size in a non-standard way.
     // Usually the wallet size would be set via dComIfGs_setWalletSize instead.
     // TODO: Investigate this more.
-    dComIfGs_setSelectEquip(4, tmp_sttsA.mSelectEquip[4]);
+    dComIfGs_setSelectEquip(4, selectEquip4);
 
     dComIfGp_setSelectEquip(0, dComIfGs_getSelectEquip(0));
     dComIfGp_setSelectEquip(1, dComIfGs_getSelectEquip(1));
