@@ -1409,6 +1409,8 @@ void JAIZelBasic::subBgmStopInner() {
 
 /* 802A4EB8-802A53B4       .text bgmNowBattle__11JAIZelBasicFf */
 // NONMATCHING - the target reloads mMainBgmNum for the TAKT check instead of reusing the switch value
+#pragma push
+#pragma opt_common_subs off
 void JAIZelBasic::bgmNowBattle(f32 i_dist) {
     if (field_0x0063 != 0) {
         return;
@@ -1550,6 +1552,7 @@ nearby:
         setSubBgmTrackVolume(JAIZelParam::SWORD_NOT_USING_TRACK, 0.0f, JAIZelParam::BTL_SWORD_USING_FADE_TIME);
     }
 }
+#pragma pop
 
 /* 802A53B4-802A5548       .text bgmBattleGFrame__11JAIZelBasicFv */
 void JAIZelBasic::bgmBattleGFrame() {
