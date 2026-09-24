@@ -4284,10 +4284,12 @@ BOOL JAIZelBasic::check1stDynamicWave() {
     u32 first = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][0];
     u32 second = m_dy_wave_set_1st[mFirstDynamicSceneWaveIndex][1];
     if (first) {
-        firstStatus = 2 - getWaveLoadStatus(first);
+        firstStatus = getWaveLoadStatus(first);
+        firstStatus = 2 - firstStatus;
     }
     if (second) {
-        secondStatus = 2 - getWaveLoadStatus(second);
+        secondStatus = getWaveLoadStatus(second);
+        secondStatus = 2 - secondStatus;
     }
     return (firstStatus << 8) + secondStatus;
 }
