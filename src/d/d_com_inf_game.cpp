@@ -1802,8 +1802,10 @@ void dComIfGs_exchangePlayerRecollectionData() {
 
 #if VERSION == VERSION_DEMO
     dSv_player_status_c_c stts;
-    memcpy(&stts, dComIfGp_getPlayerInfoBuffer(), sizeof(stts));
-    u8* buffer = (u8*)dComIfGp_getPlayerInfoBuffer();
+    // fakematch: calling the play accessor directly (not the dComIfGp_ wrapper) keeps the two buffer expressions from being
+    // merged before the call, so &stts is evaluated first as in the target.
+    memcpy(&stts, g_dComIfG_gameInfo.play.getPlayerInfoBuffer(), sizeof(stts));
+    u8* buffer = dComIfGp_getPlayerInfoBuffer();
     memcpy(buffer, dComIfGs_getpPlayerStatusA(), sizeof(dSv_player_status_a_c));
     buffer += sizeof(dSv_player_status_a_c);
     memcpy(buffer, dComIfGs_getpItem(), sizeof(dSv_player_item_c));
