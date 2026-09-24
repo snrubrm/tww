@@ -461,7 +461,7 @@ inline void fopAcM_onActor(fopAc_ac_c* p_actor) {
     dComIfGs_onActor(fopAcM_GetSetId(p_actor), fopAcM_GetHomeRoomNo(p_actor));
 }
 
-inline bool fopAcM_IsFirstCreating(void* i_actor) {
+inline BOOL fopAcM_IsFirstCreating(void* i_actor) {
     return fpcM_IsFirstCreating(i_actor);
 }
 

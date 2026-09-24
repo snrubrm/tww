@@ -56,7 +56,7 @@ inline s32 fpcM_IsJustType(int type1, int type2) {
     return fpcBs_Is_JustOfType(type1, type2);
 }
 
-inline bool fpcM_IsFirstCreating(void* pProc) {
+inline BOOL fpcM_IsFirstCreating(void* pProc) {
     return ((base_process_class*)pProc)->mInitState == 0;
 }
 
