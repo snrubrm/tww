@@ -65,28 +65,6 @@ namespace JAInter {
         /* 0x4C */ PlayerParameter* systemTrackParameter;
     };
 
-    class MuteBit {
-    public:
-        MuteBit() { init(); }
-        void init() {
-            flag1 = 0;
-            flag3 = 0;
-        }
-        void setBitNow(bool bit) { flag1 = bit; }
-        bool getBitTarget() { return flag2; }
-        bool getBitNow() { return flag1; }
-        bool getBitUpdate() { return flag3; }
-
-        u8 flag1 : 1;
-        u8 flag2 : 1;
-        u8 flag3 : 1;
-        u8 flag4 : 1;
-        u8 flag5 : 1;
-        u8 flag6 : 1;
-        u8 flag7 : 1;
-        u8 flag8 : 1;
-    };
-
     class SeqParameter {
     public:
         SeqParameter() {}
@@ -131,6 +109,52 @@ namespace JAInter {
         /* 0x1360 */ JASystem::TTrack mTrack;
         /* 0x16EC */ JASystem::TTrack::TOuterParam mOuterParam;
     };
+
+    inline void SeqParameter::init() {
+        mTrack.assignExtBuffer(&mOuterParam);
+        field_0x1264 = 0xFFFFFFFF;
+        mTempo.init(1.0f);
+        field_0x1261 = 0;
+        field_0x1262 = 0;
+        field_0x1268 = 0;
+        field_0x126c = 0;
+        field_0x1270 = 0;
+        field_0x1274 = 0;
+        field_0x1278 = 0;
+        field_0x127c = 0;
+        field_0x1280 = 0;
+        field_0x1284 = 0;
+        field_0x1288 = 0;
+        field_0x128c = 0;
+        field_0x1290 = 0;
+        field_0x1294 = 0;
+        field_0x1298 = 0;
+        for (u32 i = 0; i < JAIGlobalParameter::getParamSeqTrackMax(); i++) {
+            mTrackVolumes[i].init(1.0f);
+            mTrackPans[i].init(0.5f);
+            mTrackPitches[i].init(1.0f);
+            mTrackFxmixes[i].init(0.0f);
+            mTrackDolbys[i].init(0.5f);
+            field_0xc60[i].init(0.0f);
+            field_0x131c[i] = 0;
+            field_0x129c[i] = 0;
+            for (u32 j = 0; j < 16; j++) {
+                mTrackPortData[i][j] = 0;
+            }
+        }
+        for (u32 i = 0; i < 16; i++) {
+            field_0x10[i].init(0.0f);
+        }
+        for (u32 i = 0; i < JAIGlobalParameter::getParamSeqPlayTrackMax() + 12; i++) {
+            mVolumes[i].init(1.0f);
+        }
+        for (u32 i = 0; i < JAIGlobalParameter::getParamSeqParameterLines(); i++) {
+            seqPan[i].init(0.5f);
+            seqPitch[i].init(1.0f);
+            seqFxmix[i].init(0.0f);
+            seqDolby[i].init(0.5f);
+        }
+    }
 
     namespace SequenceMgr {
         void init();

@@ -34,6 +34,28 @@ namespace JAInter {
         MoveParaSetInitZero() : MoveParaSet(0.0f) {}
     };
 
+    class MuteBit {
+    public:
+        MuteBit() { init(); }
+        void init() {
+            flag1 = 0;
+            flag3 = 0;
+        }
+        void setBitNow(bool bit) { flag1 = bit; }
+        bool getBitTarget() { return flag2; }
+        bool getBitNow() { return flag1; }
+        bool getBitUpdate() { return flag3; }
+
+        u8 flag1 : 1;
+        u8 flag2 : 1;
+        u8 flag3 : 1;
+        u8 flag4 : 1;
+        u8 flag5 : 1;
+        u8 flag6 : 1;
+        u8 flag7 : 1;
+        u8 flag8 : 1;
+    };
+
     class LinkSound {
     public:
         void init(JAISound* param_1, u32 param_2);
