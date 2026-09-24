@@ -1263,13 +1263,13 @@ void daGy_c::createWave() {
 #endif
 
 /* 00003004-00003268       .text setWave__6daGy_cFv */
-// NONMATCHING - target reloads l_HIO.m24 in case 1 instead of reusing the value loaded for max_speed
-// (demo loads the 1.0f speed_ratio into a register at the top, so it was a local)
 void daGy_c::setWave() {
     f32 splash_target;
     f32 wave_speed;
     f32 max_speed = l_HIO.m24;
-    f32 speed_ratio = 1.0f;
+    // The demo debug map shows a std::fabsf call here; its result is overwritten (argument is a guess).
+    f32 speed_ratio = std::fabsf(speedF);
+    speed_ratio = 1.0f;
 
     if (mPrmIdx == 5 || mPrmIdx == 8 || mPrmIdx == 9 || mPrmIdx == 6) {
         wave_speed = 0.0f;
