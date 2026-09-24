@@ -6750,7 +6750,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 height = work->m398;
-    // fakematch: the val9 self-assignment fixes the fmuls operand order (user-approved; see research/workarounds.md)
+    // fakematch: the val9 self-assignment fixes the fmuls operand order
     if (!limited_range_addition(&height, (stickCY = -stickCY) * (val9 = val9), val6, val7)) {
         cush = val20;
     }
