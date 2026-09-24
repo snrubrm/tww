@@ -410,8 +410,24 @@ void daMgBoard_c::set_mtx_bb() {
     }
 }
 
-// NONMATCHING - an unused function that was stripped here left the literals 0.75f, -0.75f and 0.0f in .rodata;
-// without it the later literal offsets (_execute, MinigameMain, CursorMove, __sinit) differ.
+// Unused; stripped by the linker. Name/signature from d_a_mgameboard.map; body reconstructed from its leftover
+// 0.75f, -0.75f and 0.0f .rodata literals (main stick thresholds; 0.0f is the neutral position).
+static BOOL checkStick(s16 i_dir) {
+    f32 stickX = CPad_GET_STICK_POS_X(0);
+    f32 stickY = CPad_GET_STICK_POS_Y(0);
+    switch (i_dir) {
+    case 0:
+        return stickY > 0.75f;
+    case 1:
+        return stickY < -0.75f;
+    case 2:
+        return stickX < -0.75f;
+    case 3:
+        return stickX > 0.75f;
+    default:
+        return stickX == 0.0f && stickY == 0.0f;
+    }
+}
 
 /* 00000E28-00000FD8       .text _execute__11daMgBoard_cFv */
 bool daMgBoard_c::_execute() {
