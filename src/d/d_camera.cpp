@@ -6387,9 +6387,7 @@ bool dCamera_c::vomitCamera(s32 param_1) {
         f32 height = heightOf(mpPlayerActor);
         f20 /= height < 10.0f ? 10.0f : height;
 
-        f32 angFac = (f32)fabs(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm());
-        f32 t = timerMul * std::sqrtf(f20);
-        work->m37C = (int)(t * (1.0f + angFac)) + 1;
+        work->m37C = (int)(timerMul * std::sqrtf(f20) * (1.0f + std::fabsf(2.0f * cSAngle(directionOf(mpPlayerActor).Inv() - mViewCache.mDirection.U()).Norm()))) + 1;
         work->m380 = work->m37C * (work->m37C + 1) >> 1;
     }
 
