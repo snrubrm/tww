@@ -717,8 +717,11 @@ void Act_c::set_wind_vec() {
         f28 = 1.0f;
     }
     mWindVec = sp48 * f31 + hitNormal * f28 * f30;
-    if (std::fabsf(mWindVec.y) < 5.0f) {
-        mWindVec.y += attr().field_0x38*f31 + f29*(attr().field_0x3C*f28);
+    // fakematch: named windY turns the mWindVec.y load temp into a low-ID local that is simplified before f29, so f29 drops
+    // below K in the first sweep and is coloured after the second f30 web (demo f29/f31 swap; all versions 100%)
+    f32 windY = mWindVec.y;
+    if (std::fabsf(windY) < 5.0f) {
+        mWindVec.y = windY + (attr().field_0x38*f31 + f29*(attr().field_0x3C*f28));
     }
     field_0x7A8 = 2;
 }
