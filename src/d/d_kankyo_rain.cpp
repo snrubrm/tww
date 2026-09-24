@@ -2913,7 +2913,9 @@ void poison_move() {
 
         f32 temp_f2_9 = cM_fsin(poison_packet->mEff[i].field_0x1c);
         poison_packet->mEff[i].field_0x1c += 0.05f;
-        poison_packet->mEff[i].mSize = var_f17 + (var_f17 * var_f18) + ((DEMO_SELECT(rate, 0.2f) * var_f17) * temp_f2_9);
+        // fakematch (demo): named intermediate; keeps the hoisted rate product as the first fmuls operand
+        f32 size_rate = DEMO_SELECT(rate, 0.2f) * var_f17;
+        poison_packet->mEff[i].mSize = var_f17 + (var_f17 * var_f18) + (size_rate * temp_f2_9);
 
         f32 var_f14;
         if (poison_packet->mEff[i].mPos.y > spAC.y * 0.5f) {
@@ -3602,6 +3604,10 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
 void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
     dKankyo_sunlenz_Packet* lenz_packet = g_env_light.mpSunlenzPacket;
     dKankyo_sun_Packet* sun_packet = g_env_light.mpSunPacket;
+    u8 lenz_r;
+    u8 lenz_b;
+    u8 flare_g;
+    u8 flare_b;
     s16 spC = 0;
     s16 spA = 0;
     camera_process_class* camera = (camera_process_class*)dComIfGp_getCamera(0);
@@ -3627,16 +3633,22 @@ void dKyr_drawLenzflare(Mtx drawMtx, cXyz* pPos, GXColor& color, u8** pImg) {
 
     dKy_set_eyevect_calc2(camera, &spFC, 8000.0f, 8000.0f);
 
+    // fakematch (demo): u8 colour locals; loads the rgb constants before the stores
+    lenz_r = 0xFF;
+    lenz_b = 0xF1;
+    flare_g = 0x91;
+    flare_b = 0x49;
+
     GXColor color_reg0;
-    color_reg0.r = 0xFF;
-    color_reg0.g = 0xFF;
-    color_reg0.b = 0xF1;
+    color_reg0.r = lenz_r;
+    color_reg0.g = lenz_r;
+    color_reg0.b = lenz_b;
     color_reg0.a = 0x28;
 
     GXColor color_reg1;
-    color_reg1.r = 0xFF;
-    color_reg1.g = 0x91;
-    color_reg1.b = 0x49;
+    color_reg1.r = lenz_r;
+    color_reg1.g = flare_g;
+    color_reg1.b = flare_b;
     color_reg1.a = 0x1E;
 
     if (dComIfGd_getView() != NULL) {
@@ -4116,7 +4128,8 @@ void dKyr_drawSibuki(Mtx drawMtx, u8** pImg) {
 
     if (g_env_light.mSnowCount == 0 && dComIfGd_getView() != NULL) {
         Mtx camMtx;
-        MTXInverse(dComIfGd_getViewRotMtx(), camMtx);
+        // fakematch (demo): direct field instead of dComIfGd_getViewRotMtx(); drops the inline temp that r3 coalesces
+        MTXInverse(dComIfGd_getView()->mViewMtxNoTrans, camMtx);
     } else {
         return;
     }
@@ -4473,6 +4486,8 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
         GXSetCurrentMtx(GX_PNMTX0);
 
         for (int j = 0; j < housi_packet->mCount; j++) {
+            // fakematch (demo): named per-effect copy; keeps -size out of IRO loop-invariant motion
+            f32 size = var_f27;
             fopAc_ac_c* player = dComIfGp_getPlayer(0);
 
             spD0.x = housi_packet->mEffect[j].mBasePos.x + housi_packet->mEffect[j].mPos.x;
@@ -4513,32 +4528,32 @@ void dKyr_drawHousi(Mtx drawMtx, u8** pImg) {
             f32 temp_f28 = 0.22f * cM_fsin(housi_packet->mEffect[j].mScale.x * 10.0f);
             f32 temp_f30 = 0.22f * cM_fsin(housi_packet->mEffect[j].mScale.y * 10.0f);
 
-            spC4.x = var_f27 - temp_f30;
-            spC4.y = var_f27 - temp_f28;
+            spC4.x = size - temp_f30;
+            spC4.y = size - temp_f28;
             spC4.z = 0.0f;
             MTXMultVec(camMtx, &spC4, &spB8);
             pos[0].x = spD0.x + spB8.x;
             pos[0].y = spD0.y + spB8.y;
             pos[0].z = spD0.z + spB8.z;
 
-            spC4.x = -var_f27 + temp_f30;
-            spC4.y = var_f27 + temp_f28;
+            spC4.x = -size + temp_f30;
+            spC4.y = size + temp_f28;
             spC4.z = 0.0f;
             MTXMultVec(camMtx, &spC4, &spB8);
             pos[1].x = spD0.x + spB8.x;
             pos[1].y = spD0.y + spB8.y;
             pos[1].z = spD0.z + spB8.z;
 
-            spC4.x = -var_f27 + temp_f30;
-            spC4.y = -var_f27 + temp_f28;
+            spC4.x = -size + temp_f30;
+            spC4.y = -size + temp_f28;
             spC4.z = 0.0f;
             MTXMultVec(camMtx, &spC4, &spB8);
             pos[2].x = spD0.x + spB8.x;
             pos[2].y = spD0.y + spB8.y;
             pos[2].z = spD0.z + spB8.z;
 
-            spC4.x = var_f27 - temp_f30;
-            spC4.y = -var_f27 - temp_f28;
+            spC4.x = size - temp_f30;
+            spC4.y = -size - temp_f28;
             spC4.z = 0.0f;
             MTXMultVec(camMtx, &spC4, &spB8);
             pos[3].x = spD0.x + spB8.x;
