@@ -24,8 +24,14 @@ public:
     BOOL MoveBGDelete();
     BOOL MoveBGExecute();
 
-    BOOL MoveBGDraw() { return Draw(); }
-    BOOL MoveBGIsDelete() { return IsDelete(); }
+    BOOL MoveBGDraw() {
+        BOOL ret = Draw();
+        return ret;
+    }
+    BOOL MoveBGIsDelete() {
+        BOOL ret = IsDelete();
+        return ret;
+    }
 
     virtual BOOL CreateHeap() { return TRUE; }
     virtual BOOL Create() { return TRUE; }
