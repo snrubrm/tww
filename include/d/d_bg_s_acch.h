@@ -43,10 +43,10 @@ public:
     f32 GetWallRR() { return m_wall_rr; }
     void SetWallAngleY(s16 i_angle) { m_wall_angle_y = i_angle; }
 
-    bool ChkWallHit() { return m_flags & WALL_HIT; }
+    bool ChkWallHit() { return (m_flags & WALL_HIT) != 0; }
     void SetWallHit() { m_flags |= WALL_HIT; }
     void ClrWallHit() { m_flags &= ~WALL_HIT; ClearPi(); }
-    bool ChkWallHDirect() { return m_flags & WALL_H_DIRECT; }
+    BOOL ChkWallHDirect() { return m_flags & WALL_H_DIRECT; }
     void SetWallHDirect(f32 h) { m_flags |= WALL_H_DIRECT; m_wall_h_direct = h; }
     void ClrWallHDirect() { m_flags &= ~WALL_H_DIRECT; }
     f32 GetWallHDirect() { return m_wall_h_direct; }
@@ -186,10 +186,10 @@ public:
     void SetWallHit() { m_flags |= WALL_HIT; }
     void ClrWallNone() { m_flags &= ~WALL_NONE; }
     void OnSeaCheckOn() { m_flags |= SEA_CHECK; }
-    bool ChkSeaCheckOn() { return m_flags & SEA_CHECK; }
+    u32 ChkSeaCheckOn() { return m_flags & SEA_CHECK; }
     void OnSeaWaterHeight() { m_flags |= SEA_WATER_HEIGHT; }
-    bool ChkSeaWaterHeight() { return m_flags & SEA_WATER_HEIGHT; }
-    bool ChkSeaIn() { return m_flags & SEA_IN; }
+    u32 ChkSeaWaterHeight() { return m_flags & SEA_WATER_HEIGHT; }
+    u32 ChkSeaIn() { return m_flags & SEA_IN; }
     cM3dGCyl* GetWallBmdCylP() { return &m_wall_cyl; }
 
     cM3dGCir* GetWallCirP(int index) {
@@ -201,7 +201,7 @@ public:
 
     f32 GetWallH(int i_no) { return pm_acch_cir[i_no].GetWallH(); }
     f32 GetWallR(int i_no) { return pm_acch_cir[i_no].GetWallR(); }
-    bool ChkWallHDirect(int i_no) { return pm_acch_cir[i_no].ChkWallHDirect(); }
+    BOOL ChkWallHDirect(int i_no) { return pm_acch_cir[i_no].ChkWallHDirect(); }
     f32 GetWallHDirect(int i_no) { return pm_acch_cir[i_no].GetWallHDirect(); }
     f32 GetWallRR(int i_no) { return pm_acch_cir[i_no].GetWallRR(); }
     void SetWallCirHit(int i_no) { pm_acch_cir[i_no].SetWallHit(); }
