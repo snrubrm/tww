@@ -13,7 +13,7 @@ public:
     inline bool _draw();
     inline bool _execute();
     f32 getYureScale() const { return mScale; }
-    s16 getYureTimer() const { return mTimer; }
+    int getYureTimer() const { return mTimer; }
     inline void setMoveBGMtx(); // weak but not inlined
     inline void set_mtx(); // weak but not inlined
 
