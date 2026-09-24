@@ -35,6 +35,7 @@ public:
     void eventOrder();
     void checkOrder();
     bool chk_talk();
+    bool chk_drct(f32);
     bool chk_partsNotMove();
     bool chk_forceTlkArea();
     void lookBack();

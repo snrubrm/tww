@@ -396,6 +396,14 @@ bool daNpc_Gp1_c::chk_talk() {
     return result;
 }
 
+// Unused; stripped by the linker. Name/signature from d_a_npc_gp1.map; body reconstructed from its leftover
+// DEG2S .rodata literal (0x43360B61), as in daNpc_Ba1_c::chk_drct.
+bool daNpc_Gp1_c::chk_drct(f32 i_deg) {
+    s16 target = cLib_targetAngleY(&current.pos, &dComIfGp_getPlayer(0)->current.pos) - current.angle.y;
+    int diff = abs(target);
+    return diff < cM_deg2s(i_deg);
+}
+
 /* 00001008-00001048       .text chk_partsNotMove__11daNpc_Gp1_cFv */
 bool daNpc_Gp1_c::chk_partsNotMove() {
     return mOldHeadY == m_jnt.getHead_y() && mOldBackY == m_jnt.getBackbone_y() && mOldActorY == current.angle.y;
@@ -699,8 +707,6 @@ void daNpc_Gp1_c::gp_nMove() {
 }
 
 /* 00001C40-00001ED8       .text create_rupee__11daNpc_Gp1_cFv */
-// NONMATCHING - the target emits the DEG2S literal (0x43360B61) between control_anmAtr and chk_forceTlkArea, suggesting a
-// stripped function used it first; with cM_deg2s here it lands in this function's constant order instead, shifting .rodata.
 BOOL daNpc_Gp1_c::create_rupee() {
     cXyz itemScale(0.2f, 0.2f, 0.2f);
     csXyz angle(0, 0, 0);
