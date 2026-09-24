@@ -5291,15 +5291,18 @@ void drawWave(Mtx drawMtx, u8** pImg) {
         p.y = pPkt->mEff[i].mBasePos.y + pPkt->mEff[i].mPos.y;
         p.z = pPkt->mEff[i].mBasePos.z + pPkt->mEff[i].mPos.z;
 
+        f32 mscale;
+        f32 waveScale;
+        f32 bottom;
         f32 wave = sin(pPkt->mEff[i].mCounter);
         if (wave <= 0.0f)
             continue;
 
-        f32 waveScale = dKy_getEnvlight().mWaveChan.mWaveScale;
-        f32 mscale = pPkt->mEff[i].mScale;
+        waveScale = dKy_getEnvlight().mWaveChan.mWaveScale;
+        mscale = pPkt->mEff[i].mScale;
         f32 tmp = waveScale * mscale;
         f32 height = wave * tmp;
-        f32 bottom = dKy_getEnvlight().mWaveChan.mWaveScaleBottom;
+        bottom = dKy_getEnvlight().mWaveChan.mWaveScaleBottom;
         f32 width = bottom * tmp;
         f32 strength = pPkt->mEff[i].mStrengthEnv;
         height *= strength;
