@@ -106,8 +106,11 @@ void JPABaseEmitter::calcVolumeSphere() {
 void JPABaseEmitter::calcVolumeCylinder() {
     s16 angle = mVolumeSweep * getRandomSS();
     f32 rad = getRandomF();
-    if (checkEmDataFlag(JPADynFlag_FixedDensity))
+    if (checkEmDataFlag(JPADynFlag_FixedDensity)) {
         rad = 1.0f - rad * rad;
+        // FAKEMATCH: zero-code memory kill; stops MWCC's IRO CSE from reusing mRandomSeed.value across the if
+        *(f32*)NULL = *(f32*)NULL;
+    }
     rad = emtrInfo.mVolumeSize * (mVolumeMinRad + rad * (1.0f - mVolumeMinRad));
 
     emtrInfo.mVolumePos.set(rad * JMASSin(angle), emtrInfo.mVolumeSize * getRandomRF(), rad * JMASCos(angle));
