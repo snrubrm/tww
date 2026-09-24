@@ -1126,6 +1126,7 @@ fpc_ProcID daNpc_Ko1_c::partner_srch_sub(void* (*judge)(void*, void*)) {
 /* 000026DC-000027CC       .text partner_srch__11daNpc_Ko1_cFv */
 void daNpc_Ko1_c::partner_srch() {
     if (mActionState == 1) {
+        bool found = false;
         switch (mStaff) {
         case 0:
             break;
@@ -1154,6 +1155,9 @@ void daNpc_Ko1_c::partner_srch() {
             break;
         case 8:
             break;
+        }
+        if (found) {
+            mActionState++;
         }
     }
 }
