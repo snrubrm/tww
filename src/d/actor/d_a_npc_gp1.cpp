@@ -716,13 +716,15 @@ BOOL daNpc_Gp1_c::create_rupee() {
     int i;
     int counter;
     f32 random;
+    s16 angleOffset;
     mDoMtx_stack_c::copy(mpMorf->getModel()->getAnmMtx(m_hnd_L_jnt_num));
     mDoMtx_stack_c::multVecZero(&pos);
     counter = g_Counter.mCounter0;
     for (i = 0; i < mRupeeCount; i++, counter++) {
         f32 offsets[] = {-30.0f, 0.0f, 30.0f};
         random = offsets[counter % 3] + (cM_rndF(30.0f) - 15.0f);
-        angle.y = current.angle.y + cM_deg2s((s16)random);
+        angleOffset = cM_deg2s((s16)random);
+        angle.y = current.angle.y + angleOffset;
         room = fopAcM_GetRoomNo(this);
         item = (fopAc_ac_c*)fopAcM_fastCreateItem(&pos, 4, room, NULL, NULL, 10.0f + cM_rndFX(3.0f), 33.0f + cM_rndFX(6.0f), -2.0f, -1, NULL);
         if (item == NULL) {
