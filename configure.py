@@ -897,7 +897,7 @@ config.libs = [
             Object(Matching,    "JSystem/JAudio/osdsp.c", extra_cflags=["-lang c++", "-O4", "-func_align 32", "-str nopool"]),
             Object(Matching,    "JSystem/JAudio/osdsp_task.c", extra_cflags=["-lang c++", "-O4", "-func_align 32"]),
             Object(Matching,    "JSystem/JAudio/JAIAnimation.cpp"),
-            Object(NonMatching, "JSystem/JAudio/JAIBasic.cpp"),
+            Object(Equivalent, "JSystem/JAudio/JAIBasic.cpp"), # deleteObject: one misplaced li unreachable from C with these flags
             Object(Matching,    "JSystem/JAudio/JAIBankWave.cpp"),
             Object(Matching,    "JSystem/JAudio/JAIConst.cpp"),
             Object(Matching,    "JSystem/JAudio/JAIDummyObject.cpp"),

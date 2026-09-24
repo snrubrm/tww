@@ -419,7 +419,11 @@ void JAIBasic::stopAllSound(u32 soundID, void* param_2) {
 }
 
 /* 80290C74-80290D94       .text deleteObject__8JAIBasicFPv */
-// NONMATCHING - the target sets r29 = true between the !r30 compare and its branch
+// NONMATCHING - the target sets r29 = true between the !r30 compare and its branch (`cmplwi r30,0; li r29,1; bne`).
+// A trace of MWCC GC/1.3.2 (-O3,s -schedule off) found no codegen path that emits that placement when a call follows on the
+// fall-through (only the ?: select does it, and it rejects arms with calls); compilers 1.3-2.7 give identical output. The
+// demo debug map records this function as 0x114 bytes, exactly what this plain body compiles to at -O0, so the source is
+// believed correct.
 void JAIBasic::deleteObject(void* param_1) {
     JAInter::DummyVec* r30 = NULL;
     bool r29;
