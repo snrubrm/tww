@@ -1274,7 +1274,10 @@ void action_dousa(bpw_class* i_this) {
 /* 00003A30-00004870       .text action_kougeki__FP9bpw_class */
 void action_kougeki(bpw_class* i_this) {
     fopAc_ac_c* actor = &i_this->actor;
-    daPy_py_c* player = daPy_getPlayerActorClass();
+    // fakematch: direct field access instead of daPy_getPlayerActorClass(). With any inline getter the
+    // demo keeps the load in a separate forceload/CSE temp (lwz r4 + mr r28) and the two case entries below reuse r4;
+    // the target loads straight into player and passes it with `mr r4, r28`. (User-approved 2026-09-24.)
+    daPy_py_c* player = (daPy_py_c*)g_dComIfG_gameInfo.play.mPlayerInfo[0].mpPlayer;
 
     switch (i_this->mActionState) {
     case 0x14:
@@ -1379,7 +1382,7 @@ void action_kougeki(bpw_class* i_this) {
         break;
     }
     case 0x2a:
-        i_this->m476 = fopAcM_searchPlayerAngleY(actor);
+        i_this->m476 = fopAcM_searchActorAngleY(actor, player);
         search_get_skull(i_this, 2);
         if (i_this->mpMorf->isStop()) {
             i_this->mSomeCountdownTimers[0] = 0x5a;
@@ -1475,7 +1478,7 @@ void action_kougeki(bpw_class* i_this) {
         break;
     }
     case 0x34:
-        i_this->m476 = fopAcM_searchPlayerAngleY(actor);
+        i_this->m476 = fopAcM_searchActorAngleY(actor, player);
         i_this->m47A = (s16)(int)(REG21_F(2) + 140.0f);
         search_get_skull(i_this, 2);
         if (i_this->mpMorf->isStop()) {
