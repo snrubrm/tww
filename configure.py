@@ -906,7 +906,7 @@ config.libs = [
             Object(Matching,    "JSystem/JAudio/JAIInitData.cpp"),
             Object(Matching,    "JSystem/JAudio/JAISeMgr.cpp"),
             Object(Matching,    "JSystem/JAudio/JAISequenceHeap.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "JSystem/JAudio/JAISequenceMgr.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/JAudio/JAISequenceMgr.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/JAudio/JAISound.cpp"),
             Object(Matching,    "JSystem/JAudio/JAISoundTable.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/JAudio/JAIStreamMgr.cpp"),
