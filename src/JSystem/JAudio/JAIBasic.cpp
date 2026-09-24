@@ -492,11 +492,9 @@ void JAIBasic::setSeCategoryVolume(u8 param_1, u8 param_2) {
 }
 
 /* 80290E50-80291034       .text setParameterSeqSync__8JAIBasicFPQ28JASystem6TTrackUs */
-// NONMATCHING - the target computes mFlag >> 8 into a temporary and copies it into result (regalloc)
 u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
-    JASystem::TTrack::TOuterParam* outerParam;
-    u32 trackNo;
     u32 i;
+    u32 trackNo;
     u16 result = 0;
     switch (param_2) {
     case 0:
@@ -508,7 +506,7 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
             JASystem::TTrack* track = seqParam->getRootTrackPointer();
             if (track == (JAInter::SequenceMgr::getPlayTrackInfo(i)->mSequence->mSoundID & 0x800 ? param_1->getParent()->getParent() : param_1->getParent())) {
                 trackNo = JAInter::routeToTrack(param_1->getRoute());
-                result = JAInter::SoundTable::getInfoPointer(JAInter::SequenceMgr::getPlayTrackInfo(i)->mSequence->mSoundID)->mFlag >> 8;
+                result = (JAInter::SoundTable::getInfoPointer(JAInter::SequenceMgr::getPlayTrackInfo(i)->mSequence->mSoundID)->mFlag >> 8) & 0xFFFF;
                 JAInter::SystemInterface::outerInit(JAInter::SequenceMgr::getPlayTrackInfo(i), param_1, trackNo, result, param_2 & 1);
                 JAInter::SequenceMgr::getPlayTrackInfo(i)->field_0x4 |= 1 << trackNo;
                 result = 0;
@@ -519,7 +517,7 @@ u16 JAIBasic::setParameterSeqSync(JASystem::TTrack* param_1, u16 param_2) {
     case 1: {
         u8 route = param_1->getRoute();
         JAInter::SeMgr::seTrackUpdate_s* trackUpdate = JAInter::SeMgr::seTrackUpdate;
-        outerParam = param_1->mOuterParam;
+        JASystem::TTrack::TOuterParam* outerParam = param_1->getOuterParam();
         outerParam->setParam(OUTERPARAM_Volume, trackUpdate[route].mPlayingVolume);
         outerParam->setParam(OUTERPARAM_Pan, trackUpdate[route].mPlayingPan);
         outerParam->setParam(OUTERPARAM_Pitch, trackUpdate[route].mPlayingPitch);
