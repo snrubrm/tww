@@ -7,6 +7,7 @@
 #include "d/actor/d_a_mgameboard.h"
 #include "d/d_com_inf_game.h"
 #include "d/d_2dnumber.h"
+#include "f_op/f_op_camera_mng.h"
 #include "m_Do/m_Do_ext.h"
 #include "m_Do/m_Do_mtx.h"
 #include "m_Do/m_Do_audio.h"
@@ -368,8 +369,49 @@ void daMgBoard_c::set_mtx() {
     }
 }
 
-// NONMATCHING - an unused function that was stripped here left the literals 0.8f, 0.75f, -0.75f and 0.0f in .rodata;
-// without it the later literal offsets (_execute, MinigameMain, CursorMove, __sinit) and the weak cXyz order differ.
+// Unused; stripped by the linker. Name/signature from d_a_mgameboard.map; body reconstructed from its leftover
+// 0.8f .rodata literal and weak cXyz destructor. The demo debug map shows it used XYZrotM, setBaseScale, a cXyz and
+// ZXYrotM, and the TU's unused camera eye/center inlines suggest "bb" is billboard: the markers face the camera.
+void daMgBoard_c::set_mtx_bb() {
+    mDoMtx_stack_c::transS(current.pos.x, current.pos.y, current.pos.z);
+    mDoMtx_stack_c::XYZrotM(current.angle.x, current.angle.y, current.angle.z);
+    mpBoardModel->setBaseScale(scale);
+    mpBoardModel->setBaseTRMtx(mDoMtx_stack_c::get());
+    mDoMtx_stack_c::transS(current.pos.x + m_cur_table[mBoardPosY][mBoardPosX].x, current.pos.y + m_cur_table[mBoardPosY][mBoardPosX].y, current.pos.z + m_cur_table[mBoardPosY][mBoardPosX].z);
+    mDoMtx_stack_c::XYZrotM(current.angle.x, current.angle.y, current.angle.z);
+    mpCursorModel->setBaseScale(scale);
+    mpCursorModel->setBaseTRMtx(mDoMtx_stack_c::get());
+    camera_process_class* camera = dComIfGp_getCamera(0);
+    s16 angleX = cLib_targetAngleX(fopCamM_GetCenter_p(camera), fopCamM_GetEye_p(camera));
+    s16 angleY = cLib_targetAngleY(fopCamM_GetCenter_p(camera), fopCamM_GetEye_p(camera));
+    cXyz markerScale(0.8f, 0.8f, 0.8f);
+    J3DModel* piece;
+    u8 x, y;
+    mMissModelCount = 0;
+    mHitModelCount = 0;
+    for (x = 0; x < 8; ++x) {
+        for (y = 0; y < 8; ++y) {
+            int cell = mSeaFightGame.checkState(x, y);
+            piece = NULL;
+            if (cell == 3) {
+                piece = mpHitModel[mHitModelCount];
+                ++mHitModelCount;
+            } else if (cell == 1) {
+                piece = mpMissModel[mMissModelCount];
+                ++mMissModelCount;
+            }
+            if (piece) {
+                mDoMtx_stack_c::transS(current.pos.x + m_cur_table[y][x].x, current.pos.y + m_cur_table[y][x].y, current.pos.z + m_cur_table[y][x].z);
+                mDoMtx_stack_c::ZXYrotM(angleX, angleY, 0);
+                piece->setBaseScale(markerScale);
+                piece->setBaseTRMtx(mDoMtx_stack_c::get());
+            }
+        }
+    }
+}
+
+// NONMATCHING - an unused function that was stripped here left the literals 0.75f, -0.75f and 0.0f in .rodata;
+// without it the later literal offsets (_execute, MinigameMain, CursorMove, __sinit) differ.
 
 /* 00000E28-00000FD8       .text _execute__11daMgBoard_cFv */
 bool daMgBoard_c::_execute() {

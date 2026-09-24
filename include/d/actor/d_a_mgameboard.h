@@ -16,6 +16,7 @@ public:
     inline bool _draw();
     void reqClearGame() {}
     inline void set_mtx();
+    void set_mtx_bb();
 
     bool checkClearGame();
     u8 getScore();
