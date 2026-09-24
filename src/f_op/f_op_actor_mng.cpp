@@ -540,13 +540,14 @@ s32 fopAcM_rollPlayerCrash(fopAc_ac_c* i_this, f32 distAdjust, u32 flag) {
 }
 
 /* 800255B4-80025660       .text fopAcM_checkCullingBox__FPA4_fffffff */
-// NONMATCHING - demo only: the matrix argument address is computed before the clipper address
 bool fopAcM_checkCullingBox(Mtx m, f32 x0, f32 y0, f32 z0, f32 x1, f32 y1, f32 z1) {
     Vec p0 = { x0, y0, z0 };
     Vec p1 = { x1, y1, z1 };
+    MtxP pMtx;
     Mtx viewMtx;
     cMtx_concat(j3dSys.getViewMtx(), m, viewMtx);
-    if (mDoLib_clipper::clip(viewMtx, &p1, &p0)) {
+    pMtx = viewMtx;
+    if (mDoLib_clipper::clip(pMtx, &p1, &p0)) {
         return true;
     } else {
         return false;
