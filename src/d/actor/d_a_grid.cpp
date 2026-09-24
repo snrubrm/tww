@@ -486,6 +486,7 @@ void ho_move(daGrid_c* i_this) {
     int var_r24 = 0;
     int var_r23 = 0;
     for (int i = 0; i < 85; i++, pos++) {
+        f32 temp_f1_4;
         f32 temp_f25 = 1.0f - i_this->field_0x2200;
         f32 temp_f24 = 3 - var_r24;
         f32 temp_f23 = var_r23 - 2 + DEMO_SELECT(REG10_S(5), 0);
@@ -513,7 +514,7 @@ void ho_move(daGrid_c* i_this) {
         temp_f30 *= temp_f0_2;
 
         f32 temp_f0_3 = temp_f23 < 0.0f ? temp_f23 : 0.0f;
-        f32 temp_f1_4 = (SQUARE(temp_f0_3) / DEMO_SELECT(SQUARE(2 - REG10_S(5)), 4));
+        temp_f1_4 = (SQUARE(temp_f0_3) / DEMO_SELECT(SQUARE(2 - REG10_S(5)), 4));
         f32 temp_f1_2 = 0.67f + 0.3f * temp_f1_4;
         f32 temp_f3 = 1.0f - temp_f1_2 * i_this->field_0x2200;
         f32 z_rate;
@@ -544,11 +545,7 @@ void ho_move(daGrid_c* i_this) {
         f32 cos_ = cM_scos(i_this->field_0x2212 + sp50 * var_r24);
         temp_f5 *= (i_this->field_0x2200 * cos_ * var_r24) / 6.0f;
 
-#if VERSION == VERSION_DEMO
-        f32 temp = 1.0f - 0.5f * SQUARE(temp_f0_3);
-#else
-        f32 temp = 1.0f - 0.5f * (SQUARE(temp_f0_3) / 4.0f);
-#endif
+        f32 temp = 1.0f - 0.5f * temp_f1_4;
         temp_f5 *= temp;
         temp_f4 *= temp;
 
