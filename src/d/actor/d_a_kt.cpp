@@ -43,24 +43,22 @@ static BOOL daKt_Draw(kt_class* i_this) {
 }
 
 /* 000001E0-000011D4       .text kotori_move__FP8kt_class */
-// NONMATCHING - regalloc: the target holds &current.pos.x/y/z and &current.angle.y in saved registers. The demo debug map
-// (d_a_ktD.map) shows no position accessor in this object, so it wasn't an inline. mwcc-instr: those addresses are only
-// CSE'd when i_this is converted to fopAc_ac_c* at each access (e.g. ((fopAc_ac_c*)i_this)->current..., USA 98.09%, demo 99.71%;
-// a macro would fit), but that cast is redundant, so it isn't used; plain locals/references/qualified access change nothing.
+// fakematch: the per-access fopAc_ac_c* casts on current.pos and the per-case angle pointer locals only steer MWCC's
+// address CSE / register allocation (see research/final/d_a_kt__kotori_move.patch)
 void kotori_move(kt_class* i_this) {
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
     bool dispWing = false;
     u8 ret = 0;
     dBgS_GndChk gndChk;
 
-    f32 dx = player->current.pos.x - i_this->current.pos.x;
-    f32 dz = player->current.pos.z - i_this->current.pos.z;
+    f32 dx = player->current.pos.x - ((fopAc_ac_c*)i_this)->current.pos.x;
+    f32 dz = player->current.pos.z - ((fopAc_ac_c*)i_this)->current.pos.z;
     f32 dist_xz = std::sqrtf(dx*dx + dz*dz);
     cLib_addCalcAngleS2(&i_this->mAngleRoll, 0, 2, REG0_S(4) + 0x1000);
 
-    f32 vx = i_this->mTargetPos.x - i_this->current.pos.x;
-    f32 vy = i_this->mTargetPos.y - i_this->current.pos.y;
-    f32 vz = i_this->mTargetPos.z - i_this->current.pos.z;
+    f32 vx = i_this->mTargetPos.x - ((fopAc_ac_c*)i_this)->current.pos.x;
+    f32 vy = i_this->mTargetPos.y - ((fopAc_ac_c*)i_this)->current.pos.y;
+    f32 vz = i_this->mTargetPos.z - ((fopAc_ac_c*)i_this)->current.pos.z;
     s16 angleX = cM_atan2s(vx, vz);
     s16 angleY = -cM_atan2s(vy, std::sqrtf(vx*vx + vz*vz));
 
@@ -115,41 +113,46 @@ void kotori_move(kt_class* i_this) {
             i_this->mMode = 8;
         }
         cLib_addCalc2(&i_this->mSpeedLerp, 3.0f, 1.0f, 0.1f);
-calc_012:
-        cLib_addCalcAngleS2(&i_this->current.angle.y, angleX, 10, (s16)((REG0_F(2) * 10.0f + 500.0f) * i_this->mSpeedLerp));
-        cLib_addCalcAngleS2(&i_this->current.angle.x, angleY, 10, (s16)((REG0_F(2) * 10.0f + 500.0f) * i_this->mSpeedLerp));
-        offs.x = 0.0f;
-        offs.y = 0.0f;
-        offs.z = i_this->mSpeedFwd;
-        cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
-        cMtx_XrotM(*calc_mtx, i_this->current.angle.x);
-        MtxPosition(&offs, &i_this->mSpeedVel);
-        i_this->current.pos.x += i_this->mSpeedVel.x;
-        i_this->current.pos.y += i_this->mSpeedVel.y;
-        i_this->current.pos.z += i_this->mSpeedVel.z;
-        if (i_this->mLiftYTimer >= 0.0f)
-            dispWing = true;
-        ret = 2;
+calc_012: {
+            s16* angleY_p = &i_this->current.angle.y;
+            cLib_addCalcAngleS2(angleY_p, angleX, 10, (s16)((REG0_F(2) * 10.0f + 500.0f) * i_this->mSpeedLerp));
+            s16* angleX_p = &i_this->current.angle.x;
+            cLib_addCalcAngleS2(angleX_p, angleY, 10, (s16)((REG0_F(2) * 10.0f + 500.0f) * i_this->mSpeedLerp));
+            offs.x = 0.0f;
+            offs.y = 0.0f;
+            offs.z = i_this->mSpeedFwd;
+            cMtx_YrotS(*calc_mtx, *angleY_p);
+            cMtx_XrotM(*calc_mtx, *angleX_p);
+            MtxPosition(&offs, &i_this->mSpeedVel);
+            ((fopAc_ac_c*)i_this)->current.pos.x += i_this->mSpeedVel.x;
+            ((fopAc_ac_c*)i_this)->current.pos.y += i_this->mSpeedVel.y;
+            ((fopAc_ac_c*)i_this)->current.pos.z += i_this->mSpeedVel.z;
+            if (i_this->mLiftYTimer >= 0.0f)
+                dispWing = true;
+            ret = 2;
+        }
         break;
-    case 8:
-        cLib_addCalcAngleS2(&i_this->current.angle.y, angleX, 10, (s16)((REG0_F(3) * 10.0f + 1500.0f) * i_this->mSpeedLerp));
+    case 8: {
+        s16* angleY_p = &i_this->current.angle.y;
+        cLib_addCalcAngleS2(angleY_p, angleX, 10, (s16)((REG0_F(3) * 10.0f + 1500.0f) * i_this->mSpeedLerp));
         cLib_addCalc0(&i_this->mSpeedLerp, 1.0f, REG0_F(4) + 0.05f);
         cLib_addCalc0(&i_this->mSpeedFwd, 1.0f, REG0_F(5) + 1.0f);
         offs.x = 0.0f;
         offs.y = 0.0f;
         offs.z = i_this->mSpeedFwd;
-        cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
+        cMtx_YrotS(*calc_mtx, *angleY_p);
         MtxPosition(&offs, &pt);
-        i_this->current.pos.x += pt.x;
-        i_this->current.pos.z += pt.z;
-        cLib_addCalc2(&i_this->current.pos.y, i_this->mGroundY, REG0_F(6) + 0.3f, REG0_F(7) + 20.0f);
-        if (std::fabsf(i_this->current.pos.y - i_this->mGroundY) < 1.0f) {
-            i_this->current.pos.y = i_this->mGroundY;
+        ((fopAc_ac_c*)i_this)->current.pos.x += pt.x;
+        ((fopAc_ac_c*)i_this)->current.pos.z += pt.z;
+        cLib_addCalc2(&((fopAc_ac_c*)i_this)->current.pos.y, i_this->mGroundY, REG0_F(6) + 0.3f, REG0_F(7) + 20.0f);
+        if (std::fabsf(((fopAc_ac_c*)i_this)->current.pos.y - i_this->mGroundY) < 1.0f) {
+            ((fopAc_ac_c*)i_this)->current.pos.y = i_this->mGroundY;
             i_this->mMode = 10;
         }
         dispWing = true;
         ret = 1;
         break;
+    }
     case 2:
         i_this->mTargetPos = headTopPos;
         i_this->mTargetPos.y += 200.0f;
@@ -160,35 +163,37 @@ calc_012:
         cLib_addCalc2(&i_this->mSpeedLerp, 3.0f, 1.0f, 0.1f);
         goto calc_012;
         break;
-    case 9:
+    case 9: {
         i_this->mTargetPos = headTopPos;
         i_this->mTargetPos.y += 100.0f;
-        cLib_addCalcAngleS2(&i_this->current.angle.y, angleX, 10, (s16)((REG0_F(3) * 10.0f + 1500.0f) * i_this->mSpeedLerp));
+        s16* angleY_p = &i_this->current.angle.y;
+        cLib_addCalcAngleS2(angleY_p, angleX, 10, (s16)((REG0_F(3) * 10.0f + 1500.0f) * i_this->mSpeedLerp));
         cLib_addCalc0(&i_this->mSpeedLerp, 1.0f, REG0_F(4) + 0.05f);
         cLib_addCalc0(&i_this->mSpeedFwd, 1.0f, REG0_F(5) + 1.0f);
         offs.x = 0.0f;
         offs.y = 0.0f;
         offs.z = i_this->mSpeedFwd;
-        cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
+        cMtx_YrotS(*calc_mtx, *angleY_p);
         MtxPosition(&offs, &pt);
-        i_this->current.pos.x += pt.x;
-        i_this->current.pos.z += pt.z;
-        cLib_addCalc2(&i_this->current.pos.y, i_this->mTargetPos.y, REG0_F(6) + 0.5f, REG0_F(7) + 20.0f);
-        if (std::fabsf(i_this->current.pos.y - i_this->mTargetPos.y) < 1.0f) {
+        ((fopAc_ac_c*)i_this)->current.pos.x += pt.x;
+        ((fopAc_ac_c*)i_this)->current.pos.z += pt.z;
+        cLib_addCalc2(&((fopAc_ac_c*)i_this)->current.pos.y, i_this->mTargetPos.y, REG0_F(6) + 0.5f, REG0_F(7) + 20.0f);
+        if (std::fabsf(((fopAc_ac_c*)i_this)->current.pos.y - i_this->mTargetPos.y) < 1.0f) {
             i_this->mMode = 20;
             i_this->mSpeedLerp = 0.0f;
         }
         dispWing = true;
         ret = 1;
         break;
+    }
     case 20:
         i_this->mTargetPos = headTopPos;
-        cLib_addCalc2(&i_this->current.pos.x, i_this->mTargetPos.x, 1.0f, i_this->mSpeedLerp);
-        cLib_addCalc2(&i_this->current.pos.y, i_this->mTargetPos.y, 1.0f, i_this->mSpeedLerp * 0.5f);
-        cLib_addCalc2(&i_this->current.pos.z, i_this->mTargetPos.z, 1.0f, i_this->mSpeedLerp);
+        cLib_addCalc2(&((fopAc_ac_c*)i_this)->current.pos.x, i_this->mTargetPos.x, 1.0f, i_this->mSpeedLerp);
+        cLib_addCalc2(&((fopAc_ac_c*)i_this)->current.pos.y, i_this->mTargetPos.y, 1.0f, i_this->mSpeedLerp * 0.5f);
+        cLib_addCalc2(&((fopAc_ac_c*)i_this)->current.pos.z, i_this->mTargetPos.z, 1.0f, i_this->mSpeedLerp);
         cLib_addCalc2(&i_this->mSpeedLerp, 1000.0f, 1.0f, REG0_F(16) + 10.0f);
         cLib_addCalcAngleS2(&i_this->current.angle.y, player->shape_angle.y, 2, 0x1000);
-        if (std::fabsf(i_this->current.pos.y - i_this->mTargetPos.y) > 1.0f)
+        if (std::fabsf(((fopAc_ac_c*)i_this)->current.pos.y - i_this->mTargetPos.y) > 1.0f)
             dispWing = true;
         if (CPad_CHECK_TRIG_LEFT(0)) {
             i_this->mMode = 0;
@@ -206,7 +211,8 @@ calc_012:
             i_this->mLiftYTimer = REG0_F(9) + 15.0f;
             i_this->mLiftY = 0.0f;
         }
-        cLib_addCalcAngleS2(&i_this->current.angle.y, angleX, 10, (s16)(REG0_F(10) * 10.0f + 500.0f));
+        s16* angleY_p = &i_this->current.angle.y;
+        cLib_addCalcAngleS2(angleY_p, angleX, 10, (s16)(REG0_F(10) * 10.0f + 500.0f));
         if (i_this->mTimer[1] == 0 && i_this->mLiftY <= 0.0f) {
             i_this->mTimer[1] = 20.0f + cM_rndF(20.0f);
             i_this->mMode = 11;
@@ -214,10 +220,10 @@ calc_012:
         offs.x = 0.0f;
         offs.y = 0.0f;
         offs.z = REG0_F(11) + 10.0f;
-        cMtx_YrotS(*calc_mtx, i_this->current.angle.y);
+        cMtx_YrotS(*calc_mtx, *angleY_p);
         MtxPosition(&offs, &i_this->mSpeedVel);
-        i_this->current.pos.x += i_this->mSpeedVel.x;
-        i_this->current.pos.z += i_this->mSpeedVel.z;
+        ((fopAc_ac_c*)i_this)->current.pos.x += i_this->mSpeedVel.x;
+        ((fopAc_ac_c*)i_this)->current.pos.z += i_this->mSpeedVel.z;
         goto calc_11;
         break;
     }
@@ -235,7 +241,7 @@ calc_012:
             i_this->mTargetPos.z = i_this->mTargetPosHome.z + cM_rndFX(1000.0f);
         }
 calc_11:
-        i_this->current.pos.y -= 5.0f;
+        ((fopAc_ac_c*)i_this)->current.pos.y -= 5.0f;
         if (!i_this->mHitGround || dist_xz < (REG0_F(15) * 100.0f + 1500.0f)) {
             i_this->mMode = 0;
             i_this->mTimer[0] = 0;
@@ -250,14 +256,14 @@ calc_11:
     i_this->mHitGround = false;
     if (i_this->mMode >= 8) {
         Vec pos;
-        pos.x = i_this->current.pos.x;
-        pos.y = i_this->current.pos.y;
-        pos.z = i_this->current.pos.z;
+        pos.x = ((fopAc_ac_c*)i_this)->current.pos.x;
+        pos.y = ((fopAc_ac_c*)i_this)->current.pos.y;
+        pos.z = ((fopAc_ac_c*)i_this)->current.pos.z;
         pos.y += 1000.0f;
         gndChk.SetPos(&pos);
         i_this->mGroundY = dComIfG_Bgsp()->GroundCross(&gndChk);
-        if (i_this->current.pos.y <= i_this->mGroundY) {
-            i_this->current.pos.y = i_this->mGroundY;
+        if (((fopAc_ac_c*)i_this)->current.pos.y <= i_this->mGroundY) {
+            ((fopAc_ac_c*)i_this)->current.pos.y = i_this->mGroundY;
             i_this->mHitGround = true;
         }
     }
