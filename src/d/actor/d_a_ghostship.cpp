@@ -390,7 +390,8 @@ bool daGhostship_c::_execute() {
             JUT_ASSERT(DEMO_SELECT(457, 463), scls_data != NULL)
 
             u8 startCode = scls_data->mStart;
-            dComIfGs_setEventReg(dSv_event_flag_c::UNK_C3FF, scls_data->mRoom);
+            int roomNo = scls_data->mRoom;
+            dComIfGs_setEventReg(dSv_event_flag_c::UNK_C3FF, roomNo);
             dComIfGs_setEventReg(dSv_event_flag_c::UNK_85FF, startCode);
 #if VERSION == VERSION_DEMO
             dComIfGp_setNextStage("PShip", 0, r29);
