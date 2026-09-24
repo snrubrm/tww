@@ -4583,6 +4583,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
         return;
     }
 
+    f32 f26;
     f32 temp_f20 = player->current.pos.y - 100.0f;
 
     GXColor color0;
@@ -4598,7 +4599,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
     color0.a = 0xFF;
     color1.a = 0xFF;
 
-    f32 f26 = 3.0f;
+    f26 = 3.0f;
 #if VERSION > VERSION_DEMO
     f32 ratio = 0.4f;
     f32 spd = 500.0f;
@@ -4668,6 +4669,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                 }
 
                 for (int temp_r4 = start; temp_r4 < sp1D8; temp_r4++) {
+                    f32 var_f25;
                     f32 sp44 = -1.0f;
                     if (i != 1 || snow_packet->mEff[temp_r4].mStatus != 2) {
                         var_r24 = 8;
@@ -4684,8 +4686,7 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                                 continue;
                             }
 
-                            f32 var_f2 = 1.0f;
-                            f32 var_f1 = var_f2 - (sp88.y - temp_f20) / 200.0f;
+                            f32 var_f1 = 1.0f - (sp88.y - temp_f20) / 200.0f;
                             sp88.y = temp_f20;
 
                             color0.r = 0;
@@ -4766,7 +4767,6 @@ void dKyr_drawKazanbai(Mtx drawMtx, u8** pImg) {
                         GXSetTevColor(GX_TEVREG0, color0);
                         GXSetTevColor(GX_TEVREG1, color1);
 
-                        f32 var_f25;
                         if (j == 1 || snow_packet->mEff[temp_r4].mStatus == 2) {
                             var_f25 = (f26 + (int)(temp_r4 / 250)) * 0.9f;
                         } else {
