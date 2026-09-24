@@ -91,7 +91,7 @@ void dKy_set_eyevect_calc2(camera_class* i_camera, Vec* param_1, f32 param_2, f3
 static inline void dKyr_init_btitex(GXTexObj* i_obj, ResTIMG* i_img) {
     GXInitTexObj(i_obj, (&i_img->format + i_img->imageOffset), i_img->width, i_img->height,
                  (GXTexFmt)i_img->format, (GXTexWrapMode)i_img->wrapS, (GXTexWrapMode)i_img->wrapT,
-                 (GXBool)(i_img->mipmapCount > 1));
+                 i_img->mipmapCount > 1 ? GX_TRUE : GX_FALSE);
 }
 
 /* 8008AD60-8008AE54       .text dKyr_set_btitex__FP9_GXTexObjP7ResTIMG */
