@@ -513,9 +513,9 @@ static f32 J3DUnit01[] = {0.0f, 1.0f};
 
 /* 802EE67C-802EE874       .text calcWeightEnvelopeMtx__8J3DModelFv */
 void J3DModel::calcWeightEnvelopeMtx() {
-    __REGISTER MtxP weightAnmMtx;
     __REGISTER Mtx* worldMtx;
     __REGISTER Mtx* invMtx;
+    __REGISTER MtxP weightAnmMtx;
     __REGISTER f32 weight;
     int idx;
     int j;
@@ -551,10 +551,9 @@ void J3DModel::calcWeightEnvelopeMtx() {
     #endif
 
     i = -1;
-    J3DJointTree& jointTree = mModelData->getJointTree();
-    max = jointTree.getWEvlpMtxNum();
-    indices = jointTree.getWEvlpMixMtxIndex() - 1;
-    weights = jointTree.getWEvlpMixWeight() - 1;
+    max = mModelData->getWEvlpMtxNum();
+    indices = mModelData->getWEvlpMixMtxIndex() - 1;
+    weights = mModelData->getWEvlpMixWeight() - 1;
 
     #if !DEBUG && __MWERKS__
     asm {
@@ -583,34 +582,31 @@ void J3DModel::calcWeightEnvelopeMtx() {
         #endif
 
         j = 0;
-        mixNum = mModelData->getJointTree().getWEvlpMixMtxNum(i);
+        mixNum = mModelData->getWEvlpMixMtxNum(i);
         do {
             idx = *++indices;
+            invMtx = &mModelData->getInvJointMtx((u16)idx);
             worldMtx = &mpNodeMtx[idx];
-            invMtx = &mModelData->getJointTree().getInvJointMtx((u16)idx);
 
             #if DEBUG || !__MWERKS__
             MTXConcat(*worldMtx, *invMtx, mtx);
             #else
-            // Fakematch? Doesn't match if worldMtx and invMtx are used directly.
-            __REGISTER void* var_r5 = worldMtx;
-            __REGISTER void* var_r6 = invMtx;
             asm {
-                psq_l var_f2, 0x0(var_r6), 0, 0 /* qr0 */
-                psq_l var_f1, 0x0(var_r5), 0, 0 /* qr0 */
-                psq_l var_f3, 0x10(var_r5), 0, 0 /* qr0 */
-                psq_l var_f5, 0x20(var_r5), 0, 0 /* qr0 */
+                psq_l var_f2, 0x0(invMtx), 0, 0 /* qr0 */
+                psq_l var_f1, 0x0(worldMtx), 0, 0 /* qr0 */
+                psq_l var_f3, 0x10(worldMtx), 0, 0 /* qr0 */
+                psq_l var_f5, 0x20(worldMtx), 0, 0 /* qr0 */
                 ps_muls0 var_f8, var_f2, var_f1
-                psq_l var_f6, 0x10(var_r6), 0, 0 /* qr0 */
+                psq_l var_f6, 0x10(invMtx), 0, 0 /* qr0 */
                 ps_muls0 var_f30, var_f2, var_f3
                 ps_muls0 var_f29, var_f2, var_f5
-                psq_l var_f7, 0x20(var_r6), 0, 0 /* qr0 */
+                psq_l var_f7, 0x20(invMtx), 0, 0 /* qr0 */
                 ps_madds1 var_f8, var_f6, var_f1, var_f8
-                psq_l var_f2, 0x8(var_r5), 0, 0 /* qr0 */
+                psq_l var_f2, 0x8(worldMtx), 0, 0 /* qr0 */
                 ps_madds1 var_f30, var_f6, var_f3, var_f30
-                psq_l var_f4, 0x18(var_r5), 0, 0 /* qr0 */
+                psq_l var_f4, 0x18(worldMtx), 0, 0 /* qr0 */
                 ps_madds1 var_f29, var_f6, var_f5, var_f29
-                psq_l var_f6, 0x28(var_r5), 0, 0 /* qr0 */
+                psq_l var_f6, 0x28(worldMtx), 0, 0 /* qr0 */
                 ps_madds0 var_f8, var_f7, var_f2, var_f8
             }
             #endif
@@ -634,15 +630,15 @@ void J3DModel::calcWeightEnvelopeMtx() {
             asm {
                 ps_madds0 var_f30, var_f7, var_f4, var_f30
                 ps_madds0 var_f29, var_f7, var_f6, var_f29
-                psq_l var_f7, 0x8(var_r6), 0, 0 /* qr0 */
+                psq_l var_f7, 0x8(invMtx), 0, 0 /* qr0 */
                 ps_madds0 var_f9, var_f8, weight, var_f9
                 ps_madds0 var_f11, var_f30, weight, var_f11
                 ps_madds0 var_f13, var_f29, weight, var_f13
-                psq_l var_f8, 0x18(var_r6), 0, 0 /* qr0 */
+                psq_l var_f8, 0x18(invMtx), 0, 0 /* qr0 */
                 ps_muls0 var_f30, var_f7, var_f1
                 ps_muls0 var_f29, var_f7, var_f3
                 ps_muls0 var_f28, var_f7, var_f5
-                psq_l var_f7, 0x28(var_r6), 0, 0 /* qr0 */
+                psq_l var_f7, 0x28(invMtx), 0, 0 /* qr0 */
                 psq_st var_f9, 0x0(weightAnmMtx), 0, 0 /* qr0 */
                 ps_madds1 var_f30, var_f8, var_f1, var_f30
                 ps_madds1 var_f29, var_f8, var_f3, var_f29
