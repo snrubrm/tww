@@ -353,7 +353,12 @@ public:
     void ClrCcMove() {
         m_cc_move.x = m_cc_move.y = m_cc_move.z = 0.0f;
     }
-    void PlusDmg(int dmg) { m_dmg = dmg; }
+    void PlusDmg(int dmg) {
+        if (m_dmg >= dmg) {
+            return;
+        }
+        m_dmg = dmg;
+    }
     u8 GetDmg() const { return m_dmg; }
     f32 GetWeightF() const { return (s32)m_weight; }
     u8 GetWeightUc() const { return m_weight; }
@@ -605,7 +610,13 @@ public:
 
     cCcD_Stts* GetStts() { return mStts; }
     void SetStts(cCcD_Stts* stts) { mStts = stts; }
-    fopAc_ac_c* GetAc() { return mStts == NULL ? NULL : mStts->GetActor(); }
+    fopAc_ac_c* GetAc() {
+        if (mStts == NULL) {
+            return NULL;
+        } else {
+            return mStts->GetActor();
+        }
+    }
     cCcD_DivideInfo& GetDivideInfo() { return mDivideInfo; }
     cCcD_DivideInfo* GetPDivideInfo() { return &mDivideInfo; }
     u32 ChkBsRevHit() const { return mFlags & 2; }

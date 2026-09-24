@@ -127,10 +127,7 @@ void dCcS::CalcTgPlusDmg(cCcD_Obj* obj1, cCcD_Obj* obj2, cCcD_Stts* stts1, cCcD_
     dCcD_GObjInf* inf1 = (dCcD_GObjInf*)obj1->GetGObjInf();
     dCcD_GObjInf* inf2 = (dCcD_GObjInf*)obj2->GetGObjInf();
     if (!ChkShield(obj1, obj2, inf1, inf2)) {
-        int atp = obj1->GetAtAtp();
-        if (stts2->GetDmg() < atp) {
-            stts2->PlusDmg(atp);
-        }
+        stts2->PlusDmg(obj1->GetAtAtp());
     }
 }
 
