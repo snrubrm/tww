@@ -333,7 +333,7 @@ public:
     // static s16 getBmtIdx(u8 no) { return item_resource[no].mBmtIdx; }
     static s8 getTevFrm(u8 no) { return item_resource[no].mTevFrm; }
     static s16 getItemMesgNum(u8 no) { return item_resource[no].mItemMesgNum; }
-    static u32 getHeapSize(u8 no) { return item_resource[no].mHeapSize; }
+    static const u16 getHeapSize(u8 no) { return item_resource[no].mHeapSize; }
     
     static char* getFieldArc(u8 no) { return field_item_res[no].mArc; }
     static s16 getFieldBmdIdx(u8 no) { return field_item_res[no].mBmdIdx; }
