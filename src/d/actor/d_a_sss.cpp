@@ -249,12 +249,12 @@ static void cut_control2(sss_class* i_this) {
 }
 
 /* 000014F4-00002614       .text hand_move__FP9sss_class */
-// NONMATCHING - retail regalloc: link and emerged swap r18/r19 (demo matches)
+// NONMATCHING - demo regalloc: link, cut and the collider loop counters get different registers (r19-r22/r28)
 static void hand_move(sss_class* i_this) {
     fopAc_ac_c* actor = i_this;
     daPy_py_c* player = (daPy_py_c*)dComIfGp_getPlayer(0);
-    fopAc_ac_c* link = dComIfGp_getLinkPlayer();
     s8 emerged;
+    daPy_py_c* link = (daPy_py_c*)dComIfGp_getLinkPlayer();
     cXyz offset, rotated, target, center;
     dBgS_GndChk ground;
     bool turn = false;
