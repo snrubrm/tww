@@ -6975,7 +6975,7 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
     
         int uVar3 = mCurRoomCamEntry.field_0x13 == 0xFF ? -1 : mCurRoomCamEntry.field_0x13;
         if (uVar3 == -1) {
-            cam25 = cXyz(p->m378 - mEye).abs();
+            f32 dist = cXyz(p->m378 - mEye).abs();
             f32 temp;
             if (is_player(mpPlayerActor)) {
                 temp = ((daPy_py_c *)mpPlayerActor)->getHeight();
@@ -6983,9 +6983,8 @@ bool dCamera_c::fixedFrameCamera(s32 param_1) {
             else {
                 temp = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
             }
-            cam25 = cam25 / temp;
-            cam25 = std::sqrtf(cam25);
-            p->m38C = (int)(cam24 * cam25) + 1;
+            dist = dist / temp;
+            p->m38C = (int)(cam24 * std::sqrtf(dist)) + 1;
         }
         else {
             p->m38C = uVar3;
