@@ -473,21 +473,15 @@ void dMsg2_yose_select(sub_msg2_class* i_Msg, u8 i_index) {
     dMsg2_textPosition(i_Msg, i_index);
 }
 
-// Name unknown; mwcc-instr shows an inline call here (the shift product is an inline-return @temp above the CSE temps,
-// giving r0; as a named local, in any order or type, it gets the lowest id and r7).
-inline int dMsg2_getShiftY(sub_msg2_class* i_Msg, u8 i_index) {
-    return i_Msg->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - i_Msg->field_0xecc[i_index]);
-}
-
 /* 801E86E8-801E8798       .text dMsg2_textPosition__FP14sub_msg2_classUc */
-// NONMATCHING - demo only: the shift value is converted before each pane is loaded in the target
 void dMsg2_textPosition(sub_msg2_class* i_Msg, u8 i_index) {
-    int x = 0;
-    int y = dMsg2_getShiftY(i_Msg, i_index);
-    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(x, y);
-    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(x, y);
-    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(x, y);
-    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(x, y);
+    int pos[2];
+    pos[0] = 0;
+    pos[1] = i_Msg->field_0xeb0 * (VERSION_SELECT(2, 2, 3, 3) - i_Msg->field_0xecc[i_index]);
+    ((J2DTextBox*)i_Msg->text_pane[i_index].pane)->shiftSet(pos[0], pos[1]);
+    ((J2DTextBox*)i_Msg->ruby_pane[i_index].pane)->shiftSet(pos[0], pos[1]);
+    ((J2DTextBox*)i_Msg->textSdw_pane[i_index].pane)->shiftSet(pos[0], pos[1]);
+    ((J2DTextBox*)i_Msg->rubySdw_pane[i_index].pane)->shiftSet(pos[0], pos[1]);
 }
 
 /* 801E8798-801E880C       .text dMsg2_rubySet__FP14sub_msg2_class */
