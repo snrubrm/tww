@@ -1505,58 +1505,45 @@ void dMsg_frame_close(sub_msg_class* i_Msg) {
 }
 
 /* 8020F324-8020F3F8       .text dMsg_textPosition__FP13sub_msg_class */
-// NONMATCHING - demo only: the shift value is converted before each pane is loaded in the target
 void dMsg_textPosition(sub_msg_class* i_Msg) {
-    int uVar2;
-    int x = 0;
-    J2DTextBox* pJVar6;
-    J2DTextBox* pJVar3;
-    J2DTextBox* pJVar4;
-    J2DTextBox* pJVar5;
+    int pos[2];
 
     switch (i_Msg->mMesgEntry.mTextboxType) {
     case 5:
 #if VERSION <= VERSION_JPN
         if (g_msgDHIO.field_0x08 == 0) {
-            uVar2 = i_Msg->m1104 * (1 - i_Msg->m1108);
+            pos[1] = i_Msg->m1104 * (1 - i_Msg->m1108);
         } else
 #endif
         {
-            uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
+            pos[1] = i_Msg->m1104 * (2 - i_Msg->m1108);
         }
         break;
     case 0xE:
 #if VERSION == VERSION_PAL
         if (i_Msg->mMsgNo != 0x5b3 && i_Msg->mMsgNo != 0x5b4) {
-            uVar2 = -(int)(((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace() / 2.0f) * i_Msg->m1108;
+            pos[1] = -(int)(((J2DTextBox*)i_Msg->m0544[0].pane)->getLineSpace() / 2.0f) * i_Msg->m1108;
             break;
         }
 #endif
-        uVar2 = 0;
+        pos[1] = 0;
         break;
     default:
 #if VERSION <= VERSION_JPN
         if (g_msgDHIO.field_0x08 == 0) {
-            uVar2 = i_Msg->m1104 * (2 - i_Msg->m1108);
+            pos[1] = i_Msg->m1104 * (2 - i_Msg->m1108);
         } else
 #endif
         {
-            uVar2 = i_Msg->m1104 * (3 - i_Msg->m1108);
+            pos[1] = i_Msg->m1104 * (3 - i_Msg->m1108);
         }
         break;
     }
-    pJVar3 = (J2DTextBox*)i_Msg->m0544[0].pane;
-    pJVar3->field_0xd8 = x;
-    pJVar3->field_0xdc = uVar2;
-    pJVar4 = (J2DTextBox*)i_Msg->m0544[1].pane;
-    pJVar4->field_0xd8 = x;
-    pJVar4->field_0xdc = uVar2;
-    pJVar5 = (J2DTextBox*)i_Msg->m0544[2].pane;
-    pJVar5->field_0xd8 = x;
-    pJVar5->field_0xdc = uVar2;
-    pJVar6 = (J2DTextBox*)i_Msg->m0544[3].pane;
-    pJVar6->field_0xd8 = x;
-    pJVar6->field_0xdc = uVar2;
+    pos[0] = 0;
+    ((J2DTextBox*)i_Msg->m0544[0].pane)->shiftSet(pos[0], pos[1]);
+    ((J2DTextBox*)i_Msg->m0544[1].pane)->shiftSet(pos[0], pos[1]);
+    ((J2DTextBox*)i_Msg->m0544[2].pane)->shiftSet(pos[0], pos[1]);
+    ((J2DTextBox*)i_Msg->m0544[3].pane)->shiftSet(pos[0], pos[1]);
 }
 
 /* 8020F3F8-8020F4E0       .text dMsg_rubySet__FP13sub_msg_class */
