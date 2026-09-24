@@ -3220,7 +3220,8 @@ void action_start_demo(bpw_class* i_this) {
             break;
         }
         anm_init(i_this, dRes_INDEX_BPW_BCK_OPENING1_e, REG18_F(7) + 10.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
-        bpw_class* lantern = (bpw_class*)fopAcM_SearchByID(i_this->m3FC);
+        fopAc_ac_c* kantera = fopAcM_SearchByID(i_this->m3FC);
+        bpw_class* lantern = (bpw_class*)kantera;
         if (lantern != NULL) {
             anm_init(lantern, dRes_INDEX_BPW_BCK_OPENING_KAN1_e, REG18_F(7) + 10.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
         }
@@ -3290,7 +3291,8 @@ void action_start_demo(bpw_class* i_this) {
 #endif
         i_this->mSomeCountdownTimers[0] = (s16)(int)(REG6_F(5) + 40.0f);
         anm_init(i_this, dRes_INDEX_BPW_BCK_OPENING2_e, 0.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
-        bpw_class* lantern = (bpw_class*)fopAcM_SearchByID(i_this->m3FC);
+        fopAc_ac_c* kantera = fopAcM_SearchByID(i_this->m3FC);
+        bpw_class* lantern = (bpw_class*)kantera;
         if (lantern != NULL) {
             anm_init(lantern, dRes_INDEX_BPW_BCK_OPENING_KAN2_e, 0.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, -1);
         }
@@ -3313,7 +3315,8 @@ void action_start_demo(bpw_class* i_this) {
     case 0xd4:
         if (i_this->mSomeCountdownTimers[0] == 0) {
             dComIfGp_getVibration().StopQuake(0x20);
-            bpw_class* lantern = (bpw_class*)fopAcM_SearchByID(i_this->m3FC);
+            fopAc_ac_c* kantera = fopAcM_SearchByID(i_this->m3FC);
+            bpw_class* lantern = (bpw_class*)kantera;
             if (lantern != NULL) {
                 anm_init(lantern, dRes_INDEX_BPW_BCK_KAN_DEFAULT1_e, 0.0f, J3DFrameCtrl::EMode_NONE, 1.0f, -1);
             }
@@ -3348,7 +3351,8 @@ void action_start_demo(bpw_class* i_this) {
         camera->mCamera.Set(i_this->m40C, i_this->m418, i_this->m440, 0);
     }
     if (i_this->mActionState >= 0xd1) {
-        bpw_class* lantern = (bpw_class*)fopAcM_SearchByID(i_this->m3FC);
+        fopAc_ac_c* kantera = fopAcM_SearchByID(i_this->m3FC);
+        bpw_class* lantern = (bpw_class*)kantera;
         if (lantern != NULL) {
             lantern->mpMorf->play(NULL, 0, 0);
             if (lantern->mpMorf->checkFrame(REG8_F(9) + 128.0f)) {
