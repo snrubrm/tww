@@ -940,7 +940,7 @@ config.libs = [
         "progress_category": "game",
         "host": True,
         "objects": [
-            Object(MatchingFor("GZLE01", "GZLP01"), "JAZelAudio/JAIZelBasic.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "JAZelAudio/JAIZelBasic.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JAZelAudio/JAIZelAnime.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JAZelAudio/JAIZelAtmos.cpp"),
             Object(Matching,    "JAZelAudio/JAIZelInst.cpp"),
@@ -1029,7 +1029,7 @@ config.libs = [
             Object(Matching,    "JSystem/JUtility/JUTDirectPrint.cpp"),
             Object(Matching,    "JSystem/JUtility/JUTAssert.cpp"),
             Object(Matching,    "JSystem/JUtility/JUTVideo.cpp"),
-            Object(MatchingFor("GZLE01") or Equivalent,  "JSystem/JUtility/JUTXfb.cpp"), # Nondeterministic compiler bug, do not link
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01") or Equivalent,  "JSystem/JUtility/JUTXfb.cpp"), # demo: compiler bug drops the bool conversion in destroyManager
             Object(Matching,    "JSystem/JUtility/JUTFader.cpp"),
             Object(Matching,    "JSystem/JUtility/JUTProcBar.cpp"),
             Object(Matching,    "JSystem/JUtility/JUTConsole.cpp"),
@@ -1508,7 +1508,7 @@ config.libs = [
     ActorRel(Matching, "d_a_obj_swpush"),
     ActorRel(Matching,    "d_a_obj_table"),
     ActorRel(Matching,    "d_a_obj_tenmado"),
-    ActorRel(Equivalent,  "d_a_obj_tide"), # Nondeterministic compiler bug? Do not link
+    ActorRel(Matching,    "d_a_obj_tide"),
     ActorRel(Matching,    "d_a_obj_timer"),
     ActorRel(Matching,    "d_a_obj_toripost"),
     ActorRel(Matching,    "d_a_obj_tousekiki"),
