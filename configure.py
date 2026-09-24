@@ -518,7 +518,7 @@ config.libs = [
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d/d_map.cpp"),
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01"),    "d/d_com_inf_game.cpp"),
             Object(Matching,    "d/d_com_lib_game.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d/d_com_static.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/d_com_static.cpp"),
             Object(Matching,    "d/d_lib.cpp"),
             Object(Matching,    "d/d_save.cpp"),
             Object(Matching,    "d/d_save_init.cpp"),
@@ -613,7 +613,7 @@ config.libs = [
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d/actor/d_a_grid.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/actor/d_a_himo2.cpp"),
             Object(Matching,    "d/actor/d_a_hookshot.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d/actor/d_a_ib.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/actor/d_a_ib.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/actor/d_a_item.cpp"),
             Object(MatchingFor("GZLJ01", "GZLE01", "GZLP01", "D44J01"),    "d/actor/d_a_itembase.cpp"),
             Object(Matching,    "d/actor/d_a_nh.cpp"),
@@ -826,7 +826,7 @@ config.libs = [
         "JStudio_JParticle",
         [
             Object(Matching,    "JSystem/JStudio/JStudio_JParticle/control.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "JSystem/JStudio/JStudio_JParticle/object-particle.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/JStudio/JStudio_JParticle/object-particle.cpp"),
         ],
     ),
     JSystemLib(
@@ -1060,7 +1060,7 @@ config.libs = [
     JSystemLib(
         "J3DGraphBase",
         [
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "JSystem/J3DGraphBase/J3DGD.cpp"),
+            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "JSystem/J3DGraphBase/J3DGD.cpp"),
             Object(Matching,    "JSystem/J3DGraphBase/J3DSys.cpp"),
             Object(Matching,    "JSystem/J3DGraphBase/J3DVertex.cpp"),
             Object(Matching,    "JSystem/J3DGraphBase/J3DTransform.cpp"),
