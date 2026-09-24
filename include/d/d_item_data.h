@@ -345,7 +345,7 @@ public:
     // static s16 getFieldBmtIdx(u8 no) { return field_item_res[no].mBmtIdx; }
     static u32 getFieldHeapSize(u8 no) { return field_item_res[no].mHeapSize; }
     
-    static u8 getShadowSize(u8 no) { return item_info[no].mShadowSize; }
+    static const u8 getShadowSize(u8 no) { return item_info[no].mShadowSize; }
     static const u8 getH(u8 no) { return item_info[no].mCollisionH; }
     static const u8 getR(u8 no) { return item_info[no].mCollisionR; }
     static BOOL chkFlag(u8 no, int mask) { return item_info[no].mFlag & mask; }
