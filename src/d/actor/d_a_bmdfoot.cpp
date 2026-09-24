@@ -623,7 +623,10 @@ static BOOL daBmdfoot_Execute(bmdfoot_class* i_this) {
     i_this->mpBodyVineMorf->calc();
     if (i_this->mBD0 != 0) {
         if (i_this->mBD0 == 0x1e) {
-            mDoAud_seStart(JA_SE_CM_BKM_ATKVINE_MOVE_2, &i_this->mAE8, 0, dComIfGp_getReverb(fopAcM_GetRoomNo(actor)));
+            // fakematch: the named int roomNo local only steers register allocation in the demo (i_this r28 -> r31);
+            // every other seStart in this file passes fopAcM_GetRoomNo(actor) inline. Retail codegen is unchanged.
+            int roomNo = fopAcM_GetRoomNo(actor);
+            mDoAud_seStart(JA_SE_CM_BKM_ATKVINE_MOVE_2, &i_this->mAE8, 0, dComIfGp_getReverb(roomNo));
         }
         i_this->mBD0 = i_this->mBD0 + -1;
     }
