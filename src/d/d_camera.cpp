@@ -6619,11 +6619,13 @@ bool dCamera_c::shieldCamera(s32 param_1) {
 
 /* 801787B8-801795C8       .text manualCamera__9dCamera_cFl */
 bool dCamera_c::manualCamera(s32 param_1) {
-    f32 cush;
+    f32 cushU;
     f32 cushV;
     f32 cushR;
     f32 val1 = mCamParam.Val(param_1, 1);
     f32 val0 = mCamParam.Val(param_1, 0);
+    f32 cush;
+    f32 stickCY;
     f32 val3 = mCamParam.Val(param_1, 3);
     f32 val4 = mCamParam.Val(param_1, 4);
     f32 val21 = mCamParam.Val(param_1, 21);
@@ -6728,7 +6730,6 @@ bool dCamera_c::manualCamera(s32 param_1) {
     } else {
         stickCX = dCamMath::rationalBezierRatio(stickCX * 1.333333f, 2.0f);
     }
-    f32 stickCY;
     if (mStickCPosYLast >= 0.75f) {
         stickCY = 1.0f;
     } else if (mStickCPosYLast <= -0.75f) {
@@ -6738,6 +6739,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     cush = val21;
+    cushU = val21;
     cushV = val21;
     cushR = val21;
 
@@ -6835,7 +6837,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
         if (lineBGCheck(&attnPos, &mViewCache.mCenter, &lin_chk, 0x7f)) {
             cM3dGPla* plane = dComIfG_Bgsp()->GetTriPla(lin_chk);
             mViewCache.mCenter = lin_chk.GetCross();
-            mViewCache.mCenter += plane->mNormal;
+            mViewCache.mCenter += *plane->GetNP();
         }
     }
 
@@ -6857,7 +6859,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
 
     mViewCache.mDirection.R(mViewCache.mDirection.R() + (work->m3A8.R() - mViewCache.mDirection.R()) * cushR);
     mViewCache.mDirection.V(mViewCache.mDirection.V() + (work->m3A8.V() - mViewCache.mDirection.V()) * cushV);
-    mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->m3A8.U() - mViewCache.mDirection.U()) * val21);
+    mViewCache.mDirection.U(mViewCache.mDirection.U() + (work->m3A8.U() - mViewCache.mDirection.U()) * cushU);
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
     f32 fov = mViewCache.mFovy;
