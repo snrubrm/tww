@@ -2121,9 +2121,8 @@ BOOL daShip_c::procZevDemo() {
         f32* speedP = dComIfGp_evmng_getMyFloatP(mEvtStaffId, "speed");
         int* partP = dComIfGp_evmng_getMyIntegerP(mEvtStaffId, "part");
         int* talkP = dComIfGp_evmng_getMyIntegerP(mEvtStaffId, "talk");
-        int* atn_actorP = dComIfGp_evmng_getMyIntegerP(mEvtStaffId, "atn_actor");
 
-        if (atn_actorP && dComIfGp_event_getPt1()) {
+        if (dComIfGp_evmng_getMyIntegerP(mEvtStaffId, "atn_actor") && dComIfGp_event_getPt1()) {
             m0428 = &dComIfGp_event_getPt1()->eyePos;
         }
         else {
