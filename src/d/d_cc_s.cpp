@@ -445,9 +445,7 @@ void dCcS::SetAtTgGObjInf(bool i_setAt, bool i_setTg,
         dCcD_HitCallback at_callback = atObjInf->GetAtHitCallback();
 
         if (at_callback != NULL) {
-            fopAc_ac_c* atAc = atObjInf->GetAc();
-            fopAc_ac_c* tgAc = tgObjInf->GetAc();
-            at_callback(atAc, atObjInf, tgAc, tgObjInf);
+            at_callback(atObjInf->GetAc(), atObjInf, tgObjInf->GetAc(), tgObjInf);
         }
     }
 
@@ -455,9 +453,7 @@ void dCcS::SetAtTgGObjInf(bool i_setAt, bool i_setTg,
         dCcD_HitCallback tg_callback = tgObjInf->GetTgHitCallback();
 
         if (tg_callback != NULL) {
-            fopAc_ac_c* tgAc = tgObjInf->GetAc();
-            fopAc_ac_c* atAc = atObjInf->GetAc();
-            tg_callback(tgAc, tgObjInf, atAc, atObjInf);
+            tg_callback(tgObjInf->GetAc(), tgObjInf, atObjInf->GetAc(), atObjInf);
         }
     }
 
