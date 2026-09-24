@@ -2848,8 +2848,10 @@ static cPhs_State daWZ_Create(fopAc_ac_c* i_actor) {
             if (parent != NULL) {
                 if (i_this->mBehaviorType == WZ_TYPE_SUMMON_DOOR) {
                     i_this->mRelatedId = parent->mRelatedId;
-                    parent = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
-                    if (parent == NULL) {
+                    wz_class* summoner = (wz_class*)fopAcM_SearchByID(i_this->mRelatedId);
+                    if (summoner != NULL) {
+                        parent = summoner;
+                    } else {
                         return cPhs_ERROR_e;
                     }
                 }
