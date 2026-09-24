@@ -15,10 +15,10 @@ public:
     
     void returnLink() { cLib_onBit(m4E4, 0x01UL); }
     void offReturnLink() { cLib_offBit(m4E4, 0x01UL); }
-    bool isReturnLink() { return cLib_checkBit(m4E4, 0x01UL); }
+    u32 isReturnLink() { return cLib_checkBit(m4E4, 0x01UL); }
     void onEventAccept() { cLib_onBit(m4E4, 0x02UL); }
     void offEventAccept() { cLib_offBit(m4E4, 0x02UL); }
-    bool isEventAccept() { return cLib_checkBit(m4E4, 0x02UL); }
+    u32 isEventAccept() { return cLib_checkBit(m4E4, 0x02UL); }
     
     u8 getDamageFogTimer() { return mDamageFogTimer; }
     void setDamageFogTimer(u8 timer) { mDamageFogTimer = timer; }
