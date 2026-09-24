@@ -79,6 +79,8 @@ void daBoko_c::keDraw() {
 
 /* 0000017C-00000620       .text keCalc1__8daBoko_cFP6ke_c_si */
 void daBoko_c::keCalc1(ke_c_s* arg1, int arg2) {
+    s16 iVar7;
+    int iVar8;
     int i;
     cXyz* pcVar11 = &arg1->m000[1];
     cXyz* pcVar10 = &arg1->m078[1];
@@ -120,8 +122,8 @@ void daBoko_c::keCalc1(ke_c_s* arg1, int arg2) {
         }
 
         fVar5 = fVar5tmp - pcVar11[-1].y;
-        s16 iVar7 = -cM_atan2s(fVar5, fVar6);
-        int iVar8 = cM_atan2s(fVar7, std::sqrtf(SQUARE(fVar5) + SQUARE(fVar6)));
+        iVar7 = -cM_atan2s(fVar5, fVar6);
+        iVar8 = cM_atan2s(fVar7, std::sqrtf(SQUARE(fVar5) + SQUARE(fVar6)));
         mDoMtx_XrotS(*calc_mtx, iVar7);
         mDoMtx_YrotM(*calc_mtx, iVar8);
         cXyz sp0C;
