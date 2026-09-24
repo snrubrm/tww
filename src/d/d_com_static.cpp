@@ -145,8 +145,8 @@ void daSalvage_c::init_room(s8 roomNo) {
 }
 
 s16 daObjLight::Act_c::M_S_light_angle;
-u32 daObjLight::Act_c::M_S_pre_set_frame_LOD;
-u32 daObjLight::Act_c::M_S_pre_set_frame_FRRS;
+unsigned int daObjLight::Act_c::M_S_pre_set_frame_LOD;
+unsigned int daObjLight::Act_c::M_S_pre_set_frame_FRRS;
 u8 daObjLight::Act_c::M_S_lod_access;
 
 /* 80056790-800567F8       .text renew_light_angle__Q210daObjLight5Act_cFv */
