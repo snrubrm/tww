@@ -73,7 +73,9 @@ bool dNpc_JntCtrl_c::move(s16 param_1, int param_2) {
         } else {
             angle = param_1;
         }
-        limitter(&angle, mMaxAngles[i][param_2], mMinAngles[i][param_2]);
+        // fakematch: the (int) conversion (a no-op, like the (int)angle below) changes the demo's register colouring
+        // of this/param_1 (demo 97.56% -> 98.81%; retail unchanged).
+        limitter(&angle, (int)mMaxAngles[i][param_2], mMinAngles[i][param_2]);
         param_1 -= (int)angle;
         angles[i] = angle;
         angleL = mAngles[i][param_2];
