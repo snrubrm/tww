@@ -650,7 +650,7 @@ config.libs = [
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/d_menu_window.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01"), "d/d_mesg.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/d_message.cpp"),
-            Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d/d_message_paper.cpp"),
+            Object(Matching, "d/d_message_paper.cpp"),
             Object(Matching, "d/d_meter.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/d_minigame_starter.cpp"),
             Object(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d/d_minigame_terminater.cpp"),
