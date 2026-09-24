@@ -31,6 +31,7 @@ void dMsg3_yose_select(sub_msg3_class* i_Msg, u8 i_index);
 void dMsg3_setCharAlpha(sub_msg3_class* i_Msg, u8 i_index);
 u8 dMsg3_aimBrightness();
 
+static dmsg3_3d_c* msg3d;
 static int dMsg3_popSpeed;
 static J2DScreen* sScreen3[3];
 static J2DPicture* bbutton_icon3[8][3];
@@ -38,7 +39,6 @@ static J2DPicture* bbutton_kage3[8][3];
 static s16 bbuttonTimer3[8][3];
 static dDlst_2DMSG3_c message;
 static dDlst_2Dm_c board;
-static dmsg3_3d_c* msg3d;
 
 static u8 dMsg3_tex_i4_color[] = {
     0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x02, 0x02, 0x02, 0x03, 0x04, 0x06, 0x07, 0x09, 0x0b, 0x0d, 0x0f, 0x12, 0x16, 0x1c, 0x22, 0x2a, 0x32, 0x39,
