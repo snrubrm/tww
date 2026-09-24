@@ -3919,6 +3919,8 @@ void dMap_2DAGBScrDsp_c::calc_standard_prm(u16 param_1, u16 param_2, f32 param_3
 
 /* 8004E698-8004EE30       .text draw__18dMap_2DAGBScrDsp_cFv */
 #if VERSION == VERSION_DEMO
+// NONMATCHING - FP regalloc: the target keeps a second, copied register for 1.0f - margin in the tile loop, which also
+// pushes centerX onto the stack.
 void dMap_2DAGBScrDsp_c::draw() {
     static const GXColor masterTevColor = {255, 255, 255, 255};
 
@@ -3979,8 +3981,10 @@ void dMap_2DAGBScrDsp_c::draw() {
     GXSetAlphaUpdate(GX_ENABLE);
     GXSetDstAlpha(GX_ENABLE, 0);
 
-    invW = 8.0f / (int)mImg->width;
-    invH = 8.0f / (int)mImg->height;
+    int imgW = mImg->width;
+    int imgH = mImg->height;
+    invW = 8.0f / imgW;
+    invH = 8.0f / imgH;
     margin = 0.00625f;
     u8 mapW = field_0x4->field_0x30;
     u8 mapH = field_0x4->field_0x31;
@@ -4019,9 +4023,11 @@ void dMap_2DAGBScrDsp_c::draw() {
         texT1 = 1.0f - margin;
         if (srcY != tileY) {
             if (tileY < 0) {
+                texT0 = margin;
                 texT1 = margin;
-            } else if (tileY >= 0) {
+            } else {
                 texT0 = 1.0f - margin;
+                texT1 = 1.0f - margin;
             }
             if (iy == 0) {
                 y0 = field_0x3e;
@@ -4053,9 +4059,11 @@ void dMap_2DAGBScrDsp_c::draw() {
             texS1 = 1.0f - margin;
             if (srcX != tileX) {
                 if (tileX < 0) {
+                    texS0 = margin;
                     texS1 = margin;
-                } else if (tileX >= 0) {
+                } else {
                     texS0 = 1.0f - margin;
+                    texS1 = 1.0f - margin;
                 }
                 if (ix == 0) {
                     x0 = field_0x3c;
@@ -4109,6 +4117,7 @@ void dMap_2DAGBScrDsp_c::draw() {
     GXSetDstAlpha(GX_DISABLE, 0);
     GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
     GXSetVtxAttrFmtv(GX_VTXFMT0, fmtList);
+    }
 }
 
 #else
@@ -4275,9 +4284,9 @@ void dMap_2DAGBScrDsp_c::draw() {
     GXSetDstAlpha(GX_DISABLE, 0);
     GXSetAlphaCompare(GX_ALWAYS, 0, GX_AOP_OR, GX_ALWAYS, 0);
     GXSetVtxAttrFmtv(GX_VTXFMT0, fmtList);
+    }
 }
 #endif
-}
 
 /* 8004EE30-8004EE44       .text setPos__18dMap_2DAGBScrDsp_cFssss */
 void dMap_2DAGBScrDsp_c::setPos(s16 param_1, s16 param_2, s16 param_3, s16 param_4) {
