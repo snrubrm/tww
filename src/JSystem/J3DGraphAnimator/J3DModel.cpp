@@ -873,7 +873,7 @@ void J3DModel::calcNrmMtx() {
 
 /* 802EF1B8-802EF2B0       .text calcBumpMtx__8J3DModelFv */
 void J3DModel::calcBumpMtx() {
-    if (mModelData->checkBumpFlag() == 1) {
+    if (getModelData()->checkBumpFlag()) {
         s32 bumpMtxOffset = 0;
         for (s32 i = 0; i < mModelData->getMaterialNum(); i++) {
             J3DMaterial * pMaterial = mModelData->getMaterialNodePointer(i);
@@ -953,7 +953,7 @@ void J3DModel::prepareShapePackets() {
             pkt->setBaseMtxPtr((Mtx*)j3dSys.getViewMtx());
     }
 
-    if (getModelData()->checkBumpFlag() == 1) {
+    if (getModelData()->checkBumpFlag()) {
         for (s32 i = 0; i < mModelData->getMaterialNum(); i++) {
             J3DMaterial* pMaterial = mModelData->getMaterialNodePointer(i);
             if (pMaterial->getNBTScale()->mbHasScale == 1) {

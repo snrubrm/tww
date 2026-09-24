@@ -78,7 +78,7 @@ public:
     GXColor* getVtxColorArray(u8 idx) const { return mVertexData.getVtxColorArray(idx); }
     bool checkFlag(u32 flag) const { return (mFlags & flag) ? true : false; }
     u32 getFlag() const { return mFlags; }
-    u16 checkBumpFlag() const { return mbHasBumpArray; }
+    bool checkBumpFlag() const { return mbHasBumpArray == 1; }
     void setBumpFlag(u32 flag) { mbHasBumpArray = flag; }
     bool checkBBoardFlag() const { return mbHasBillboard == 1; }
     s32 entryTexMtxAnimator(J3DAnmTextureSRTKey* anm) { return mMaterialTable.entryTexMtxAnimator(anm); }
