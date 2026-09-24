@@ -28,10 +28,10 @@ are byte-identical and linked into the SHA1-checked binary):
 
 | Version | Matched functions | Linked code |
 |---|---|---|
-| `GZLE01` (USA) | 39,323 / 39,324 | 99.66% |
-| `GZLP01` (PAL) | 39,304 / 39,305 | 99.61% |
-| `GZLJ01` (JPN) | 39,250 / 39,258 | 98.18% |
-| `D44J01` (demo) | 39,210 / 39,273 | 81.61% |
+| `GZLE01` (USA) | 39,323 / 39,324 | 99.76% |
+| `GZLP01` (PAL) | 39,304 / 39,305 | 99.72% |
+| `GZLJ01` (JPN) | 39,256 / 39,258 | 99.39% |
+| `D44J01` (demo) | 39,216 / 39,273 | 81.84% |
 
 Dependencies
 ============
