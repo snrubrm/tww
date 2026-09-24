@@ -518,7 +518,7 @@ void daNpc_So_c::cutMiniGameProc() {
     case 2: {
         setAnm(2, false);
         f32 mag = 1000.0f;
-        mB8C = cM_rndF(400.0f) + mag;
+        mB8C = cM_rndF(400.0f) + 1000.0f;
         mB88 = -mag / 2.0f + cM_rndF(mag);
         cXyz offset(mB88, 0.0f, mB8C);
         cXyz out(0.0f, 0.0f, 0.0f);
