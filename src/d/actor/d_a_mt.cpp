@@ -2645,7 +2645,164 @@ static BOOL CallbackCreateHeap(fopAc_ac_c* i_this) {
     return TRUE;
 }
 
-// NONMATCHING - .data: the original has a stripped function here with a second copy of the bmd_data/scale_data/br_bmd statics
+// Unused; stripped by the linker. Name/signature from d_a_mtD.map; body reconstructed from its leftover
+// bmd_data/scale_data/br_bmd statics. The map gives it CallbackCreateHeap's size (minus the actor cast), so it is
+// the same heap setup taking the mt_class directly; its assert line numbers are estimated.
+static BOOL useHeapInit(mt_class* i_this) {
+    static int bmd_data[] = {
+        dRes_INDEX_MT_BDL_MG_HEAD_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_BODY_e,
+        dRes_INDEX_MT_BDL_MG_TAIL_e,
+    };
+    static f32 scale_data[] = {1.0f, 1.0f, 1.0f, 0.975f, 0.925f, 0.825f, 0.75f, 0.525f};
+
+    for (int i = 0; i < 8; i++) {
+        i_this->mpMorf[i] = new mDoExt_McaMorf(
+            (J3DModelData*)dComIfG_getObjectRes("Mt", bmd_data[i]),
+            NULL,
+            NULL,
+            NULL,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            1,
+            NULL,
+            0x80000,
+            0x37440402
+        );
+        if (i_this->mpMorf[i] == NULL || i_this->mpMorf[i]->getModel() == NULL) {
+            return FALSE;
+        }
+
+        J3DModel* model = i_this->mpMorf[i]->getModel();
+        J3DModelData* modelData = model->getModelData();
+
+        i_this->btk[i] = new mDoExt_btkAnm();
+        JUT_ASSERT(DEMO_SELECT(0x1289, 0x12AD), i_this->btk[i]);
+#if VERSION == VERSION_DEMO
+        i_this->btk[i]->init(
+            model->getModelData(),
+            (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Mt", btk_data[i]),
+            TRUE,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            false,
+            FALSE
+        );
+#else
+        if (!i_this->btk[i]->init(
+                model->getModelData(),
+                (J3DAnmTextureSRTKey*)dComIfG_getObjectRes("Mt", btk_data[i]),
+                TRUE,
+                J3DFrameCtrl::EMode_LOOP,
+                1.0f,
+                0,
+                -1,
+                false,
+                FALSE
+            ))
+        {
+            return FALSE;
+        }
+#endif
+
+        i_this->brk[i] = new mDoExt_brkAnm();
+        JUT_ASSERT(DEMO_SELECT(0x1293, 0x12BA), i_this->brk[i]);
+#if VERSION == VERSION_DEMO
+        i_this->brk[i]->init(
+            model->getModelData(),
+            (J3DAnmTevRegKey*)dComIfG_getObjectRes("Mt", brk_data[i]),
+            TRUE,
+            J3DFrameCtrl::EMode_LOOP,
+            1.0f,
+            0,
+            -1,
+            false,
+            FALSE
+        );
+#else
+        if (!i_this->brk[i]->init(
+                model->getModelData(),
+                (J3DAnmTevRegKey*)dComIfG_getObjectRes("Mt", brk_data[i]),
+                TRUE,
+                J3DFrameCtrl::EMode_LOOP,
+                1.0f,
+                0,
+                -1,
+                false,
+                FALSE
+            ))
+        {
+            return FALSE;
+        }
+#endif
+
+        if (i == 0) {
+            anm_init(i_this, dRes_INDEX_MT_BCK_WAIT1_e, 20.0f, J3DFrameCtrl::EMode_LOOP, 1.0f, 0);
+
+            J3DAnmTexPattern* btp = NULL;
+            for (int j = 0; j < 2; j++) {
+                btp = (J3DAnmTexPattern*)dComIfG_getObjectRes("Mt", mt_tex_anm_idx[j]);
+                btp->searchUpdateMaterialID(model->getModelData());
+            }
+
+            u16 materialNum = btp->getUpdateMaterialNum();
+            i_this->mpTexNoAnm = new J3DTexNoAnm[materialNum];
+            for (u16 j = 0; j < materialNum; j++) {
+                i_this->mpTexNoAnm[j].setAnmIndex(j);
+            }
+            tex_anm_set(i_this, 0);
+        }
+
+        model->setUserArea((u32)i_this);
+
+        for (u16 jntNo = 0; jntNo < modelData->getJointNum(); jntNo++) {
+            if (i == 0) {
+                if (jntNo >= 2 && jntNo <= 5) {
+                    modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_head);
+                }
+            } else if (i == 7) {
+                if (jntNo >= 2 && jntNo <= 5) {
+                    modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_tail);
+                }
+            } else {
+                if (jntNo >= 2 && jntNo <= 5) {
+                    modelData->getJointNodePointer(jntNo)->setCallBack(nodeCallBack_body);
+                }
+            }
+        }
+
+        i_this->m600[i] = scale_data[i];
+    }
+
+    static int br_bmd[] = {
+        dRes_INDEX_MT_BDL_KBA_e,
+        dRes_INDEX_MT_BDL_KBB_e,
+        dRes_INDEX_MT_BDL_KBC_e,
+    };
+
+    for (int i = 0; i < 3; i++) {
+        J3DModelData* modelData = (J3DModelData*)dComIfG_getObjectRes("Mt", br_bmd[i]);
+        JUT_ASSERT(DEMO_SELECT(0x133D, 0x1367), modelData != 0);
+        i_this->br_modelL[i] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
+        JUT_ASSERT(DEMO_SELECT(0x1340, 0x136A), i_this->br_modelL[i] != 0);
+        i_this->br_modelR[i] = mDoExt_J3DModel__create(modelData, 0, 0x11020203);
+        JUT_ASSERT(DEMO_SELECT(0x1342, 0x136C), i_this->br_modelR[i] != 0);
+        i_this->br_modelL[i]->setBaseScale(i_this->scale);
+        i_this->br_modelR[i]->setBaseScale(i_this->scale);
+    }
+
+    return TRUE;
+}
+
 /* 000084AC-000088A8       .text daMt_Create__FP10fopAc_ac_c */
 static cPhs_State daMt_Create(fopAc_ac_c* i_this) {
     fopAcM_SetupActor(i_this, mt_class);
