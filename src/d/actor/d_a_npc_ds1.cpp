@@ -870,6 +870,29 @@ int daNpc_Ds1_c::getdemo_action(void*) {
     return 1;
 }
 
+// Unused; stripped by the linker. Name/signature from d_a_npc_ds1.map; body reconstructed from its leftover
+// &daNpc_Ds1_c::wait_action pointer-to-member constant in .data. It runs the CREATE_DRUG event (mEventIdx[0]) the way
+// getdemo_action runs GET_DRUG.
+int daNpc_Ds1_c::createdemo_action(void*) {
+    int staff = dComIfGp_evmng_getMyStaffId("Ds1", NULL, 0);
+    dEvent_manager_c* mgr = &g_dComIfG_gameInfo.play.getEvtManager();
+    if (mActionState == 0) {
+        ((daPy_py_c*)dComIfGp_getPlayer(0))->offPlayerNoDraw();
+        mLookMode = m895;
+        mShopCam.setCamAction(NULL);
+        mgr->cutEnd(staff);
+        mActionState++;
+    } else if (mActionState != -1) {
+        mgr->cutEnd(staff);
+        if (mgr->endCheck(mEventIdx[0])) {
+            mOrder = 1;
+            dComIfGp_event_reset();
+            setAction(&daNpc_Ds1_c::wait_action, NULL);
+        }
+    }
+    return 1;
+}
+
 /* 00002A04-00002BD0       .text privateCut__11daNpc_Ds1_cFv */
 int daNpc_Ds1_c::privateCut() {
     int cut;

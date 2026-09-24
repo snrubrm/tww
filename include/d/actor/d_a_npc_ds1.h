@@ -76,6 +76,7 @@ public:
     bool wait01();
     bool talk01();
     int getdemo_action(void*);
+    int createdemo_action(void*);
     int privateCut();
     int evn_setAnm_init(int);
     int evn_Anm();
