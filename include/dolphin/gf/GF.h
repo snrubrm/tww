@@ -8,14 +8,6 @@
 #include "dolphin/gf/GFTev.h" // IWYU pragma: export
 #include "dolphin/gf/GFTransform.h" // IWYU pragma: export
 
-inline void GFWrite_u8(u8 data) {
-    GXCmd1u8(data);
-}
-
-inline void GFWrite_u16(u16 data) {
-    GXCmd1u16(data);
-}
-
 inline void GFWrite_u32(u32 data) {
     GXCmd1u32(data);
 }

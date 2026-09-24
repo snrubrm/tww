@@ -8,9 +8,17 @@ void GFSetVtxAttrFmtv(GXVtxFmt, GXVtxAttrFmtList*);
 void GFSetArray(GXAttr, void*, u8);
 void GFSetCullMode(GXCullMode);
 
+inline void GFWrite_u8(u8 data) {
+    GXCmd1u8(data);
+}
+
+inline void GFWrite_u16(u16 data) {
+    GXCmd1u16(data);
+}
+
 inline void GFBegin(GXPrimitive type, GXVtxFmt fmt, u16 vert_num) {
-    GXFIFO.u8 = fmt | type;
-    GXFIFO.u16 = vert_num;
+    GFWrite_u8(fmt | type);
+    GFWrite_u16(vert_num);
 }
 
 inline void GFEnd() {}
