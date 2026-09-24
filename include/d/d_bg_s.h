@@ -164,10 +164,10 @@ public:
     void ClrWallHit() { mFlag &= ~0x10; }
     void SetXCrr() { mFlag |= 0x20; }
     void ClrXCrr() { mFlag &= ~0x20; }
-    bool ChkXCrr() { return mFlag & 0x20; }
+    u32 ChkXCrr() { return mFlag & 0x20; }
     void SetZCrr() { mFlag |= 0x40; }
     void ClrZCrr() { mFlag &= ~0x40; }
-    bool ChkZCrr() { return mFlag & 0x40; }
+    u32 ChkZCrr() { return mFlag & 0x40; }
 
     void SetGndUpY(f32 y) { mGndUpY = y; }
     void ClrPosVec() { m_pos_vec.x = m_pos_vec.y = m_pos_vec.z = 0.0f; }
