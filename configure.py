@@ -1632,7 +1632,7 @@ config.libs = [
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_bst"),
     ActorRel(Matching,    "d_a_btd"),
     ActorRel(Matching,    "d_a_bwd"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_bwdg"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_bwdg"),
     ActorRel(Matching,    "d_a_bwds"),
     ActorRel(Matching,    "d_a_daiocta"),
     ActorRel(Matching,    "d_a_daiocta_eye"),
