@@ -178,17 +178,13 @@ void dCcS::SetCoGObjInf(bool r4, bool r5, cCcD_GObjInf* inf1_, cCcD_GObjInf* inf
     if (r4) {
         dCcD_HitCallback callback = inf1->GetCoHitCallback();
         if (callback != NULL) {
-            fopAc_ac_c* ac1 = inf1->GetAc();
-            fopAc_ac_c* ac2 = inf2->GetAc();
-            callback(ac1, inf1, ac2, inf2);
+            callback(inf1->GetAc(), inf1, inf2->GetAc(), inf2);
         }
     }
     if (r5) {
         dCcD_HitCallback callback = inf2->GetCoHitCallback();
         if (callback != NULL) {
-            fopAc_ac_c* ac2 = inf2->GetAc();
-            fopAc_ac_c* ac1 = inf1->GetAc();
-            callback(ac2, inf2, ac1, inf1);
+            callback(inf2->GetAc(), inf2, inf1->GetAc(), inf1);
         }
     }
 }
