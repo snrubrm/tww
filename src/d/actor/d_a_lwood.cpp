@@ -72,12 +72,13 @@ static BOOL nodeCallBack(J3DNode* joint, int calcTiming) {
 #if VERSION == VERSION_DEMO
             int spd = 300;
             cXyz windSpeed = daObj::get_wind_spd(i_this, 100.0f);
-            f32 sy = cM_ssin(i_this->getYureTimer() * 300);
-            int amp = 10;
+            s16 spd2 = 300; // fakematch: separate s16 copy of the speed (target li+mullw at the use, product CSEd for sin/cos)
+            f32 sy = cM_ssin(i_this->getYureTimer() * spd2);
+            s16 amp = 10;
             s16 r2 = amp * (windSpeed.x * sy);
-            f32 cy = cM_scos(i_this->getYureTimer() * 300);
+            f32 cy = cM_scos(i_this->getYureTimer() * spd2);
             s16 r0 = amp * (windSpeed.z * cy);
-            int amp2 = 250;
+            s16 amp2 = 250;
             s16 r1 = amp2 * fabs(cM_ssin(i_this->getYureTimer() * spd) + 1.0f);
 #else
             cXyz windSpeed = daObj::get_wind_spd(i_this, 100.0f);
