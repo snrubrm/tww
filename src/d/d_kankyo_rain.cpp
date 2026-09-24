@@ -3377,6 +3377,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
     GXSetVtxDesc(GX_VA_TEX0, GX_DIRECT);
 
     if (bDrawMoon == true) {
+        f32 size;
         cXyz camfwd;
         f32 dayscale[7] = { 1.0f, 0.83f, 0.6f, 0.6f, 0.6f, 0.6f, 0.83f, };
 
@@ -3418,7 +3419,7 @@ void dKyr_drawSun(Mtx drawMtx, cXyz* pPos, GXColor& reg0, u8** pImg) {
         reg0.g = 0xFF;
         reg0.b = 0x94;
 
-        f32 size = DEMO_SELECT(750.0f, 700.0f);
+        size = DEMO_SELECT(750.0f, 700.0f);
         reg0.a = pSunPkt->mMoonAlpha * 255.0f;
         GXSetTevColor(GX_TEVREG0, reg0);
 
