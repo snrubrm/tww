@@ -43,6 +43,7 @@ public:
     virtual u32 getMsg();
     void eventOrder();
     void checkOrder();
+    bool chk_direct(f32);
     bool chk_talk();
     bool chk_parts_notMov();
     fopAc_ac_c* searchByID(fpc_ProcID, int*);

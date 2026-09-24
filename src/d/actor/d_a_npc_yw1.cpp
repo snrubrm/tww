@@ -497,6 +497,14 @@ void daNpc_Yw1_c::checkOrder() {
     }
 }
 
+// Unused; stripped by the linker. Name/signature from d_a_npc_yw1.map; body reconstructed from its leftover
+// 0x7FFF / 180.0f .rodata literal (degrees to s16 angle), cf. daNpc_Bj1_c::chk_drct.
+bool daNpc_Yw1_c::chk_direct(f32 i_deg) {
+    s16 target = fopAcM_searchPlayerAngleY(this) - current.angle.y;
+    s16 limit = i_deg * (0x7FFF / 180.0f);
+    return abs(target) < limit;
+}
+
 bool daNpc_Yw1_c::chk_talk() {
     if (dComIfGp_event_chkTalkXY()) {
         if (dComIfGp_evmng_ChkPresentEnd()) {
@@ -548,7 +556,6 @@ void daNpc_Yw1_c::partner_search() {
     }
 }
 
-// NONMATCHING - .rodata: the original has an unreferenced 0x7FFF / 180.0f literal here (stripped code), shifting later literals
 void daNpc_Yw1_c::lookBack() {
     mOldHead = m_jnt.getHead_y();
     mOldBackbone = m_jnt.getBackbone_y();
@@ -944,7 +951,6 @@ int daNpc_Yw1_c::wait_3() {
     return 1;
 }
 
-// NONMATCHING - .rodata offsets, see the note above lookBack
 int daNpc_Yw1_c::walk_1() {
     if (chk_brkTsubo()) return 1;
     if (!mPathEnd && mPath.chkPointPass(current.pos, (bool) mPath.getDir())) mPathEnd = !mPath.nextIdx();
