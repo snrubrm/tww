@@ -1175,7 +1175,6 @@ void dKyr_housi_move() {
 
     for (int i = housi_packet->mCount - 1; i >= 0; i--) {
         var_f26 = housi_packet->field_0x5ddc;
-        f32 step = 0.02f;
         effect = &housi_packet->mEffect[i];
 
         switch (housi_packet->mEffect[i].mStatus) {
@@ -1295,6 +1294,7 @@ void dKyr_housi_move() {
             var_f26 = 0.0f;
         }
 
+        f32 step = 0.02f;
         cLib_addCalc(&effect->mAlpha, var_f26, 0.5f, step, 0.00001f);
     }
 }
