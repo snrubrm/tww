@@ -4857,7 +4857,10 @@ bool dCamera_c::subjectCamera(s32 param_1) {
                     p1 = (640.0f - x) / 320.0f;
 
                     if (check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e) || dComIfGp_getScopeType()) {
-                        setView(p1 * 160.0f, p1 * 35.0f, x, (p1 * -160.0f) + 480.0f);
+                        f32 vx = p1 * 160.0f;
+                        f32 vy = p1 * 35.0f;
+                        f32 vh = (p1 * -160.0f) + 480.0f;
+                        setView(vx, vy, x, vh);
                     }
 
                     mViewCache.mFovy = mWork.subject.m3A0 + p1 * (mWork.subject.m39C - mWork.subject.m3A0);
@@ -4907,7 +4910,8 @@ bool dCamera_c::subjectCamera(s32 param_1) {
     }
 
     if (dComIfGp_getScopeType() || check_owner_action1(mPadId, daPyStts1_PICTO_BOX_AIM_e)) {
-        setView(160.0f, 35.0f, 320.0f, 320.0f);
+        f32 vx = 160.0f; f32 vy = 35.0f; f32 vw = 320.0f; f32 vh = 320.0f;
+        setView(vx, vy, vw, vh);
         mWork.subject.m3BC = 1;
     } else if (mWork.subject.m3BC) {
         setView(0.0f, 0.0f, 640.0f, 480.0f);
