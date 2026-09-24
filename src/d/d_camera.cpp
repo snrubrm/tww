@@ -6603,7 +6603,6 @@ bool dCamera_c::shieldCamera(s32 param_1) {
 }
 
 /* 801787B8-801795C8       .text manualCamera__9dCamera_cFl */
-// NONMATCHING - regalloc only: stickCX and the CSE'd -stickCY swap f15/f16.
 bool dCamera_c::manualCamera(s32 param_1) {
     f32 cush;
     f32 cushV;
@@ -6734,7 +6733,8 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 height = work->m398;
-    if (!limited_range_addition(&height, -stickCY * val9, val6, val7)) {
+    // fakematch: the val9 self-assignment fixes the fmuls operand order (user-approved; see research/workarounds.md)
+    if (!limited_range_addition(&height, (stickCY = -stickCY) * (val9 = val9), val6, val7)) {
         cush = val20;
     }
     if (chkFlag(0x1000) && mpLockonTarget != NULL && (m784 || m785)) {
@@ -6825,11 +6825,11 @@ bool dCamera_c::manualCamera(s32 param_1) {
     }
 
     f32 r = work->m3A8.R();
-    if (!limited_range_addition(&r, -stickCY * val14, val11, val12)) {
+    if (!limited_range_addition(&r, stickCY * val14, val11, val12)) {
         cushR = val20;
     }
     f32 v = work->m3A8.V().Degree();
-    if (!limited_range_addition(&v, -stickCY * val19, val16, val17)) {
+    if (!limited_range_addition(&v, stickCY * val19, val16, val17)) {
         cushV = val20;
     }
     f32 u = work->m3A8.U().Degree();
@@ -6846,7 +6846,7 @@ bool dCamera_c::manualCamera(s32 param_1) {
     mViewCache.mEye = mViewCache.mCenter + mViewCache.mDirection.Xyz();
 
     f32 fov = mViewCache.mFovy;
-    if (!limited_range_addition(&fov, -stickCY * val29, val26, val27)) {
+    if (!limited_range_addition(&fov, stickCY * val29, val26, val27)) {
         cush = mCamParam.Val(param_1, 20);
     }
     mViewCache.mFovy += cush * (fov - mViewCache.mFovy);
