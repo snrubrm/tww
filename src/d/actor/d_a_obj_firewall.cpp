@@ -563,19 +563,21 @@ bool daObjFirewall_c::_execute() {
     mBtk.play();
     setPointLight();
 #if VERSION == VERSION_DEMO
-    cXyz scl(l_HIO.mParticleScale, l_HIO.mParticleScale, l_HIO.mParticleScale);
-    for (int i = 0; i < 6; ++i) {
-        if (mpEmitter[i] != NULL) {
-            mpEmitter[i]->setGlobalScale(scl);
+    {
+        cXyz scl(l_HIO.mParticleScale, l_HIO.mParticleScale, l_HIO.mParticleScale);
+        for (int i = 0; i < 6; ++i) {
+            if (mpEmitter[i] != NULL) {
+                mpEmitter[i]->setGlobalScale(scl);
+            }
         }
-    }
-    for (int i = 0; i < 5; ++i) {
-        if (mpEmitter2[i] != NULL) {
-            mpEmitter2[i]->setGlobalScale(scl);
+        for (int i = 0; i < 5; ++i) {
+            if (mpEmitter2[i] != NULL) {
+                mpEmitter2[i]->setGlobalScale(scl);
+            }
         }
-    }
-    if (mpEmitter3 != NULL) {
-        mpEmitter3->setGlobalScale(scl);
+        if (mpEmitter3 != NULL) {
+            mpEmitter3->setGlobalScale(scl);
+        }
     }
 #endif
     (this->*mAction)();
