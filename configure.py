@@ -1537,7 +1537,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_tag_hint"),
     ActorRel(Matching,    "d_a_tag_kb_item"),
     ActorRel(Matching,    "d_a_tag_kk1"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_tag_light"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_tag_light"),
     ActorRel(Matching,    "d_a_tag_msg"),
     ActorRel(Matching,    "d_a_tag_photo"),
     ActorRel(Matching,    "d_a_tag_waterlevel"),
@@ -1704,7 +1704,7 @@ config.libs = [
     ActorRel(Matching,    "d_a_npc_mt"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_nz"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_ob1"),
-    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01"), "d_a_npc_os"),
+    ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_os"),
     ActorRel(Matching, "d_a_npc_p1"),
     ActorRel(MatchingFor("GZLE01", "GZLP01", "GZLJ01", "D44J01"), "d_a_npc_p2"),
     ActorRel(MatchingFor("D44J01"), "d_a_npc_people"), # regalloc
