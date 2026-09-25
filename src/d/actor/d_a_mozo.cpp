@@ -329,41 +329,11 @@ void daMozo_c::search_beam_proc() {
             angle.y = cM_atan2s(dir.x, dir.z);
             angle.x = cM_atan2s(-dir.y, dir.absXZ());
 
-            if (!beam1->beamCheck()) {
-                beam1->beamOn();
-            }
-            if (beam1->m5F4 == 0) {
-                beam1->m5A8 = 0.0f;
-                if (beam1->m588 < 5.0f) {
-                    beam1->m588 += 1.0f;
-                } else {
-                    beam1->m5A8 = 0.0f;
-                    beam1->m588 = 5.0f;
-                    beam1->m5F4 = 1;
-                }
-            } else {
-                beam1->m5A8 = 0.0f;
-                beam1->m588 = 5.0f;
-            }
+            beam1->beamOn();
             beam1->setPosAngle(mBeamLStart, angle);
             beam1->m694 = 15.0f;
 
-            if (!beam2->beamCheck()) {
-                beam2->beamOn();
-            }
-            if (beam2->m5F4 == 0) {
-                beam2->m5A8 = 0.0f;
-                if (beam2->m588 < 5.0f) {
-                    beam2->m588 += 1.0f;
-                } else {
-                    beam2->m5A8 = 0.0f;
-                    beam2->m588 = 5.0f;
-                    beam2->m5F4 = 1;
-                }
-            } else {
-                beam2->m5A8 = 0.0f;
-                beam2->m588 = 5.0f;
-            }
+            beam2->beamOn();
             beam2->setPosAngle(mBeamRStart, angle);
             beam2->m694 = 15.0f;
         }
@@ -496,52 +466,8 @@ void daMozo_c::towait_proc() {
             return;
         }
 
-        if (beam1->beamCheck()) {
-            beam1->beamOff();
-        }
-        int done1;
-        if (beam1->m5F4 == 1) {
-            if (beam1->m588 < 5.0f) {
-                beam1->m588 += 1.0f;
-            }
-            if (beam1->m5A8 < 4.0f) {
-                beam1->m5A8 += 1.0f;
-                done1 = FALSE;
-                goto end1;
-            }
-            beam1->m5A8 = 0.0f;
-            beam1->m588 = 0.0f;
-            beam1->m5F4 = 0;
-        } else {
-            beam1->m588 = 0.0f;
-            beam1->m5A8 = 0.0f;
-        }
-        done1 = TRUE;
-    end1:
-
-        if (beam2->beamCheck()) {
-            beam2->beamOff();
-        }
-        int done2;
-        if (beam2->m5F4 == 1) {
-            if (beam2->m588 < 5.0f) {
-                beam2->m588 += 1.0f;
-            }
-            if (beam2->m5A8 < 4.0f) {
-                beam2->m5A8 += 1.0f;
-                done2 = FALSE;
-                goto end2;
-            }
-            beam2->m5A8 = 0.0f;
-            beam2->m588 = 0.0f;
-            beam2->m5F4 = 0;
-        } else {
-            beam2->m588 = 0.0f;
-            beam2->m5A8 = 0.0f;
-        }
-        done2 = TRUE;
-    end2:
-
+        BOOL done1 = beam1->beamOff();
+        BOOL done2 = beam2->beamOff();
         if (done1 && done2 && mQuatRotation.w > 0.99f && mAnimMorf->getFrame() < 25.0f &&
             mBrkAnm.getFrame() < 1.0f && mBtkAnm.getFrame() < 1.0f)
         {

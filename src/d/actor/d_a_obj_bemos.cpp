@@ -751,51 +751,10 @@ BOOL daBemos_c::blue_eye_search() {
         csXyz tmp = m29C;
         tmp.y += current.angle.y;
 
-        if (!beam->beamCheck()) {
-            beam->beamOn();
-        }
-
-        if (beam->m5F4 == 0) {
-            beam->m5A8 = 0.0f;
-            if (beam->m588 < 5.0f) {
-                beam->m588 += 1.0f;
-            } else {
-                beam->m5A8 = 0.0f;
-                beam->m588 = 5.0f;
-                beam->m5F4 = 1;
-            }
-        } else {
-            beam->m5A8 = 0.0f;
-            beam->m588 = 5.0f;
-        }
+        beam->beamOn();
         beam->setPosAngle(m354, tmp);
     } else {
-        if (beam->beamCheck()) {
-            beam->beamOff();
-        }
-
-        BOOL bVar3;
-        if (beam->m5F4 == 1) {
-            if (beam->m588 < 5.0f) {
-                beam->m588 += 1.0f;
-            }
-
-            if (beam->m5A8 < 4.0f) {
-                beam->m5A8 += 1.0f;
-                bVar3 = FALSE;
-                goto end;
-            } else {
-                beam->m5A8 = 0.0f;
-                beam->m588 = 0.0f;
-                beam->m5F4 = 0;
-            }
-        } else {
-            beam->m588 = 0.0f;
-            beam->m5A8 = 0.0f;
-        }
-        bVar3 = TRUE;
-    end:
-        if (bVar3) {
+        if (beam->beamOff()) {
             blue_eye_charge_init();
         }
     }
@@ -1000,23 +959,7 @@ BOOL daBemos_c::red_eye_search() {
         csXyz tmp = m29C;
         tmp.y += current.angle.y;
 
-        if (!beam->beamCheck()) {
-            beam->beamOn();
-        }
-
-        if (beam->m5F4 == 0) {
-            beam->m5A8 = 0.0f;
-            if (beam->m588 < 5.0f) {
-                beam->m588 += 1.0f;
-            } else {
-                beam->m5A8 = 0.0f;
-                beam->m588 = 5.0f;
-                beam->m5F4 = 1;
-            }
-        } else {
-            beam->m5A8 = 0.0f;
-            beam->m588 = 5.0f;
-        }
+        beam->beamOn();
         beam->setPosAngle(m354, tmp);
         if (m6B6 > 0) {
             m6B6--;
@@ -1026,32 +969,7 @@ BOOL daBemos_c::red_eye_search() {
             m6BC = 0;
         }
     } else {
-        if (beam->beamCheck()) {
-            beam->beamOff();
-        }
-
-        BOOL bVar3;
-        if (beam->m5F4 == 1) {
-            if (beam->m588 < 5.0f) {
-                beam->m588 += 1.0f;
-            }
-
-            if (beam->m5A8 < 4.0f) {
-                beam->m5A8 += 1.0f;
-                bVar3 = FALSE;
-                goto end;
-            } else {
-                beam->m5A8 = 0.0f;
-                beam->m588 = 0.0f;
-                beam->m5F4 = 0;
-            }
-        } else {
-            beam->m588 = 0.0f;
-            beam->m5A8 = 0.0f;
-        }
-        bVar3 = TRUE;
-    end:
-        if (bVar3) {
+        if (beam->beamOff()) {
             red_eye_charge_init();
         }
     }
@@ -1086,26 +1004,7 @@ BOOL daBemos_c::eye_break_init() {
 BOOL daBemos_c::eye_break() {
     daBeam_c* beam = getBeamActor();
     if (beam != NULL) {
-        if (beam->beamCheck()) {
-            beam->beamOff();
-        }
-
-        if (beam->m5F4 == 1) {
-            if (beam->m588 < 5.0f) {
-                beam->m588 += 1.0f;
-            }
-
-            if (beam->m5A8 < 4.0f) {
-                beam->m5A8 += 1.0f;
-            } else {
-                beam->m5A8 = 0.0f;
-                beam->m588 = 0.0f;
-                beam->m5F4 = 0;
-            }
-        } else {
-            beam->m588 = 0.0f;
-            beam->m5A8 = 0.0f;
-        }
+        beam->beamOff();
     }
 
     cLib_addCalcAngleS2(&m29C.x, 0, 2, 0x800);
@@ -1212,27 +1111,8 @@ BOOL daBemos_c::yellow_eye_wait() {
     daBeam_c* beam = getBeamActor();
 
     if (beam == NULL || (m6A8 != 0xff && fopAcM_isSwitch(this, m6A8)) || (m6B9 == 1 && daNpc_Os_c::getCattleRoomNo() != fopAcM_GetRoomNo(this))) {
-        if (beam->m5F4 != 0) {
-            if (beam->beamCheck()) {
-                beam->beamOff();
-            }
-
-            if (beam->m5F4 == 1) {
-                if (beam->m588 < 5.0f) {
-                    beam->m588 += 1.0f;
-                }
-
-                if (beam->m5A8 < 4.0f) {
-                    beam->m5A8 += 1.0f;
-                } else {
-                    beam->m5A8 = 0.0f;
-                    beam->m588 = 0.0f;
-                    beam->m5F4 = 0;
-                }
-            } else {
-                beam->m588 = 0.0f;
-                beam->m5A8 = 0.0f;
-            }
+        if (beam->beamCheck()) {
+            beam->beamOff();
         }
         return FALSE;
     }
@@ -1271,53 +1151,9 @@ BOOL daBemos_c::yellow_eye_search() {
     }
 
     if (yellow_range_check(m6A4, NULL) && (m6A8 == 0xff || !fopAcM_isSwitch(this, m6A8))) {
-        if (!beam->beamCheck()) {
-            beam->beamOn();
-        }
-
-        if (beam->m5F4 == 0) {
-            beam->m5A8 = 0.0f;
-            if (beam->m588 < 5.0f) {
-                beam->m588 += 1.0f;
-            } else {
-                beam->m5A8 = 0.0f;
-                beam->m588 = 5.0f;
-                beam->m5F4 = 1;
-            }
-        } else {
-            beam->m5A8 = 0.0f;
-            beam->m588 = 5.0f;
-        }
+        beam->beamOn();
     } else {
-        if (beam->beamCheck()) {
-            beam->beamOff();
-        }
-
-        BOOL bVar3;
-        if (beam->m5F4 == 1) {
-            if (beam->m588 < 5.0f) {
-                beam->m588 += 1.0f;
-            }
-
-            if (beam->m5A8 < 4.0f) {
-                beam->m5A8 += 1.0f;
-                bVar3 = FALSE;
-                goto end;
-            } else {
-                beam->m5A8 = 0.0f;
-                beam->m588 = 0.0f;
-                beam->m5F4 = 0;
-                bVar3 = TRUE;
-            }
-        } else {
-            beam->m588 = 0.0f;
-            beam->m5A8 = 0.0f;
-            bVar3 = TRUE;
-        }
-        bVar3 = TRUE;
-    end:
-
-        if (bVar3) {
+        if (beam->beamOff()) {
             yellow_eye_wait_init();
         }
     }
@@ -1366,7 +1202,7 @@ void daBemos_c::guard_proc() {
     if (m6B8 == 2 && m6BD == 1) {
         daBeam_c* beam = getBeamActor();
 
-        if (beam != NULL && beam->m5F4 != 0) {
+        if (beam != NULL && beam->beamCheck()) {
             fopAc_ac_c* player = dComIfGp_getLinkPlayer();
 
             cXyz local_40 = player->current.pos - current.pos;

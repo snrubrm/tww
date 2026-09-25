@@ -447,6 +447,8 @@ BOOL daBeam_c::checkRange(csXyz* o_arg1) {
 }
 
 /* 000017EC-00001A10       .text move_search__8daBeam_cFv */
+// NONMATCHING - demo only: regalloc (this/sVar3/rodata base are r30/r29/r31 instead of r31/r30/r29; the rodata base needs
+// two fewer interferences). Source shape matches the demo debug map sizes (move_search, beamOn/beamOff/beamCheck).
 void daBeam_c::move_search() {
     csXyz sp18;
 
@@ -454,51 +456,16 @@ void daBeam_c::move_search() {
         s16 sVar3 = cLib_addCalcAngleS(&current.angle.x, sp18.x, 2, 0x400, 0);
         cLib_addCalcAngleS2(&current.angle.y, sp18.y, 4, 0x400);
 
-        if (abs(sVar3) < 0x400 && m5F4 == 0) {
-            if (!beamCheck()) {
-                beamOn();
-            }
-
-            if (m5F4 == 0) {
-                m5A8 = 0.0f;
-                if (m588 < 5.0f) {
-                    m588 += 1.0f;
-                } else {
-                    m5A8 = 0.0f;
-                    m588 = 5.0f;
-                    m5F4 = 1;
-                }
-            } else {
-                m5A8 = 0.0f;
-                m588 = 5.0f;
-            }
+        if (abs(sVar3) < 0x400 && !beamCheck()) {
+            beamOn();
         }
     } else {
-        if (m5F4 == 0 || m588 <= 0.4f) {
+        if (!beamCheck() || m588 <= 0.4f) {
             cLib_addCalcAngleS2(&current.angle.y, home.angle.y, 4, 0x400);
             cLib_addCalcAngleS2(&current.angle.x, home.angle.x, 4, 0x400);
         }
 
-        if (beamCheck()) {
-            beamOff();
-        }
-
-        if (m5F4 == 1) {
-            if (m588 < 5.0f) {
-                m588 += 1.0f;
-            }
-
-            if (m5A8 < 4.0f) {
-                m5A8 += 1.0f;
-            } else {
-                m5A8 = 0.0f;
-                m588 = 0.0f;
-                m5F4 = 0;
-            }
-        } else {
-            m588 = 0.0f;
-            m5A8 = 0.0f;
-        }
+        beamOff();
     }
 }
 
@@ -510,45 +477,9 @@ void daBeam_c::fix_search() {
 void daBeam_c::timer_change() {
     m5F6--;
     if (m5F6 > 0) {
-        if (m690 == NULL) {
-            m690 = dComIfGp_particle_set(dPa_name::ID_AK_SN_LASERROOT00, &current.pos);
-        }
-
-        if (m5F4 == 0) {
-            m5A8 = 0.0f;
-            if (m588 < 5.0f) {
-                m588 += 1.0f;
-            } else {
-                m5A8 = 0.0f;
-                m588 = 5.0f;
-                m5F4 = 1;
-            }
-        } else {
-            m5A8 = 0.0f;
-            m588 = 5.0f;
-        }
+        beamOn();
     } else {
-        if (m690 != NULL) {
-            m690->becomeInvalidEmitter();
-            m690 = NULL;
-        }
-
-        if (m5F4 == 1) {
-            if (m588 < 5.0f) {
-                m588 += 1.0f;
-            }
-
-            if (m5A8 < 4.0f) {
-                m5A8 += 1.0f;
-            } else {
-                m5A8 = 0.0f;
-                m588 = 0.0f;
-                m5F4 = 0;
-            }
-        } else {
-            m588 = 0.0f;
-            m5A8 = 0.0f;
-        }
+        beamOff();
 
         if (m5F6 < -30) {
             m5F6 = 60;
@@ -558,29 +489,9 @@ void daBeam_c::timer_change() {
 
 /* 00001BC0-00001C84       .text wait_proc__8daBeam_cFv */
 void daBeam_c::wait_proc() {
-    if (m690 != NULL) {
-        m690->becomeInvalidEmitter();
-        m690 = NULL;
-    }
+    beamOff();
 
-    if (m5F4 == 1) {
-        if (m588 < 5.0f) {
-            m588 += 1.0f;
-        }
-
-        if (m5A8 < 4.0f) {
-            m5A8 += 1.0f;
-        } else {
-            m5A8 = 0.0f;
-            m588 = 0.0f;
-            m5F4 = 0;
-        }
-    } else {
-        m588 = 0.0f;
-        m5A8 = 0.0f;
-    }
-
-    if (m5F4 == 0) {
+    if (!beamCheck()) {
         current.angle = home.angle;
     }
 }

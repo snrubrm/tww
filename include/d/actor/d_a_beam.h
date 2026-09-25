@@ -18,13 +18,54 @@ public:
     inline cPhs_State _create();
     inline bool _delete();
     inline bool _draw();
-    bool beamCheck() { return m690 != NULL; }
-    void beamOff() {
-        m690->becomeInvalidEmitter();
-        m690 = NULL;
+    BOOL beamCheck() { return m5F4; }
+    BOOL beamOff() {
+        if (m690 != NULL) {
+            m690->becomeInvalidEmitter();
+            m690 = NULL;
+        }
+
+        if (m5F4 == 1) {
+            if (m588 < 5.0f) {
+                m588 += 1.0f;
+            }
+
+            if (m5A8 < 4.0f) {
+                m5A8 += 1.0f;
+                return FALSE;
+            }
+
+            m5A8 = 0.0f;
+            m588 = 0.0f;
+            m5F4 = 0;
+        } else {
+            m588 = 0.0f;
+            m5A8 = 0.0f;
+        }
+
+        return TRUE;
     }
-    void beamOn() {
-        m690 = dComIfGp_particle_set(dPa_name::ID_AK_SN_LASERROOT00, &current.pos);
+    BOOL beamOn() {
+        if (m690 == NULL) {
+            m690 = dComIfGp_particle_set(dPa_name::ID_AK_SN_LASERROOT00, &current.pos);
+        }
+
+        if (m5F4 == 0) {
+            m5A8 = 0.0f;
+            if (m588 < 5.0f) {
+                m588 += 1.0f;
+                return FALSE;
+            }
+
+            m5A8 = 0.0f;
+            m588 = 5.0f;
+            m5F4 = 1;
+        } else {
+            m5A8 = 0.0f;
+            m588 = 5.0f;
+        }
+
+        return TRUE;
     }
     bool checkHFloorParticle() { return !(s32)m5F8; }
     bool checkSmokeParticle() { return !(s32)m5F9; }
