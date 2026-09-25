@@ -61,36 +61,39 @@ bool dNpc_JntCtrl_c::follow(s16* outY, s16 targetY, s16 maxVel, int param_4) {
 
 /* 8021A97C-8021AABC       .text move__14dNpc_JntCtrl_cFsi */
 bool dNpc_JntCtrl_c::move(s16 param_1, int param_2) {
+    // fakematch: `rest` (a copy of param_1), the separate loop counters (j declared after i) and the `ret` copy steer
+    // the demo register colouring (demo 97.56% -> 100%, debug-map size 420 = map); replaces the earlier (int) cast.
+    s16 rest = param_1;
     s16 angle;
     s32 angleL;
     s16 angles[2];
-    int r25;
     int i;
-    
-    for (i = 0; i < 2; i++) {
-        if ((i == 0 && mbHeadLock == true) || (i == 1 && mbBackBoneLock == true)) {
+    int r25;
+    int j;
+
+    for (j = 0; j < 2; j++) {
+        if ((j == 0 && mbHeadLock == true) || (j == 1 && mbBackBoneLock == true)) {
             angle = 0;
         } else {
-            angle = param_1;
+            angle = rest;
         }
-        // fakematch: the (int) conversion (a no-op, like the (int)angle below) changes the demo's register colouring
-        // of this/param_1 (demo 97.56% -> 98.81%; retail unchanged).
-        limitter(&angle, (int)mMaxAngles[i][param_2], mMinAngles[i][param_2]);
-        param_1 -= (int)angle;
-        angles[i] = angle;
-        angleL = mAngles[i][param_2];
-        s16 maxStep = mMaxTurnStep[i][param_2];
+        limitter(&angle, mMaxAngles[j][param_2], mMinAngles[j][param_2]);
+        rest -= (int)angle;
+        angles[j] = angle;
+        angleL = mAngles[j][param_2];
+        s16 maxStep = mMaxTurnStep[j][param_2];
         cLib_addCalcAngleL(&angleL, angle, 4, maxStep, 1);
-        mAngles[i][param_2] = angleL;
+        mAngles[j][param_2] = angleL;
     }
-    
+
     for (i = 0, r25 = 0; i < 2; i++) {
         if (cLib_distanceAngleS(angles[i], mAngles[i][param_2]) <= mMaxTurnStep[i][param_2]/2) {
             r25++;
         }
     }
-    
-    return r25 == i;
+
+    bool ret = r25 == i;
+    return ret;
 }
 
 /* 8021AABC-8021AC6C       .text lookAtTarget__14dNpc_JntCtrl_cFPsP4cXyz4cXyzssb */
