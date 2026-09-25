@@ -342,10 +342,11 @@ void dFlower_packet_c::draw() {
 
         dFlower_data_c* pNext = pRoom->getData();
         while(pNext) {
-            if(!cLib_checkBit<u8>(pNext->field_0x00, 0x4) && !cLib_checkBit<u8>(pNext->field_0x00, 0x20)) {
+            // fakematch: the (u8) conversions (no-ops on a u8 field) change the demo register colouring of this loop
+            if(!cLib_checkBit<u8>((u8)pNext->field_0x00, 0x4) && !cLib_checkBit<u8>((u8)pNext->field_0x00, 0x20)) {
                 GXLoadPosMtxImm(pNext->field_0x10, 0);
 
-                if(!cLib_checkBit<u8>(pNext->field_0x00, 0x8)) {
+                if(!cLib_checkBit<u8>((u8)pNext->field_0x00, 0x8)) {
                     GXCallDisplayList(l_OhanaDL, 0x100);
                 }
                 else {
