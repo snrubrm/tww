@@ -815,7 +815,8 @@ cSAngle dCamera_c::calcPeepAngle() {
         dBgS_CamLinChk_NorWtr lin_chk;
 
         if (lineBGCheck(&local_94, &local_a0, &lin_chk, 0x7f)) {
-            res = cSAngle::_90 + (cSGlobe(*dComIfG_Bgsp()->GetTriPla(lin_chk)->GetNP()).U() - directionOf(mpPlayerActor));
+            cXyz* normal = dComIfG_Bgsp()->GetTriPla(lin_chk)->GetNP();
+            res = cSAngle::_90 + (cSGlobe(*normal).U() - directionOf(mpPlayerActor));
         }
     }
     else if (check_owner_action(mPadId, daPyStts0_UNK40_e)) {
@@ -829,7 +830,8 @@ cSAngle dCamera_c::calcPeepAngle() {
         dBgS_CamLinChk_NorWtr lin_chk;
         
         if (lineBGCheck(&local_64, &local_70, &lin_chk, 0x7f)) {
-            res = cSAngle::_270 + (cSGlobe(*dComIfG_Bgsp()->GetTriPla(lin_chk)->GetNP()).U() - directionOf(mpPlayerActor));
+            cXyz* normal = dComIfG_Bgsp()->GetTriPla(lin_chk)->GetNP();
+            res = cSAngle::_270 + (cSGlobe(*normal).U() - directionOf(mpPlayerActor));
         }
     }
     return cSAngle(res);
