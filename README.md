@@ -31,7 +31,7 @@ are byte-identical and linked into the SHA1-checked binary):
 | `GZLE01` (USA) | 39,323 / 39,324 | 99.76% |
 | `GZLP01` (PAL) | 39,304 / 39,305 | 99.72% |
 | `GZLJ01` (JPN) | 39,256 / 39,258 | 99.39% |
-| `D44J01` (demo) | 39,246 / 39,273 | 87.70% |
+| `D44J01` (demo) | 39,253 / 39,273 | 88.99% |
 
 Dependencies
 ============
