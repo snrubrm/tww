@@ -3610,8 +3610,7 @@ bool dCamera_c::lockonCamera(s32 param_1) {
         work->m39D = 0;
     }
 
-    bool lockEdge = attn.chkFlag(AttnFlag_00000008) || attn.chkFlag(AttnFlag_00000020);
-    if (lockEdge) {
+    if (attn.LockEdge()) {
         m11C = 0;
         m108 = 0;
         clrFlag(0x100);
@@ -3800,8 +3799,8 @@ bool dCamera_c::lockonCamera(s32 param_1) {
             }
         }
         else {
-            if (local_25c.Val() < (iVar15 = local_258.Val())) {
-                f32 f1 = (f32)local_274.Val() / (f32)iVar15;
+            if (local_25c < local_258) {
+                f32 f1 = (f32)local_274.Val() / (f32)local_258.Val();
                 fVar22 = mCamParam.Val(param_1, dCamStyleParam_UNK21);
                 fVar21 = dCamMath::customRBRatio(-f1, fVar21);
                 dVar17 = fVar22 * fVar21;
