@@ -2200,12 +2200,7 @@ cSAngle dCamera_c::forwardCheckAngle() {
     cSAngle local_1bc;
     cXyz player_pos = positionOf(mpPlayerActor);
     
-    f32 player_height; // suprisingly the `heightOf` function wasn't used here
-    if (is_player(mpPlayerActor)) {
-        player_height = ((daPy_py_c*)mpPlayerActor)->getHeight();
-    } else {
-        player_height = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
-    }
+    f32 player_height = heightOf(mpPlayerActor);
 
     player_pos.y += player_height;
     cXyz cross;
