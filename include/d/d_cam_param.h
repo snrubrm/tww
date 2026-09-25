@@ -337,8 +337,8 @@ public:
     /* 0x0B4 */ f32 mChargeBRatio;
     /* 0x0B8 */ f32 mManualStartCThreshold;
     /* 0x0BC */ f32 mManualEndVal;
-    /* 0x0C0 */ f32 m0C0;
-    /* 0x0C4 */ f32 mLockonChangeCushion;
+    /* 0x0C0 */ f32 mFlowerMargin;
+    /* 0x0C4 */ f32 mGrassMargin;
     /* 0x0C8 */ int mLockonChangeTimer;
 
 public:
@@ -368,7 +368,8 @@ public:
     f32 VistaTrimHeight() { return mTrimVistaHeight; }
     f32 ForceLockOffTimer() { return mForceLockOffTimer; }
     f32 ForceLockOffDist() { return mForceLockOffDist; }
-    f32 LockonChangeCushion() { return mLockonChangeCushion; }
+    f32 FlowerMargin() { return mFlowerMargin; }
+    f32 GrassMargin() { return mGrassMargin; }
     int LockonChangeTimer() { return mLockonChangeTimer; }
     f32 Cushion4Base() { return mBaseCushion; }
     f32 Cushion4Jump() { return mJumpCushion; }

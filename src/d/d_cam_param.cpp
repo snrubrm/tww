@@ -352,8 +352,8 @@ dCamSetup_c::dCamSetup_c() {
     m080 = 10.0f;
     m084 = 4.0f;
 
-    m0C0 = 60.0f;
-    mLockonChangeCushion = 100.0f;
+    mFlowerMargin = 60.0f;
+    mGrassMargin = 100.0f;
     mLockonChangeTimer = -1;
 }
 

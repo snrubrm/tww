@@ -2659,14 +2659,7 @@ void dCamera_c::checkGroundInfo() {
     cXyz player_pos = positionOf(mpPlayerActor);
     cXyz gnd_chk_pos = player_pos;
 
-    f32 player_height; // suprisingly the `heightOf` function wasn't used here
-    if (is_player(mpPlayerActor)) {
-        player_height = ((daPy_py_c*)mpPlayerActor)->getHeight();
-    } else {
-        player_height = (mpPlayerActor->eyePos.y - mpPlayerActor->current.pos.y) * 1.1f;
-    }
-
-    player_pos.y += player_height;
+    player_pos.y += heightOf(mpPlayerActor);
 
     dBgS_RoofChk roof_chk;
     roof_chk.SetPos(gnd_chk_pos);
@@ -2826,10 +2819,10 @@ void dCamera_c::checkGroundInfo() {
     if (m360) {
         m364 = lineCollisionCheckBush(&pos1, &pos2) & 5;
         if (m364 & 4) {
-            m368 = mCamSetup.m0C0;
+            m368 = mCamSetup.FlowerMargin();
         }
         if (m364 & 1) {
-            m368 = mCamSetup.LockonChangeCushion();
+            m368 = mCamSetup.GrassMargin();
         }
         if (m364) {
             dComIfG_Ccsp()->GetMassCamTopPos(&m36C);
