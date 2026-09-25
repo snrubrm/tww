@@ -1022,7 +1022,9 @@ void daSea_packet_c::draw() {
         }
     }
 
-    if (getMaxZ() > getMinZ()) {
+    // fakematch: direct mDrawMaxZ/mDrawMinZ/mDrawMinX reads instead of getMaxZ()/getMinZ()/getMinX() fix the demo's
+    // load order here (demo 99.62 -> 99.86; retail unchanged). Moves the -O0 size toward the demo debug map (0x1648 -> 0x1634, map 0x14B0).
+    if (mDrawMaxZ > mDrawMinZ) {
         int temp_r26;
         int end = (getMaxZ() - getMinZ()) / 225000.0f;
         posZ = getMinZ();
@@ -1062,7 +1064,7 @@ void daSea_packet_c::draw() {
                 }
 
                 if (trunc) {
-                    texX = frac * getMinX();
+                    texX = frac * mDrawMinX;
                     GXPosition3f32(getMinX(), BASE_HEIGHT, posZ + 225000.0f);
 #if VERSION == VERSION_DEMO
                     GXTexCoord2f32(texX, texZ);
@@ -1095,7 +1097,7 @@ void daSea_packet_c::draw() {
                 }
 
                 if (trunc != 0) {
-                    texX = frac * getMinX();
+                    texX = frac * mDrawMinX;
                     GXPosition3f32(getMinX(), BASE_HEIGHT, getMaxZ());
                     GXTexCoord2f32(texX, texZ);
                     GXPosition3f32(getMinX(), BASE_HEIGHT, posZ);
