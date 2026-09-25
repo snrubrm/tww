@@ -10849,6 +10849,11 @@ void daPy_lk_c::checkFallCode() {
 
 /* 80120724-80120BBC       .text startRestartRoom__9daPy_lk_cFUlifi */
 BOOL daPy_lk_c::startRestartRoom(u32 mode, int eventInfoIdx, f32 param_3, int i_point) {
+    // fakematch: the demo (D44J01) needs mode/eventInfoIdx copied into locals once the stage type is known; the
+    // copies extend the g_dComIfG_gameInfo base's interference so it takes r31. Demo debug map size 0x3F8 is hit
+    // exactly with these two copies (0x3F0 without).
+    int idx;
+    u32 mode2;
     if (!checkNoResetFlg0(daPyFlg0_UNK4000) && (i_point != 0 || dComIfGp_event_compulsory(this))) {
         mDemo.setOriginalDemoType();
         if (i_point == 0) {
@@ -10866,6 +10871,8 @@ BOOL daPy_lk_c::startRestartRoom(u32 mode, int eventInfoIdx, f32 param_3, int i_
         }
 
         u32 stageType = dStage_stagInfo_GetSTType(dComIfGp_getStageStagInfo());
+        mode2 = mode;
+        idx = eventInfoIdx;
         setDamagePoint(param_3);
         mTinkleShieldTimer = 0;
 
@@ -10873,8 +10880,8 @@ BOOL daPy_lk_c::startRestartRoom(u32 mode, int eventInfoIdx, f32 param_3, int i_
             (current.roomNo == dIsleRoom_WindfallIsland_e || current.roomNo == dIsleRoom_OutsetIsland_e) &&
             dStage_chkPlayerId(0x80, current.roomNo))
         {
-            dComIfGp_setNextStage(dComIfGp_getStartStageName(), 0x80, fopAcM_GetRoomNo(this), -1, 0.0f, mode);
-            u32 roomParam = setParamData(-1, 0, eventInfoIdx, 0);
+            dComIfGp_setNextStage(dComIfGp_getStartStageName(), 0x80, fopAcM_GetRoomNo(this), -1, 0.0f, mode2);
+            u32 roomParam = setParamData(-1, 0, idx, 0);
             dComIfGs_setRestartRoomParam(roomParam);
             seStartSystem(JA_SE_FORCE_BACK);
             return TRUE;
@@ -10917,27 +10924,27 @@ BOOL daPy_lk_c::startRestartRoom(u32 mode, int eventInfoIdx, f32 param_3, int i_
                 int sector_num = (quad_z >> 1) * 7 + (quad_x >> 1);
                 int scls_idx = subsector_x + (sector_num << 2) + subsector_z;
 
-                dStage_changeScene(scls_idx, 0.0f, mode, -1);
+                dStage_changeScene(scls_idx, 0.0f, mode2, -1);
             } else {
                 if (mCurProc == daPyProc_DEMO_DEAD_e) {
-                    dStage_changeScene(0, 0.0f, mode, -1);
+                    dStage_changeScene(0, 0.0f, mode2, -1);
                 } else {
-                    u32 roomParam = setParamData(dComIfGs_getRestartRoomNo(), 0, eventInfoIdx, 0);
-                    dStage_restartRoom(roomParam, mode);
+                    u32 roomParam = setParamData(dComIfGs_getRestartRoomNo(), 0, idx, 0);
+                    dStage_restartRoom(roomParam, mode2);
                     seStartSystem(JA_SE_FORCE_BACK);
                 }
                 return TRUE;
             }
 #if VERSION > VERSION_DEMO
         } else if (checkNoResetFlg0(daPyFlg0_DEKU_SP_RETURN_FLG)) {
-            dComIfGp_setNextStage(dComIfGp_getStartStageName(), i_point, 41, -1, 0.0f, mode);
+            dComIfGp_setNextStage(dComIfGp_getStartStageName(), i_point, 41, -1, 0.0f, mode2);
 #endif
         } else {
-            dComIfGp_setNextStage(dComIfGp_getStartStageName(), i_point, fopAcM_GetRoomNo(this), -1, 0.0f, mode);
+            dComIfGp_setNextStage(dComIfGp_getStartStageName(), i_point, fopAcM_GetRoomNo(this), -1, 0.0f, mode2);
         }
 
         if (mCurProc != daPyProc_DEMO_DEAD_e) {
-            u32 roomParam = setParamData(-1, 0, eventInfoIdx, 0);
+            u32 roomParam = setParamData(-1, 0, idx, 0);
             dComIfGs_setRestartRoomParam(roomParam);
             seStartSystem(JA_SE_FORCE_BACK);
         }
