@@ -119,8 +119,8 @@ void daObjVds::Act_c::process_on_main() {
 /* 000004F4-000005C0       .text process_init__Q28daObjVds5Act_cFi */
 BOOL daObjVds::Act_c::process_init(int process) {
     typedef BOOL (Act_c::*InitFunc)();
-    static InitFunc init[] = {&Act_c::process_off_init, &Act_c::process_on_init};
-    if (process >= 0 && process < 2 && (this->*init[process])()) {
+    static InitFunc init_table[] = {&Act_c::process_off_init, &Act_c::process_on_init};
+    if (process >= 0 && process < 2 && (this->*init_table[process])()) {
         mProcess = process;
         return TRUE;
     }
@@ -130,8 +130,8 @@ BOOL daObjVds::Act_c::process_init(int process) {
 /* 000005C0-0000065C       .text process_main__Q28daObjVds5Act_cFv */
 void daObjVds::Act_c::process_main() {
     typedef void (Act_c::*MainFunc)();
-    static MainFunc main[] = {&Act_c::process_off_main, &Act_c::process_on_main};
-    if (mProcess >= 0 && mProcess < 2) (this->*main[mProcess])();
+    static MainFunc main_table[] = {&Act_c::process_off_main, &Act_c::process_on_main};
+    if (mProcess >= 0 && mProcess < 2) (this->*main_table[mProcess])();
 }
 
 /* 0000065C-000007EC       .text process_common__Q28daObjVds5Act_cFv */
@@ -157,8 +157,10 @@ void daObjVds::Act_c::process_common() {
         fopAc_ac_c* left = fopAcM_SearchByID(mSwitchId[0]);
         fopAc_ac_c* right = fopAcM_SearchByID(mSwitchId[1]);
         if (left != NULL && right != NULL) {
-            create_point_light(0, &left->current.pos);
-            create_point_light(1, &right->current.pos);
+            fopAc_ac_c* actor = left;
+            create_point_light(0, &actor->current.pos);
+            actor = right;
+            create_point_light(1, &actor->current.pos);
             mLightState = 2;
         }
         break;
