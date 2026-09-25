@@ -730,9 +730,7 @@ BOOL daObjMknjD::Act_c::Execute(Mtx** i_mtx) {
 #if VERSION > VERSION_DEMO
                 s16 rotDiff = cM_atan2s(partnerDiff.x, partnerDiff.z) - current.angle.y;
 #endif
-                f32 absXZ = partnerDiff.absXZ();
-
-                if (absXZ < 800.0f
+                if (partnerDiff.absXZ() < 800.0f
 #if VERSION > VERSION_DEMO
                     && (rotDiff < -0x4000 || rotDiff > 0x4000)
 #endif
@@ -763,9 +761,7 @@ BOOL daObjMknjD::Act_c::Execute(Mtx** i_mtx) {
 #endif
                     
                     cXyz diff = player->current.pos - partner->current.pos;
-                    f32 absXZ = diff.absXZ();
-
-                    if ((absXZ < 800.0f)
+                    if ((diff.absXZ() < 800.0f)
 #if VERSION > VERSION_DEMO
                         && ((rotDiff < -0x4000) || (rotDiff > 0x4000))
 #endif
@@ -773,8 +769,7 @@ BOOL daObjMknjD::Act_c::Execute(Mtx** i_mtx) {
                         fopAcM_orderChangeEventId(this, mDemoEventIdx, 0, 0xFFFF);
                         dComIfGs_onEventBit(m0430);
 
-                        s16 procMedli = fpcNm_NPC_MD_e;
-                        void* judgeResult = fopAcIt_Judge(fpcSch_JudgeForPName, &procMedli);
+                        fopAc_ac_c* judgeResult = fopAcM_SearchByName(fpcNm_NPC_MD_e);
 
                         if (judgeResult != NULL) {
                             dComIfGp_event_setTalkPartner(judgeResult);
