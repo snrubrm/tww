@@ -4807,8 +4807,9 @@ static cPhs_State daBk_Create(fopAc_ac_c* i_actor) {
         );
         
         J3DModel* model = i_this->mpMorf->getModel();
+        s32 r3;
         for (u16 i = 0; i < model->getModelData()->getJointNum(); i++) {
-            s32 r3 = (s8)joint_check[i];
+            r3 = joint_check[i];
             if (r3 < 0) {
                 continue;
             }
